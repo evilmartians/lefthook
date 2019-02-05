@@ -1,0 +1,7 @@
+.vscode/
+.hookah-local/
+.hookah/
+hookah-local.yml
+hookah.yml
+
+tmp/
