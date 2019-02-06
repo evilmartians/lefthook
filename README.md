@@ -1,3 +1,5 @@
+![Build Status](https://api.travis-ci.org/Arkweid/hookah.svg?branch=master)
+
 # Hookah
 
 Hookah it`s a simple manager of git hooks.
