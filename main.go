@@ -1,6 +1,6 @@
 package main
 
-import "hookah/cmd"
+import "github.com/Arkweid/hookah/cmd"
 
 func main() {
 	cmd.Execute()
