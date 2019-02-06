@@ -1,0 +1,2 @@
+#!/bin/sh
+exec hookah run pre-push
