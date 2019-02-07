@@ -85,7 +85,7 @@ Done! Now our script will be executed like this:
 go run any.go
 ```
 
-### I clone the existed repo whick uses hookah. How can I setup hooks?
+### I clone the existed repo which use hookah. How can I setup hooks?
 
 We suppose repo already have the hookah structure. So all of you need it run install:
 
@@ -93,3 +93,13 @@ We suppose repo already have the hookah structure. So all of you need it run ins
 hookah install
 ```
 Hookah wiil read existed hook groups and reproduce hooks in `.git/hooks` directory.
+
+### How can I run my linter against only modified files?
+
+No problem. Lets take `rubocop` linter for ruby as example:
+
+```bash
+#!/bin/sh
+
+git ls-files -m | xargs rubocop
+```
