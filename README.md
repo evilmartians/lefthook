@@ -103,3 +103,36 @@ No problem. Lets take `rubocop` linter for ruby as example:
 
 git ls-files -m | xargs rubocop
 ```
+
+### I dont like bash. Give me working example for golang
+
+Ok-ok! This is how `any.go` may looks like:
+
+```go
+package main
+
+import (
+  "fmt"
+  "os"
+  "os/exec"
+  "strings"
+  
+  "github.com/Arkweid/hookah/context"
+)
+
+func main() {
+  files, _ := context.StagedFiles()
+  files = context.FilterByExt(files, ".rb")
+
+  cmd := exec.Command("rubocop", strings.Join(files, " "))
+
+  outputBytes, err := cmd.CombinedOutput()
+
+  fmt.Println(string(outputBytes))
+
+  if err != nil {
+    os.Exit(1)
+  }
+}
+```
+We include context package only for convenience. It`s just few useful functions.
