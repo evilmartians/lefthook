@@ -5,3 +5,5 @@
 /hookah.yml
 
 tmp/
+dist/
+.goreleaser.yml
