@@ -52,10 +52,10 @@ func addHook(hookName string, fs afero.Fs) {
 
 	if yes, _ := afero.Exists(fs, pathToFile); yes {
 		if yes, _ := afero.Exists(fs, pathToFile+".old"); yes {
-			panic("Can`t rename " + hookName + "to" + hookName + ".old File already exists")
+			panic("Can`t rename " + hookName + " to " + hookName + ".old File already exists")
 		}
 		e := fs.Rename(pathToFile, pathToFile+".old")
-		log.Println("Existed pre-commit hook renamed to pre-commit.old")
+		log.Println("Existed " + hookName + " hook renamed to " + hookName + ".old")
 		check(e)
 	}
 
