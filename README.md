@@ -17,9 +17,14 @@ Add Hookah to your system or build it from sources.
 go get github.com/Arkweid/hookah
 ```
 
-You can install it from snap:
+### snap
 ```bash
 sudo snap install --devmode hookah
+```
+
+### brew
+```bash
+brew install Arkweid/hookah/hookah
 ```
 
 Or take it from [binaries](https://github.com/Arkweid/hookah/releases) and install manualy

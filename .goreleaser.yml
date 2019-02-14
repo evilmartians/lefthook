@@ -1,0 +1,67 @@
+before:
+  hooks:
+    - go generate ./...
+builds:
+- env:
+  - CGO_ENABLED=0
+  goos:
+    - linux
+    - darwin
+    - windows
+archive:
+  replacements:
+    windows: Windows
+    darwin: MacOS
+    linux: Linux
+    386: i386
+    amd64: x86_64
+  format_overrides:
+  - goos: windows
+    format: zip
+checksum:
+  name_template: '{{ .ProjectName }}_checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
+    - '^spec:'
+    - '^tmp:'
+    - '^context:'
+
+brew:
+  github:
+    owner: Arkweid
+    name: homebrew-hookah
+  homepage: "https://github.com/Arkweid/hookah"
+  description: "Simple git hooks manager"
+  folder: Formula
+  test: |
+    system "#{bin}/hookah -v"
+
+snapcraft:
+  name_template: '{{ .ProjectName }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+  summary: For rule your git hooks
+  description: |
+    Simple git hooks manager.
+  grade: stable
+  confinement: strict
+  publish: true
+
+nfpm:
+  name_template: '{{ .ProjectName }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+  homepage:  https://github.com/Arkweid/hookah
+  description: Simple git hooks manager
+  maintainer: Alexander Abroskin <arkweid@evilmartians.com>
+  license: MIT
+  vendor: Arkweid
+  formats:
+  - deb
+  - rpm
+  dependencies:
+  - git
+  recommends:
+  - rpm
