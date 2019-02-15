@@ -7,14 +7,23 @@ Hookah it`s a simple manager of git hooks.
 <a href="https://evilmartians.com/?utm_source=hookah">
 <img src="https://evilmartians.com/badges/sponsored-by-evil-martians.svg" alt="Sponsored by Evil Martians" width="236" height="54"></a>
 
-[![asciicast](https://asciinema.org/a/8KSu1ube3jFOYXeYDSBfIuY8m.svg)](https://asciinema.org/a/8KSu1ube3jFOYXeYDSBfIuY8m)
+[![asciicast](https://asciinema.org/a/rupBzaCqin2n3qGlNFM9Agm7f.svg)](https://asciinema.org/a/rupBzaCqin2n3qGlNFM9Agm7f)
 
 ## Installation
 
 Add Hookah to your system or build it from sources.
 
-```go
+### go
+```bash
 go get github.com/Arkweid/hookah
+```
+
+### npm
+```bash
+npm i @arkweid/hookah-js --save
+
+# Now you can call it:
+npx hookah -h
 ```
 
 ### snap
