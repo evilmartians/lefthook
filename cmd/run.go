@@ -57,7 +57,11 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 	executables, err := afero.ReadDir(fs, sourcePath)
 	check(err)
 
-	log.Println(aurora.Bold("Running " + getHooksGroup() + " hooks"))
+	if len(executables) == 0 {
+		log.Println(aurora.Cyan("RUNNING HOOKS GROUP:"), aurora.Bold(getHooksGroup()), aurora.Brown("(SKIP EMPTY)"))
+	} else {
+		log.Println(aurora.Cyan("RUNNING HOOKS GROUP:"), aurora.Bold(getHooksGroup()))
+	}
 
 	for _, executable := range executables {
 		execute(sourcePath, executable)
@@ -66,7 +70,11 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 	sourcePath = filepath.Join(getLocalSourceDir(), getHooksGroup())
 	executables, err = afero.ReadDir(fs, sourcePath)
 	if err == nil {
-		log.Println(aurora.Bold("Running local " + getHooksGroup() + " hooks"))
+		if len(executables) == 0 {
+			log.Println(aurora.Cyan("RUNNING LOCAL HOOKS GROUP:"), aurora.Bold(getHooksGroup()), aurora.Brown("(SKIP EMPTY)"))
+		} else {
+			log.Println(aurora.Cyan("RUNNING LOCAL HOOKS GROUP:"), aurora.Bold(getHooksGroup()))
+		}
 
 		for _, executable := range executables {
 			execute(sourcePath, executable)
@@ -84,7 +92,7 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 func execute(source string, executable os.FileInfo) {
 	setExecutableName(executable.Name())
 
-	log.Println(aurora.Bold("Execute " + getExecutableName()))
+	log.Println(aurora.Cyan("  EXECUTE >"), aurora.Bold(getExecutableName()))
 
 	pathToExecutable := filepath.Join(source, getExecutableName())
 
@@ -146,11 +154,17 @@ func getExecutableName() string {
 }
 
 func printSummary() {
-	for _, fileName := range failList {
-		log.Printf("[ %s ] %s\n", aurora.Red("FAIL"), fileName)
+	if len(okList) == 0 && len(failList) == 0 {
+		log.Println(aurora.Cyan("\nSUMMARY:"), aurora.Brown("(SKIP EMPTY)"))
+	} else {
+		log.Println(aurora.Cyan("\nSUMMARY:"))
 	}
 
 	for _, fileName := range okList {
-		log.Printf("[ %s ] %s\n", aurora.Green("OK"), fileName)
+		log.Printf("[  %s  ] %s\n", aurora.Green("OK"), fileName)
+	}
+
+	for _, fileName := range failList {
+		log.Printf("[ %s ] %s\n", aurora.Red("FAIL"), fileName)
 	}
 }

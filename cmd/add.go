@@ -20,15 +20,15 @@ hookah add pre-commit
 
 This command will try to build the foolowing structure in repository:
 ├───.git
-│	└───hooks
-│		└───pre-commit // this executable will be added. Existed file with
-│					   // same name will be renamed to pre-commit.old
+│   └───hooks
+│       └───pre-commit // this executable will be added. Existed file with
+│                      // same name will be renamed to pre-commit.old
 ...
 │
 ├───.hookah            // directory for project level hooks
-│	└───pre-commit	   // directory with hooks executables
+│   └───pre-commit     // directory with hooks executables
 ├───.hookah-local      // directory for personal hooks add it in .gitignore
-│	└───pre-commit
+│   └───pre-commit
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		addCmdExecutor(args, appFs)
@@ -46,7 +46,13 @@ func addCmdExecutor(args []string, fs afero.Fs) {
 }
 
 func addHook(hookName string, fs afero.Fs) {
-	template := "#!/bin/sh\nexec hookah run " + hookName
+	// TODO: text/template
+	template := `#!/bin/bash
+# If can't find hookah in global scope
+# we suppose it in local npm package
+if ! type hookah 2>/dev/null
+then
+  exec npx hookah run ` + hookName + "\nelse\n  exec hookah run " + hookName + "\nfi"
 
 	pathToFile := filepath.Join(getGitHooksDir(), hookName)
 

@@ -89,16 +89,6 @@ func TestAddCmdExecutor(t *testing.T) {
 	assert.Equal(t, expectedDirs, actualDirs, "Haven`t renamed file with .old extension")
 }
 
-// TODO: little tricky to call exec.Command with virtual file system
-// func TestRunCmdExecutor(t *testing.T) {
-// 	fs := afero.NewMemMapFs()
-// 	presetConfig(fs)
-// 	presetExecutable("fail_script", "pre-commit", "1", fs)
-
-// 	err := RunCmdExecutor([]string{"pre-commit"}, fs)
-// 	assert.Error(t, err)
-// }
-
 func presetConfig(fs afero.Fs) {
 	viper.SetDefault(configSourceDirKey, ".hookah")
 
