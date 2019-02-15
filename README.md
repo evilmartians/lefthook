@@ -18,13 +18,16 @@ Add Hookah to your system or build it from sources.
 go get github.com/Arkweid/hookah
 ```
 
-### npm
+### npm and yarn
 ```bash
-npm i @arkweid/hookah-js --save
+npm i @arkweid/hookah-js --save-dev
+# or yarn:
+yarn add -D @arkweid/hookah-js
 
 # Now you can call it:
 npx hookah -h
 ```
+NOTE: if you install it this way you should call it with `npx` for all listed examples below.
 
 ### snap
 ```bash
@@ -68,6 +71,25 @@ Next fill the directory `.hookah/pre-commit` with executables you like
 │   └───pre-commit
 │       ├─── fail_script
 │       └─── ok_script
+```
+
+Example:
+```bash
+cat > .hookah/pre-commit/fail_script
+
+#!/bin/sh
+exit 1
+
+cat > .hookah/pre-commit/ok_script
+
+#!/bin/sh
+exit 0
+
+# Mark it as executables:
+chmod +x -R .hookah
+
+# Now we can commit:
+git commit -am "It fail"
 ```
 
 Done! Pretty simple, huh?
