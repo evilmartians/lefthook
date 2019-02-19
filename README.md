@@ -120,7 +120,7 @@ pre-commit:
   commands:
     eslint:
       include: ".js|.ts"
-      exclude: ".css"
+      exclude: ".json"
       runner: yarn eslint {files} # {files} will be replaced by matched files as arguments
     rubocop:
       include: ".rb"
