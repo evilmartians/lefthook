@@ -94,6 +94,57 @@ git commit -am "It fail"
 
 Done! Pretty simple, huh?
 
+### Complete example
+`hookah.yml`
+```yml
+source_dir: ".hookah"
+source_dir_local: ".hookah-local"
+
+pre-commit:
+  # Specify additional parameters for script files
+  scripts:
+    "hello.js":
+      runner: node
+    "any.go":
+      runner: go run
+
+  # Describe what files will be placed in runner command
+  # Default: git_staged
+  # Available: all, git_staged, none
+  files: git_staged
+
+  # If nothing was found - skip command
+  # Default: true
+  skip_empty: true
+
+  commands:
+    eslint:
+      include: ".js|.ts"
+      exclude: ".css"
+      runner: yarn eslint {files} # {files} will be replaced by matched files as arguments
+    rubocop:
+      include: ".rb"
+      exclude: "spec"
+      runner: bundle exec rubocop {files}
+    audit:
+      runner: bundle audit
+      skip_empty: false
+```
+If your team have backend and frontend developers, you can skip unnsecesary hooks this way:
+`hookah-local.yml`
+```yml
+pre-commit:
+  # I am fronted developer. Skip all this backend stuff!
+  scripts:
+    "any.go":
+      skip: true
+  commands:
+    rubocop:
+      skip: true
+    audit:
+      skip: true
+```
+
 ### I want to run hook groups directly!
 
 No problem, hookah have command for that:
@@ -119,8 +170,7 @@ Next customize the `any.go` script:
 ```yaml
 pre-commit:
   "any.go":
-    runner: "go"
-    runner_args: "run"
+    runner: "go run"
 ```
 
 Done! Now our script will be executed like this:
@@ -179,3 +229,9 @@ func main() {
 }
 ```
 We include context package only for convenience. It`s just few useful functions.
+
+### Uninstall
+
+```bash
+hookah uninstall
+```

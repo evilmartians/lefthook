@@ -20,6 +20,19 @@ func StagedFiles() ([]string, error) {
 	return ExtractFiles(lines)
 }
 
+func AllFiles() ([]string, error) {
+	cmd := exec.Command("git", "ls-files", "--cached")
+
+	outputBytes, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, err
+	}
+
+	lines := strings.Split(string(outputBytes), "\n")
+
+	return ExtractFiles(lines)
+}
+
 func FilterByExt(files []string, ext string) []string {
 	filtred := make([]string, 0)
 

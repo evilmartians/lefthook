@@ -2,10 +2,12 @@ package cmd
 
 import (
 	"errors"
+	"hookah/context"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/logrusorgru/aurora"
@@ -25,6 +27,14 @@ var (
 const (
 	runnerConfigKey     string = "runner"
 	runnerArgsConfigKey string = "runner_args"
+	scriptsConfigKey    string = "scripts"
+	commandsConfigKey   string = "commands"
+	includeConfigKey    string = "include"
+	excludeConfigKey    string = "exclude"
+	skipConfigKey       string = "skip"
+	skipEmptyConfigKey  string = "skip_empty"
+	filesConfigKey      string = "files"
+	subFiles            string = "{files}"
 )
 
 // runCmd represents the run command
@@ -55,29 +65,30 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 
 	sourcePath := filepath.Join(getSourceDir(), getHooksGroup())
 	executables, err := afero.ReadDir(fs, sourcePath)
-	check(err)
-
-	if len(executables) == 0 {
-		log.Println(aurora.Cyan("RUNNING HOOKS GROUP:"), aurora.Bold(getHooksGroup()), aurora.Brown("(SKIP EMPTY)"))
-	} else {
+	if err == nil && len(executables) > 0 {
 		log.Println(aurora.Cyan("RUNNING HOOKS GROUP:"), aurora.Bold(getHooksGroup()))
-	}
 
-	for _, executable := range executables {
-		execute(sourcePath, executable)
+		for _, executable := range executables {
+			executeScript(sourcePath, executable)
+		}
 	}
 
 	sourcePath = filepath.Join(getLocalSourceDir(), getHooksGroup())
 	executables, err = afero.ReadDir(fs, sourcePath)
-	if err == nil {
-		if len(executables) == 0 {
-			log.Println(aurora.Cyan("RUNNING LOCAL HOOKS GROUP:"), aurora.Bold(getHooksGroup()), aurora.Brown("(SKIP EMPTY)"))
-		} else {
-			log.Println(aurora.Cyan("RUNNING LOCAL HOOKS GROUP:"), aurora.Bold(getHooksGroup()))
-		}
+	if err == nil && len(executables) > 0 {
+		log.Println(aurora.Cyan("RUNNING LOCAL HOOKS GROUP:"), aurora.Bold(getHooksGroup()))
 
 		for _, executable := range executables {
-			execute(sourcePath, executable)
+			executeScript(sourcePath, executable)
+		}
+	}
+
+	commands := getCommands()
+	if len(commands) != 0 {
+		log.Println(aurora.Cyan("RUNNING COMMANDS HOOKS GROUP:"), aurora.Bold(getHooksGroup()))
+
+		for commandName := range commands {
+			executeCommand(commandName)
 		}
 	}
 
@@ -89,30 +100,49 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 	return errors.New("Have failed script")
 }
 
-func execute(source string, executable os.FileInfo) {
-	setExecutableName(executable.Name())
+func executeCommand(commandName string) {
+	setExecutableName(commandName)
 
-	log.Println(aurora.Cyan("  EXECUTE >"), aurora.Bold(getExecutableName()))
-
-	pathToExecutable := filepath.Join(source, getExecutableName())
-
-	command := exec.Command(pathToExecutable)
-
-	if haveRunner() {
-		command = exec.Command(
-			getRunner(),
-			getRunnerArgs(),
-			pathToExecutable,
-		)
+	var files []string
+	switch getCommandFiles() {
+	case "git_staged":
+		files, _ = context.StagedFiles()
+	case "all":
+		files, _ = context.AllFiles()
+	case "none":
+		files = []string{}
+	default:
+		files = []string{}
 	}
+	files = FilterInclude(files, getCommandIncludeRegexp())
+	files = FilterExclude(files, getCommandExcludeRegexp())
+
+	runner := strings.Replace(getRunner(commandsConfigKey), subFiles, strings.Join(files, " "), -1)
+	runnerArg := strings.Split(runner, " ")
+
+	command := exec.Command(runnerArg[0], runnerArg[1:]...)
 
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	command.Stdin = os.Stdin
 
-	command.Start()
+	log.Println(aurora.Cyan("  EXECUTE >"), aurora.Bold(getExecutableName()))
 
-	err := command.Wait()
+	if isSkipCommmand() {
+		log.Println(aurora.Brown("(SKIP BY SETTINGS)"))
+		return
+	}
+	if len(files) < 1 && isSkipEmptyCommmand() {
+		log.Println(aurora.Brown("(SKIP. NO FILES FOR INSPECTING)"))
+		return
+	}
+
+	err := command.Start()
+	if err != nil {
+		log.Println(err)
+	}
+
+	err = command.Wait()
 	if err == nil {
 		okList = append(okList, getExecutableName())
 	} else {
@@ -120,20 +150,57 @@ func execute(source string, executable os.FileInfo) {
 	}
 }
 
-func haveRunner() (out bool) {
-	if runner := getRunner(); runner != "" {
+func executeScript(source string, executable os.FileInfo) {
+	setExecutableName(executable.Name())
+
+	log.Println(aurora.Cyan("  EXECUTE >"), aurora.Bold(getExecutableName()))
+
+	if isSkipScript() {
+		log.Println(aurora.Brown("(SKIP BY SETTINGS)"))
+		return
+	}
+
+	pathToExecutable := filepath.Join(source, getExecutableName())
+
+	command := exec.Command(pathToExecutable)
+
+	if haveRunner(scriptsConfigKey) {
+		runnerArg := strings.Split(getRunner(scriptsConfigKey), " ")
+		runnerArg = append(runnerArg, pathToExecutable)
+
+		command = exec.Command(runnerArg[0], runnerArg[1:]...)
+	}
+
+	command.Stdout = os.Stdout
+	command.Stderr = os.Stderr
+	command.Stdin = os.Stdin
+
+	err := command.Start()
+	if os.IsPermission(err) {
+		log.Println(aurora.Brown("(SKIP NOT EXECUTABLE FILE)"))
+		return
+	}
+	if err != nil {
+		log.Println(err)
+	}
+
+	err = command.Wait()
+	if err == nil {
+		okList = append(okList, getExecutableName())
+	} else {
+		failList = append(failList, getExecutableName())
+	}
+}
+
+func haveRunner(source string) (out bool) {
+	if runner := getRunner(source); runner != "" {
 		out = true
 	}
 	return
 }
 
-func getRunner() string {
-	key := strings.Join([]string{getHooksGroup(), getExecutableName(), runnerConfigKey}, ".")
-	return viper.GetString(key)
-}
-
-func getRunnerArgs() string {
-	key := strings.Join([]string{getHooksGroup(), getExecutableName(), runnerArgsConfigKey}, ".")
+func getRunner(source string) string {
+	key := strings.Join([]string{getHooksGroup(), source, getExecutableName(), runnerConfigKey}, ".")
 	return viper.GetString(key)
 }
 
@@ -167,4 +234,85 @@ func printSummary() {
 	for _, fileName := range failList {
 		log.Printf("[ %s ] %s\n", aurora.Red("FAIL"), fileName)
 	}
+}
+
+func isSkipScript() bool {
+	key := strings.Join([]string{getHooksGroup(), scriptsConfigKey, getExecutableName(), skipConfigKey}, ".")
+	return viper.GetBool(key)
+}
+
+func isSkipCommmand() bool {
+	key := strings.Join([]string{getHooksGroup(), commandsConfigKey, getExecutableName(), skipConfigKey}, ".")
+	return viper.GetBool(key)
+}
+
+func isSkipEmptyCommmand() bool {
+	key := strings.Join([]string{getHooksGroup(), commandsConfigKey, getExecutableName(), skipEmptyConfigKey}, ".")
+	if viper.IsSet(key) {
+		return viper.GetBool(key)
+	}
+
+	key = strings.Join([]string{getHooksGroup(), skipEmptyConfigKey}, ".")
+	if viper.IsSet(key) {
+		return viper.GetBool(key)
+	}
+
+	return true
+}
+
+func getCommands() map[string]interface{} {
+	key := strings.Join([]string{getHooksGroup(), commandsConfigKey}, ".")
+	return viper.GetStringMap(key)
+}
+
+func getCommandIncludeRegexp() string {
+	key := strings.Join([]string{getHooksGroup(), commandsConfigKey, getExecutableName(), includeConfigKey}, ".")
+	return viper.GetString(key)
+}
+
+func getCommandExcludeRegexp() string {
+	key := strings.Join([]string{getHooksGroup(), commandsConfigKey, getExecutableName(), excludeConfigKey}, ".")
+	return viper.GetString(key)
+}
+
+func getCommandFiles() string {
+	key := strings.Join([]string{getHooksGroup(), commandsConfigKey, getExecutableName(), filesConfigKey}, ".")
+	if viper.GetString(key) != "" {
+		return viper.GetString(key)
+	}
+
+	key = strings.Join([]string{getHooksGroup(), filesConfigKey}, ".")
+	if viper.GetString(key) != "" {
+		return viper.GetString(key)
+	}
+
+	return "git_staged"
+}
+
+func FilterInclude(vs []string, matcher string) []string {
+	if matcher == "" {
+		return vs
+	}
+
+	vsf := make([]string, 0)
+	for _, v := range vs {
+		if res, _ := regexp.MatchString(matcher, v); res {
+			vsf = append(vsf, v)
+		}
+	}
+	return vsf
+}
+
+func FilterExclude(vs []string, matcher string) []string {
+	if matcher == "" {
+		return vs
+	}
+
+	vsf := make([]string, 0)
+	for _, v := range vs {
+		if res, _ := regexp.MatchString(matcher, v); !res {
+			vsf = append(vsf, v)
+		}
+	}
+	return vsf
 }
