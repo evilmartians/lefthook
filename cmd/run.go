@@ -112,7 +112,6 @@ func executeCommand(commandName string) {
 	setExecutableName(commandName)
 
 	var files []string
-
 	switch getCommandFiles() {
 	case "staged":
 		files, _ = context.StagedFiles()

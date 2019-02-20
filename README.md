@@ -85,9 +85,6 @@ cat > .hookah/pre-commit/ok_script
 #!/bin/sh
 exit 0
 
-# Mark it as executables:
-chmod +x -R .hookah
-
 # Now we can commit:
 git commit -am "It fail"
 ```
@@ -108,41 +105,39 @@ pre-commit:
     "any.go":
       runner: go run
 
-  # Describe what files will be placed in runner command
-  # Default: git_staged
-  # Available: all, git_staged, none
-  files: git_staged
-
-  # If nothing was found - skip command
-  # Default: true
-  skip_empty: true
-
   commands:
     eslint:
-      include: ".js|.ts"
-      exclude: ".json"
-      runner: yarn eslint {files} # {files} will be replaced by matched files as arguments
+      glob: "*.{js,ts}"
+      runner: yarn eslint {staged_files} # {files} will be replaced by matched files as arguments
     rubocop:
-      include: ".rb"
-      exclude: "spec"
-      runner: bundle exec rubocop {files}
-    audit:
-      runner: bundle audit
-      skip_empty: false
+      tags: backend style
+      glob: "*.{rb}"
+      exclude: "application.rb|routes.rb" # simple regexp for more flexibility
+      runner: bundle exec rubocop {all_files}
+
+pre-push:
+  # Describe what files will be placed in runner command
+  # Default: staged
+  # Available: all, staged, none
+  files: all
+
+  audit:
+    runner: bundle audit
 ```
 If your team have backend and frontend developers, you can skip unnsecesary hooks this way:
 `hookah-local.yml`
 ```yml
 pre-commit:
   # I am fronted developer. Skip all this backend stuff!
+  exclude_tags:
+    - backend
+
   scripts:
     "any.go":
-      skip: true
+      runner: docker exec -it <container_id_or_name> {cmd} # Wrap command from hookah.yml in docker
   commands:
-    rubocop:
-      skip: true
     audit:
-      skip: true
+      skip: true # You can also skip command with this option
 ```
 
 ### I want to run hook groups directly!
