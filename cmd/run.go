@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"strings"
 
+	arrop "github.com/adam-hanna/arrayOperations"
 	"github.com/gobwas/glob"
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/afero"
@@ -26,19 +27,21 @@ var (
 )
 
 const (
-	runnerConfigKey     string      = "runner"
-	runnerArgsConfigKey string      = "runner_args"
-	scriptsConfigKey    string      = "scripts"
-	commandsConfigKey   string      = "commands"
-	includeConfigKey    string      = "include"
-	excludeConfigKey    string      = "exclude"
-	globConfigKey       string      = "glob"
-	skipConfigKey       string      = "skip"
-	skipEmptyConfigKey  string      = "skip_empty"
-	filesConfigKey      string      = "files"
-	subFiles            string      = "{files}"
-	runnerWrapPattern   string      = "{cmd}"
-	execMode            os.FileMode = 0751
+	runnerConfigKey      string      = "runner"
+	runnerArgsConfigKey  string      = "runner_args"
+	scriptsConfigKey     string      = "scripts"
+	commandsConfigKey    string      = "commands"
+	includeConfigKey     string      = "include"
+	excludeConfigKey     string      = "exclude"
+	globConfigKey        string      = "glob"
+	skipConfigKey        string      = "skip"
+	skipEmptyConfigKey   string      = "skip_empty"
+	filesConfigKey       string      = "files"
+	subFiles             string      = "{files}"
+	runnerWrapPattern    string      = "{cmd}"
+	tagsConfigKey        string      = "tags"
+	excludeTagsConfigKey string      = "exclude_tags"
+	execMode             os.FileMode = 0751
 )
 
 // runCmd represents the run command
@@ -137,6 +140,10 @@ func executeCommand(commandName string) {
 		log.Println(aurora.Brown("(SKIP BY SETTINGS)"))
 		return
 	}
+	if result, _ := arrop.Intersect(getExcludeTags(), getTags(commandsConfigKey)); len(result.Interface().([]string)) > 0 {
+		log.Println(aurora.Brown("(SKIP BY TAGS)"))
+		return
+	}
 	if len(files) < 1 && isSkipEmptyCommmand() {
 		log.Println(aurora.Brown("(SKIP. NO FILES FOR INSPECTING)"))
 		return
@@ -162,6 +169,10 @@ func executeScript(source string, executable os.FileInfo) {
 
 	if isSkipScript() {
 		log.Println(aurora.Brown("(SKIP BY SETTINGS)"))
+		return
+	}
+	if result, _ := arrop.Intersect(getExcludeTags(), getTags(scriptsConfigKey)); len(result.Interface().([]string)) > 0 {
+		log.Println(aurora.Brown("(SKIP BY TAGS)"))
 		return
 	}
 
@@ -315,6 +326,16 @@ func getCommandFiles() string {
 	}
 
 	return "git_staged"
+}
+
+func getTags(source string) []string {
+	key := strings.Join([]string{getHooksGroup(), source, getExecutableName(), tagsConfigKey}, ".")
+	return strings.Split(viper.GetString(key), " ")
+}
+
+func getExcludeTags() []string {
+	key := strings.Join([]string{getHooksGroup(), excludeTagsConfigKey}, ".")
+	return viper.GetStringSlice(key)
 }
 
 func FilterGlob(vs []string, matcher string) []string {
