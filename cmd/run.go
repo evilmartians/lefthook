@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/gobwas/glob"
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
@@ -31,6 +32,7 @@ const (
 	commandsConfigKey   string      = "commands"
 	includeConfigKey    string      = "include"
 	excludeConfigKey    string      = "exclude"
+	globConfigKey       string      = "glob"
 	skipConfigKey       string      = "skip"
 	skipEmptyConfigKey  string      = "skip_empty"
 	filesConfigKey      string      = "files"
@@ -115,7 +117,8 @@ func executeCommand(commandName string) {
 	default:
 		files = []string{}
 	}
-	files = FilterInclude(files, getCommandIncludeRegexp())
+	files = FilterGlob(files, getCommandGlobRegexp())
+	files = FilterInclude(files, getCommandIncludeRegexp()) // NOTE: confusing option, suppose delete it
 	files = FilterExclude(files, getCommandExcludeRegexp())
 
 	runner := strings.Replace(getRunner(commandsConfigKey), subFiles, strings.Join(files, " "), -1)
@@ -251,6 +254,7 @@ func isSkipCommmand() bool {
 	return viper.GetBool(key)
 }
 
+// NOTE: confusing option, suppose it unnesecary and should be deleted.
 func isSkipEmptyCommmand() bool {
 	key := strings.Join([]string{getHooksGroup(), commandsConfigKey, getExecutableName(), skipEmptyConfigKey}, ".")
 	if viper.IsSet(key) {
@@ -280,6 +284,16 @@ func getCommandExcludeRegexp() string {
 	return viper.GetString(key)
 }
 
+func getCommandGlobRegexp() string {
+	key := strings.Join([]string{getHooksGroup(), commandsConfigKey, getExecutableName(), globConfigKey}, ".")
+	if viper.GetString(key) != "" {
+		return viper.GetString(key)
+	}
+
+	key = strings.Join([]string{getHooksGroup(), globConfigKey}, ".")
+	return viper.GetString(key)
+}
+
 func getCommandFiles() string {
 	key := strings.Join([]string{getHooksGroup(), commandsConfigKey, getExecutableName(), filesConfigKey}, ".")
 	if viper.GetString(key) != "" {
@@ -292,6 +306,22 @@ func getCommandFiles() string {
 	}
 
 	return "git_staged"
+}
+
+func FilterGlob(vs []string, matcher string) []string {
+	if matcher == "" {
+		return vs
+	}
+
+	g := glob.MustCompile(matcher)
+
+	vsf := make([]string, 0)
+	for _, v := range vs {
+		if res := g.Match(v); res {
+			vsf = append(vsf, v)
+		}
+	}
+	return vsf
 }
 
 func FilterInclude(vs []string, matcher string) []string {
