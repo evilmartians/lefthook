@@ -37,6 +37,7 @@ const (
 	skipEmptyConfigKey  string      = "skip_empty"
 	filesConfigKey      string      = "files"
 	subFiles            string      = "{files}"
+	runnerWrapPattern   string      = "{cmd}"
 	execMode            os.FileMode = 0751
 )
 
@@ -209,7 +210,15 @@ func haveRunner(source string) (out bool) {
 
 func getRunner(source string) string {
 	key := strings.Join([]string{getHooksGroup(), source, getExecutableName(), runnerConfigKey}, ".")
-	return viper.GetString(key)
+	runner := viper.GetString(key)
+
+	// If runner have {cmd} substring, replace it from runner in hookah.yaml
+	if res := strings.Contains(runner, runnerWrapPattern); res {
+		originRunner := originConfig.GetString(key)
+		runner = strings.Replace(runner, runnerWrapPattern, originRunner, -1)
+	}
+
+	return runner
 }
 
 func setHooksGroup(str string) {

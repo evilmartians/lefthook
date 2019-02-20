@@ -21,8 +21,9 @@ const (
 )
 
 var (
-	rootPath string
-	cfgFile  string
+	rootPath     string
+	cfgFile      string
+	originConfig *viper.Viper
 )
 
 var rootCmd = &cobra.Command{
@@ -54,10 +55,15 @@ func initConfig() {
 
 	setRootPath(rootExecutionRelPath)
 
+	// store original config before merge
+	originConfig = viper.New()
+	originConfig.SetConfigName(configFileName)
+	originConfig.AddConfigPath(rootExecutionRelPath)
+	originConfig.ReadInConfig()
+
 	viper.SetConfigName(configFileName)
 	viper.AddConfigPath(rootExecutionRelPath)
 	viper.ReadInConfig()
-
 	viper.SetConfigName(configLocalFileName)
 	viper.MergeInConfig()
 
