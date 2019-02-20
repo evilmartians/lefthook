@@ -42,7 +42,9 @@ source_dir_local: ".hookah-local"
 // AddGitHooks write existed directories in source_dir as hooks in .git/hooks
 func AddGitHooks(fs afero.Fs) {
 	dirs, err := afero.ReadDir(fs, getSourceDir())
-	check(err)
+	if err != nil {
+		return
+	}
 
 	for _, f := range dirs {
 		if f.IsDir() {

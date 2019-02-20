@@ -25,16 +25,17 @@ var (
 )
 
 const (
-	runnerConfigKey     string = "runner"
-	runnerArgsConfigKey string = "runner_args"
-	scriptsConfigKey    string = "scripts"
-	commandsConfigKey   string = "commands"
-	includeConfigKey    string = "include"
-	excludeConfigKey    string = "exclude"
-	skipConfigKey       string = "skip"
-	skipEmptyConfigKey  string = "skip_empty"
-	filesConfigKey      string = "files"
-	subFiles            string = "{files}"
+	runnerConfigKey     string      = "runner"
+	runnerArgsConfigKey string      = "runner_args"
+	scriptsConfigKey    string      = "scripts"
+	commandsConfigKey   string      = "commands"
+	includeConfigKey    string      = "include"
+	excludeConfigKey    string      = "exclude"
+	skipConfigKey       string      = "skip"
+	skipEmptyConfigKey  string      = "skip_empty"
+	filesConfigKey      string      = "files"
+	subFiles            string      = "{files}"
+	execMode            os.FileMode = 0751
 )
 
 // runCmd represents the run command
@@ -161,6 +162,10 @@ func executeScript(source string, executable os.FileInfo) {
 	}
 
 	pathToExecutable := filepath.Join(source, getExecutableName())
+
+	if err := isExecutable(executable); err != nil {
+		makeExecutable(pathToExecutable)
+	}
 
 	command := exec.Command(pathToExecutable)
 
@@ -315,4 +320,22 @@ func FilterExclude(vs []string, matcher string) []string {
 		}
 	}
 	return vsf
+}
+
+func isExecutable(executable os.FileInfo) error {
+	mode := executable.Mode()
+
+	if !mode.IsRegular() {
+		return errors.New("ErrPermission")
+	}
+	if (mode & 0111) == 0 {
+		return errors.New("ErrPermission")
+	}
+	return nil
+}
+
+func makeExecutable(path string) {
+	if err := os.Chmod(path, execMode); err != nil {
+		log.Fatal(err)
+	}
 }

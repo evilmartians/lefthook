@@ -30,32 +30,24 @@ func uninstallCmdExecutor(fs afero.Fs) {
 
 func deleteConfig(fs afero.Fs) {
 	err := fs.Remove(getConfigYamlPath())
-	if err != nil {
-		log.Println(err)
-	} else {
+	if err == nil {
 		log.Println(getConfigYamlPath(), "removed")
 	}
 
 	err = fs.Remove(getConfigLocalYamlPath())
-	if err != nil {
-		log.Println(err)
-	} else {
+	if err == nil {
 		log.Println(getConfigLocalYamlPath(), "removed")
 	}
 }
 
 func deleteSourceDirs(fs afero.Fs) {
 	err := fs.RemoveAll(filepath.Join(getRootPath(), ".hookah"))
-	if err != nil {
-		log.Println(err)
-	} else {
+	if err == nil {
 		log.Println(filepath.Join(getRootPath(), ".hookah"), "removed")
 	}
 
 	err = fs.RemoveAll(filepath.Join(getRootPath(), ".hookah-local"))
-	if err != nil {
-		log.Println(err)
-	} else {
+	if err == nil {
 		log.Println(filepath.Join(getRootPath(), ".hookah-local"), "removed")
 	}
 }
@@ -64,7 +56,6 @@ func deleteGitHooks(fs afero.Fs) {
 	hookGroups, _ := afero.ReadDir(fs, getSourceDir())
 
 	if len(hookGroups) == 0 {
-		log.Println("Hooks not found. Delete skipped")
 		return
 	}
 
@@ -73,9 +64,7 @@ func deleteGitHooks(fs afero.Fs) {
 		hookFilePath := filepath.Join(hooksPath, file.Name())
 
 		err := fs.Remove(hookFilePath)
-		if err != nil {
-			log.Println(err)
-		} else {
+		if err == nil {
 			log.Println(hookFilePath, "removed")
 		}
 	}
@@ -86,7 +75,6 @@ func revertOldGitHooks(fs afero.Fs) {
 	hookGroups, _ := afero.ReadDir(fs, getSourceDir())
 
 	if len(hookGroups) == 0 {
-		log.Println("Hooks not found. Renaming skipped")
 		return
 	}
 
@@ -95,9 +83,7 @@ func revertOldGitHooks(fs afero.Fs) {
 		hookFilePath := filepath.Join(hooksPath, file.Name()+".old")
 
 		err := fs.Rename(hookFilePath, filepath.Join(hooksPath, file.Name()))
-		if err != nil {
-			log.Println(err)
-		} else {
+		if err == nil {
 			log.Println(hookFilePath, "renamed to", file.Name())
 		}
 	}
