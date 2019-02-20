@@ -63,8 +63,7 @@ func initConfig() {
 
 	viper.SetConfigName(configFileName)
 	viper.AddConfigPath(rootExecutionRelPath)
-	err := viper.ReadInConfig()
-	check(err)
+	viper.ReadInConfig()
 
 	viper.SetConfigName(configLocalFileName)
 	viper.MergeInConfig()

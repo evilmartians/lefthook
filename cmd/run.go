@@ -37,7 +37,8 @@ const (
 	skipConfigKey        string      = "skip"
 	skipEmptyConfigKey   string      = "skip_empty"
 	filesConfigKey       string      = "files"
-	subFiles             string      = "{files}"
+	subAllFiles          string      = "{all_files}"
+	subStagedFiles       string      = "{staged_files}"
 	runnerWrapPattern    string      = "{cmd}"
 	tagsConfigKey        string      = "tags"
 	excludeTagsConfigKey string      = "exclude_tags"
@@ -111,21 +112,29 @@ func executeCommand(commandName string) {
 	setExecutableName(commandName)
 
 	var files []string
+
 	switch getCommandFiles() {
-	case "git_staged":
+	case "staged":
 		files, _ = context.StagedFiles()
 	case "all":
 		files, _ = context.AllFiles()
 	case "none":
 		files = []string{}
-	default:
-		files = []string{}
+	}
+	if strings.Contains(getRunner(commandsConfigKey), subStagedFiles) {
+		files, _ = context.StagedFiles()
+	}
+	if strings.Contains(getRunner(commandsConfigKey), subAllFiles) {
+		files, _ = context.AllFiles()
 	}
 	files = FilterGlob(files, getCommandGlobRegexp())
 	files = FilterInclude(files, getCommandIncludeRegexp()) // NOTE: confusing option, suppose delete it
 	files = FilterExclude(files, getCommandExcludeRegexp())
 
-	runner := strings.Replace(getRunner(commandsConfigKey), subFiles, strings.Join(files, " "), -1)
+	runner := strings.Replace(getRunner(commandsConfigKey), subAllFiles, strings.Join(files, " "), -1)
+	if strings.Contains(getRunner(commandsConfigKey), subStagedFiles) {
+		runner = strings.Replace(getRunner(commandsConfigKey), subStagedFiles, strings.Join(files, " "), -1)
+	}
 	runnerArg := strings.Split(runner, " ")
 
 	command := exec.Command(runnerArg[0], runnerArg[1:]...)
@@ -325,7 +334,7 @@ func getCommandFiles() string {
 		return viper.GetString(key)
 	}
 
-	return "git_staged"
+	return "staged"
 }
 
 func getTags(source string) []string {
