@@ -1,6 +1,7 @@
 package context
 
 import (
+	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -8,24 +9,24 @@ import (
 )
 
 func StagedFiles() ([]string, error) {
-	cmd := exec.Command("git", "diff", "--name-only", "--cached")
-
-	outputBytes, err := cmd.CombinedOutput()
-	if err != nil {
-		return nil, err
-	}
-
-	lines := strings.Split(string(outputBytes), "\n")
-
-	return ExtractFiles(lines)
+	return ExecGitCommand("git diff --name-only --cached")
 }
 
 func AllFiles() ([]string, error) {
-	cmd := exec.Command("git", "ls-files", "--cached")
+	return ExecGitCommand("git ls-files --cached")
+}
+
+func ExecGitCommand(command string) ([]string, error) {
+	if !strings.Contains(command, "git") {
+		return []string{}, errors.New("Wrong git command")
+	}
+
+	commandArg := strings.Split(command, " ")
+	cmd := exec.Command(commandArg[0], commandArg[1:]...)
 
 	outputBytes, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, err
+		return []string{}, err
 	}
 
 	lines := strings.Split(string(outputBytes), "\n")

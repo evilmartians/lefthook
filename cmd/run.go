@@ -37,6 +37,7 @@ const (
 	skipConfigKey        string      = "skip"
 	skipEmptyConfigKey   string      = "skip_empty"
 	filesConfigKey       string      = "files"
+	subFiles             string      = "{files}"
 	subAllFiles          string      = "{all_files}"
 	subStagedFiles       string      = "{staged_files}"
 	runnerWrapPattern    string      = "{cmd}"
@@ -111,29 +112,23 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 func executeCommand(commandName string) {
 	setExecutableName(commandName)
 
-	var files []string
-	switch getCommandFiles() {
-	case "staged":
+	files, _ := context.AllFiles()
+	runner := getRunner(commandsConfigKey)
+
+	if strings.Contains(runner, subStagedFiles) {
 		files, _ = context.StagedFiles()
-	case "all":
-		files, _ = context.AllFiles()
-	case "none":
-		files = []string{}
+	} else if strings.Contains(runner, subFiles) {
+		files, _ = context.ExecGitCommand(getCommandFiles())
 	}
-	if strings.Contains(getRunner(commandsConfigKey), subStagedFiles) {
-		files, _ = context.StagedFiles()
-	}
-	if strings.Contains(getRunner(commandsConfigKey), subAllFiles) {
-		files, _ = context.AllFiles()
-	}
+
 	files = FilterGlob(files, getCommandGlobRegexp())
 	files = FilterInclude(files, getCommandIncludeRegexp()) // NOTE: confusing option, suppose delete it
 	files = FilterExclude(files, getCommandExcludeRegexp())
 
-	runner := strings.Replace(getRunner(commandsConfigKey), subAllFiles, strings.Join(files, " "), -1)
-	if strings.Contains(getRunner(commandsConfigKey), subStagedFiles) {
-		runner = strings.Replace(getRunner(commandsConfigKey), subStagedFiles, strings.Join(files, " "), -1)
-	}
+	runner = strings.Replace(runner, subStagedFiles, strings.Join(files, " "), -1)
+	runner = strings.Replace(runner, subAllFiles, strings.Join(files, " "), -1)
+	runner = strings.Replace(runner, subFiles, strings.Join(files, " "), -1)
+
 	runnerArg := strings.Split(runner, " ")
 
 	command := exec.Command(runnerArg[0], runnerArg[1:]...)
@@ -333,7 +328,7 @@ func getCommandFiles() string {
 		return viper.GetString(key)
 	}
 
-	return "staged"
+	return ""
 }
 
 func getTags(source string) []string {

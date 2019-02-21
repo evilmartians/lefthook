@@ -114,15 +114,11 @@ pre-commit:
       glob: "*.{rb}"
       exclude: "application.rb|routes.rb" # simple regexp for more flexibility
       runner: bundle exec rubocop {all_files}
-
-pre-push:
-  # Describe what files will be placed in runner command
-  # Default: staged
-  # Available: all, staged, none
-  files: all
-
-  audit:
-    runner: bundle audit
+    govet:
+      tags: backend style
+      files: git ls-files -m # we can explicity define scope of files
+      glob: "*.{go}"
+      runner: go vet {files}
 ```
 If your team have backend and frontend developers, you can skip unnsecesary hooks this way:
 `hookah-local.yml`
@@ -134,9 +130,9 @@ pre-commit:
 
   scripts:
     "any.go":
-      runner: docker exec -it <container_id_or_name> {cmd} # Wrap command from hookah.yml in docker
+      runner: docker exec -it --rm <container_id_or_name> {cmd} # Wrap command from hookah.yml in docker
   commands:
-    audit:
+    govet:
       skip: true # You can also skip command with this option
 ```
 
