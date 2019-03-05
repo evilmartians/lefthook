@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"errors"
-	"hookah/context"
 	"log"
 	"os"
 	"os/exec"
@@ -10,6 +9,8 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+
+	"github.com/Arkweid/hookah/context"
 
 	arrop "github.com/adam-hanna/arrayOperations"
 	"github.com/gobwas/glob"
@@ -53,11 +54,7 @@ const (
 var runCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Execute group of hooks",
-	Long: `Example:
-
-hookah run pre-commit
-
-It will run all executables in folder`,
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		err := RunCmdExecutor(args, appFs)
 		if err != nil {
@@ -68,6 +65,11 @@ It will run all executables in folder`,
 }
 
 func init() {
+	runCmd.SetUsageTemplate(`Usage:
+    hookah run [hooksGroup]
+Example:
+    hookah run pre-commit
+`)
 	rootCmd.AddCommand(runCmd)
 }
 

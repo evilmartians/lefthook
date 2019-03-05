@@ -15,10 +15,8 @@ const (
 var addCmd = &cobra.Command{
 	Use:   "add",
 	Short: "This command add a hook directory to a repository",
-	Long: `Example:
-hookah add pre-commit
+	Long: `This command will try to build the foolowing structure in repository:
 
-This command will try to build the foolowing structure in repository:
 ├───.git
 │   └───hooks
 │       └───pre-commit // this executable will be added. Existed file with
@@ -30,12 +28,18 @@ This command will try to build the foolowing structure in repository:
 ├───.hookah-local      // directory for personal hooks add it in .gitignore
 │   └───pre-commit
 `,
+	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		addCmdExecutor(args, appFs)
 	},
 }
 
 func init() {
+	addCmd.SetUsageTemplate(`Usage:
+    hookah add [hooksGroup]
+Example:
+    hookah add pre-commit
+`)
 	rootCmd.AddCommand(addCmd)
 }
 

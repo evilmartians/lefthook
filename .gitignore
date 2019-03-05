@@ -3,6 +3,7 @@
 .hookah/
 /hookah-local.yml
 /hookah.yml
+hookah
 
 tmp/
 dist/
