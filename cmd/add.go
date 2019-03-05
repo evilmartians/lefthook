@@ -54,7 +54,7 @@ func addHook(hookName string, fs afero.Fs) {
 	template := `#!/bin/bash
 # If can't find hookah in global scope
 # we suppose it in local npm package
-if ! type hookah 2>/dev/null
+if ! type hookah >/dev/null
 then
   exec npx hookah run ` + hookName + " $@\nelse\n  exec hookah run " + hookName + " $@\nfi\n"
 
