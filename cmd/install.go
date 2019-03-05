@@ -5,7 +5,28 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
+
+var availableHooks = [...]string{
+	"applypatch-msg",
+	"pre-applypatch",
+	"post-applypatch",
+	"pre-commit",
+	"prepare-commit-msg",
+	"commit-msg",
+	"post-commit",
+	"pre-rebase",
+	"post-checkout",
+	"post-merge",
+	"pre-push",
+	"pre-receive",
+	"update",
+	"post-receive",
+	"post-update",
+	"pre-auto-gc",
+	"post-rewrite",
+}
 
 var installCmd = &cobra.Command{
 	Use:   "install",
@@ -41,14 +62,32 @@ source_dir_local: ".hookah-local"
 
 // AddGitHooks write existed directories in source_dir as hooks in .git/hooks
 func AddGitHooks(fs afero.Fs) {
+	// add directory hooks
 	dirs, err := afero.ReadDir(fs, getSourceDir())
-	if err != nil {
-		return
+	if err == nil {
+		for _, f := range dirs {
+			if f.IsDir() {
+				addHook(f.Name(), fs)
+			}
+		}
 	}
 
-	for _, f := range dirs {
-		if f.IsDir() {
-			addHook(f.Name(), fs)
+	// add config hooks
+	var dirsHooks []string
+	for _, dir := range dirs {
+		dirsHooks = append(dirsHooks, dir.Name())
+	}
+
+	var configHooks []string
+	for _, key := range availableHooks {
+		if viper.Get(key) != nil {
+			configHooks = append(configHooks, key)
+		}
+	}
+
+	for _, key := range configHooks {
+		if !contains(dirsHooks, key) {
+			addHook(key, fs)
 		}
 	}
 }
@@ -59,4 +98,13 @@ func getConfigYamlPath() string {
 
 func getConfigLocalYamlPath() string {
 	return filepath.Join(getRootPath(), configLocalFileName) + configExtension
+}
+
+func contains(a []string, x string) bool {
+	for _, n := range a {
+		if x == n {
+			return true
+		}
+	}
+	return false
 }
