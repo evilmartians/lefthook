@@ -75,7 +75,11 @@ Example:
 
 // RunCmdExecutor run executables in hook groups
 func RunCmdExecutor(args []string, fs afero.Fs) error {
+	if os.Getenv("HOOKAH") == "0" {
+		return nil
+	}
 	hooksGroup := args[0]
+	gitArgs := args[1:]
 	var wg sync.WaitGroup
 
 	log.Println(aurora.Cyan("RUNNING HOOKS GROUP:"), aurora.Bold(hooksGroup))
@@ -86,9 +90,9 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 		for _, executable := range executables {
 			wg.Add(1)
 			if getParallel(hooksGroup) {
-				go executeScript(hooksGroup, sourcePath, executable, &wg)
+				go executeScript(hooksGroup, sourcePath, executable, &wg, gitArgs)
 			} else {
-				executeScript(hooksGroup, sourcePath, executable, &wg)
+				executeScript(hooksGroup, sourcePath, executable, &wg, gitArgs)
 			}
 		}
 	}
@@ -99,9 +103,9 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 		for _, executable := range executables {
 			wg.Add(1)
 			if getParallel(hooksGroup) {
-				go executeScript(hooksGroup, sourcePath, executable, &wg)
+				go executeScript(hooksGroup, sourcePath, executable, &wg, gitArgs)
 			} else {
-				executeScript(hooksGroup, sourcePath, executable, &wg)
+				executeScript(hooksGroup, sourcePath, executable, &wg, gitArgs)
 			}
 		}
 	}
@@ -186,7 +190,7 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	mutex.Unlock()
 }
 
-func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.WaitGroup) {
+func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.WaitGroup, gitArgs []string) {
 	defer wg.Done()
 	executableName := executable.Name()
 
@@ -207,7 +211,7 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 		makeExecutable(pathToExecutable)
 	}
 
-	command := exec.Command(pathToExecutable)
+	command := exec.Command(pathToExecutable, gitArgs[:]...)
 
 	if haveRunner(hooksGroup, scriptsConfigKey, executableName) {
 		runnerArg := strings.Split(getRunner(hooksGroup, scriptsConfigKey, executableName), " ")
