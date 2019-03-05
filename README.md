@@ -184,6 +184,14 @@ hookah install
 ```
 Hookah wiil read existed hook groups and reproduce hooks in `.git/hooks` directory.
 
+### How can I can skip hoookah execution?
+
+We have env HOOKAH=0 for that
+
+```bash
+HOOKAH=0 git commit -am "Hookah skipped"
+```
+
 ### How can I run my linter against only modified files?
 
 No problem. Lets take `rubocop` linter for ruby as example:
@@ -226,6 +234,18 @@ func main() {
 }
 ```
 We include context package only for convenience. It`s just few useful functions.
+
+### Some hooks proved ARGS from git. How can I capture it in my script?
+For pure script you can do it like that:
+
+Example for `prepare-commit-msg` hook:
+```bash
+COMMIT_MSG_FILE=$1
+COMMIT_SOURCE=$2
+SHA1=$3
+
+# ...
+```
 
 ### Uninstall
 
