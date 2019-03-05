@@ -3,7 +3,7 @@
 # we suppose it in local npm package
 if ! type hookah 2>/dev/null
 then
-  exec npx hookah run pre-commit
+  exec npx hookah run pre-commit $@
 else
-  exec hookah run pre-commit
+  exec hookah run pre-commit $@
 fi
