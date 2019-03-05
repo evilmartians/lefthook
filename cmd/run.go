@@ -259,22 +259,6 @@ func getRunner(hooksGroup, source, executableName string) string {
 	return runner
 }
 
-// func setHooksGroup(str string) {
-// 	hooksGroup = str
-// }
-
-// func getHooksGroup() string {
-// 	return hooksGroup
-// }
-
-// func setExecutableName(name string) {
-// 	executableName = name
-// }
-
-// func getExecutableName() string {
-// 	return executableName
-// }
-
 func printSummary() {
 	if len(okList) == 0 && len(failList) == 0 {
 		log.Println(aurora.Cyan("\nSUMMARY:"), aurora.Brown("(SKIP EMPTY)"))
@@ -362,7 +346,15 @@ func getTags(hooksGroup, source, executableName string) []string {
 
 func getExcludeTags(hooksGroup string) []string {
 	key := strings.Join([]string{hooksGroup, excludeTagsConfigKey}, ".")
-	return viper.GetStringSlice(key)
+	if len(viper.GetStringSlice(key)) > 0 {
+		return viper.GetStringSlice(key)
+	}
+
+	if len(viper.GetStringSlice(excludeTagsConfigKey)) > 0 {
+		return viper.GetStringSlice(excludeTagsConfigKey)
+	}
+
+	return []string{}
 }
 
 func getParallel(hooksGroup string) bool {
