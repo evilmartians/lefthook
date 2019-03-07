@@ -187,6 +187,14 @@ We have env HOOKAH=0 for that
 HOOKAH=0 git commit -am "Hookah skipped"
 ```
 
+### How can I can skip some tags on the fly?
+
+We have env HOOKAH_EXCLUDE=tag,tag for that
+
+```bash
+HOOKAH_EXCLUDE=ruby,security git commit -am "Skip some tag checks"
+```
+
 ### How can I run my linter against only modified files?
 
 No problem. Lets take `rubocop` linter for ruby as example:

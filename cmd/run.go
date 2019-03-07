@@ -27,6 +27,7 @@ var (
 	okList         []string
 	failList       []string
 	mutex          sync.Mutex
+	envExcludeTags []string // store for HOOKAH_EXCLUDE=tag,tag
 )
 
 const (
@@ -78,6 +79,10 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 	if os.Getenv("HOOKAH") == "0" {
 		return nil
 	}
+	if tags := os.Getenv("HOOKAH_EXCLUDE"); tags != "" {
+		envExcludeTags = append(envExcludeTags, strings.Split(tags, ",")[:]...)
+	}
+
 	hooksGroup := args[0]
 	gitArgs := args[1:]
 	var wg sync.WaitGroup
@@ -352,11 +357,15 @@ func getTags(hooksGroup, source, executableName string) []string {
 func getExcludeTags(hooksGroup string) []string {
 	key := strings.Join([]string{hooksGroup, excludeTagsConfigKey}, ".")
 	if len(viper.GetStringSlice(key)) > 0 {
-		return viper.GetStringSlice(key)
+		return append(viper.GetStringSlice(key), envExcludeTags[:]...)
 	}
 
 	if len(viper.GetStringSlice(excludeTagsConfigKey)) > 0 {
-		return viper.GetStringSlice(excludeTagsConfigKey)
+		return append(viper.GetStringSlice(excludeTagsConfigKey), envExcludeTags[:]...)
+	}
+
+	if len(envExcludeTags) > 0 {
+		return envExcludeTags
 	}
 
 	return []string{}
