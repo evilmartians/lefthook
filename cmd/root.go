@@ -63,6 +63,8 @@ func initConfig() {
 
 	viper.SetConfigName(configFileName)
 	viper.AddConfigPath(rootExecutionRelPath)
+	viper.SetDefault(configSourceDirKey, ".hookah")
+	viper.SetDefault(configSourceDirLocalKey, ".hookah-local")
 	viper.ReadInConfig()
 
 	viper.SetConfigName(configLocalFileName)

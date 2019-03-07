@@ -94,9 +94,6 @@ Done! Pretty simple, huh?
 ### Complete example
 `hookah.yml`
 ```yml
-source_dir: ".hookah"
-source_dir_local: ".hookah-local"
-
 pre-commit:
   # Specify additional parameters for script files
   # If your scripts have shebang notation you can skip
@@ -245,6 +242,14 @@ COMMIT_SOURCE=$2
 SHA1=$3
 
 # ...
+```
+
+### Can I change directory for script files?
+Yes. You can do this through this config keys:
+`hookah.yml`
+```yml
+source_dir: ".hookah"
+source_dir_local: ".hookah-local"
 ```
 
 ### Uninstall
