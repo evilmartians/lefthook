@@ -95,19 +95,6 @@ Done! Pretty simple, huh?
 `hookah.yml`
 ```yml
 pre-commit:
-  # Specify additional parameters for script files
-  # If your scripts have shebang notation you can skip
-  # this section
-  scripts:
-    "hello.js":
-      runner: node   # hookah run it like "node hello.js"
-    "any.go":
-      runner: go run # hookah run it like "go run any.go"
-
-  # Not enough speed? Run all of them in parallel!
-  # Default: false
-  parallel: true
-
   commands:
     eslint:
       glob: "*.{js,ts}"
@@ -122,6 +109,17 @@ pre-commit:
       files: git ls-files -m # we can explicity define scope of files
       glob: "*.{go}"
       runner: go vet {files} # {files} will be replaced by matched files as arguments
+
+  # If you have script files, you can specify parameters for them
+  scripts:
+    "hello.js":
+      runner: node   # hookah run it like "node hello.js"
+    "any.go":
+      runner: go run # hookah run it like "go run any.go"
+
+  # Not enough speed? Run all of them in parallel!
+  # Default: false
+  parallel: true
 ```
 If your team have backend and frontend developers, you can skip unnsecesary hooks this way:
 `hookah-local.yml`
