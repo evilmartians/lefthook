@@ -100,9 +100,9 @@ pre-commit:
   # this section
   scripts:
     "hello.js":
-      runner: node
+      runner: node   # hookah run it like "node hello.js"
     "any.go":
-      runner: go run
+      runner: go run # hookah run it like "go run any.go"
 
   # Not enough speed? Run all of them in parallel!
   # Default: false
@@ -111,7 +111,7 @@ pre-commit:
   commands:
     eslint:
       glob: "*.{js,ts}"
-      runner: yarn eslint {staged_files}
+      runner: yarn eslint {staged_files}  # hookah run it like "yarn eslint App.js Model.js ..."
     rubocop:
       tags: backend style
       glob: "*.{rb}"
