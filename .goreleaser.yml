@@ -9,15 +9,15 @@ builds:
     - darwin
     - windows
 archive:
-  replacements:
-    windows: Windows
-    darwin: MacOS
-    linux: Linux
-    386: i386
-    amd64: x86_64
-  format_overrides:
-  - goos: windows
-    format: zip
+  # replacements:
+  #   windows: Windows
+  #   darwin: MacOS
+  #   linux: Linux
+  #   386: i386
+  #   amd64: x86_64
+  # format_overrides:
+  # - goos: windows
+  #   format: zip
 checksum:
   name_template: '{{ .ProjectName }}_checksums.txt'
 snapshot:
