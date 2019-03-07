@@ -216,6 +216,7 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 	if haveRunner(hooksGroup, scriptsConfigKey, executableName) {
 		runnerArg := strings.Split(getRunner(hooksGroup, scriptsConfigKey, executableName), " ")
 		runnerArg = append(runnerArg, pathToExecutable)
+		runnerArg = append(runnerArg, gitArgs[:]...)
 
 		command = exec.Command(runnerArg[0], runnerArg[1:]...)
 	}
