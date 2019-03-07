@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"log"
 	"path/filepath"
 
 	"github.com/spf13/afero"
@@ -58,6 +59,7 @@ source_dir_local: ".hookah-local"
 `
 	err := afero.WriteFile(fs, getConfigYamlPath(), []byte(template), defaultDirPermission)
 	check(err)
+	log.Println("Added config: ", getConfigYamlPath())
 }
 
 // AddGitHooks write existed directories in source_dir as hooks in .git/hooks
