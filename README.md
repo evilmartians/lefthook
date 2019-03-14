@@ -7,8 +7,6 @@ Hookah it`s a simple manager of git hooks.
 <a href="https://evilmartians.com/?utm_source=hookah">
 <img src="https://evilmartians.com/badges/sponsored-by-evil-martians.svg" alt="Sponsored by Evil Martians" width="236" height="54"></a>
 
-[![asciicast](https://asciinema.org/a/rupBzaCqin2n3qGlNFM9Agm7f.svg)](https://asciinema.org/a/rupBzaCqin2n3qGlNFM9Agm7f)
-
 ## Installation
 
 Add Hookah to your system or build it from sources.
@@ -20,9 +18,9 @@ go get github.com/Arkweid/hookah
 
 ### npm and yarn
 ```bash
-npm i @arkweid/hookah-js --save-dev
+npm i @arkweid/hookah --save-dev
 # or yarn:
-yarn add -D @arkweid/hookah-js
+yarn add -D @arkweid/hookah
 
 # Now you can call it:
 npx hookah -h
@@ -194,49 +192,6 @@ We have env HOOKAH_EXCLUDE=tag,tag for that
 ```bash
 HOOKAH_EXCLUDE=ruby,security git commit -am "Skip some tag checks"
 ```
-
-### How can I run my linter against only modified files?
-
-No problem. Lets take `rubocop` linter for ruby as example:
-
-```bash
-#!/bin/sh
-
-git ls-files -m | xargs rubocop
-```
-
-### I dont like bash. Give me working example for golang
-
-Ok-ok! This is how `any.go` may looks like:
-
-```go
-package main
-
-import (
-  "fmt"
-  "os"
-  "os/exec"
-  "strings"
-  
-  "github.com/Arkweid/hookah/context"
-)
-
-func main() {
-  files, _ := context.StagedFiles()
-  files = context.FilterByExt(files, ".rb")
-
-  cmd := exec.Command("rubocop", strings.Join(files, " "))
-
-  outputBytes, err := cmd.CombinedOutput()
-
-  fmt.Println(string(outputBytes))
-
-  if err != nil {
-    os.Exit(1)
-  }
-}
-```
-We include context package only for convenience. It`s just few useful functions.
 
 ### Some hooks proved ARGS from git. How can I capture it in my script?
 For pure script you can do it like that:

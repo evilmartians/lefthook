@@ -1,5 +1,5 @@
 {
-  "name": "@arkweid/hookah-js",
+  "name": "@arkweid/hookah",
   "version": "0.2.2",
   "description": "Simple git hooks manager",
   "main": "index.js",
@@ -15,9 +15,9 @@
   "author": "Arkweid",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Arkweid/hookah-js/issues"
+    "url": "https://github.com/Arkweid/hookah/issues"
   },
-  "homepage": "https://github.com/Arkweid/hookah-js#readme",
+  "homepage": "https://github.com/Arkweid/hookah#readme",
   "os": [
     "darwin",
     "linux",
