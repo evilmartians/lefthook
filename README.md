@@ -321,6 +321,12 @@ source_dir: ".hookah"
 source_dir_local: ".hookah-local"
 ```
 
+## Version
+
+```bash
+hookah version
+```
+
 ## Uninstall
 
 ```bash
