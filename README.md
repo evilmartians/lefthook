@@ -2,7 +2,7 @@
 
 # Hookah
 
-Hookah a single dependency-free binary to manage all your git hooks that works with any language in any environment, and in all common team workflows.
+A single dependency-free binary to manage all your git hooks that works with any language in any environment, and in all common team workflows.
 
 <a href="https://evilmartians.com/?utm_source=hookah">
 <img src="https://evilmartians.com/badges/sponsored-by-evil-martians.svg" alt="Sponsored by Evil Martians" width="236" height="54"></a>
@@ -12,24 +12,29 @@ Hookah a single dependency-free binary to manage all your git hooks that works w
 Add Hookah to your system or build it from sources.
 
 ### go
+
 ```bash
 go get github.com/Arkweid/hookah
 ```
 
-### npm and yarn
+### npm
+
 ```bash
 npm i @arkweid/hookah --save-dev
 # or yarn:
 yarn add -D @arkweid/hookah
 ```
-NOTE: if you install it this way you should call it with `npx` or `yarn` for all listed examples below.
+
+NOTE: if you install it this way you should call it with `npx` or `yarn` for all listed examples below. (for example: `hookah install` -> `npx hookah install`)
 
 ### Homebrew for macOS
+
 ```bash
 brew install Arkweid/hookah/hookah
 ```
 
 ### snap for Ubuntu
+
 ```bash
 sudo snap install --devmode hookah
 ```
@@ -38,63 +43,85 @@ Or take it from [binaries](https://github.com/Arkweid/hookah/releases) and insta
 
 ## Scenarios
 
-
-
 ### First time user
 
 Go to your project directory and run following commands:
 
-Add configuration file `hookah.yml`:
+Initialize hookah with the following command
+
 ```bash
 hookah install
 ```
 
-Register desired githook. In our example it `pre-push` githook:
+It creates `hookah.yml` in the project root directory
+
+Register your hook (You can choose any hook from [this list](https://git-scm.com/docs/githooks))
+In our example it `pre-push` githook:
+
 ```bash
 hookah add pre-push
 ```
-[Here](https://git-scm.com/docs/githooks) you can refresh your knowledge about githooks.
 
 Describe pre-push commands in `hookah.yml`:
+
 ```yml
-pre-push:             # githook name
-  commands:           # list of commands
-    packages-audit:   # command name
+pre-push: # githook name
+  commands: # list of commands
+    packages-audit: # command name
       run: yarn audit # command for execution
 ```
-That all! Now on `git push` the `yarn audit` command will run.
-If it fail the `git push` will be interrupt.
 
-### Project with existed hookah
-Run:
+That's all! Now on `git push` the `yarn audit` command will be run.
+If it fails the `git push` will be interrupted.
+
+### If you already have a hookah config file
+Just initialize hookah to make it work :)
 ```bash
 hookah install
 ```
-Hookah wiil read existed hook groups and reproduce hooks in `.git/hooks` directory.
 
 ## More options
 
-## Filters for list of files
+## Use glob patterns to choose what files you want to check
+```yml
+# hookah.yml
+
+pre-commit:
+  commands:
+    lint:
+      glob: "*.{js,ts}"
+      run: yarn eslint
+```
+
+## Select specific file groups
+In some cases you want to run checks only against some specific file group.
+For example: you may want to run eslint for staged files only. 
+
+There are two shorthands for such situations:
+`{staged_files}` - staged git files which you try to commit
+
+`{all_files}` - all tracked files by git
+
 ```yml
 # hookah.yml
 
 pre-commit:
   commands:
     frontend-linter:
-      glob: "*.{js,ts}"                    # glob filter for list of files
-      run: yarn eslint {staged_files}      # {staged_files} - list of files
+      glob: "*.{js,ts}" # glob filter for list of files
+      run: yarn eslint {staged_files} # {staged_files} - list of files
     backend-linter:
-      glob: "*.{rb}"                       # glob filter for list of files
-      exclude: "application.rb|routes.rb"  # regexp filter for list of files
+      glob: "*.{rb}" # glob filter for list of files
+      exclude: "application.rb|routes.rb" # regexp filter for list of files
       run: bundle exec rubocop {all_files} # {all_files} - list of files
 ```
 
-`{staged_files}` - shorthand for staged git files which you try to commit
 
-`{all_files}` - shorthand for all tracked files by git
+## Custom file list
 
-## Custom list of files
-You can describe a custom list of files. Common scenario for pre-push "list of all changed files between current branch and master branch" you can do it this way:
+Hookah can be even more specific in selecting files.
+If you want to choose diff of all changed files between current branch and master branch you can do it this way:
+
 ```yml
 # hookah.yml
 
@@ -103,20 +130,28 @@ pre-push:
     frontend-style:
       files: git diff --name-only master # custom list of files
       glob: "*.{js}"
-      run: yarn stylelint {files}     
+      run: yarn stylelint {files}
 ```
+
 `{files}` - shorthand for custom list of files
 
-## Scripts
-Hookah also can run script files. Common scenario for `commit-msg` "check commit text template".
-Register `commit-msg` githook:
+## Managing bash scripts
+If you run `hookah add` command with `-d` flag, hookah will create two directories where you can put bash scripts 
+and reference them from `hookah.yml` file
+
+Example:
+Let's create `commit-msg` hook with `-d` flag
 ```bash
 hookah add -d commit-msg
 ```
-This command also create two dirs `.hookah/commit-msg` and `.hookah-local/commit-msg`.
-First dir for common project level scripts. Second  one for your personal scripts. Add dir`.hookah-local` to `.gitignore`.
 
-Create template_checker script file `.hookah/commit-msg/template_checker`:
+This command will create `.hookah/commit-msg` and `.hookah-local/commit-msg` dirs.
+
+First one is for common project level scripts.
+Second one is for personal scripts. It would be a good idea to add dir`.hookah-local` to `.gitignore`.
+
+Let's create a bash script to check commit templates `.hookah/commit-msg/template_checker`:
+
 ```bash
 INPUT_FILE=$1
 START_LINE=`head -n1 $INPUT_FILE`
@@ -126,7 +161,10 @@ if ! [[ "$START_LINE" =~ $PATTERN ]]; then
   exit 1
 fi
 ```
-We need to know which program can execute the code in `template_checker`. Describe it in `hookah.yml`:
+
+Now we can ask hookah to run our bash script by adding this code to
+ `hookah.yml` file:
+
 ```yml
 # hookah.yml
 
@@ -136,11 +174,31 @@ commit-msg:
       runner: bash
 ```
 
-Now when you try to commit `git commit -m "haha bad commit text"` script `template_checker` will be executed. And because commit text not match with described pattern process will interrupt.
+When you try to commit `git commit -m "haha bad commit text"` script `template_checker` will be executed. Since commit text doesn't match described pattern the commit process will be interrupted.
 
-## Tags
-If we have a lot of commands and scripts we can divide them by tags and run only relevent for our work commands.
-For example we have `hookah.yml` like this:
+## Local config
+We can use `hookah-local.yml` as local config. Options in this file will overwrite options in `hookah.yml`. (Don't forget to add this file to `.gitignore`)
+
+## Skipping command
+
+Also you can skip commands by `skip` option:
+
+```yml
+# hookah-local.yml
+
+pre-push:
+  commands:
+    packages-audit:
+      skip: true
+```
+
+
+## Skipping command by tags
+
+If we have a lot of commands and scripts we can tag them and run skip commands with a specific tag.
+
+For example if we have `hookah.yml` like this:
+
 ```yml
 pre-push:
   commands:
@@ -152,9 +210,9 @@ pre-push:
       run: bundle audit
 ```
 
-We provide `hookah-local.yml` as local config. Options in this file overwrite options in `hookah.yml`. s Add it to `.gitignore`
 
 You can skip commands by tags:
+
 ```yml
 # hookah-local.yml
 
@@ -162,18 +220,10 @@ pre-push:
   exlude_tags:
     - frontend
 ```
-Also you can skip commands by `skip` option:
-```yml
-# hookah-local.yml
 
-pre-push:
-  commands:
-    packages-audit:
-      skip: true
-```
+## Referencing commands from hookah.yml
 
-## Wrapper {cmd}
-If some runner installed in docker you can wrap it in docker runner:
+If you have the following config
 
 ```yml
 # hookah.yml
@@ -184,6 +234,8 @@ pre-commit:
       runner: node
 ```
 
+You can wrap it in docker runner locally:
+
 ```yml
 # hookah-local.yml
 
@@ -192,6 +244,7 @@ pre-commit:
     "good_job.js":
       runner: docker exec -it --rm <container_id_or_name> {cmd}
 ```
+
 `{cmd}` - shorthand for command from `hookah.yml`
 
 ## Run githook group directly
@@ -201,8 +254,10 @@ hookah run pre-commit
 ```
 
 ## Parallel execution
+
 You can eneable parallel execution if you want to speed up your checks.
 Lets get example from [discourse](https://github.com/discourse/discourse/blob/master/.travis.yml#L77-L83) project.
+
 ```
 bundle exec rubocop --parallel && \
 bundle exec danger && \
@@ -214,6 +269,7 @@ yarn eslint app/assets/javascripts test/javascripts
 ```
 
 Rewrite it in hookah custom group. We call it `lint`:
+
 ```yml
 # hookah.yml
 
@@ -236,7 +292,9 @@ lint:
     eslint-assets-tests:
       run: yarn eslint app/assets/javascripts test/javascripts
 ```
+
 Then call this group directly:
+
 ```
 hookah run lint
 ```
@@ -288,7 +346,7 @@ pre-commit:
 
 ## Skip hoookah execution
 
-We have env `HOOKAH=0` for that
+We can set env variable `HOOKAH` to zero for that
 
 ```bash
 HOOKAH=0 git commit -am "Hookah skipped"
@@ -296,14 +354,16 @@ HOOKAH=0 git commit -am "Hookah skipped"
 
 ## Skip some tags on the fly
 
-We have env HOOKAH_EXCLUDE=tag,tag for that
+Use HOOKAH_EXCLUDE={list of tags to be excluded} for that
 
 ```bash
 HOOKAH_EXCLUDE=ruby,security git commit -am "Skip some tag checks"
 ```
 
 ## Capture ARGS from git in script
+
 Example script for `prepare-commit-msg` hook:
+
 ```bash
 COMMIT_MSG_FILE=$1
 COMMIT_SOURCE=$2
@@ -313,7 +373,9 @@ SHA1=$3
 ```
 
 ## Change directory for script files
+
 You can do this through this config keys:
+
 ```yml
 # hookah.yml
 
