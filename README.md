@@ -39,14 +39,11 @@ brew install Arkweid/hookah/hookah
 sudo snap install --devmode hookah
 ```
 
-Or take it from [binaries](https://github.com/Arkweid/hookah/releases) and install manualy
+Or take it from [binaries](https://github.com/Arkweid/hookah/releases) and install manually
 
 ## Scenarios
 
 ### First time user
-
-Go to your project directory and run following commands:
-
 Initialize hookah with the following command
 
 ```bash
@@ -120,7 +117,7 @@ pre-commit:
 ## Custom file list
 
 Hookah can be even more specific in selecting files.
-If you want to choose diff of all changed files between current branch and master branch you can do it this way:
+If you want to choose diff of all changed files between the current branch and master branch you can do it this way:
 
 ```yml
 # hookah.yml
@@ -133,7 +130,7 @@ pre-push:
       run: yarn stylelint {files}
 ```
 
-`{files}` - shorthand for custom list of files
+`{files}` - shorthand for a custom list of files
 
 ## Managing bash scripts
 If you run `hookah add` command with `-d` flag, hookah will create two directories where you can put bash scripts 
@@ -147,8 +144,8 @@ hookah add -d commit-msg
 
 This command will create `.hookah/commit-msg` and `.hookah-local/commit-msg` dirs.
 
-First one is for common project level scripts.
-Second one is for personal scripts. It would be a good idea to add dir`.hookah-local` to `.gitignore`.
+The first one is for common project level scripts.
+The second one is for personal scripts. It would be a good idea to add dir`.hookah-local` to `.gitignore`.
 
 Let's create a bash script to check commit templates `.hookah/commit-msg/template_checker`:
 
@@ -174,14 +171,14 @@ commit-msg:
       runner: bash
 ```
 
-When you try to commit `git commit -m "haha bad commit text"` script `template_checker` will be executed. Since commit text doesn't match described pattern the commit process will be interrupted.
+When you try to commit `git commit -m "haha bad commit text"` script `template_checker` will be executed. Since commit text doesn't match the described pattern the commit process will be interrupted.
 
 ## Local config
 We can use `hookah-local.yml` as local config. Options in this file will overwrite options in `hookah.yml`. (Don't forget to add this file to `.gitignore`)
 
-## Skipping command
+## Skipping commands
 
-Also you can skip commands by `skip` option:
+You can skip commands by `skip` option:
 
 ```yml
 # hookah-local.yml
@@ -193,11 +190,11 @@ pre-push:
 ```
 
 
-## Skipping command by tags
+## Skipping commands by tags
 
 If we have a lot of commands and scripts we can tag them and run skip commands with a specific tag.
 
-For example if we have `hookah.yml` like this:
+For example, if we have `hookah.yml` like this:
 
 ```yml
 pre-push:
@@ -245,7 +242,7 @@ pre-commit:
       runner: docker exec -it --rm <container_id_or_name> {cmd}
 ```
 
-`{cmd}` - shorthand for command from `hookah.yml`
+`{cmd}` - shorthand for the command from `hookah.yml`
 
 ## Run githook group directly
 
@@ -255,7 +252,7 @@ hookah run pre-commit
 
 ## Parallel execution
 
-You can eneable parallel execution if you want to speed up your checks.
+You can enable parallel execution if you want to speed up your checks.
 Lets get example from [discourse](https://github.com/discourse/discourse/blob/master/.travis.yml#L77-L83) project.
 
 ```
@@ -360,7 +357,7 @@ Use HOOKAH_EXCLUDE={list of tags to be excluded} for that
 HOOKAH_EXCLUDE=ruby,security git commit -am "Skip some tag checks"
 ```
 
-## Capture ARGS from git in script
+## Capture ARGS from git in the script
 
 Example script for `prepare-commit-msg` hook:
 
