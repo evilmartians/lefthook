@@ -32,6 +32,7 @@ var (
 
 const (
 	runnerConfigKey      string      = "runner"
+	runConfigKey         string      = "run" // alias for runner
 	runnerArgsConfigKey  string      = "runner_args"
 	scriptsConfigKey     string      = "scripts"
 	commandsConfigKey    string      = "commands"
@@ -259,6 +260,12 @@ func haveRunner(hooksGroup, source, executableName string) (out bool) {
 func getRunner(hooksGroup, source, executableName string) string {
 	key := strings.Join([]string{hooksGroup, source, executableName, runnerConfigKey}, ".")
 	runner := viper.GetString(key)
+
+	aliasKey := strings.Join([]string{hooksGroup, source, executableName, runConfigKey}, ".")
+	aliasRunner := viper.GetString(aliasKey)
+	if runner == "" && aliasRunner != "" {
+		runner = aliasRunner
+	}
 
 	// If runner have {cmd} substring, replace it from runner in hookah.yaml
 	if res := strings.Contains(runner, runnerWrapPattern); res {
