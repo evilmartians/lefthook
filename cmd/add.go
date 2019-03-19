@@ -23,7 +23,7 @@ var addCmd = &cobra.Command{
 │   └───hooks
 │       └───pre-commit // this executable will be added. Existed file with
 │                      // same name will be renamed to pre-commit.old
-...
+(hookah add this dirs if you run command with -d option)
 │
 ├───.hookah            // directory for project level hooks
 │   └───pre-commit     // directory with hooks executables

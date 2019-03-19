@@ -54,20 +54,7 @@ func InstallCmdExecutor(args []string, fs afero.Fs) {
 
 // AddConfigYaml write hookah.yml in root project directory
 func AddConfigYaml(fs afero.Fs) {
-	template := `# Basic usage:
-#
-# pre-commit:                                   # add hook group through "hookah add pre-commit"
-#                                               # or "npx hookah add pre-commit" if you install hookah as npm package
-#
-#  commands:                                    # keyword for list of commands
-#    eslint:                                    # command name, you will see it in output
-#      glob: "*.{js,ts}"                        # glob filter
-#      runner: yarn eslint {staged_files}       # list of staged files which will be filtred through glob filter
-#    rubocop:
-#      glob: "*.{rb}"
-#      exclude: "application.rb|routes.rb"      # simple regexp for more flexibility
-#      runner: bundle exec rubocop {all_files}
-`
+	template := ""
 	err := afero.WriteFile(fs, getConfigYamlPath(), []byte(template), defaultDirPermission)
 	check(err)
 	log.Println("Added config: ", getConfigYamlPath())
