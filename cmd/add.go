@@ -12,6 +12,8 @@ const (
 	gitHooksDir string = ".git/hooks"
 )
 
+var createDirsFlag bool
+
 var addCmd = &cobra.Command{
 	Use:   "add",
 	Short: "This command add a hook directory to a repository",
@@ -40,13 +42,16 @@ func init() {
 Example:
     hookah add pre-commit
 `)
+	addCmd.PersistentFlags().BoolVarP(&createDirsFlag, "dirs", "d", false, "create directory for scripts")
 	rootCmd.AddCommand(addCmd)
 }
 
 func addCmdExecutor(args []string, fs afero.Fs) {
 	addHook(args[0], fs)
-	addProjectHookDir(args[0], fs)
-	addLocalHookDir(args[0], fs)
+	if createDirsFlag {
+		addProjectHookDir(args[0], fs)
+		addLocalHookDir(args[0], fs)
+	}
 }
 
 func addHook(hookName string, fs afero.Fs) {
