@@ -55,7 +55,6 @@ func TestAddCmdExecutor(t *testing.T) {
 	expectedDirs := []string{
 		"commit-msg",
 		"pre-commit",
-		"pre-push",
 	}
 
 	files, _ := afero.ReadDir(fs, filepath.Join(getRootPath(), ".git/hooks"))
