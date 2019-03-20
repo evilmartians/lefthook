@@ -132,9 +132,8 @@ pre-push:
 
 `{files}` - shorthand for a custom list of files
 
-## Managing bash scripts
-If you run `hookah add` command with `-d` flag, hookah will create two directories where you can put bash scripts 
-and reference them from `hookah.yml` file
+## Managing scripts
+If you run `hookah add` command with `-d` flag, hookah will create two directories where you can put scripts and reference them from `hookah.yml` file.
 
 Example:
 Let's create `commit-msg` hook with `-d` flag
@@ -146,6 +145,22 @@ This command will create `.hookah/commit-msg` and `.hookah-local/commit-msg` dir
 
 The first one is for common project level scripts.
 The second one is for personal scripts. It would be a good idea to add dir`.hookah-local` to `.gitignore`.
+
+Create scripts `.hookah/commit-msg/hello.js` and `.hookah/commit-msg/hi.rb`
+
+```yml
+# hookah.yml
+
+commit-msg:
+  scripts:
+    "hello.js":
+      runner: node
+    "hi.rb":
+      runner: ruby
+
+```
+
+### Bash script example
 
 Let's create a bash script to check commit templates `.hookah/commit-msg/template_checker`:
 
