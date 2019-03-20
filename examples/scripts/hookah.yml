@@ -1,0 +1,4 @@
+pre-commit:
+  scripts:
+    "good_job.js":
+      runner: node

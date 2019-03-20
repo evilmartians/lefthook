@@ -1,0 +1,15 @@
+pre-commit:
+  exclude_tags:
+    - frontend
+    - backend
+  scripts:
+    "good_job.js":
+      runner: docker exec -it --rm <container_id_or_name> {cmd}
+    "hello.go":
+      runner: go run
+
+pre-push:
+  commands:
+    rubocop:
+      skip: true
+

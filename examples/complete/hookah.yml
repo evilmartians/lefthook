@@ -1,0 +1,37 @@
+commit-msg:
+  scripts:
+    "template_checker":
+      runner: bash
+
+pre-commit:
+  commands:
+    stylelint:
+      tags: frontend style
+      glob: "*.{js}"
+      run: yarn stylelint {staged_files}
+    rubocop:
+      tags: backend style
+      glob: "*.{rb}"
+      exclude: "application.rb|routes.rb"
+      run: bundle exec rubocop {all_files}
+  scripts:
+    "good_job.js":
+      runner: node
+
+pre-push:
+  parallel: true
+  commands:
+    stylelint:
+      tags: frontend style
+      files: git diff --name-only master
+      glob: "*.{js}"
+      run: yarn stylelint {files}
+    rubocop:
+      tags: backend style
+      files: git diff --name-only master
+      glob: "*.{rb}"
+      run: bundle exec rubocop {files}
+  scripts:
+    "verify":
+      runner: sh
+

@@ -1,0 +1,4 @@
+pre-push:
+  commands:
+    packages-audit:
+      run: yarn audit
