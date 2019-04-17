@@ -1,12 +1,12 @@
 {
-  "name": "@arkweid/hookah",
-  "version": "0.2.3",
+  "name": "@arkweid/lefthook",
+  "version": "0.3.0",
   "description": "Simple git hooks manager",
   "main": "index.js",
   "bin": {
-    "hookah": "./bin/index.js"
+    "lefthook": "./bin/index.js"
   },
-  "repository": "https://github.com/Arkweid/hookah",
+  "repository": "https://github.com/Arkweid/lefthook",
   "keywords": [
     "git",
     "hook",
@@ -15,9 +15,9 @@
   "author": "Arkweid",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Arkweid/hookah/issues"
+    "url": "https://github.com/Arkweid/lefthook/issues"
   },
-  "homepage": "https://github.com/Arkweid/hookah#readme",
+  "homepage": "https://github.com/Arkweid/lefthook#readme",
   "os": [
     "darwin",
     "linux",

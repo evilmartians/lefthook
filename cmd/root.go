@@ -13,8 +13,8 @@ const (
 	configSourceDirKey      string      = "source_dir"
 	configSourceDirLocalKey string      = "source_dir_local"
 	rootExecutionRelPath    string      = "."
-	configFileName          string      = "hookah"
-	configLocalFileName     string      = "hookah-local"
+	configFileName          string      = "lefthook"
+	configLocalFileName     string      = "lefthook-local"
 	configExtension         string      = ".yml"
 	defaultFilePermission   os.FileMode = 0755
 	defaultDirPermission    os.FileMode = 0666
@@ -27,11 +27,11 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "hookah",
+	Use:   "lefthook",
 	Short: "CLI tool to manage Git hooks",
 	Long: `After installation go to your project directory
 and execute the following command:
-hookah install`,
+lefthook install`,
 }
 
 func Execute() {
@@ -63,8 +63,8 @@ func initConfig() {
 
 	viper.SetConfigName(configFileName)
 	viper.AddConfigPath(rootExecutionRelPath)
-	viper.SetDefault(configSourceDirKey, ".hookah")
-	viper.SetDefault(configSourceDirLocalKey, ".hookah-local")
+	viper.SetDefault(configSourceDirKey, ".lefthook")
+	viper.SetDefault(configSourceDirLocalKey, ".lefthook-local")
 	viper.ReadInConfig()
 
 	viper.SetConfigName(configLocalFileName)

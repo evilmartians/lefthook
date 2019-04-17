@@ -1,3 +1,4 @@
+project_name: lefthook
 before:
   hooks:
     - go generate ./...
@@ -35,26 +36,26 @@ changelog:
 brew:
   github:
     owner: Arkweid
-    name: homebrew-hookah
-  homepage: "https://github.com/Arkweid/hookah"
-  description: "Simple git hooks manager"
+    name: homebrew-lefthook
+  homepage: "https://github.com/Arkweid/lefthook"
+  description: "Lefthook a single dependency-free binary to manage all your git hooks that works with any language in any environment, and in all common team workflows"
   folder: Formula
   test: |
-    system "#{bin}/hookah -v"
+    system "#{bin}/lefthook version"
 
 snapcraft:
   name_template: '{{ .ProjectName }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
   summary: For rule your git hooks
   description: |
-    Simple git hooks manager.
+    Lefthook a single dependency-free binary to manage all your git hooks that works with any language in any environment, and in all common team workflows.
   grade: stable
   confinement: strict
   publish: true
 
 nfpm:
   name_template: '{{ .ProjectName }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
-  homepage:  https://github.com/Arkweid/hookah
-  description: Simple git hooks manager
+  homepage:  https://github.com/Arkweid/lefthook
+  description: Lefthook a single dependency-free binary to manage all your git hooks that works with any language in any environment, and in all common team workflows
   maintainer: Alexander Abroskin <arkweid@evilmartians.com>
   license: MIT
   vendor: Arkweid

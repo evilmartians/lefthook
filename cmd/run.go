@@ -10,7 +10,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/Arkweid/hookah/context"
+	"github.com/Arkweid/lefthook/context"
 
 	arrop "github.com/adam-hanna/arrayOperations"
 	"github.com/gobwas/glob"
@@ -27,7 +27,7 @@ var (
 	okList         []string
 	failList       []string
 	mutex          sync.Mutex
-	envExcludeTags []string // store for HOOKAH_EXCLUDE=tag,tag
+	envExcludeTags []string // store for LEFTHOOK_EXCLUDE=tag,tag
 )
 
 const (
@@ -68,19 +68,19 @@ var runCmd = &cobra.Command{
 
 func init() {
 	runCmd.SetUsageTemplate(`Usage:
-    hookah run [hooksGroup]
+    lefthook run [hooksGroup]
 Example:
-    hookah run pre-commit
+    lefthook run pre-commit
 `)
 	rootCmd.AddCommand(runCmd)
 }
 
 // RunCmdExecutor run executables in hook groups
 func RunCmdExecutor(args []string, fs afero.Fs) error {
-	if os.Getenv("HOOKAH") == "0" {
+	if os.Getenv("LEFTHOOK") == "0" {
 		return nil
 	}
-	if tags := os.Getenv("HOOKAH_EXCLUDE"); tags != "" {
+	if tags := os.Getenv("LEFTHOOK_EXCLUDE"); tags != "" {
 		envExcludeTags = append(envExcludeTags, strings.Split(tags, ",")[:]...)
 	}
 
@@ -267,7 +267,7 @@ func getRunner(hooksGroup, source, executableName string) string {
 		runner = aliasRunner
 	}
 
-	// If runner have {cmd} substring, replace it from runner in hookah.yaml
+	// If runner have {cmd} substring, replace it from runner in lefthook.yaml
 	if res := strings.Contains(runner, runnerWrapPattern); res {
 		originRunner := originConfig.GetString(key)
 		runner = strings.Replace(runner, runnerWrapPattern, originRunner, -1)

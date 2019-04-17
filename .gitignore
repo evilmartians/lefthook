@@ -1,9 +1,9 @@
 .vscode/
-.hookah-local/
-.hookah/
-/hookah-local.yml
-/hookah.yml
-hookah
+.lefthook-local/
+.lefthook/
+/lefthook-local.yml
+/lefthook.yml
+lefthook
 
 tmp/
 dist/
