@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -9,6 +10,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/Arkweid/lefthook/context"
 
@@ -88,6 +90,7 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 	gitArgs := args[1:]
 	var wg sync.WaitGroup
 
+	startTime := time.Now()
 	log.Println(aurora.Cyan("RUNNING HOOKS GROUP:"), aurora.Bold(hooksGroup))
 
 	sourcePath := filepath.Join(getSourceDir(), hooksGroup)
@@ -131,7 +134,7 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 
 	wg.Wait()
 
-	printSummary()
+	printSummary(time.Now().Sub(startTime))
 
 	if len(failList) == 0 {
 		return nil
@@ -276,19 +279,19 @@ func getRunner(hooksGroup, source, executableName string) string {
 	return runner
 }
 
-func printSummary() {
+func printSummary(execTime time.Duration) {
 	if len(okList) == 0 && len(failList) == 0 {
 		log.Println(aurora.Cyan("\nSUMMARY:"), aurora.Brown("(SKIP EMPTY)"))
 	} else {
-		log.Println(aurora.Cyan("\nSUMMARY:"))
+		log.Println(aurora.Cyan(fmt.Sprintf("\nSUMMARY: (done in %.2f seconds)", execTime.Seconds())))
 	}
 
 	for _, fileName := range okList {
-		log.Printf("[  %s  ] %s\n", aurora.Green("OK"), fileName)
+		log.Printf("✔️  %s\n", aurora.Green(fileName))
 	}
 
 	for _, fileName := range failList {
-		log.Printf("[ %s ] %s\n", aurora.Red("FAIL"), fileName)
+		log.Printf("🥊  %s", aurora.Red(fileName))
 	}
 }
 
