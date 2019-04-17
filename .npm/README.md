@@ -1,65 +1,65 @@
-![Build Status](https://api.travis-ci.org/Arkweid/hookah.svg?branch=master)
+![Build Status](https://api.travis-ci.org/Arkweid/lefthook.svg?branch=master)
 
-# Hookah
+# Lefthook
 
 A single dependency-free binary to manage all your git hooks that works with any language in any environment, and in all common team workflows.
 
-<a href="https://evilmartians.com/?utm_source=hookah">
+<a href="https://evilmartians.com/?utm_source=lefthook">
 <img src="https://evilmartians.com/badges/sponsored-by-evil-martians.svg" alt="Sponsored by Evil Martians" width="236" height="54"></a>
 
 ## Installation
 
-Add Hookah to your system or build it from sources.
+Add Lefthook to your system or build it from sources.
 
 ### go
 
 ```bash
-go get github.com/Arkweid/hookah
+go get github.com/Arkweid/lefthook
 ```
 
 ### npm
 
 ```bash
-npm i @arkweid/hookah --save-dev
+npm i @arkweid/lefthook --save-dev
 # or yarn:
-yarn add -D @arkweid/hookah
+yarn add -D @arkweid/lefthook
 ```
 
-NOTE: if you install it this way you should call it with `npx` or `yarn` for all listed examples below. (for example: `hookah install` -> `npx hookah install`)
+NOTE: if you install it this way you should call it with `npx` or `yarn` for all listed examples below. (for example: `lefthook install` -> `npx lefthook install`)
 
 ### Homebrew for macOS
 
 ```bash
-brew install Arkweid/hookah/hookah
+brew install Arkweid/lefthook/lefthook
 ```
 
 ### snap for Ubuntu
 
 ```bash
-sudo snap install --devmode hookah
+sudo snap install --devmode lefthook
 ```
 
-Or take it from [binaries](https://github.com/Arkweid/hookah/releases) and install manually
+Or take it from [binaries](https://github.com/Arkweid/lefthook/releases) and install manually
 
 ## Scenarios
 
 ### First time user
-Initialize hookah with the following command
+Initialize lefthook with the following command
 
 ```bash
-hookah install
+lefthook install
 ```
 
-It creates `hookah.yml` in the project root directory
+It creates `lefthook.yml` in the project root directory
 
 Register your hook (You can choose any hook from [this list](https://git-scm.com/docs/githooks))
 In our example it `pre-push` githook:
 
 ```bash
-hookah add pre-push
+lefthook add pre-push
 ```
 
-Describe pre-push commands in `hookah.yml`:
+Describe pre-push commands in `lefthook.yml`:
 
 ```yml
 pre-push: # githook name
@@ -71,17 +71,17 @@ pre-push: # githook name
 That's all! Now on `git push` the `yarn audit` command will be run.
 If it fails the `git push` will be interrupted.
 
-### If you already have a hookah config file
-Just initialize hookah to make it work :)
+### If you already have a lefthook config file
+Just initialize lefthook to make it work :)
 ```bash
-hookah install
+lefthook install
 ```
 
 ## More options
 
 ## Use glob patterns to choose what files you want to check
 ```yml
-# hookah.yml
+# lefthook.yml
 
 pre-commit:
   commands:
@@ -100,7 +100,7 @@ There are two shorthands for such situations:
 `{all_files}` - all tracked files by git
 
 ```yml
-# hookah.yml
+# lefthook.yml
 
 pre-commit:
   commands:
@@ -116,11 +116,11 @@ pre-commit:
 
 ## Custom file list
 
-Hookah can be even more specific in selecting files.
+Lefthook can be even more specific in selecting files.
 If you want to choose diff of all changed files between the current branch and master branch you can do it this way:
 
 ```yml
-# hookah.yml
+# lefthook.yml
 
 pre-push:
   commands:
@@ -133,23 +133,23 @@ pre-push:
 `{files}` - shorthand for a custom list of files
 
 ## Managing scripts
-If you run `hookah add` command with `-d` flag, hookah will create two directories where you can put scripts and reference them from `hookah.yml` file.
+If you run `lefthook add` command with `-d` flag, lefthook will create two directories where you can put scripts and reference them from `lefthook.yml` file.
 
 Example:
 Let's create `commit-msg` hook with `-d` flag
 ```bash
-hookah add -d commit-msg
+lefthook add -d commit-msg
 ```
 
-This command will create `.hookah/commit-msg` and `.hookah-local/commit-msg` dirs.
+This command will create `.lefthook/commit-msg` and `.lefthook-local/commit-msg` dirs.
 
 The first one is for common project level scripts.
-The second one is for personal scripts. It would be a good idea to add dir`.hookah-local` to `.gitignore`.
+The second one is for personal scripts. It would be a good idea to add dir`.lefthook-local` to `.gitignore`.
 
-Create scripts `.hookah/commit-msg/hello.js` and `.hookah/commit-msg/hi.rb`
+Create scripts `.lefthook/commit-msg/hello.js` and `.lefthook/commit-msg/hi.rb`
 
 ```yml
-# hookah.yml
+# lefthook.yml
 
 commit-msg:
   scripts:
@@ -162,7 +162,7 @@ commit-msg:
 
 ### Bash script example
 
-Let's create a bash script to check commit templates `.hookah/commit-msg/template_checker`:
+Let's create a bash script to check commit templates `.lefthook/commit-msg/template_checker`:
 
 ```bash
 INPUT_FILE=$1
@@ -174,11 +174,11 @@ if ! [[ "$START_LINE" =~ $PATTERN ]]; then
 fi
 ```
 
-Now we can ask hookah to run our bash script by adding this code to
- `hookah.yml` file:
+Now we can ask lefthook to run our bash script by adding this code to
+ `lefthook.yml` file:
 
 ```yml
-# hookah.yml
+# lefthook.yml
 
 commit-msg:
   scripts:
@@ -189,14 +189,14 @@ commit-msg:
 When you try to commit `git commit -m "haha bad commit text"` script `template_checker` will be executed. Since commit text doesn't match the described pattern the commit process will be interrupted.
 
 ## Local config
-We can use `hookah-local.yml` as local config. Options in this file will overwrite options in `hookah.yml`. (Don't forget to add this file to `.gitignore`)
+We can use `lefthook-local.yml` as local config. Options in this file will overwrite options in `lefthook.yml`. (Don't forget to add this file to `.gitignore`)
 
 ## Skipping commands
 
 You can skip commands by `skip` option:
 
 ```yml
-# hookah-local.yml
+# lefthook-local.yml
 
 pre-push:
   commands:
@@ -209,7 +209,7 @@ pre-push:
 
 If we have a lot of commands and scripts we can tag them and run skip commands with a specific tag.
 
-For example, if we have `hookah.yml` like this:
+For example, if we have `lefthook.yml` like this:
 
 ```yml
 pre-push:
@@ -226,19 +226,19 @@ pre-push:
 You can skip commands by tags:
 
 ```yml
-# hookah-local.yml
+# lefthook-local.yml
 
 pre-push:
   exlude_tags:
     - frontend
 ```
 
-## Referencing commands from hookah.yml
+## Referencing commands from lefthook.yml
 
 If you have the following config
 
 ```yml
-# hookah.yml
+# lefthook.yml
 
 pre-commit:
   scripts:
@@ -249,7 +249,7 @@ pre-commit:
 You can wrap it in docker runner locally:
 
 ```yml
-# hookah-local.yml
+# lefthook-local.yml
 
 pre-commit:
   scripts:
@@ -257,12 +257,12 @@ pre-commit:
       runner: docker exec -it --rm <container_id_or_name> {cmd}
 ```
 
-`{cmd}` - shorthand for the command from `hookah.yml`
+`{cmd}` - shorthand for the command from `lefthook.yml`
 
 ## Run githook group directly
 
 ```bash
-hookah run pre-commit
+lefthook run pre-commit
 ```
 
 ## Parallel execution
@@ -280,10 +280,10 @@ yarn eslint --ext .es6 plugins/**/test/javascripts && \
 yarn eslint app/assets/javascripts test/javascripts
 ```
 
-Rewrite it in hookah custom group. We call it `lint`:
+Rewrite it in lefthook custom group. We call it `lint`:
 
 ```yml
-# hookah.yml
+# lefthook.yml
 
 lint:
   commands:
@@ -308,13 +308,13 @@ lint:
 Then call this group directly:
 
 ```
-hookah run lint
+lefthook run lint
 ```
 
 ## Complete example
 
 ```yml
-# hookah.yml
+# lefthook.yml
 
 pre-commit:
   commands:
@@ -342,7 +342,7 @@ pre-commit:
 ```
 
 ```yml
-# hookah-local.yml
+# lefthook-local.yml
 
 pre-commit:
   exclude_tags:
@@ -358,10 +358,10 @@ pre-commit:
 
 ## Skip hoookah execution
 
-We can set env variable `HOOKAH` to zero for that
+We can set env variable `LEFTHOOK` to zero for that
 
 ```bash
-HOOKAH=0 git commit -am "Hookah skipped"
+LEFTHOOK=0 git commit -am "Lefthook skipped"
 ```
 
 ## Skip some tags on the fly
@@ -389,20 +389,20 @@ SHA1=$3
 You can do this through this config keys:
 
 ```yml
-# hookah.yml
+# lefthook.yml
 
-source_dir: ".hookah"
-source_dir_local: ".hookah-local"
+source_dir: ".lefthook"
+source_dir_local: ".lefthook-local"
 ```
 
 ## Version
 
 ```bash
-hookah version
+lefthook version
 ```
 
 ## Uninstall
 
 ```bash
-hookah uninstall
+lefthook uninstall
 ```
