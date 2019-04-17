@@ -7,8 +7,8 @@ RSpec.describe 'add command' do
   let(:pre_commit_hook) do
     File.join(FileStructure.tmp, '.git', 'hooks', 'pre-commit')
   end
-  let(:hookah_pre_commit_group) do
-    File.join(FileStructure.tmp, '.hookah', 'pre-commit')
+  let(:lefthook_pre_commit_group) do
+    File.join(FileStructure.tmp, '.lefthook', 'pre-commit')
   end
   let(:expected_pre_commit_hook) { FileStructure.pre_commit_hook_path }
 
@@ -18,7 +18,7 @@ RSpec.describe 'add command' do
   end
 
   describe 'with -d flag' do
-    let(:command) { 'hookah add -d pre-commit' }
+    let(:command) { 'lefthook add -d pre-commit' }
 
     it 'exit with 0 status' do
       expect(@status.success?).to be_truthy
@@ -31,13 +31,13 @@ RSpec.describe 'add command' do
       ).to be_truthy
     end
 
-    it 'create hookah pre-commit group' do
-      expect(Dir.exist?(hookah_pre_commit_group)).to be_truthy
+    it 'create lefthook pre-commit group' do
+      expect(Dir.exist?(lefthook_pre_commit_group)).to be_truthy
     end
   end
 
   describe 'without -d flag' do
-    let(:command) { 'hookah add pre-commit' }
+    let(:command) { 'lefthook add pre-commit' }
 
     it 'exit with 0 status' do
       expect(@status.success?).to be_truthy
@@ -50,8 +50,8 @@ RSpec.describe 'add command' do
       ).to be_truthy
     end
 
-    it 'skip hookah pre-commit group' do
-      expect(Dir.exist?(hookah_pre_commit_group)).to be_falsy
+    it 'skip lefthook pre-commit group' do
+      expect(Dir.exist?(lefthook_pre_commit_group)).to be_falsy
     end
   end
 end

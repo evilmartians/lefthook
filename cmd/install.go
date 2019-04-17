@@ -52,7 +52,7 @@ func InstallCmdExecutor(args []string, fs afero.Fs) {
 	}
 }
 
-// AddConfigYaml write hookah.yml in root project directory
+// AddConfigYaml write lefthook.yml in root project directory
 func AddConfigYaml(fs afero.Fs) {
 	template := ""
 	err := afero.WriteFile(fs, getConfigYamlPath(), []byte(template), defaultDirPermission)

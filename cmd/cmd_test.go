@@ -16,10 +16,10 @@ func TestInstallCmdExecutor(t *testing.T) {
 
 	InstallCmdExecutor([]string{}, fs)
 
-	expectedFile := "hookah.yml"
+	expectedFile := "lefthook.yml"
 
 	_, err := fs.Stat(expectedFile)
-	assert.Equal(t, os.IsNotExist(err), false, "hookah.yml not exists after install command")
+	assert.Equal(t, os.IsNotExist(err), false, "lefthook.yml not exists after install command")
 
 	// else branch
 	fs = afero.NewMemMapFs()
@@ -63,7 +63,7 @@ func TestAddCmdExecutor(t *testing.T) {
 		actualFiles = append(actualFiles, f.Name())
 	}
 
-	dirs, _ := afero.ReadDir(fs, filepath.Join(getRootPath(), ".hookah"))
+	dirs, _ := afero.ReadDir(fs, filepath.Join(getRootPath(), ".lefthook"))
 	actualDirs := []string{}
 	for _, f := range dirs {
 		actualDirs = append(actualDirs, f.Name())
@@ -89,19 +89,19 @@ func TestAddCmdExecutor(t *testing.T) {
 }
 
 func presetConfig(fs afero.Fs) {
-	viper.SetDefault(configSourceDirKey, ".hookah")
+	viper.SetDefault(configSourceDirKey, ".lefthook")
 
 	AddConfigYaml(fs)
 
-	fs.Mkdir(filepath.Join(getRootPath(), ".hookah/commit-msg"), defaultFilePermission)
-	fs.Mkdir(filepath.Join(getRootPath(), ".hookah/pre-commit"), defaultFilePermission)
+	fs.Mkdir(filepath.Join(getRootPath(), ".lefthook/commit-msg"), defaultFilePermission)
+	fs.Mkdir(filepath.Join(getRootPath(), ".lefthook/pre-commit"), defaultFilePermission)
 
 	fs.Mkdir(filepath.Join(getRootPath(), ".git/hooks"), defaultFilePermission)
 }
 
 func presetExecutable(hookName string, hookGroup string, exitCode string, fs afero.Fs) {
 	template := "#!/bin/sh\nexit " + exitCode + "\n"
-	pathToFile := filepath.Join(".hookah", hookGroup, hookName)
+	pathToFile := filepath.Join(".lefthook", hookGroup, hookName)
 	err := afero.WriteFile(fs, pathToFile, []byte(template), defaultFilePermission)
 	check(err)
 }

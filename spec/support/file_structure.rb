@@ -11,14 +11,14 @@ class FileStructure
     end
 
     def make_scripts_preset
-      FileUtils.mkdir_p(File.join(tmp, '.hookah', 'pre-commit'))
+      FileUtils.mkdir_p(File.join(tmp, '.lefthook', 'pre-commit'))
       FileUtils.cp(
         [ok_script_path, fail_script_path],
-        File.join(tmp, '.hookah', 'pre-commit')
+        File.join(tmp, '.lefthook', 'pre-commit')
       )
 
-      FileUtils.mkdir_p(File.join(tmp, '.hookah', 'pre-push'))
-      FileUtils.cp(ok_script_path, File.join(tmp, '.hookah', 'pre-push'))
+      FileUtils.mkdir_p(File.join(tmp, '.lefthook', 'pre-push'))
+      FileUtils.cp(ok_script_path, File.join(tmp, '.lefthook', 'pre-push'))
 
       FileUtils.cp(pre_push_hook_path, File.join(tmp, '.git', 'hooks'))
 
@@ -38,7 +38,7 @@ class FileStructure
     end
 
     def config_yaml_path
-      File.join(fixtures, 'hookah.yml')
+      File.join(fixtures, 'lefthook.yml')
     end
 
     def ok_script_path

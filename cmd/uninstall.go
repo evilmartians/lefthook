@@ -41,16 +41,16 @@ func deleteConfig(fs afero.Fs) {
 }
 
 func deleteSourceDirs(fs afero.Fs) {
-	configExists, _ := afero.DirExists(fs, filepath.Join(getRootPath(), ".hookah"))
-	err := fs.RemoveAll(filepath.Join(getRootPath(), ".hookah"))
+	configExists, _ := afero.DirExists(fs, filepath.Join(getRootPath(), ".lefthook"))
+	err := fs.RemoveAll(filepath.Join(getRootPath(), ".lefthook"))
 	if err == nil && configExists {
-		log.Println(filepath.Join(getRootPath(), ".hookah"), "removed")
+		log.Println(filepath.Join(getRootPath(), ".lefthook"), "removed")
 	}
 
-	localConfigExists, _ := afero.DirExists(fs, filepath.Join(getRootPath(), ".hookah-local"))
-	err = fs.RemoveAll(filepath.Join(getRootPath(), ".hookah-local"))
+	localConfigExists, _ := afero.DirExists(fs, filepath.Join(getRootPath(), ".lefthook-local"))
+	err = fs.RemoveAll(filepath.Join(getRootPath(), ".lefthook-local"))
 	if err == nil && localConfigExists {
-		log.Println(filepath.Join(getRootPath(), ".hookah-local"), "removed")
+		log.Println(filepath.Join(getRootPath(), ".lefthook-local"), "removed")
 	}
 }
 

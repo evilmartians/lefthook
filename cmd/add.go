@@ -23,11 +23,11 @@ var addCmd = &cobra.Command{
 │   └───hooks
 │       └───pre-commit // this executable will be added. Existed file with
 │                      // same name will be renamed to pre-commit.old
-(hookah add this dirs if you run command with -d option)
+(lefthook add this dirs if you run command with -d option)
 │
-├───.hookah            // directory for project level hooks
+├───.lefthook            // directory for project level hooks
 │   └───pre-commit     // directory with hooks executables
-├───.hookah-local      // directory for personal hooks add it in .gitignore
+├───.lefthook-local      // directory for personal hooks add it in .gitignore
 │   └───pre-commit
 `,
 	Args: cobra.MinimumNArgs(1),
@@ -38,9 +38,9 @@ var addCmd = &cobra.Command{
 
 func init() {
 	addCmd.SetUsageTemplate(`Usage:
-    hookah add [hooksGroup]
+    lefthook add [hooksGroup]
 Example:
-    hookah add pre-commit
+    lefthook add pre-commit
 `)
 	addCmd.PersistentFlags().BoolVarP(&createDirsFlag, "dirs", "d", false, "create directory for scripts")
 	rootCmd.AddCommand(addCmd)
@@ -57,11 +57,11 @@ func addCmdExecutor(args []string, fs afero.Fs) {
 func addHook(hookName string, fs afero.Fs) {
 	// TODO: text/template
 	template := `#!/bin/bash
-# If can't find hookah in global scope
+# If can't find lefthook in global scope
 # we suppose it in local npm package
-if ! type hookah >/dev/null
+if ! type lefthook >/dev/null
 then
-  exec npx hookah run ` + hookName + " $@\nelse\n  exec hookah run " + hookName + " $@\nfi\n"
+  exec npx lefthook run ` + hookName + " $@\nelse\n  exec lefthook run " + hookName + " $@\nfi\n"
 
 	pathToFile := filepath.Join(getGitHooksDir(), hookName)
 

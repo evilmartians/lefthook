@@ -4,8 +4,8 @@ require 'spec_helper'
 require 'open3'
 
 RSpec.describe 'install command' do
-  let(:command) { 'hookah install' }
-  let(:config_name) { 'hookah.yml' }
+  let(:command) { 'lefthook install' }
+  let(:config_name) { 'lefthook.yml' }
   let(:expected_config_path) { FileStructure.config_yaml_path }
 
   describe 'First time install' do
@@ -28,7 +28,7 @@ RSpec.describe 'install command' do
     end
   end
 
-  describe 'install after cloning repo with existed hookah structure' do
+  describe 'install after cloning repo with existed lefthook structure' do
     let(:pre_push_hook) do
       File.join(FileStructure.tmp, '.git', 'hooks', 'pre-push')
     end

@@ -11,7 +11,7 @@ RSpec.describe 'run command' do
   end
 
   describe 'fail chain' do
-    let(:command) { 'hookah run pre-commit' }
+    let(:command) { 'lefthook run pre-commit' }
     let(:expected_output) do
       "\n[  \e[32mOK\e[0m  ] ok_script\n[ \e[31mFAIL\e[0m ] fail_script\n"
     end
@@ -26,7 +26,7 @@ RSpec.describe 'run command' do
   end
 
   describe 'ok chain' do
-    let(:command) { 'hookah run pre-push' }
+    let(:command) { 'lefthook run pre-push' }
     let(:expected_output) { "[  \e[32mOK\e[0m  ] ok_script\n" }
 
     it 'exit with 0 status' do

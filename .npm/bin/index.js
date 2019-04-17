@@ -19,11 +19,11 @@ function spawnCommand(binaryExecutable) {
 }
 
 if (process.platform === 'darwin') {
-    spawnCommand('hookah-mac');
+    spawnCommand('lefthook-mac');
 } else if (process.platform === 'linux') {
-    spawnCommand('hookah-linux');
+    spawnCommand('lefthook-linux');
 } else if (process.platform === 'win32') {
-    spawnCommand('hookah-win.exe');
+    spawnCommand('lefthook-win.exe');
 } else {
     console.log("Unsupported OS");
     process.exit(1);
