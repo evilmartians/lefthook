@@ -1,7 +1,6 @@
 package context
 
 import (
-	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -17,10 +16,6 @@ func AllFiles() ([]string, error) {
 }
 
 func ExecGitCommand(command string) ([]string, error) {
-	if !strings.Contains(command, "git") {
-		return []string{}, errors.New("Wrong git command")
-	}
-
 	commandArg := strings.Split(command, " ")
 	cmd := exec.Command(commandArg[0], commandArg[1:]...)
 
