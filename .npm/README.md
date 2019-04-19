@@ -233,7 +233,7 @@ You can skip commands by tags:
 # lefthook-local.yml
 
 pre-push:
-  exlude_tags:
+  exclude_tags:
     - frontend
 ```
 
