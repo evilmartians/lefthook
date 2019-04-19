@@ -44,6 +44,7 @@ Or take it from [binaries](https://github.com/Arkweid/lefthook/releases) and ins
 ## Scenarios
 
 ### First time user
+
 Initialize lefthook with the following command
 
 ```bash
@@ -72,7 +73,9 @@ That's all! Now on `git push` the `yarn audit` command will be run.
 If it fails the `git push` will be interrupted.
 
 ### If you already have a lefthook config file
+
 Just initialize lefthook to make it work :)
+
 ```bash
 lefthook install
 ```
@@ -80,6 +83,7 @@ lefthook install
 ## More options
 
 ## Use glob patterns to choose what files you want to check
+
 ```yml
 # lefthook.yml
 
@@ -91,8 +95,9 @@ pre-commit:
 ```
 
 ## Select specific file groups
+
 In some cases you want to run checks only against some specific file group.
-For example: you may want to run eslint for staged files only. 
+For example: you may want to run eslint for staged files only.
 
 There are two shorthands for such situations:
 `{staged_files}` - staged git files which you try to commit
@@ -113,7 +118,6 @@ pre-commit:
       run: bundle exec rubocop {all_files} # {all_files} - list of files
 ```
 
-
 ## Custom file list
 
 Lefthook can be even more specific in selecting files.
@@ -133,10 +137,12 @@ pre-push:
 `{files}` - shorthand for a custom list of files
 
 ## Managing scripts
+
 If you run `lefthook add` command with `-d` flag, lefthook will create two directories where you can put scripts and reference them from `lefthook.yml` file.
 
 Example:
 Let's create `commit-msg` hook with `-d` flag
+
 ```bash
 lefthook add -d commit-msg
 ```
@@ -157,7 +163,6 @@ commit-msg:
       runner: node
     "hi.rb":
       runner: ruby
-
 ```
 
 ### Bash script example
@@ -175,7 +180,7 @@ fi
 ```
 
 Now we can ask lefthook to run our bash script by adding this code to
- `lefthook.yml` file:
+`lefthook.yml` file:
 
 ```yml
 # lefthook.yml
@@ -189,6 +194,7 @@ commit-msg:
 When you try to commit `git commit -m "haha bad commit text"` script `template_checker` will be executed. Since commit text doesn't match the described pattern the commit process will be interrupted.
 
 ## Local config
+
 We can use `lefthook-local.yml` as local config. Options in this file will overwrite options in `lefthook.yml`. (Don't forget to add this file to `.gitignore`)
 
 ## Skipping commands
@@ -203,7 +209,6 @@ pre-push:
     packages-audit:
       skip: true
 ```
-
 
 ## Skipping commands by tags
 
@@ -221,7 +226,6 @@ pre-push:
       tags: backend security
       run: bundle audit
 ```
-
 
 You can skip commands by tags:
 
@@ -366,10 +370,10 @@ LEFTHOOK=0 git commit -am "Lefthook skipped"
 
 ## Skip some tags on the fly
 
-Use HOOKAH_EXCLUDE={list of tags to be excluded} for that
+Use LEFTHOOK_EXCLUDE={list of tags to be excluded} for that
 
 ```bash
-HOOKAH_EXCLUDE=ruby,security git commit -am "Skip some tag checks"
+LEFTHOOK_EXCLUDE=ruby,security git commit -am "Skip some tag checks"
 ```
 
 ## Capture ARGS from git in the script
