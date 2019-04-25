@@ -290,9 +290,8 @@ Rewrite it in lefthook custom group. We call it `lint`:
 # lefthook.yml
 
 lint:
+  parallel: true
   commands:
-    parallel: true
-
     rubocop:
       run: bundle exec rubocop --parallel
     danger:
