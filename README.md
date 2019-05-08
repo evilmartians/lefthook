@@ -363,7 +363,7 @@ pre-commit:
       skip: true
 ```
 
-## Skip hoookah execution
+## Skip lefthook execution
 
 We can set env variable `LEFTHOOK` to zero for that
 
