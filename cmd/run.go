@@ -150,7 +150,7 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 
 	if strings.Contains(runner, subStagedFiles) {
 		files, _ = context.StagedFiles()
-	} else if strings.Contains(runner, subFiles) {
+	} else if strings.Contains(runner, subFiles) || getCommandFiles(hooksGroup, commandName) != "" {
 		files, _ = context.ExecGitCommand(getCommandFiles(hooksGroup, commandName))
 	}
 

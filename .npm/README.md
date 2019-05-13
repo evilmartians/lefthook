@@ -39,6 +39,10 @@ brew install Arkweid/lefthook/lefthook
 sudo snap install --devmode lefthook
 ```
 
+### AUR for Arch
+
+You can install lefthook [package](https://aur.archlinux.org/packages/lefthook) from AUR
+
 Or take it from [binaries](https://github.com/Arkweid/lefthook/releases) and install manually
 
 ## Scenarios
@@ -359,7 +363,7 @@ pre-commit:
       skip: true
 ```
 
-## Skip hoookah execution
+## Skip lefthook execution
 
 We can set env variable `LEFTHOOK` to zero for that
 
