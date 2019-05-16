@@ -5,6 +5,7 @@ require (
 	github.com/adam-hanna/arrayOperations v0.2.5
 	github.com/gobwas/glob v0.2.3
 	github.com/logrusorgru/aurora v0.0.0-20181002194514-a7b3b318ed4e
+	github.com/mattn/go-isatty v0.0.7
 	github.com/spf13/afero v1.2.1
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/viper v1.3.1

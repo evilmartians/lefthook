@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/logrusorgru/aurora"
+	"github.com/mattn/go-isatty"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -24,6 +26,8 @@ var (
 	rootPath     string
 	cfgFile      string
 	originConfig *viper.Viper
+
+	au aurora.Aurora
 )
 
 var rootCmd = &cobra.Command{
@@ -48,6 +52,8 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	au = aurora.NewAurora(IsTTY())
+	log.SetOutput(os.Stdout)
 }
 
 func initConfig() {
@@ -93,4 +99,9 @@ func check(e error) {
 	if e != nil {
 		panic(e)
 	}
+}
+
+// IsTTY returns true if program is running with TTY
+func IsTTY() bool {
+	return isatty.IsTerminal(os.Stdout.Fd()) || isatty.IsCygwinTerminal(os.Stdout.Fd())
 }

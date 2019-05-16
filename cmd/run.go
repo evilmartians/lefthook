@@ -16,7 +16,6 @@ import (
 
 	arrop "github.com/adam-hanna/arrayOperations"
 	"github.com/gobwas/glob"
-	"github.com/logrusorgru/aurora"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -91,7 +90,7 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 	var wg sync.WaitGroup
 
 	startTime := time.Now()
-	log.Println(aurora.Cyan("RUNNING HOOKS GROUP:"), aurora.Bold(hooksGroup))
+	log.Println(au.Cyan("RUNNING HOOKS GROUP:"), au.Bold(hooksGroup))
 
 	sourcePath := filepath.Join(getSourceDir(), hooksGroup)
 	executables, err := afero.ReadDir(fs, sourcePath)
@@ -169,18 +168,18 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	command.Stderr = os.Stderr
 	command.Stdin = os.Stdin
 
-	log.Println(aurora.Cyan("  EXECUTE >"), aurora.Bold(commandName))
+	log.Println(au.Cyan("  EXECUTE >"), au.Bold(commandName))
 
 	if isSkipCommmand(hooksGroup, commandName) {
-		log.Println(aurora.Brown("(SKIP BY SETTINGS)"))
+		log.Println(au.Brown("(SKIP BY SETTINGS)"))
 		return
 	}
 	if result, _ := arrop.Intersect(getExcludeTags(hooksGroup), getTags(hooksGroup, commandsConfigKey, commandName)); len(result.Interface().([]string)) > 0 {
-		log.Println(aurora.Brown("(SKIP BY TAGS)"))
+		log.Println(au.Brown("(SKIP BY TAGS)"))
 		return
 	}
 	if len(files) < 1 && isSkipEmptyCommmand(hooksGroup, commandName) {
-		log.Println(aurora.Brown("(SKIP. NO FILES FOR INSPECTING)"))
+		log.Println(au.Brown("(SKIP. NO FILES FOR INSPECTING)"))
 		return
 	}
 
@@ -203,14 +202,14 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 	defer wg.Done()
 	executableName := executable.Name()
 
-	log.Println(aurora.Cyan("  EXECUTE >"), aurora.Bold(executableName))
+	log.Println(au.Cyan("  EXECUTE >"), au.Bold(executableName))
 
 	if isSkipScript(hooksGroup, executableName) {
-		log.Println(aurora.Brown("(SKIP BY SETTINGS)"))
+		log.Println(au.Brown("(SKIP BY SETTINGS)"))
 		return
 	}
 	if result, _ := arrop.Intersect(getExcludeTags(hooksGroup), getTags(hooksGroup, scriptsConfigKey, executableName)); len(result.Interface().([]string)) > 0 {
-		log.Println(aurora.Brown("(SKIP BY TAGS)"))
+		log.Println(au.Brown("(SKIP BY TAGS)"))
 		return
 	}
 
@@ -236,7 +235,7 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 
 	err := command.Start()
 	if os.IsPermission(err) {
-		log.Println(aurora.Brown("(SKIP NOT EXECUTABLE FILE)"))
+		log.Println(au.Brown("(SKIP NOT EXECUTABLE FILE)"))
 		return
 	}
 	if err != nil {
@@ -281,17 +280,17 @@ func getRunner(hooksGroup, source, executableName string) string {
 
 func printSummary(execTime time.Duration) {
 	if len(okList) == 0 && len(failList) == 0 {
-		log.Println(aurora.Cyan("\nSUMMARY:"), aurora.Brown("(SKIP EMPTY)"))
+		log.Println(au.Cyan("\nSUMMARY:"), au.Brown("(SKIP EMPTY)"))
 	} else {
-		log.Println(aurora.Cyan(fmt.Sprintf("\nSUMMARY: (done in %.2f seconds)", execTime.Seconds())))
+		log.Println(au.Cyan(fmt.Sprintf("\nSUMMARY: (done in %.2f seconds)", execTime.Seconds())))
 	}
 
 	for _, fileName := range okList {
-		log.Printf("✔️  %s\n", aurora.Green(fileName))
+		log.Printf("✔️  %s\n", au.Green(fileName))
 	}
 
 	for _, fileName := range failList {
-		log.Printf("🥊  %s", aurora.Red(fileName))
+		log.Printf("🥊  %s", au.Red(fileName))
 	}
 }
 
