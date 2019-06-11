@@ -1,6 +1,6 @@
 {
   "name": "@arkweid/lefthook",
-  "version": "0.3.4",
+  "version": "0.4.0",
   "description": "Simple git hooks manager",
   "main": "index.js",
   "bin": {

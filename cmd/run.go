@@ -202,6 +202,11 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 	defer wg.Done()
 	executableName := executable.Name()
 
+	if !isScriptExist(hooksGroup, executableName) {
+		log.Println(au.Bold(executableName), au.Brown("(SKIP BY NOT EXIST IN CONFIG)"))
+		return
+	}
+
 	log.Println(au.Cyan("  EXECUTE >"), au.Bold(executableName))
 
 	if isSkipScript(hooksGroup, executableName) {
@@ -292,6 +297,11 @@ func printSummary(execTime time.Duration) {
 	for _, fileName := range failList {
 		log.Printf("🥊  %s", au.Red(fileName))
 	}
+}
+
+func isScriptExist(hooksGroup, executableName string) bool {
+	key := strings.Join([]string{hooksGroup, scriptsConfigKey, executableName}, ".")
+	return viper.IsSet(key)
 }
 
 func isSkipScript(hooksGroup, executableName string) bool {

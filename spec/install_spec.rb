@@ -20,12 +20,6 @@ RSpec.describe 'install command' do
     it 'create config file' do
       expect(File.exist?(config_name)).to be_truthy
     end
-
-    it 'config file have expected content' do
-      expect(
-        FileUtils.compare_file(expected_config_path, config_name)
-      ).to be_truthy
-    end
   end
 
   describe 'install after cloning repo with existed lefthook structure' do

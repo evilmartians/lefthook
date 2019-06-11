@@ -17,7 +17,7 @@ var createDirsFlag bool
 var addCmd = &cobra.Command{
 	Use:   "add",
 	Short: "This command add a hook directory to a repository",
-	Long: `This command will try to build the foolowing structure in repository:
+	Long: `This command will try to build the following structure in repository:
 
 ├───.git
 │   └───hooks
