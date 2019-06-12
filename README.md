@@ -125,7 +125,7 @@ pre-commit:
 ## Custom file list
 
 Lefthook can be even more specific in selecting files.
-If you want to choose all files changed locally but pushed to GitHub yet.
+If you want to choose all files changed locally but not yet pushed to GitHub.
 
 ```yml
 # lefthook.yml
