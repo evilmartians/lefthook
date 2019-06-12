@@ -125,7 +125,7 @@ pre-commit:
 ## Custom file list
 
 Lefthook can be even more specific in selecting files.
-If you want to choose diff of all changed files between the current branch and master branch you can do it this way:
+If you want to choose all files changed locally but pushed to GitHub yet.
 
 ```yml
 # lefthook.yml
@@ -133,7 +133,7 @@ If you want to choose diff of all changed files between the current branch and m
 pre-push:
   commands:
     frontend-style:
-      files: git diff --name-only master # custom list of files
+      files: git diff --name-only origin # custom list of files
       glob: "*.{js}"
       run: yarn stylelint {files}
 ```
