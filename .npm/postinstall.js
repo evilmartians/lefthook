@@ -1,10 +1,13 @@
-require('process');
-const { spawn } = require('child_process');
+require("process");
+const { spawn } = require("child_process");
 
-process.chdir(process.env.INIT_CWD);
+const isCI = process.env.$CI;
+if (!isCI) {
+  process.chdir(process.env.INIT_CWD);
 
-result = spawn('npx', ['lefthook', 'install']);
+  result = spawn("npx", ["lefthook", "install"]);
 
-result.stdout.on('data', (data) => {
+  result.stdout.on("data", data => {
     console.log(`${data}`);
-});
+  });
+}
