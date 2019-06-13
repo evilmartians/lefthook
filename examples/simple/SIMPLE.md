@@ -24,7 +24,7 @@ pre-push:
     js-linter:
       files: git diff --name-only HEAD master
       glob: "*.{js,ts}"
-      run: yarn eslint
+      run: yarn eslint {files}
 ```
 
 4. (optional) Test it
