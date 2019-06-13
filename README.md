@@ -47,6 +47,10 @@ Or take it from [binaries](https://github.com/Arkweid/lefthook/releases) and ins
 
 ## Scenarios
 
+### Examples
+
+We have a directory with few examples. You can check it [here](https://github.com/Arkweid/lefthook/tree/master/examples).
+
 ### First time user
 
 Initialize lefthook with the following command
