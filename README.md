@@ -65,7 +65,7 @@ Register your hook (You can choose any hook from [this list](https://git-scm.com
 In our example it `pre-push` githook:
 
 ```bash
-lefthook add pre-push
+lefthook -v add pre-push
 ```
 
 Describe pre-push commands in `lefthook.yml`:
@@ -152,7 +152,7 @@ Example:
 Let's create `commit-msg` hook with `-d` flag
 
 ```bash
-lefthook add -d commit-msg
+lefthook -v add -d commit-msg
 ```
 
 This command will create `.lefthook/commit-msg` and `.lefthook-local/commit-msg` dirs.

@@ -56,14 +56,8 @@ RSpec.describe 'install command' do
       ).to be_truthy
     end
 
-    it 'rename existed hook with .old extension' do
-      expect(File.exist?(pre_push_hook + '.old')).to be_truthy
-    end
-
-    it 'command can`t overwrite file with .old extension' do
-      _, status = Open3.capture2(command)
-
-      expect(status.success?).to be_falsy
+    it 'dont rename existed lefthook hook with .old extension' do
+      expect(File.exist?(pre_push_hook + '.old')).to be_falsy
     end
   end
 end
