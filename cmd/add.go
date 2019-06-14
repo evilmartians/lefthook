@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"io/ioutil"
 	"log"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
@@ -21,7 +23,7 @@ var addCmd = &cobra.Command{
 
 ├───.git
 │   └───hooks
-│       └───pre-commit // this executable will be added. Existed file with
+│       └───pre-commit // this executable will be added. Existed file with 
 │                      // same name will be renamed to pre-commit.old
 (lefthook add this dirs if you run command with -d option)
 │
@@ -55,9 +57,13 @@ func addCmdExecutor(args []string, fs afero.Fs) {
 }
 
 func addHook(hookName string, fs afero.Fs) {
+	if !contains(availableHooks[:], hookName) {
+		VerbosePrint("Skip adding, because that name unavailable: ", hookName)
+		return
+	}
 	// TODO: text/template
-	template := `#!/bin/bash
-# If can't find lefthook in global scope
+	template := "#!/bin/bash\n" + autoInstall(hookName, fs) + "\n" +
+		`# If can't find lefthook in global scope
 # we suppose it in local npm package
 if ! type lefthook >/dev/null
 then
@@ -66,17 +72,36 @@ then
 	pathToFile := filepath.Join(getGitHooksDir(), hookName)
 
 	if yes, _ := afero.Exists(fs, pathToFile); yes {
-		if yes, _ := afero.Exists(fs, pathToFile+".old"); yes {
-			panic("Can`t rename " + hookName + " to " + hookName + ".old File already exists")
+		if isLefthookFile(pathToFile) {
+			e := fs.Remove(pathToFile)
+			check(e)
+		} else {
+			if yes, _ := afero.Exists(fs, pathToFile+".old"); yes {
+				panic("Can`t rename " + hookName + " to " + hookName + ".old File already exists")
+			}
+			e := fs.Rename(pathToFile, pathToFile+".old")
+			log.Println("Existed " + hookName + " hook renamed to " + hookName + ".old")
+			check(e)
 		}
-		e := fs.Rename(pathToFile, pathToFile+".old")
-		log.Println("Existed " + hookName + " hook renamed to " + hookName + ".old")
-		check(e)
 	}
 
 	err := afero.WriteFile(fs, pathToFile, []byte(template), defaultFilePermission)
 	check(err)
-	log.Println("Added hook: ", pathToFile)
+	VerbosePrint("Added hook: ", pathToFile)
+}
+
+func autoInstall(hookName string, fs afero.Fs) string {
+	if hookName == checkSumHook {
+		return "# lefthook_version: " + configChecksum(fs) + "\n" +
+			`if ! type lefthook >/dev/null
+then
+	exec npx lefthook install
+else
+	exec lefthook install
+fi`
+	}
+
+	return ""
 }
 
 func addProjectHookDir(hookName string, fs afero.Fs) {
@@ -91,4 +116,10 @@ func addLocalHookDir(hookName string, fs afero.Fs) {
 
 func getGitHooksDir() string {
 	return filepath.Join(getRootPath(), gitHooksDir)
+}
+
+func isLefthookFile(pathFile string) bool {
+	file, err := ioutil.ReadFile(pathFile)
+	check(err)
+	return strings.Contains(string(file), "lefthook")
 }

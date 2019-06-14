@@ -23,6 +23,7 @@ const (
 )
 
 var (
+	Verbose      bool
 	rootPath     string
 	cfgFile      string
 	originConfig *viper.Viper
@@ -54,6 +55,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 	au = aurora.NewAurora(IsTTY())
 	log.SetOutput(os.Stdout)
+	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 }
 
 func initConfig() {
@@ -104,4 +106,11 @@ func check(e error) {
 // IsTTY returns true if program is running with TTY
 func IsTTY() bool {
 	return isatty.IsTerminal(os.Stdout.Fd()) || isatty.IsCygwinTerminal(os.Stdout.Fd())
+}
+
+// VerbosePrint print text if Verbose flag persist
+func VerbosePrint(v ...interface{}) {
+	if Verbose {
+		log.Println(v...)
+	}
 }

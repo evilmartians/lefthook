@@ -22,7 +22,7 @@ func init() {
 }
 
 func uninstallCmdExecutor(fs afero.Fs) {
-	deleteGitHooks(fs)
+	DeleteGitHooks(fs)
 	revertOldGitHooks(fs)
 	deleteConfig(fs)
 	deleteSourceDirs(fs)
@@ -54,7 +54,8 @@ func deleteSourceDirs(fs afero.Fs) {
 	}
 }
 
-func deleteGitHooks(fs afero.Fs) {
+// DeleteGitHooks read the config and remove all git hooks except
+func DeleteGitHooks(fs afero.Fs) {
 	hookGroups, _ := afero.ReadDir(fs, getSourceDir())
 
 	if len(hookGroups) == 0 {
@@ -67,10 +68,9 @@ func deleteGitHooks(fs afero.Fs) {
 
 		err := fs.Remove(hookFilePath)
 		if err == nil {
-			log.Println(hookFilePath, "removed")
+			VerbosePrint(hookFilePath, "removed")
 		}
 	}
-
 }
 
 func revertOldGitHooks(fs afero.Fs) {
