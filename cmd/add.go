@@ -120,6 +120,8 @@ func getGitHooksDir() string {
 
 func isLefthookFile(pathFile string) bool {
 	file, err := ioutil.ReadFile(pathFile)
-	check(err)
+	if err != nil {
+		return false
+	}
 	return strings.Contains(string(file), "lefthook")
 }

@@ -30,6 +30,7 @@ func TestInstallCmdExecutor(t *testing.T) {
 	expectedFiles := []string{
 		"commit-msg",
 		"pre-commit",
+		"prepare-commit-msg",
 	}
 
 	files, err := afero.ReadDir(fs, filepath.Join(getRootPath(), ".git/hooks"))
