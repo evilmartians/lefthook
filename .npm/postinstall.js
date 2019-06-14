@@ -1,7 +1,7 @@
 require("process");
 const { spawn } = require("child_process");
 
-const isCI = process.env.$CI;
+const isCI = process.env.CI;
 if (!isCI) {
   process.chdir(process.env.INIT_CWD);
 
