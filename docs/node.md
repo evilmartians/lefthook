@@ -1,6 +1,6 @@
 # Lefthook in Node.js
 
-This is guide of using Lefthook git hook manager in Node.js projects. Youcan find guides for other environments in [README.md](./README.md).
+This is guide of using Lefthook git hook manager in Node.js projects. Youcan find guides for other environments in [README.md](../README.md).
 
 ## Install
 

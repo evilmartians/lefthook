@@ -28,6 +28,10 @@ pre-push:
 
 ## Usage
 
-* **[Node.js](./NODE.md)**
-* **[Ruby](./RUBY.md)**
-* [Other environments](./OTHER.md)
+Choose your environment:
+
+* **[Node.js](./docs/node.md)**
+* **[Ruby](./docs/node.md)**
+* [Other environments](./docs/other.md)
+
+Then you can find all Lefhook features in [config format docs](./docs/config.md).
