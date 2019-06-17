@@ -1,3 +1,6 @@
+// +build linux darwin
+// +build 386
+
 package cmd
 
 import (
