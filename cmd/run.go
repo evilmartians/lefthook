@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -16,6 +17,7 @@ import (
 
 	arrop "github.com/adam-hanna/arrayOperations"
 	"github.com/gobwas/glob"
+	"github.com/kr/pty"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -163,12 +165,18 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 
 	runnerArg := strings.Split(runner, " ")
 	command := exec.Command(runnerArg[0], runnerArg[1:]...)
-
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
 	command.Stdin = os.Stdin
 
-	log.Println(au.Cyan("  EXECUTE >"), au.Bold(commandName))
+	ptyOut, err := pty.Start(command)
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	log.Println(au.Cyan("\n  EXECUTE >"), au.Bold(commandName))
+	if err != nil {
+		failList = append(failList, commandName)
+		log.Println(err)
+		return
+	}
 
 	if isSkipCommmand(hooksGroup, commandName) {
 		log.Println(au.Brown("(SKIP BY SETTINGS)"))
@@ -183,40 +191,18 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 		return
 	}
 
-	err := command.Start()
-	if err != nil {
-		log.Println(err)
-	}
+	io.Copy(os.Stdout, ptyOut)
 
-	err = command.Wait()
-	mutex.Lock()
-	if err == nil {
+	if command.Wait() == nil {
 		okList = append(okList, commandName)
 	} else {
 		failList = append(failList, commandName)
 	}
-	mutex.Unlock()
 }
 
 func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.WaitGroup, gitArgs []string) {
 	defer wg.Done()
 	executableName := executable.Name()
-
-	if !isScriptExist(hooksGroup, executableName) {
-		log.Println(au.Bold(executableName), au.Brown("(SKIP BY NOT EXIST IN CONFIG)"))
-		return
-	}
-
-	log.Println(au.Cyan("  EXECUTE >"), au.Bold(executableName))
-
-	if isSkipScript(hooksGroup, executableName) {
-		log.Println(au.Brown("(SKIP BY SETTINGS)"))
-		return
-	}
-	if result, _ := arrop.Intersect(getExcludeTags(hooksGroup), getTags(hooksGroup, scriptsConfigKey, executableName)); len(result.Interface().([]string)) > 0 {
-		log.Println(au.Brown("(SKIP BY TAGS)"))
-		return
-	}
 
 	pathToExecutable := filepath.Join(source, executableName)
 
@@ -233,28 +219,43 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 
 		command = exec.Command(runnerArg[0], runnerArg[1:]...)
 	}
-
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
 	command.Stdin = os.Stdin
 
-	err := command.Start()
+	ptyOut, err := pty.Start(command)
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	log.Println(au.Cyan("\n  EXECUTE >"), au.Bold(executableName))
+	if !isScriptExist(hooksGroup, executableName) {
+		log.Println(au.Bold(executableName), au.Brown("(SKIP BY NOT EXIST IN CONFIG)"))
+		return
+	}
 	if os.IsPermission(err) {
 		log.Println(au.Brown("(SKIP NOT EXECUTABLE FILE)"))
 		return
 	}
 	if err != nil {
+		failList = append(failList, executableName)
 		log.Println(err)
+		log.Println(au.Brown("TIP: Command start failed. Checkout `runner:` option for this script"))
+		return
+	}
+	if isSkipScript(hooksGroup, executableName) {
+		log.Println(au.Brown("(SKIP BY SETTINGS)"))
+		return
+	}
+	if result, _ := arrop.Intersect(getExcludeTags(hooksGroup), getTags(hooksGroup, scriptsConfigKey, executableName)); len(result.Interface().([]string)) > 0 {
+		log.Println(au.Brown("(SKIP BY TAGS)"))
+		return
 	}
 
-	err = command.Wait()
-	mutex.Lock()
-	if err == nil {
+	io.Copy(os.Stdout, ptyOut)
+
+	if command.Wait() == nil {
 		okList = append(okList, executableName)
 	} else {
 		failList = append(failList, executableName)
 	}
-	mutex.Unlock()
 }
 
 func haveRunner(hooksGroup, source, executableName string) (out bool) {
