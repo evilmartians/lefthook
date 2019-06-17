@@ -163,6 +163,8 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 
 	runnerArg := strings.Split(runner, " ")
 	command := exec.Command(runnerArg[0], runnerArg[1:]...)
+	command.Stdout = os.Stdout
+	command.Stderr = os.Stderr
 	command.Stdin = os.Stdin
 
 	err := command.Start()
@@ -216,6 +218,8 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 
 		command = exec.Command(runnerArg[0], runnerArg[1:]...)
 	}
+	command.Stdout = os.Stdout
+	command.Stderr = os.Stderr
 	command.Stdin = os.Stdin
 
 	err := command.Start()

@@ -1,5 +1,4 @@
-// +build linux darwin
-// +build 386
+// +build !windows
 
 package cmd
 
