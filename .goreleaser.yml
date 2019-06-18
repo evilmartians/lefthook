@@ -10,6 +10,9 @@ builds:
     - darwin
     - windows
 archive:
+  format: gz
+  files:
+  - none*
   replacements:
     windows: Windows
     darwin: MacOS
