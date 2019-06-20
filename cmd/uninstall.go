@@ -56,19 +56,16 @@ func deleteSourceDirs(fs afero.Fs) {
 
 // DeleteGitHooks read the config and remove all git hooks except
 func DeleteGitHooks(fs afero.Fs) {
-	hookGroups, _ := afero.ReadDir(fs, getSourceDir())
-
-	if len(hookGroups) == 0 {
-		return
-	}
-
 	hooksPath := filepath.Join(getRootPath(), ".git", "hooks")
-	for _, file := range hookGroups {
-		hookFilePath := filepath.Join(hooksPath, file.Name())
-
-		err := fs.Remove(hookFilePath)
-		if err == nil {
-			VerbosePrint(hookFilePath, "removed")
+	hooks, _ := afero.ReadDir(fs, hooksPath)
+	for _, file := range hooks {
+		hookFile := filepath.Join(hooksPath, file.Name())
+		isLefthookFile, _ := afero.FileContainsBytes(fs, hookFile, []byte("lefthook"))
+		if isLefthookFile {
+			err := fs.Remove(hookFile)
+			if err == nil {
+				VerbosePrint(hookFile, "removed")
+			}
 		}
 	}
 }
