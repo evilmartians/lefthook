@@ -13,12 +13,9 @@ npm install @arkweid/lefthook --save-dev
 ```yml
 pre-push:
   commands:
-    packages-audit:
-      run: yarn audit
     js-linter:
-      files: git diff --name-only HEAD master
-      glob: "*.{js,ts}"
-      run: yarn eslint {files}
+      glob: "*.{js,jsx}"
+      run: npx eslint {staged_files}
 ```
 
 3. (optional) Test it

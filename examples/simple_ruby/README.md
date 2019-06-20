@@ -18,14 +18,11 @@ lefthook install
 3. Edit `lefthook.yml`
 
 ```yml
-pre-push:
+pre-commit:
   commands:
-    audit:
-      run: bundle audit
     rubocop:
-      files: git diff --name-only HEAD master
       glob: "*.{rb}"
-      run: rubocop {files}
+      run: rubocop {staged_files}
 ```
 
 4. (optional) Test it

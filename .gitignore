@@ -7,3 +7,4 @@ lefthook
 
 tmp/
 dist/
+.rubygems/pkg/
