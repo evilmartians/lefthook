@@ -4,14 +4,15 @@ Run lints/tests against changed files between feature_branch and master when we 
 
 ### Steps:
 1. Install lefthook
+
 ```bash
-$ npm install @arkweid/lefthook --save-dev
+gem install lefthook
 ```
 
-2. Add desired `pre-push` hook
+2. Initialize lefthook
 
 ```bash
-$ npx lefthook add pre-push
+lefthook install
 ```
 
 3. Edit `lefthook.yml`
@@ -19,15 +20,15 @@ $ npx lefthook add pre-push
 ```yml
 pre-push:
   commands:
-    packages-audit:
-      run: yarn audit
-    js-linter:
+    audit:
+      run: bundle audit
+    rubocop:
       files: git diff --name-only HEAD master
-      glob: "*.{js,ts}"
-      run: yarn eslint {files}
+      glob: "*.{rb}"
+      run: rubocop {files}
 ```
 
 4. (optional) Test it
 ```bash
-$ npx run lefthook pre-push
+lefthook run pre-push
 ```
