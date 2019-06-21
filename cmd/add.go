@@ -65,7 +65,7 @@ func addHook(hookName string, fs afero.Fs) {
 	template := "#!/bin/bash\n" + autoInstall(hookName, fs) + "\n" +
 		`# If can't find lefthook in global scope
 # we suppose it in local npm package
-if ! type lefthook >/dev/null
+if ! type lefthook >/dev/null 2>&1
 then
   exec npx lefthook run ` + hookName + " $@\nelse\n  exec lefthook run " + hookName + " $@\nfi\n"
 
