@@ -3,12 +3,12 @@
 ## Steps:
 1. Uninstall husky
 ```bash
-$ npm uninstall husky
+npm uninstall husky
 ```
 
 2. Install lefthook
 ```bash
-$ npm install @arkweid/lefthook --save-dev
+npm install @arkweid/lefthook --save-dev
 ```
 
 3. Move hooks from `package.json` to `lefthook.yml`
