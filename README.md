@@ -2,6 +2,9 @@
 
 # Lefthook
 
+<img align="right" width="95" height="95" title="Lefthook logo"
+     src="./logo.svg">
+
 Fast and powerfull Git hook manager for Node.js, Ruby or any other type of projects.
 
 * **Fast.** It is written on Go. Can run commands in parallel.
