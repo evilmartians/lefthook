@@ -37,4 +37,4 @@ Choose your environment:
 * **[Ruby](./docs/ruby.md)**
 * [Other environments](./docs/other.md)
 
-Then you can find all Lefhook features in [full guide](./docs/full_guide.md) and explore [wiki](./wiki).
+Then you can find all Lefhook features in [full guide](./docs/full_guide.md) and explore [wiki](https://github.com/Arkweid/lefthook/wiki).
