@@ -1,8 +1,0 @@
-pre-push:
-  commands:
-    packages-audit:
-      run: yarn audit
-    js-linter:
-      files: git diff --name-only HEAD master
-      glob: "*.{js,ts}"
-      run: yarn eslint

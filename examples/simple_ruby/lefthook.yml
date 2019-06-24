@@ -1,8 +1,0 @@
-pre-push:
-  commands:
-    audit:
-      run: bundle audit
-    rubocop:
-      files: git diff --name-only HEAD master
-      glob: "*.{rb}"
-      run: rubocop {files}
