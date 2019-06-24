@@ -51,3 +51,6 @@ pre-commit:
 ```bash
 lefthook install && lefthook run pre-commit
 ```
+
+### More info
+Have a qustions? Check the [wiki](https://github.com/Arkweid/lefthook/wiki).

@@ -408,3 +408,6 @@ lefthook version
 ```bash
 lefthook uninstall
 ```
+
+## More info
+Have a qustions? Check the [wiki](https://github.com/Arkweid/lefthook/wiki).
