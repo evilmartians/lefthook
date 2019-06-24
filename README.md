@@ -17,11 +17,11 @@ pre-push:
   parallel: true
   commands:
     spelling:
-      files: git diff --name-only @{push}
+      files: files: git diff --name-only HEAD @{push}
       glob: "*.md"
       run: npx yaspeller {files}
     check-links:
-      files: git diff --name-only @{push}
+      files: files: git diff --name-only HEAD @{push}
       glob: "*.md"
       run: npx markdown-link-check {files}
 ```
