@@ -2,7 +2,7 @@
 
 # Lefthook
 
-<img align="right" width="95" height="95" title="Lefthook logo"
+<img align="right" width="150" height="150" title="Lefthook logo"
      src="./logo.svg">
 
 Fast and powerfull Git hook manager for Node.js, Ruby or any other type of projects.
