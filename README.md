@@ -38,3 +38,29 @@ Choose your environment:
 * [Other environments](./docs/other.md)
 
 Then you can find all Lefhook features in [full guide](./docs/full_guide.md) and explore [wiki](https://github.com/Arkweid/lefthook/wiki).
+
+---
+
+## Table of content:
+
+### Guides:
+
+* [Node.js](./docs/node.md)
+* [Ruby](./docs/ruby.md)
+* [Other environments](./docs/other.md)
+* [Full features guide](./docs/full_guide.md)
+
+### Migrations from:
+* [Husky](https://github.com/Arkweid/lefthook/wiki/Migration-from-husky)
+* [Husky and lint-staged](https://github.com/Arkweid/lefthook/wiki/Migration-from-husky-with-lint-staged)
+* [Overcommit](https://github.com/Arkweid/lefthook/wiki/Migration-from-overcommit)
+
+### Examples
+* [Simple script](https://github.com/Arkweid/lefthook/tree/master/examples/scripts)
+* [Full features](https://github.com/Arkweid/lefthook/tree/master/examples/complete)
+
+### Benchmarks
+* [vs Overcommit](https://github.com/Arkweid/lefthook/wiki/Benchmark-lefthook-vs-overcommit)
+
+### Comprasion
+* [vs Overcommit and Husky](https://github.com/Arkweid/lefthook/wiki/Comprasion-with-other-solutions)
