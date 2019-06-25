@@ -39,6 +39,122 @@ Choose your environment:
 
 Then you can find all Lefhook features in [full guide](./docs/full_guide.md) and explore [wiki](https://github.com/Arkweid/lefthook/wiki).
 
+***
+
+## Why Lefthook
+
+* ### **Parallel execution**
+If you want more speed. [Example](./docs/full_guide.md#parallel-execution)
+
+```yml
+commit-msg:
+  scripts:
+    "template_checker":
+      runner: bash
+```
+
+* ### **Flexible list of files**
+If you want your own list. [Custom](./docs/full_guide.md#custom-file-list) and [prebuilded](./docs/full_guide.md#select-specific-file-groups) examples.
+
+```yml
+pre-commit:
+  commands:
+    frontend-linter:
+      run: yarn eslint {staged_files}
+    backend-linter:
+      run: bundle exec rubocop {all_files}
+    frontend-style:
+      files: git diff --name-only HEAD @{push}
+      run: yarn stylelint {files}
+```
+
+* ### **Glob and regexp filtres**
+If you want to filter list of files.
+
+```yml
+pre-commit:
+  commands:
+    backend-linter:
+      glob: "*.{rb}" # glob filter
+      exclude: "application.rb|routes.rb" # regexp filter
+      run: bundle exec rubocop {all_files}
+```
+
+* ### **Run scripts**
+
+If oneline commands not enought you can execute files. [Example](./docs/full_guide.md#bash-script-example).
+
+```yml
+commit-msg:
+  scripts:
+    "template_checker":
+      runner: bash
+```
+
+* ### **Tags**
+If you want to control a group of commands. [Example](./docs/full_guide.md#skipping-commands-by-tags).
+
+```yml
+pre-push:
+  commands:
+    packages-audit:
+      tags: frontend security
+      run: yarn audit
+    gems-audit:
+      tags: backend security
+      run: bundle audit
+```
+
+* ### **Support Docker**
+
+If you develope in Docker. [Example](./docs/full_guide.md#referencing-commands-from-lefthookyml).
+
+```yml
+pre-commit:
+  scripts:
+    "good_job.js":
+      runner: docker exec -it --rm <container_id_or_name> {cmd}
+```
+
+* ### **Local config**
+
+If you a frontender/backender and want to skip unnecessary commands or override something into Docker. [Description](./docs/full_guide.md#local-config).
+
+```yml
+# lefthook-local.yml
+pre-push:
+  exclude_tags:
+    - frontend
+  commands:
+    packages-audit:
+      skip: true
+```
+
+* ### **Direct control**
+
+If you want to run hooks group directly.
+
+```bash
+$ lefthook run pre-commit
+```
+
+* ### **Your own tasks**
+
+If you want to run specific group of commands directly.
+
+```yml
+fixer:
+  commands:
+    ruby-fixer:
+      run: bundle exec rubocop --safe-auto-correct {staged_files}
+    js-fixer:
+      run: yarn eslint --fix {staged_files}
+```
+```bash
+$ lefthook run fixer
+```
+
+
 ---
 
 ## Table of content:
