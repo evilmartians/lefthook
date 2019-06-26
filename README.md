@@ -47,10 +47,8 @@ Then you can find all Lefhook features in [full guide](./docs/full_guide.md) and
 If you want more speed. [Example](./docs/full_guide.md#parallel-execution)
 
 ```yml
-commit-msg:
-  scripts:
-    "template_checker":
-      runner: bash
+pre-push:
+  parallel: true
 ```
 
 * ### **Flexible list of files**
