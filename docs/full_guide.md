@@ -18,6 +18,12 @@ yarn add -D @arkweid/lefthook
 
 NOTE: if you install it this way you should call it with `npx` or `yarn` for all listed examples below. (for example: `lefthook install` -> `npx lefthook install`)
 
+### Rubygems
+
+```bash
+gem install lefthook
+```
+
 ### Homebrew for macOS
 
 ```bash
