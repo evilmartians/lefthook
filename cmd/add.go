@@ -93,7 +93,7 @@ then
 func autoInstall(hookName string, fs afero.Fs) string {
 	if hookName == checkSumHook {
 		return "# lefthook_version: " + configChecksum(fs) + "\n" +
-			`if ! type lefthook >/dev/null
+			`if ! type lefthook >/dev/null 2>&1
 then
 	exec npx lefthook install
 else
