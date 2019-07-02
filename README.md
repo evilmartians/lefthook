@@ -5,14 +5,14 @@
 <img align="right" width="100" height="100" title="Lefthook logo"
      src="./logo_sign.svg">
 
-Fast and powerfull Git hook manager for Node.js, Ruby or any other type of projects.
+Fast and powerful Git hooks manager for Node.js, Ruby or any other type of projects.
 
-* **Fast.** It is written on Go. Can run commands in parallel.
-* **Powerful.** With a few lines in config you can check only changed files on `pre-push` hook.
-* **Simple.** It is single dependency-free binary, which can work in any environment.
+* **Fast.** It is written in Go. Can run commands in parallel.
+* **Powerful.** With a few lines in the config you can check only the changed files on `pre-push` hook.
+* **Simple.** It is single dependency-free binary which can work in any environment.
 
 ```yml
-# On `git push` lefthook will run spelling and links check for all changed files
+# On `git push` lefthook will run spelling and links check for all of the changed files
 pre-push:
   parallel: true
   commands:
@@ -37,7 +37,7 @@ Choose your environment:
 * **[Ruby](./docs/ruby.md)**
 * [Other environments](./docs/other.md)
 
-Then you can find all Lefhook features in [full guide](./docs/full_guide.md) and explore [wiki](https://github.com/Arkweid/lefthook/wiki).
+Then you can find all Lefthook features in [the full guide](./docs/full_guide.md) and explore [wiki](https://github.com/Arkweid/lefthook/wiki).
 
 ***
 
@@ -52,7 +52,7 @@ pre-push:
 ```
 
 * ### **Flexible list of files**
-If you want your own list. [Custom](./docs/full_guide.md#custom-file-list) and [prebuilded](./docs/full_guide.md#select-specific-file-groups) examples.
+If you want your own list. [Custom](./docs/full_guide.md#custom-file-list) and [prebuilt](./docs/full_guide.md#select-specific-file-groups) examples.
 
 ```yml
 pre-commit:
@@ -80,7 +80,7 @@ pre-commit:
 
 * ### **Run scripts**
 
-If oneline commands not enought you can execute files. [Example](./docs/full_guide.md#bash-script-example).
+If oneline commands are not enough, you can execute files. [Example](./docs/full_guide.md#bash-script-example).
 
 ```yml
 commit-msg:
@@ -105,7 +105,7 @@ pre-push:
 
 * ### **Support Docker**
 
-If you develope in Docker. [Example](./docs/full_guide.md#referencing-commands-from-lefthookyml).
+If you are in the Docker environment. [Example](./docs/full_guide.md#referencing-commands-from-lefthookyml).
 
 ```yml
 pre-commit:
@@ -116,7 +116,7 @@ pre-commit:
 
 * ### **Local config**
 
-If you a frontender/backender and want to skip unnecessary commands or override something into Docker. [Description](./docs/full_guide.md#local-config).
+If you a frontend/backend developer and want to skip unnecessary commands or override something into Docker. [Description](./docs/full_guide.md#local-config).
 
 ```yml
 # lefthook-local.yml
@@ -157,14 +157,13 @@ $ lefthook run fixer
 
 ## Table of content:
 
-### Guides:
-
+### Guides
 * [Node.js](./docs/node.md)
 * [Ruby](./docs/ruby.md)
 * [Other environments](./docs/other.md)
 * [Full features guide](./docs/full_guide.md)
 
-### Migrations from:
+### Migrate from
 * [Husky](https://github.com/Arkweid/lefthook/wiki/Migration-from-husky)
 * [Husky and lint-staged](https://github.com/Arkweid/lefthook/wiki/Migration-from-husky-with-lint-staged)
 * [Overcommit](https://github.com/Arkweid/lefthook/wiki/Migration-from-overcommit)
@@ -176,5 +175,5 @@ $ lefthook run fixer
 ### Benchmarks
 * [vs Overcommit](https://github.com/Arkweid/lefthook/wiki/Benchmark-lefthook-vs-overcommit)
 
-### Comprasion
+### Comparison list
 * [vs Overcommit and Husky](https://github.com/Arkweid/lefthook/wiki/Comprasion-with-other-solutions)
