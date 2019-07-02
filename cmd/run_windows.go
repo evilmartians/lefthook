@@ -1,13 +1,17 @@
+// On windows we can`t use pty, so we cant sync output in parallel mode
+
 package cmd
 
 import (
 	"errors"
 	"fmt"
+	// "io" // win specific
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -16,6 +20,7 @@ import (
 
 	arrop "github.com/adam-hanna/arrayOperations"
 	"github.com/gobwas/glob"
+	// "github.com/kr/pty" //win specific
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -29,6 +34,7 @@ var (
 	failList       []string
 	mutex          sync.Mutex
 	envExcludeTags []string // store for LEFTHOOK_EXCLUDE=tag,tag
+	isPipeBroken   bool
 )
 
 const (
@@ -49,6 +55,7 @@ const (
 	subStagedFiles       string      = "{staged_files}"
 	runnerWrapPattern    string      = "{cmd}"
 	tagsConfigKey        string      = "tags"
+	pipedConfigKey       string      = "piped"
 	excludeTagsConfigKey string      = "exclude_tags"
 	execMode             os.FileMode = 0751
 )
@@ -92,6 +99,11 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 	startTime := time.Now()
 	log.Println(au.Cyan("RUNNING HOOKS GROUP:"), au.Bold(hooksGroup))
 
+	if isPipedAndParallel(hooksGroup) {
+		log.Println(au.Brown("Config error! Conflicted options 'piped' and 'parallel'. Remove one of this option from hook group."))
+		return errors.New("Piped and Parallel options in conflict.")
+	}
+
 	sourcePath := filepath.Join(getSourceDir(), hooksGroup)
 	executables, err := afero.ReadDir(fs, sourcePath)
 	if err == nil && len(executables) > 0 {
@@ -121,7 +133,7 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 	commands := getCommands(hooksGroup)
 	if len(commands) != 0 {
 
-		for commandName := range commands {
+		for _, commandName := range commands {
 			wg.Add(1)
 			if getParallel(hooksGroup) {
 				go executeCommand(hooksGroup, commandName, &wg)
@@ -144,6 +156,12 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
+	if getPiped(hooksGroup) && isPipeBroken {
+		log.Println(au.Cyan("\n  EXECUTE >"), au.Bold(commandName))
+		log.Println(au.Brown("(SKIP BY BROKEN PIPE)"))
+		return
+	}
+
 	files, _ := context.AllFiles()
 	runner := getRunner(hooksGroup, commandsConfigKey, commandName)
 
@@ -163,18 +181,18 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 
 	runnerArg := strings.Split(runner, " ")
 	command := exec.Command(runnerArg[0], runnerArg[1:]...)
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
 	command.Stdin = os.Stdin
+	command.Stdout = os.Stdout // win specific
+	command.Stderr = os.Stderr // win specific
 
-	err := command.Start()
-
+	err := command.Start() // ptyOut, err := pty.Start(command) // win specific
 	mutex.Lock()
 	defer mutex.Unlock()
 
 	log.Println(au.Cyan("\n  EXECUTE >"), au.Bold(commandName))
 	if err != nil {
 		failList = append(failList, commandName)
+		setPipeBroken()
 		log.Println(err)
 		return
 	}
@@ -191,17 +209,24 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 		log.Println(au.Brown("(SKIP. NO FILES FOR INSPECTING)"))
 		return
 	}
-
+	// io.Copy(os.Stdout, ptyOut) // win specific
 	if command.Wait() == nil {
 		okList = append(okList, commandName)
 	} else {
 		failList = append(failList, commandName)
+		setPipeBroken()
 	}
 }
 
 func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.WaitGroup, gitArgs []string) {
 	defer wg.Done()
 	executableName := executable.Name()
+
+	if getPiped(hooksGroup) && isPipeBroken {
+		log.Println(au.Cyan("\n  EXECUTE >"), au.Bold(executableName))
+		log.Println(au.Brown("(SKIP BY BROKEN PIPE)"))
+		return
+	}
 
 	pathToExecutable := filepath.Join(source, executableName)
 
@@ -218,12 +243,11 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 
 		command = exec.Command(runnerArg[0], runnerArg[1:]...)
 	}
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
 	command.Stdin = os.Stdin
+	command.Stdout = os.Stdout // win specific
+	command.Stderr = os.Stderr // win specific
 
-	err := command.Start()
-
+	err := command.Start() // ptyOut, err := pty.Start(command) // win specific
 	mutex.Lock()
 	defer mutex.Unlock()
 
@@ -240,6 +264,7 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 		failList = append(failList, executableName)
 		log.Println(err)
 		log.Println(au.Brown("TIP: Command start failed. Checkout `runner:` option for this script"))
+		setPipeBroken()
 		return
 	}
 	if isSkipScript(hooksGroup, executableName) {
@@ -250,11 +275,12 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 		log.Println(au.Brown("(SKIP BY TAGS)"))
 		return
 	}
-
+	// io.Copy(os.Stdout, ptyOut) // win specific
 	if command.Wait() == nil {
 		okList = append(okList, executableName)
 	} else {
 		failList = append(failList, executableName)
+		setPipeBroken()
 	}
 }
 
@@ -330,9 +356,17 @@ func isSkipEmptyCommmand(hooksGroup, executableName string) bool {
 	return true
 }
 
-func getCommands(hooksGroup string) map[string]interface{} {
+func getCommands(hooksGroup string) []string {
 	key := strings.Join([]string{hooksGroup, commandsConfigKey}, ".")
-	return viper.GetStringMap(key)
+	commands := viper.GetStringMap(key)
+
+	keys := make([]string, 0, len(commands))
+	for k := range commands {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	return keys
 }
 
 func getCommandIncludeRegexp(hooksGroup, executableName string) string {
@@ -394,6 +428,19 @@ func getExcludeTags(hooksGroup string) []string {
 func getParallel(hooksGroup string) bool {
 	key := strings.Join([]string{hooksGroup, parallelConfigKey}, ".")
 	return viper.GetBool(key)
+}
+
+func getPiped(hooksGroup string) bool {
+	key := strings.Join([]string{hooksGroup, pipedConfigKey}, ".")
+	return viper.GetBool(key)
+}
+
+func isPipedAndParallel(hooksGroup string) bool {
+	return getParallel(hooksGroup) && getPiped(hooksGroup)
+}
+
+func setPipeBroken() {
+	isPipeBroken = true
 }
 
 func FilterGlob(vs []string, matcher string) []string {
