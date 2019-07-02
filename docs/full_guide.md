@@ -242,6 +242,20 @@ pre-push:
     - frontend
 ```
 
+## Piped option
+If any command in the sequence fails, the other will not be executed.
+```yml
+database:
+  piped: true
+  commands:
+    1_create:
+      run: rake db:create
+    2_migrate:
+      run: rake db:migrate
+    3_seed:
+      run: rake db:seed
+```
+
 ## Referencing commands from lefthook.yml
 
 If you have the following config
