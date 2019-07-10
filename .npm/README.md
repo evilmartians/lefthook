@@ -2,227 +2,95 @@
 
 # Lefthook
 
-A single dependency-free binary to manage all your git hooks that works with any language in any environment, and in all common team workflows.
+<img align="right" width="147" height="100" title="Lefthook logo"
+     src="./logo_sign.svg">
+
+Fast and powerful Git hooks manager for Node.js, Ruby or any other type of projects.
+
+* **Fast.** It is written in Go. Can run commands in parallel.
+* **Powerful.** With a few lines in the config you can check only the changed files on `pre-push` hook.
+* **Simple.** It is single dependency-free binary which can work in any environment.
+
+```yml
+# On `git push` lefthook will run spelling and links check for all of the changed files
+pre-push:
+  parallel: true
+  commands:
+    spelling:
+      files: git diff --name-only HEAD @{push}
+      glob: "*.md"
+      run: npx yaspeller {files}
+    check-links:
+      files: git diff --name-only HEAD @{push}
+      glob: "*.md"
+      run: npx markdown-link-check {files}
+```
 
 <a href="https://evilmartians.com/?utm_source=lefthook">
 <img src="https://evilmartians.com/badges/sponsored-by-evil-martians.svg" alt="Sponsored by Evil Martians" width="236" height="54"></a>
 
-## Installation
+## Usage
 
-Add Lefthook to your system or build it from sources.
+Choose your environment:
 
-### go
+* **[Node.js](./docs/node.md)**
+* **[Ruby](./docs/ruby.md)**
+* [Other environments](./docs/other.md)
 
-```bash
-go get github.com/Arkweid/lefthook
-```
+Then you can find all Lefthook features in [the full guide](./docs/full_guide.md) and explore [wiki](https://github.com/Arkweid/lefthook/wiki).
 
-### npm
+***
 
-```bash
-npm i @arkweid/lefthook --save-dev
-# or yarn:
-yarn add -D @arkweid/lefthook
-```
+## Why Lefthook
 
-NOTE: if you install it this way you should call it with `npx` or `yarn` for all listed examples below. (for example: `lefthook install` -> `npx lefthook install`)
-
-### Homebrew for macOS
-
-```bash
-brew install Arkweid/lefthook/lefthook
-```
-
-### snap for Ubuntu
-
-```bash
-sudo snap install --devmode lefthook
-```
-
-### AUR for Arch
-
-You can install lefthook [package](https://aur.archlinux.org/packages/lefthook) from AUR
-
-Or take it from [binaries](https://github.com/Arkweid/lefthook/releases) and install manually
-
-## Scenarios
-
-### Examples
-
-We have a directory with few examples. You can check it [here](https://github.com/Arkweid/lefthook/tree/master/examples).
-
-### First time user
-
-Initialize lefthook with the following command
-
-```bash
-lefthook install
-```
-
-It creates `lefthook.yml` in the project root directory
-
-Register your hook (You can choose any hook from [this list](https://git-scm.com/docs/githooks))
-In our example it `pre-push` githook:
-
-```bash
-lefthook -v add pre-push
-```
-
-Describe pre-push commands in `lefthook.yml`:
+* ### **Parallel execution**
+If you want more speed. [Example](./docs/full_guide.md#parallel-execution)
 
 ```yml
-pre-push: # githook name
-  commands: # list of commands
-    packages-audit: # command name
-      run: yarn audit # command for execution
+pre-push:
+  parallel: true
 ```
 
-That's all! Now on `git push` the `yarn audit` command will be run.
-If it fails the `git push` will be interrupted.
-
-### If you already have a lefthook config file
-
-Just initialize lefthook to make it work :)
-
-```bash
-lefthook install
-```
-
-## More options
-
-## Use glob patterns to choose what files you want to check
+* ### **Flexible list of files**
+If you want your own list. [Custom](./docs/full_guide.md#custom-file-list) and [prebuilt](./docs/full_guide.md#select-specific-file-groups) examples.
 
 ```yml
-# lefthook.yml
-
-pre-commit:
-  commands:
-    lint:
-      glob: "*.{js,ts}"
-      run: yarn eslint
-```
-
-## Select specific file groups
-
-In some cases you want to run checks only against some specific file group.
-For example: you may want to run eslint for staged files only.
-
-There are two shorthands for such situations:
-`{staged_files}` - staged git files which you try to commit
-
-`{all_files}` - all tracked files by git
-
-```yml
-# lefthook.yml
-
 pre-commit:
   commands:
     frontend-linter:
-      glob: "*.{js,ts}" # glob filter for list of files
-      run: yarn eslint {staged_files} # {staged_files} - list of files
+      run: yarn eslint {staged_files}
     backend-linter:
-      glob: "*.{rb}" # glob filter for list of files
-      exclude: "application.rb|routes.rb" # regexp filter for list of files
-      run: bundle exec rubocop {all_files} # {all_files} - list of files
-```
-
-## Custom file list
-
-Lefthook can be even more specific in selecting files.
-If you want to choose diff of all changed files between the current branch and master branch you can do it this way:
-
-```yml
-# lefthook.yml
-
-pre-push:
-  commands:
+      run: bundle exec rubocop {all_files}
     frontend-style:
-      files: git diff --name-only master # custom list of files
-      glob: "*.{js}"
+      files: git diff --name-only HEAD @{push}
       run: yarn stylelint {files}
 ```
 
-`{files}` - shorthand for a custom list of files
-
-## Managing scripts
-
-If you run `lefthook add` command with `-d` flag, lefthook will create two directories where you can put scripts and reference them from `lefthook.yml` file.
-
-Example:
-Let's create `commit-msg` hook with `-d` flag
-
-```bash
-lefthook -v add -d commit-msg
-```
-
-This command will create `.lefthook/commit-msg` and `.lefthook-local/commit-msg` dirs.
-
-The first one is for common project level scripts.
-The second one is for personal scripts. It would be a good idea to add dir`.lefthook-local` to `.gitignore`.
-
-Create scripts `.lefthook/commit-msg/hello.js` and `.lefthook/commit-msg/hi.rb`
+* ### **Glob and regexp filtres**
+If you want to filter list of files.
 
 ```yml
-# lefthook.yml
-
-commit-msg:
-  scripts:
-    "hello.js":
-      runner: node
-    "hi.rb":
-      runner: ruby
+pre-commit:
+  commands:
+    backend-linter:
+      glob: "*.{rb}" # glob filter
+      exclude: "application.rb|routes.rb" # regexp filter
+      run: bundle exec rubocop {all_files}
 ```
 
-### Bash script example
+* ### **Run scripts**
 
-Let's create a bash script to check commit templates `.lefthook/commit-msg/template_checker`:
-
-```bash
-INPUT_FILE=$1
-START_LINE=`head -n1 $INPUT_FILE`
-PATTERN="^(TICKET)-[[:digit:]]+: "
-if ! [[ "$START_LINE" =~ $PATTERN ]]; then
-  echo "Bad commit message, see example: TICKET-123: some text"
-  exit 1
-fi
-```
-
-Now we can ask lefthook to run our bash script by adding this code to
-`lefthook.yml` file:
+If oneline commands are not enough, you can execute files. [Example](./docs/full_guide.md#bash-script-example).
 
 ```yml
-# lefthook.yml
-
 commit-msg:
   scripts:
     "template_checker":
       runner: bash
 ```
 
-When you try to commit `git commit -m "haha bad commit text"` script `template_checker` will be executed. Since commit text doesn't match the described pattern the commit process will be interrupted.
-
-## Local config
-
-We can use `lefthook-local.yml` as local config. Options in this file will overwrite options in `lefthook.yml`. (Don't forget to add this file to `.gitignore`)
-
-## Skipping commands
-
-You can skip commands by `skip` option:
-
-```yml
-# lefthook-local.yml
-
-pre-push:
-  commands:
-    packages-audit:
-      skip: true
-```
-
-## Skipping commands by tags
-
-If we have a lot of commands and scripts we can tag them and run skip commands with a specific tag.
-
-For example, if we have `lefthook.yml` like this:
+* ### **Tags**
+If you want to control a group of commands. [Example](./docs/full_guide.md#skipping-commands-by-tags).
 
 ```yml
 pre-push:
@@ -235,185 +103,77 @@ pre-push:
       run: bundle audit
 ```
 
-You can skip commands by tags:
+* ### **Support Docker**
+
+If you are in the Docker environment. [Example](./docs/full_guide.md#referencing-commands-from-lefthookyml).
+
+```yml
+pre-commit:
+  scripts:
+    "good_job.js":
+      runner: docker exec -it --rm <container_id_or_name> {cmd}
+```
+
+* ### **Local config**
+
+If you a frontend/backend developer and want to skip unnecessary commands or override something into Docker. [Description](./docs/full_guide.md#local-config).
 
 ```yml
 # lefthook-local.yml
-
 pre-push:
   exclude_tags:
     - frontend
-```
-
-## Referencing commands from lefthook.yml
-
-If you have the following config
-
-```yml
-# lefthook.yml
-
-pre-commit:
-  scripts:
-    "good_job.js":
-      runner: node
-```
-
-You can wrap it in docker runner locally:
-
-```yml
-# lefthook-local.yml
-
-pre-commit:
-  scripts:
-    "good_job.js":
-      runner: docker exec -it --rm <container_id_or_name> {cmd}
-```
-
-`{cmd}` - shorthand for the command from `lefthook.yml`
-
-## Run githook group directly
-
-```bash
-lefthook run pre-commit
-```
-
-## Parallel execution
-
-You can enable parallel execution if you want to speed up your checks.
-Lets get example from [discourse](https://github.com/discourse/discourse/blob/master/.travis.yml#L77-L83) project.
-
-```
-bundle exec rubocop --parallel && \
-bundle exec danger && \
-yarn eslint --ext .es6 app/assets/javascripts && \
-yarn eslint --ext .es6 test/javascripts && \
-yarn eslint --ext .es6 plugins/**/assets/javascripts && \
-yarn eslint --ext .es6 plugins/**/test/javascripts && \
-yarn eslint app/assets/javascripts test/javascripts
-```
-
-Rewrite it in lefthook custom group. We call it `lint`:
-
-```yml
-# lefthook.yml
-
-lint:
-  parallel: true
   commands:
-    rubocop:
-      run: bundle exec rubocop --parallel
-    danger:
-      run: bundle exec danger
-    eslint-assets:
-      run: yarn eslint --ext .es6 app/assets/javascripts
-    eslint-test:
-      run: yarn eslint --ext .es6 test/javascripts
-    eslint-plugins-assets:
-      run: yarn eslint --ext .es6 plugins/**/assets/javascripts
-    eslint-plugins-test:
-      run: yarn eslint --ext .es6 plugins/**/test/javascripts
-    eslint-assets-tests:
-      run: yarn eslint app/assets/javascripts test/javascripts
-```
-
-Then call this group directly:
-
-```
-lefthook run lint
-```
-
-## Complete example
-
-```yml
-# lefthook.yml
-
-pre-commit:
-  commands:
-    eslint:
-      glob: "*.{js,ts}"
-      run: yarn eslint {staged_files}
-    rubocop:
-      tags: backend style
-      glob: "*.{rb}"
-      exclude: "application.rb|routes.rb"
-      run: bundle exec rubocop {all_files}
-    govet:
-      tags: backend style
-      files: git ls-files -m
-      glob: "*.{go}"
-      run: go vet {files}
-
-  scripts:
-    "hello.js":
-      runner: node
-    "any.go":
-      runner: go run
-
-  parallel: true
-```
-
-```yml
-# lefthook-local.yml
-
-pre-commit:
-  exclude_tags:
-    - backend
-
-  scripts:
-    "hello.js":
-      runner: docker exec -it --rm <container_id_or_name> {cmd}
-  commands:
-    govet:
+    packages-audit:
       skip: true
 ```
 
-## Skip lefthook execution
+* ### **Direct control**
 
-We can set env variable `LEFTHOOK` to zero for that
-
-```bash
-LEFTHOOK=0 git commit -am "Lefthook skipped"
-```
-
-## Skip some tags on the fly
-
-Use LEFTHOOK_EXCLUDE={list of tags to be excluded} for that
+If you want to run hooks group directly.
 
 ```bash
-LEFTHOOK_EXCLUDE=ruby,security git commit -am "Skip some tag checks"
+$ lefthook run pre-commit
 ```
 
-## Capture ARGS from git in the script
+* ### **Your own tasks**
 
-Example script for `prepare-commit-msg` hook:
-
-```bash
-COMMIT_MSG_FILE=$1
-COMMIT_SOURCE=$2
-SHA1=$3
-
-# ...
-```
-
-## Change directory for script files
-
-You can do this through this config keys:
+If you want to run specific group of commands directly.
 
 ```yml
-# lefthook.yml
-
-source_dir: ".lefthook"
-source_dir_local: ".lefthook-local"
+fixer:
+  commands:
+    ruby-fixer:
+      run: bundle exec rubocop --safe-auto-correct {staged_files}
+    js-fixer:
+      run: yarn eslint --fix {staged_files}
 ```
-
-## Version
-
 ```bash
-lefthook version
+$ lefthook run fixer
 ```
 
-## Uninstall
 
-```bash
-lefthook uninstall
-```
+---
+
+## Table of content:
+
+### Guides
+* [Node.js](./docs/node.md)
+* [Ruby](./docs/ruby.md)
+* [Other environments](./docs/other.md)
+* [Full features guide](./docs/full_guide.md)
+
+### Migrate from
+* [Husky](https://github.com/Arkweid/lefthook/wiki/Migration-from-husky)
+* [Husky and lint-staged](https://github.com/Arkweid/lefthook/wiki/Migration-from-husky-with-lint-staged)
+* [Overcommit](https://github.com/Arkweid/lefthook/wiki/Migration-from-overcommit)
+
+### Examples
+* [Simple script](https://github.com/Arkweid/lefthook/tree/master/examples/scripts)
+* [Full features](https://github.com/Arkweid/lefthook/tree/master/examples/complete)
+
+### Benchmarks
+* [vs Overcommit](https://github.com/Arkweid/lefthook/wiki/Benchmark-lefthook-vs-overcommit)
+
+### Comparison list
+* [vs Overcommit and Husky](https://github.com/Arkweid/lefthook/wiki/Comprasion-with-other-solutions)
