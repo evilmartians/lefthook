@@ -8,3 +8,6 @@ lefthook
 tmp/
 dist/
 .rubygems/pkg/
+package.json
+node_modules/
+yarn.lock
