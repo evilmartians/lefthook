@@ -63,11 +63,21 @@ func addHook(hookName string, fs afero.Fs) {
 	}
 	// TODO: text/template
 	template := "#!/bin/bash\n" + autoInstall(hookName, fs) + "\n" +
-		`# If can't find lefthook in global scope
-# we suppose it in local npm package
-if ! type lefthook >/dev/null 2>&1
+		"cmd=\"lefthook run " + hookName + " $@\"" +
+		`
+if lefthook >/dev/null 2>&1
 then
-  exec npx lefthook run ` + hookName + " $@\nelse\n  exec lefthook run " + hookName + " $@\nfi\n"
+  exec $cmd
+elif bundle exec lefthook >/dev/null 2>&1
+then
+  bundle exec $cmd
+elif npx lefthook >/dev/null 2>&1
+then
+  npx $cmd
+else
+  echo "Can't find lefthook in PATH"
+fi
+`
 
 	pathToFile := filepath.Join(getGitHooksDir(), hookName)
 
@@ -93,12 +103,19 @@ then
 func autoInstall(hookName string, fs afero.Fs) string {
 	if hookName == checkSumHook {
 		return "# lefthook_version: " + configChecksum(fs) + "\n" +
-			`if ! type lefthook >/dev/null 2>&1
+			"cmd=\"lefthook install\"" +
+			`
+if lefthook >/dev/null 2>&1
 then
-	exec npx lefthook install
-else
-	exec lefthook install
-fi`
+	exec $cmd
+elif bundle exec lefthook >/dev/null 2>&1
+then
+	bundle exec $cmd
+elif npx lefthook >/dev/null 2>&1
+then
+	npx $cmd
+fi
+`
 	}
 
 	return ""
