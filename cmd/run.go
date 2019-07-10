@@ -179,8 +179,7 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	runner = strings.Replace(runner, subAllFiles, strings.Join(files, " "), -1)
 	runner = strings.Replace(runner, subFiles, strings.Join(files, " "), -1)
 
-	runnerArg := strings.Split(runner, " ")
-	command := exec.Command(runnerArg[0], runnerArg[1:]...)
+	command := exec.Command("sh", "-c", runner)
 	command.Stdin = os.Stdin
 
 	ptyOut, err := pty.Start(command)
