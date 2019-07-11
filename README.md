@@ -176,4 +176,4 @@ $ lefthook run fixer
 * [vs Overcommit](https://github.com/Arkweid/lefthook/wiki/Benchmark-lefthook-vs-overcommit)
 
 ### Comparison list
-* [vs Overcommit and Husky](https://github.com/Arkweid/lefthook/wiki/Comprasion-with-other-solutions)
+* [vs Overcommit and Husky](https://github.com/Arkweid/lefthook/wiki/Comparison-with-other-solutions)
