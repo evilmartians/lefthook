@@ -174,9 +174,10 @@ $ lefthook run fixer
 
 ### Benchmarks
 * [vs Overcommit](https://github.com/Arkweid/lefthook/wiki/Benchmark-lefthook-vs-overcommit)
+* [vs pre-commit](https://github.com/Arkweid/lefthook/wiki/Benchmark-lefthook-vs-pre-commit)
 
 ### Comparison list
-* [vs Overcommit and Husky](https://github.com/Arkweid/lefthook/wiki/Comparison-with-other-solutions)
+* [vs Overcommit, Husky, pre-commit](https://github.com/Arkweid/lefthook/wiki/Comparison-with-other-solutions)
 
 ### Articles
 * [Lefthook + Crystalball](https://dev.to/evilmartians/lefthook-crystalball-and-git-magic-for-smooth-development-experience-33mc)
