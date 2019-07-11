@@ -177,3 +177,6 @@ $ lefthook run fixer
 
 ### Comparison list
 * [vs Overcommit and Husky](https://github.com/Arkweid/lefthook/wiki/Comparison-with-other-solutions)
+
+### Articles
+* [Lefthook + Crystalball](https://dev.to/evilmartians/lefthook-crystalball-and-git-magic-for-smooth-development-experience-33mc)
