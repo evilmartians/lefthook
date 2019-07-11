@@ -2,9 +2,6 @@
 
 # Lefthook
 
-<img align="right" width="147" height="100" title="Lefthook logo"
-     src="./logo_sign.svg">
-
 Fast and powerful Git hooks manager for Node.js, Ruby or any other type of projects.
 
 * **Fast.** It is written in Go. Can run commands in parallel.
@@ -176,4 +173,4 @@ $ lefthook run fixer
 * [vs Overcommit](https://github.com/Arkweid/lefthook/wiki/Benchmark-lefthook-vs-overcommit)
 
 ### Comparison list
-* [vs Overcommit and Husky](https://github.com/Arkweid/lefthook/wiki/Comprasion-with-other-solutions)
+* [vs Overcommit and Husky](https://github.com/Arkweid/lefthook/wiki/Comparison-with-other-solutions)
