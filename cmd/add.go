@@ -62,9 +62,15 @@ func addHook(hookName string, fs afero.Fs) {
 		return
 	}
 	// TODO: text/template
-	template := "#!/bin/bash\n" + autoInstall(hookName, fs) + "\n" +
-		"cmd=\"lefthook run " + hookName + " $@\"" +
+	template := `
+#!/bin/sh
+
+if [ "{$LEFTHOOK}" = "0" ]; then
+	exit 0
+fi
+` + autoInstall(hookName, fs) + "\n" + "cmd=\"lefthook run " + hookName + " $@\"" +
 		`
+
 if lefthook >/dev/null 2>&1
 then
   exec $cmd
@@ -102,9 +108,10 @@ fi
 
 func autoInstall(hookName string, fs afero.Fs) string {
 	if hookName == checkSumHook {
-		return "# lefthook_version: " + configChecksum(fs) + "\n" +
+		return "\n# lefthook_version: " + configChecksum(fs) + "\n\n" +
 			"cmd=\"lefthook install\"" +
 			`
+
 if lefthook >/dev/null 2>&1
 then
 	exec $cmd
