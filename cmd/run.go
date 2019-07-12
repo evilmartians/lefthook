@@ -104,6 +104,7 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 	var wg sync.WaitGroup
 
 	startTime := time.Now()
+	log.Println(au.Cyan("Lefthook v" + version))
 	log.Println(au.Cyan("RUNNING HOOKS GROUP:"), au.Bold(hooksGroup))
 
 	if isPipedAndParallel(hooksGroup) {
