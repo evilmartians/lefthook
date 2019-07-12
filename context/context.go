@@ -15,6 +15,10 @@ func AllFiles() ([]string, error) {
 	return ExecGitCommand("git ls-files --cached")
 }
 
+func PushFiles() ([]string, error) {
+	return ExecGitCommand("git diff-tree --no-commit-id --name-only -r HEAD --")
+}
+
 func ExecGitCommand(command string) ([]string, error) {
 	commandArg := strings.Split(command, " ")
 	cmd := exec.Command(commandArg[0], commandArg[1:]...)

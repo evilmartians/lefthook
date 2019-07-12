@@ -54,6 +54,7 @@ const (
 	subFiles             string      = "{files}"
 	subAllFiles          string      = "{all_files}"
 	subStagedFiles       string      = "{staged_files}"
+	pushFiles            string      = "{push_files}"
 	runnerWrapPattern    string      = "{cmd}"
 	tagsConfigKey        string      = "tags"
 	pipedConfigKey       string      = "piped"
@@ -168,19 +169,28 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 		return
 	}
 
-	files, _ := context.AllFiles()
+	files := []string{}
 	runner := getRunner(hooksGroup, commandsConfigKey, commandName)
 
 	if strings.Contains(runner, subStagedFiles) {
 		files, _ = context.StagedFiles()
 	} else if strings.Contains(runner, subFiles) || getCommandFiles(hooksGroup, commandName) != "" {
 		files, _ = context.ExecGitCommand(getCommandFiles(hooksGroup, commandName))
+	} else if strings.Contains(runner, pushFiles) {
+		files, _ = context.PushFiles()
+	} else {
+		files, _ = context.AllFiles()
 	}
+
+	VerbosePrint("\nFiles before filters: \n", files)
 
 	files = FilterGlob(files, getCommandGlobRegexp(hooksGroup, commandName))
 	files = FilterInclude(files, getCommandIncludeRegexp(hooksGroup, commandName)) // NOTE: confusing option, suppose delete it
 	files = FilterExclude(files, getCommandExcludeRegexp(hooksGroup, commandName))
 
+	VerbosePrint("Files after filters: \n", files)
+
+	runner = strings.Replace(runner, pushFiles, strings.Join(files, " "), -1)
 	runner = strings.Replace(runner, subStagedFiles, strings.Join(files, " "), -1)
 	runner = strings.Replace(runner, subAllFiles, strings.Join(files, " "), -1)
 	runner = strings.Replace(runner, subFiles, strings.Join(files, " "), -1)
