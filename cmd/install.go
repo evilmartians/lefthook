@@ -36,6 +36,7 @@ var availableHooks = [...]string{
 }
 
 var checkSumHook = "prepare-commit-msg"
+var force bool
 
 var installCmd = &cobra.Command{
 	Use:   "install",
@@ -48,13 +49,14 @@ var installCmd = &cobra.Command{
 var appFs = afero.NewOsFs()
 
 func init() {
+	rootCmd.PersistentFlags().BoolVarP(&force, "force", "f", false, "reinstall hooks without checking config version")
 	rootCmd.AddCommand(installCmd)
 }
 
 // InstallCmdExecutor execute basic configuration
 func InstallCmdExecutor(args []string, fs afero.Fs) {
 	if yes, _ := afero.Exists(fs, getConfigYamlPath()); yes {
-		if !isConfigSync(fs) {
+		if !isConfigSync(fs) || force {
 			log.Println(au.Cyan("SYNCING"), au.Bold("lefthook.yml"))
 			DeleteGitHooks(fs)
 			AddGitHooks(fs)
