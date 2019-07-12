@@ -151,6 +151,9 @@ func recordedChecksum() string {
 	}
 
 	match := pattern.FindStringSubmatch(string(file))
+	if len(match) < 2 {
+		return ""
+	}
 
 	return match[1]
 }
