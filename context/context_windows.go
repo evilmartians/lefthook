@@ -1,5 +1,3 @@
-// +build !windows
-
 package context
 
 import (
@@ -18,11 +16,12 @@ func AllFiles() ([]string, error) {
 }
 
 func PushFiles() ([]string, error) {
-	return ExecGitCommand("git diff --name-only HEAD @{push} || git diff --name-only HEAD master")
+	return ExecGitCommand("git diff --name-only HEAD master")
 }
 
 func ExecGitCommand(command string) ([]string, error) {
-	cmd := exec.Command("sh", "-c", command)
+	commandArg := strings.Split(command, " ")
+	cmd := exec.Command(commandArg[0], commandArg[1:]...)
 
 	outputBytes, err := cmd.CombinedOutput()
 	if err != nil {
