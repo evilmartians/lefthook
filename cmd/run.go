@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -57,6 +58,7 @@ const (
 	tagsConfigKey        string      = "tags"
 	pipedConfigKey       string      = "piped"
 	excludeTagsConfigKey string      = "exclude_tags"
+	minVersionConfigKey  string      = "min_version"
 	execMode             os.FileMode = 0751
 )
 
@@ -87,6 +89,10 @@ Example:
 func RunCmdExecutor(args []string, fs afero.Fs) error {
 	if os.Getenv("LEFTHOOK") == "0" {
 		return nil
+	}
+	if !isVersionOk() {
+		log.Println(au.Brown("Config error! Current Lefhook version lower than config version or 'min_version' incorrect, check format: '0.6.0'"))
+		return errors.New("Current Lefhook version lower than config version or 'min_version' incorrect")
 	}
 	if tags := os.Getenv("LEFTHOOK_EXCLUDE"); tags != "" {
 		envExcludeTags = append(envExcludeTags, strings.Split(tags, ",")[:]...)
@@ -502,4 +508,30 @@ func makeExecutable(path string) {
 	if err := os.Chmod(path, execMode); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func isVersionOk() bool {
+	if !viper.IsSet(minVersionConfigKey) {
+		return true
+	}
+
+	configVersion := viper.GetString(minVersionConfigKey)
+
+	configVersionSplited := strings.Split(configVersion, ".")
+	if len(configVersionSplited) != 3 {
+		VerbosePrint("Config min_version option have incorrect format")
+		return false
+	}
+
+	currentVersionSplited := strings.Split(version, ".")
+
+	for i, value := range currentVersionSplited {
+		currentNum, _ := strconv.ParseInt(value, 0, 64)
+		configNum, _ := strconv.ParseInt(configVersionSplited[i], 0, 64)
+		if currentNum < configNum {
+			return false
+		}
+	}
+
+	return true
 }
