@@ -100,6 +100,10 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 	}
 
 	hooksGroup := args[0]
+	if !viper.IsSet(hooksGroup) {
+		log.Println(au.Brown("'" + hooksGroup + "' hooks group doesn't exist in lefthook.yml"))
+		return errors.New("Hooks group doen't exist in config")
+	}
 	gitArgs := args[1:]
 	var wg sync.WaitGroup
 
@@ -109,7 +113,7 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 
 	if isPipedAndParallel(hooksGroup) {
 		log.Println(au.Brown("Config error! Conflicted options 'piped' and 'parallel'. Remove one of this option from hook group."))
-		return errors.New("Piped and Parallel options in conflict.")
+		return errors.New("Piped and Parallel options in conflict")
 	}
 
 	sourcePath := filepath.Join(getSourceDir(), hooksGroup)
