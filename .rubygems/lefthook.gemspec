@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = "lefthook"
-  spec.version       = "0.6.0"
+  spec.version       = "0.6.1"
   spec.authors       = ["A.A.Abroskin"]
   spec.email         = ["arkweid@evilmartians.com"]
 
