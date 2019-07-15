@@ -96,6 +96,9 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 	}
 
 	hooksGroup := args[0]
+	if !viper.IsSet(hooksGroup) && hooksGroup == "prepare-commit-msg" {
+		return nil
+	}
 	gitArgs := args[1:]
 	var wg sync.WaitGroup
 
