@@ -2,7 +2,7 @@
 
 ## master (unreleased)
 
-## 0.6.1 (2019-07-15)
+## 0.6.3 (2019-07-15)
 
 - [Commit](https://github.com/Arkweid/lefthook/commit/0426936f48f248221126f15619932b0dc8c54d7a) Add `-a` means `aggresive` strategy for `install` command
 ```bash
