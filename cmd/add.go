@@ -62,8 +62,7 @@ func addHook(hookName string, fs afero.Fs) {
 		return
 	}
 	// TODO: text/template
-	template := `
-#!/bin/sh
+	template := `#!/bin/sh
 
 if [ "{$LEFTHOOK}" = "0" ]; then
 	exit 0

@@ -100,10 +100,6 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 	}
 
 	hooksGroup := args[0]
-	if !viper.IsSet(hooksGroup) {
-		log.Println(au.Brown("'" + hooksGroup + "' hooks group doesn't exist in lefthook.yml"))
-		return errors.New("Hooks group doen't exist in config")
-	}
 	gitArgs := args[1:]
 	var wg sync.WaitGroup
 
