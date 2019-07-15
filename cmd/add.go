@@ -147,5 +147,6 @@ func isLefthookFile(pathFile string) bool {
 	if err != nil {
 		return false
 	}
-	return strings.Contains(string(file), "lefthook")
+
+	return strings.Contains(string(file), "LEFTHOOK")
 }

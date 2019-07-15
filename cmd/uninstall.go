@@ -60,8 +60,7 @@ func DeleteGitHooks(fs afero.Fs) {
 	hooks, _ := afero.ReadDir(fs, hooksPath)
 	for _, file := range hooks {
 		hookFile := filepath.Join(hooksPath, file.Name())
-		isLefthookFile, _ := afero.FileContainsBytes(fs, hookFile, []byte("lefthook"))
-		if isLefthookFile {
+		if isLefthookFile(hookFile) {
 			err := fs.Remove(hookFile)
 			if err == nil {
 				VerbosePrint(hookFile, "removed")
