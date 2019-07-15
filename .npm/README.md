@@ -159,6 +159,7 @@ $ lefthook run fixer
 * [Ruby](./docs/ruby.md)
 * [Other environments](./docs/other.md)
 * [Full features guide](./docs/full_guide.md)
+* [Troubleshooting](https://github.com/Arkweid/lefthook/wiki/Troubleshooting)
 
 ### Migrate from
 * [Husky](https://github.com/Arkweid/lefthook/wiki/Migration-from-husky)
