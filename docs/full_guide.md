@@ -30,12 +30,6 @@ gem install lefthook
 brew install Arkweid/lefthook/lefthook
 ```
 
-### snap for Ubuntu
-
-```bash
-sudo snap install --devmode lefthook
-```
-
 ### AUR for Arch
 
 You can install lefthook [package](https://aur.archlinux.org/packages/lefthook) from AUR
