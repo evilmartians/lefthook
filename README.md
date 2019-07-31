@@ -2,6 +2,8 @@
 
 # Lefthook
 
+> The fastest polyglot Git hooks manager out there
+
 <img align="right" width="147" height="100" title="Lefthook logo"
      src="./logo_sign.svg">
 
@@ -10,6 +12,8 @@ Fast and powerful Git hooks manager for Node.js, Ruby or any other type of proje
 * **Fast.** It is written in Go. Can run commands in parallel.
 * **Powerful.** With a few lines in the config you can check only the changed files on `pre-push` hook.
 * **Simple.** It is single dependency-free binary which can work in any environment.
+
+📖 [Read the introduction post](https://evilmartians.com/chronicles/lefthook-knock-your-teams-code-back-into-shape?utm_source=lefthook)
 
 ```yml
 # On `git push` lefthook will run spelling and links check for all of the changed files
@@ -181,4 +185,5 @@ $ lefthook run fixer
 * [vs Overcommit, Husky, pre-commit](https://github.com/Arkweid/lefthook/wiki/Comparison-with-other-solutions)
 
 ### Articles
+* [Lefthook: Knock your team’s code back into shape](https://evilmartians.com/chronicles/lefthook-knock-your-teams-code-back-into-shape?utm_source=lefthook)
 * [Lefthook + Crystalball](https://dev.to/evilmartians/lefthook-crystalball-and-git-magic-for-smooth-development-experience-33mc)
