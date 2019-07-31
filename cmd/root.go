@@ -52,10 +52,16 @@ func Execute() {
 }
 
 func init() {
+	initAurora()
 	cobra.OnInitialize(initConfig)
-	au = aurora.NewAurora(IsTTY())
+	// re-init Aurora after config reading because `colors` can be specified in config
+	cobra.OnInitialize(initAurora)
 	log.SetOutput(os.Stdout)
 	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
+}
+
+func initAurora() {
+	au = aurora.NewAurora(EnableColors())
 }
 
 func initConfig() {
@@ -103,9 +109,14 @@ func check(e error) {
 	}
 }
 
-// IsTTY returns true if program is running with TTY
-func IsTTY() bool {
-	return isatty.IsTerminal(os.Stdout.Fd()) || isatty.IsCygwinTerminal(os.Stdout.Fd())
+// EnableColors shows is colors supported for current output or not.
+// If `colors` explicitly specified in config, will return this value.
+// Otherwise enabled for TTY and disabled for non-terminal output.
+func EnableColors() bool {
+	if !viper.IsSet(colorsConfigKey) {
+		return isatty.IsTerminal(os.Stdout.Fd()) || isatty.IsCygwinTerminal(os.Stdout.Fd())
+	}
+	return viper.GetBool(colorsConfigKey)
 }
 
 // VerbosePrint print text if Verbose flag persist
