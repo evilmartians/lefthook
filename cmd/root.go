@@ -24,6 +24,7 @@ const (
 
 var (
 	Verbose      bool
+	NoColors     bool
 	rootPath     string
 	cfgFile      string
 	originConfig *viper.Viper
@@ -52,12 +53,14 @@ func Execute() {
 }
 
 func init() {
+	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
+	rootCmd.PersistentFlags().BoolVar(&NoColors, "no-colors", false, "disable colored output")
+
 	initAurora()
 	cobra.OnInitialize(initConfig)
 	// re-init Aurora after config reading because `colors` can be specified in config
 	cobra.OnInitialize(initAurora)
 	log.SetOutput(os.Stdout)
-	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 }
 
 func initAurora() {
@@ -113,6 +116,9 @@ func check(e error) {
 // If `colors` explicitly specified in config, will return this value.
 // Otherwise enabled for TTY and disabled for non-terminal output.
 func EnableColors() bool {
+	if NoColors {
+		return false
+	}
 	if !viper.IsSet(colorsConfigKey) {
 		return isatty.IsTerminal(os.Stdout.Fd()) || isatty.IsCygwinTerminal(os.Stdout.Fd())
 	}
