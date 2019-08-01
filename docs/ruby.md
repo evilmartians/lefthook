@@ -17,7 +17,7 @@ pre-commit:
   parallel: true
   commands:
     audit:
-      run: brakeman
+      run: brakeman --no-pager
     rubocop:
       files: git diff --name-only HEAD master
       glob: "*.{rb}"
