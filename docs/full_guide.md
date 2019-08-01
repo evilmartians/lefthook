@@ -411,6 +411,18 @@ source_dir: ".lefthook"
 source_dir_local: ".lefthook-local"
 ```
 
+
+## Disable colors
+
+By agrs:
+```bash
+lefthook --no-colors run pre-commit
+```
+By config `lefthook.yml`, just add the option:
+```yml
+colors: false
+```
+
 ## Version
 
 ```bash
