@@ -33,4 +33,4 @@ lefthook install && lefthook run pre-commit
 If you see the error `lefthook: command not found` you need to check your $PATH. Also try to restart your terminal.
 
 ### More info
-Have a qustions? Check the [wiki](https://github.com/Arkweid/lefthook/wiki).
+Have a question? Check the [wiki](https://github.com/Arkweid/lefthook/wiki).
