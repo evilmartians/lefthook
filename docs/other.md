@@ -1,10 +1,10 @@
 # Lefthook in any environments
 
-This is guide of using Lefthook git hook manager in any environments. You can find guides for Ruby and Node.js in [README.md](../README.md).
+This is the guide to use the Lefthook git hook manager in any environment. You can find guides for Ruby and Node.js in [README.md](../README.md).
 
 ## Installation
 
-Add Lefthook to your system or build it from sources.
+Add Lefthook to your system or build it from source.
 
 ### go
 
