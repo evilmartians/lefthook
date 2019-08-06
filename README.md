@@ -70,7 +70,7 @@ pre-commit:
       run: yarn stylelint {files}
 ```
 
-* ### **Glob and regexp filtres**
+* ### **Glob and regexp filters**
 If you want to filter list of files.
 
 ```yml
