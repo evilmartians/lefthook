@@ -112,7 +112,7 @@ pre-commit:
       glob: "*.{js,ts}" # glob filter for list of files
       run: yarn eslint {staged_files} # {staged_files} - list of files
     backend-linter:
-      glob: "*.{rb}" # glob filter for list of files
+      glob: "*.rb" # glob filter for list of files
       exclude: "application.rb|routes.rb" # regexp filter for list of files
       run: bundle exec rubocop {all_files} # {all_files} - list of files
 ```
@@ -129,7 +129,7 @@ pre-push:
   commands:
     frontend-style:
       files: git diff --name-only master # custom list of files
-      glob: "*.{js}"
+      glob: "*.js"
       run: yarn stylelint {files}
 ```
 
@@ -339,13 +339,13 @@ pre-commit:
       run: yarn eslint {staged_files}
     rubocop:
       tags: backend style
-      glob: "*.{rb}"
+      glob: "*.rb"
       exclude: "application.rb|routes.rb"
       run: bundle exec rubocop {all_files}
     govet:
       tags: backend style
       files: git ls-files -m
-      glob: "*.{go}"
+      glob: "*.go"
       run: go vet {files}
 
   scripts:

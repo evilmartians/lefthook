@@ -7,11 +7,11 @@ pre-commit:
   commands:
     stylelint:
       tags: frontend style
-      glob: "*.{js}"
+      glob: "*.js"
       run: yarn stylelint {staged_files}
     rubocop:
       tags: backend style
-      glob: "*.{rb}"
+      glob: "*.rb"
       exclude: "application.rb|routes.rb"
       run: bundle exec rubocop {all_files}
   scripts:
@@ -24,12 +24,12 @@ pre-push:
     stylelint:
       tags: frontend style
       files: git diff --name-only master
-      glob: "*.{js}"
+      glob: "*.js"
       run: yarn stylelint {files}
     rubocop:
       tags: backend style
       files: git diff --name-only master
-      glob: "*.{rb}"
+      glob: "*.rb"
       run: bundle exec rubocop {files}
   scripts:
     "verify":

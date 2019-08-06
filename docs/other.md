@@ -37,7 +37,7 @@ pre-commit:
       run: brakeman --no-pager
     rubocop:
       files: git diff --name-only @{push}
-      glob: "*.{rb}"
+      glob: "*.rb"
       run: rubocop {files}
 ```
 
