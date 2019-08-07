@@ -19,7 +19,7 @@ pre-commit:
     audit:
       run: brakeman --no-pager
     rubocop:
-      files: git diff --name-only HEAD master
+      files: git diff --name-only --staged
       glob: "*.rb"
       run: rubocop {files}
 ```
