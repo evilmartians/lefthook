@@ -117,6 +117,8 @@ pre-commit:
       run: bundle exec rubocop {all_files} # {all_files} - list of files
 ```
 
+Note: If using `all_files` with RuboCop, it will ignore RuboCop's `Exclude` configuration setting. To avoid this, pass `--force-exclusion`.
+
 ## Custom file list
 
 Lefthook can be even more specific in selecting files.
