@@ -1,18 +1,48 @@
 require("process");
 const { spawn } = require("child_process");
 const { createWriteStream, unlink } = require("fs");
+const { createGunzip } = require("zlib");
 const { get } = require("https");
 const { join } = require("path");
 
-const downloadPaths = {
-  "darwin": "https://raw.githubusercontent.com/Arkweid/lefthook/master/.npm/bin/lefthook-mac",
-  "linux": "https://raw.githubusercontent.com/Arkweid/lefthook/master/.npm/bin/lefthook-linux",
-  "win32": "https://raw.githubusercontent.com/Arkweid/lefthook/master/.npm/bin/lefthook-win.exe"
-};
+const { version } = require("./package.json");
+
+const binaryName = "lefthook";
+
+function closeAndRemoveFile(file) {
+  file.on("close", () => {
+    unlink(file);
+  });
+  file.close();
+}
+
+function resolveDownloadPath(os, version, arch) {
+  let archStr;
+  let osStr;
+
+  if (os === "darwin") {
+    osStr = "MacOS";
+  } else if (os === "linux") {
+    osStr = "Linux";
+  } else if (os === "win32") {
+    osStr = "Windows";
+  }
+
+  if (arch === "ia32" || arch === "x86") {
+    archStr = "i386";
+  } else if (arch === "x64") {
+    archStr = "x86_64";
+  } else {
+    console.error(`Unable to resolve architecture (${arch}), only supported architectures are: 'ia32', 'x86', and 'x64'`);
+    process.exit(0);
+  }
+
+  return `https://github.com/Arkweid/lefthook/releases/download/v${version}/lefthook_${version}_${osStr}_${archStr}.gz`;
+}
 
 function downloadBinary(os, callback) {
   // construct single binary file path
-  const binaryPath = join(process.cwd(), 'node_modules', '@arkweid', 'lefthook', 'bin', binary);
+  const binaryPath = join(process.env.INIT_CWD, "node_modules", "@arkweid", "lefthook", "bin", binaryName);
 
   // create write stream as file with the constructed binaryPath, set it
   // up to close as soon as no more data is expected
@@ -20,19 +50,45 @@ function downloadBinary(os, callback) {
   file.on("finish", () => {
     file.close();
   });
+  file.on("close", () => {
+    callback(binaryPath);
+  });
 
   // start download of binary file, set it up to remove the file if an
   // error occurs
-  const download = get(downloadPaths[os], response => {
-    response.pipe(file);
-    response.on("end", () => {
-      callback(binaryPath);
-    });
+  const downloadPath = resolveDownloadPath(os, version, process.arch);
+  const download = get(downloadPath, downloadResponse => {
+    // handle github binary redirect
+    if (downloadResponse.statusCode === 302) {
+      const redirectDownloadPath = downloadResponse.headers.location;
+
+      const redirectDownload = get(redirectDownloadPath, redirectDownloadResponse => {
+        if (redirectDownloadResponse.statusCode === 200) {
+          const gzip = createGunzip();
+          redirectDownloadResponse.pipe(gzip).pipe(file);
+        } else {
+          console.error("Unable to download lefthook binary file from redirect");
+        }
+      });
+
+      redirectDownload.on("error", err => {
+        console.error("Unable to download lefthook binary file");
+        console.error(err.message);
+        closeAndRemoveFile(file);
+      });
+    } else if (downloadResponse.statusCode === 200) {
+      downloadResponse.pipe(file);
+      downloadResponse.on("close", () => {
+        callback(binaryPath);
+      });
+    } else {
+      console.error("Unable to download lefthook binary file: Unhandled response", downloadResponse.statusCode);
+    }
   });
   download.on("error", err => {
     console.error("Unable to download lefthook binary file");
     console.error(err.message);
-    unlink(file);
+    closeAndRemoveFile(file);
   });
 }
 
@@ -52,4 +108,6 @@ if (!isCI) {
 
   console.log("Downloading `lefthook` binary");
   downloadBinary(process.platform, installGitHooks);
+} else {
+  console.log("Skipping downloading of `lefthook` binary due to CI environment.");
 }
