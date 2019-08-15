@@ -1,6 +1,6 @@
 require("process");
 const { spawn } = require("child_process");
-const { createWriteStream, unlink } = require("fs");
+const { createWriteStream, mkdirSync, unlink } = require("fs");
 const { createGunzip } = require("zlib");
 const { get } = require("https");
 const { join } = require("path");
@@ -42,7 +42,18 @@ function resolveDownloadPath(os, version, arch) {
 
 function downloadBinary(os, callback) {
   // construct single binary file path
-  const binaryPath = join(process.env.INIT_CWD, "node_modules", "@arkweid", "lefthook", "bin", binaryName);
+  const binaryDir = join(process.env.INIT_CWD, "node_modules", "@arkweid", "lefthook", "bin");
+  const binaryPath = join(binaryDir, binaryName);
+
+  // create directory if not existing, yet
+  try {
+    mkdirSync(binaryDir);
+  } catch (err) {
+    if (err.code !== 'EEXIST') {
+      console.error(err.message);
+      process.exit(0);
+    }
+  }
 
   // create write stream as file with the constructed binaryPath, set it
   // up to close as soon as no more data is expected
