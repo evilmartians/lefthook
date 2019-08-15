@@ -3,11 +3,12 @@ const { spawn } = require("child_process");
 const { createWriteStream, mkdirSync, unlink } = require("fs");
 const { createGunzip } = require("zlib");
 const { get } = require("https");
-const { join } = require("path");
+const { join, resolve } = require("path");
 
 const { version } = require("./package.json");
 
 const binaryName = "lefthook";
+const packageDir = process.env.INIT_CWD || resolve(".");
 
 function closeAndRemoveFile(file) {
   file.on("close", () => {
@@ -42,7 +43,7 @@ function resolveDownloadPath(os, version, arch) {
 
 function downloadBinary(os, callback) {
   // construct single binary file path
-  const binaryDir = join(process.env.INIT_CWD, "node_modules", "@arkweid", "lefthook", "bin");
+  const binaryDir = join(packageDir, "node_modules", "@arkweid", "lefthook", "bin");
   const binaryPath = join(binaryDir, binaryName);
 
   // create directory if not existing, yet
