@@ -187,3 +187,5 @@ $ lefthook run fixer
 ### Articles
 * [Lefthook: Knock your team’s code back into shape](https://evilmartians.com/chronicles/lefthook-knock-your-teams-code-back-into-shape?utm_source=lefthook)
 * [Lefthook + Crystalball](https://dev.to/evilmartians/lefthook-crystalball-and-git-magic-for-smooth-development-experience-33mc)
+* [Keeping OSS documentation in check with docsify, Lefthook, and friends](https://evilmartians.com/chronicles/keeping-oss-documentation-in-check-with-docsify-lefthook-and-friends?utm-source=lefthook)
+
