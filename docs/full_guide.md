@@ -114,7 +114,7 @@ pre-commit:
     backend-linter:
       glob: "*.rb" # glob filter for list of files
       exclude: "application.rb|routes.rb" # regexp filter for list of files
-      run: bundle exec rubocop {all_files} # {all_files} - list of files
+      run: bundle exec rubocop --force-exclusion {all_files} # {all_files} - list of files
 ```
 
 Note: If using `all_files` with RuboCop, it will ignore RuboCop's `Exclude` configuration setting. To avoid this, pass `--force-exclusion`.
@@ -343,7 +343,7 @@ pre-commit:
       tags: backend style
       glob: "*.rb"
       exclude: "application.rb|routes.rb"
-      run: bundle exec rubocop {all_files}
+      run: bundle exec rubocop --force-exclusion {all_files}
     govet:
       tags: backend style
       files: git ls-files -m
