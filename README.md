@@ -64,7 +64,7 @@ pre-commit:
     frontend-linter:
       run: yarn eslint {staged_files}
     backend-linter:
-      run: bundle exec rubocop {all_files}
+      run: bundle exec rubocop --force-exclusion {all_files}
     frontend-style:
       files: git diff --name-only HEAD @{push}
       run: yarn stylelint {files}
@@ -79,7 +79,7 @@ pre-commit:
     backend-linter:
       glob: "*.rb" # glob filter
       exclude: "application.rb|routes.rb" # regexp filter
-      run: bundle exec rubocop {all_files}
+      run: bundle exec rubocop --force-exclusion {all_files}
 ```
 
 * ### **Run scripts**
@@ -148,7 +148,7 @@ If you want to run specific group of commands directly.
 fixer:
   commands:
     ruby-fixer:
-      run: bundle exec rubocop --safe-auto-correct {staged_files}
+      run: bundle exec rubocop --force-exclusion --safe-auto-correct {staged_files}
     js-fixer:
       run: yarn eslint --fix {staged_files}
 ```
