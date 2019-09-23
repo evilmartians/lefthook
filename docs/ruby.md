@@ -21,7 +21,7 @@ pre-commit:
     rubocop:
       files: git diff --name-only --staged
       glob: "*.rb"
-      run: rubocop {files}
+      run: rubocop --force-exclusion {files}
 ```
 
 ## Test it
