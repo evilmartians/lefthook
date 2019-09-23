@@ -13,7 +13,7 @@ pre-commit:
       tags: backend style
       glob: "*.rb"
       exclude: "application.rb|routes.rb"
-      run: bundle exec rubocop {all_files}
+      run: bundle exec rubocop --force-exclusion {all_files}
   scripts:
     "good_job.js":
       runner: node
@@ -30,7 +30,7 @@ pre-push:
       tags: backend style
       files: git diff --name-only master
       glob: "*.rb"
-      run: bundle exec rubocop {files}
+      run: bundle exec rubocop --force-exclusion {files}
   scripts:
     "verify":
       runner: sh
