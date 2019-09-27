@@ -2,6 +2,9 @@
 
 ## master (unreleased)
 
+- [Commit](https://github.com/Arkweid/lefthook/commit/83cf818106dbf222ea33ba86aafce8f30d7cb5a9)
+Add examples to generated lefthook.yml
+
 ## 0.6.3 (2019-07-15)
 
 - [Commit](https://github.com/Arkweid/lefthook/commit/0426936f48f248221126f15619932b0dc8c54d7a) Add `-a` means `aggresive` strategy for `install` command
