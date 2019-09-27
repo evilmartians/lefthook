@@ -218,6 +218,8 @@ If we have a lot of commands and scripts we can tag them and run skip commands w
 For example, if we have `lefthook.yml` like this:
 
 ```yml
+# lefthook.yml
+
 pre-push:
   commands:
     packages-audit:
@@ -241,6 +243,8 @@ pre-push:
 ## Piped option
 If any command in the sequence fails, the other will not be executed.
 ```yml
+# lefthook.yml
+
 database:
   piped: true
   commands:
@@ -251,6 +255,15 @@ database:
     3_seed:
       run: rake db:seed
 ```
+
+## Extends option
+If you need to extend config from some another place, just add top level:
+```yml
+# lefthook.yml
+
+extends: $HOME/work/lefthook-extend.yml
+```
+NOTE: File for extend should have name NOT a "lefthook.yml"
 
 ## Referencing commands from lefthook.yml
 
@@ -333,6 +346,8 @@ lefthook run lint
 
 ```yml
 # lefthook.yml
+color: false
+extends: $HOME/work/lefthook-extend.yml
 
 pre-commit:
   commands:
