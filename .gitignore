@@ -1,4 +1,5 @@
 .vscode/
+.idea/
 .lefthook-local/
 .lefthook/
 /lefthook-local.yml
