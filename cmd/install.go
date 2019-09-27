@@ -71,7 +71,42 @@ func InstallCmdExecutor(args []string, fs afero.Fs) {
 
 // AddConfigYaml write lefthook.yml in root project directory
 func AddConfigYaml(fs afero.Fs) {
-	template := ""
+	template := `# EXAMPLE USAGE
+# Refer for explanation to following link:
+# https://github.com/Arkweid/lefthook/blob/master/docs/full_guide.md
+#
+# pre-push:
+#   commands:
+#     packages-audit:
+#       tags: frontend security
+#       run: yarn audit
+#     gems-audit:
+#       tags: backend security
+#       run: bundle audit
+#
+# pre-commit:
+#   parallel: true
+#   commands:
+#     eslint:
+#       glob: "*.{js,ts}"
+#       run: yarn eslint {staged_files}
+#     rubocop:
+#       tags: backend style
+#       glob: "*.rb"
+#       exclude: "application.rb|routes.rb"
+#       run: bundle exec rubocop --force-exclusion {all_files}
+#     govet:
+#       tags: backend style
+#       files: git ls-files -m
+#       glob: "*.go"
+#       run: go vet {files}
+#   scripts:
+#     "hello.js":
+#       runner: node
+#     "any.go":
+#       runner: go run
+`
+
 	err := afero.WriteFile(fs, getConfigYamlPath(), []byte(template), defaultDirPermission)
 	check(err)
 	log.Println("Added config: ", getConfigYamlPath())
