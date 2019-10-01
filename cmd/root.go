@@ -17,6 +17,7 @@ const (
 	rootExecutionRelPath    string      = "."
 	configFileName          string      = "lefthook"
 	configLocalFileName     string      = "lefthook-local"
+	configExtendsOption     string      = "extends"
 	configExtension         string      = ".yml"
 	defaultFilePermission   os.FileMode = 0755
 	defaultDirPermission    os.FileMode = 0666
@@ -87,6 +88,16 @@ func initConfig() {
 	viper.SetConfigName(configLocalFileName)
 	viper.MergeInConfig()
 
+	if isConfigExtends() {
+		filename := filepath.Base(getExtendsPath())
+		extension := filepath.Ext(getExtendsPath())
+		name := filename[0 : len(filename)-len(extension)]
+		viper.SetConfigName(name)
+		viper.AddConfigPath(filepath.Dir(getExtendsPath()))
+		err := viper.MergeInConfig()
+		check(err)
+	}
+
 	viper.AutomaticEnv()
 }
 
@@ -110,6 +121,14 @@ func check(e error) {
 	if e != nil {
 		panic(e)
 	}
+}
+
+func isConfigExtends() bool {
+	return viper.GetString(configExtendsOption) != ""
+}
+
+func getExtendsPath() string {
+	return viper.GetString(configExtendsOption)
 }
 
 // EnableColors shows is colors supported for current output or not.

@@ -2,6 +2,12 @@
 
 ## master (unreleased)
 
+- [Commit](https://github.com/Arkweid/lefthook/commit/0940b725729788c334bdd1e983f23e3340b1eef0)
+Option `extends` for top level config added. Now you can merge some settings from different places:
+```yml
+extends: $HOME/work/lefthook-extend.yml
+```
+
 - [Commit](https://github.com/Arkweid/lefthook/commit/83cf818106dbf222ea33ba86aafce8f30d7cb5a9)
 Add examples to generated lefthook.yml
 
