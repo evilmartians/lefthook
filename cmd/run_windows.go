@@ -26,6 +26,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"gopkg.in/alessio/shellescape.v1"
 )
 
 var (
@@ -188,6 +189,15 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	files = FilterExclude(files, getCommandExcludeRegexp(hooksGroup, commandName))
 
 	VerbosePrint("Files after filters: \n", files)
+
+	files_esc := []string{}
+	for _, fileName := range files {
+		if len(fileName) > 0 {
+			files_esc = append(files_esc, shellescape.Quote(fileName))
+		}
+	}
+	files = files_esc
+	VerbosePrint("Files after escaping: \n", files)
 
 	runner = strings.Replace(runner, pushFiles, strings.Join(files, " "), -1)
 	runner = strings.Replace(runner, subStagedFiles, strings.Join(files, " "), -1)
