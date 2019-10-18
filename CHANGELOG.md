@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+- [PR](https://github.com/Arkweid/lefthook/pull/82) Now relative path to scripts supported. Thanks @AlexeyMatskevich
+
 - [Commit](https://github.com/Arkweid/lefthook/pull/80/commits/1a4b0ee155eb66ae6f3c365164012bee9332605a)
 Option `extends` for top level config added. Now you can merge some settings from different places:
 ```yml

@@ -4,7 +4,7 @@ First off, thanks for taking the time to contribute! Feel free to make Pull Requ
 
 # Requirements
 
-Go >= 1.11
+Go >= 1.13.1
 Ruby >= 2.x
 
 # Proccess
