@@ -249,6 +249,8 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 		makeExecutable(pathToExecutable)
 	}
 
+	pathToExecutable, _ = filepath.Rel(getRootPath(), pathToExecutable)
+
 	command := exec.Command(pathToExecutable, gitArgs[:]...)
 
 	if haveRunner(hooksGroup, scriptsConfigKey, executableName) {
