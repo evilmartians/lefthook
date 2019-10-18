@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+- [Commit](https://github.com/Arkweid/lefthook/commit/fee173d62ad9a85a7b3fc2ea6d8c1c00728aaea3) Add shell escapig for filenames. Thanks @asottile
+
 - [PR](https://github.com/Arkweid/lefthook/pull/82) Now relative path to scripts supported. Thanks @AlexeyMatskevich
 
 - [Commit](https://github.com/Arkweid/lefthook/pull/80/commits/1a4b0ee155eb66ae6f3c365164012bee9332605a)
