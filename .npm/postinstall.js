@@ -48,7 +48,7 @@ function resolveDownloadPath(os, version, arch) {
 function downloadBinary(os, callback) {
   // construct single binary file path
   const binaryDir = join(packageDir, "node_modules", "@arkweid", "lefthook", "bin");
-  const binaryPath = join(binaryDir, binaryName);
+  const binaryPath = join(binaryDir, `${binaryName}${os === "win32" ? ".exe" : ""}`);
 
   // create directory if not existing, yet
   try {
