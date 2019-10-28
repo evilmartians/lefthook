@@ -26,13 +26,17 @@ function resolveDownloadPath(os, version, arch) {
   } else if (os === "linux") {
     osStr = "Linux";
   } else if (os === "win32") {
+    if (arch === "ia32" || arch === "x86") {
+      console.error("Lefthook is only supported on Windows with 64bit architecture.");
+      process.exit(0);
+    }
     osStr = "Windows";
   }
 
-  if (arch === "ia32" || arch === "x86") {
-    archStr = "i386";
-  } else if (arch === "x64") {
+  if (arch === "x64") {
     archStr = "x86_64";
+  } else if (arch === "ia32" || arch === "x86") {
+    archStr = "i386";
   } else {
     console.error(`Unable to resolve architecture (${arch}), only supported architectures are: 'ia32', 'x86', and 'x64'`);
     process.exit(0);
