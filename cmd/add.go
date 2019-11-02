@@ -64,8 +64,8 @@ func addHook(hookName string, fs afero.Fs) {
 	// TODO: text/template
 	template := `#!/bin/sh
 
-if [ "{$LEFTHOOK}" = "0" ]; then
-	exit 0
+if [ "$LEFTHOOK" = "0" ]; then
+  exit 0
 fi
 ` + autoInstall(hookName, fs) + "\n" + "cmd=\"lefthook run " + hookName + " $@\"" +
 		`
