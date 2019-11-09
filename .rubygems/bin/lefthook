@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+binary = case RUBY_PLATFORM
+  when /linux/
+    'lefthook-linux'
+  when /darwin/
+    'lefthook-mac'
+  when /windows/
+    'lefthook-win.exe'
+  else
+    raise "Invalid platform."
+end
+
+args = $*.map { |x| x.include?(' ') ? "'" + x + "'" : x }
+cmd = File.expand_path "#{File.dirname(__FILE__)}/../libexec/#{binary}"
+
+puts "#{cmd} #{args.join(' ')}"
+
+pid = spawn("#{cmd} #{args.join(' ')}")
+Process.wait(pid)
+exit($?.exitstatus)

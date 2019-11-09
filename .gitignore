@@ -4,7 +4,7 @@
 .lefthook/
 /lefthook-local.yml
 /lefthook.yml
-lefthook
+/lefthook
 cplefthook
 
 tmp/
