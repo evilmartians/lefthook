@@ -52,6 +52,7 @@ const (
 	skipConfigKey        string      = "skip"
 	skipEmptyConfigKey   string      = "skip_empty"
 	filesConfigKey       string      = "files"
+	colorsConfigKey      string      = "colors"
 	parallelConfigKey    string      = "parallel"
 	subFiles             string      = "{files}"
 	subAllFiles          string      = "{all_files}"

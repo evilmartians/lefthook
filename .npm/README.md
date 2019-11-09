@@ -2,11 +2,18 @@
 
 # Lefthook
 
+> The fastest polyglot Git hooks manager out there
+
+<img align="right" width="147" height="100" title="Lefthook logo"
+     src="./logo_sign.svg">
+
 Fast and powerful Git hooks manager for Node.js, Ruby or any other type of projects.
 
 * **Fast.** It is written in Go. Can run commands in parallel.
 * **Powerful.** With a few lines in the config you can check only the changed files on `pre-push` hook.
 * **Simple.** It is single dependency-free binary which can work in any environment.
+
+📖 [Read the introduction post](https://evilmartians.com/chronicles/lefthook-knock-your-teams-code-back-into-shape?utm_source=lefthook)
 
 ```yml
 # On `git push` lefthook will run spelling and links check for all of the changed files
@@ -57,13 +64,13 @@ pre-commit:
     frontend-linter:
       run: yarn eslint {staged_files}
     backend-linter:
-      run: bundle exec rubocop {all_files}
+      run: bundle exec rubocop --force-exclusion {all_files}
     frontend-style:
       files: git diff --name-only HEAD @{push}
       run: yarn stylelint {files}
 ```
 
-* ### **Glob and regexp filtres**
+* ### **Glob and regexp filters**
 If you want to filter list of files.
 
 ```yml
@@ -72,7 +79,7 @@ pre-commit:
     backend-linter:
       glob: "*.rb" # glob filter
       exclude: "application.rb|routes.rb" # regexp filter
-      run: bundle exec rubocop {all_files}
+      run: bundle exec rubocop --force-exclusion {all_files}
 ```
 
 * ### **Run scripts**
@@ -141,7 +148,7 @@ If you want to run specific group of commands directly.
 fixer:
   commands:
     ruby-fixer:
-      run: bundle exec rubocop --safe-auto-correct {staged_files}
+      run: bundle exec rubocop --force-exclusion --safe-auto-correct {staged_files}
     js-fixer:
       run: yarn eslint --fix {staged_files}
 ```
@@ -172,6 +179,13 @@ $ lefthook run fixer
 
 ### Benchmarks
 * [vs Overcommit](https://github.com/Arkweid/lefthook/wiki/Benchmark-lefthook-vs-overcommit)
+* [vs pre-commit](https://github.com/Arkweid/lefthook/wiki/Benchmark-lefthook-vs-pre-commit)
 
 ### Comparison list
-* [vs Overcommit and Husky](https://github.com/Arkweid/lefthook/wiki/Comparison-with-other-solutions)
+* [vs Overcommit, Husky, pre-commit](https://github.com/Arkweid/lefthook/wiki/Comparison-with-other-solutions)
+
+### Articles
+* [Lefthook: Knock your team’s code back into shape](https://evilmartians.com/chronicles/lefthook-knock-your-teams-code-back-into-shape?utm_source=lefthook)
+* [Lefthook + Crystalball](https://evilmartians.com/chronicles/lefthook-crystalball-and-git-magic?utm_source=lefthook)
+* [Keeping OSS documentation in check with docsify, Lefthook, and friends](https://evilmartians.com/chronicles/keeping-oss-documentation-in-check-with-docsify-lefthook-and-friends?utm_source=lefthook)
+

@@ -5,6 +5,7 @@
 /lefthook-local.yml
 /lefthook.yml
 lefthook
+cplefthook
 
 tmp/
 dist/

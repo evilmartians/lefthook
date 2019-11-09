@@ -2,7 +2,11 @@
 
 ## master (unreleased)
 
-- [Commit](https://github.com/Arkweid/lefthook/commit/fee173d62ad9a85a7b3fc2ea6d8c1c00728aaea3) Add shell escapig for filenames. Thanks @asottile
+# 0.6.4 (2019-07-15)
+
+- [PR](https://github.com/Arkweid/lefthook/pull/84) Fix return value from shell exit. Thanks @HaiD84
+
+- [PR](https://github.com/Arkweid/lefthook/pull/86) Support postinstall script for npm installation for monorepos. Thanks @sHooKDT
 
 - [PR](https://github.com/Arkweid/lefthook/pull/82) Now relative path to scripts supported. Thanks @AlexeyMatskevich
 
