@@ -15,7 +15,7 @@ if (!isCI) {
     process.exit(0);
   }
 
-  binpath = join(_dirname, 'bin', binary);
+  binpath = join(__dirname, 'bin', binary);
 
   result = spawn(binpath, ["install", "-f"], { stdio: [process.stdin, process.stdout, process.stderr] });
 }
