@@ -159,7 +159,7 @@ $ lefthook run fixer
 
 ---
 
-## Table of content:
+## Table of contents:
 
 ### Guides
 * [Node.js](./docs/node.md)
