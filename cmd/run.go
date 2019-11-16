@@ -21,7 +21,7 @@ import (
 
 	arrop "github.com/adam-hanna/arrayOperations"
 	"github.com/gobwas/glob"
-	"github.com/kr/pty"
+	"github.com/creack/pty"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
