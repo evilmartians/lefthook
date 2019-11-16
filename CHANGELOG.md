@@ -2,7 +2,17 @@
 
 ## master (unreleased)
 
-# 0.6.4 (2019-07-15)
+# 0.6.5 (2019-11-15)
+
+- [PR](https://github.com/Arkweid/lefthook/pull/89) Add support for git-worktree. Thanks @f440
+
+- [Commit](https://github.com/Arkweid/lefthook/commit/48702a0806d2b2eab13636ba56b0e0b99f346f1c)
+Commands and Scripts now can catch Stdin
+
+- [Commit](https://github.com/Arkweid/lefthook/commit/9a226842292ff1dda0f2273b66a0799988aa5289)
+Add partial support for monorepos and command execution not from project root
+
+# 0.6.4 (2019-11-08)
 
 - [PR](https://github.com/Arkweid/lefthook/pull/84) Fix return value from shell exit. Thanks @HaiD84
 
