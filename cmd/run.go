@@ -238,7 +238,12 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 		return
 	}
 
+	// pty part start
+	defer func() { ptyOut.Close() }() // Make sure to close the pty at the end.
+	// Copy stdin to the pty and the pty to stdout.
+	go func() { io.Copy(ptyOut, os.Stdin) }()
 	io.Copy(os.Stdout, ptyOut)
+	// pty part end
 
 	if command.Wait() == nil {
 		okList = append(okList, commandName)
@@ -275,7 +280,6 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 
 		command = exec.Command(runnerArg[0], runnerArg[1:]...)
 	}
-	command.Stdin = os.Stdin
 
 	ptyOut, err := pty.Start(command)
 	mutex.Lock()
@@ -306,7 +310,12 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 		return
 	}
 
+	// pty part start
+	defer func() { ptyOut.Close() }() // Make sure to close the pty at the end.
+	// Copy stdin to the pty and the pty to stdout.
+	go func() { io.Copy(ptyOut, os.Stdin) }()
 	io.Copy(os.Stdout, ptyOut)
+	// pty part end
 
 	if command.Wait() == nil {
 		okList = append(okList, executableName)
