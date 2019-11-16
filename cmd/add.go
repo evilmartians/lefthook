@@ -11,10 +11,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-	gitHooksDir string = ".git/hooks"
-)
-
 var createDirsFlag bool
 
 var addCmd = &cobra.Command{
