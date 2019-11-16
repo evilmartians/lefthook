@@ -3,6 +3,7 @@ package cmd
 import (
 	"io/ioutil"
 	"log"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -138,7 +139,15 @@ func addLocalHookDir(hookName string, fs afero.Fs) {
 }
 
 func getGitHooksDir() string {
-	return filepath.Join(getRootPath(), gitHooksDir)
+	cmd := exec.Command("sh", "-c", "git rev-parse --git-common-dir")
+
+	outputBytes, err := cmd.CombinedOutput()
+	if err != nil {
+		panic(err)
+	}
+
+	gitDir := strings.TrimSpace(string(outputBytes))
+	return filepath.Join(gitDir, "hooks")
 }
 
 func isLefthookFile(pathFile string) bool {
