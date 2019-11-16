@@ -3,6 +3,8 @@ package cmd
 import (
 	"log"
 	"os"
+	"os/exec"
+	"strings"
 	"path/filepath"
 
 	"github.com/logrusorgru/aurora"
@@ -106,7 +108,12 @@ func getRootPath() string {
 }
 
 func setRootPath(path string) {
-	rootPath, _ = filepath.Abs(path)
+	// get absolute path to .git dir (project root)
+	cmd := exec.Command("sh", "-c", "git rev-parse --show-toplevel")
+
+	outputBytes, err := cmd.CombinedOutput()
+	check(err)
+	rootPath = strings.TrimSpace(string(outputBytes))
 }
 
 func getSourceDir() string {
