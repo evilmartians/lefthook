@@ -147,7 +147,7 @@ func getGitHooksDir() string {
 	}
 
 	gitDir := strings.TrimSpace(string(outputBytes))
-	return filepath.Join(gitDir, "hooks")
+	return filepath.Join(getRootPath(), gitDir, "hooks")
 }
 
 func isLefthookFile(pathFile string) bool {
