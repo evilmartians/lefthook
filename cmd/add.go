@@ -20,7 +20,7 @@ var addCmd = &cobra.Command{
 
 ├───.git
 │   └───hooks
-│       └───pre-commit // this executable will be added. Existed file with 
+│       └───pre-commit // this executable will be added. Existed file with
 │                      // same name will be renamed to pre-commit.old
 (lefthook add this dirs if you run command with -d option)
 │
@@ -64,12 +64,15 @@ func addHook(hookName string, fs afero.Fs) {
 if [ "$LEFTHOOK" = "0" ]; then
   exit 0
 fi
+
+exec < /dev/tty # <- enables interactive shell
+
 ` + autoInstall(hookName, fs) + "\n" + "cmd=\"lefthook run " + hookName + " $@\"" +
 		`
 
 if lefthook >/dev/null 2>&1
 then
-  exec $cmd
+  eval $cmd
 elif bundle exec lefthook >/dev/null 2>&1
 then
   bundle exec $cmd
@@ -110,7 +113,7 @@ func autoInstall(hookName string, fs afero.Fs) string {
 
 if lefthook >/dev/null 2>&1
 then
-	exec $cmd
+	eval $cmd
 elif bundle exec lefthook >/dev/null 2>&1
 then
 	bundle exec $cmd
