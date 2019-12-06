@@ -22,7 +22,6 @@ RSpec.describe 'run command' do
 
     it 'contain expected output' do
       expect(@stdout).to include(expected_output)
-
     end
   end
 
