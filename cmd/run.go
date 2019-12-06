@@ -40,6 +40,7 @@ var (
 )
 
 const (
+	rootConfigKey        string      = "root"
 	runnerConfigKey      string      = "runner"
 	runConfigKey         string      = "run" // alias for runner
 	runnerArgsConfigKey  string      = "runner_args"
@@ -194,6 +195,9 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	files = FilterInclude(files, getCommandIncludeRegexp(hooksGroup, commandName)) // NOTE: confusing option, suppose delete it
 	files = FilterExclude(files, getCommandExcludeRegexp(hooksGroup, commandName))
 
+	cmdRoot := getRoot(hooksGroup, commandName)
+	files = FilterRelative(files, cmdRoot)
+
 	VerbosePrint("Files after filters: \n", files)
 
 	files_esc := []string{}
@@ -211,6 +215,9 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	runner = strings.Replace(runner, subFiles, strings.Join(files, " "), -1)
 
 	command := exec.Command("sh", "-c", runner)
+	if cmdRoot != "" {
+		command.Dir = cmdRoot
+	}
 	command.Stdin = os.Stdin
 
 	ptyOut, err := pty.Start(command)
@@ -410,6 +417,11 @@ func getCommands(hooksGroup string) []string {
 	return keys
 }
 
+func getRoot(hooksGroup string, executableName string) string {
+	key := strings.Join([]string{hooksGroup, commandsConfigKey, executableName, rootConfigKey}, ".")
+	return viper.GetString(key)
+}
+
 func getCommandIncludeRegexp(hooksGroup, executableName string) string {
 	key := strings.Join([]string{hooksGroup, commandsConfigKey, executableName, includeConfigKey}, ".")
 	return viper.GetString(key)
@@ -495,6 +507,20 @@ func FilterGlob(vs []string, matcher string) []string {
 	for _, v := range vs {
 		if res := g.Match(v); res {
 			vsf = append(vsf, v)
+		}
+	}
+	return vsf
+}
+
+func FilterRelative(vs []string, matcher string) []string {
+	if matcher == "" {
+		return vs
+	}
+
+	vsf := make([]string, 0)
+	for _, v := range vs {
+		if strings.HasPrefix(v, matcher) {
+			vsf = append(vsf, strings.Replace(v, matcher, "./", 1))
 		}
 	}
 	return vsf
