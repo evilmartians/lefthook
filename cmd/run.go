@@ -20,8 +20,8 @@ import (
 	"github.com/Arkweid/lefthook/context"
 
 	arrop "github.com/adam-hanna/arrayOperations"
-	"github.com/gobwas/glob"
 	"github.com/creack/pty"
+	"github.com/gobwas/glob"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -216,7 +216,8 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 
 	command := exec.Command("sh", "-c", runner)
 	if cmdRoot != "" {
-		command.Dir = cmdRoot
+		fullPath, _ := filepath.Abs(cmdRoot)
+		command.Dir = fullPath
 	}
 	command.Stdin = os.Stdin
 

@@ -212,7 +212,8 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	runnerArg := strings.Split(runner, " ")
 	command := exec.Command(runnerArg[0], runnerArg[1:]...)
 	if cmdRoot != "" {
-		command.Dir = cmdRoot
+		fullPath, _ := filepath.Abs(cmdRoot)
+		command.Dir = fullPath
 	}
 	command.Stdin = os.Stdin
 	command.Stdout = os.Stdout // win specific
