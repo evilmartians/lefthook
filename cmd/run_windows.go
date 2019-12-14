@@ -165,8 +165,9 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	if getPiped(hooksGroup) && isPipeBroken {
-		log.Println(au.Cyan("\n  EXECUTE >"), au.Bold(commandName))
-		log.Println(au.Brown("(SKIP BY BROKEN PIPE)"))
+		mutex.Lock()
+		log.Println("\n", au.Bold(commandName), au.Brown("(SKIP BY BROKEN PIPE)"))
+		mutex.Unlock()
 		return
 	}
 
@@ -206,15 +207,21 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	runner = strings.Replace(runner, subFiles, strings.Join(files, " "), -1)
 
 	if isSkipCommmand(hooksGroup, commandName) {
-		log.Println(au.Bold(commandName), au.Brown("(SKIP BY SETTINGS)"))
+		mutex.Lock()
+		log.Println("\n", au.Bold(commandName), au.Brown("(SKIP BY SETTINGS)"))
+		mutex.Unlock()
 		return
 	}
 	if result, _ := arrop.Intersect(getExcludeTags(hooksGroup), getTags(hooksGroup, commandsConfigKey, commandName)); len(result.Interface().([]string)) > 0 {
-		log.Println(au.Bold(commandName), au.Brown("(SKIP BY TAGS)"))
+		mutex.Lock()
+		log.Println("\n", au.Bold(commandName), au.Brown("(SKIP BY TAGS)"))
+		mutex.Unlock()
 		return
 	}
 	if len(files) < 1 && isSkipEmptyCommmand(hooksGroup, commandName) {
-		log.Println(au.Bold(commandName), au.Brown("(SKIP. NO FILES FOR INSPECTING)"))
+		mutex.Lock()
+		log.Println("\n", au.Bold(commandName), au.Brown("(SKIP. NO FILES FOR INSPECTING)"))
+		mutex.Unlock()
 		return
 	}
 
@@ -250,8 +257,9 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 	executableName := executable.Name()
 
 	if getPiped(hooksGroup) && isPipeBroken {
-		log.Println(au.Cyan("\n  EXECUTE >"), au.Bold(executableName))
-		log.Println(au.Brown("(SKIP BY BROKEN PIPE)"))
+		mutex.Lock()
+		log.Println("\n", au.Bold(executableName), au.Brown("(SKIP BY BROKEN PIPE)"))
+		mutex.Unlock()
 		return
 	}
 
@@ -277,15 +285,21 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 	command.Stderr = os.Stderr // win specific
 
 	if !isScriptExist(hooksGroup, executableName) {
-		log.Println(au.Bold(executableName), au.Brown("(SKIP BY NOT EXIST IN CONFIG)"))
+		mutex.Lock()
+		log.Println("\n", au.Bold(executableName), au.Brown("(SKIP BY NOT EXIST IN CONFIG)"))
+		mutex.Unlock()
 		return
 	}
 	if isSkipScript(hooksGroup, executableName) {
-		log.Println(au.Bold(executableName), au.Brown("(SKIP BY SETTINGS)"))
+		mutex.Lock()
+		log.Println("\n", au.Bold(executableName), au.Brown("(SKIP BY SETTINGS)"))
+		mutex.Unlock()
 		return
 	}
 	if result, _ := arrop.Intersect(getExcludeTags(hooksGroup), getTags(hooksGroup, scriptsConfigKey, executableName)); len(result.Interface().([]string)) > 0 {
-		log.Println(au.Bold(executableName), au.Brown("(SKIP BY TAGS)"))
+		mutex.Lock()
+		log.Println("\n", au.Bold(executableName), au.Brown("(SKIP BY TAGS)"))
+		mutex.Unlock()
 		return
 	}
 
