@@ -2,6 +2,20 @@
 
 ## master (unreleased)
 
+# 0.6.7 (2019-12-14)
+
+- [Commit](https://github.com/Arkweid/lefthook/commit/e898b5c8ba56c4d6f29a4d1f433baa1779a0845b)
+Skip before executing command
+
+- [PR](https://github.com/Arkweid/lefthook/pull/94) Add option --keep-config. Thanks @justinasposiunas
+
+- [Commit](https://github.com/Arkweid/lefthook/commit/d79a3a46e7d1ee709b97e97f823bfd27e9466eff)
+Check if shell is non interactive
+
+# 0.6.6 (2019-12-03)
+
+- [PR](https://github.com/Arkweid/lefthook/pull/94) Use eval instead of exec; Enable tty for the shell. Thanks @ssnickolay
+
 # 0.6.5 (2019-11-15)
 
 - [PR](https://github.com/Arkweid/lefthook/pull/89) Add support for git-worktree. Thanks @f440
