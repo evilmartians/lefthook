@@ -8,6 +8,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var keepConfiguration bool
+
 // uninstallCmd represents the uninstall command
 var uninstallCmd = &cobra.Command{
 	Use:   "uninstall",
@@ -18,14 +20,17 @@ var uninstallCmd = &cobra.Command{
 }
 
 func init() {
+	uninstallCmd.PersistentFlags().BoolVarP(&keepConfiguration, "keep-config", "k", false, "keep configuration files and source directories present")
 	rootCmd.AddCommand(uninstallCmd)
 }
 
 func uninstallCmdExecutor(fs afero.Fs) {
 	DeleteGitHooks(fs)
 	revertOldGitHooks(fs)
-	deleteConfig(fs)
-	deleteSourceDirs(fs)
+	if !keepConfiguration {
+		deleteSourceDirs(fs)
+		deleteConfig(fs)
+	}
 }
 
 func deleteConfig(fs afero.Fs) {
