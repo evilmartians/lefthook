@@ -20,8 +20,8 @@ import (
 	"github.com/Arkweid/lefthook/context"
 
 	arrop "github.com/adam-hanna/arrayOperations"
-	"github.com/gobwas/glob"
 	"github.com/creack/pty"
+	"github.com/gobwas/glob"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -210,6 +210,19 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	runner = strings.Replace(runner, subAllFiles, strings.Join(files, " "), -1)
 	runner = strings.Replace(runner, subFiles, strings.Join(files, " "), -1)
 
+	if isSkipCommmand(hooksGroup, commandName) {
+		log.Println(au.Bold(commandName), au.Brown("(SKIP BY SETTINGS)"))
+		return
+	}
+	if result, _ := arrop.Intersect(getExcludeTags(hooksGroup), getTags(hooksGroup, commandsConfigKey, commandName)); len(result.Interface().([]string)) > 0 {
+		log.Println(au.Bold(commandName), au.Brown("(SKIP BY TAGS)"))
+		return
+	}
+	if len(files) < 1 && isSkipEmptyCommmand(hooksGroup, commandName) {
+		log.Println(au.Bold(commandName), au.Brown("(SKIP. NO FILES FOR INSPECTING)"))
+		return
+	}
+
 	command := exec.Command("sh", "-c", runner)
 	command.Stdin = os.Stdin
 
@@ -222,19 +235,6 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 		failList = append(failList, commandName)
 		setPipeBroken()
 		log.Println(err)
-		return
-	}
-
-	if isSkipCommmand(hooksGroup, commandName) {
-		log.Println(au.Brown("(SKIP BY SETTINGS)"))
-		return
-	}
-	if result, _ := arrop.Intersect(getExcludeTags(hooksGroup), getTags(hooksGroup, commandsConfigKey, commandName)); len(result.Interface().([]string)) > 0 {
-		log.Println(au.Brown("(SKIP BY TAGS)"))
-		return
-	}
-	if len(files) < 1 && isSkipEmptyCommmand(hooksGroup, commandName) {
-		log.Println(au.Brown("(SKIP. NO FILES FOR INSPECTING)"))
 		return
 	}
 
@@ -281,15 +281,24 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 		command = exec.Command(runnerArg[0], runnerArg[1:]...)
 	}
 
+	if !isScriptExist(hooksGroup, executableName) {
+		log.Println(au.Bold(executableName), au.Brown("(SKIP BY NOT EXIST IN CONFIG)"))
+		return
+	}
+	if isSkipScript(hooksGroup, executableName) {
+		log.Println(au.Bold(executableName), au.Brown("(SKIP BY SETTINGS)"))
+		return
+	}
+	if result, _ := arrop.Intersect(getExcludeTags(hooksGroup), getTags(hooksGroup, scriptsConfigKey, executableName)); len(result.Interface().([]string)) > 0 {
+		log.Println(au.Bold(executableName), au.Brown("(SKIP BY TAGS)"))
+		return
+	}
+
 	ptyOut, err := pty.Start(command)
 	mutex.Lock()
 	defer mutex.Unlock()
 
 	log.Println(au.Cyan("\n  EXECUTE >"), au.Bold(executableName))
-	if !isScriptExist(hooksGroup, executableName) {
-		log.Println(au.Bold(executableName), au.Brown("(SKIP BY NOT EXIST IN CONFIG)"))
-		return
-	}
 	if os.IsPermission(err) {
 		log.Println(au.Brown("(SKIP NOT EXECUTABLE FILE)"))
 		return
@@ -299,14 +308,6 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 		log.Println(err)
 		log.Println(au.Brown("TIP: Command start failed. Checkout `runner:` option for this script"))
 		setPipeBroken()
-		return
-	}
-	if isSkipScript(hooksGroup, executableName) {
-		log.Println(au.Brown("(SKIP BY SETTINGS)"))
-		return
-	}
-	if result, _ := arrop.Intersect(getExcludeTags(hooksGroup), getTags(hooksGroup, scriptsConfigKey, executableName)); len(result.Interface().([]string)) > 0 {
-		log.Println(au.Brown("(SKIP BY TAGS)"))
 		return
 	}
 
