@@ -65,7 +65,9 @@ if [ "$LEFTHOOK" = "0" ]; then
   exit 0
 fi
 
-exec < /dev/tty # <- enables interactive shell
+if [ -t 1 ] ; then
+  exec < /dev/tty ; # <- enables interactive shell
+fi
 
 ` + autoInstall(hookName, fs) + "\n" + "cmd=\"lefthook run " + hookName + " $@\"" +
 		`
