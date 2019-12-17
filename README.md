@@ -82,6 +82,18 @@ pre-commit:
       run: bundle exec rubocop --force-exclusion {all_files}
 ```
 
+* ### **Execute in sub-directory**
+If you want to execute the commands in a relative path
+
+```yml
+pre-commit:
+  commands:
+    backend-linter:
+      root: "api/" # Careful to have only trailing slash
+      glob: "*.rb" # glob filter
+      run: bundle exec rubocop {all_files}
+```
+
 * ### **Run scripts**
 
 If oneline commands are not enough, you can execute files. [Example](./docs/full_guide.md#bash-script-example).
