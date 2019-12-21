@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = "lefthook"
-  spec.version       = "0.6.7"
+  spec.version       = "0.7.0"
   spec.authors       = ["A.A.Abroskin"]
   spec.email         = ["arkweid@evilmartians.com"]
 
@@ -19,6 +19,6 @@ Gem::Specification.new do |spec|
     libexec/lefthook-linux
     libexec/lefthook-win.exe
   )
-  
+
   spec.licenses = ['MIT']
 end

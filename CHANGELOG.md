@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+# 0.7.0 (2019-12-14)
+
+- [PR](https://github.com/Arkweid/lefthook/pull/98) Support relative roots for monorepos. Thanks @jsmestad
+
 # 0.6.7 (2019-12-14)
 
 - [Commit](https://github.com/Arkweid/lefthook/commit/e898b5c8ba56c4d6f29a4d1f433baa1779a0845b)

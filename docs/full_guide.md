@@ -405,6 +405,25 @@ Use LEFTHOOK_EXCLUDE={list of tags to be excluded} for that
 LEFTHOOK_EXCLUDE=ruby,security git commit -am "Skip some tag checks"
 ```
 
+## Concurrent files overrides
+
+To prevent concurrent problems with read/write files try `flock`
+utility.
+
+```yml
+# lefthook.yml
+
+graphql-schema:
+  glob: "{Gemfile.lock,app/graphql/**/*}"
+  run: flock webpack/application/typings/graphql-schema.json yarn typings:update && git diff --exit-code --stat HEAD webpack/application/typings
+frontend-tests:
+  glob: "**/*.js"
+  run: flock -s webpack/application/typings/graphql-schema.json yarn test --findRelatedTests {files}
+frontend-typings:
+  glob: "**/*.js"
+  run: flock -s webpack/application/typings/graphql-schema.json yarn run flow focus-check {files}
+```
+
 ## Capture ARGS from git in the script
 
 Example script for `prepare-commit-msg` hook:
