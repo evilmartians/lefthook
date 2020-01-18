@@ -1,0 +1,9 @@
+pre-push:
+  scripts:
+    ok_script: ""
+    fail_script: ""
+
+pre-commit:
+  scripts:
+    ok_script: ""
+    fail_script: ""

@@ -39,9 +39,17 @@ func deleteConfig(fs afero.Fs) {
 		log.Println(getConfigYamlPath(), "removed")
 	}
 
-	err = fs.Remove(getConfigLocalYamlPath())
-	if err == nil {
-		log.Println(getConfigLocalYamlPath(), "removed")
+	results, err := afero.Glob(fs, getConfigLocalYamlPattern())
+	if err != nil {
+		log.Println("Error occured while remove config file!:", err.Error())
+	}
+	for _, fileName := range results {
+		err = fs.Remove(getConfigLocalYamlPattern())
+		if err == nil {
+			log.Println(fileName, "removed")
+		} else {
+			log.Println("Error occured while remove config file!:", err.Error())
+		}
 	}
 }
 
