@@ -1,11 +1,12 @@
 package cmd
 
 import (
-	"log"
+	"github.com/Arkweid/lefthook/logger"
 	"os"
 	"os/exec"
-	"strings"
 	"path/filepath"
+	"fmt"
+	"strings"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mattn/go-isatty"
@@ -26,10 +27,13 @@ const (
 )
 
 var (
-	Verbose      bool
-	NoColors     bool
-	rootPath     string
-	cfgFile      string
+	Verbose  bool
+	NoColors bool
+	rootPath string
+	LogLevel string
+	loggerClient   *logger.Logger
+	cfgFile  string
+
 	originConfig *viper.Viper
 
 	au aurora.Aurora
@@ -46,7 +50,7 @@ lefthook install`,
 func Execute() {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Println(r)
+			loggerClient.Log(logger.Panic, fmt.Sprintf("%v", r))
 			os.Exit(1)
 		}
 	}()
@@ -58,12 +62,14 @@ func Execute() {
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 	rootCmd.PersistentFlags().BoolVar(&NoColors, "no-colors", false, "disable colored output")
+	rootCmd.PersistentFlags().StringVarP(&LogLevel, "log-level", "l", logger.Debug.String(), "set log level")
 
 	initAurora()
 	cobra.OnInitialize(initConfig)
+	logLevel, _ := logger.TransformLogLevel(LogLevel)
+	loggerClient = logger.GetInstance(logLevel)
 	// re-init Aurora after config reading because `colors` can be specified in config
 	cobra.OnInitialize(initAurora)
-	log.SetOutput(os.Stdout)
 }
 
 func initAurora() {
@@ -71,8 +77,6 @@ func initAurora() {
 }
 
 func initConfig() {
-	log.SetFlags(0)
-
 	setRootPath(rootExecutionRelPath)
 
 	// store original config before merge
@@ -154,6 +158,6 @@ func EnableColors() bool {
 // VerbosePrint print text if Verbose flag persist
 func VerbosePrint(v ...interface{}) {
 	if Verbose {
-		log.Println(v...)
+		loggerClient.Log(logger.Debug, fmt.Sprintf("%v", v...))
 	}
 }

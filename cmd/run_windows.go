@@ -7,8 +7,8 @@ import (
 	"fmt"
 
 	// "io" // win specific
-	"log"
 	"os"
+	"github.com/Arkweid/lefthook/logger"
 	"os/exec"
 	"path/filepath"
 	"regexp"
@@ -106,10 +106,10 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 	var wg sync.WaitGroup
 
 	startTime := time.Now()
-	log.Println(au.Cyan("RUNNING HOOKS GROUP:"), au.Bold(hooksGroup))
+	loggerClient.Log(logger.Info, fmt.Sprintf("%s %s", au.Cyan("RUNNING HOOKS GROUP:").String(), au.Bold(hooksGroup).String()))
 
 	if isPipedAndParallel(hooksGroup) {
-		log.Println(au.Brown("Config error! Conflicted options 'piped' and 'parallel'. Remove one of this option from hook group."))
+		loggerClient.Log(logger.Error, au.Brown("Config error! Conflicted options 'piped' and 'parallel'. Remove one of this option from hook group.").String())
 		return errors.New("Piped and Parallel options in conflict")
 	}
 

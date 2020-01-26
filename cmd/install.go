@@ -3,9 +3,10 @@ package cmd
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"fmt"
+	"github.com/Arkweid/lefthook/logger"
 	"io"
 	"io/ioutil"
-	"log"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -58,8 +59,9 @@ func init() {
 // InstallCmdExecutor execute basic configuration
 func InstallCmdExecutor(args []string, fs afero.Fs) {
 	if yes, _ := afero.Exists(fs, getConfigYamlPath()); yes {
+		message := fmt.Sprintf("%s %s", au.Cyan("SYNCING").String(), au.Bold("lefthook.yml").String())
+		loggerClient.Logger.Log(logger.Debug, message)
 		if !isConfigSync(fs) || force || aggressive {
-			log.Println(au.Cyan("SYNCING"), au.Bold("lefthook.yml"))
 			DeleteGitHooks(fs)
 			AddGitHooks(fs)
 		}
@@ -109,7 +111,7 @@ func AddConfigYaml(fs afero.Fs) {
 
 	err := afero.WriteFile(fs, getConfigYamlPath(), []byte(template), defaultDirPermission)
 	check(err)
-	log.Println("Added config: ", getConfigYamlPath())
+	loggerClient.Log(logger.Info, fmt.Sprintf("Added config: %s", getConfigYamlPath()))
 }
 
 // AddGitHooks write existed directories in source_dir as hooks in .git/hooks
@@ -135,7 +137,7 @@ func AddGitHooks(fs afero.Fs) {
 	unionHooks := append(dirsHooks, configHooks...)
 	unionHooks = append(unionHooks, checkSumHook) // add special hook for Sync config
 	unionHooks = uniqueStrSlice(unionHooks)
-	log.Println(au.Cyan("SERVED HOOKS:"), au.Bold(strings.Join(unionHooks, ", ")))
+	loggerClient.Log(logger.Info, fmt.Sprintf("%s %s", au.Cyan("SERVED HOOKS:"), au.Bold(strings.Join(unionHooks, ", "))))
 
 	for _, key := range unionHooks {
 		addHook(key, fs)
