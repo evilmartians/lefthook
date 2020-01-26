@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"strings"
 	"path/filepath"
+	"strings"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mattn/go-isatty"
@@ -108,10 +108,11 @@ func getRootPath() string {
 }
 
 func setRootPath(path string) {
-	// get absolute path to .git dir (project root)
-	cmd := exec.Command("sh", "-c", "git rev-parse --show-toplevel")
+	commandArg := strings.Split("git rev-parse --show-toplevel", " ")
+	cmd := exec.Command(commandArg[0], commandArg[1:]...)
 
 	outputBytes, err := cmd.CombinedOutput()
+
 	check(err)
 	rootPath = strings.TrimSpace(string(outputBytes))
 }
