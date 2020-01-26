@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"fmt"
 	"strings"
 
 	"github.com/logrusorgru/aurora"
@@ -50,7 +49,7 @@ lefthook install`,
 func Execute() {
 	defer func() {
 		if r := recover(); r != nil {
-			loggerClient.Log(logger.Panic, fmt.Sprintf("%v", r))
+			loggerClient.Panic(r)
 			os.Exit(1)
 		}
 	}()
@@ -63,7 +62,6 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 	rootCmd.PersistentFlags().BoolVar(&NoColors, "no-colors", false, "disable colored output")
 	rootCmd.PersistentFlags().StringVarP(&LogLevel, "log-level", "l", logger.Debug.String(), "set log level")
-
 	initAurora()
 	cobra.OnInitialize(initConfig)
 	logLevel, _ := logger.TransformLogLevel(LogLevel)
@@ -158,6 +156,6 @@ func EnableColors() bool {
 // VerbosePrint print text if Verbose flag persist
 func VerbosePrint(v ...interface{}) {
 	if Verbose {
-		loggerClient.Log(logger.Debug, fmt.Sprintf("%v", v...))
+		loggerClient.Debug(v...)
 	}
 }

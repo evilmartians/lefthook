@@ -3,8 +3,6 @@ package cmd
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"fmt"
-	"github.com/Arkweid/lefthook/logger"
 	"io"
 	"io/ioutil"
 	"path/filepath"
@@ -51,16 +49,15 @@ var installCmd = &cobra.Command{
 var appFs = afero.NewOsFs()
 
 func init() {
-	rootCmd.PersistentFlags().BoolVarP(&force, "force", "f", false, "reinstall hooks without checking config version")
-	rootCmd.PersistentFlags().BoolVarP(&aggressive, "aggresive", "a", false, "remove all hooks from .git/hooks dir and install lefthook hooks")
+	installCmd.PersistentFlags().BoolVarP(&force, "force", "f", false, "reinstall hooks without checking config version")
+	installCmd.PersistentFlags().BoolVarP(&aggressive, "aggresive", "a", false, "remove all hooks from .git/hooks dir and install lefthook hooks")
 	rootCmd.AddCommand(installCmd)
 }
 
 // InstallCmdExecutor execute basic configuration
 func InstallCmdExecutor(args []string, fs afero.Fs) {
 	if yes, _ := afero.Exists(fs, getConfigYamlPath()); yes {
-		message := fmt.Sprintf("%s %s", au.Cyan("SYNCING").String(), au.Bold("lefthook.yml").String())
-		loggerClient.Logger.Log(logger.Debug, message)
+		loggerClient.Debug(au.Cyan("SYNCING"), au.Bold("lefthook.yml"))
 		if !isConfigSync(fs) || force || aggressive {
 			DeleteGitHooks(fs)
 			AddGitHooks(fs)
@@ -111,7 +108,7 @@ func AddConfigYaml(fs afero.Fs) {
 
 	err := afero.WriteFile(fs, getConfigYamlPath(), []byte(template), defaultDirPermission)
 	check(err)
-	loggerClient.Log(logger.Info, fmt.Sprintf("Added config: %s", getConfigYamlPath()))
+	loggerClient.Info("Added config: ", getConfigYamlPath())
 }
 
 // AddGitHooks write existed directories in source_dir as hooks in .git/hooks
@@ -137,7 +134,7 @@ func AddGitHooks(fs afero.Fs) {
 	unionHooks := append(dirsHooks, configHooks...)
 	unionHooks = append(unionHooks, checkSumHook) // add special hook for Sync config
 	unionHooks = uniqueStrSlice(unionHooks)
-	loggerClient.Log(logger.Info, fmt.Sprintf("%s %s", au.Cyan("SERVED HOOKS:"), au.Bold(strings.Join(unionHooks, ", "))))
+	loggerClient.Info(au.Cyan("SERVED HOOKS:"), au.Bold(strings.Join(unionHooks, ", ")))
 
 	for _, key := range unionHooks {
 		addHook(key, fs)

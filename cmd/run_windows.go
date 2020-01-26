@@ -15,6 +15,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"fmt"
 	"time"
 
 	"github.com/Arkweid/lefthook/context"
@@ -106,10 +107,10 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 	var wg sync.WaitGroup
 
 	startTime := time.Now()
-	loggerClient.Log(logger.Info, fmt.Sprintf("%s %s", au.Cyan("RUNNING HOOKS GROUP:").String(), au.Bold(hooksGroup).String()))
+	loggerClient.Info(au.Cyan("RUNNING HOOKS GROUP:"), au.Bold(hooksGroup))
 
 	if isPipedAndParallel(hooksGroup) {
-		loggerClient.Log(logger.Error, au.Brown("Config error! Conflicted options 'piped' and 'parallel'. Remove one of this option from hook group.").String())
+		loggerClient.Error(au.Brown("Config error! Conflicted options 'piped' and 'parallel'. Remove one of this option from hook group."))
 		return errors.New("Piped and Parallel options in conflict")
 	}
 
@@ -167,7 +168,7 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 
 	if getPiped(hooksGroup) && isPipeBroken {
 		mutex.Lock()
-		log.Println("\n", au.Bold(commandName), au.Brown("(SKIP BY BROKEN PIPE)"))
+		loggerClient.Warn("\n", au.Bold(commandName), au.Brown("(SKIP BY BROKEN PIPE)"))
 		mutex.Unlock()
 		return
 	}
@@ -212,19 +213,19 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 
 	if isSkipCommmand(hooksGroup, commandName) {
 		mutex.Lock()
-		log.Println("\n", au.Bold(commandName), au.Brown("(SKIP BY SETTINGS)"))
+		loggerClient.Info("\n", au.Bold(commandName), au.Brown("(SKIP BY SETTINGS)"))
 		mutex.Unlock()
 		return
 	}
 	if result, _ := arrop.Intersect(getExcludeTags(hooksGroup), getTags(hooksGroup, commandsConfigKey, commandName)); len(result.Interface().([]string)) > 0 {
 		mutex.Lock()
-		log.Println("\n", au.Bold(commandName), au.Brown("(SKIP BY TAGS)"))
+		loggerClient.Info("\n",au.Bold(commandName), au.Brown("(SKIP BY TAGS)"))
 		mutex.Unlock()
 		return
 	}
 	if len(files) < 1 && isSkipEmptyCommmand(hooksGroup, commandName) {
 		mutex.Lock()
-		log.Println("\n", au.Bold(commandName), au.Brown("(SKIP. NO FILES FOR INSPECTING)"))
+		loggerClient.Info("\n", au.Bold(commandName), au.Brown("(SKIP. NO FILES FOR INSPECTING)"))
 		mutex.Unlock()
 		return
 	}
@@ -243,11 +244,11 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	log.Println(au.Cyan("\n  EXECUTE >"), au.Bold(commandName))
+	loggerClient.Debug(au.Cyan("\n  EXECUTE >"), au.Bold(commandName))
 	if err != nil {
 		failList = append(failList, commandName)
 		setPipeBroken()
-		log.Println(err)
+		loggerClient.Error(err.Error())
 		return
 	}
 
@@ -266,7 +267,7 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 
 	if getPiped(hooksGroup) && isPipeBroken {
 		mutex.Lock()
-		log.Println("\n", au.Bold(executableName), au.Brown("(SKIP BY BROKEN PIPE)"))
+		loggerClient.Info("\n", au.Bold(executableName), au.Brown("(SKIP BY BROKEN PIPE)"))
 		mutex.Unlock()
 		return
 	}
@@ -294,19 +295,19 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 
 	if !isScriptExist(hooksGroup, executableName) {
 		mutex.Lock()
-		log.Println("\n", au.Bold(executableName), au.Brown("(SKIP BY NOT EXIST IN CONFIG)"))
+		loggerClient.Info("\n", au.Bold(executableName), au.Brown("(SKIP BY NOT EXIST IN CONFIG)"))
 		mutex.Unlock()
 		return
 	}
 	if isSkipScript(hooksGroup, executableName) {
 		mutex.Lock()
-		log.Println("\n", au.Bold(executableName), au.Brown("(SKIP BY SETTINGS)"))
+		loggerClient.Info("\n", au.Bold(executableName), au.Brown("(SKIP BY SETTINGS)"))
 		mutex.Unlock()
 		return
 	}
 	if result, _ := arrop.Intersect(getExcludeTags(hooksGroup), getTags(hooksGroup, scriptsConfigKey, executableName)); len(result.Interface().([]string)) > 0 {
 		mutex.Lock()
-		log.Println("\n", au.Bold(executableName), au.Brown("(SKIP BY TAGS)"))
+		loggerClient.Info("\n",  au.Bold(executableName), au.Brown("(SKIP BY TAGS)"))
 		mutex.Unlock()
 		return
 	}
@@ -315,15 +316,15 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	log.Println(au.Cyan("\n  EXECUTE >"), au.Bold(executableName))
+	loggerClient.Info(au.Cyan("\n  EXECUTE >"), au.Bold(executableName))
 	if os.IsPermission(err) {
-		log.Println(au.Brown("(SKIP NOT EXECUTABLE FILE)"))
+		loggerClient.Info(au.Brown("(SKIP NOT EXECUTABLE FILE)"))
 		return
 	}
 	if err != nil {
 		failList = append(failList, executableName)
-		log.Println(err)
-		log.Println(au.Brown("TIP: Command start failed. Checkout `runner:` option for this script"))
+		loggerClient.Error(err.Error())
+		loggerClient.Error(au.Brown("TIP: Command start failed. Checkout `runner:` option for this script"))
 		setPipeBroken()
 		return
 	}
@@ -365,17 +366,17 @@ func getRunner(hooksGroup, source, executableName string) string {
 
 func printSummary(execTime time.Duration) {
 	if len(okList) == 0 && len(failList) == 0 {
-		log.Println(au.Cyan("\nSUMMARY:"), au.Brown("(SKIP EMPTY)"))
+		loggerClient.Info(au.Cyan("\nSUMMARY:"), au.Brown("(SKIP EMPTY)"))
 	} else {
-		log.Println(au.Cyan(fmt.Sprintf("\nSUMMARY: (done in %.2f seconds)", execTime.Seconds())))
+		loggerClient.Info(au.Cyan(fmt.Sprintf("\nSUMMARY: (done in %.2f seconds)", execTime.Seconds())))
 	}
 
 	for _, fileName := range okList {
-		log.Printf("✔️  %s\n", au.Green(fileName))
+		loggerClient.Infof("✔️  %s\n", au.Green(fileName))
 	}
 
 	for _, fileName := range failList {
-		log.Printf("🥊  %s", au.Red(fileName))
+		loggerClient.Errorf("🥊  %s", au.Red(fileName))
 	}
 }
 
@@ -573,6 +574,6 @@ func isExecutable(executable os.FileInfo) error {
 
 func makeExecutable(path string) {
 	if err := os.Chmod(path, execMode); err != nil {
-		log.Fatal(err)
+		loggerClient.Error(err)
 	}
 }

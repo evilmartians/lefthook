@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -95,7 +94,7 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 		return nil
 	}
 	if !isVersionOk() {
-		log.Println(au.Brown("Config error! Current Lefhook version lower than config version or 'min_version' incorrect, check format: '0.6.0'"))
+		loggerClient.Error(au.Brown("Config error! Current Lefhook version lower than config version or 'min_version' incorrect, check format: '0.6.0'"))
 		return errors.New("Current Lefhook version lower than config version or 'min_version' incorrect")
 	}
 	if tags := os.Getenv("LEFTHOOK_EXCLUDE"); tags != "" {
@@ -110,11 +109,11 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 	var wg sync.WaitGroup
 
 	startTime := time.Now()
-	log.Println(au.Cyan("Lefthook v" + version))
-	log.Println(au.Cyan("RUNNING HOOKS GROUP:"), au.Bold(hooksGroup))
+	loggerClient.Debug(au.Cyan("Lefthook v" + version))
+	loggerClient.Debug(au.Cyan("RUNNING HOOKS GROUP:"), au.Bold(hooksGroup))
 
 	if isPipedAndParallel(hooksGroup) {
-		log.Println(au.Brown("Config error! Conflicted options 'piped' and 'parallel'. Remove one of this option from hook group."))
+		loggerClient.Error(au.Brown("Config error! Conflicted options 'piped' and 'parallel'. Remove one of this option from hook group."))
 		return errors.New("Piped and Parallel options in conflict")
 	}
 
@@ -172,7 +171,7 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 
 	if getPiped(hooksGroup) && isPipeBroken {
 		mutex.Lock()
-		log.Println("\n", au.Bold(commandName), au.Brown("(SKIP BY BROKEN PIPE)"))
+		loggerClient.Info("\n", au.Bold(commandName), au.Brown("(SKIP BY BROKEN PIPE)"))
 		mutex.Unlock()
 		return
 	}
@@ -224,19 +223,19 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 
 	if isSkipCommmand(hooksGroup, commandName) {
 		mutex.Lock()
-		log.Println("\n", au.Bold(commandName), au.Brown("(SKIP BY SETTINGS)"))
+		loggerClient.Info("\n", au.Bold(commandName), au.Brown("(SKIP BY SETTINGS)"))
 		mutex.Unlock()
 		return
 	}
 	if result, _ := arrop.Intersect(getExcludeTags(hooksGroup), getTags(hooksGroup, commandsConfigKey, commandName)); len(result.Interface().([]string)) > 0 {
 		mutex.Lock()
-		log.Println("\n", au.Bold(commandName), au.Brown("(SKIP BY TAGS)"))
+		loggerClient.Info("\n", au.Bold(commandName), au.Brown("(SKIP BY TAGS)"))
 		mutex.Unlock()
 		return
 	}
 	if len(files) < 1 && isSkipEmptyCommmand(hooksGroup, commandName) {
 		mutex.Lock()
-		log.Println("\n", au.Bold(commandName), au.Brown("(SKIP. NO FILES FOR INSPECTING)"))
+		loggerClient.Info("\n", au.Bold(commandName), au.Brown("(SKIP. NO FILES FOR INSPECTING)"))
 		mutex.Unlock()
 		return
 	}
@@ -245,11 +244,11 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	log.Println(au.Cyan("\n  EXECUTE >"), au.Bold(commandName))
+	loggerClient.Debug(au.Cyan("\n  EXECUTE >"), au.Bold(commandName))
 	if err != nil {
 		failList = append(failList, commandName)
 		setPipeBroken()
-		log.Println(err)
+		loggerClient.Error(err)
 		return
 	}
 
@@ -274,7 +273,7 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 
 	if getPiped(hooksGroup) && isPipeBroken {
 		mutex.Lock()
-		log.Println("\n", au.Bold(executableName), au.Brown("(SKIP BY BROKEN PIPE)"))
+		loggerClient.Info("\n", au.Bold(executableName), au.Brown("(SKIP BY BROKEN PIPE)"))
 		mutex.Unlock()
 		return
 	}
@@ -299,19 +298,19 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 
 	if !isScriptExist(hooksGroup, executableName) {
 		mutex.Lock()
-		log.Println("\n", au.Bold(executableName), au.Brown("(SKIP BY NOT EXIST IN CONFIG)"))
+		loggerClient.Info("\n", au.Bold(executableName), au.Brown("(SKIP BY NOT EXIST IN CONFIG)"))
 		mutex.Unlock()
 		return
 	}
 	if isSkipScript(hooksGroup, executableName) {
 		mutex.Lock()
-		log.Println("\n", au.Bold(executableName), au.Brown("(SKIP BY SETTINGS)"))
+		loggerClient.Info("\n", au.Bold(executableName), au.Brown("(SKIP BY SETTINGS)"))
 		mutex.Unlock()
 		return
 	}
 	if result, _ := arrop.Intersect(getExcludeTags(hooksGroup), getTags(hooksGroup, scriptsConfigKey, executableName)); len(result.Interface().([]string)) > 0 {
 		mutex.Lock()
-		log.Println("\n", au.Bold(executableName), au.Brown("(SKIP BY TAGS)"))
+		loggerClient.Info("\n", au.Bold(executableName), au.Brown("(SKIP BY TAGS)"))
 		mutex.Unlock()
 		return
 	}
@@ -320,15 +319,15 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	log.Println(au.Cyan("\n  EXECUTE >"), au.Bold(executableName))
+	loggerClient.Info(au.Cyan("\n  EXECUTE >"), au.Bold(executableName))
 	if os.IsPermission(err) {
-		log.Println(au.Brown("(SKIP NOT EXECUTABLE FILE)"))
+		loggerClient.Error(au.Brown("(SKIP NOT EXECUTABLE FILE)"))
 		return
 	}
 	if err != nil {
 		failList = append(failList, executableName)
-		log.Println(err)
-		log.Println(au.Brown("TIP: Command start failed. Checkout `runner:` option for this script"))
+		loggerClient.Error(err)
+		loggerClient.Error(au.Brown("TIP: Command start failed. Checkout `runner:` option for this script"))
 		setPipeBroken()
 		return
 	}
@@ -376,17 +375,17 @@ func getRunner(hooksGroup, source, executableName string) string {
 
 func printSummary(execTime time.Duration) {
 	if len(okList) == 0 && len(failList) == 0 {
-		log.Println(au.Cyan("\nSUMMARY:"), au.Brown("(SKIP EMPTY)"))
+		loggerClient.Info(au.Cyan("\nSUMMARY:"), au.Brown("(SKIP EMPTY)"))
 	} else {
-		log.Println(au.Cyan(fmt.Sprintf("\nSUMMARY: (done in %.2f seconds)", execTime.Seconds())))
+		loggerClient.Info(au.Cyan(fmt.Sprintf("\nSUMMARY: (done in %.2f seconds)", execTime.Seconds())))
 	}
 
 	for _, fileName := range okList {
-		log.Printf("✔️  %s\n", au.Green(fileName))
+		loggerClient.Infof("✔️  %s\n", au.Green(fileName))
 	}
 
 	for _, fileName := range failList {
-		log.Printf("🥊  %s", au.Red(fileName))
+		loggerClient.Infof("🥊  %s", au.Red(fileName))
 	}
 }
 
@@ -584,7 +583,7 @@ func isExecutable(executable os.FileInfo) error {
 
 func makeExecutable(path string) {
 	if err := os.Chmod(path, execMode); err != nil {
-		log.Fatal(err)
+		loggerClient.Fatal(err)
 	}
 }
 

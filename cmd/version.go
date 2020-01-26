@@ -1,21 +1,15 @@
 package cmd
 
-import (
-	"log"
+import "github.com/spf13/cobra"
 
-	"github.com/spf13/cobra"
-)
-
-const (
-	version string = "0.7.0"
-)
+const version string = "0.7.0"
 
 // versionCmd represents the version command
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Show lefthook version",
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Println(version)
+		loggerClient.Info(version)
 	},
 }
 

@@ -3,7 +3,6 @@ package cmd
 import (
 	"io/ioutil"
 	"os/exec"
-	"github.com/Arkweid/lefthook/logger"
 	"path/filepath"
 	"strings"
 
@@ -97,8 +96,7 @@ fi
 				panic("Can`t rename " + hookName + " to " + hookName + ".old File already exists")
 			}
 			e := fs.Rename(pathToFile, pathToFile+".old")
-			message := "Existed " + hookName + " hook renamed to " + hookName + ".old"
-			loggerClient.Log(logger.Info, message)
+			loggerClient.Info("Existed " + hookName + " hook renamed to " + hookName + ".old")
 			check(e)
 		}
 	}

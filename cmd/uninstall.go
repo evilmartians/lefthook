@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"log"
 	"path/filepath"
 
 	"github.com/spf13/afero"
@@ -36,12 +35,12 @@ func uninstallCmdExecutor(fs afero.Fs) {
 func deleteConfig(fs afero.Fs) {
 	err := fs.Remove(getConfigYamlPath())
 	if err == nil {
-		log.Println(getConfigYamlPath(), "removed")
+		loggerClient.Info(getConfigYamlPath(), "removed")
 	}
 
 	err = fs.Remove(getConfigLocalYamlPath())
 	if err == nil {
-		log.Println(getConfigLocalYamlPath(), "removed")
+		loggerClient.Info(getConfigLocalYamlPath(), "removed")
 	}
 }
 
@@ -49,13 +48,13 @@ func deleteSourceDirs(fs afero.Fs) {
 	configExists, _ := afero.DirExists(fs, filepath.Join(getRootPath(), ".lefthook"))
 	err := fs.RemoveAll(filepath.Join(getRootPath(), ".lefthook"))
 	if err == nil && configExists {
-		log.Println(filepath.Join(getRootPath(), ".lefthook"), "removed")
+		loggerClient.Info(filepath.Join(getRootPath(), ".lefthook"), "removed")
 	}
 
 	localConfigExists, _ := afero.DirExists(fs, filepath.Join(getRootPath(), ".lefthook-local"))
 	err = fs.RemoveAll(filepath.Join(getRootPath(), ".lefthook-local"))
 	if err == nil && localConfigExists {
-		log.Println(filepath.Join(getRootPath(), ".lefthook-local"), "removed")
+		loggerClient.Info(filepath.Join(getRootPath(), ".lefthook-local"), "removed")
 	}
 }
 
@@ -87,7 +86,7 @@ func revertOldGitHooks(fs afero.Fs) {
 
 		err := fs.Rename(hookFilePath, filepath.Join(hooksPath, file.Name()))
 		if err == nil {
-			log.Println(hookFilePath, "renamed to", file.Name())
+			loggerClient.Info(hookFilePath, "renamed to", file.Name())
 		}
 	}
 }
