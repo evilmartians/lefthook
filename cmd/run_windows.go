@@ -7,15 +7,15 @@ import (
 	"fmt"
 
 	// "io" // win specific
-	"os"
+	"fmt"
 	"github.com/Arkweid/lefthook/logger"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
 	"sync"
-	"fmt"
 	"time"
 
 	"github.com/Arkweid/lefthook/context"
@@ -219,7 +219,7 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	}
 	if result, _ := arrop.Intersect(getExcludeTags(hooksGroup), getTags(hooksGroup, commandsConfigKey, commandName)); len(result.Interface().([]string)) > 0 {
 		mutex.Lock()
-		loggerClient.Info("\n",au.Bold(commandName), au.Brown("(SKIP BY TAGS)"))
+		loggerClient.Info("\n", au.Bold(commandName), au.Brown("(SKIP BY TAGS)"))
 		mutex.Unlock()
 		return
 	}
@@ -307,7 +307,7 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 	}
 	if result, _ := arrop.Intersect(getExcludeTags(hooksGroup), getTags(hooksGroup, scriptsConfigKey, executableName)); len(result.Interface().([]string)) > 0 {
 		mutex.Lock()
-		loggerClient.Info("\n",  au.Bold(executableName), au.Brown("(SKIP BY TAGS)"))
+		loggerClient.Info("\n", au.Bold(executableName), au.Brown("(SKIP BY TAGS)"))
 		mutex.Unlock()
 		return
 	}

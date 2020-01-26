@@ -26,12 +26,12 @@ const (
 )
 
 var (
-	Verbose  bool
-	NoColors bool
-	rootPath string
-	LogLevel string
-	loggerClient   *logger.Logger
-	cfgFile  string
+	Verbose      bool
+	NoColors     bool
+	rootPath     string
+	logLevel     string
+	loggerClient *logger.Logger
+	cfgFile      string
 
 	originConfig *viper.Viper
 
@@ -61,11 +61,11 @@ func Execute() {
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 	rootCmd.PersistentFlags().BoolVar(&NoColors, "no-colors", false, "disable colored output")
-	rootCmd.PersistentFlags().StringVarP(&LogLevel, "log-level", "l", logger.Debug.String(), "set log level")
+	rootCmd.PersistentFlags().StringVarP(&logLevel, "log-level", "l", logger.Debug.String(), "set log level")
 	initAurora()
 	cobra.OnInitialize(initConfig)
-	logLevel, _ := logger.TransformLogLevel(LogLevel)
-	loggerClient = logger.GetInstance(logLevel)
+	level, _ := logger.TransformLogLevel(logLevel)
+	loggerClient = logger.GetInstance(level)
 	// re-init Aurora after config reading because `colors` can be specified in config
 	cobra.OnInitialize(initAurora)
 }

@@ -33,7 +33,7 @@ func TestInstallCmdExecutor(t *testing.T) {
 		"prepare-commit-msg",
 	}
 
-	files, err := afero.ReadDir(fs,getGitHooksDir())
+	files, err := afero.ReadDir(fs, getGitHooksDir())
 	assert.NoError(t, err)
 
 	actualFiles := []string{}
