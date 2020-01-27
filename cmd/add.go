@@ -140,8 +140,7 @@ func addLocalHookDir(hookName string, fs afero.Fs) {
 }
 
 func getGitHooksDir() string {
-	commandArg := strings.Split("git rev-parse --git-common-dir", " ")
-	cmd := exec.Command(commandArg[0], commandArg[1:]...)
+	cmd := exec.Command("git", "rev-parse", "--git-common-dir")
 
 	outputBytes, err := cmd.CombinedOutput()
 	if err != nil {
