@@ -108,11 +108,11 @@ func getRootPath() string {
 }
 
 func setRootPath(path string) {
+	// get absolute path to .git dir (project root)
 	commandArg := strings.Split("git rev-parse --show-toplevel", " ")
 	cmd := exec.Command(commandArg[0], commandArg[1:]...)
 
 	outputBytes, err := cmd.CombinedOutput()
-
 	check(err)
 	rootPath = strings.TrimSpace(string(outputBytes))
 }
