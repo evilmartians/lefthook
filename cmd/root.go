@@ -21,6 +21,7 @@ const (
 	configLocalFileName     string      = "lefthook-local"
 	configExtendsOption     string      = "extends"
 	configExtension         string      = ".yml"
+	configExtensionPattern  string      = ".*"
 	defaultFilePermission   os.FileMode = 0755
 	defaultDirPermission    os.FileMode = 0666
 )
@@ -34,6 +35,7 @@ var (
 	cfgFile      string
 
 	originConfig *viper.Viper
+	configFileExtensions = []string{".yml", ".yaml"}
 
 	au aurora.Aurora
 )
@@ -111,7 +113,7 @@ func getRootPath() string {
 
 func setRootPath(path string) {
 	// get absolute path to .git dir (project root)
-	cmd := exec.Command("sh", "-c", "git rev-parse --show-toplevel")
+	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
 
 	outputBytes, err := cmd.CombinedOutput()
 	check(err)

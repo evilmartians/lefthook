@@ -29,16 +29,17 @@ class FileStructure
       FileUtils.remove_dir(tmp)
     end
 
-    def make_config
-      FileUtils.cp(config_yaml_path, tmp)
+    def make_config(extension = 'yml')
+      FileUtils.cp(config_yaml_path(extension), tmp)
     end
+
 
     def tmp
       @tmp ||= File.join(root, 'tmp')
     end
 
-    def config_yaml_path
-      File.join(fixtures, 'lefthook.yml')
+    def config_yaml_path(extension = 'yml')
+      File.join(fixtures, "lefthook.#{extension}")
     end
 
     def ok_script_path
