@@ -2,6 +2,12 @@
 
 ## master (unreleased)
 
+# 0.7.1 (2020-02-02)
+
+- [PR](https://github.com/Arkweid/lefthook/pull/108) Fix `sh` dependency on windows when executing `git`. Thanks @lionskape
+
+- [PR](https://github.com/Arkweid/lefthook/pull/103) Add possibility for using `yaml` and `yml` extension for config. Thanks @rbUUbr
+
 # 0.7.0 (2019-12-14)
 
 - [PR](https://github.com/Arkweid/lefthook/pull/98) Support relative roots for monorepos. Thanks @jsmestad
