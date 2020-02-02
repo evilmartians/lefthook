@@ -57,7 +57,7 @@ func init() {
 
 // InstallCmdExecutor execute basic configuration
 func InstallCmdExecutor(args []string, fs afero.Fs) {
-	if yes, _ := afero.Exists(fs, getConfigYamlPath()); yes {
+	if hasValidConfigFile(fs) {
 		if !isConfigSync(fs) || force || aggressive {
 			log.Println(au.Cyan("SYNCING"), au.Bold("lefthook.yml"))
 			DeleteGitHooks(fs)
@@ -146,8 +146,28 @@ func getConfigYamlPath() string {
 	return filepath.Join(getRootPath(), configFileName) + configExtension
 }
 
-func getConfigLocalYamlPath() string {
-	return filepath.Join(getRootPath(), configLocalFileName) + configExtension
+func getConfigYamlPattern() string {
+	return filepath.Join(getRootPath(), configFileName) + configExtensionPattern
+}
+
+func getConfigLocalYamlPattern() string {
+	return filepath.Join(getRootPath(), configLocalFileName) + configExtensionPattern
+}
+
+func hasValidConfigFile(fs afero.Fs) bool {
+	matches, err := afero.Glob(fs, getConfigYamlPattern())
+	if err != nil {
+		log.Println("Error occured for search config file: ", err.Error())
+	}
+	for _, match := range matches {
+		extension := filepath.Ext(match)
+		for _, possibleExtension := range configFileExtensions {
+			if extension == possibleExtension {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func contains(a []string, x string) bool {
@@ -165,7 +185,10 @@ func isConfigSync(fs afero.Fs) bool {
 
 func configChecksum(fs afero.Fs) string {
 	var returnMD5String string
-	file, err := fs.Open(configFileName + configExtension)
+	matches, err := afero.Glob(fs, getConfigYamlPattern())
+	primaryMatch := matches[0]
+	check(err)
+	file, err := fs.Open(primaryMatch)
 	check(err)
 	defer file.Close()
 

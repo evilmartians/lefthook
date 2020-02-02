@@ -21,6 +21,7 @@ const (
 	configLocalFileName     string      = "lefthook-local"
 	configExtendsOption     string      = "extends"
 	configExtension         string      = ".yml"
+	configExtensionPattern  string      = ".*"
 	defaultFilePermission   os.FileMode = 0755
 	defaultDirPermission    os.FileMode = 0666
 )
@@ -31,6 +32,7 @@ var (
 	rootPath     string
 	cfgFile      string
 	originConfig *viper.Viper
+	configFileExtensions = []string{".yml", ".yaml"}
 
 	au aurora.Aurora
 )
