@@ -236,7 +236,7 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	}
 	if len(files) < 1 && isSkipEmptyCommmand(hooksGroup, commandName) {
 		mutex.Lock()
-		log.Println("\n", au.Bold(commandName), au.Brown("(SKIP. NO FILES FOR INSPECTING)"))
+		log.Println("\n", au.Bold(commandName), au.Brown("(SKIP. NO FILES FOR INSPECTION)"))
 		mutex.Unlock()
 		return
 	}
