@@ -4,8 +4,11 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"io"
 	"path/filepath"
 	"strings"
+	"net/http"
+	"net/url"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mattn/go-isatty"
@@ -93,13 +96,20 @@ func initConfig() {
 	viper.MergeInConfig()
 
 	if isConfigExtends() {
-		filename := filepath.Base(getExtendsPath())
-		extension := filepath.Ext(getExtendsPath())
-		name := filename[0 : len(filename)-len(extension)]
-		viper.SetConfigName(name)
-		viper.AddConfigPath(filepath.Dir(getExtendsPath()))
-		err := viper.MergeInConfig()
-		check(err)
+		if isValidUrl(getExtendsPath()) {
+			uri := getExtendsPath()
+			baseRemoteConfig := fetchRemoteExtends(uri)
+			err := viper.MergeConfig(baseRemoteConfig)
+			check(err)
+		} else {
+			filename := filepath.Base(getExtendsPath())
+			extension := filepath.Ext(getExtendsPath())
+			name := filename[0 : len(filename)-len(extension)]
+			viper.SetConfigName(name)
+			viper.AddConfigPath(filepath.Dir(getExtendsPath()))
+			err := viper.MergeInConfig()
+			check(err)
+		}
 	}
 
 	viper.AutomaticEnv()
@@ -151,6 +161,32 @@ func EnableColors() bool {
 		return isatty.IsTerminal(os.Stdout.Fd()) || isatty.IsCygwinTerminal(os.Stdout.Fd())
 	}
 	return viper.GetBool(colorsConfigKey)
+}
+
+func fetchRemoteExtends(uri string) io.Reader {
+	resp, err := http.Get(uri)
+	defer resp.Body.Close()
+	if err != nil {
+		log.Fatal("Error fetching remote config", uri, "\n", err)
+	}
+	if err != nil {
+		log.Fatal("Error reading remote config", uri, "\n", err)
+	}
+	return resp.Body
+}
+
+func isValidUrl(maybeUrl string) bool {
+	_, err := url.ParseRequestURI(maybeUrl)
+	if err != nil {
+		return false
+	}
+
+	uri, err := url.Parse(maybeUrl)
+	if err != nil || uri.Scheme == "" || uri.Host == "" {
+		return false
+	}
+
+	return true
 }
 
 // VerbosePrint print text if Verbose flag persist
