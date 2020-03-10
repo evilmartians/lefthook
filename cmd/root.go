@@ -5,6 +5,8 @@ import (
 	"os"
 	"os/exec"
 	"io"
+	"io/ioutil"
+	"bytes"
 	"path/filepath"
 	"strings"
 	"net/http"
@@ -169,7 +171,11 @@ func fetchRemoteExtends(uri string) io.Reader {
 		log.Fatal("Error fetching remote config", uri, "\n", err)
 	}
 	defer resp.Body.Close()
-	return resp.Body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal("Error reading remote config", uri, "\n", err)
+	}
+	return bytes.NewReader(body)
 }
 
 func isValidUrl(maybeUrl string) bool {
