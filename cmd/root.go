@@ -165,13 +165,10 @@ func EnableColors() bool {
 
 func fetchRemoteExtends(uri string) io.Reader {
 	resp, err := http.Get(uri)
-	defer resp.Body.Close()
 	if err != nil {
 		log.Fatal("Error fetching remote config", uri, "\n", err)
 	}
-	if err != nil {
-		log.Fatal("Error reading remote config", uri, "\n", err)
-	}
+	defer resp.Body.Close()
 	return resp.Body
 }
 
