@@ -72,13 +72,13 @@ fi
 ` + autoInstall(hookName, fs) + "\n" + "cmd=\"lefthook run " + hookName + " $@\"" +
 		`
 
-if lefthook >/dev/null 2>&1
+if lefthook -h >/dev/null 2>&1
 then
   eval $cmd
-elif bundle exec lefthook >/dev/null 2>&1
+elif bundle exec lefthook -h >/dev/null 2>&1
 then
   bundle exec $cmd
-elif npx lefthook >/dev/null 2>&1
+elif npx lefthook -h >/dev/null 2>&1
 then
   npx $cmd
 else
@@ -113,13 +113,13 @@ func autoInstall(hookName string, fs afero.Fs) string {
 			"cmd=\"lefthook install\"" +
 			`
 
-if lefthook >/dev/null 2>&1
+if lefthook -h >/dev/null 2>&1
 then
 	eval $cmd
-elif bundle exec lefthook >/dev/null 2>&1
+elif bundle exec lefthook -h >/dev/null 2>&1
 then
 	bundle exec $cmd
-elif npx lefthook >/dev/null 2>&1
+elif npx lefthook -h >/dev/null 2>&1
 then
 	npx $cmd
 fi
