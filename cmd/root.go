@@ -101,6 +101,7 @@ func initConfig() {
 		if isValidUrl(getExtendsPath()) {
 			uri := getExtendsPath()
 			baseRemoteConfig := fetchRemoteExtends(uri)
+			viper.SetConfigType("yaml")
 			err := viper.MergeConfig(baseRemoteConfig)
 			check(err)
 		} else {
