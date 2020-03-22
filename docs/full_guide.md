@@ -447,6 +447,9 @@ source_dir: ".lefthook"
 source_dir_local: ".lefthook-local"
 ```
 
+## CI integration
+
+Enable `CI` env variable if it doens't exists on your service by default.
 
 ## Disable colors
 
