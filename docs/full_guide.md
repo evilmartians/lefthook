@@ -286,7 +286,7 @@ You can wrap it in docker runner locally:
 pre-commit:
   scripts:
     "good_job.js":
-      runner: docker exec -it --rm <container_id_or_name> {cmd}
+      runner: docker run -it --rm <container_id_or_name> {cmd}
 ```
 
 `{cmd}` - shorthand for the command from `lefthook.yml`
@@ -383,7 +383,7 @@ pre-commit:
 
   scripts:
     "hello.js":
-      runner: docker exec -it --rm <container_id_or_name> {cmd}
+      runner: docker run -it --rm <container_id_or_name> {cmd}
   commands:
     govet:
       skip: true
