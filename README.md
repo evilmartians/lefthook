@@ -127,7 +127,7 @@ If you are in the Docker environment. [Example](./docs/full_guide.md#referencing
 pre-commit:
   scripts:
     "good_job.js":
-      runner: docker exec -it --rm <container_id_or_name> {cmd}
+      runner: docker run -it --rm <container_id_or_name> {cmd}
 ```
 
 * ### **Local config**
