@@ -81,6 +81,9 @@ then
 elif npx lefthook -h >/dev/null 2>&1
 then
   npx $cmd
+elif yarn lefthook -h >/dev/null 2>&1
+then
+  yarn $cmd
 else
   echo "Can't find lefthook in PATH"
 fi
