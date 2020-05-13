@@ -135,19 +135,11 @@ func check(e error) {
 }
 
 func isConfigExtends() bool {
-    if len(viper.GetStringSlice(configExtendsOption)) > 0 {
-      return true
-    }
-	return false
+	return len(viper.GetStringSlice(configExtendsOption)) > 0
 }
 
 func getExtendsPath() []string {
-	extends := make([]string, 0, 10)
-	slices := viper.GetStringSlice(configExtendsOption)
-	for _, v := range slices {
-		extends = append(extends, v)
-	}
-	return extends
+	return viper.GetStringSlice(configExtendsOption)
 }
 
 // EnableColors shows is colors supported for current output or not.
