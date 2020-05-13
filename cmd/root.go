@@ -93,12 +93,12 @@ func initConfig() {
 	viper.MergeInConfig()
 
 	if isConfigExtends() {
-		for _, v := range getExtendsPath() {
-			filename := filepath.Base(v)
-			extension := filepath.Ext(v)
+		for _, path := range getExtendsPath() {
+			filename := filepath.Base(path)
+			extension := filepath.Ext(path)
 			name := filename[0 : len(filename)-len(extension)]
 			viper.SetConfigName(name)
-			viper.AddConfigPath(filepath.Dir(v))
+			viper.AddConfigPath(filepath.Dir(path))
 			err := viper.MergeInConfig()
 			check(err)
 		}
