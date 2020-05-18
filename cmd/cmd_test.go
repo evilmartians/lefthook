@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 	"testing"
@@ -33,7 +34,7 @@ func TestInstallCmdExecutor(t *testing.T) {
 		"prepare-commit-msg",
 	}
 
-	files, err := afero.ReadDir(fs,getGitHooksDir())
+	files, err := afero.ReadDir(fs, getGitHooksDir())
 	assert.NoError(t, err)
 
 	actualFiles := []string{}
@@ -87,6 +88,30 @@ func TestAddCmdExecutor(t *testing.T) {
 	}
 
 	assert.Equal(t, expectedDirs, actualDirs, "Haven`t renamed file with .old extension")
+}
+
+func TestExtendsProperty(t *testing.T) {
+	var yamlExample = "extends:"
+	var yamlExampleArray = []byte(yamlExample + "\n- c1.yml\n- c2.yml")
+	var yamlExampleString = []byte(yamlExample + " 'c3.yml'")
+
+	var expectedPathsArray = []string{"c1.yml", "c2.yml"}
+	var expectedPathsString = []string{"c3.yml"}
+	viper.SetConfigType("yaml")
+
+	viper.ReadConfig(bytes.NewBuffer([]byte("")))
+	assert.True(t, isConfigExtends(), "Should not detect extends property")
+
+	viper.ReadConfig(bytes.NewBuffer(yamlExampleString))
+	paths := getExtendsPath()
+
+	assert.True(t, isConfigExtends(), "Should detect extends property")
+	assert.Equal(t, paths, expectedPathsString, "Extends path does not match for string value")
+
+	viper.ReadConfig(bytes.NewBuffer(yamlExampleArray))
+	paths = getExtendsPath()
+	assert.Equal(t, paths, expectedPathsArray, "Extends path does not match for array value")
+
 }
 
 func presetConfig(fs afero.Fs) {
