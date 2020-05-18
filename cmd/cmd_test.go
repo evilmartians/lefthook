@@ -100,7 +100,7 @@ func TestExtendsProperty(t *testing.T) {
 	viper.SetConfigType("yaml")
 
 	viper.ReadConfig(bytes.NewBuffer([]byte("")))
-	assert.True(t, isConfigExtends(), "Should not detect extends property")
+	assert.False(t, isConfigExtends(), "Should not detect extends property")
 
 	viper.ReadConfig(bytes.NewBuffer(yamlExampleString))
 	paths := getExtendsPath()
