@@ -93,13 +93,15 @@ func initConfig() {
 	viper.MergeInConfig()
 
 	if isConfigExtends() {
-		filename := filepath.Base(getExtendsPath())
-		extension := filepath.Ext(getExtendsPath())
-		name := filename[0 : len(filename)-len(extension)]
-		viper.SetConfigName(name)
-		viper.AddConfigPath(filepath.Dir(getExtendsPath()))
-		err := viper.MergeInConfig()
-		check(err)
+		for _, path := range getExtendsPath() {
+			filename := filepath.Base(path)
+			extension := filepath.Ext(path)
+			name := filename[0 : len(filename)-len(extension)]
+			viper.SetConfigName(name)
+			viper.AddConfigPath(filepath.Dir(path))
+			err := viper.MergeInConfig()
+			check(err)
+		}
 	}
 
 	viper.AutomaticEnv()
@@ -133,11 +135,11 @@ func check(e error) {
 }
 
 func isConfigExtends() bool {
-	return viper.GetString(configExtendsOption) != ""
+	return len(viper.GetStringSlice(configExtendsOption)) > 0
 }
 
-func getExtendsPath() string {
-	return viper.GetString(configExtendsOption)
+func getExtendsPath() []string {
+	return viper.GetStringSlice(configExtendsOption)
 }
 
 // EnableColors shows is colors supported for current output or not.
