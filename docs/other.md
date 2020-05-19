@@ -24,6 +24,9 @@ You can install lefthook [package](https://aur.archlinux.org/packages/lefthook) 
 
 Or take it from [binaries](https://github.com/Arkweid/lefthook/releases) and install manually
 
+### pip for Python
+
+You can find Python wrapper here [package](https://github.com/life4/lefthook)
 
 ## Edit
 
