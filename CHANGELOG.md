@@ -2,6 +2,14 @@
 
 ## master (unreleased)
 
+# 0.7.2 (2020-02-02)
+
+- [PR](https://github.com/Arkweid/lefthook/pull/126) Feature multiple extends. Thanks @Evilweed
+
+- [PR](https://github.com/Arkweid/lefthook/pull/124) Fix `npx` when only `yarn` exists. Thanks @dotterian
+
+- [PR](https://github.com/Arkweid/lefthook/pull/116) Fix use '-h' for robust lefthook. Thanks @fahrinh
+
 # 0.7.1 (2020-02-02)
 
 - [PR](https://github.com/Arkweid/lefthook/pull/108) Fix `sh` dependency on windows when executing `git`. Thanks @lionskape
