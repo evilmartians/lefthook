@@ -261,9 +261,11 @@ If you need to extend config from some another place, just add top level:
 ```yml
 # lefthook.yml
 
-extends: $HOME/work/lefthook-extend.yml
+extends: 
+  - $HOME/work/lefthook-extend.yml
+  - $HOME/work/lefthook-extend-2.yml
 ```
-NOTE: File for extend should have name NOT a "lefthook.yml"
+NOTE: Files for extend should have name NOT a "lefthook.yml" and should be unique.
 
 ## Referencing commands from lefthook.yml
 
