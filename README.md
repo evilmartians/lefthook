@@ -168,6 +168,13 @@ fixer:
 $ lefthook run fixer
 ```
 
+* ### **Optional output**
+If you don't want to see supporting information:
+```yml
+skip_output:
+  - meta #(version and which hook running)
+  - success #(output from runners with exit code 0)
+```
 
 ---
 
