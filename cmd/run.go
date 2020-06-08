@@ -38,6 +38,7 @@ var (
 	mutex          sync.Mutex
 	envExcludeTags []string // store for LEFTHOOK_EXCLUDE=tag,tag
 	isPipeBroken   bool
+	spinner        *Spinner
 )
 
 const (
@@ -121,6 +122,9 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 		return errors.New("Piped and Parallel options in conflict")
 	}
 
+	spinner = NewSpinner()
+	spinner.Start()
+
 	sourcePath := filepath.Join(getSourceDir(), hooksGroup)
 	executables, err := afero.ReadDir(fs, sourcePath)
 	if err == nil && len(executables) > 0 {
@@ -160,6 +164,7 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 	}
 
 	wg.Wait()
+	spinner.Stop()
 
 	printSummary(time.Now().Sub(startTime))
 
@@ -174,7 +179,7 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 
 	if getPiped(hooksGroup) && isPipeBroken {
 		mutex.Lock()
-		log.Println("\n", au.Bold(commandName), au.Brown("(SKIP BY BROKEN PIPE)"))
+		spinner.RestartWithMsg("\n", au.Bold(commandName), au.Brown("(SKIP BY BROKEN PIPE)"))
 		mutex.Unlock()
 		return
 	}
@@ -226,19 +231,19 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 
 	if isSkipCommmand(hooksGroup, commandName) {
 		mutex.Lock()
-		printSuccess("\n", au.Bold(commandName), au.Brown("(SKIP BY SETTINGS)"))
+		spinner.RestartWithMsg(sprintSuccess("\n", au.Bold(commandName), au.Brown("(SKIP BY SETTINGS)")))
 		mutex.Unlock()
 		return
 	}
 	if result, _ := arrop.Intersect(getExcludeTags(hooksGroup), getTags(hooksGroup, commandsConfigKey, commandName)); len(result.Interface().([]string)) > 0 {
 		mutex.Lock()
-		printSuccess("\n", au.Bold(commandName), au.Brown("(SKIP BY TAGS)"))
+		spinner.RestartWithMsg(sprintSuccess("\n", au.Bold(commandName), au.Brown("(SKIP BY TAGS)")))
 		mutex.Unlock()
 		return
 	}
 	if len(files) < 1 && isSkipEmptyCommmand(hooksGroup, commandName) {
 		mutex.Lock()
-		printSuccess("\n", au.Bold(commandName), au.Brown("(SKIP. NO FILES FOR INSPECTION)"))
+		spinner.RestartWithMsg(sprintSuccess("\n", au.Bold(commandName), au.Brown("(SKIP. NO FILES FOR INSPECTION)")))
 		mutex.Unlock()
 		return
 	}
@@ -251,7 +256,7 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	if err != nil {
 		failList = append(failList, commandName)
 		setPipeBroken()
-		log.Println(stageName, err)
+		spinner.RestartWithMsg(stageName, err)
 		return
 	}
 
@@ -265,16 +270,16 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	if err != nil {
 		failList = append(failList, commandName)
 		setPipeBroken()
-		log.Println(stageName, err)
+		spinner.RestartWithMsg(stageName, err)
 		return
 	}
 
 	if command.Wait() == nil {
-		printSuccess(stageName, string(commandOutput))
+		spinner.RestartWithMsg(sprintSuccess(stageName, string(commandOutput)))
 
 		okList = append(okList, commandName)
 	} else {
-		log.Println(stageName, string(commandOutput))
+		spinner.RestartWithMsg(stageName, string(commandOutput))
 
 		failList = append(failList, commandName)
 		setPipeBroken()
@@ -287,7 +292,7 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 
 	if getPiped(hooksGroup) && isPipeBroken {
 		mutex.Lock()
-		log.Println("\n", au.Bold(executableName), au.Brown("(SKIP BY BROKEN PIPE)"))
+		spinner.RestartWithMsg("\n", au.Bold(executableName), au.Brown("(SKIP BY BROKEN PIPE)"))
 		mutex.Unlock()
 		return
 	}
@@ -312,19 +317,19 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 
 	if !isScriptExist(hooksGroup, executableName) {
 		mutex.Lock()
-		printSuccess("\n", au.Bold(executableName), au.Brown("(SKIP BY NOT EXIST IN CONFIG)"))
+		spinner.RestartWithMsg(sprintSuccess("\n", au.Bold(executableName), au.Brown("(SKIP BY NOT EXIST IN CONFIG)")))
 		mutex.Unlock()
 		return
 	}
 	if isSkipScript(hooksGroup, executableName) {
 		mutex.Lock()
-		printSuccess("\n", au.Bold(executableName), au.Brown("(SKIP BY SETTINGS)"))
+		spinner.RestartWithMsg(sprintSuccess("\n", au.Bold(executableName), au.Brown("(SKIP BY SETTINGS)")))
 		mutex.Unlock()
 		return
 	}
 	if result, _ := arrop.Intersect(getExcludeTags(hooksGroup), getTags(hooksGroup, scriptsConfigKey, executableName)); len(result.Interface().([]string)) > 0 {
 		mutex.Lock()
-		printSuccess("\n", au.Bold(executableName), au.Brown("(SKIP BY TAGS)"))
+		spinner.RestartWithMsg(sprintSuccess("\n", au.Bold(executableName), au.Brown("(SKIP BY TAGS)")))
 		mutex.Unlock()
 		return
 	}
@@ -335,12 +340,12 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 
 	stageName := fmt.Sprintln(au.Cyan("\n  EXECUTE >"), au.Bold(executableName))
 	if os.IsPermission(err) {
-		printSuccess(stageName, au.Brown("(SKIP NOT EXECUTABLE FILE)"))
+		spinner.RestartWithMsg(sprintSuccess(stageName, au.Brown("(SKIP NOT EXECUTABLE FILE)")))
 		return
 	}
 	if err != nil {
 		failList = append(failList, executableName)
-		log.Println(stageName, err, au.Brown("TIP: Command start failed. Checkout `runner:` option for this script"))
+		spinner.RestartWithMsg(stageName, err, au.Brown("TIP: Command start failed. Checkout `runner:` option for this script"))
 		setPipeBroken()
 		return
 	}
@@ -355,16 +360,16 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 	if err != nil {
 		failList = append(failList, executableName)
 		setPipeBroken()
-		log.Println(stageName, err)
+		spinner.RestartWithMsg(stageName, err)
 		return
 	}
 
 	if command.Wait() == nil {
-		printSuccess(stageName, string(commandOutput))
+		spinner.RestartWithMsg(sprintSuccess(stageName, string(commandOutput)))
 
 		okList = append(okList, executableName)
 	} else {
-		log.Println(stageName, string(commandOutput))
+		spinner.RestartWithMsg(stageName, string(commandOutput))
 
 		failList = append(failList, executableName)
 		setPipeBroken()
@@ -397,6 +402,14 @@ func getRunner(hooksGroup, source, executableName string) string {
 	return runner
 }
 
+func sprintSuccess(out ...interface{}) string {
+	if isSkipPrintOutput(outputSuccess) {
+		return ""
+	}
+
+	return fmt.Sprint(out...)
+}
+
 func printMeta(hooksGroup string) {
 	if isSkipPrintOutput(outputMeta) {
 		return
@@ -404,14 +417,6 @@ func printMeta(hooksGroup string) {
 
 	log.Println(au.Cyan("Lefthook v" + version))
 	log.Println(au.Cyan("RUNNING HOOKS GROUP:"), au.Bold(hooksGroup))
-}
-
-func printSuccess(out ...interface{}) {
-	if isSkipPrintOutput(outputSuccess) {
-		return
-	}
-
-	log.Println(out...)
 }
 
 func printSummary(execTime time.Duration) {
