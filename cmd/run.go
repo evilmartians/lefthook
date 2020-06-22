@@ -3,10 +3,10 @@
 package cmd
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -264,22 +264,16 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	defer func() { ptyOut.Close() }() // Make sure to close the pty at the end.
 	// Copy stdin to the pty and the pty to stdout.
 	go func() { io.Copy(ptyOut, os.Stdin) }()
-	commandOutput, err := ioutil.ReadAll(ptyOut)
+	commandOutputBuffer := bytes.NewBuffer(make([]byte, 0, 0))
+	io.Copy(commandOutputBuffer, ptyOut)
 	// pty part end
 
-	if err != nil {
-		failList = append(failList, commandName)
-		setPipeBroken()
-		spinner.RestartWithMsg(stageName, err)
-		return
-	}
-
 	if command.Wait() == nil {
-		spinner.RestartWithMsg(sprintSuccess(stageName, string(commandOutput)))
+		spinner.RestartWithMsg(sprintSuccess(stageName, commandOutputBuffer.String()))
 
 		okList = append(okList, commandName)
 	} else {
-		spinner.RestartWithMsg(stageName, string(commandOutput))
+		spinner.RestartWithMsg(stageName, commandOutputBuffer.String())
 
 		failList = append(failList, commandName)
 		setPipeBroken()
@@ -354,7 +348,8 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 	defer func() { ptyOut.Close() }() // Make sure to close the pty at the end.
 	// Copy stdin to the pty and the pty to stdout.
 	go func() { io.Copy(ptyOut, os.Stdin) }()
-	commandOutput, err := ioutil.ReadAll(ptyOut)
+	commandOutputBuffer := bytes.NewBuffer(make([]byte, 0, 0))
+	io.Copy(commandOutputBuffer, ptyOut)
 	// pty part end
 
 	if err != nil {
@@ -365,11 +360,11 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 	}
 
 	if command.Wait() == nil {
-		spinner.RestartWithMsg(sprintSuccess(stageName, string(commandOutput)))
+		spinner.RestartWithMsg(sprintSuccess(stageName, commandOutputBuffer.String()))
 
 		okList = append(okList, executableName)
 	} else {
-		spinner.RestartWithMsg(stageName, string(commandOutput))
+		spinner.RestartWithMsg(stageName, commandOutputBuffer.String())
 
 		failList = append(failList, executableName)
 		setPipeBroken()
