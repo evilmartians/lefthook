@@ -3,6 +3,7 @@
 package cmd
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -37,6 +38,7 @@ var (
 	mutex          sync.Mutex
 	envExcludeTags []string // store for LEFTHOOK_EXCLUDE=tag,tag
 	isPipeBroken   bool
+	spinner        *Spinner
 )
 
 const (
@@ -54,6 +56,9 @@ const (
 	filesConfigKey       string      = "files"
 	colorsConfigKey      string      = "colors"
 	parallelConfigKey    string      = "parallel"
+	skipOutputConfigKey  string      = "skip_output"
+	outputMeta           string      = "meta"
+	outputSuccess        string      = "success"
 	subFiles             string      = "{files}"
 	subAllFiles          string      = "{all_files}"
 	subStagedFiles       string      = "{staged_files}"
@@ -110,13 +115,15 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 	var wg sync.WaitGroup
 
 	startTime := time.Now()
-	log.Println(au.Cyan("Lefthook v" + version))
-	log.Println(au.Cyan("RUNNING HOOKS GROUP:"), au.Bold(hooksGroup))
+	printMeta(hooksGroup)
 
 	if isPipedAndParallel(hooksGroup) {
 		log.Println(au.Brown("Config error! Conflicted options 'piped' and 'parallel'. Remove one of this option from hook group."))
 		return errors.New("Piped and Parallel options in conflict")
 	}
+
+	spinner = NewSpinner()
+	spinner.Start()
 
 	sourcePath := filepath.Join(getSourceDir(), hooksGroup)
 	executables, err := afero.ReadDir(fs, sourcePath)
@@ -146,7 +153,6 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 
 	commands := getCommands(hooksGroup)
 	if len(commands) != 0 {
-
 		for _, commandName := range commands {
 			wg.Add(1)
 			if getParallel(hooksGroup) {
@@ -158,6 +164,7 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 	}
 
 	wg.Wait()
+	spinner.Stop()
 
 	printSummary(time.Now().Sub(startTime))
 
@@ -172,7 +179,7 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 
 	if getPiped(hooksGroup) && isPipeBroken {
 		mutex.Lock()
-		log.Println("\n", au.Bold(commandName), au.Brown("(SKIP BY BROKEN PIPE)"))
+		spinner.RestartWithMsg("\n", au.Bold(commandName), au.Brown("(SKIP BY BROKEN PIPE)"))
 		mutex.Unlock()
 		return
 	}
@@ -224,19 +231,19 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 
 	if isSkipCommmand(hooksGroup, commandName) {
 		mutex.Lock()
-		log.Println("\n", au.Bold(commandName), au.Brown("(SKIP BY SETTINGS)"))
+		spinner.RestartWithMsg(sprintSuccess("\n", au.Bold(commandName), au.Brown("(SKIP BY SETTINGS)")))
 		mutex.Unlock()
 		return
 	}
 	if result, _ := arrop.Intersect(getExcludeTags(hooksGroup), getTags(hooksGroup, commandsConfigKey, commandName)); len(result.Interface().([]string)) > 0 {
 		mutex.Lock()
-		log.Println("\n", au.Bold(commandName), au.Brown("(SKIP BY TAGS)"))
+		spinner.RestartWithMsg(sprintSuccess("\n", au.Bold(commandName), au.Brown("(SKIP BY TAGS)")))
 		mutex.Unlock()
 		return
 	}
 	if len(files) < 1 && isSkipEmptyCommmand(hooksGroup, commandName) {
 		mutex.Lock()
-		log.Println("\n", au.Bold(commandName), au.Brown("(SKIP. NO FILES FOR INSPECTION)"))
+		spinner.RestartWithMsg(sprintSuccess("\n", au.Bold(commandName), au.Brown("(SKIP. NO FILES FOR INSPECTION)")))
 		mutex.Unlock()
 		return
 	}
@@ -245,11 +252,11 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	log.Println(au.Cyan("\n  EXECUTE >"), au.Bold(commandName))
+	stageName := fmt.Sprintln(au.Cyan("\n  EXECUTE >"), au.Bold(commandName))
 	if err != nil {
 		failList = append(failList, commandName)
 		setPipeBroken()
-		log.Println(err)
+		spinner.RestartWithMsg(stageName, err)
 		return
 	}
 
@@ -257,12 +264,17 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	defer func() { ptyOut.Close() }() // Make sure to close the pty at the end.
 	// Copy stdin to the pty and the pty to stdout.
 	go func() { io.Copy(ptyOut, os.Stdin) }()
-	io.Copy(os.Stdout, ptyOut)
+	commandOutputBuffer := bytes.NewBuffer(make([]byte, 0, 0))
+	io.Copy(commandOutputBuffer, ptyOut)
 	// pty part end
 
 	if command.Wait() == nil {
+		spinner.RestartWithMsg(sprintSuccess(stageName, commandOutputBuffer.String()))
+
 		okList = append(okList, commandName)
 	} else {
+		spinner.RestartWithMsg(stageName, commandOutputBuffer.String())
+
 		failList = append(failList, commandName)
 		setPipeBroken()
 	}
@@ -274,7 +286,7 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 
 	if getPiped(hooksGroup) && isPipeBroken {
 		mutex.Lock()
-		log.Println("\n", au.Bold(executableName), au.Brown("(SKIP BY BROKEN PIPE)"))
+		spinner.RestartWithMsg("\n", au.Bold(executableName), au.Brown("(SKIP BY BROKEN PIPE)"))
 		mutex.Unlock()
 		return
 	}
@@ -299,19 +311,19 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 
 	if !isScriptExist(hooksGroup, executableName) {
 		mutex.Lock()
-		log.Println("\n", au.Bold(executableName), au.Brown("(SKIP BY NOT EXIST IN CONFIG)"))
+		spinner.RestartWithMsg(sprintSuccess("\n", au.Bold(executableName), au.Brown("(SKIP BY NOT EXIST IN CONFIG)")))
 		mutex.Unlock()
 		return
 	}
 	if isSkipScript(hooksGroup, executableName) {
 		mutex.Lock()
-		log.Println("\n", au.Bold(executableName), au.Brown("(SKIP BY SETTINGS)"))
+		spinner.RestartWithMsg(sprintSuccess("\n", au.Bold(executableName), au.Brown("(SKIP BY SETTINGS)")))
 		mutex.Unlock()
 		return
 	}
 	if result, _ := arrop.Intersect(getExcludeTags(hooksGroup), getTags(hooksGroup, scriptsConfigKey, executableName)); len(result.Interface().([]string)) > 0 {
 		mutex.Lock()
-		log.Println("\n", au.Bold(executableName), au.Brown("(SKIP BY TAGS)"))
+		spinner.RestartWithMsg(sprintSuccess("\n", au.Bold(executableName), au.Brown("(SKIP BY TAGS)")))
 		mutex.Unlock()
 		return
 	}
@@ -320,15 +332,14 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	log.Println(au.Cyan("\n  EXECUTE >"), au.Bold(executableName))
+	stageName := fmt.Sprintln(au.Cyan("\n  EXECUTE >"), au.Bold(executableName))
 	if os.IsPermission(err) {
-		log.Println(au.Brown("(SKIP NOT EXECUTABLE FILE)"))
+		spinner.RestartWithMsg(sprintSuccess(stageName, au.Brown("(SKIP NOT EXECUTABLE FILE)")))
 		return
 	}
 	if err != nil {
 		failList = append(failList, executableName)
-		log.Println(err)
-		log.Println(au.Brown("TIP: Command start failed. Checkout `runner:` option for this script"))
+		spinner.RestartWithMsg(stageName, err, au.Brown("TIP: Command start failed. Checkout `runner:` option for this script"))
 		setPipeBroken()
 		return
 	}
@@ -337,12 +348,24 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 	defer func() { ptyOut.Close() }() // Make sure to close the pty at the end.
 	// Copy stdin to the pty and the pty to stdout.
 	go func() { io.Copy(ptyOut, os.Stdin) }()
-	io.Copy(os.Stdout, ptyOut)
+	commandOutputBuffer := bytes.NewBuffer(make([]byte, 0, 0))
+	io.Copy(commandOutputBuffer, ptyOut)
 	// pty part end
 
+	if err != nil {
+		failList = append(failList, executableName)
+		setPipeBroken()
+		spinner.RestartWithMsg(stageName, err)
+		return
+	}
+
 	if command.Wait() == nil {
+		spinner.RestartWithMsg(sprintSuccess(stageName, commandOutputBuffer.String()))
+
 		okList = append(okList, executableName)
 	} else {
+		spinner.RestartWithMsg(stageName, commandOutputBuffer.String())
+
 		failList = append(failList, executableName)
 		setPipeBroken()
 	}
@@ -372,6 +395,23 @@ func getRunner(hooksGroup, source, executableName string) string {
 	}
 
 	return runner
+}
+
+func sprintSuccess(out ...interface{}) string {
+	if isSkipPrintOutput(outputSuccess) {
+		return ""
+	}
+
+	return fmt.Sprint(out...)
+}
+
+func printMeta(hooksGroup string) {
+	if isSkipPrintOutput(outputMeta) {
+		return
+	}
+
+	log.Println(au.Cyan("Lefthook v" + version))
+	log.Println(au.Cyan("RUNNING HOOKS GROUP:"), au.Bold(hooksGroup))
 }
 
 func printSummary(execTime time.Duration) {
@@ -418,6 +458,16 @@ func isSkipEmptyCommmand(hooksGroup, executableName string) bool {
 	}
 
 	return true
+}
+
+func isSkipPrintOutput(outputDetailValue string) bool {
+	for _, elem := range viper.GetStringSlice(skipOutputConfigKey) {
+		if elem == outputDetailValue {
+			return true
+		}
+	}
+
+	return false
 }
 
 func getCommands(hooksGroup string) []string {
