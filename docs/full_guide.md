@@ -267,6 +267,18 @@ extends:
 ```
 NOTE: Files for extend should have name NOT a "lefthook.yml" and should be unique.
 
+NOTE: Paths beginning with environment variables (other than `$HOME`) must have
+more than one pre-expansion path separator, for example:
+
+- FAILS: `extends: $HOOKDIR/hooks.yml`
+- WORKS: `extends: $HOOKDIR/shared/hooks.yml`
+- WORKS: `extends: $HOOKDIR/shared/more/hooks.yml`
+- WORKS: `extends: $HOME/hooks.yml`
+
+The reason for the above is a [bug](https://github.com/spf13/viper/pull/495) in lefthook's
+[viper](https://github.com/spf13/viper) dependency, discussed in the context of
+`lefthook` [here](https://github.com/Arkweid/lefthook/issues/135#issuecomment-667232982).
+
 ## Referencing commands from lefthook.yml
 
 If you have the following config
