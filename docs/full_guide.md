@@ -137,6 +137,26 @@ pre-push:
 
 `{files}` - shorthand for a custom list of files
 
+## Git hook argument shorthands in commands
+
+If you want to use the original Git hook arguments in a command you can do it
+using the indexed shorthands:
+
+```yml
+# lefthook.yml
+
+# Note: commit-msg hook takes a single parameter,
+# the name of the file that holds the proposed commit log message.
+# Source: https://git-scm.com/docs/githooks#_commit_msg
+commit-msg:
+  commands:
+    multiple-sign-off:
+      run: 'test $(grep -c "^Signed-off-by: " {1}) -lt 2'
+```
+`{0}` - shorthand for the single space-joint string of Git hook arguments
+
+`{i}` - shorthand for the i-th Git hook argument
+
 ## Managing scripts
 
 If you run `lefthook add` command with `-d` flag, lefthook will create two directories where you can put scripts and reference them from `lefthook.yml` file.

@@ -151,9 +151,9 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 		for _, commandName := range commands {
 			wg.Add(1)
 			if getParallel(hooksGroup) {
-				go executeCommand(hooksGroup, commandName, &wg)
+				go executeCommand(hooksGroup, commandName, &wg, gitArgs)
 			} else {
-				executeCommand(hooksGroup, commandName, &wg)
+				executeCommand(hooksGroup, commandName, &wg, gitArgs)
 			}
 		}
 	}
@@ -169,7 +169,7 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 	return errors.New("Have failed script")
 }
 
-func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
+func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup, gitArgs []string) {
 	defer wg.Done()
 
 	if getPiped(hooksGroup) && isPipeBroken {
@@ -216,6 +216,10 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup) {
 	runner = strings.Replace(runner, subStagedFiles, strings.Join(files, " "), -1)
 	runner = strings.Replace(runner, subAllFiles, strings.Join(files, " "), -1)
 	runner = strings.Replace(runner, subFiles, strings.Join(files, " "), -1)
+	runner = strings.Replace(runner, "{0}", strings.Join(gitArgs, " "), -1)
+	for gitArgIndex, gitArg := range gitArgs {
+		runner = strings.Replace(runner, fmt.Sprintf("{%d}", gitArgIndex+1), gitArg, -1)
+	}
 
 	if isSkipCommmand(hooksGroup, commandName) {
 		mutex.Lock()
