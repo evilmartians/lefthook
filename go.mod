@@ -12,8 +12,8 @@ require (
 	github.com/mattn/go-isatty v0.0.8
 	github.com/spf13/afero v1.2.1
 	github.com/spf13/cobra v0.0.3
-	github.com/spf13/viper v1.3.1
-	github.com/stretchr/testify v1.2.2
+	github.com/spf13/viper v1.7.1
+	github.com/stretchr/testify v1.3.0
 	gopkg.in/alessio/shellescape.v1 v1.0.0-20170105083845-52074bc9df61
 )
 
