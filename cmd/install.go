@@ -51,7 +51,7 @@ var appFs = afero.NewOsFs()
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&force, "force", "f", false, "reinstall hooks without checking config version")
-	rootCmd.PersistentFlags().BoolVarP(&aggressive, "aggresive", "a", false, "remove all hooks from .git/hooks dir and install lefthook hooks")
+	rootCmd.PersistentFlags().BoolVarP(&aggressive, "aggressive", "a", false, "remove all hooks from .git/hooks dir and install lefthook hooks")
 	rootCmd.AddCommand(installCmd)
 }
 

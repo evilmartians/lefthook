@@ -63,7 +63,7 @@ Add examples to generated lefthook.yml
 
 ## 0.6.3 (2019-07-15)
 
-- [Commit](https://github.com/Arkweid/lefthook/commit/0426936f48f248221126f15619932b0dc8c54d7a) Add `-a` means `aggresive` strategy for `install` command
+- [Commit](https://github.com/Arkweid/lefthook/commit/0426936f48f248221126f15619932b0dc8c54d7a) Add `-a` means `aggressive` strategy for `install` command
 ```bash
 lefthook install -a # clear .git/hooks dir and reinstall lefthook hooks
 ```
