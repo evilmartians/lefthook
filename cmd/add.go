@@ -69,12 +69,17 @@ if [ -t 1 ] ; then
   exec < /dev/tty ; # <- enables interactive shell
 fi
 
+dir="$(cd "$(dirname $(dirname $(dirname "${BASH_SOURCE[0]}")))" >/dev/null 2>&1 && pwd)"
+
 ` + autoInstall(hookName, fs) + "\n" + "cmd=\"lefthook run " + hookName + " $@\"" +
 		`
 
 if lefthook -h >/dev/null 2>&1
 then
   eval $cmd
+elif test -f "$dir/node_modules/@arkweid/lefthook/bin/lefthook"
+then
+  eval $dir/node_modules/@arkweid/lefthook/bin/$cmd
 elif bundle exec lefthook -h >/dev/null 2>&1
 then
   bundle exec $cmd
@@ -119,6 +124,9 @@ func autoInstall(hookName string, fs afero.Fs) string {
 if lefthook -h >/dev/null 2>&1
 then
 	eval $cmd
+elif test -f "$dir/node_modules/@arkweid/lefthook/bin/lefthook"
+then
+	eval $dir/node_modules/@arkweid/lefthook/bin/$cmd
 elif bundle exec lefthook -h >/dev/null 2>&1
 then
 	bundle exec $cmd
