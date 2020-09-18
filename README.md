@@ -71,7 +71,7 @@ pre-commit:
 ```
 
 * ### **Glob and regexp filters**
-If you want to filter list of files.
+If you want to filter list of files. You could find more glob pattern examples [here](https://github.com/gobwas/glob#example).
 
 ```yml
 pre-commit:
