@@ -69,7 +69,7 @@ if [ -t 1 ] ; then
   exec < /dev/tty ; # <- enables interactive shell
 fi
 
-dir="$(cd "$(dirname $(dirname $(dirname "${BASH_SOURCE[0]}")))" >/dev/null 2>&1 && pwd)"
+dir="$(cd "$(dirname "$(dirname "$(dirname "$0")")")" >/dev/null 2>&1 || exit ; pwd -P)"
 
 ` + autoInstall(hookName, fs) + "\n" + "cmd=\"lefthook run " + hookName + " $@\"" +
 		`
