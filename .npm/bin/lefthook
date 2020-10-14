@@ -1,13 +1,22 @@
 #!/bin/sh
 
-dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+dir="$(cd "$(dirname "$0")" >/dev/null 2>&1 || exit ; pwd -P)"
 
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    $dir/lefthook-linux $@
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-    $dir/lefthook-mac $@
-elif [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]]; then
-    $dir/lefthook-win.exe $@
-else
-    Unsupported OS
-fi
+UNAME=$(uname)
+case "$UNAME" in
+    Linux)
+        "$dir/lefthook-linux" "$@"
+        ;;
+    Darwin)
+        "$dir/lefthook-mac" "$@"
+        ;;
+    Windows*)
+        "$dir/lefthook-win.exe" "$@"
+        ;;
+    CYGWIN*)
+        "$dir/lefthook-win.exe" "$@"
+        ;;
+    *)
+        echo "Unsupported OS"
+        ;;
+esac
