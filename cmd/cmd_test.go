@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"log"
 	"os"
 	"path/filepath"
 	"testing"
@@ -88,6 +89,30 @@ func TestAddCmdExecutor(t *testing.T) {
 	}
 
 	assert.Equal(t, expectedDirs, actualDirs, "Haven`t renamed file with .old extension")
+}
+
+func TestRunCmdExecutor(t *testing.T) {
+	fs := afero.NewMemMapFs()
+
+	var yamlExample = []byte(`
+pre-commit:
+  commands:
+    test:
+      run: echo 'test passed'
+`)
+	viper.SetConfigType("yaml")
+	viper.ReadConfig(bytes.NewBuffer(yamlExample))
+
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
+	defer func() {
+		log.SetOutput(os.Stderr)
+	}()
+
+	err := RunCmdExecutor([]string{"pre-commit"}, fs)
+	assert.NoError(t, err)
+
+	assert.Contains(t, buf.String(), "test passed")
 }
 
 func TestExtendsProperty(t *testing.T) {
