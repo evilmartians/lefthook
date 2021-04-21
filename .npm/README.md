@@ -1,4 +1,4 @@
-![Build Status](https://api.travis-ci.org/Arkweid/lefthook.svg?branch=master)
+![Build Status](https://api.travis-ci.org/evilmartians/lefthook.svg?branch=master)
 
 # Lefthook
 
@@ -41,7 +41,7 @@ Choose your environment:
 * **[Ruby](./docs/ruby.md)**
 * [Other environments](./docs/other.md)
 
-Then you can find all Lefthook features in [the full guide](./docs/full_guide.md) and explore [wiki](https://github.com/Arkweid/lefthook/wiki).
+Then you can find all Lefthook features in [the full guide](./docs/full_guide.md) and explore [wiki](https://github.com/evilmartians/lefthook/wiki).
 
 ***
 
@@ -178,23 +178,23 @@ $ lefthook run fixer
 * [Ruby](./docs/ruby.md)
 * [Other environments](./docs/other.md)
 * [Full features guide](./docs/full_guide.md)
-* [Troubleshooting](https://github.com/Arkweid/lefthook/wiki/Troubleshooting)
+* [Troubleshooting](https://github.com/evilmartians/lefthook/wiki/Troubleshooting)
 
 ### Migrate from
-* [Husky](https://github.com/Arkweid/lefthook/wiki/Migration-from-husky)
-* [Husky and lint-staged](https://github.com/Arkweid/lefthook/wiki/Migration-from-husky-with-lint-staged)
-* [Overcommit](https://github.com/Arkweid/lefthook/wiki/Migration-from-overcommit)
+* [Husky](https://github.com/evilmartians/lefthook/wiki/Migration-from-husky)
+* [Husky and lint-staged](https://github.com/evilmartians/lefthook/wiki/Migration-from-husky-with-lint-staged)
+* [Overcommit](https://github.com/evilmartians/lefthook/wiki/Migration-from-overcommit)
 
 ### Examples
-* [Simple script](https://github.com/Arkweid/lefthook/tree/master/examples/scripts)
-* [Full features](https://github.com/Arkweid/lefthook/tree/master/examples/complete)
+* [Simple script](https://github.com/evilmartians/lefthook/tree/master/examples/scripts)
+* [Full features](https://github.com/evilmartians/lefthook/tree/master/examples/complete)
 
 ### Benchmarks
-* [vs Overcommit](https://github.com/Arkweid/lefthook/wiki/Benchmark-lefthook-vs-overcommit)
-* [vs pre-commit](https://github.com/Arkweid/lefthook/wiki/Benchmark-lefthook-vs-pre-commit)
+* [vs Overcommit](https://github.com/evilmartians/lefthook/wiki/Benchmark-lefthook-vs-overcommit)
+* [vs pre-commit](https://github.com/evilmartians/lefthook/wiki/Benchmark-lefthook-vs-pre-commit)
 
 ### Comparison list
-* [vs Overcommit, Husky, pre-commit](https://github.com/Arkweid/lefthook/wiki/Comparison-with-other-solutions)
+* [vs Overcommit, Husky, pre-commit](https://github.com/evilmartians/lefthook/wiki/Comparison-with-other-solutions)
 
 ### Articles
 * [Lefthook: Knock your team’s code back into shape](https://evilmartians.com/chronicles/lefthook-knock-your-teams-code-back-into-shape?utm_source=lefthook)

@@ -1,4 +1,4 @@
-module github.com/Arkweid/lefthook
+module github.com/evilmartians/lefthook
 
 require (
 	github.com/Arkweid/hookah v0.2.3 // indirect

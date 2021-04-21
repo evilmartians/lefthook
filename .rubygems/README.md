@@ -1,3 +1,3 @@
 # Lefthook
 
-Ruby wrapper around [lefthook](https://github.com/Arkweid/lefthook)
+Ruby wrapper around [lefthook](https://github.com/evilmartians/lefthook)

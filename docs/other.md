@@ -9,20 +9,20 @@ Add Lefthook to your system or build it from source.
 ### go
 
 ```bash
-go get github.com/Arkweid/lefthook
+go get github.com/evilmartians/lefthook
 ```
 
 ### Homebrew for macOS
 
 ```bash
-brew install Arkweid/lefthook/lefthook
+brew install evilmartians/lefthook/lefthook
 ```
 
 ### AUR for Arch
 
 You can install lefthook [package](https://aur.archlinux.org/packages/lefthook) from AUR
 
-Or take it from [binaries](https://github.com/Arkweid/lefthook/releases) and install manually
+Or take it from [binaries](https://github.com/evilmartians/lefthook/releases) and install manually
 
 ### pip for Python
 
@@ -50,4 +50,4 @@ lefthook install && lefthook run pre-commit
 ```
 
 ### More info
-Have a question? Check the [wiki](https://github.com/Arkweid/lefthook/wiki).
+Have a question? Check the [wiki](https://github.com/evilmartians/lefthook/wiki).

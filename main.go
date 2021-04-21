@@ -1,6 +1,6 @@
 package main
 
-import "github.com/Arkweid/lefthook/cmd"
+import "github.com/evilmartians/lefthook/cmd"
 
 func main() {
 	cmd.Execute()

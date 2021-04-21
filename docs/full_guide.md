@@ -5,7 +5,7 @@ Add Lefthook to your system or build it from sources.
 ### go
 
 ```bash
-go get github.com/Arkweid/lefthook
+go get github.com/evilmartians/lefthook
 ```
 
 ### npm
@@ -27,20 +27,20 @@ gem install lefthook
 ### Homebrew for macOS
 
 ```bash
-brew install Arkweid/lefthook/lefthook
+brew install evilmartians/lefthook/lefthook
 ```
 
 ### AUR for Arch
 
 You can install lefthook [package](https://aur.archlinux.org/packages/lefthook) from AUR
 
-Or take it from [binaries](https://github.com/Arkweid/lefthook/releases) and install manually
+Or take it from [binaries](https://github.com/evilmartians/lefthook/releases) and install manually
 
 ## Scenarios
 
 ### Examples
 
-We have a directory with few examples. You can check it [here](https://github.com/Arkweid/lefthook/tree/master/examples).
+We have a directory with few examples. You can check it [here](https://github.com/evilmartians/lefthook/tree/master/examples).
 
 ### First time user
 
@@ -497,4 +497,4 @@ lefthook uninstall
 ```
 
 ## More info
-Have a question? Check the [wiki](https://github.com/Arkweid/lefthook/wiki).
+Have a question? Check the [wiki](https://github.com/evilmartians/lefthook/wiki).

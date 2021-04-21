@@ -18,7 +18,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Arkweid/lefthook/context"
+	"github.com/evilmartians/lefthook/context"
 
 	arrop "github.com/adam-hanna/arrayOperations"
 	"github.com/creack/pty"

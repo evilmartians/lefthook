@@ -73,7 +73,7 @@ func InstallCmdExecutor(args []string, fs afero.Fs) {
 func AddConfigYaml(fs afero.Fs) {
 	template := `# EXAMPLE USAGE
 # Refer for explanation to following link:
-# https://github.com/Arkweid/lefthook/blob/master/docs/full_guide.md
+# https://github.com/evilmartians/lefthook/blob/master/docs/full_guide.md
 #
 # pre-push:
 #   commands:
