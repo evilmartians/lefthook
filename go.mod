@@ -1,13 +1,12 @@
 module github.com/evilmartians/lefthook
 
 require (
-	github.com/Arkweid/hookah v0.2.3 // indirect
 	github.com/adam-hanna/arrayOperations v0.2.5
 	github.com/alessio/shellescape v0.0.0-20190409004728-b115ca0f9053 // indirect
 	github.com/briandowns/spinner v1.11.1
-	github.com/creack/pty v1.1.9
+	github.com/creack/pty v1.1.11
 	github.com/gobwas/glob v0.2.3
-	github.com/kr/pty v1.1.5
+	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/logrusorgru/aurora v0.0.0-20181002194514-a7b3b318ed4e
 	github.com/mattn/go-isatty v0.0.8
 	github.com/spf13/afero v1.2.1

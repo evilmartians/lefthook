@@ -231,7 +231,6 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup, gitArgs 
 		fullPath, _ := filepath.Abs(cmdRoot)
 		command.Dir = fullPath
 	}
-	command.Stdin = os.Stdin
 
 	if isSkipCommmand(hooksGroup, commandName) {
 		mutex.Lock()

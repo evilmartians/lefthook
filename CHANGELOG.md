@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+-[PR](https://github.com/evilmartians/lefthook/pull/167) Fix golang 15+ build @skryukov
+
 # 0.7.2 (2020-02-02)
 
 - [PR](https://github.com/evilmartians/lefthook/pull/126) Feature multiple extends. Thanks @Evilweed
