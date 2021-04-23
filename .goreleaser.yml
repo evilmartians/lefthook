@@ -9,6 +9,10 @@ builds:
     - linux
     - darwin
     - windows
+  goarch:
+    - amd64
+    - "386"
+    - arm64
 archives:
   - id: lefthook
     format: gz
@@ -39,8 +43,8 @@ changelog:
 
 brews:
   -
-    github:
-      owner: Arkweid
+    tap:
+      owner: evilmartians
       name: homebrew-lefthook
     homepage: "https://github.com/evilmartians/lefthook"
     description: "Lefthook a single dependency-free binary to manage all your git hooks that works with any language in any environment, and in all common team workflows"
