@@ -15,10 +15,7 @@ Gem::Specification.new do |spec|
   spec.files = %w(
     lib/lefthook.rb
     bin/lefthook
-    libexec/lefthook-mac
-    libexec/lefthook-linux
-    libexec/lefthook-win.exe
-  )
+  ) + `git ls-files -z libexec/`.split("\x0")
 
   spec.licenses = ['MIT']
 end
