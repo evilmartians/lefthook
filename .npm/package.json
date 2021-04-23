@@ -1,6 +1,6 @@
 {
   "name": "@arkweid/lefthook",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "Simple git hooks manager",
   "main": "index.js",
   "bin": {
@@ -22,6 +22,11 @@
     "darwin",
     "linux",
     "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64",
+    "x32"
   ],
   "scripts": {
     "postinstall": "node postinstall.js"
