@@ -23,6 +23,11 @@
     "linux",
     "win32"
   ],
+  "cpu": [
+    "x64",
+    "arm64",
+    "x32"
+  ],
   "scripts": {
     "postinstall": "node postinstall.js"
   }
