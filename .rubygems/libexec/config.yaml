@@ -1,0 +1,136 @@
+project_name: lefthook
+release:
+  github:
+    owner: evilmartians
+    name: lefthook
+  name_template: '{{.Tag}}'
+milestones:
+- repo:
+    owner: evilmartians
+    name: lefthook
+  name_template: '{{ .Tag }}'
+brews:
+- name: lefthook
+  tap:
+    owner: Arkweid
+    name: homebrew-lefthook
+  commit_author:
+    name: goreleaserbot
+    email: goreleaser@carlosbecker.com
+  folder: Formula
+  install: bin.install "lefthook"
+  test: |
+    system "#{bin}/lefthook version"
+  description: Lefthook a single dependency-free binary to manage all your git hooks
+    that works with any language in any environment, and in all common team workflows
+  homepage: https://github.com/evilmartians/lefthook
+  goarm: "6"
+scoop:
+  name: lefthook
+  commit_author:
+    name: goreleaserbot
+    email: goreleaser@carlosbecker.com
+  commit_msg_template: Scoop update for {{ .ProjectName }} version {{ .Tag }}
+builds:
+- id: lefthook
+  goos:
+  - linux
+  - darwin
+  - windows
+  goarch:
+  - amd64
+  - "386"
+  - arm64
+  goarm:
+  - "6"
+  gomips:
+  - hardfloat
+  targets:
+  - linux_amd64
+  - linux_386
+  - linux_arm64
+  - darwin_amd64
+  - darwin_arm64
+  - windows_amd64
+  - windows_386
+  dir: .
+  main: .
+  ldflags:
+  - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+    -X main.builtBy=goreleaser
+  binary: lefthook
+  env:
+  - CGO_ENABLED=0
+  lang: go
+  gobinary: go
+archives:
+- id: lefthook
+  builds:
+  - lefthook
+  name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm
+    }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}'
+  replacements:
+    "386": i386
+    amd64: x86_64
+    darwin: MacOS
+    linux: Linux
+    windows: Windows
+  format: gz
+  format_overrides:
+  - goos: windows
+    format: zip
+  files:
+  - none*
+  allow_different_binary_count: false
+nfpms:
+- file_name_template: '{{ .ProjectName }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end
+    }}'
+  package_name: lefthook
+  dependencies:
+  - git
+  recommends:
+  - rpm
+  id: default
+  builds:
+  - lefthook
+  formats:
+  - deb
+  - rpm
+  vendor: Arkweid
+  homepage: https://github.com/evilmartians/lefthook
+  maintainer: Alexander Abroskin <arkweid@evilmartians.com>
+  description: Lefthook a single dependency-free binary to manage all your git hooks
+    that works with any language in any environment, and in all common team workflows
+  license: MIT
+  bindir: /usr/local/bin
+snapshot:
+  name_template: '{{ .Tag }}'
+checksum:
+  name_template: '{{ .ProjectName }}_checksums.txt'
+  algorithm: sha256
+changelog:
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
+    - '^spec:'
+    - '^tmp:'
+    - '^context:'
+  sort: asc
+dist: dist
+env_files:
+  github_token: ~/.config/goreleaser/github_token
+  gitlab_token: ~/.config/goreleaser/gitlab_token
+  gitea_token: ~/.config/goreleaser/gitea_token
+before:
+  hooks:
+  - go generate ./...
+source:
+  name_template: '{{ .ProjectName }}-{{ .Version }}'
+  format: tar.gz
+gomod:
+  gobinary: go
+github_urls:
+  download: https://github.com
+gitlab_urls:
+  download: https://gitlab.com
