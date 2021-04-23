@@ -2,7 +2,7 @@
 
 ## master (unreleased)
 
--[PR](https://github.com/evilmartians/lefthook/pull/168) Package versions for all architectures (x86)64, ARM64, x86) into Ruby gem and NPM package @Envek
+-[PR](https://github.com/evilmartians/lefthook/pull/168) Package versions for all architectures (x86_64, ARM64, x86) into Ruby gem and NPM package @Envek
 -[PR](https://github.com/evilmartians/lefthook/pull/167) Fix golang 15+ build @skryukov
 
 # 0.7.2 (2020-02-02)
