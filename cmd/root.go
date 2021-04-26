@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/logrusorgru/aurora"
+	"github.com/spf13/afero"
 	"github.com/mattn/go-isatty"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -43,6 +44,21 @@ var rootCmd = &cobra.Command{
 	Long: `After installation go to your project directory
 and execute the following command:
 lefthook install`,
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		if cmd.Name() == "help" || cmd.Name() == "version" {
+			return
+		}
+
+		var fs = afero.NewOsFs()
+		if gitInitialized, _ := afero.DirExists(fs, filepath.Join(getRootPath(), ".git")); gitInitialized {
+			return
+		}
+
+		message := `This command must be executed within git repository.
+Change working directory or initialize new repository with 'git init'.`
+
+			log.Fatal(au.Brown(message))
+	},
 }
 
 func Execute() {
@@ -115,8 +131,7 @@ func setRootPath(path string) {
 	// get absolute path to .git dir (project root)
 	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
 
-	outputBytes, err := cmd.CombinedOutput()
-	check(err)
+	outputBytes, _ := cmd.CombinedOutput()
 	rootPath = strings.TrimSpace(string(outputBytes))
 }
 
