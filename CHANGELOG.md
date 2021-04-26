@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+-[PR](https://github.com/evilmartians/lefthook/pull/169) Create .git/hooks directory when it does not exist @DmitryTsepelev
+
 # 0.7.3 (2021-04-23)
 
 -[PR](https://github.com/evilmartians/lefthook/pull/168) Package versions for all architectures (x86_64, ARM64, x86) into Ruby gem and NPM package @Envek
