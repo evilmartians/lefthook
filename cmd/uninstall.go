@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"log"
+	"os"
 	"path/filepath"
 
 	"github.com/spf13/afero"
@@ -70,7 +71,17 @@ func deleteSourceDirs(fs afero.Fs) {
 // DeleteGitHooks read the config and remove all git hooks except
 func DeleteGitHooks(fs afero.Fs) {
 	hooksPath := filepath.Join(getRootPath(), ".git", "hooks")
-	hooks, _ := afero.ReadDir(fs, hooksPath)
+
+	hooks, err := afero.ReadDir(fs, hooksPath)
+	if (err != nil) {
+		log.Println("⚠️ ", au.Bold(".git/hooks"), "directory does not exist, creating")
+
+		if err := os.MkdirAll(hooksPath, os.ModePerm); err != nil {
+			log.Println(au.Brown("🚨 Failed to create"), au.Bold(".git/hooks"), au.Brown("directory"))
+			log.Fatal(err)
+		}
+	}
+
 	for _, file := range hooks {
 		hookFile := filepath.Join(hooksPath, file.Name())
 		if isLefthookFile(hookFile) || aggressive {
