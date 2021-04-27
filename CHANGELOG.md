@@ -2,12 +2,13 @@
 
 ## master (unreleased)
 
--[PR](https://github.com/evilmartians/lefthook/pull/169) Create .git/hooks directory when it does not exist @DmitryTsepelev
+- [PR](https://github.com/evilmartians/lefthook/pull/171) Improve check for installed git @DmitryTsepelev
+- [PR](https://github.com/evilmartians/lefthook/pull/169) Create .git/hooks directory when it does not exist @DmitryTsepelev
 
 # 0.7.3 (2021-04-23)
 
--[PR](https://github.com/evilmartians/lefthook/pull/168) Package versions for all architectures (x86_64, ARM64, x86) into Ruby gem and NPM package @Envek
--[PR](https://github.com/evilmartians/lefthook/pull/167) Fix golang 15+ build @skryukov
+- [PR](https://github.com/evilmartians/lefthook/pull/168) Package versions for all architectures (x86_64, ARM64, x86) into Ruby gem and NPM package @Envek
+- [PR](https://github.com/evilmartians/lefthook/pull/167) Fix golang 15+ build @skryukov
 
 # 0.7.2 (2020-02-02)
 
