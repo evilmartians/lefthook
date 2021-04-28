@@ -147,7 +147,7 @@ func presetConfig(fs afero.Fs) {
 	fs.Mkdir(filepath.Join(getRootPath(), ".lefthook/commit-msg"), defaultFilePermission)
 	fs.Mkdir(filepath.Join(getRootPath(), ".lefthook/pre-commit"), defaultFilePermission)
 
-	fs.Mkdir(getGitHooksDir(), defaultFilePermission)
+	fs.MkdirAll(filepath.Join(getRootPath(), ".git", "hooks"), defaultFilePermission)
 }
 
 func presetExecutable(hookName string, hookGroup string, exitCode string, fs afero.Fs) {

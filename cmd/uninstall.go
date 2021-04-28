@@ -75,8 +75,7 @@ func DeleteGitHooks(fs afero.Fs) {
 	hooks, err := afero.ReadDir(fs, hooksPath)
 	if (err != nil) {
 		log.Println("⚠️ ", au.Bold(".git/hooks"), "directory does not exist, creating")
-
-		if err := os.MkdirAll(hooksPath, os.ModePerm); err != nil {
+		if err := os.Mkdir(hooksPath, os.ModePerm); err != nil {
 			log.Println(au.Brown("🚨 Failed to create"), au.Bold(".git/hooks"), au.Brown("directory"))
 			log.Fatal(err)
 		}
