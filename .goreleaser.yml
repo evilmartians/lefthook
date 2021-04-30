@@ -49,15 +49,15 @@ brews:
     test: |
       system "#{bin}/lefthook version"
 
-# snapcrafts:
-#   -
-#     name_template: '{{ .ProjectName }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
-#     summary: For rule your git hooks
-#     description: |
-#       Lefthook a single dependency-free binary to manage all your git hooks that works with any language in any environment, and in all common team workflows.
-#     grade: stable
-#     confinement: strict
-#     publish: true
+snapcrafts:
+  -
+    summary: Fast and powerful Git hooks manager for any type of projects.
+    description: |
+      Lefthook is a single dependency-free binary to manage all your git hooks. It works with any language in any environment, and in all common team workflows.
+    grade: stable
+    confinement: classic
+    publish: true
+    license: MIT
 
 nfpms:
   -
