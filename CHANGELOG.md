@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+# 0.7.4 (2021-04-30)
+
 - [PR](https://github.com/evilmartians/lefthook/pull/171) Improve check for installed git @DmitryTsepelev
 - [PR](https://github.com/evilmartians/lefthook/pull/169) Create .git/hooks directory when it does not exist @DmitryTsepelev
 
