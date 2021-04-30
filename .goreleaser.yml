@@ -15,7 +15,7 @@ builds:
     - arm64
 archives:
   - id: lefthook
-    format: gz
+    format: binary
     files:
     - none*
     replacements:
@@ -24,9 +24,6 @@ archives:
       linux: Linux
       386: i386
       amd64: x86_64
-    format_overrides:
-    - goos: windows
-      format: zip
 checksum:
   name_template: '{{ .ProjectName }}_checksums.txt'
 snapshot:
