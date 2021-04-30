@@ -38,17 +38,6 @@ changelog:
     - '^tmp:'
     - '^context:'
 
-brews:
-  -
-    tap:
-      owner: evilmartians
-      name: homebrew-lefthook
-    homepage: "https://github.com/evilmartians/lefthook"
-    description: "Lefthook a single dependency-free binary to manage all your git hooks that works with any language in any environment, and in all common team workflows"
-    folder: Formula
-    test: |
-      system "#{bin}/lefthook version"
-
 snapcrafts:
   -
     summary: Fast and powerful Git hooks manager for any type of projects.
