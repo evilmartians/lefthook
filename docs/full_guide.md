@@ -27,7 +27,7 @@ gem install lefthook
 ### Homebrew for macOS
 
 ```bash
-brew install evilmartians/lefthook/lefthook
+brew install lefthook
 ```
 
 ### AUR for Arch
