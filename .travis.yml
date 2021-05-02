@@ -6,11 +6,11 @@ go:
 notifications:
   email: false
 
-# before_script:
-#   - sudo apt-get -q install ruby
-#   - gem install bundler
-#   - bundle install
+before_script:
+  - sudo apt-get -q install ruby
+  - gem install bundler
+  - bundle install
 
 script:
-  # - bundle exec rspec
+  - bundle exec rspec
   - go test ./cmd

@@ -8,7 +8,7 @@ class FileStructure
 
     def have_git
       FileUtils.mkdir_p(File.join(tmp))
-      _, _, _ = Open3.capture3('git init', chdir: FileStructure.tmp)
+      _, _, _ = Open3.capture3('git init', chdir: tmp)
     end
 
     def make_scripts_preset
