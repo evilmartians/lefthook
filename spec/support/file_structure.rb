@@ -7,7 +7,8 @@ class FileStructure
     attr_accessor :root
 
     def have_git
-      FileUtils.mkdir_p(File.join(tmp, '.git', 'hooks'))
+      FileUtils.mkdir_p(File.join(tmp))
+      _, _, _ = Open3.capture3('git init', chdir: FileStructure.tmp)
     end
 
     def make_scripts_preset

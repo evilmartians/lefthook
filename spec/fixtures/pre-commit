@@ -1,10 +1,33 @@
-#!/bin/bash
+#!/bin/sh
 
-# If can't find lefthook in global scope
-# we suppose it in local npm package
-if ! type lefthook >/dev/null
+if [ "$LEFTHOOK" = "0" ]; then
+  exit 0
+fi
+
+if [ -t 1 ] ; then
+  exec < /dev/tty ; # <- enables interactive shell
+fi
+
+dir="$(cd "$(dirname "$(dirname "$(dirname "$0")")")" >/dev/null 2>&1 || exit ; pwd -P)"
+
+
+cmd="lefthook run pre-commit $@"
+
+if lefthook -h >/dev/null 2>&1
 then
-  exec npx lefthook run pre-commit $@
+  eval $cmd
+elif test -f "$dir/node_modules/@arkweid/lefthook/bin/lefthook"
+then
+  eval $dir/node_modules/@arkweid/lefthook/bin/$cmd
+elif bundle exec lefthook -h >/dev/null 2>&1
+then
+  bundle exec $cmd
+elif npx lefthook -h >/dev/null 2>&1
+then
+  npx $cmd
+elif yarn lefthook -h >/dev/null 2>&1
+then
+  yarn $cmd
 else
-  exec lefthook run pre-commit $@
+  echo "Can't find lefthook in PATH"
 fi
