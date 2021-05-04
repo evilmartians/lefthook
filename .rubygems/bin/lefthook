@@ -31,8 +31,6 @@ unless File.exists?(cmd)
   raise "Invalid platform. Lefthook wasn't build for #{RUBY_PLATFORM}"
 end
 
-puts "#{cmd} #{args.join(' ')}"
-
 pid = spawn("#{cmd} #{args.join(' ')}")
 Process.wait(pid)
 exit($?.exitstatus)
