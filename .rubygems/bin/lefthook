@@ -12,8 +12,17 @@ arch =
   else raise "Unknown architecture: #{platform.cpu}"
   end
 
-binary = "lefthook_#{platform.os}_#{arch}/lefthook"
-binary = "#{binary}.exe" if %w[windows mingw32].include?(platform.os)
+os =
+  case platform.os
+  when "linux"   then "linux"
+  when "darwin"  then "darwin"  # MacOS
+  when "windows" then "windows"
+  when "mingw32" then "windows" # Windows with MINGW64 reports RUBY_PLATFORM as "x64-mingw32"
+  else raise "Unknown OS: #{platform.os}"
+  end
+
+binary = "lefthook_#{os}_#{arch}/lefthook"
+binary = "#{binary}.exe" if os == "windows"
 
 args = $*.map { |x| x.include?(' ') ? "'" + x + "'" : x }
 cmd = File.expand_path "#{File.dirname(__FILE__)}/../libexec/#{binary}"
