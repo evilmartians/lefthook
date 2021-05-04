@@ -31,6 +31,7 @@ var (
 	Verbose      bool
 	NoColors     bool
 	rootPath     string
+	gitHooksPath string
 	cfgFile      string
 	originConfig *viper.Viper
 	configFileExtensions = []string{".yml", ".yaml"}
@@ -92,6 +93,7 @@ func initConfig() {
 	log.SetFlags(0)
 
 	setRootPath(rootExecutionRelPath)
+	setGitHooksPath(getHooksPathFromGitConfig())
 
 	// store original config before merge
 	originConfig = viper.New()
@@ -133,6 +135,25 @@ func setRootPath(path string) {
 
 	outputBytes, _ := cmd.CombinedOutput()
 	rootPath = strings.TrimSpace(string(outputBytes))
+}
+
+func getGitHooksPath() string {
+	return gitHooksPath
+}
+
+func setGitHooksPath(path string) {
+  gitHooksPath = filepath.Join(getRootPath(), path)
+}
+
+func getHooksPathFromGitConfig() string {
+	cmd := exec.Command("git", "rev-parse", "--git-path", "hooks")
+
+	outputBytes, err := cmd.CombinedOutput()
+	if err != nil {
+		panic(err)
+	}
+
+	return strings.TrimSpace(string(outputBytes))
 }
 
 func getSourceDir() string {

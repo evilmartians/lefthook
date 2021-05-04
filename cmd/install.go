@@ -205,7 +205,7 @@ func configChecksum(fs afero.Fs) string {
 func recordedChecksum() string {
 	pattern := regexp.MustCompile(`(?:# lefthook_version: )(\w+)`)
 
-	file, err := ioutil.ReadFile(filepath.Join(getGitHooksDir(), checkSumHook))
+	file, err := ioutil.ReadFile(filepath.Join(getGitHooksPath(), checkSumHook))
 	if err != nil {
 		return ""
 	}
