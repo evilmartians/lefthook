@@ -14,7 +14,7 @@ case $OS in
     Darwin)
         GOOS=darwin
         ;;
-    Windows*|CYGWIN*|MSYS_NT*)
+    Windows*|CYGWIN*|MSYS_NT*|MINGW*)
         GOOS=windows
         EXT=.exe
         ;;
