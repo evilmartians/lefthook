@@ -35,7 +35,7 @@ func TestInstallCmdExecutor(t *testing.T) {
 		"prepare-commit-msg",
 	}
 
-	files, err := afero.ReadDir(fs, getGitHooksDir())
+	files, err := afero.ReadDir(fs, getGitHooksPath())
 	assert.NoError(t, err)
 
 	actualFiles := []string{}
@@ -60,7 +60,7 @@ func TestAddCmdExecutor(t *testing.T) {
 		"pre-commit",
 	}
 
-	files, _ := afero.ReadDir(fs, getGitHooksDir())
+	files, _ := afero.ReadDir(fs, getGitHooksPath())
 	actualFiles := []string{}
 	for _, f := range files {
 		actualFiles = append(actualFiles, f.Name())
@@ -82,7 +82,7 @@ func TestAddCmdExecutor(t *testing.T) {
 		"pre-push.old",
 	}
 
-	files, _ = afero.ReadDir(fs, getGitHooksDir())
+	files, _ = afero.ReadDir(fs, getGitHooksPath())
 	actualFiles = []string{}
 	for _, f := range files {
 		actualFiles = append(actualFiles, f.Name())
@@ -147,7 +147,8 @@ func presetConfig(fs afero.Fs) {
 	fs.Mkdir(filepath.Join(getRootPath(), ".lefthook/commit-msg"), defaultFilePermission)
 	fs.Mkdir(filepath.Join(getRootPath(), ".lefthook/pre-commit"), defaultFilePermission)
 
-	fs.MkdirAll(filepath.Join(getRootPath(), ".git", "hooks"), defaultFilePermission)
+	setGitHooksPath(".git/hooks")
+	fs.MkdirAll(getGitHooksPath(), defaultFilePermission)
 }
 
 func presetExecutable(hookName string, hookGroup string, exitCode string, fs afero.Fs) {

@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/spf13/afero"
 	"github.com/mattn/go-isatty"
+	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -28,11 +28,12 @@ const (
 )
 
 var (
-	Verbose      bool
-	NoColors     bool
-	rootPath     string
-	cfgFile      string
-	originConfig *viper.Viper
+	Verbose              bool
+	NoColors             bool
+	rootPath             string
+	gitHooksPath         string
+	cfgFile              string
+	originConfig         *viper.Viper
 	configFileExtensions = []string{".yml", ".yaml"}
 
 	au aurora.Aurora
@@ -57,7 +58,7 @@ lefthook install`,
 		message := `This command must be executed within git repository.
 Change working directory or initialize new repository with 'git init'.`
 
-			log.Fatal(au.Brown(message))
+		log.Fatal(au.Brown(message))
 	},
 }
 
@@ -92,6 +93,7 @@ func initConfig() {
 	log.SetFlags(0)
 
 	setRootPath(rootExecutionRelPath)
+	setGitHooksPath(getHooksPathFromGitConfig())
 
 	// store original config before merge
 	originConfig = viper.New()
@@ -133,6 +135,25 @@ func setRootPath(path string) {
 
 	outputBytes, _ := cmd.CombinedOutput()
 	rootPath = strings.TrimSpace(string(outputBytes))
+}
+
+func getGitHooksPath() string {
+	return gitHooksPath
+}
+
+func setGitHooksPath(path string) {
+	gitHooksPath = filepath.Join(getRootPath(), path)
+}
+
+func getHooksPathFromGitConfig() string {
+	cmd := exec.Command("git", "rev-parse", "--git-path", "hooks")
+
+	outputBytes, err := cmd.CombinedOutput()
+	if err != nil {
+		panic(err)
+	}
+
+	return strings.TrimSpace(string(outputBytes))
 }
 
 func getSourceDir() string {

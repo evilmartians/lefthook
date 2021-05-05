@@ -3,7 +3,6 @@ package cmd
 import (
 	"io/ioutil"
 	"log"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -94,7 +93,7 @@ else
 fi
 `
 
-	pathToFile := filepath.Join(getGitHooksDir(), hookName)
+	pathToFile := filepath.Join(getGitHooksPath(), hookName)
 
 	if yes, _ := afero.Exists(fs, pathToFile); yes {
 		if isLefthookFile(pathToFile) {
@@ -148,18 +147,6 @@ func addProjectHookDir(hookName string, fs afero.Fs) {
 func addLocalHookDir(hookName string, fs afero.Fs) {
 	err := fs.MkdirAll(filepath.Join(getLocalSourceDir(), hookName), defaultFilePermission)
 	check(err)
-}
-
-func getGitHooksDir() string {
-	cmd := exec.Command("git", "rev-parse", "--git-common-dir")
-
-	outputBytes, err := cmd.CombinedOutput()
-	if err != nil {
-		panic(err)
-	}
-
-	gitDir := strings.TrimSpace(string(outputBytes))
-	return filepath.Join(getRootPath(), gitDir, "hooks")
 }
 
 func isLefthookFile(pathFile string) bool {
