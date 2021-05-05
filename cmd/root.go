@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/spf13/afero"
 	"github.com/mattn/go-isatty"
+	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -28,12 +28,12 @@ const (
 )
 
 var (
-	Verbose      bool
-	NoColors     bool
-	rootPath     string
-	gitHooksPath string
-	cfgFile      string
-	originConfig *viper.Viper
+	Verbose              bool
+	NoColors             bool
+	rootPath             string
+	gitHooksPath         string
+	cfgFile              string
+	originConfig         *viper.Viper
 	configFileExtensions = []string{".yml", ".yaml"}
 
 	au aurora.Aurora
@@ -58,7 +58,7 @@ lefthook install`,
 		message := `This command must be executed within git repository.
 Change working directory or initialize new repository with 'git init'.`
 
-			log.Fatal(au.Brown(message))
+		log.Fatal(au.Brown(message))
 	},
 }
 
@@ -142,7 +142,7 @@ func getGitHooksPath() string {
 }
 
 func setGitHooksPath(path string) {
-  gitHooksPath = filepath.Join(getRootPath(), path)
+	gitHooksPath = filepath.Join(getRootPath(), path)
 }
 
 func getHooksPathFromGitConfig() string {
