@@ -6,7 +6,7 @@ First off, thanks for taking the time to contribute! Feel free to make Pull Requ
 
 Go >= 1.16.0
 
-# Proccess
+# Process
 
 1. Fork repo
 2. git clone <forked_repo>
