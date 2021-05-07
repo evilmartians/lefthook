@@ -42,14 +42,14 @@ func deleteConfig(fs afero.Fs) {
 
 	results, err := afero.Glob(fs, getConfigLocalYamlPattern())
 	if err != nil {
-		log.Println("Error occured while remove config file!:", err.Error())
+		log.Println("Error occurred while remove config file!:", err.Error())
 	}
 	for _, fileName := range results {
 		err = fs.Remove(getConfigLocalYamlPattern())
 		if err == nil {
 			log.Println(fileName, "removed")
 		} else {
-			log.Println("Error occured while remove config file!:", err.Error())
+			log.Println("Error occurred while remove config file!:", err.Error())
 		}
 	}
 }
@@ -73,7 +73,7 @@ func DeleteGitHooks(fs afero.Fs) {
 	hooksPath := getGitHooksPath()
 
 	hooks, err := afero.ReadDir(fs, hooksPath)
-	if (err != nil) {
+	if err != nil {
 		log.Println("⚠️ ", au.Bold(hooksPath), "directory does not exist, creating")
 		if err := os.Mkdir(hooksPath, os.ModePerm); err != nil {
 			log.Println(au.Brown("🚨 Failed to create"), au.Bold(hooksPath), au.Brown("directory"))
