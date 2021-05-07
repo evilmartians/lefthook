@@ -57,41 +57,6 @@ func addHook(hookName string, fs afero.Fs) {
 		VerbosePrint("Skip adding, because that name unavailable: ", hookName)
 		return
 	}
-	// TODO: text/template
-	template := `#!/bin/sh
-
-if [ "$LEFTHOOK" = "0" ]; then
-  exit 0
-fi
-
-if [ -t 1 ] ; then
-  exec < /dev/tty ; # <- enables interactive shell
-fi
-
-dir="$(cd "$(dirname "$(dirname "$(dirname "$0")")")" >/dev/null 2>&1 || exit ; pwd -P)"
-
-` + autoInstall(hookName, fs) + "\n" + "cmd=\"lefthook run " + hookName + " $@\"" +
-		`
-
-if lefthook -h >/dev/null 2>&1
-then
-  eval $cmd
-elif test -f "$dir/node_modules/@arkweid/lefthook/bin/lefthook"
-then
-  eval $dir/node_modules/@arkweid/lefthook/bin/$cmd
-elif bundle exec lefthook -h >/dev/null 2>&1
-then
-  bundle exec $cmd
-elif npx lefthook -h >/dev/null 2>&1
-then
-  npx $cmd
-elif yarn lefthook -h >/dev/null 2>&1
-then
-  yarn $cmd
-else
-  echo "Can't find lefthook in PATH"
-fi
-`
 
 	pathToFile := filepath.Join(getGitHooksPath(), hookName)
 
@@ -109,34 +74,10 @@ fi
 		}
 	}
 
-	err := afero.WriteFile(fs, pathToFile, []byte(template), defaultFilePermission)
+	template := hookTemplate(hookName, fs)
+	err := afero.WriteFile(fs, pathToFile, template, defaultFilePermission)
 	check(err)
 	VerbosePrint("Added hook: ", pathToFile)
-}
-
-func autoInstall(hookName string, fs afero.Fs) string {
-	if hookName == checkSumHook {
-		return "\n# lefthook_version: " + configChecksum(fs) + "\n\n" +
-			"cmd=\"lefthook install\"" +
-			`
-
-if lefthook -h >/dev/null 2>&1
-then
-	eval $cmd
-elif test -f "$dir/node_modules/@arkweid/lefthook/bin/lefthook"
-then
-	eval $dir/node_modules/@arkweid/lefthook/bin/$cmd
-elif bundle exec lefthook -h >/dev/null 2>&1
-then
-	bundle exec $cmd
-elif npx lefthook -h >/dev/null 2>&1
-then
-	npx $cmd
-fi
-`
-	}
-
-	return ""
 }
 
 func addProjectHookDir(hookName string, fs afero.Fs) {

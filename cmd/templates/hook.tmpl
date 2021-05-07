@@ -32,6 +32,6 @@ call_lefthook()
   fi
 }
 
+{{.AutoInstall}}
 
-
-call_lefthook "lefthook run pre-push $@"
+call_lefthook "lefthook run {{.HookName}} $@"

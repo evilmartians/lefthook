@@ -10,24 +10,28 @@ fi
 
 dir="$(cd "$(dirname "$(dirname "$(dirname "$0")")")" >/dev/null 2>&1 || exit ; pwd -P)"
 
+call_lefthook()
+{
+  if lefthook -h >/dev/null 2>&1
+  then
+    eval $1
+  elif test -f "$dir/node_modules/@arkweid/lefthook/bin/lefthook"
+  then
+    eval $dir/node_modules/@arkweid/lefthook/bin/$1
+  elif bundle exec lefthook -h >/dev/null 2>&1
+  then
+    bundle exec $1
+  elif npx lefthook -h >/dev/null 2>&1
+  then
+    npx $1
+  elif yarn lefthook -h >/dev/null 2>&1
+  then
+    yarn $1
+  else
+    echo "Can't find lefthook in PATH"
+  fi
+}
 
-cmd="lefthook run pre-commit $@"
 
-if lefthook -h >/dev/null 2>&1
-then
-  eval $cmd
-elif test -f "$dir/node_modules/@arkweid/lefthook/bin/lefthook"
-then
-  eval $dir/node_modules/@arkweid/lefthook/bin/$cmd
-elif bundle exec lefthook -h >/dev/null 2>&1
-then
-  bundle exec $cmd
-elif npx lefthook -h >/dev/null 2>&1
-then
-  npx $cmd
-elif yarn lefthook -h >/dev/null 2>&1
-then
-  yarn $cmd
-else
-  echo "Can't find lefthook in PATH"
-fi
+
+call_lefthook "lefthook run pre-commit $@"
