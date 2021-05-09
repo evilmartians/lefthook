@@ -1,13 +1,10 @@
-const { spawn } = require("child_process");
-const { join } = require("path");
+if (!process.env.CI) {
+  const { spawnSync } = require('child_process');
+  const { getExePath } = require('./get-exe');
 
-const isCI = process.env.CI;
-
-if (!isCI) {
-  binpath = join(__dirname, 'bin', 'lefthook');
-
-  result = spawn(binpath, ["install", "-f"], {
-      cwd: process.env.INIT_CWD,
-      stdio: [process.stdin, process.stdout, process.stderr]
+  // run install
+  spawnSync(getExePath(), ['install', '-f'], {
+    cwd: process.env.INIT_CWD || process.cwd,
+    stdio: 'inherit',
   });
 }
