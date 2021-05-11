@@ -50,8 +50,7 @@ lefthook install`,
 			return
 		}
 
-		var fs = afero.NewOsFs()
-		if gitInitialized, _ := afero.DirExists(fs, filepath.Join(getRootPath(), ".git")); gitInitialized {
+		if gitInitialized, _ := afero.Exists(appFs, filepath.Join(getRootPath(), ".git")); gitInitialized {
 			return
 		}
 
@@ -142,7 +141,12 @@ func getGitHooksPath() string {
 }
 
 func setGitHooksPath(path string) {
-	gitHooksPath = filepath.Join(getRootPath(), path)
+	if exists, _ := afero.DirExists(appFs, filepath.Join(getRootPath(), path)); exists {
+		gitHooksPath = filepath.Join(getRootPath(), path)
+		return
+	}
+
+	gitHooksPath = path
 }
 
 func getHooksPathFromGitConfig() string {
