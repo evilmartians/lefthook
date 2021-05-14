@@ -1,12 +1,8 @@
-// +build !windows
-
 package cmd
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -18,10 +14,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/evilmartians/lefthook/context"
+	"github.com/evilmartians/lefthook/pkg/context"
 
 	arrop "github.com/adam-hanna/arrayOperations"
-	"github.com/creack/pty"
 	"github.com/gobwas/glob"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
@@ -30,9 +25,6 @@ import (
 )
 
 var (
-	hooksGroup     string
-	executableName string
-	sourcePath     string
 	okList         []string
 	failList       []string
 	mutex          sync.Mutex
@@ -45,7 +37,6 @@ const (
 	rootConfigKey        string      = "root"
 	runnerConfigKey      string      = "runner"
 	runConfigKey         string      = "run" // alias for runner
-	runnerArgsConfigKey  string      = "runner_args"
 	scriptsConfigKey     string      = "scripts"
 	commandsConfigKey    string      = "commands"
 	includeConfigKey     string      = "include"
@@ -166,7 +157,7 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 	wg.Wait()
 	spinner.Stop()
 
-	printSummary(time.Now().Sub(startTime))
+	printSummary(time.Since(startTime))
 
 	if len(failList) == 0 {
 		return nil
@@ -184,7 +175,7 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup, gitArgs 
 		return
 	}
 
-	files := []string{}
+	var files []string
 	runner := getRunner(hooksGroup, commandsConfigKey, commandName)
 
 	if strings.Contains(runner, subStagedFiles) {
@@ -226,13 +217,7 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup, gitArgs 
 		runner = strings.Replace(runner, fmt.Sprintf("{%d}", gitArgIndex+1), gitArg, -1)
 	}
 
-	command := exec.Command("sh", "-c", runner)
-	if cmdRoot != "" {
-		fullPath, _ := filepath.Abs(cmdRoot)
-		command.Dir = fullPath
-	}
-
-	if isSkipCommmand(hooksGroup, commandName) {
+	if isSkipCommand(hooksGroup, commandName) {
 		mutex.Lock()
 		spinner.RestartWithMsg(sprintSuccess("\n", au.Bold(commandName), au.Brown("(SKIP BY SETTINGS)")))
 		mutex.Unlock()
@@ -244,14 +229,15 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup, gitArgs 
 		mutex.Unlock()
 		return
 	}
-	if len(files) < 1 && isSkipEmptyCommmand(hooksGroup, commandName) {
+	if len(files) < 1 && isSkipEmptyCommand(hooksGroup, commandName) {
 		mutex.Lock()
 		spinner.RestartWithMsg(sprintSuccess("\n", au.Bold(commandName), au.Brown("(SKIP. NO FILES FOR INSPECTION)")))
 		mutex.Unlock()
 		return
 	}
 
-	ptyOut, err := pty.Start(command)
+	commandOutput, wait, err := RunCommand(runner, cmdRoot)
+
 	mutex.Lock()
 	defer mutex.Unlock()
 
@@ -263,20 +249,12 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup, gitArgs 
 		return
 	}
 
-	// pty part start
-	defer func() { ptyOut.Close() }() // Make sure to close the pty at the end.
-	// Copy stdin to the pty and the pty to stdout.
-	go func() { io.Copy(ptyOut, os.Stdin) }()
-	commandOutputBuffer := bytes.NewBuffer(make([]byte, 0, 0))
-	io.Copy(commandOutputBuffer, ptyOut)
-	// pty part end
-
-	if command.Wait() == nil {
-		spinner.RestartWithMsg(sprintSuccess(stageName, commandOutputBuffer.String()))
+	if wait() == nil {
+		spinner.RestartWithMsg(sprintSuccess(stageName, commandOutput.String()))
 
 		okList = append(okList, commandName)
 	} else {
-		spinner.RestartWithMsg(stageName, commandOutputBuffer.String())
+		spinner.RestartWithMsg(stageName, commandOutput.String())
 
 		failList = append(failList, commandName)
 		setPipeBroken()
@@ -331,7 +309,8 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 		return
 	}
 
-	ptyOut, err := pty.Start(command)
+	commandOutput, wait, err := RunPlainCommand(command)
+
 	mutex.Lock()
 	defer mutex.Unlock()
 
@@ -347,27 +326,12 @@ func executeScript(hooksGroup, source string, executable os.FileInfo, wg *sync.W
 		return
 	}
 
-	// pty part start
-	defer func() { ptyOut.Close() }() // Make sure to close the pty at the end.
-	// Copy stdin to the pty and the pty to stdout.
-	go func() { io.Copy(ptyOut, os.Stdin) }()
-	commandOutputBuffer := bytes.NewBuffer(make([]byte, 0, 0))
-	io.Copy(commandOutputBuffer, ptyOut)
-	// pty part end
-
-	if err != nil {
-		failList = append(failList, executableName)
-		setPipeBroken()
-		spinner.RestartWithMsg(stageName, err)
-		return
-	}
-
-	if command.Wait() == nil {
-		spinner.RestartWithMsg(sprintSuccess(stageName, commandOutputBuffer.String()))
+	if wait() == nil {
+		spinner.RestartWithMsg(sprintSuccess(stageName, commandOutput.String()))
 
 		okList = append(okList, executableName)
 	} else {
-		spinner.RestartWithMsg(stageName, commandOutputBuffer.String())
+		spinner.RestartWithMsg(stageName, commandOutput.String())
 
 		failList = append(failList, executableName)
 		setPipeBroken()
@@ -443,13 +407,13 @@ func isSkipScript(hooksGroup, executableName string) bool {
 	return viper.GetBool(key)
 }
 
-func isSkipCommmand(hooksGroup, executableName string) bool {
+func isSkipCommand(hooksGroup, executableName string) bool {
 	key := strings.Join([]string{hooksGroup, commandsConfigKey, executableName, skipConfigKey}, ".")
 	return viper.GetBool(key)
 }
 
 // NOTE: confusing option, suppose it unnesecary and should be deleted.
-func isSkipEmptyCommmand(hooksGroup, executableName string) bool {
+func isSkipEmptyCommand(hooksGroup, executableName string) bool {
 	key := strings.Join([]string{hooksGroup, commandsConfigKey, executableName, skipEmptyConfigKey}, ".")
 	if viper.IsSet(key) {
 		return viper.GetBool(key)
@@ -648,17 +612,17 @@ func isVersionOk() bool {
 
 	configVersion := viper.GetString(minVersionConfigKey)
 
-	configVersionSplited := strings.Split(configVersion, ".")
-	if len(configVersionSplited) != 3 {
+	configVersionSplitted := strings.Split(configVersion, ".")
+	if len(configVersionSplitted) != 3 {
 		VerbosePrint("Config min_version option have incorrect format")
 		return false
 	}
 
-	currentVersionSplited := strings.Split(version, ".")
+	currentVersionSplitted := strings.Split(version, ".")
 
-	for i, value := range currentVersionSplited {
+	for i, value := range currentVersionSplitted {
 		currentNum, _ := strconv.ParseInt(value, 0, 64)
-		configNum, _ := strconv.ParseInt(configVersionSplited[i], 0, 64)
+		configNum, _ := strconv.ParseInt(configVersionSplitted[i], 0, 64)
 		if currentNum < configNum {
 			return false
 		}

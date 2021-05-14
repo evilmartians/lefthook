@@ -32,7 +32,6 @@ var (
 	NoColors             bool
 	rootPath             string
 	gitHooksPath         string
-	cfgFile              string
 	originConfig         *viper.Viper
 	configFileExtensions = []string{".yml", ".yaml"}
 

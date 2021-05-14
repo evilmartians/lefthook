@@ -1,9 +1,10 @@
 package cmd
 
 import (
-	spin "github.com/briandowns/spinner"
 	"log"
 	"time"
+
+	spin "github.com/briandowns/spinner"
 )
 
 const (
