@@ -10,6 +10,8 @@ cplefthook
 tmp/
 dist/
 .rubygems/pkg/
+.rubygems/libexec/
+.npm/bin/
 package.json
 node_modules/
 yarn.lock
