@@ -199,13 +199,13 @@ func executeCommand(hooksGroup, commandName string, wg *sync.WaitGroup, gitArgs 
 
 	VerbosePrint("Files after filters: \n", files)
 
-	files_esc := []string{}
+	filesEsc := []string{}
 	for _, fileName := range files {
 		if len(fileName) > 0 {
-			files_esc = append(files_esc, shellescape.Quote(fileName))
+			filesEsc = append(filesEsc, shellescape.Quote(fileName))
 		}
 	}
-	files = files_esc
+	files = filesEsc
 	VerbosePrint("Files after escaping: \n", files)
 
 	runner = strings.Replace(runner, pushFiles, strings.Join(files, " "), -1)

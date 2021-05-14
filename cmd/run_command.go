@@ -32,9 +32,9 @@ func RunPlainCommand(command *exec.Cmd) (*bytes.Buffer, WaitFunc, error) {
 	commandOutput := bytes.NewBuffer(make([]byte, 0))
 	_, _ = io.Copy(commandOutput, ptyOut)
 	waitFunc := func() error {
-		err := command.Wait()
+		wErr := command.Wait()
 		_ = ptyOut.Close()
-		return err
+		return wErr
 	}
-	return 	commandOutput, waitFunc, err
+	return commandOutput, waitFunc, err
 }
