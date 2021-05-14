@@ -150,10 +150,3 @@ func presetConfig(fs afero.Fs) {
 	setGitHooksPath(".git/hooks")
 	fs.MkdirAll(getGitHooksPath(), defaultFilePermission)
 }
-
-func presetExecutable(hookName string, hookGroup string, exitCode string, fs afero.Fs) {
-	template := "#!/bin/sh\nexit " + exitCode + "\n"
-	pathToFile := filepath.Join(".lefthook", hookGroup, hookName)
-	err := afero.WriteFile(fs, pathToFile, []byte(template), defaultFilePermission)
-	check(err)
-}
