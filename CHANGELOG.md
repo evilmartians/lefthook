@@ -2,6 +2,13 @@
 
 ## master (unreleased)
 
+# 0.7.5 (2021-05-14)
+
+- [PR #179](https://github.com/evilmartians/lefthook/pull/179) Fix running on Windows under MSYS and MINGW64 when run from Ruby gem or JS npm package. @akiver, @Envek
+- [PR #177](https://github.com/evilmartians/lefthook/pull/177) Support non-default git hooks path. @charlie-wasp
+- [PR #182](https://github.com/evilmartians/lefthook/pull/182) Support git workspaces and submodules. @skryukov
+- [PR #184](https://github.com/evilmartians/lefthook/pull/184) Rewrite npm's scripts in JavaScript to support running on Windows without `sh`. @aminya
+
 # 0.7.4 (2021-04-30)
 
 - [PR](https://github.com/evilmartians/lefthook/pull/171) Improve check for installed git @DmitryTsepelev
