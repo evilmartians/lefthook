@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
 var spawn = require('child_process').spawn;
-var path = require('path');
+const { getExePath } = require('../get-exe');
 
 var command_args = process.argv.slice(2);
 
 var child = spawn(
-    path.join(__dirname, 'lefthook'),
+    getExePath(),
     command_args,
-    { stdio: [process.stdin, process.stdout, process.stderr] });
+    { stdio: "inherit" });
 
 child.on('close', function (code) {
     if (code !== 0) {
