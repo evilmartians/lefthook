@@ -90,23 +90,23 @@ func initAurora() {
 func initConfig() {
 	log.SetFlags(0)
 
-	setRootPath(rootExecutionRelPath)
+	setRootPath()
 	setGitHooksPath(getHooksPathFromGitConfig())
 
 	// store original config before merge
 	originConfig = viper.New()
 	originConfig.SetConfigName(configFileName)
 	originConfig.AddConfigPath(rootExecutionRelPath)
-	originConfig.ReadInConfig()
+	_ = originConfig.ReadInConfig()
 
 	viper.SetConfigName(configFileName)
 	viper.AddConfigPath(rootExecutionRelPath)
 	viper.SetDefault(configSourceDirKey, ".lefthook")
 	viper.SetDefault(configSourceDirLocalKey, ".lefthook-local")
-	viper.ReadInConfig()
+	_ = viper.ReadInConfig()
 
 	viper.SetConfigName(configLocalFileName)
-	viper.MergeInConfig()
+	_ = viper.MergeInConfig()
 
 	if isConfigExtends() {
 		for _, path := range getExtendsPath() {
@@ -127,7 +127,7 @@ func getRootPath() string {
 	return rootPath
 }
 
-func setRootPath(path string) {
+func setRootPath() {
 	// get absolute path to .git dir (project root)
 	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
 

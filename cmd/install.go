@@ -121,7 +121,7 @@ func getConfigLocalYamlPattern() string {
 func hasValidConfigFile(fs afero.Fs) bool {
 	matches, err := afero.Glob(fs, getConfigYamlPattern())
 	if err != nil {
-		log.Println("Error occured for search config file: ", err.Error())
+		log.Println("Error occurred for search config file: ", err.Error())
 	}
 	for _, match := range matches {
 		extension := filepath.Ext(match)

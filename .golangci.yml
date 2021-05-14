@@ -1,0 +1,39 @@
+linters-settings:
+  govet:
+    check-shadowing: true
+  misspell:
+    locale: US
+
+linters:
+  disable-all: true
+  enable:
+   - bodyclose
+   - deadcode
+   - depguard
+   - dogsled
+   - dupl
+   - errcheck
+   - exportloopref
+   - exhaustive
+   - goconst
+   - gocyclo
+   - gofmt
+   - goimports
+   - golint
+   - goprintffuncname
+   - gosimple
+   - govet
+   - ineffassign
+   - misspell
+   - nakedret
+   - noctx
+   - nolintlint
+   - rowserrcheck
+   - staticcheck
+   - structcheck
+   - typecheck
+   - unconvert
+   - unparam
+   - unused
+   - varcheck
+   - whitespace
