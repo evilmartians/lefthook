@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"embed"
+	"runtime"
 	"text/template"
 
 	"github.com/spf13/afero"
@@ -14,6 +15,7 @@ var templatesFS embed.FS
 type hookTmplData struct {
 	AutoInstall string
 	HookName    string
+	Extension   string
 }
 
 func hookTemplate(hookName string, fs afero.Fs) []byte {
@@ -22,6 +24,7 @@ func hookTemplate(hookName string, fs afero.Fs) []byte {
 	err := t.Execute(buf, hookTmplData{
 		AutoInstall: autoInstall(hookName, fs),
 		HookName:    hookName,
+		Extension:   getExtension(),
 	})
 	check(err)
 
@@ -40,5 +43,12 @@ func autoInstall(hookName string, fs afero.Fs) string {
 		return ""
 	}
 
-	return "# lefthook_version: " + configChecksum(fs) + "\n\ncall_lefthook \"lefthook install\""
+	return "# lefthook_version: " + configChecksum(fs) + "\n\ncall_lefthook \"install\""
+}
+
+func getExtension() string {
+	if runtime.GOOS == "windows" {
+		return ".exe"
+	}
+	return ""
 }
