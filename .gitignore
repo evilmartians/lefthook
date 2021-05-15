@@ -12,7 +12,9 @@ dist/
 .rubygems/pkg/
 .rubygems/libexec/
 .npm/bin/
+!.npm/bin/*.js
 package.json
+!.npm/package.json
 node_modules/
 yarn.lock
 package-lock.json
