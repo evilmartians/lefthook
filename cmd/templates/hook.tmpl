@@ -15,9 +15,9 @@ call_lefthook()
   if lefthook -h >/dev/null 2>&1
   then
     eval $1
-  elif test -f "$dir/node_modules/@arkweid/lefthook/bin/lefthook"
+  elif test -f "$dir/node_modules/.bin/lefthook"
   then
-    eval $dir/node_modules/@arkweid/lefthook/bin/$1
+    eval $dir/node_modules/.bin/$1
   elif bundle exec lefthook -h >/dev/null 2>&1
   then
     bundle exec $1
