@@ -14,19 +14,19 @@ call_lefthook()
 {
   if lefthook -h >/dev/null 2>&1
   then
-    eval $1
-  elif test -f "$dir/node_modules/@arkweid/lefthook/bin/lefthook"
+    eval lefthook $1
+  elif test -f "$dir/node_modules/@arkweid/lefthook/bin/lefthook{{.Extension}}"
   then
-    eval $dir/node_modules/@arkweid/lefthook/bin/$1
+    eval "$dir/node_modules/@arkweid/lefthook/bin/lefthook{{.Extension}} $1"
   elif bundle exec lefthook -h >/dev/null 2>&1
   then
-    bundle exec $1
+    bundle exec lefthook $1
   elif npx lefthook -h >/dev/null 2>&1
   then
-    npx $1
+    npx lefthook $1
   elif yarn lefthook -h >/dev/null 2>&1
   then
-    yarn $1
+    yarn lefthook $1
   else
     echo "Can't find lefthook in PATH"
   fi
@@ -34,4 +34,4 @@ call_lefthook()
 
 {{.AutoInstall}}
 
-call_lefthook "lefthook run {{.HookName}} $@"
+call_lefthook "run {{.HookName}} $@"
