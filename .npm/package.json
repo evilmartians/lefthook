@@ -30,5 +30,8 @@
   ],
   "scripts": {
     "postinstall": "node postinstall.js"
+  },
+  "dependencies": {
+    "node-downloader-helper": "^1.0.18"
   }
 }
