@@ -49,6 +49,7 @@ const (
 	parallelConfigKey    string      = "parallel"
 	skipOutputConfigKey  string      = "skip_output"
 	outputMeta           string      = "meta"
+	outputSummary        string      = "summary"
 	outputSuccess        string      = "success"
 	subFiles             string      = "{files}"
 	subAllFiles          string      = "{all_files}"
@@ -382,6 +383,10 @@ func printMeta(hooksGroup string) {
 }
 
 func printSummary(execTime time.Duration) {
+	if isSkipPrintOutput(outputSummary) {
+		return
+	}
+
 	if len(okList) == 0 && len(failList) == 0 {
 		log.Println(au.Cyan("\nSUMMARY:"), au.Brown("(SKIP EMPTY)"))
 	} else {
