@@ -10,6 +10,14 @@ go get github.com/evilmartians/lefthook
 
 ### npm
 
+For your system:
+
+```bash
+npm install -g @arkweid/lefthook
+```
+
+For your project:
+
 ```bash
 npm i @arkweid/lefthook --save-dev
 # or yarn:
