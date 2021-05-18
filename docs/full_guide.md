@@ -281,7 +281,7 @@ If you need to extend config from some another place, just add top level:
 ```yml
 # lefthook.yml
 
-extends: 
+extends:
   - $HOME/work/lefthook-extend.yml
   - $HOME/work/lefthook-extend-2.yml
 ```
@@ -469,6 +469,22 @@ source_dir: ".lefthook"
 source_dir_local: ".lefthook-local"
 ```
 
+## Manage verbosity
+
+You can manage the verbosity using the `skip_output` config.
+
+Possible values are `meta,success,failure,summary`.
+
+This config quiets all outputs except failures:
+
+```yml
+# lefthook.yml
+
+skip_output:
+  - meta
+  - success
+  - summary
+```
 ## CI integration
 
 Enable `CI` env variable if it doens't exists on your service by default.
