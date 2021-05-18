@@ -493,6 +493,12 @@ skip_output:
   - success
   - summary
 ```
+
+You can also do this with an environment variable:
+```bash
+export LEFTHOOK_QUIET="meta,success,summary"
+```
+
 ## CI integration
 
 Enable `CI` env variable if it doens't exists on your service by default.

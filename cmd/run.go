@@ -439,6 +439,13 @@ func isSkipPrintOutput(outputDetailValue string) bool {
 		}
 	}
 
+	env := os.Getenv("LEFTHOOK_QUIET")
+	for _, elem := range strings.Split(env, ",") {
+		if strings.TrimSpace(elem) == outputDetailValue {
+			return true
+		}
+	}
+
 	return false
 }
 
