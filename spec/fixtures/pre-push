@@ -8,7 +8,7 @@ if [ -t 1 ] ; then
   exec < /dev/tty ; # <- enables interactive shell
 fi
 
-dir="$(cd "$(dirname "$(dirname "$(dirname "$0")")")" >/dev/null 2>&1 || exit ; pwd -P)"
+dir="$(git rev-parse --show-toplevel)"
 
 call_lefthook()
 {

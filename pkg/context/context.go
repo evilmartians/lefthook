@@ -1,11 +1,9 @@
-// +build !windows
-
 package context
 
 import (
 	"os"
 	"os/exec"
-	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -22,7 +20,13 @@ func PushFiles() ([]string, error) {
 }
 
 func ExecGitCommand(command string) ([]string, error) {
-	cmd := exec.Command("sh", "-c", command)
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		commandArg := strings.Split(command, " ")
+		cmd = exec.Command(commandArg[0], commandArg[1:]...)
+	} else {
+		cmd = exec.Command("sh", "-c", command)
+	}
 
 	outputBytes, err := cmd.CombinedOutput()
 	if err != nil {
@@ -31,47 +35,10 @@ func ExecGitCommand(command string) ([]string, error) {
 
 	lines := strings.Split(string(outputBytes), "\n")
 
-	return ExtractFiles(lines)
+	return extractFiles(lines)
 }
 
-func FilterByExt(files []string, ext string) []string {
-	filtred := make([]string, 0)
-
-	for _, f := range files {
-		if filepath.Ext(f) == ext {
-			filtred = append(filtred, f)
-		}
-	}
-	return filtred
-}
-
-func IsFile(path string) (bool, error) {
-	stat, err := os.Stat(path)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return false, nil
-		} else {
-			return false, err
-		}
-	}
-
-	return !stat.IsDir(), nil
-}
-
-func IsDir(path string) (bool, error) {
-	stat, err := os.Stat(path)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return false, nil
-		} else {
-			return false, err
-		}
-	}
-
-	return stat.IsDir(), nil
-}
-
-func ExtractFiles(lines []string) ([]string, error) {
+func extractFiles(lines []string) ([]string, error) {
 	var files []string
 
 	for _, line := range lines {
@@ -80,7 +47,7 @@ func ExtractFiles(lines []string) ([]string, error) {
 			continue
 		}
 
-		isFile, err := IsFile(file)
+		isFile, err := isFile(file)
 		if err != nil {
 			return nil, err
 		}
@@ -91,4 +58,16 @@ func ExtractFiles(lines []string) ([]string, error) {
 	}
 
 	return files, nil
+}
+
+func isFile(path string) (bool, error) {
+	stat, err := os.Stat(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return !stat.IsDir(), nil
 }

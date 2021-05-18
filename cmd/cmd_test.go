@@ -88,7 +88,7 @@ func TestAddCmdExecutor(t *testing.T) {
 		actualFiles = append(actualFiles, f.Name())
 	}
 
-	assert.Equal(t, expectedDirs, actualDirs, "Haven`t renamed file with .old extension")
+	assert.Equal(t, expectedFiles, actualFiles, "Haven`t renamed file with .old extension")
 }
 
 func TestRunCmdExecutor(t *testing.T) {
@@ -101,7 +101,7 @@ pre-commit:
       run: echo 'test passed'
 `)
 	viper.SetConfigType("yaml")
-	viper.ReadConfig(bytes.NewBuffer(yamlExample))
+	_ = viper.ReadConfig(bytes.NewBuffer(yamlExample))
 
 	var buf bytes.Buffer
 	log.SetOutput(&buf)
@@ -124,19 +124,18 @@ func TestExtendsProperty(t *testing.T) {
 	var expectedPathsString = []string{"c3.yml"}
 	viper.SetConfigType("yaml")
 
-	viper.ReadConfig(bytes.NewBuffer([]byte("")))
+	_ = viper.ReadConfig(bytes.NewBuffer([]byte("")))
 	assert.False(t, isConfigExtends(), "Should not detect extends property")
 
-	viper.ReadConfig(bytes.NewBuffer(yamlExampleString))
+	_ = viper.ReadConfig(bytes.NewBuffer(yamlExampleString))
 	paths := getExtendsPath()
 
 	assert.True(t, isConfigExtends(), "Should detect extends property")
 	assert.Equal(t, paths, expectedPathsString, "Extends path does not match for string value")
 
-	viper.ReadConfig(bytes.NewBuffer(yamlExampleArray))
+	_ = viper.ReadConfig(bytes.NewBuffer(yamlExampleArray))
 	paths = getExtendsPath()
 	assert.Equal(t, paths, expectedPathsArray, "Extends path does not match for array value")
-
 }
 
 func presetConfig(fs afero.Fs) {
@@ -144,16 +143,9 @@ func presetConfig(fs afero.Fs) {
 
 	AddConfigYaml(fs)
 
-	fs.Mkdir(filepath.Join(getRootPath(), ".lefthook/commit-msg"), defaultFilePermission)
-	fs.Mkdir(filepath.Join(getRootPath(), ".lefthook/pre-commit"), defaultFilePermission)
+	_ = fs.Mkdir(filepath.Join(getRootPath(), ".lefthook/commit-msg"), defaultFilePermission)
+	_ = fs.Mkdir(filepath.Join(getRootPath(), ".lefthook/pre-commit"), defaultFilePermission)
 
 	setGitHooksPath(".git/hooks")
-	fs.MkdirAll(getGitHooksPath(), defaultFilePermission)
-}
-
-func presetExecutable(hookName string, hookGroup string, exitCode string, fs afero.Fs) {
-	template := "#!/bin/sh\nexit " + exitCode + "\n"
-	pathToFile := filepath.Join(".lefthook", hookGroup, hookName)
-	err := afero.WriteFile(fs, pathToFile, []byte(template), defaultFilePermission)
-	check(err)
+	_ = fs.MkdirAll(getGitHooksPath(), defaultFilePermission)
 }

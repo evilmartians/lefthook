@@ -10,6 +10,14 @@ go get github.com/evilmartians/lefthook
 
 ### npm
 
+For your system:
+
+```bash
+npm install -g @arkweid/lefthook
+```
+
+For your project:
+
 ```bash
 npm i @arkweid/lefthook --save-dev
 # or yarn:
@@ -281,7 +289,7 @@ If you need to extend config from some another place, just add top level:
 ```yml
 # lefthook.yml
 
-extends: 
+extends:
   - $HOME/work/lefthook-extend.yml
   - $HOME/work/lefthook-extend-2.yml
 ```
@@ -467,6 +475,28 @@ You can do this through this config keys:
 
 source_dir: ".lefthook"
 source_dir_local: ".lefthook-local"
+```
+
+## Manage verbosity
+
+You can manage the verbosity using the `skip_output` config.
+
+Possible values are `meta,success,failure,summary`.
+
+This config quiets all outputs except failures:
+
+```yml
+# lefthook.yml
+
+skip_output:
+  - meta
+  - success
+  - summary
+```
+
+You can also do this with an environment variable:
+```bash
+export LEFTHOOK_QUIET="meta,success,summary"
 ```
 
 ## CI integration
