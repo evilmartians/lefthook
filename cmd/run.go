@@ -546,11 +546,11 @@ func FilterGlob(vs []string, matcher string) []string {
 		return vs
 	}
 
-	g := glob.MustCompile(matcher)
+	g := glob.MustCompile(strings.ToLower(matcher))
 
 	vsf := make([]string, 0)
 	for _, v := range vs {
-		if res := g.Match(v); res {
+		if res := g.Match(strings.ToLower(v)); res {
 			vsf = append(vsf, v)
 		}
 	}
