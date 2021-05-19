@@ -2,7 +2,8 @@
 
 var spawn = require('child_process').spawn;
 const path = require("path")
-const exePath = path.join(__dirname, `lefthook${["win32", "cygwin"].includes(process.platform) ? ".exe" : ""}`)
+const extension = ["win32", "cygwin"].includes(process.platform) ? ".exe" : ""
+const exePath = path.join(__dirname, `lefthook${extension}`)
 
 var command_args = process.argv.slice(2);
 var child = spawn(
