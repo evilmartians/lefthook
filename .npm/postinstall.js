@@ -5,6 +5,10 @@ async function install() {
     return
   }
   const exePath = await downloadBinary()
+  if (!(["win32", "cygwin"].includes(process.platform))) {
+    const { chmodSync } = require("fs")
+    chmodSync(exePath, "755")
+  }
   // run install
   spawnSync(exePath, ["install", "-f"], {
     cwd: process.env.INIT_CWD || process.cwd,
