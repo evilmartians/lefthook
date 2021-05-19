@@ -3,8 +3,8 @@ package cmd
 import (
 	"bytes"
 	"embed"
-	"text/template"
 	"runtime"
+	"text/template"
 
 	"github.com/spf13/afero"
 )
@@ -15,7 +15,7 @@ var templatesFS embed.FS
 type hookTmplData struct {
 	AutoInstall string
 	HookName    string
-	Extension 	string
+	Extension   string
 }
 
 func hookTemplate(hookName string, fs afero.Fs) []byte {
@@ -24,7 +24,7 @@ func hookTemplate(hookName string, fs afero.Fs) []byte {
 	err := t.Execute(buf, hookTmplData{
 		AutoInstall: autoInstall(hookName, fs),
 		HookName:    hookName,
-		Extension: 	 getExtension(),
+		Extension:   getExtension(),
 	})
 	check(err)
 
@@ -47,9 +47,8 @@ func autoInstall(hookName string, fs afero.Fs) string {
 }
 
 func getExtension() string {
-	if (runtime.GOOS == "windows") {
+	if runtime.GOOS == "windows" {
 		return ".exe"
-	} else {
-		return ""
 	}
+	return ""
 }
