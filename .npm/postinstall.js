@@ -51,8 +51,8 @@ const path = require("path")
 async function downloadBinary() {
   // TODO zip the binaries to reduce the download size
   const downloadURL = getDownloadURL()
-  const extension = path.extname(downloadURL).slice(1)
-  const fileName = `lefthook.${extension}`
+  const extension = path.extname(downloadURL)
+  const fileName = `lefthook${extension}`
   const binDir = path.join(__dirname, "bin")
   const dl = new DownloaderHelper(downloadURL, binDir, {
     fileName,
