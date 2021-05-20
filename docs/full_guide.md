@@ -239,6 +239,26 @@ pre-push:
       skip: true
 ```
 
+## Skipping commands during rebase or merge
+
+You can skip commands during rebase and/or merge by the same `skip` option:
+
+```yml
+pre-push:
+  commands:
+    packages-audit:
+      skip: merge
+
+# or
+
+pre-push:
+  commands:
+    packages-audit:
+      skip:
+        - merge
+        - rebase
+```
+
 ## Skipping commands by tags
 
 If we have a lot of commands and scripts we can tag them and run skip commands with a specific tag.
