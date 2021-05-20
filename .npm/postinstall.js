@@ -55,7 +55,7 @@ const path = require("path")
 async function downloadBinary() {
   // TODO zip the binaries to reduce the download size
   const downloadURL = getDownloadURL()
-  const extension = path.extname(downloadURL)
+  const extension = ["win32", "cygwin"].includes(process.platform) ? ".exe" : ""
   const fileName = `lefthook${extension}`
   const binDir = path.join(__dirname, "bin")
   const dl = new DownloaderHelper(downloadURL, binDir, {
