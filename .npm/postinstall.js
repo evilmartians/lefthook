@@ -1,11 +1,13 @@
 const { spawnSync } = require("child_process")
 
+const iswin = ["win32", "cygwin"].includes(process.platform)
+
 async function install() {
   if (process.env.CI) {
     return
   }
   const exePath = await downloadBinary()
-  if (!(["win32", "cygwin"].includes(process.platform))) {
+  if (!iswin) {
     const { chmodSync } = require("fs")
     chmodSync(exePath, "755")
   }
@@ -21,7 +23,7 @@ function getDownloadURL() {
   // https://nodejs.org/api/process.html#process_process_platform
   let goOS = process.platform
   let extension = ""
-  if (["win32", "cygwin"].includes(process.platform)) {
+  if (iswin) {
     goOS = "windows"
     extension = ".exe"
   }
@@ -55,7 +57,7 @@ const path = require("path")
 async function downloadBinary() {
   // TODO zip the binaries to reduce the download size
   const downloadURL = getDownloadURL()
-  const extension = ["win32", "cygwin"].includes(process.platform) ? ".exe" : ""
+  const extension = iswin ? ".exe" : ""
   const fileName = `lefthook${extension}`
   const binDir = path.join(__dirname, "bin")
   const dl = new DownloaderHelper(downloadURL, binDir, {
