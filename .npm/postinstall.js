@@ -62,13 +62,11 @@ async function downloadBinary() {
     fileName,
     retry: { maxRetries: 5, delay: 50 },
   })
-  dl.on("end", () => console.log("lefthook binary was downloaded"))
-  try {
-    await dl.start()
-  } catch(e) {
-    console.error(`Failed to download ${fileName} while fetching ${downloadURL}`)
+  dl.on("error", (e) => {
+    e.message = `Failed to download ${fileName}: ${e.message} while fetching ${downloadURL}`
     throw e
-  }
+  })
+  await dl.start()
   return path.join(binDir, fileName)
 }
 
