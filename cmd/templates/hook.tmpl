@@ -14,7 +14,7 @@ call_lefthook()
 {
   if lefthook -h >/dev/null 2>&1
   then
-    eval lefthook $1
+    eval lefthook{{.Extension}} $1
   elif test -f "$dir/node_modules/@arkweid/lefthook/bin/lefthook{{.Extension}}"
   then
     eval "$dir/node_modules/@arkweid/lefthook/bin/lefthook{{.Extension}} $1"
