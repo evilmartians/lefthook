@@ -12,7 +12,7 @@ dir="$(git rev-parse --show-toplevel)"
 
 call_lefthook()
 {
-  if lefthook -h >/dev/null 2>&1
+  if lefthook{{.Extension}} -h >/dev/null 2>&1
   then
     eval lefthook{{.Extension}} $1
   elif test -f "$dir/node_modules/@arkweid/lefthook/bin/lefthook{{.Extension}}"
