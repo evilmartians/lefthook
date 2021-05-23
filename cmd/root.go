@@ -135,6 +135,17 @@ func setRootPath() {
 	rootPath = strings.TrimSpace(string(outputBytes))
 }
 
+func getGitDir() string {
+	cmd := exec.Command("git", "rev-parse", "--git-dir")
+
+	outputBytes, err := cmd.CombinedOutput()
+	if err != nil {
+		panic(err)
+	}
+
+	return strings.TrimSpace(string(outputBytes))
+}
+
 func getGitHooksPath() string {
 	return gitHooksPath
 }

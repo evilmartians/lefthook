@@ -458,7 +458,7 @@ func isSkippedGitState(state string) bool {
 }
 
 func isMergeInProgress() bool {
-	if _, err := os.Stat(filepath.Join(getRootPath(), ".git", "MERGE_HEAD")); os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.Join(getRootPath(), getGitDir(), "MERGE_HEAD")); os.IsNotExist(err) {
 		return false
 	}
 
@@ -466,8 +466,8 @@ func isMergeInProgress() bool {
 }
 
 func isRebaseInProgress() bool {
-	if _, mergeErr := os.Stat(filepath.Join(getRootPath(), ".git", "rebase-merge")); os.IsNotExist(mergeErr) {
-		if _, applyErr := os.Stat(filepath.Join(getRootPath(), ".git", "rebase-apply")); os.IsNotExist(applyErr) {
+	if _, mergeErr := os.Stat(filepath.Join(getRootPath(), getGitDir(), "rebase-merge")); os.IsNotExist(mergeErr) {
+		if _, applyErr := os.Stat(filepath.Join(getRootPath(), getGitDir(), "rebase-apply")); os.IsNotExist(applyErr) {
 			return false
 		}
 	}
