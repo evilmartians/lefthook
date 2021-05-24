@@ -409,12 +409,15 @@ func isScriptExist(hooksGroup, executableName string) bool {
 
 func isSkipScript(hooksGroup, executableName string) bool {
 	key := strings.Join([]string{hooksGroup, scriptsConfigKey, executableName, skipConfigKey}, ".")
-	return viper.GetBool(key)
+	return isSkip(key)
 }
 
 func isSkipCommand(hooksGroup, executableName string) bool {
 	key := strings.Join([]string{hooksGroup, commandsConfigKey, executableName, skipConfigKey}, ".")
+	return isSkip(key)
+}
 
+func isSkip(key string) bool {
 	value := viper.Get(key)
 
 	switch typedValue := value.(type) {
