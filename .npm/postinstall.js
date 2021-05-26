@@ -68,8 +68,9 @@ async function downloadBinary() {
   try {
     await dl.start()
   } catch(e) {
-    console.error(`Failed to download ${fileName} while fetching ${downloadURL}`)
-    throw e
+    const message = `Failed to download ${fileName}: ${e.message} while fetching ${downloadURL}`
+    console.error(message)
+    throw new Error(message)
   }
   return path.join(binDir, fileName)
 }
