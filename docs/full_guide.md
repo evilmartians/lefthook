@@ -224,7 +224,7 @@ When you try to commit `git commit -m "haha bad commit text"` script `template_c
 
 ## Bash script example with Commitlint
 
-Let's create a bash script to check commit templates `.lefthook/commit-msg/commitlint.sh`:
+Let's create a bash script to check conventional commit status `.lefthook/commit-msg/commitlint.sh`:
 
 ```bash
 INPUT_FILE=$1
