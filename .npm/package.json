@@ -29,7 +29,7 @@
     "x32"
   ],
   "scripts": {
-    "postinstall": "node postinstall.js"
+    "install": "node install.js"
   },
   "dependencies": {
     "node-downloader-helper": "^1.0.18"
