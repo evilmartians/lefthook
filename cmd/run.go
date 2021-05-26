@@ -409,12 +409,73 @@ func isScriptExist(hooksGroup, executableName string) bool {
 
 func isSkipScript(hooksGroup, executableName string) bool {
 	key := strings.Join([]string{hooksGroup, scriptsConfigKey, executableName, skipConfigKey}, ".")
-	return viper.GetBool(key)
+	return isSkip(key)
 }
 
 func isSkipCommand(hooksGroup, executableName string) bool {
 	key := strings.Join([]string{hooksGroup, commandsConfigKey, executableName, skipConfigKey}, ".")
-	return viper.GetBool(key)
+	return isSkip(key)
+}
+
+func isSkip(key string) bool {
+	value := viper.Get(key)
+
+	switch typedValue := value.(type) {
+	case bool:
+		/*
+			pre-push:
+				commands:
+					packages-audit:
+						skip: true
+		*/
+		return typedValue
+	case string:
+		/*
+			pre-push:
+				commands:
+					packages-audit:
+						skip: merge
+		*/
+		return isSkippedGitState(typedValue)
+	case []interface{}:
+		/*
+			pre-push:
+				commands:
+					packages-audit:
+						skip:
+							- merge
+							- rebase
+		*/
+		for _, gitState := range typedValue {
+			if isSkippedGitState(gitState.(string)) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func isSkippedGitState(state string) bool {
+	return state == "merge" && isMergeInProgress() || state == "rebase" && isRebaseInProgress()
+}
+
+func isMergeInProgress() bool {
+	if _, err := os.Stat(filepath.Join(getGitDir(), "MERGE_HEAD")); os.IsNotExist(err) {
+		return false
+	}
+
+	return true
+}
+
+func isRebaseInProgress() bool {
+	if _, mergeErr := os.Stat(filepath.Join(getGitDir(), "rebase-merge")); os.IsNotExist(mergeErr) {
+		if _, applyErr := os.Stat(filepath.Join(getGitDir(), "rebase-apply")); os.IsNotExist(applyErr) {
+			return false
+		}
+	}
+
+	return true
 }
 
 // NOTE: confusing option, suppose it unnesecary and should be deleted.

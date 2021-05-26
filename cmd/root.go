@@ -127,12 +127,30 @@ func getRootPath() string {
 	return rootPath
 }
 
+// Get absolute path to repository or worktree root
 func setRootPath() {
-	// get absolute path to .git dir (project root)
 	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
 
 	outputBytes, _ := cmd.CombinedOutput()
 	rootPath = strings.TrimSpace(string(outputBytes))
+}
+
+// Get absolute path to .git directory (or current worktree subdirectory in it)
+func getGitDir() string {
+	cmd := exec.Command("git", "rev-parse", "--git-dir") // that may be relative
+
+	outputBytes, err := cmd.CombinedOutput()
+	if err != nil {
+		panic(err)
+	}
+
+	path := strings.TrimSpace(string(outputBytes))
+
+	if filepath.IsAbs(path) {
+		return path
+	}
+
+	return filepath.Join(getRootPath(), path)
 }
 
 func getGitHooksPath() string {
