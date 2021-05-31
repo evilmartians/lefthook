@@ -12,15 +12,23 @@ Add Lefthook to your system or build it from source.
 go get github.com/evilmartians/lefthook
 ```
 
-### Homebrew for macOS
+### Homebrew for MacOS and Linux
 
 ```bash
 brew install lefthook
 ```
 
+### Snap for Linux
+
+```sh
+snap install --classic lefthook
+```
+
 ### AUR for Arch
 
 You can install lefthook [package](https://aur.archlinux.org/packages/lefthook) from AUR
+
+### Anything else
 
 Or take it from [binaries](https://github.com/evilmartians/lefthook/releases) and install manually
 

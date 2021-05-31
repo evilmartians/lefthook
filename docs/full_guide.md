@@ -32,7 +32,7 @@ NOTE: if you install it this way you should call it with `npx` or `yarn` for all
 gem install lefthook
 ```
 
-### Homebrew for macOS
+### Homebrew for MacOS and Linux
 
 ```bash
 brew install lefthook
@@ -41,6 +41,14 @@ brew install lefthook
 ### AUR for Arch
 
 You can install lefthook [package](https://aur.archlinux.org/packages/lefthook) from AUR
+
+### Snap for Linux
+
+```sh
+snap install --classic lefthook
+```
+
+### Anything else
 
 Or take it from [binaries](https://github.com/evilmartians/lefthook/releases) and install manually
 
