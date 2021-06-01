@@ -61,5 +61,3 @@ nfpms:
     - rpm
     dependencies:
     - git
-    recommends:
-    - rpm
