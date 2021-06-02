@@ -40,11 +40,6 @@ function getDownloadURL() {
       arch = "x86_64"
       break
     }
-    case "x32":
-    case "ia32": {
-      arch = "i386"
-      break
-    }
   }
   const version = require("./package.json").version
 

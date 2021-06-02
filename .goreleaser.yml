@@ -11,7 +11,6 @@ builds:
     - windows
   goarch:
     - amd64
-    - "386"
     - arm64
 archives:
   - id: lefthook
@@ -22,7 +21,6 @@ archives:
       windows: Windows
       darwin: MacOS
       linux: Linux
-      386: i386
       amd64: x86_64
 checksum:
   name_template: '{{ .ProjectName }}_checksums.txt'
