@@ -2,6 +2,12 @@
 
 ## master (unreleased)
 
+# 0.7.6 (2021-06-02)
+
+- Fix lefthook binary extension on Windows. @aminya
+- [PR #193](https://github.com/evilmartians/lefthook/pull/193) Fix path for searching npm-installed binary when in worktree. @Envek
+- NPM, RPM, and DEB packaging fixes. @Envek
+
 # 0.7.5 (2021-05-14)
 
 - [PR #179](https://github.com/evilmartians/lefthook/pull/179) Fix running on Windows under MSYS and MINGW64 when run from Ruby gem or JS npm package. @akiver, @Envek
