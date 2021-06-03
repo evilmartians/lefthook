@@ -8,15 +8,7 @@ Add Lefthook to your system or build it from sources.
 go get github.com/evilmartians/lefthook
 ```
 
-### npm
-
-For your system:
-
-```bash
-npm install -g @arkweid/lefthook
-```
-
-For your project:
+### npm or yarn
 
 ```bash
 npm i @arkweid/lefthook --save-dev
@@ -25,6 +17,13 @@ yarn add -D @arkweid/lefthook
 ```
 
 NOTE: if you install it this way you should call it with `npx` or `yarn` for all listed examples below. (for example: `lefthook install` -> `npx lefthook install`)
+
+You can also install lefthook as a global dependency
+
+```bash
+npm install -g @arkweid/lefthook
+```
+
 
 ### Rubygems
 
@@ -127,7 +126,7 @@ lefthook install
 pre-commit:
   commands:
     lint:
-      glob: "*.{js,ts}"
+      glob: "*.{js,ts,jsx,tsx}"
       run: yarn eslint
 ```
 
@@ -147,7 +146,7 @@ There are two shorthands for such situations:
 pre-commit:
   commands:
     frontend-linter:
-      glob: "*.{js,ts}" # glob filter for list of files
+      glob: "*.{js,ts,jsx,tsx}" # glob filter for list of files
       run: yarn eslint {staged_files} # {staged_files} - list of files
     backend-linter:
       glob: "*.rb" # glob filter for list of files
@@ -432,7 +431,7 @@ extends: $HOME/work/lefthook-extend.yml
 pre-commit:
   commands:
     eslint:
-      glob: "*.{js,ts}"
+      glob: "*.{js,ts,jsx,tsx}"
       run: yarn eslint {staged_files}
     rubocop:
       tags: backend style
