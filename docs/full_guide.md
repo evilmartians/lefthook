@@ -227,13 +227,7 @@ When you try to commit `git commit -m "haha bad commit text"` script `template_c
 Let's create a bash script to check conventional commit status `.lefthook/commit-msg/commitlint.sh`:
 
 ```bash
-INPUT_FILE=$1
-START_LINE=`head -n1 $INPUT_FILE`
-ERROR=`echo $START_LINE | npx commitlint --color`
-if ! [[ $? == 0 ]]; then
-  echo "${ERROR}"
-  exit 1
-fi
+echo $(head -n1 $1) | npx commitlint --color
 ```
 
 Now we can ask lefthook to run our bash script by adding this code to
