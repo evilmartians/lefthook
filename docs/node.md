@@ -4,11 +4,14 @@ This is guide of using Lefthook git hook manager in Node.js projects. You can fi
 
 ## Install
 
-Lefthook is [available on npm](https://www.npmjs.com/package/@arkweid/lefthook) and can be installed with:
+Lefthook is [available on npm](https://www.npmjs.com/package/@arkweid/lefthook):
 
 ```bash
 npm install @arkweid/lefthook --save-dev
+# or yarn:
+yarn add -D @arkweid/lefthook
 ```
+
 
 ## Edit
 
@@ -20,11 +23,11 @@ pre-commit:
   commands:
     linter:
       files: git diff --name-only @{push}
-      glob: "*.{js,ts}"
+      glob: "*.{js,ts,jsx,tsx}"
       run: npx eslint {files}
     tests:
       files: git diff --name-only @{push}
-      glob: "*.{js,ts}"
+      glob: "*.{js,ts, jsx, tsx}"
       run: jest --findRelatedTests {files}
 ```
 
