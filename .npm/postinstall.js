@@ -4,7 +4,7 @@ if (!process.env.CI) {
 
   // run install
   spawnSync(getExePath(), ['install', '-f'], {
-    cwd: process.env.INIT_CWD || process.cwd,
+    cwd: process.env.INIT_CWD || process.cwd(),
     stdio: 'inherit',
   });
 }
