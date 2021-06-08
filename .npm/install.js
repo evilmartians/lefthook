@@ -13,7 +13,7 @@ async function install() {
   }
   // run install
   spawnSync(exePath, ["install", "-f"], {
-    cwd: process.env.INIT_CWD || process.cwd,
+    cwd: process.env.INIT_CWD || process.cwd(),
     stdio: "inherit",
   })
 }
