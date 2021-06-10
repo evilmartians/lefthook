@@ -25,6 +25,8 @@ const (
 	configExtensionPattern  string      = ".*"
 	defaultFilePermission   os.FileMode = 0755
 	defaultDirPermission    os.FileMode = 0666
+	gitInitMessage          string      = `This command must be executed within git repository.
+Change working directory or initialize new repository with 'git init'.`
 )
 
 var (
@@ -50,14 +52,13 @@ lefthook install`,
 			return
 		}
 
+		initGitConfig()
+
 		if gitInitialized, _ := afero.Exists(appFs, filepath.Join(getRootPath(), ".git")); gitInitialized {
 			return
 		}
 
-		message := `This command must be executed within git repository.
-Change working directory or initialize new repository with 'git init'.`
-
-		log.Fatal(au.Brown(message))
+		log.Fatal(au.Brown(gitInitMessage))
 	},
 }
 
@@ -91,9 +92,6 @@ func initAurora() {
 func initConfig() {
 	log.SetFlags(0)
 
-	setRootPath(rootExecutionRelPath)
-	setGitHooksPath(getHooksPathFromGitConfig())
-
 	// store original config before merge
 	originConfig = viper.New()
 	originConfig.SetConfigName(configFileName)
@@ -124,6 +122,11 @@ func initConfig() {
 	viper.AutomaticEnv()
 }
 
+func initGitConfig() {
+	setRootPath(rootExecutionRelPath)
+	setGitHooksPath(getHooksPathFromGitConfig())
+}
+
 func getRootPath() string {
 	return rootPath
 }
@@ -132,7 +135,12 @@ func setRootPath(path string) {
 	// get absolute path to .git dir (project root)
 	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
 
-	outputBytes, _ := cmd.CombinedOutput()
+	outputBytes, err := cmd.CombinedOutput()
+
+	if err != nil {
+		log.Fatal(au.Brown(gitInitMessage))
+	}
+
 	rootPath = strings.TrimSpace(string(outputBytes))
 }
 
