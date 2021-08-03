@@ -33,7 +33,7 @@ pre-commit:
 
 ## Test it
 ```bash
-npx lefthook install && npx lefthook run pre-commit
+npx @arkweid/lefthook install && npx @arkweid/lefthook run pre-commit
 ```
 
 ### More info
