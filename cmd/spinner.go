@@ -14,7 +14,7 @@ const (
 
 type Spinner struct {
 	extSpinner *spin.Spinner
-	animate bool
+	animate    bool
 }
 
 func NewSpinner(animate bool) *Spinner {

@@ -115,7 +115,6 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 		return errors.New("Piped and Parallel options in conflict")
 	}
 
-
 	spinner = NewSpinner(EnableSpinner())
 	spinner.Start()
 
