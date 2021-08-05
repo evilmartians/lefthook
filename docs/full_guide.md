@@ -563,6 +563,17 @@ By config `lefthook.yml`, just add the option:
 colors: false
 ```
 
+## Disable spinner
+
+By agrs:
+```bash
+lefthook --no-spinner run pre-commit
+```
+By config `lefthook.yml`, just add the option:
+```yml
+spinner: false
+```
+
 ## Version
 
 ```bash

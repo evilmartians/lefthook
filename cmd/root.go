@@ -32,6 +32,7 @@ Change working directory or initialize new repository with 'git init'.`
 var (
 	Verbose              bool
 	NoColors             bool
+	NoSpinner            bool
 	rootPath             string
 	gitHooksPath         string
 	originConfig         *viper.Viper
@@ -76,6 +77,7 @@ func Execute() {
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 	rootCmd.PersistentFlags().BoolVar(&NoColors, "no-colors", false, "disable colored output")
+	rootCmd.PersistentFlags().BoolVar(&NoSpinner, "no-spinner", false, "disable spinner")
 
 	initAurora()
 	cobra.OnInitialize(initConfig)
@@ -218,6 +220,19 @@ func EnableColors() bool {
 		return isatty.IsTerminal(os.Stdout.Fd()) || isatty.IsCygwinTerminal(os.Stdout.Fd())
 	}
 	return viper.GetBool(colorsConfigKey)
+}
+
+// EnableSpinner shows if the spinner supported for current output or not.
+// If `spinner` explicitly specified in config, will return this value.
+// Otherwise enabled for TTY and disabled for non-terminal output.
+func EnableSpinner() bool {
+	if NoSpinner {
+		return false
+	}
+	if !viper.IsSet(spinnerConfigKey) {
+		return isatty.IsTerminal(os.Stdout.Fd()) || isatty.IsCygwinTerminal(os.Stdout.Fd())
+	}
+	return viper.GetBool(spinnerConfigKey)
 }
 
 // VerbosePrint print text if Verbose flag persist

@@ -46,6 +46,7 @@ const (
 	skipEmptyConfigKey   string      = "skip_empty"
 	filesConfigKey       string      = "files"
 	colorsConfigKey      string      = "colors"
+	spinnerConfigKey     string      = "spinner"
 	parallelConfigKey    string      = "parallel"
 	skipOutputConfigKey  string      = "skip_output"
 	outputMeta           string      = "meta"
@@ -114,7 +115,8 @@ func RunCmdExecutor(args []string, fs afero.Fs) error {
 		return errors.New("Piped and Parallel options in conflict")
 	}
 
-	spinner = NewSpinner()
+
+	spinner = NewSpinner(EnableSpinner())
 	spinner.Start()
 
 	sourcePath := filepath.Join(getSourceDir(), hooksGroup)
