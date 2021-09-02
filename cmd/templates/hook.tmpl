@@ -21,7 +21,7 @@ call_lefthook()
   elif bundle exec lefthook -h >/dev/null 2>&1
   then
     bundle exec lefthook $1
-  elif npx lefthook -h >/dev/null 2>&1
+  elif npx @arkweid/lefthook -h >/dev/null 2>&1
   then
     npx lefthook $1
   elif yarn lefthook -h >/dev/null 2>&1
