@@ -80,7 +80,7 @@ func AddConfigYaml(fs afero.Fs) {
 func AddGitHooks(fs afero.Fs) {
 	// add directory hooks
 	var dirsHooks []string
-	dirEntities, err := afero.ReadDir(fs, getSourceDir())
+	dirEntities, err := afero.ReadDir(fs, getRootPath())
 	if err == nil {
 		for _, f := range dirEntities {
 			if f.IsDir() && contains(availableHooks[:], f.Name()) {
