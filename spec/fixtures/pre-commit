@@ -14,19 +14,19 @@ call_lefthook()
 {
   if lefthook -h >/dev/null 2>&1
   then
-    eval lefthook $1
+    eval lefthook $@
   elif test -f "$dir/node_modules/@arkweid/lefthook/bin/lefthook"
   then
-    eval "$dir/node_modules/@arkweid/lefthook/bin/lefthook $1"
+    eval "$dir/node_modules/@arkweid/lefthook/bin/lefthook $@"
   elif bundle exec lefthook -h >/dev/null 2>&1
   then
-    bundle exec lefthook $1
+    bundle exec lefthook $@
   elif npx lefthook -h >/dev/null 2>&1
   then
-    npx lefthook $1
+    npx lefthook $@
   elif yarn lefthook -h >/dev/null 2>&1
   then
-    yarn lefthook $1
+    yarn lefthook $@
   else
     echo "Can't find lefthook in PATH"
   fi
