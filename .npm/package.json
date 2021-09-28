@@ -6,7 +6,7 @@
   "bin": {
     "lefthook": "./bin/index.js"
   },
-  "repository": "https://github.com/Arkweid/lefthook",
+  "repository": "https://github.com/evilmartians/lefthook",
   "keywords": [
     "git",
     "hook",
@@ -15,9 +15,9 @@
   "author": "Arkweid",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Arkweid/lefthook/issues"
+    "url": "https://github.com/evilmartians/lefthook/issues"
   },
-  "homepage": "https://github.com/Arkweid/lefthook#readme",
+  "homepage": "https://github.com/evilmartians/lefthook#readme",
   "os": [
     "darwin",
     "linux",
