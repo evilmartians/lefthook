@@ -23,7 +23,7 @@ call_lefthook()
     bundle exec lefthook $@
   elif npx @arkweid/lefthook -h >/dev/null 2>&1
   then
-    npx lefthook $@
+    npx @arkweid/lefthook $@
   elif yarn lefthook -h >/dev/null 2>&1
   then
     yarn lefthook $@
