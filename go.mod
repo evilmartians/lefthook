@@ -1,19 +1,20 @@
 module github.com/evilmartians/lefthook
 
 require (
-	github.com/adam-hanna/arrayOperations v0.2.5
-	github.com/alessio/shellescape v0.0.0-20190409004728-b115ca0f9053 // indirect
-	github.com/briandowns/spinner v1.11.1
-	github.com/creack/pty v1.1.11
-	github.com/gobwas/glob v0.2.3
+	github.com/MakeNowJust/heredoc v1.0.0
+	github.com/armon/consul-api v0.0.0-20180202201655-eb2c6b5be1b6 // indirect
+	github.com/coreos/etcd v3.3.10+incompatible // indirect
+	github.com/coreos/go-etcd v2.0.0+incompatible // indirect
+	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/logrusorgru/aurora v0.0.0-20181002194514-a7b3b318ed4e
-	github.com/mattn/go-isatty v0.0.8
-	github.com/spf13/afero v1.2.1
+	github.com/libgit2/git2go/v31 v31.4.14 // indirect
+	github.com/sirupsen/logrus v1.8.1 // indirect
+	github.com/spf13/afero v1.6.0
 	github.com/spf13/cobra v0.0.3
-	github.com/spf13/viper v1.7.1
-	github.com/stretchr/testify v1.3.0
-	gopkg.in/alessio/shellescape.v1 v1.0.0-20170105083845-52074bc9df61
+	github.com/spf13/viper v1.8.1 // indirect
+	github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8 // indirect
+	github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77 // indirect
+	gopkg.in/ini.v1 v1.62.0 // indirect
 )
 
 go 1.16
