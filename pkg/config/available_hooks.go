@@ -1,6 +1,6 @@
-package git
+package config
 
-//TODO: update list according to https://git-scm.com/docs/githooks
+// TODO: update list according to https://git-scm.com/docs/githooks
 
 var AvailableHooks = []string{
 	"applypatch-msg",

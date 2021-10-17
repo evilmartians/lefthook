@@ -4,8 +4,6 @@ import (
 	"github.com/spf13/viper"
 	"path/filepath"
 	"strings"
-
-	git "github.com/evilmartians/lefthook/pkg/git"
 )
 
 const (
@@ -81,7 +79,7 @@ func newViper(path, name string) *viper.Viper {
 func unmarshalHooks(v *viper.Viper, c *Config) error {
 	c.Hooks = make(map[string]*Hook)
 
-	for _, hookName := range git.AvailableHooks {
+	for _, hookName := range AvailableHooks {
 		hookConfig := v.Sub(hookName)
 		if hookConfig == nil {
 			continue
