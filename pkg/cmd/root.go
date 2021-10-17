@@ -7,10 +7,15 @@ import (
 )
 
 var (
-	appFs afero.Fs
+	commands = [...]func(*cobra.Command){
+		NewVersionCmd,
+		NewAddCmd,
+		NewInstallCmd,
+		NewUninstallCmd,
+		NewRunCmd,
+	}
 
-	//TODO: move it to a configuration struct?
-
+	appFs    afero.Fs
 	Verbose  bool
 	NoColors bool
 )
@@ -31,11 +36,9 @@ func NewRootCmd() *cobra.Command {
 	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 	rootCmd.PersistentFlags().BoolVar(&NoColors, "no-colors", false, "disable colored output")
 
-	NewVersionCmd(rootCmd)
-	NewAddCmd(rootCmd)
-	NewInstallCmd(rootCmd)
-	NewUninstallCmd(rootCmd)
-	NewRunCmd(rootCmd)
+	for _, subcommand := range commands {
+		subcommand(rootCmd)
+	}
 
 	return rootCmd
 }
