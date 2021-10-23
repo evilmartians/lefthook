@@ -51,7 +51,7 @@ func readOrCreateConfig(path string, fs afero.Fs) (*config.Config, error) {
 			return nil, err
 		}
 	}
-	return config.Load(path)
+	return config.Load(fs, path)
 }
 
 func configExists(path string, fs afero.Fs) bool {
