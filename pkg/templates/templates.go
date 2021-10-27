@@ -5,8 +5,6 @@ import (
 	"embed"
 	"runtime"
 	"text/template"
-
-	"github.com/spf13/afero"
 )
 
 //go:embed *
@@ -18,11 +16,11 @@ type hookTmplData struct {
 	Extension   string
 }
 
-func Hook(hookName string, fs afero.Fs) []byte {
+func Hook(hookName, configChecksum string) []byte {
 	buf := &bytes.Buffer{}
 	t := template.Must(template.ParseFS(templatesFS, "hook.tmpl"))
 	err := t.Execute(buf, hookTmplData{
-		AutoInstall: autoInstall(hookName, fs),
+		AutoInstall: autoInstall(hookName, configChecksum),
 		HookName:    hookName,
 		Extension:   getExtension(),
 	})
@@ -42,14 +40,12 @@ func Config() []byte {
 	return tmpl
 }
 
-func autoInstall(hookName string, fs afero.Fs) string {
-	//if hookName != checkSumHook {
-	//	return ""
-	//}
-	//
-	//return "# lefthook_version: " + configChecksum(fs) + "\n\ncall_lefthook \"install\""
+func autoInstall(hookName, configChecksum string) string {
+	if hookName != "prepare-commig-msg" {
+		return ""
+	}
 
-	return ""
+	return "# lefthook_version: " + configChecksum
 }
 
 func getExtension() string {

@@ -7,21 +7,19 @@ import (
 )
 
 var (
-	commands = [...]func(*cobra.Command){
+	commands = [...]func(*Options) *cobra.Command{
 		NewVersionCmd,
 		NewAddCmd,
 		NewInstallCmd,
 		NewUninstallCmd,
 		NewRunCmd,
 	}
-
-	appFs    afero.Fs
-	Verbose  bool
-	NoColors bool
 )
 
 func NewRootCmd() *cobra.Command {
-	appFs = afero.NewOsFs()
+	appOptions := &Options{
+		fs: afero.NewOsFs(),
+	}
 
 	rootCmd := &cobra.Command{
 		Use:   "lefthook",
@@ -33,11 +31,25 @@ func NewRootCmd() *cobra.Command {
 		`),
 	}
 
-	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
-	rootCmd.PersistentFlags().BoolVar(&NoColors, "no-colors", false, "disable colored output")
+	rootCmd.PersistentFlags().BoolVarP(
+		&appOptions.Verbose, "verbose", "v", false, "verbose output",
+	)
+	rootCmd.PersistentFlags().BoolVar(
+		&appOptions.NoColors, "no-colors", false, "disable colored output",
+	)
+
+	// TODO: Drop deprecated options
+	rootCmd.Flags().BoolVarP(
+		&appOptions.Force, "force", "f", false,
+		"DEPRECATED: reinstall hooks without checking config version",
+	)
+	rootCmd.Flags().BoolVarP(
+		&appOptions.Aggressive, "aggressive", "a", false,
+		"DEPRECATED: remove all hooks from .git/hooks dir and install lefthook hooks",
+	)
 
 	for _, subcommand := range commands {
-		subcommand(rootCmd)
+		rootCmd.AddCommand(subcommand(appOptions))
 	}
 
 	return rootCmd
