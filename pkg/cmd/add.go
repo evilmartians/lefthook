@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/MakeNowJust/heredoc"
-	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 )
 
@@ -22,23 +21,25 @@ var longAddCmd = heredoc.Doc(`
 	│   └───pre-commit
 `)
 
-func NewAddCmd(rootCmd *cobra.Command) {
-	addCmd := &cobra.Command{
+func NewAddCmd(opts *Options) *cobra.Command {
+	addCmd := cobra.Command{
 		Use:   "add",
 		Short: "This command add a hook directory to a repository",
 		Long:  longAddCmd,
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return addExecutor(args, appFs)
+			return addExecutor(args, opts)
 		},
 	}
 
-	addCmd.Flags().BoolVarP(&createDirs, "dirs", "d", false, "create directory for scripts")
+	addCmd.Flags().BoolVarP(
+		&createDirs, "dirs", "d", false, "create directory for scripts",
+	)
 
-	rootCmd.AddCommand(addCmd)
+	return &addCmd
 }
 
-func addExecutor(args []string, appFs afero.Fs) error {
+func addExecutor(args []string, opts *Options) error {
 	// addHook
 	// if createDirs
 	//   addProjectHookDir

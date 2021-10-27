@@ -1,28 +1,30 @@
 package cmd
 
 import (
-	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 )
 
 var keepConfiguration bool
 
-func NewUninstallCmd(rootCmd *cobra.Command) {
-	uninstallCmd := &cobra.Command{
+func NewUninstallCmd(opts *Options) *cobra.Command {
+	uninstallCmd := cobra.Command{
 		Use:   "uninstall",
 		Short: "Revert install command",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return uninstallExecutor(appFs)
+			return uninstallExecutor(opts)
 		},
 	}
 
-	uninstallCmd.Flags().BoolVarP(&keepConfiguration, "keep-config", "k", false, "keep configuration files and source directories present")
+	uninstallCmd.Flags().BoolVarP(
+		&keepConfiguration, "keep-config", "k", false,
+		"keep configuration files and source directories present",
+	)
 
-	rootCmd.AddCommand(uninstallCmd)
+	return &uninstallCmd
 }
 
 //    deleteHooks
-func uninstallExecutor(fs afero.Fs) error {
+func uninstallExecutor(opts *Options) error {
 	//DeleteGitHooks(fs)
 	//revertOldGitHooks(fs)
 	//if !keepConfiguration {

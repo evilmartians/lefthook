@@ -6,8 +6,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewVersionCmd(rootCmd *cobra.Command) {
-	versionCmd := &cobra.Command{
+func NewVersionCmd(opts *Options) *cobra.Command {
+	versionCmd := cobra.Command{
 		Use:   "version",
 		Short: "Show lefthook version",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -15,5 +15,5 @@ func NewVersionCmd(rootCmd *cobra.Command) {
 		},
 	}
 
-	rootCmd.AddCommand(versionCmd)
+	return &versionCmd
 }
