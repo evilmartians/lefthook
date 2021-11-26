@@ -29,7 +29,10 @@ pre-commit:
   commands:
     tests:
       run: bundle exec rspec
-      tags: backend
+      tags: [backend, test]
+    lint:
+      run: bundle exec rubocop
+      tags: [backend, linter]
   scripts:
     "format.sh":
       runner: bash
@@ -42,6 +45,8 @@ pre-commit:
   commands:
     tests:
       skip: true
+    lint:
+      run: docker exec -it ruby:2.7 {cmd}
   scripts:
     "format.sh":
       skip: true
@@ -64,14 +69,19 @@ pre-push:
 						Parallel: true,
 						Commands: map[string]*Command{
 							"tests": &Command{
-								Skip: []string{"1"},
+								Skip: true,
 								Run:  "bundle exec rspec",
-								Tags: []string{"backend"},
+								Tags: []string{"backend", "test"},
+							},
+							"lint": &Command{
+								Skip: false,
+								Run:  "docker exec -it ruby:2.7 bundle exec rubocop",
+								Tags: []string{"backend", "linter"},
 							},
 						},
 						Scripts: map[string]*Script{
 							"format.sh": &Script{
-								Skip:   []string{"1"},
+								Skip:   true,
 								Runner: "bash",
 							},
 						},

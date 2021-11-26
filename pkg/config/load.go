@@ -6,32 +6,41 @@ import (
 
 	"path/filepath"
 	"strings"
+
+	"encoding/json"
+	"fmt"
 )
 
 // Loads configs from the given directory
 func Load(fs afero.Fs, path string) (*Config, error) {
-	globalConfig, err := parseConfig(fs, path, "lefthook")
+	// Read raw config data
+	globalViper, err := read(fs, path, "lefthook")
 	if err != nil {
 		return nil, err
 	}
 
-	localConfig, err := parseConfig(fs, path, "lefthook-local")
+	localViper, err := read(fs, path, "lefthook-local")
 	if err != nil {
 		if _, notFoundErr := err.(viper.ConfigFileNotFoundError); !notFoundErr {
 			return nil, err
 		}
 	}
 
-	if localConfig != nil {
-		globalConfig.Merge(localConfig)
+	// Merge and extend configs
+	extraViper, err := extendVipers(fs, globalViper, localViper)
+
+	var config Config
+
+	err = unmarshalConfigs(globalViper, extraViper, &config)
+	if err != nil {
+		return nil, err
 	}
-
-	err = extendConfig(fs, globalConfig)
-
-	return globalConfig, err
+	j, _ := json.Marshal(config)
+	fmt.Printf(string(j))
+	return &config, nil
 }
 
-func parseConfig(fs afero.Fs, path string, name string) (*Config, error) {
+func read(fs afero.Fs, path string, name string) (*viper.Viper, error) {
 	v := viper.New()
 	v.SetFs(fs)
 	v.AddConfigPath(path)
@@ -42,64 +51,67 @@ func parseConfig(fs afero.Fs, path string, name string) (*Config, error) {
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()
 
-	var config Config
-
-	// Set defaults
-	config.Colors = true
-
 	if err := v.ReadInConfig(); err != nil {
 		return nil, err
 	}
 
-	// Unmarshal extra part of the config into struct.
-	if err := v.Unmarshal(&config); err != nil {
-		return nil, err
-	}
-
-	// Note could be done in a lazy way but makes more sense when explicit
-	if err := unmarshalHooks(v, &config); err != nil {
-		return nil, err
-	}
-
-	return &config, nil
+	return v, nil
 }
 
-func unmarshalHooks(v *viper.Viper, c *Config) error {
+func extendVipers(fs afero.Fs, dest, src *viper.Viper) (*viper.Viper, error) {
+	if src == nil {
+		src = viper.New()
+	}
+
+	// TODO: Refactor
+	for _, path := range dest.GetStringSlice("extends") {
+		name := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
+
+		another, err := read(fs, filepath.Dir(path), name)
+		if err != nil {
+			return nil, err
+		}
+		src.MergeConfigMap(another.AllSettings())
+	}
+
+	for _, path := range src.GetStringSlice("extends") {
+		name := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
+
+		another, err := read(fs, filepath.Dir(path), name)
+		if err != nil {
+			return nil, err
+		}
+		src.MergeConfigMap(another.AllSettings())
+	}
+
+	return src, nil
+}
+
+func unmarshalConfigs(base, extra *viper.Viper, c *Config) error {
 	c.Hooks = make(map[string]*Hook)
 
 	for _, hookName := range AvailableHooks {
-		hookConfig := v.Sub(hookName)
-		if hookConfig == nil {
-			continue
-		}
+		baseHook := base.Sub(hookName)
+		extraHook := extra.Sub(hookName)
 
-		var hook Hook
-		if err := unmarshalHook(hookConfig, &hook); err != nil {
-			return err
-		}
-
-		hook.processDeprecations()
-
-		c.Hooks[hookName] = &hook
-	}
-
-	return nil
-}
-
-func extendConfig(fs afero.Fs, c *Config) error {
-	if len(c.Extends) == 0 {
-		return nil
-	}
-
-	for _, path := range c.Extends {
-		name := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
-
-		another, err := parseConfig(fs, filepath.Dir(path), name)
+		resultHook, err := unmarshalHooks(baseHook, extraHook)
 		if err != nil {
 			return err
 		}
 
-		c.Merge(another)
+		if resultHook == nil {
+			continue
+		}
+
+		resultHook.processDeprecations()
+
+		c.Hooks[hookName] = resultHook
+	}
+
+	// Merge config and unmarshal it
+	base.MergeConfigMap(extra.AllSettings())
+	if err := base.Unmarshal(c); err != nil {
+		return err
 	}
 
 	return nil
