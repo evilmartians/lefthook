@@ -18,8 +18,45 @@ func TestLoad(t *testing.T) {
 	testCases := [...]testcase{
 		testcase{
 			global: []byte(`
+pre-commit:
+  commands:
+    tests:
+      runner: yarn test # Using deprecated field
+`),
+			local: []byte(`
+post-commit:
+  commands:
+    ping-done:
+      run: curl -x POST status.com/done
+`),
+			result: &Config{
+				Colors: true, // defaults to true
+				Hooks: map[string]*Hook{
+					"pre-commit": &Hook{
+						Glob:     "",
+						Parallel: false,
+						Commands: map[string]*Command{
+							"tests": &Command{
+								Run:    "yarn test", // copies Runner to Run
+								Runner: "yarn test",
+							},
+						},
+					},
+					"post-commit": &Hook{
+						Glob:     "",
+						Parallel: false,
+						Commands: map[string]*Command{
+							"ping-done": &Command{
+								Run: "curl -x POST status.com/done",
+							},
+						},
+					},
+				},
+			},
+		},
+		testcase{
+			global: []byte(`
 min_version: 0.6.0
-colors: false
 source_dir: $HOME/sources
 source_dir_local: $HOME/sources_local
 
@@ -39,7 +76,7 @@ pre-commit:
 `),
 			local: []byte(`
 min_version: 1.0.0
-colors: true
+colors: false
 
 pre-commit:
   commands:
@@ -59,7 +96,7 @@ pre-push:
 `),
 			result: &Config{
 				MinVersion:     "1.0.0",
-				Colors:         true,
+				Colors:         false,
 				SourceDir:      "$HOME/sources",
 				SourceDirLocal: "$HOME/sources_local",
 

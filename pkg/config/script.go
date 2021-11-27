@@ -3,8 +3,6 @@ package config
 import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
-
-	"strings"
 )
 
 type Script struct {
@@ -17,9 +15,9 @@ type Script struct {
 	Run string `mapstructure:"run"`
 }
 
-type scriptRunReplace struct {
+type scriptRunnerReplace struct {
 	Runner string `mapstructure:"runner"`
-	Run    string `mapstructure:"run"`
+	Run    string `mapstructure:"run"` // Deprecated
 }
 
 func mergeScripts(base, extra *viper.Viper) (map[string]*Script, error) {
@@ -44,26 +42,9 @@ func mergeScripts(base, extra *viper.Viper) (map[string]*Script, error) {
 		return unmarshalScripts(scriptsOrigin)
 	}
 
-	// `scripts` are unmarshalled manually because mapstructure and viper
-	// use "." as a key delimiter. So, this definition:
-	//
-	//   scripts:
-	//     "example.sh":
-	//       runner: bash
-	//
-	// Unmarshals into this:
-	//
-	//   scripts:
-	//     example:
-	//       sh:
-	//         runner: bash
-	//
-	// This is not an expected behaviour and cannot be controlled yet
-	// That's why we use manual unmarshaling using 'mapstructure'
-
-	runReplaces := make(map[string]*scriptRunReplace)
+	runReplaces := make(map[string]*scriptRunnerReplace)
 	for key, originConfig := range scriptsOrigin {
-		var runReplace scriptRunReplace
+		var runReplace scriptRunnerReplace
 
 		if err := unmarshal(originConfig, &runReplace); err != nil {
 			return nil, err
@@ -114,14 +95,26 @@ func unmarshalScripts(s map[string]interface{}) (map[string]*Script, error) {
 	return scripts, nil
 }
 
+// `scripts` are unmarshalled manually because viper
+// uses "." as a key delimiter. So, this definition:
+//
+//   scripts:
+//     "example.sh":
+//       runner: bash
+//
+// Unmarshals into this:
+//
+//   scripts:
+//     example:
+//       sh:
+//         runner: bash
+//
+// This is not an expected behaviour and cannot be controlled yet
+// Working with GetStringMap is the only way to get the structure "as is"
 func unmarshal(input, output interface{}) error {
 	if err := mapstructure.WeakDecode(input, &output); err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func replaceCmd(base, replace string) string {
-	return strings.Replace(base, CMD, replace, -1)
 }

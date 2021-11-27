@@ -18,8 +18,8 @@ type Command struct {
 }
 
 type commandRunReplace struct {
-	Runner string `mapstructure:"runner"`
 	Run    string `mapstructure:"run"`
+	Runner string `mapstructure:"runner"` // Deprecated
 }
 
 func mergeCommands(base, extra *viper.Viper) (map[string]*Command, error) {

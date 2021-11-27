@@ -6,37 +6,29 @@ import (
 
 	"path/filepath"
 	"strings"
-
-	"encoding/json"
-	"fmt"
 )
 
-// Loads configs from the given directory
+// Loads configs from the given directory with extensions
 func Load(fs afero.Fs, path string) (*Config, error) {
-	// Read raw config data
-	globalViper, err := read(fs, path, "lefthook")
+	global, err := read(fs, path, "lefthook")
 	if err != nil {
 		return nil, err
 	}
 
-	localViper, err := read(fs, path, "lefthook-local")
+	extends, err := readExtends(fs, path, global)
 	if err != nil {
-		if _, notFoundErr := err.(viper.ConfigFileNotFoundError); !notFoundErr {
-			return nil, err
-		}
+		return nil, err
 	}
-
-	// Merge and extend configs
-	extraViper, err := extendVipers(fs, globalViper, localViper)
 
 	var config Config
 
-	err = unmarshalConfigs(globalViper, extraViper, &config)
+	config.Colors = true // by default colors are enabled
+
+	err = unmarshalConfigs(global, extends, &config)
 	if err != nil {
 		return nil, err
 	}
-	j, _ := json.Marshal(config)
-	fmt.Printf(string(j))
+
 	return &config, nil
 }
 
@@ -58,33 +50,46 @@ func read(fs afero.Fs, path string, name string) (*viper.Viper, error) {
 	return v, nil
 }
 
-func extendVipers(fs afero.Fs, dest, src *viper.Viper) (*viper.Viper, error) {
-	if src == nil {
-		src = viper.New()
+func readExtends(fs afero.Fs, path string, global *viper.Viper) (*viper.Viper, error) {
+	local, err := read(fs, path, "lefthook-local")
+	if err != nil {
+		if _, notFoundErr := err.(viper.ConfigFileNotFoundError); !notFoundErr {
+			return nil, err
+		}
 	}
 
-	// TODO: Refactor
-	for _, path := range dest.GetStringSlice("extends") {
-		name := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
+	// Merge and extend configs
+	var extends *viper.Viper
 
-		another, err := read(fs, filepath.Dir(path), name)
+	if local != nil {
+		extends = local
+
+		err := extend(fs, extends, local)
 		if err != nil {
 			return nil, err
 		}
-		src.MergeConfigMap(another.AllSettings())
 	}
 
+	err = extend(fs, extends, global)
+	if err != nil {
+		return nil, err
+	}
+
+	return extends, nil
+}
+
+func extend(fs afero.Fs, dest, src *viper.Viper) error {
 	for _, path := range src.GetStringSlice("extends") {
 		name := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
 
 		another, err := read(fs, filepath.Dir(path), name)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		src.MergeConfigMap(another.AllSettings())
+		dest.MergeConfigMap(another.AllSettings())
 	}
 
-	return src, nil
+	return nil
 }
 
 func unmarshalConfigs(base, extra *viper.Viper, c *Config) error {
