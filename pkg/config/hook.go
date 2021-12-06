@@ -3,8 +3,6 @@ package config
 import (
 	"github.com/spf13/viper"
 
-	"strings"
-
 	"github.com/evilmartians/lefthook/pkg/log"
 )
 
@@ -93,8 +91,4 @@ func (h Hook) processDeprecations() {
 	if scriptDeprecationUsed {
 		log.Errorf("Warning: `run` alias for scripts is deprecated, use `runner` instead.\n")
 	}
-}
-
-func replaceCmd(source, replacement string) string {
-	return strings.Replace(source, CMD, replacement, -1)
 }
