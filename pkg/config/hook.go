@@ -17,7 +17,7 @@ type Hook struct {
 	Commands map[string]*Command `mapstructure:"?"`
 
 	// Should be unmarshalled with `mapstructure:"scripts"`
-	// But still an issue: https://github.com/spf13/viper/issues/324
+	// But parsing keys with dots in it is still an issue: https://github.com/spf13/viper/issues/324
 	// Unmarshaling it manually, so omit auto unmarshaling
 	Scripts map[string]*Script `mapstructure:"?"`
 
