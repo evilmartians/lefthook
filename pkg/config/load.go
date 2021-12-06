@@ -15,7 +15,7 @@ func Load(fs afero.Fs, path string) (*Config, error) {
 		return nil, err
 	}
 
-	extends, err := readExtends(fs, path, global)
+	extends, err := mergeAllExtends(fs, path)
 	if err != nil {
 		return nil, err
 	}
@@ -50,43 +50,40 @@ func read(fs afero.Fs, path string, name string) (*viper.Viper, error) {
 	return v, nil
 }
 
-func readExtends(fs afero.Fs, path string, global *viper.Viper) (*viper.Viper, error) {
-	local, err := read(fs, path, "lefthook-local")
+// Merges extends from .lefthook and .lefthook-local
+func mergeAllExtends(fs afero.Fs, path string) (*viper.Viper, error) {
+	extends, err := read(fs, path, "lefthook")
 	if err != nil {
+		return nil, err
+	}
+
+	if err := extend(fs, extends); err != nil {
+		return nil, err
+	}
+
+	extends.SetConfigName("lefthook-local")
+	if err := extends.MergeInConfig(); err != nil {
 		if _, notFoundErr := err.(viper.ConfigFileNotFoundError); !notFoundErr {
 			return nil, err
 		}
 	}
 
-	// Merge and extend configs
-	var extends *viper.Viper
-
-	if local != nil {
-		extends = local
-
-		err := extend(fs, extends, local)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	err = extend(fs, extends, global)
-	if err != nil {
+	if err := extend(fs, extends); err != nil {
 		return nil, err
 	}
 
 	return extends, nil
 }
 
-func extend(fs afero.Fs, dest, src *viper.Viper) error {
-	for _, path := range src.GetStringSlice("extends") {
+func extend(fs afero.Fs, v *viper.Viper) error {
+	for _, path := range v.GetStringSlice("extends") {
 		name := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
 
 		another, err := read(fs, filepath.Dir(path), name)
 		if err != nil {
 			return err
 		}
-		dest.MergeConfigMap(another.AllSettings())
+		v.MergeConfigMap(another.AllSettings())
 	}
 
 	return nil

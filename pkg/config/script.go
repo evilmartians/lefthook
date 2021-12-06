@@ -1,6 +1,8 @@
 package config
 
 import (
+	"strings"
+
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 )
@@ -65,11 +67,11 @@ func mergeScripts(base, extra *viper.Viper) (map[string]*Script, error) {
 	for key, replace := range runReplaces {
 		// Deprecated, will be deleted
 		if replace.Run != "" {
-			scripts[key].Run = replaceCmd(scripts[key].Run, replace.Run)
+			scripts[key].Run = strings.Replace(scripts[key].Run, CMD, replace.Run, -1)
 		}
 
 		if replace.Runner != "" {
-			scripts[key].Runner = replaceCmd(scripts[key].Runner, replace.Runner)
+			scripts[key].Runner = strings.Replace(scripts[key].Runner, CMD, replace.Runner, -1)
 		}
 	}
 
