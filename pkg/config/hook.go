@@ -1,86 +1,94 @@
 package config
 
 import (
-	"strings"
+	"github.com/spf13/viper"
 
 	"github.com/evilmartians/lefthook/pkg/log"
 )
 
+const (
+	CMD = "{cmd}"
+)
+
 type Hook struct {
-	Commands map[string]*Command `mapstructure:"commands"`
-	Scripts  map[string]*Script  `mapstructure:"scripts"`
+	// Should be unmarshalled with `mapstructure:"commands"`
+	// But replacing '{cmd}' is still an issue
+	// Unmarshaling it manually, so omit auto unmarshaling
+	Commands map[string]*Command `mapstructure:"?"`
 
-	Glob  string `mapstructure:"glob"`
-	Files string `mapstructure:"files"`
+	// Should be unmarshalled with `mapstructure:"scripts"`
+	// But parsing keys with dots in it is still an issue: https://github.com/spf13/viper/issues/324
+	// Unmarshaling it manually, so omit auto unmarshaling
+	Scripts map[string]*Script `mapstructure:"?"`
 
-	Parallel bool `mapstructure:"parallel"`
-	Piped    bool `mapstructure:"piped"`
-
+	Glob        string   `mapstructure:"glob"`
+	Files       string   `mapstructure:"files"`
+	Parallel    bool     `mapstructure:"parallel"`
+	Piped       bool     `mapstructure:"piped"`
 	ExcludeTags []string `mapstructure:"exclude_tags"`
 }
 
-type Command struct {
-	Run    string `mapstructure:"run"`
-	Runner string `mapstructure:"runner"` // TODO: delete
-
-	Skip bool     `mapstructure:"skip"`
-	Tags []string `mapstructure:"tags"`
-
-	Root    string   `mapstructure:"root"`
-	Exclude []string `mapstructure:"exclude"`
-}
-
-type Script struct {
-	Run    string `mapstructure:"run"` // TODO: delete
-	Runner string `mapstructure:"runner"`
-
-	Skip string   `mapstructure:"skip"`
-	Tags []string `mapstructure:"tags"`
-}
-
-func (c *Command) RunValue() string {
-	run := c.Run
-	if run == "" && c.Runner != "" {
-		log.Errorf("Warning: `runner` alias for commands is deprecated, use `run` instead.")
-		run = c.Runner
+func unmarshalHooks(base, extra *viper.Viper) (*Hook, error) {
+	if base == nil && extra == nil {
+		return nil, nil
 	}
-	return run
-}
 
-func (s *Script) RunnerValue() string {
-	runner := s.Runner
-	if runner == "" && s.Run != "" {
-		log.Errorf("Warning: `run` alias for scripts is deprecated, use `runner` instead.")
-		runner = s.Run
+	commands, err := mergeCommands(base, extra)
+	if err != nil {
+		return nil, err
 	}
-	return runner
+
+	scripts, err := mergeScripts(base, extra)
+	if err != nil {
+		return nil, err
+	}
+
+	hook := Hook{
+		Commands: commands,
+		Scripts:  scripts,
+	}
+
+	if base == nil {
+		base = extra
+	} else if extra != nil {
+		base.MergeConfigMap(extra.AllSettings())
+	}
+
+	if err := base.Unmarshal(&hook); err != nil {
+		return nil, err
+	}
+
+	return &hook, nil
 }
 
-func (h *Hook) expandWith(baseHook *Hook) {
-	for k, v := range h.Commands {
+func (h Hook) processDeprecations() {
+	var cmdDeprecationUsed, scriptDeprecationUsed bool
 
-		run := v.RunValue()
-		if res := strings.Contains(run, runnerWrapPattern); res {
-			baseCmd := baseHook.Commands[k]
+	for _, command := range h.Commands {
+		if command.Runner != "" {
+			cmdDeprecationUsed = true
 
-			if baseCmd != nil {
-				run = strings.Replace(run, runnerWrapPattern, baseCmd.RunValue(), -1)
+			if command.Run == "" {
+				command.Run = command.Runner
 			}
 		}
-
-		v.Run = run
 	}
 
-	for k, v := range h.Scripts {
-		runner := v.RunnerValue()
+	for _, script := range h.Scripts {
+		if script.Run != "" {
+			scriptDeprecationUsed = true
 
-		if res := strings.Contains(runner, runnerWrapPattern); res {
-			baseCmd := baseHook.Scripts[k]
-			if baseCmd != nil {
-				runner = strings.Replace(runner, runnerWrapPattern, baseCmd.RunnerValue(), -1)
+			if script.Runner == "" {
+				script.Runner = script.Run
 			}
 		}
+	}
 
-		v.Runner = runner
+	if cmdDeprecationUsed {
+		log.Errorf("Warning: `runner` alias for commands is deprecated, use `run` instead.\n")
+	}
+
+	if scriptDeprecationUsed {
+		log.Errorf("Warning: `run` alias for scripts is deprecated, use `runner` instead.\n")
 	}
 }
