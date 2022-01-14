@@ -41,7 +41,7 @@ func Config() []byte {
 }
 
 func autoInstall(hookName, configChecksum string) string {
-	if hookName != "prepare-commig-msg" {
+	if hookName != "prepare-commit-msg" {
 		return ""
 	}
 

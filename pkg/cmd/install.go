@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	checksumHookFilename = "prepare-commig-msg"
+	checksumHookFilename = "prepare-commit-msg"
 )
 
 type Install struct {
