@@ -71,10 +71,13 @@ func (cmd *Install) Run() error {
 
 func (cmd *Install) readOrCreateConfig() (*config.Config, error) {
 	path := cmd.repo.RootPath()
-	log.Info("Searching config in:", path)
+	if cmd.Verbose {
+		log.Info("Searching config in:", path)
+	}
 
 	if !cmd.configExists(path) {
 		log.Info("Config not found, creating...")
+
 		if err := cmd.createConfig(path); err != nil {
 			return nil, err
 		}
