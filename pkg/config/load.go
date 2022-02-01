@@ -1,11 +1,11 @@
 package config
 
 import (
-	"github.com/spf13/afero"
-	"github.com/spf13/viper"
-
 	"path/filepath"
 	"strings"
+
+	"github.com/spf13/afero"
+	"github.com/spf13/viper"
 )
 
 // Loads configs from the given directory with extensions

@@ -4,10 +4,12 @@ import (
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
+
+	"github.com/evilmartians/lefthook/pkg/lefthook"
 )
 
 var (
-	commands = [...]func(*Options) *cobra.Command{
+	commands = [...]func(*lefthook.Options) *cobra.Command{
 		NewVersionCmd,
 		NewAddCmd,
 		NewInstallCmd,
@@ -17,8 +19,8 @@ var (
 )
 
 func NewRootCmd() *cobra.Command {
-	appOptions := &Options{
-		fs: afero.NewOsFs(),
+	options := lefthook.Options{
+		Fs: afero.NewOsFs(),
 	}
 
 	rootCmd := &cobra.Command{
@@ -32,24 +34,24 @@ func NewRootCmd() *cobra.Command {
 	}
 
 	rootCmd.PersistentFlags().BoolVarP(
-		&appOptions.Verbose, "verbose", "v", false, "verbose output",
+		&options.Verbose, "verbose", "v", false, "verbose output",
 	)
 	rootCmd.PersistentFlags().BoolVar(
-		&appOptions.NoColors, "no-colors", false, "disable colored output",
+		&options.NoColors, "no-colors", false, "disable colored output",
 	)
 
 	// TODO: Drop deprecated options
 	rootCmd.Flags().BoolVarP(
-		&appOptions.Force, "force", "f", false,
+		&options.Force, "force", "f", false,
 		"DEPRECATED: reinstall hooks without checking config version",
 	)
 	rootCmd.Flags().BoolVarP(
-		&appOptions.Aggressive, "aggressive", "a", false,
+		&options.Aggressive, "aggressive", "a", false,
 		"DEPRECATED: remove all hooks from .git/hooks dir and install lefthook hooks",
 	)
 
 	for _, subcommand := range commands {
-		rootCmd.AddCommand(subcommand(appOptions))
+		rootCmd.AddCommand(subcommand(&options))
 	}
 
 	return rootCmd
