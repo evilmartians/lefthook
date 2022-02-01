@@ -9,7 +9,7 @@ import (
 )
 
 type UninstallArgs struct {
-	KeepConfiguration bool
+	KeepConfiguration, Aggressive bool
 }
 
 func (l Lefthook) Uninstall(args *UninstallArgs) error {
@@ -17,14 +17,19 @@ func (l Lefthook) Uninstall(args *UninstallArgs) error {
 		return err
 	}
 
-	if err := l.deleteHooks(l.opts.Aggressive); err != nil {
+	if err := l.deleteHooks(l.opts.Aggressive || args.Aggressive); err != nil {
 		return err
 	}
 
-	rootPath := l.repo.RootPath()
 	if !args.KeepConfiguration {
-		l.removeFile(filepath.Join(rootPath, "lefthook.y*ml"))
-		l.removeFile(filepath.Join(rootPath, "lefthook-local.y*ml"))
+		rootPath := l.repo.RootPath()
+
+		for _, glob := range []string{
+			"lefthook.y*ml",
+			"lefthook-local.y*ml",
+		} {
+			l.removeFile(filepath.Join(rootPath, glob))
+		}
 	}
 
 	return nil
@@ -43,21 +48,28 @@ func (l Lefthook) deleteHooks(force bool) error {
 
 	for _, file := range hooks {
 		hookFile := filepath.Join(hooksPath, file.Name())
-		if l.isLefthookFile(hookFile) || force {
-			if err := l.fs.Remove(hookFile); err == nil {
-				log.Debug(hookFile, "removed")
-			} else {
-				log.Errorf("Failed removing %s: %s", hookFile, err)
-			}
 
-			oldHook := filepath.Join(hooksPath, file.Name()+".old")
-			if exists, _ := afero.Exists(l.fs, oldHook); exists {
-				if err := l.fs.Rename(oldHook, hookFile); err == nil {
-					log.Debug(oldHook, "renamed to", file.Name())
-				} else {
-					log.Errorf("Failed renaming %s: %s", oldHook, err)
-				}
-			}
+		// Skip non-lefthook files if removal not forced
+		if !l.isLefthookFile(hookFile) && !force {
+			continue
+		}
+
+		if err := l.fs.Remove(hookFile); err == nil {
+			log.Debug(hookFile, "removed")
+		} else {
+			log.Errorf("Failed removing %s: %s", hookFile, err)
+		}
+
+		// Recover .old file if exists
+		oldHookFile := filepath.Join(hooksPath, file.Name()+".old")
+		if exists, _ := afero.Exists(l.fs, oldHookFile); !exists {
+			continue
+		}
+
+		if err := l.fs.Rename(oldHookFile, hookFile); err == nil {
+			log.Debug(oldHook, "renamed to", file.Name())
+		} else {
+			log.Errorf("Failed renaming %s: %s", oldHookFile, err)
 		}
 	}
 

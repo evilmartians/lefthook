@@ -22,5 +22,10 @@ func NewUninstallCmd(opts *lefthook.Options) *cobra.Command {
 		"keep configuration files and source directories present",
 	)
 
+	uninstallCmd.Flags().BoolVarP(
+		&args.Aggressive, "aggressive", "a", false,
+		"remove all git hooks even not lefthook-related",
+	)
+
 	return &uninstallCmd
 }
