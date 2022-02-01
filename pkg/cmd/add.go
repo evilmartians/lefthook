@@ -3,6 +3,8 @@ package cmd
 import (
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
+
+	"github.com/evilmartians/lefthook/pkg/lefthook"
 )
 
 var createDirs bool
@@ -21,7 +23,7 @@ var longAddCmd = heredoc.Doc(`
 	│   └───pre-commit
 `)
 
-func NewAddCmd(opts *Options) *cobra.Command {
+func NewAddCmd(opts *lefthook.Options) *cobra.Command {
 	addCmd := cobra.Command{
 		Use:   "add",
 		Short: "This command add a hook directory to a repository",
@@ -39,7 +41,7 @@ func NewAddCmd(opts *Options) *cobra.Command {
 	return &addCmd
 }
 
-func addExecutor(args []string, opts *Options) error {
+func addExecutor(args []string, opts *lefthook.Options) error {
 	// addHook
 	// if createDirs
 	//   addProjectHookDir

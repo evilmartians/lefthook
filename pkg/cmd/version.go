@@ -1,12 +1,14 @@
 package cmd
 
 import (
+	"github.com/spf13/cobra"
+
+	"github.com/evilmartians/lefthook/pkg/lefthook"
 	"github.com/evilmartians/lefthook/pkg/log"
 	"github.com/evilmartians/lefthook/pkg/version"
-	"github.com/spf13/cobra"
 )
 
-func NewVersionCmd(opts *Options) *cobra.Command {
+func NewVersionCmd(opts *lefthook.Options) *cobra.Command {
 	versionCmd := cobra.Command{
 		Use:   "version",
 		Short: "Show lefthook version",
