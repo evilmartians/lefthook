@@ -83,7 +83,9 @@ func extend(fs afero.Fs, v *viper.Viper) error {
 		if err != nil {
 			return err
 		}
-		v.MergeConfigMap(another.AllSettings())
+		if err = v.MergeConfigMap(another.AllSettings()); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -111,7 +113,9 @@ func unmarshalConfigs(base, extra *viper.Viper, c *Config) error {
 	}
 
 	// Merge config and unmarshal it
-	base.MergeConfigMap(extra.AllSettings())
+	if err := base.MergeConfigMap(extra.AllSettings()); err != nil {
+		return err
+	}
 	if err := base.Unmarshal(c); err != nil {
 		return err
 	}

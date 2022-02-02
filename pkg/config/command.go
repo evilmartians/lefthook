@@ -47,7 +47,7 @@ func mergeCommands(base, extra *viper.Viper) (map[string]*Command, error) {
 	}
 
 	runReplaces := make(map[string]*commandRunReplace)
-	for key, _ := range commandsOrigin.AllSettings() {
+	for key := range commandsOrigin.AllSettings() {
 		var replace commandRunReplace
 
 		if err := commandsOrigin.Sub(key).Unmarshal(&replace); err != nil {
@@ -57,7 +57,11 @@ func mergeCommands(base, extra *viper.Viper) (map[string]*Command, error) {
 		runReplaces[key] = &replace
 	}
 
-	commandsOrigin.MergeConfigMap(commandsOverride.AllSettings())
+	err := commandsOrigin.MergeConfigMap(commandsOverride.AllSettings())
+	if err != nil {
+		return nil, err
+	}
+
 	commands, err := unmarshalCommands(commandsOrigin)
 	if err != nil {
 		return nil, err
