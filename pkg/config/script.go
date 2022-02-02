@@ -55,9 +55,12 @@ func mergeScripts(base, extra *viper.Viper) (map[string]*Script, error) {
 		runReplaces[key] = &runReplace
 	}
 
-	base.MergeConfigMap(map[string]interface{}{
+	err := base.MergeConfigMap(map[string]interface{}{
 		"scripts": scriptsOverride,
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	scripts, err := unmarshalScripts(base.GetStringMap("scripts"))
 	if err != nil {
@@ -111,7 +114,7 @@ func unmarshalScripts(s map[string]interface{}) (map[string]*Script, error) {
 //       sh:
 //         runner: bash
 //
-// This is not an expected behaviour and cannot be controlled yet
+// This is not an expected behavior and cannot be controlled yet
 // Working with GetStringMap is the only way to get the structure "as is"
 func unmarshal(input, output interface{}) error {
 	if err := mapstructure.WeakDecode(input, &output); err != nil {

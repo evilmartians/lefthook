@@ -51,7 +51,9 @@ func unmarshalHooks(base, extra *viper.Viper) (*Hook, error) {
 	if base == nil {
 		base = extra
 	} else if extra != nil {
-		base.MergeConfigMap(extra.AllSettings())
+		if err = base.MergeConfigMap(extra.AllSettings()); err != nil {
+			return nil, err
+		}
 	}
 
 	if err := base.Unmarshal(&hook); err != nil {

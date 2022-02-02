@@ -3,9 +3,12 @@ package templates
 import (
 	"bytes"
 	"embed"
+	"fmt"
 	"runtime"
 	"text/template"
 )
+
+const checksumFormat = "# lefthook_version: %s"
 
 //go:embed *
 var templatesFS embed.FS
@@ -45,7 +48,7 @@ func autoInstall(hookName, configChecksum string) string {
 		return ""
 	}
 
-	return "# lefthook_version: " + configChecksum
+	return fmt.Sprintf(checksumFormat, configChecksum)
 }
 
 func getExtension() string {

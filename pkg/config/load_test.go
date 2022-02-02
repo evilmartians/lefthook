@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -8,15 +9,17 @@ import (
 	"github.com/spf13/afero"
 )
 
-type testcase struct {
-	global []byte
-	local  []byte
-	result *Config
-}
-
 func TestLoad(t *testing.T) {
-	testCases := [...]testcase{
-		testcase{
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+
+	for i, tt := range [...]struct {
+		name   string
+		global []byte
+		local  []byte
+		result *Config
+	}{
+		{
+			name: "simple",
 			global: []byte(`
 pre-commit:
   commands:
@@ -32,21 +35,21 @@ post-commit:
 			result: &Config{
 				Colors: true, // defaults to true
 				Hooks: map[string]*Hook{
-					"pre-commit": &Hook{
+					"pre-commit": {
 						Glob:     "",
 						Parallel: false,
 						Commands: map[string]*Command{
-							"tests": &Command{
+							"tests": {
 								Run:    "yarn test", // copies Runner to Run
 								Runner: "yarn test",
 							},
 						},
 					},
-					"post-commit": &Hook{
+					"post-commit": {
 						Glob:     "",
 						Parallel: false,
 						Commands: map[string]*Command{
-							"ping-done": &Command{
+							"ping-done": {
 								Run: "curl -x POST status.com/done",
 							},
 						},
@@ -54,7 +57,8 @@ post-commit:
 				},
 			},
 		},
-		testcase{
+		{
+			name: "with overrides",
 			global: []byte(`
 min_version: 0.6.0
 source_dir: $HOME/sources
@@ -101,31 +105,31 @@ pre-push:
 				SourceDirLocal: "$HOME/sources_local",
 
 				Hooks: map[string]*Hook{
-					"pre-commit": &Hook{
+					"pre-commit": {
 						Glob:     "*.rb",
 						Parallel: true,
 						Commands: map[string]*Command{
-							"tests": &Command{
+							"tests": {
 								Skip: true,
 								Run:  "bundle exec rspec",
 								Tags: []string{"backend", "test"},
 							},
-							"lint": &Command{
+							"lint": {
 								Skip: false,
 								Run:  "docker exec -it ruby:2.7 bundle exec rubocop",
 								Tags: []string{"backend", "linter"},
 							},
 						},
 						Scripts: map[string]*Script{
-							"format.sh": &Script{
+							"format.sh": {
 								Skip:   true,
 								Runner: "bash",
 							},
 						},
 					},
-					"pre-push": &Hook{
+					"pre-push": {
 						Commands: map[string]*Command{
-							"rubocop": &Command{
+							"rubocop": {
 								Run:  "bundle exec rubocop",
 								Tags: []string{"backend", "linter"},
 							},
@@ -134,24 +138,26 @@ pre-push:
 				},
 			},
 		},
-	}
-
-	fs := afero.NewMemMapFs()
-	afs := afero.Afero{Fs: fs}
-
-	for _, tc := range testCases {
-		afs.WriteFile("/lefthook.yml", tc.global, 0644)
-		afs.WriteFile("/lefthook-local.yml", tc.local, 0644)
-
-		checkConfig, err := Load(fs, "/")
-
-		if err != nil {
-			t.Errorf("should parse configs without errors: %s", err)
-		} else {
-			if !cmp.Equal(checkConfig, tc.result, cmpopts.IgnoreUnexported(Hook{})) {
-				t.Errorf("configs should be equal")
-				t.Errorf("(-want +got):\n%s", cmp.Diff(tc.result, checkConfig))
+	} {
+		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
+			if err := fs.WriteFile("/lefthook.yml", tt.global, 0644); err != nil {
+				t.Errorf("unexpected error: %s", err)
 			}
-		}
+
+			if err := fs.WriteFile("/lefthook-local.yml", tt.local, 0644); err != nil {
+				t.Errorf("unexpected error: %s", err)
+			}
+
+			checkConfig, err := Load(fs.Fs, "/")
+
+			if err != nil {
+				t.Errorf("should parse configs without errors: %s", err)
+			} else {
+				if !cmp.Equal(checkConfig, tt.result, cmpopts.IgnoreUnexported(Hook{})) {
+					t.Errorf("configs should be equal")
+					t.Errorf("(-want +got):\n%s", cmp.Diff(tt.result, checkConfig))
+				}
+			}
+		})
 	}
 }

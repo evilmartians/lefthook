@@ -1,9 +1,10 @@
 package lefthook
 
 import (
+	"bufio"
 	"crypto/md5"
 	"encoding/hex"
-	"errors"
+	"fmt"
 	"io"
 	"path/filepath"
 	"regexp"
@@ -16,13 +17,18 @@ import (
 )
 
 const (
-	CHECKSUM_HOOK_FILENAME = "prepare-commit-msg"
+	checksumHookFilename = "prepare-commit-msg"
+	configDefaultName    = "lefthook.yml"
+	configGlob           = "lefthook.y*ml"
 )
+
+var lefthookChecksumRegexp = regexp.MustCompile(`(?:#\s*lefthook_version:\s+)(\w+)`)
 
 type InstallArgs struct {
 	Force, Aggressive bool
 }
 
+// Install installs the hooks from config file to the .git/hooks
 func (l Lefthook) Install(args *InstallArgs) error {
 	if err := initRepo(&l); err != nil {
 		return err
@@ -54,10 +60,14 @@ func (l Lefthook) readOrCreateConfig() (*config.Config, error) {
 }
 
 func (l Lefthook) configExists(path string) bool {
-	confPath := filepath.Join(path, "lefthook")
-	for _, ext := range []string{".yml", ".yaml"} {
-		if result, _ := afero.Exists(l.fs, confPath+ext); result {
-			return result
+	paths, err := afero.Glob(l.fs, filepath.Join(path, configGlob))
+	if err != nil {
+		return false
+	}
+
+	for _, config := range paths {
+		if ok, _ := afero.Exists(l.fs, config); ok {
+			return true
 		}
 	}
 
@@ -65,7 +75,7 @@ func (l Lefthook) configExists(path string) bool {
 }
 
 func (l Lefthook) createConfig(path string) error {
-	file := filepath.Join(path, "lefthook.yml")
+	file := filepath.Join(path, configDefaultName)
 
 	err := afero.WriteFile(l.fs, file, templates.Config(), 0666)
 	if err != nil {
@@ -78,11 +88,11 @@ func (l Lefthook) createConfig(path string) error {
 }
 
 func (l Lefthook) createHooks(cfg *config.Config, force bool) error {
-	if force && l.hooksSynchronized() {
+	if !force && l.hooksSynchronized() {
 		return nil
 	}
 
-	configChecksum, err := l.configChecksum()
+	checksum, err := l.configChecksum()
 	if err != nil {
 		return err
 	}
@@ -92,33 +102,37 @@ func (l Lefthook) createHooks(cfg *config.Config, force bool) error {
 		return err
 	}
 
-	for hookName, _ := range cfg.Hooks {
-		hookPath := filepath.Join(gitHooksPath, hookName)
+	for hook := range cfg.Hooks {
+		hookPath := filepath.Join(gitHooksPath, hook)
 		if err != nil {
 			return err
 		}
 
-		err := l.cleanHook(hookName, hookPath, force)
+		err = l.cleanHook(hook, hookPath, force)
 		if err != nil {
 			return err
 		}
 
-		err = l.addHook(hookName, hookPath, configChecksum)
+		err = l.addHook(hook, hookPath, checksum)
 		if err != nil {
 			return err
 		}
 	}
 
-	l.addHook(
-		CHECKSUM_HOOK_FILENAME,
-		filepath.Join(gitHooksPath, CHECKSUM_HOOK_FILENAME),
-		configChecksum,
+	// Add an informational hook to use for checksum comparation
+	err = l.addHook(
+		checksumHookFilename,
+		filepath.Join(gitHooksPath, checksumHookFilename),
+		checksum,
 	)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func (l Lefthook) cleanHook(hookName, hookPath string, force bool) error {
+func (l Lefthook) cleanHook(hook, hookPath string, force bool) error {
 	exists, err := afero.Exists(l.fs, hookPath)
 	if err != nil {
 		return err
@@ -129,23 +143,24 @@ func (l Lefthook) cleanHook(hookName, hookPath string, force bool) error {
 
 	// Remove lefthook hook
 	if l.isLefthookFile(hookPath) {
-		if err := l.fs.Remove(hookPath); err != nil {
+		if err = l.fs.Remove(hookPath); err != nil {
 			return err
 		}
 
 		return nil
 	}
 
-	// Rename existing user hook
+	// Check if .old file already exists before renaming
 	exists, err = afero.Exists(l.fs, hookPath+".old")
 	if err != nil {
 		return err
 	}
-	if exists && !force {
-		return errors.New(
-			"Can't rename " + hookName + " to " +
-				hookName + ".old - file already exists",
-		)
+	if exists {
+		if force {
+			log.Infof("File %s.old already exists, overwriting", hook)
+		} else {
+			return fmt.Errorf("Can't rename %s to %s.old - file already exists", hook, hook)
+		}
 	}
 
 	err = l.fs.Rename(hookPath, hookPath+".old")
@@ -153,62 +168,72 @@ func (l Lefthook) cleanHook(hookName, hookPath string, force bool) error {
 		return err
 	}
 
-	log.Println("renamed " + hookPath + " to " + hookPath + ".old")
+	log.Infof("renamed %s to %s.old", hookPath, hookPath)
 	return nil
 }
 
-func (l Lefthook) addHook(hookName, hookPath, configChecksum string) error {
+func (l Lefthook) addHook(hook, hookPath, configChecksum string) error {
 	err := afero.WriteFile(
-		l.fs, hookPath, templates.Hook(hookName, configChecksum), 0755,
+		l.fs, hookPath, templates.Hook(hook, configChecksum), 0755,
 	)
 	if err != nil {
 		return err
 	}
 
-	log.Println("Added hook:", hookName)
+	log.Infof("Added hook: %s", hook)
 	return nil
 }
 
 func (l Lefthook) hooksSynchronized() bool {
-	hooksPath, err := l.repo.HooksPath()
-	if err != nil {
-		return false
-	}
-
-	hookFullPath := filepath.Join(hooksPath, CHECKSUM_HOOK_FILENAME)
-	fileContent, err := afero.ReadFile(l.fs, hookFullPath)
-	if err != nil {
-		return false
-	}
-
 	checksum, err := l.configChecksum()
 	if err != nil {
 		return false
 	}
 
-	pattern := regexp.MustCompile(`(?:# lefthook_version: )(\w+)`)
-	match := pattern.FindStringSubmatch(string(fileContent))
+	hooksPath, err := l.repo.HooksPath()
+	if err != nil {
+		return false
+	}
 
-	return match[1] == checksum
+	// Check checksum in a checksum file
+	hookFullPath := filepath.Join(hooksPath, checksumHookFilename)
+	file, err := l.fs.Open(hookFullPath)
+	if err != nil {
+		return false
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+
+	for scanner.Scan() {
+		match := lefthookChecksumRegexp.FindStringSubmatch(scanner.Text())
+		if len(match) > 1 && match[1] == checksum {
+			return true
+		}
+	}
+
+	return false
 }
 
-func (l Lefthook) configChecksum() (string, error) {
-	m, err := afero.Glob(l.fs, filepath.Join(l.repo.RootPath(), "lefthook.*"))
+func (l Lefthook) configChecksum() (checksum string, err error) {
+	m, err := afero.Glob(l.fs, filepath.Join(l.repo.RootPath(), configGlob))
 	if err != nil {
-		return "", err
+		return
 	}
 
 	file, err := l.fs.Open(m[0])
 	if err != nil {
-		return "", err
+		return
 	}
 	defer file.Close()
 
 	hash := md5.New()
 	_, err = io.Copy(hash, file)
 	if err != nil {
-		return "", err
+		return
 	}
 
-	return hex.EncodeToString(hash.Sum(nil)[:16]), nil
+	checksum = hex.EncodeToString(hash.Sum(nil)[:16])
+	return
 }

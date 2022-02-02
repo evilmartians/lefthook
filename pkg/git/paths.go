@@ -6,32 +6,33 @@ import (
 	git2go "github.com/libgit2/git2go/v33"
 )
 
-type Repository struct {
+// Git2GoRepository is a realization of Repository interface with bindings to libgit2
+type Git2GoRepository struct {
 	repo *git2go.Repository
 }
 
-func NewRepository() (*Repository, error) {
+func NewRepository() (Repository, error) {
 	r, err := openRepo()
 	if err != nil {
 		return nil, err
 	}
 
-	return &Repository{repo: r}, nil
+	return Git2GoRepository{repo: r}, nil
 }
 
-func (r *Repository) HooksPath() (string, error) {
+func (r Git2GoRepository) HooksPath() (string, error) {
 	return r.repo.ItemPath(git2go.RepositoryItemHooks)
 }
 
-func (r *Repository) RootPath() string {
+func (r Git2GoRepository) RootPath() string {
 	return r.repo.Workdir()
 }
 
-func (r *Repository) GitPath() string {
+func (r Git2GoRepository) GitPath() string {
 	return r.repo.Path()
 }
 
-func (r *Repository) OperationInProgress() bool {
+func (r Git2GoRepository) OperationInProgress() bool {
 	return r.repo.State() != git2go.RepositoryStateNone
 }
 

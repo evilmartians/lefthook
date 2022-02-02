@@ -21,7 +21,7 @@ type (
 	Lefthook struct {
 		opts *Options
 		fs   afero.Fs
-		repo *git.Repository
+		repo git.Repository
 	}
 )
 
@@ -36,7 +36,12 @@ func New(opts *Options) Lefthook {
 	return Lefthook{opts: opts, fs: opts.Fs}
 }
 
+// initRepo initializes default repository object, if it wasn't assigned before
 func initRepo(lefthook *Lefthook) error {
+	if lefthook.repo != nil {
+		return nil
+	}
+
 	repo, err := git.NewRepository()
 	if err != nil {
 		return err

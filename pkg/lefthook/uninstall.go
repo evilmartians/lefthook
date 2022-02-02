@@ -67,7 +67,7 @@ func (l Lefthook) deleteHooks(force bool) error {
 		}
 
 		if err := l.fs.Rename(oldHookFile, hookFile); err == nil {
-			log.Debug(oldHook, "renamed to", file.Name())
+			log.Debug(oldHookFile, "renamed to", file.Name())
 		} else {
 			log.Errorf("Failed renaming %s: %s", oldHookFile, err)
 		}
@@ -90,6 +90,4 @@ func (l Lefthook) removeFile(glob string) {
 			log.Errorf("Failed removing file %s: %s", fileName, err)
 		}
 	}
-
-	return
 }
