@@ -550,7 +550,7 @@ export LEFTHOOK_QUIET="meta,success,summary"
 
 ## CI integration
 
-Enable `CI` env variable if it doens't exists on your service by default.
+Enable `CI` env variable if it doesn't exists on your service by default.
 
 ## Disable colors
 
