@@ -12,27 +12,31 @@ type Git2GoRepository struct {
 }
 
 func NewRepository() (Repository, error) {
+	return NewGit2GoRepository()
+}
+
+func NewGit2GoRepository() (*Git2GoRepository, error) {
 	r, err := openRepo()
 	if err != nil {
 		return nil, err
 	}
 
-	return Git2GoRepository{repo: r}, nil
+	return &Git2GoRepository{repo: r}, nil
 }
 
-func (r Git2GoRepository) HooksPath() (string, error) {
+func (r *Git2GoRepository) HooksPath() (string, error) {
 	return r.repo.ItemPath(git2go.RepositoryItemHooks)
 }
 
-func (r Git2GoRepository) RootPath() string {
+func (r *Git2GoRepository) RootPath() string {
 	return r.repo.Workdir()
 }
 
-func (r Git2GoRepository) GitPath() string {
+func (r *Git2GoRepository) GitPath() string {
 	return r.repo.Path()
 }
 
-func (r Git2GoRepository) OperationInProgress() bool {
+func (r *Git2GoRepository) OperationInProgress() bool {
 	return r.repo.State() != git2go.RepositoryStateNone
 }
 

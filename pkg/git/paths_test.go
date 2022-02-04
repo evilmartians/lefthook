@@ -7,21 +7,21 @@ import (
 )
 
 func BenchmarkRootPath(b *testing.B) {
-	repo, _ := NewRepository()
+	repo, _ := NewGit2GoRepository()
 	for n := 0; n < b.N; n++ {
 		_ = repo.RootPath()
 	}
 }
 
 func BenchmarkGitPath(b *testing.B) {
-	repo, _ := NewRepository()
+	repo, _ := NewGit2GoRepository()
 	for n := 0; n < b.N; n++ {
 		_ = repo.GitPath()
 	}
 }
 
 func BenchmarkHooksPath(b *testing.B) {
-	repo, _ := NewRepository()
+	repo, _ := NewGit2GoRepository()
 	for n := 0; n < b.N; n++ {
 		_, _ = repo.HooksPath()
 	}
