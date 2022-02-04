@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"github.com/spf13/afero"
+
+	"github.com/evilmartians/lefthook/pkg/git"
 )
 
 type repoTest struct {
@@ -28,44 +30,32 @@ func (r repoTest) OperationInProgress() bool {
 	return false
 }
 
-func TestLefthookInstall(t *testing.T) {
-	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-
-	repo := repoTest{
-		hooksPath: "/.git/hooks",
-		rootPath:  "/",
-		gitPath:   "/",
+func RepoTest() git.Repository {
+	return repoTest{
+		hooksPath: "/src/.git/hooks",
+		rootPath:  "/src/",
+		gitPath:   "/src/",
 	}
-	hooksPath, _ := repo.HooksPath()
+}
+
+func TestLefthookInstall(t *testing.T) {
+	repo := RepoTest()
 
 	for n, tt := range [...]struct {
-		name, config string
-		lefthook     Lefthook
-		args         InstallArgs
-		createdFiles []string
-		wantExist    []string
+		name, config            string
+		args                    InstallArgs
+		existingFiles           map[string]string
+		wantExist, wantNotExist []string
+		wantError               bool
 	}{
 		{
-			name:     "default",
-			lefthook: Lefthook{fs: fs, repo: repo, opts: &Options{}},
-			args:     InstallArgs{},
-			config: `
-pre-commit:
-  commands:
-    tests:
-      run: yarn test
-
-post-commit:
-  commands:
-    notify:
-      run: echo 'Done!'
-`,
-			wantExist: []string{"pre-commit", "post-commit"},
+			name: "without a config file",
+			wantExist: []string{
+				"/src/lefthook.yml",
+			},
 		},
 		{
-			name:     "with existing hooks",
-			lefthook: Lefthook{fs: fs, repo: repo, opts: &Options{}},
-			args:     InstallArgs{},
+			name: "simple default config",
 			config: `
 pre-commit:
   commands:
@@ -77,36 +67,214 @@ post-commit:
     notify:
       run: echo 'Done!'
 `,
-			createdFiles: []string{filepath.Join(hooksPath, "pre-commit")},
-			wantExist:    []string{"pre-commit", "post-commit", "pre-commit.old"},
+			wantExist: []string{
+				"/src/lefthook.yml",
+				"/src/.git/hooks/pre-commit",
+				"/src/.git/hooks/post-commit",
+				"/src/.git/hooks/" + checksumHookFilename,
+			},
+		},
+		{
+			name: "with existing hooks",
+			config: `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+
+post-commit:
+  commands:
+    notify:
+      run: echo 'Done!'
+`,
+			existingFiles: map[string]string{
+				"/src/.git/hooks/pre-commit": "",
+			},
+			wantExist: []string{
+				"/src/lefthook.yml",
+				"/src/.git/hooks/pre-commit",
+				"/src/.git/hooks/pre-commit.old",
+				"/src/.git/hooks/post-commit",
+				"/src/.git/hooks/" + checksumHookFilename,
+			},
+		},
+		{
+			name: "with existing lefthook hooks",
+			config: `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+
+post-commit:
+  commands:
+    notify:
+      run: echo 'Done!'
+`,
+			existingFiles: map[string]string{
+				"/src/.git/hooks/pre-commit": "# lefthook_version: 8b2c9fc6b3391b3cf020b97ab7037c61",
+			},
+			wantExist: []string{
+				"/src/lefthook.yml",
+				"/src/.git/hooks/pre-commit",
+				"/src/.git/hooks/post-commit",
+				"/src/.git/hooks/" + checksumHookFilename,
+			},
+			wantNotExist: []string{
+				"/src/.git/hooks/pre-commit.old",
+			},
+		},
+		{
+			name: "with synchronized hooks",
+			config: `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+
+post-commit:
+  commands:
+    notify:
+      run: echo 'Done!'
+`,
+			existingFiles: map[string]string{
+				"/src/.git/hooks/prepare-commit-msg": "# lefthook_version: 8b2c9fc6b3391b3cf020b97ab7037c61",
+			},
+			wantExist: []string{
+				"/src/lefthook.yml",
+				"/src/.git/hooks/" + checksumHookFilename,
+			},
+			wantNotExist: []string{
+				"/src/.git/hooks/pre-commit",
+				"/src/.git/hooks/post-commit",
+			},
+		},
+		{
+			name: "with synchronized hooks forced",
+			args: InstallArgs{Force: true},
+			config: `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+
+post-commit:
+  commands:
+    notify:
+      run: echo 'Done!'
+`,
+			existingFiles: map[string]string{
+				"/src/.git/hooks/prepare-commit-msg": "# lefthook_version: 8b2c9fc6b3391b3cf020b97ab7037c61",
+			},
+			wantExist: []string{
+				"/src/lefthook.yml",
+				"/src/.git/hooks/pre-commit",
+				"/src/.git/hooks/post-commit",
+				"/src/.git/hooks/" + checksumHookFilename,
+			},
+		},
+		{
+			name: "with existing hook and .old file",
+			config: `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+
+post-commit:
+  commands:
+    notify:
+      run: echo 'Done!'
+`,
+			existingFiles: map[string]string{
+				"/src/.git/hooks/pre-commit":     "",
+				"/src/.git/hooks/pre-commit.old": "",
+			},
+			wantError: true,
+			wantExist: []string{
+				"/src/lefthook.yml",
+				"/src/.git/hooks/pre-commit",
+				"/src/.git/hooks/pre-commit.old",
+			},
+			wantNotExist: []string{
+				"/src/.git/hooks/" + checksumHookFilename,
+			},
+		},
+		{
+			name: "with existing hook and .old file, but forced",
+			args: InstallArgs{Force: true},
+			config: `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+
+post-commit:
+  commands:
+    notify:
+      run: echo 'Done!'
+`,
+			existingFiles: map[string]string{
+				"/src/.git/hooks/pre-commit":     "",
+				"/src/.git/hooks/pre-commit.old": "",
+			},
+			wantExist: []string{
+				"/src/lefthook.yml",
+				"/src/.git/hooks/pre-commit",
+				"/src/.git/hooks/pre-commit.old",
+				"/src/.git/hooks/post-commit",
+				"/src/.git/hooks/" + checksumHookFilename,
+			},
 		},
 	} {
+		fs := afero.NewMemMapFs()
+		lefthook := Lefthook{fs: fs, repo: repo, opts: &Options{}}
+
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
-			if err := fs.WriteFile("/lefthook.yml", []byte(tt.config), 0644); err != nil {
-				t.Errorf("unexpected error: %s", err)
+			// Create configuration file
+			if len(tt.config) > 0 {
+				if err := afero.WriteFile(fs, "/src/lefthook.yml", []byte(tt.config), 0644); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
 			}
 
-			for _, file := range tt.createdFiles {
+			// Create files that should exist
+			for file, content := range tt.existingFiles {
 				if err := fs.MkdirAll(filepath.Base(file), 0664); err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
-				f, err := fs.Create(file)
-				if err != nil {
+				if err := afero.WriteFile(fs, file, []byte(content), 0755); err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
-				f.Close()
 			}
 
-			if err := tt.lefthook.Install(&tt.args); err != nil {
+			// Do install
+			err := lefthook.Install(&tt.args)
+			if tt.wantError && err == nil {
+				t.Errorf("expected an error")
+			} else if !tt.wantError && err != nil {
 				t.Errorf("unexpected error: %s", err)
 			}
+
+			// Test files that should exist
 			for _, file := range tt.wantExist {
-				ok, err := fs.Exists(filepath.Join(hooksPath, file))
+				ok, err := afero.Exists(fs, file)
 				if err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
 				if !ok {
 					t.Errorf("expected %s to exist", file)
+				}
+			}
+
+			// Test files that should not exist
+			for _, file := range tt.wantNotExist {
+				ok, err := afero.Exists(fs, file)
+				if err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
+				if ok {
+					t.Errorf("expected %s to not exist", file)
 				}
 			}
 		})
