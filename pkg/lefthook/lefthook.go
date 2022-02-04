@@ -1,7 +1,7 @@
 package lefthook
 
 import (
-	"strings"
+	"bufio"
 
 	"github.com/spf13/afero"
 
@@ -53,10 +53,20 @@ func initRepo(lefthook *Lefthook) error {
 }
 
 func (l Lefthook) isLefthookFile(path string) bool {
-	file, err := afero.ReadFile(l.fs, path)
+	file, err := l.fs.Open(path)
 	if err != nil {
 		return false
 	}
+	defer file.Close()
 
-	return strings.Contains(string(file), "LEFTHOOK")
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+
+	for scanner.Scan() {
+		if lefthookChecksumRegexp.MatchString(scanner.Text()) {
+			return true
+		}
+	}
+
+	return false
 }
