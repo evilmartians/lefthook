@@ -2,12 +2,15 @@ package lefthook
 
 import (
 	"bufio"
+	"regexp"
 
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/pkg/git"
 	"github.com/evilmartians/lefthook/pkg/log"
 )
+
+var lefthookContentRegexp = regexp.MustCompile("LEFTHOOK")
 
 type (
 	Options struct {
@@ -63,7 +66,7 @@ func (l Lefthook) isLefthookFile(path string) bool {
 	scanner.Split(bufio.ScanLines)
 
 	for scanner.Scan() {
-		if lefthookChecksumRegexp.MatchString(scanner.Text()) {
+		if lefthookContentRegexp.MatchString(scanner.Text()) {
 			return true
 		}
 	}

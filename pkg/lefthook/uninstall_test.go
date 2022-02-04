@@ -21,7 +21,7 @@ func TestLefthookUninstall(t *testing.T) {
 			name: "simple defaults",
 			existingFiles: map[string]string{
 				"/src/.git/hooks/pre-commit":  "not a lefthook hook",
-				"/src/.git/hooks/post-commit": "# lefthook_version: abc",
+				"/src/.git/hooks/post-commit": `"$LEFTHOOK" file`,
 				"/src/lefthook.yml":           "# empty",
 			},
 			wantExist: []string{
@@ -37,7 +37,7 @@ func TestLefthookUninstall(t *testing.T) {
 			args: UninstallArgs{Aggressive: true},
 			existingFiles: map[string]string{
 				"/src/.git/hooks/pre-commit":  "not a lefthook hook",
-				"/src/.git/hooks/post-commit": "# lefthook_version: abc",
+				"/src/.git/hooks/post-commit": "\n# LEFTHOOK file\n",
 				"/src/lefthook.yaml":          "# empty",
 			},
 			wantExist: []string{},
@@ -52,7 +52,7 @@ func TestLefthookUninstall(t *testing.T) {
 			args: UninstallArgs{KeepConfiguration: true},
 			existingFiles: map[string]string{
 				"/src/.git/hooks/pre-commit":  "not a lefthook hook",
-				"/src/.git/hooks/post-commit": "# lefthook_version: abc",
+				"/src/.git/hooks/post-commit": "# LEFTHOOK",
 				"/src/lefthook.yml":           "# empty",
 			},
 			wantExist: []string{
@@ -67,7 +67,7 @@ func TestLefthookUninstall(t *testing.T) {
 			name: "with .old files",
 			existingFiles: map[string]string{
 				"/src/.git/hooks/pre-commit":      "not a lefthook hook",
-				"/src/.git/hooks/post-commit":     "# lefthook_version: abc",
+				"/src/.git/hooks/post-commit":     "LEFTHOOK file",
 				"/src/.git/hooks/post-commit.old": "not a lefthook hook",
 				"/src/lefthook.yml":               "# empty",
 			},

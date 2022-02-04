@@ -112,7 +112,7 @@ post-commit:
       run: echo 'Done!'
 `,
 			existingFiles: map[string]string{
-				"/src/.git/hooks/pre-commit": "# lefthook_version: 8b2c9fc6b3391b3cf020b97ab7037c61",
+				"/src/.git/hooks/pre-commit": "# LEFTHOOK file",
 			},
 			wantExist: []string{
 				"/src/lefthook.yml",
