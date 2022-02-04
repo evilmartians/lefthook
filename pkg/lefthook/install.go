@@ -29,6 +29,10 @@ type InstallArgs struct {
 }
 
 // Install installs the hooks from config file to the .git/hooks
+func Install(opts *Options, args *InstallArgs) error {
+	return New(opts).Install(args)
+}
+
 func (l Lefthook) Install(args *InstallArgs) error {
 	if err := initRepo(&l); err != nil {
 		return err

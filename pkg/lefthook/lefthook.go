@@ -12,21 +12,19 @@ import (
 
 var lefthookContentRegexp = regexp.MustCompile("LEFTHOOK")
 
-type (
-	Options struct {
-		Fs                afero.Fs
-		Verbose, NoColors bool
+type Options struct {
+	Fs                afero.Fs
+	Verbose, NoColors bool
 
-		// DEPRECATED
-		Force, Aggressive bool
-	}
+	// DEPRECATED
+	Force, Aggressive bool
+}
 
-	Lefthook struct {
-		opts *Options
-		fs   afero.Fs
-		repo git.Repository
-	}
-)
+type Lefthook struct {
+	opts *Options
+	fs   afero.Fs
+	repo git.Repository
+}
 
 // New returns an instance of Lefthook
 func New(opts *Options) Lefthook {

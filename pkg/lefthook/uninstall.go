@@ -12,6 +12,10 @@ type UninstallArgs struct {
 	KeepConfiguration, Aggressive bool
 }
 
+func Uninstall(opts *Options, args *UninstallArgs) error {
+	return New(opts).Uninstall(args)
+}
+
 func (l Lefthook) Uninstall(args *UninstallArgs) error {
 	if err := initRepo(&l); err != nil {
 		return err
