@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 	"sync"
+
+	"github.com/logrusorgru/aurora"
 )
 
 var (
@@ -21,15 +23,17 @@ const (
 )
 
 type Logger struct {
-	level Level
-	out   io.Writer
-	mu    sync.Mutex
+	level  Level
+	aurora aurora.Aurora
+	out    io.Writer
+	mu     sync.Mutex
 }
 
 func New() *Logger {
 	return &Logger{
-		level: InfoLevel,
-		out:   os.Stdout,
+		level:  InfoLevel,
+		out:    os.Stdout,
+		aurora: aurora.NewAurora(true),
 	}
 }
 
@@ -54,7 +58,8 @@ func Debugf(format string, args ...interface{}) {
 }
 
 func Errorf(format string, args ...interface{}) {
-	std.Errorf(format, args...)
+	res := fmt.Sprintf(format, args...)
+	std.Error(std.aurora.Red(res))
 }
 
 func Println(args ...interface{}) {
@@ -67,6 +72,18 @@ func Printf(format string, args ...interface{}) {
 
 func SetLevel(level Level) {
 	std.SetLevel(level)
+}
+
+func SetColors(enable bool) {
+	std.aurora = aurora.NewAurora(enable)
+}
+
+func Cyan(arg interface{}) aurora.Value {
+	return std.aurora.Cyan(arg)
+}
+
+func Bold(arg interface{}) aurora.Value {
+	return std.aurora.Bold(arg)
 }
 
 func SetOutput(out io.Writer) {
