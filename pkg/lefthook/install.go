@@ -8,6 +8,7 @@ import (
 	"io"
 	"path/filepath"
 	"regexp"
+	"strings"
 
 	"github.com/spf13/afero"
 
@@ -86,7 +87,7 @@ func (l Lefthook) createConfig(path string) error {
 		return err
 	}
 
-	log.Println("Added config:", file)
+	log.Info("Added config:", file)
 
 	return nil
 }
@@ -95,6 +96,8 @@ func (l Lefthook) createHooks(cfg *config.Config, force bool) error {
 	if !force && l.hooksSynchronized() {
 		return nil
 	}
+
+	log.Info(log.Cyan("SYNCING"))
 
 	checksum, err := l.configChecksum()
 	if err != nil {
@@ -106,7 +109,10 @@ func (l Lefthook) createHooks(cfg *config.Config, force bool) error {
 		return err
 	}
 
+	hookNames := make([]string, len(cfg.Hooks), len(cfg.Hooks)+1)
 	for hook := range cfg.Hooks {
+		hookNames = append(hookNames, hook)
+
 		hookPath := filepath.Join(gitHooksPath, hook)
 		if err != nil {
 			return err
@@ -132,6 +138,9 @@ func (l Lefthook) createHooks(cfg *config.Config, force bool) error {
 	if err != nil {
 		return err
 	}
+
+	hookNames = append(hookNames, checksumHookFilename)
+	log.Info(log.Cyan("SERVED HOOKS:"), log.Bold(strings.Join(hookNames, ", ")))
 
 	return nil
 }
@@ -161,9 +170,9 @@ func (l Lefthook) cleanHook(hook, hookPath string, force bool) error {
 	}
 	if exists {
 		if force {
-			log.Infof("File %s.old already exists, overwriting", hook)
+			log.Infof("File %s.old already exists, overwriting\n", hook)
 		} else {
-			return fmt.Errorf("Can't rename %s to %s.old - file already exists", hook, hook)
+			return fmt.Errorf("Can't rename %s to %s.old - file already exists\n", hook, hook)
 		}
 	}
 
@@ -172,7 +181,7 @@ func (l Lefthook) cleanHook(hook, hookPath string, force bool) error {
 		return err
 	}
 
-	log.Infof("renamed %s to %s.old", hookPath, hookPath)
+	log.Infof("Renamed %s to %s.old\n", hookPath, hookPath)
 	return nil
 }
 
@@ -184,7 +193,6 @@ func (l Lefthook) addHook(hook, hookPath, configChecksum string) error {
 		return err
 	}
 
-	log.Infof("Added hook: %s", hook)
 	return nil
 }
 

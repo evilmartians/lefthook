@@ -21,9 +21,12 @@ type Options struct {
 }
 
 type Lefthook struct {
-	opts *Options
 	fs   afero.Fs
 	repo git.Repository
+
+	// Since we need to support deprecated global options Force and Aggressive
+	// we need to pass them with the Options
+	opts *Options
 }
 
 // New returns an instance of Lefthook
@@ -32,7 +35,7 @@ func New(opts *Options) Lefthook {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	// TODO: check NoColors
+	log.SetColors(!opts.NoColors)
 
 	return Lefthook{opts: opts, fs: opts.Fs}
 }

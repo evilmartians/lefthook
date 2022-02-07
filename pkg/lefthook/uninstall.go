@@ -61,7 +61,7 @@ func (l Lefthook) deleteHooks(force bool) error {
 		if err := l.fs.Remove(hookFile); err == nil {
 			log.Debug(hookFile, "removed")
 		} else {
-			log.Errorf("Failed removing %s: %s", hookFile, err)
+			log.Errorf("Failed removing %s: %s\n", hookFile, err)
 		}
 
 		// Recover .old file if exists
@@ -73,7 +73,7 @@ func (l Lefthook) deleteHooks(force bool) error {
 		if err := l.fs.Rename(oldHookFile, hookFile); err == nil {
 			log.Debug(oldHookFile, "renamed to", file.Name())
 		} else {
-			log.Errorf("Failed renaming %s: %s", oldHookFile, err)
+			log.Errorf("Failed renaming %s: %s\n", oldHookFile, err)
 		}
 	}
 
@@ -83,7 +83,7 @@ func (l Lefthook) deleteHooks(force bool) error {
 func (l Lefthook) removeFile(glob string) {
 	paths, err := afero.Glob(l.fs, glob)
 	if err != nil {
-		log.Errorf("Failed removing configuration files: %s", err)
+		log.Errorf("Failed removing configuration files: %s\n", err)
 		return
 	}
 
@@ -91,7 +91,7 @@ func (l Lefthook) removeFile(glob string) {
 		if err := l.fs.Remove(fileName); err == nil {
 			log.Debug(fileName, "removed")
 		} else {
-			log.Errorf("Failed removing file %s: %s", fileName, err)
+			log.Errorf("Failed removing file %s: %s\n", fileName, err)
 		}
 	}
 }
