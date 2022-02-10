@@ -8,27 +8,39 @@ if [ -t 1 ] ; then
   exec < /dev/tty ; # <- enables interactive shell
 fi
 
-dir="$(git rev-parse --show-toplevel)"
-
 call_lefthook()
 {
   if lefthook{{.Extension}} -h >/dev/null 2>&1
   then
     eval lefthook{{.Extension}} $@
-  elif test -f "$dir/node_modules/@arkweid/lefthook/bin/lefthook{{.Extension}}"
+
+  # Node modules bin
+  elif test -f "$(git rev-parse --show-toplevel)/node_modules/.bin/lefthook"
   then
-    eval "$dir/node_modules/@arkweid/lefthook/bin/lefthook{{.Extension}} $@"
+    eval "$(git rev-parse --show-toplevel)/node_modules/.bin/lefthook $@"
+
+  # Ruby Bundler
   elif bundle exec lefthook -h >/dev/null 2>&1
   then
     bundle exec lefthook $@
-  elif npx @arkweid/lefthook -h >/dev/null 2>&1
-  then
-    npx @arkweid/lefthook $@
+
+  # Yarn
   elif yarn lefthook -h >/dev/null 2>&1
   then
     yarn lefthook $@
+
+  # pnpm
+  elif pnpm lefthook -h >/dev/null 2>&1
+  then
+    pnpm lefthook $@
+
+  # npm
+  elif npx @arkweid/lefthook -h >/dev/null 2>&1
+  then
+    npx @arkweid/lefthook $@
+
   else
-    echo "Can't find lefthook in PATH"
+    echo "Cannot find lefthook binary"
   fi
 }
 
