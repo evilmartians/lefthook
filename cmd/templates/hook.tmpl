@@ -9,15 +9,17 @@ if [ -t 1 ] ; then
 fi
 
 dir="$(git rev-parse --show-toplevel)"
+osArch=$(echo "$(uname)" | tr '[:upper:]' '[:lower:]')
+cpuArch=$(echo "$(uname -m)" | sed 's/aarch/amd/')
 
 call_lefthook()
 {
   if lefthook{{.Extension}} -h >/dev/null 2>&1
   then
     eval lefthook{{.Extension}} $@
-  elif test -f "$dir/node_modules/@arkweid/lefthook/bin/lefthook{{.Extension}}"
+  elif test -f "$dir/node_modules/@arkweid/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}"
   then
-    eval "$dir/node_modules/@arkweid/lefthook/bin/lefthook{{.Extension}} $@"
+    eval "$dir/node_modules/@arkweid/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}} $@"
   elif bundle exec lefthook -h >/dev/null 2>&1
   then
     bundle exec lefthook $@
