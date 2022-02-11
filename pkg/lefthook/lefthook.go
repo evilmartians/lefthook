@@ -21,43 +21,31 @@ type Options struct {
 }
 
 type Lefthook struct {
-	fs   afero.Fs
-	repo git.Repository
-
 	// Since we need to support deprecated global options Force and Aggressive
-	// we need to pass them with the Options
-	opts *Options
+	// we need to store these fields. After their removal we need just to copy fs.
+	*Options
+
+	repo git.Repository
 }
 
 // New returns an instance of Lefthook
-func New(opts *Options) Lefthook {
+func initialize(opts *Options) (*Lefthook, error) {
 	if opts.Verbose {
 		log.SetLevel(log.DebugLevel)
 	}
 
 	log.SetColors(!opts.NoColors)
 
-	return Lefthook{opts: opts, fs: opts.Fs}
-}
-
-// initRepo initializes default repository object, if it wasn't assigned before
-func initRepo(lefthook *Lefthook) error {
-	if lefthook.repo != nil {
-		return nil
-	}
-
 	repo, err := git.NewRepository()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	lefthook.repo = repo
-
-	return nil
+	return &Lefthook{Options: opts, repo: repo}, nil
 }
 
-func (l Lefthook) isLefthookFile(path string) bool {
-	file, err := l.fs.Open(path)
+func (l *Lefthook) isLefthookFile(path string) bool {
+	file, err := l.Fs.Open(path)
 	if err != nil {
 		return false
 	}

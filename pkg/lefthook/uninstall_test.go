@@ -83,7 +83,7 @@ func TestLefthookUninstall(t *testing.T) {
 	} {
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			fs := afero.NewMemMapFs()
-			lefthook := Lefthook{fs: fs, repo: repo, opts: &Options{}}
+			lefthook := &Lefthook{Options: &Options{Fs: fs}, repo: repo}
 
 			// Prepare files that should exist
 			for file, content := range tt.existingFiles {

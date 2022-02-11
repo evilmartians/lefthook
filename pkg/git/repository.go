@@ -8,3 +8,7 @@ type Repository interface {
 	GitPath() string
 	OperationInProgress() bool
 }
+
+func NewRepository() (Repository, error) {
+	return NewGit2GoRepository()
+}
