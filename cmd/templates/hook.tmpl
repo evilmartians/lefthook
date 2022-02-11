@@ -10,7 +10,7 @@ fi
 
 dir="$(git rev-parse --show-toplevel)"
 osArch=$(echo "$(uname)" | tr '[:upper:]' '[:lower:]')
-cpuArch=$(echo "$(uname -m)" | sed 's/aarch/amd/')
+cpuArch=$(echo "$(uname -m)" | sed 's/aarch64/arm64/')
 
 call_lefthook()
 {
