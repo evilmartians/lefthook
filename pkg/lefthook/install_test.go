@@ -228,7 +228,7 @@ post-commit:
 		},
 	} {
 		fs := afero.NewMemMapFs()
-		lefthook := Lefthook{fs: fs, repo: repo, opts: &Options{}}
+		lefthook := &Lefthook{Options: &Options{Fs: fs}, repo: repo}
 
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			// Create configuration file

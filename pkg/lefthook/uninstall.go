@@ -13,15 +13,16 @@ type UninstallArgs struct {
 }
 
 func Uninstall(opts *Options, args *UninstallArgs) error {
-	return New(opts).Uninstall(args)
-}
-
-func (l Lefthook) Uninstall(args *UninstallArgs) error {
-	if err := initRepo(&l); err != nil {
+	lefthook, err := initialize(opts)
+	if err != nil {
 		return err
 	}
 
-	if err := l.deleteHooks(l.opts.Aggressive || args.Aggressive); err != nil {
+	return lefthook.Uninstall(args)
+}
+
+func (l *Lefthook) Uninstall(args *UninstallArgs) error {
+	if err := l.deleteHooks(args.Aggressive || l.Options.Aggressive); err != nil {
 		return err
 	}
 
@@ -39,13 +40,13 @@ func (l Lefthook) Uninstall(args *UninstallArgs) error {
 	return nil
 }
 
-func (l Lefthook) deleteHooks(force bool) error {
+func (l *Lefthook) deleteHooks(force bool) error {
 	hooksPath, err := l.repo.HooksPath()
 	if err != nil {
 		return err
 	}
 
-	hooks, err := afero.ReadDir(l.fs, hooksPath)
+	hooks, err := afero.ReadDir(l.Fs, hooksPath)
 	if err != nil {
 		return err
 	}
@@ -58,7 +59,7 @@ func (l Lefthook) deleteHooks(force bool) error {
 			continue
 		}
 
-		if err := l.fs.Remove(hookFile); err == nil {
+		if err := l.Fs.Remove(hookFile); err == nil {
 			log.Debug(hookFile, "removed")
 		} else {
 			log.Errorf("Failed removing %s: %s\n", hookFile, err)
@@ -66,11 +67,11 @@ func (l Lefthook) deleteHooks(force bool) error {
 
 		// Recover .old file if exists
 		oldHookFile := filepath.Join(hooksPath, file.Name()+".old")
-		if exists, _ := afero.Exists(l.fs, oldHookFile); !exists {
+		if exists, _ := afero.Exists(l.Fs, oldHookFile); !exists {
 			continue
 		}
 
-		if err := l.fs.Rename(oldHookFile, hookFile); err == nil {
+		if err := l.Fs.Rename(oldHookFile, hookFile); err == nil {
 			log.Debug(oldHookFile, "renamed to", file.Name())
 		} else {
 			log.Errorf("Failed renaming %s: %s\n", oldHookFile, err)
@@ -80,15 +81,15 @@ func (l Lefthook) deleteHooks(force bool) error {
 	return nil
 }
 
-func (l Lefthook) removeFile(glob string) {
-	paths, err := afero.Glob(l.fs, glob)
+func (l *Lefthook) removeFile(glob string) {
+	paths, err := afero.Glob(l.Fs, glob)
 	if err != nil {
 		log.Errorf("Failed removing configuration files: %s\n", err)
 		return
 	}
 
 	for _, fileName := range paths {
-		if err := l.fs.Remove(fileName); err == nil {
+		if err := l.Fs.Remove(fileName); err == nil {
 			log.Debug(fileName, "removed")
 		} else {
 			log.Errorf("Failed removing file %s: %s\n", fileName, err)

@@ -11,10 +11,6 @@ type Git2GoRepository struct {
 	repo *git2go.Repository
 }
 
-func NewRepository() (Repository, error) {
-	return NewGit2GoRepository()
-}
-
 func NewGit2GoRepository() (*Git2GoRepository, error) {
 	r, err := openRepo()
 	if err != nil {

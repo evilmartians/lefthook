@@ -31,24 +31,25 @@ type InstallArgs struct {
 
 // Install installs the hooks from config file to the .git/hooks
 func Install(opts *Options, args *InstallArgs) error {
-	return New(opts).Install(args)
-}
-
-func (l Lefthook) Install(args *InstallArgs) error {
-	if err := initRepo(&l); err != nil {
+	lefthook, err := initialize(opts)
+	if err != nil {
 		return err
 	}
 
+	return lefthook.Install(args)
+}
+
+func (l *Lefthook) Install(args *InstallArgs) error {
 	cfg, err := l.readOrCreateConfig()
 	if err != nil {
 		return err
 	}
 
 	return l.createHooks(cfg,
-		args.Force || args.Aggressive || l.opts.Force || l.opts.Aggressive)
+		args.Force || args.Aggressive || l.Options.Force || l.Options.Aggressive)
 }
 
-func (l Lefthook) readOrCreateConfig() (*config.Config, error) {
+func (l *Lefthook) readOrCreateConfig() (*config.Config, error) {
 	path := l.repo.RootPath()
 
 	log.Debug("Searching config in:", path)
@@ -61,17 +62,17 @@ func (l Lefthook) readOrCreateConfig() (*config.Config, error) {
 		}
 	}
 
-	return config.Load(l.fs, path)
+	return config.Load(l.Fs, path)
 }
 
-func (l Lefthook) configExists(path string) bool {
-	paths, err := afero.Glob(l.fs, filepath.Join(path, configGlob))
+func (l *Lefthook) configExists(path string) bool {
+	paths, err := afero.Glob(l.Fs, filepath.Join(path, configGlob))
 	if err != nil {
 		return false
 	}
 
 	for _, config := range paths {
-		if ok, _ := afero.Exists(l.fs, config); ok {
+		if ok, _ := afero.Exists(l.Fs, config); ok {
 			return true
 		}
 	}
@@ -79,10 +80,10 @@ func (l Lefthook) configExists(path string) bool {
 	return false
 }
 
-func (l Lefthook) createConfig(path string) error {
+func (l *Lefthook) createConfig(path string) error {
 	file := filepath.Join(path, configDefaultName)
 
-	err := afero.WriteFile(l.fs, file, templates.Config(), 0666)
+	err := afero.WriteFile(l.Fs, file, templates.Config(), 0666)
 	if err != nil {
 		return err
 	}
@@ -92,7 +93,7 @@ func (l Lefthook) createConfig(path string) error {
 	return nil
 }
 
-func (l Lefthook) createHooks(cfg *config.Config, force bool) error {
+func (l *Lefthook) createHooks(cfg *config.Config, force bool) error {
 	if !force && l.hooksSynchronized() {
 		return nil
 	}
@@ -145,8 +146,8 @@ func (l Lefthook) createHooks(cfg *config.Config, force bool) error {
 	return nil
 }
 
-func (l Lefthook) cleanHook(hook, hookPath string, force bool) error {
-	exists, err := afero.Exists(l.fs, hookPath)
+func (l *Lefthook) cleanHook(hook, hookPath string, force bool) error {
+	exists, err := afero.Exists(l.Fs, hookPath)
 	if err != nil {
 		return err
 	}
@@ -156,7 +157,7 @@ func (l Lefthook) cleanHook(hook, hookPath string, force bool) error {
 
 	// Remove lefthook hook
 	if l.isLefthookFile(hookPath) {
-		if err = l.fs.Remove(hookPath); err != nil {
+		if err = l.Fs.Remove(hookPath); err != nil {
 			return err
 		}
 
@@ -164,7 +165,7 @@ func (l Lefthook) cleanHook(hook, hookPath string, force bool) error {
 	}
 
 	// Check if .old file already exists before renaming
-	exists, err = afero.Exists(l.fs, hookPath+".old")
+	exists, err = afero.Exists(l.Fs, hookPath+".old")
 	if err != nil {
 		return err
 	}
@@ -176,7 +177,7 @@ func (l Lefthook) cleanHook(hook, hookPath string, force bool) error {
 		}
 	}
 
-	err = l.fs.Rename(hookPath, hookPath+".old")
+	err = l.Fs.Rename(hookPath, hookPath+".old")
 	if err != nil {
 		return err
 	}
@@ -185,9 +186,9 @@ func (l Lefthook) cleanHook(hook, hookPath string, force bool) error {
 	return nil
 }
 
-func (l Lefthook) addHook(hook, hookPath, configChecksum string) error {
+func (l *Lefthook) addHook(hook, hookPath, configChecksum string) error {
 	err := afero.WriteFile(
-		l.fs, hookPath, templates.Hook(hook, configChecksum), 0755,
+		l.Fs, hookPath, templates.Hook(hook, configChecksum), 0755,
 	)
 	if err != nil {
 		return err
@@ -196,7 +197,7 @@ func (l Lefthook) addHook(hook, hookPath, configChecksum string) error {
 	return nil
 }
 
-func (l Lefthook) hooksSynchronized() bool {
+func (l *Lefthook) hooksSynchronized() bool {
 	checksum, err := l.configChecksum()
 	if err != nil {
 		return false
@@ -209,7 +210,7 @@ func (l Lefthook) hooksSynchronized() bool {
 
 	// Check checksum in a checksum file
 	hookFullPath := filepath.Join(hooksPath, checksumHookFilename)
-	file, err := l.fs.Open(hookFullPath)
+	file, err := l.Fs.Open(hookFullPath)
 	if err != nil {
 		return false
 	}
@@ -228,13 +229,13 @@ func (l Lefthook) hooksSynchronized() bool {
 	return false
 }
 
-func (l Lefthook) configChecksum() (checksum string, err error) {
-	m, err := afero.Glob(l.fs, filepath.Join(l.repo.RootPath(), configGlob))
+func (l *Lefthook) configChecksum() (checksum string, err error) {
+	m, err := afero.Glob(l.Fs, filepath.Join(l.repo.RootPath(), configGlob))
 	if err != nil {
 		return
 	}
 
-	file, err := l.fs.Open(m[0])
+	file, err := l.Fs.Open(m[0])
 	if err != nil {
 		return
 	}
