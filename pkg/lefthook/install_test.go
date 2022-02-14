@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/afero"
 
+	"github.com/evilmartians/lefthook/pkg/config"
 	"github.com/evilmartians/lefthook/pkg/git"
 )
 
@@ -47,7 +48,7 @@ post-commit:
 				"/src/lefthook.yml",
 				"/src/.git/hooks/pre-commit",
 				"/src/.git/hooks/post-commit",
-				"/src/.git/hooks/" + checksumHookFilename,
+				"/src/.git/hooks/" + config.ChecksumHookFilename,
 			},
 		},
 		{
@@ -71,7 +72,7 @@ post-commit:
 				"/src/.git/hooks/pre-commit",
 				"/src/.git/hooks/pre-commit.old",
 				"/src/.git/hooks/post-commit",
-				"/src/.git/hooks/" + checksumHookFilename,
+				"/src/.git/hooks/" + config.ChecksumHookFilename,
 			},
 		},
 		{
@@ -94,7 +95,7 @@ post-commit:
 				"/src/lefthook.yml",
 				"/src/.git/hooks/pre-commit",
 				"/src/.git/hooks/post-commit",
-				"/src/.git/hooks/" + checksumHookFilename,
+				"/src/.git/hooks/" + config.ChecksumHookFilename,
 			},
 			wantNotExist: []string{
 				"/src/.git/hooks/pre-commit.old",
@@ -118,7 +119,7 @@ post-commit:
 			},
 			wantExist: []string{
 				"/src/lefthook.yml",
-				"/src/.git/hooks/" + checksumHookFilename,
+				"/src/.git/hooks/" + config.ChecksumHookFilename,
 			},
 			wantNotExist: []string{
 				"/src/.git/hooks/pre-commit",
@@ -146,7 +147,7 @@ post-commit:
 				"/src/lefthook.yml",
 				"/src/.git/hooks/pre-commit",
 				"/src/.git/hooks/post-commit",
-				"/src/.git/hooks/" + checksumHookFilename,
+				"/src/.git/hooks/" + config.ChecksumHookFilename,
 			},
 		},
 		{
@@ -173,7 +174,7 @@ post-commit:
 				"/src/.git/hooks/pre-commit.old",
 			},
 			wantNotExist: []string{
-				"/src/.git/hooks/" + checksumHookFilename,
+				"/src/.git/hooks/" + config.ChecksumHookFilename,
 			},
 		},
 		{
@@ -199,7 +200,7 @@ post-commit:
 				"/src/.git/hooks/pre-commit",
 				"/src/.git/hooks/pre-commit.old",
 				"/src/.git/hooks/post-commit",
-				"/src/.git/hooks/" + checksumHookFilename,
+				"/src/.git/hooks/" + config.ChecksumHookFilename,
 			},
 		},
 	} {
