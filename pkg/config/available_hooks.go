@@ -1,6 +1,6 @@
 package config
 
-// See: https://git-scm.com/docs/githooks
+// AvailableHooks - list of hooks taken from https://git-scm.com/docs/githooks.
 var AvailableHooks = [...]string{
 	"pre-applypatch",
 	"applypatch-msg",

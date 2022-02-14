@@ -8,15 +8,13 @@ import (
 	"github.com/evilmartians/lefthook/pkg/lefthook"
 )
 
-var (
-	commands = [...]func(*lefthook.Options) *cobra.Command{
-		NewVersionCmd,
-		NewAddCmd,
-		NewInstallCmd,
-		NewUninstallCmd,
-		NewRunCmd,
-	}
-)
+var commands = [...]func(*lefthook.Options) *cobra.Command{
+	NewVersionCmd,
+	NewAddCmd,
+	NewInstallCmd,
+	NewUninstallCmd,
+	NewRunCmd,
+}
 
 func NewRootCmd() *cobra.Command {
 	options := lefthook.Options{

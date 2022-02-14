@@ -10,9 +10,7 @@ import (
 	"github.com/logrusorgru/aurora"
 )
 
-var (
-	std = New()
-)
+var std = New()
 
 type Level uint32
 

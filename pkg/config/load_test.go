@@ -141,11 +141,11 @@ pre-push:
 	} {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			if err := fs.WriteFile("/lefthook.yml", tt.global, 0644); err != nil {
+			if err := fs.WriteFile("/lefthook.yml", tt.global, 0o644); err != nil {
 				t.Errorf("unexpected error: %s", err)
 			}
 
-			if err := fs.WriteFile("/lefthook-local.yml", tt.local, 0644); err != nil {
+			if err := fs.WriteFile("/lefthook-local.yml", tt.local, 0o644); err != nil {
 				t.Errorf("unexpected error: %s", err)
 			}
 

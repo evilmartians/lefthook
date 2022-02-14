@@ -15,21 +15,28 @@ linters:
    - dogsled
    - dupl
    - errcheck
-   - exportloopref
    - exhaustive
+   - exportloopref
+   - gci
    - goconst
    - gocyclo
+   - gocyclo
+   - godot
+   - godox
    - gofmt
-   - gci
+   - gofumpt
    - goimports
+   - gomnd
    - goprintffuncname
    - gosimple
    - govet
    - ineffassign
    - misspell
    - nakedret
+   - nestif
    - noctx
    - nolintlint
+   - revive
    - rowserrcheck
    - staticcheck
    - structcheck
@@ -39,5 +46,3 @@ linters:
    - unused
    - varcheck
    - whitespace
-   - godot
-   - godox

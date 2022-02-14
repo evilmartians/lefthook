@@ -7,6 +7,8 @@ import (
 	"github.com/evilmartians/lefthook/pkg/config"
 )
 
+const defaultDirMode = 0o755
+
 type AddArgs struct {
 	Hook string
 
@@ -44,10 +46,10 @@ func (l *Lefthook) Add(args *AddArgs) error {
 		sourceDir := filepath.Join(l.repo.RootPath, global, args.Hook)
 		sourceDirLocal := filepath.Join(l.repo.RootPath, local, args.Hook)
 		println("HI", sourceDir, sourceDirLocal)
-		if err = l.Fs.MkdirAll(sourceDir, 0755); err != nil {
+		if err = l.Fs.MkdirAll(sourceDir, defaultDirMode); err != nil {
 			return err
 		}
-		if err = l.Fs.MkdirAll(sourceDirLocal, 0755); err != nil {
+		if err = l.Fs.MkdirAll(sourceDirLocal, defaultDirMode); err != nil {
 			return err
 		}
 	}
