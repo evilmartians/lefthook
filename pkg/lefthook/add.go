@@ -45,7 +45,7 @@ func (l *Lefthook) Add(args *AddArgs) error {
 
 		sourceDir := filepath.Join(l.repo.RootPath, global, args.Hook)
 		sourceDirLocal := filepath.Join(l.repo.RootPath, local, args.Hook)
-		println("HI", sourceDir, sourceDirLocal)
+
 		if err = l.Fs.MkdirAll(sourceDir, defaultDirMode); err != nil {
 			return err
 		}

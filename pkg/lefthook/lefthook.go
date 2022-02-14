@@ -80,7 +80,7 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 		return nil
 	}
 
-	// Remove lefthook hook
+	// Just remove lefthook hook
 	if l.isLefthookFile(hookPath) {
 		if err = l.Fs.Remove(hookPath); err != nil {
 			return err
@@ -112,6 +112,7 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 	return nil
 }
 
+// Creates a hook file using hook template.
 func (l *Lefthook) addHook(hook, configChecksum string) error {
 	hookPath := filepath.Join(l.repo.HooksPath, hook)
 	err := afero.WriteFile(
