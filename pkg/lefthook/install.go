@@ -17,10 +17,9 @@ import (
 )
 
 const (
-	checksumHookFilename = "prepare-commit-msg"
-	configFileMode       = 0o666
-	configDefaultName    = "lefthook.yml"
-	configGlob           = "lefthook.y*ml"
+	configFileMode    = 0o666
+	configDefaultName = "lefthook.yml"
+	configGlob        = "lefthook.y*ml"
 )
 
 var lefthookChecksumRegexp = regexp.MustCompile(`(?:#\s*lefthook_version:\s+)(\w+)`)
@@ -119,12 +118,12 @@ func (l *Lefthook) createHooks(cfg *config.Config, force bool) error {
 	}
 
 	// Add an informational hook to use for checksum comparation.
-	err = l.addHook(checksumHookFilename, checksum)
+	err = l.addHook(config.ChecksumHookFilename, checksum)
 	if err != nil {
 		return err
 	}
 
-	hookNames = append(hookNames, checksumHookFilename)
+	hookNames = append(hookNames, config.ChecksumHookFilename)
 	log.Info(log.Cyan("SERVED HOOKS:"), log.Bold(strings.Join(hookNames, ", ")))
 
 	return nil
@@ -137,7 +136,7 @@ func (l *Lefthook) hooksSynchronized() bool {
 	}
 
 	// Check checksum in a checksum file
-	hookFullPath := filepath.Join(l.repo.HooksPath, checksumHookFilename)
+	hookFullPath := filepath.Join(l.repo.HooksPath, config.ChecksumHookFilename)
 	file, err := l.Fs.Open(hookFullPath)
 	if err != nil {
 		return false

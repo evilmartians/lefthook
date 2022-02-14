@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"runtime"
 	"text/template"
+
+	"github.com/evilmartians/lefthook/pkg/config"
 )
 
 const checksumFormat = "# lefthook_version: %s"
@@ -44,7 +46,7 @@ func Config() []byte {
 }
 
 func autoInstall(hookName, configChecksum string) string {
-	if hookName != "prepare-commit-msg" {
+	if hookName != config.ChecksumHookFilename {
 		return ""
 	}
 
