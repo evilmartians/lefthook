@@ -209,17 +209,17 @@ post-commit:
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			// Create configuration file
 			if len(tt.config) > 0 {
-				if err := afero.WriteFile(fs, "/src/lefthook.yml", []byte(tt.config), 0644); err != nil {
+				if err := afero.WriteFile(fs, "/src/lefthook.yml", []byte(tt.config), 0o644); err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
 			}
 
 			// Create files that should exist
 			for file, content := range tt.existingFiles {
-				if err := fs.MkdirAll(filepath.Base(file), 0755); err != nil {
+				if err := fs.MkdirAll(filepath.Base(file), 0o755); err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
-				if err := afero.WriteFile(fs, file, []byte(content), 0755); err != nil {
+				if err := afero.WriteFile(fs, file, []byte(content), 0o755); err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
 			}

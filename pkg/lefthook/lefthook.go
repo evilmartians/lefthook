@@ -13,6 +13,8 @@ import (
 	"github.com/evilmartians/lefthook/pkg/templates"
 )
 
+const hookFileMode = 0o755
+
 var lefthookContentRegexp = regexp.MustCompile("LEFTHOOK")
 
 type Options struct {
@@ -96,7 +98,8 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 		if force {
 			log.Infof("File %s.old already exists, overwriting\n", hook)
 		} else {
-			return fmt.Errorf("Can't rename %s to %s.old - file already exists\n", hook, hook)
+			log.Errorf("Can't rename %s to %s.old - file already exists\n", hook, hook)
+			return fmt.Errorf("file %s.old already exists", hook)
 		}
 	}
 
@@ -112,7 +115,7 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 func (l *Lefthook) addHook(hook, configChecksum string) error {
 	hookPath := filepath.Join(l.repo.HooksPath, hook)
 	err := afero.WriteFile(
-		l.Fs, hookPath, templates.Hook(hook, configChecksum), 0755,
+		l.Fs, hookPath, templates.Hook(hook, configChecksum), hookFileMode,
 	)
 	if err != nil {
 		return err

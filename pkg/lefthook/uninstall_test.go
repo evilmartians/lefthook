@@ -93,10 +93,10 @@ func TestLefthookUninstall(t *testing.T) {
 
 			// Prepare files that should exist
 			for file, content := range tt.existingFiles {
-				if err := fs.MkdirAll(filepath.Base(file), 0755); err != nil {
+				if err := fs.MkdirAll(filepath.Base(file), 0o755); err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
-				if err := afero.WriteFile(fs, file, []byte(content), 0755); err != nil {
+				if err := afero.WriteFile(fs, file, []byte(content), 0o755); err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
 			}
