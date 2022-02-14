@@ -8,7 +8,12 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Loads configs from the given directory with extensions
+const (
+	DefaultSourceDir      = ".lefthook"
+	DefaultSourceDirLocal = ".lefthook-local"
+)
+
+// Loads configs from the given directory with extensions.
 func Load(fs afero.Fs, path string) (*Config, error) {
 	global, err := read(fs, path, "lefthook")
 	if err != nil {
@@ -23,6 +28,8 @@ func Load(fs afero.Fs, path string) (*Config, error) {
 	var config Config
 
 	config.Colors = true // by default colors are enabled
+	config.SourceDir = DefaultSourceDir
+	config.SourceDirLocal = DefaultSourceDirLocal
 
 	err = unmarshalConfigs(global, extends, &config)
 	if err != nil {
@@ -50,7 +57,7 @@ func read(fs afero.Fs, path string, name string) (*viper.Viper, error) {
 	return v, nil
 }
 
-// Merges extends from .lefthook and .lefthook-local
+// Merges extends from .lefthook and .lefthook-local.
 func mergeAllExtends(fs afero.Fs, path string) (*viper.Viper, error) {
 	extends, err := read(fs, path, "lefthook")
 	if err != nil {

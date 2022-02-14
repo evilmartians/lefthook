@@ -6,10 +6,16 @@ import (
 	"testing"
 
 	"github.com/spf13/afero"
+
+	"github.com/evilmartians/lefthook/pkg/git"
 )
 
 func TestLefthookUninstall(t *testing.T) {
-	repo := RepoTest()
+	repo := &git.Repository{
+		HooksPath: "/src/.git/hooks",
+		RootPath:  "/src/",
+		GitPath:   "/src/",
+	}
 
 	for n, tt := range [...]struct {
 		name                    string
@@ -87,7 +93,7 @@ func TestLefthookUninstall(t *testing.T) {
 
 			// Prepare files that should exist
 			for file, content := range tt.existingFiles {
-				if err := fs.MkdirAll(filepath.Base(file), 0664); err != nil {
+				if err := fs.MkdirAll(filepath.Base(file), 0755); err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
 				if err := afero.WriteFile(fs, file, []byte(content), 0755); err != nil {

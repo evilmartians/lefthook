@@ -40,7 +40,6 @@ func NewRootCmd() *cobra.Command {
 		&options.NoColors, "no-colors", false, "disable colored output",
 	)
 
-	// TODO: Drop deprecated options
 	rootCmd.Flags().BoolVarP(
 		&options.Force, "force", "f", false,
 		"DEPRECATED: reinstall hooks without checking config version",

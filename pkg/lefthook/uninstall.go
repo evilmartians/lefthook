@@ -27,13 +27,11 @@ func (l *Lefthook) Uninstall(args *UninstallArgs) error {
 	}
 
 	if !args.KeepConfiguration {
-		rootPath := l.repo.RootPath()
-
 		for _, glob := range []string{
 			"lefthook.y*ml",
 			"lefthook-local.y*ml",
 		} {
-			l.removeFile(filepath.Join(rootPath, glob))
+			l.removeFile(filepath.Join(l.repo.RootPath, glob))
 		}
 	}
 
@@ -41,18 +39,13 @@ func (l *Lefthook) Uninstall(args *UninstallArgs) error {
 }
 
 func (l *Lefthook) deleteHooks(force bool) error {
-	hooksPath, err := l.repo.HooksPath()
-	if err != nil {
-		return err
-	}
-
-	hooks, err := afero.ReadDir(l.Fs, hooksPath)
+	hooks, err := afero.ReadDir(l.Fs, l.repo.HooksPath)
 	if err != nil {
 		return err
 	}
 
 	for _, file := range hooks {
-		hookFile := filepath.Join(hooksPath, file.Name())
+		hookFile := filepath.Join(l.repo.HooksPath, file.Name())
 
 		// Skip non-lefthook files if removal not forced
 		if !l.isLefthookFile(hookFile) && !force {
@@ -66,7 +59,7 @@ func (l *Lefthook) deleteHooks(force bool) error {
 		}
 
 		// Recover .old file if exists
-		oldHookFile := filepath.Join(hooksPath, file.Name()+".old")
+		oldHookFile := filepath.Join(l.repo.HooksPath, file.Name()+".old")
 		if exists, _ := afero.Exists(l.Fs, oldHookFile); !exists {
 			continue
 		}

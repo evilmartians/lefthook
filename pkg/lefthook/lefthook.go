@@ -2,12 +2,15 @@ package lefthook
 
 import (
 	"bufio"
+	"fmt"
+	"path/filepath"
 	"regexp"
 
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/pkg/git"
 	"github.com/evilmartians/lefthook/pkg/log"
+	"github.com/evilmartians/lefthook/pkg/templates"
 )
 
 var lefthookContentRegexp = regexp.MustCompile("LEFTHOOK")
@@ -16,7 +19,7 @@ type Options struct {
 	Fs                afero.Fs
 	Verbose, NoColors bool
 
-	// DEPRECATED
+	// DEPRECATED.
 	Force, Aggressive bool
 }
 
@@ -25,10 +28,10 @@ type Lefthook struct {
 	// we need to store these fields. After their removal we need just to copy fs.
 	*Options
 
-	repo git.Repository
+	repo *git.Repository
 }
 
-// New returns an instance of Lefthook
+// New returns an instance of Lefthook.
 func initialize(opts *Options) (*Lefthook, error) {
 	if opts.Verbose {
 		log.SetLevel(log.DebugLevel)
@@ -44,6 +47,7 @@ func initialize(opts *Options) (*Lefthook, error) {
 	return &Lefthook{Options: opts, repo: repo}, nil
 }
 
+// Tests a file whether it is a lefthook-created file.
 func (l *Lefthook) isLefthookFile(path string) bool {
 	file, err := l.Fs.Open(path)
 	if err != nil {
@@ -61,4 +65,58 @@ func (l *Lefthook) isLefthookFile(path string) bool {
 	}
 
 	return false
+}
+
+// Removes the hook from hooks path, saving non-lefthook hooks with .old suffix.
+func (l *Lefthook) cleanHook(hook string, force bool) error {
+	hookPath := filepath.Join(l.repo.HooksPath, hook)
+	exists, err := afero.Exists(l.Fs, hookPath)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return nil
+	}
+
+	// Remove lefthook hook
+	if l.isLefthookFile(hookPath) {
+		if err = l.Fs.Remove(hookPath); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	// Check if .old file already exists before renaming.
+	exists, err = afero.Exists(l.Fs, hookPath+".old")
+	if err != nil {
+		return err
+	}
+	if exists {
+		if force {
+			log.Infof("File %s.old already exists, overwriting\n", hook)
+		} else {
+			return fmt.Errorf("Can't rename %s to %s.old - file already exists\n", hook, hook)
+		}
+	}
+
+	err = l.Fs.Rename(hookPath, hookPath+".old")
+	if err != nil {
+		return err
+	}
+
+	log.Infof("Renamed %s to %s.old\n", hookPath, hookPath)
+	return nil
+}
+
+func (l *Lefthook) addHook(hook, configChecksum string) error {
+	hookPath := filepath.Join(l.repo.HooksPath, hook)
+	err := afero.WriteFile(
+		l.Fs, hookPath, templates.Hook(hook, configChecksum), 0755,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

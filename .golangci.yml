@@ -39,3 +39,5 @@ linters:
    - unused
    - varcheck
    - whitespace
+   - godot
+   - godox
