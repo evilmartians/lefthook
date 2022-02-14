@@ -115,7 +115,7 @@ func unmarshalScripts(s map[string]interface{}) (map[string]*Script, error) {
 //         runner: bash
 //
 // This is not an expected behavior and cannot be controlled yet
-// Working with GetStringMap is the only way to get the structure "as is"
+// Working with GetStringMap is the only way to get the structure "as is".
 func unmarshal(input, output interface{}) error {
 	if err := mapstructure.WeakDecode(input, &output); err != nil {
 		return err

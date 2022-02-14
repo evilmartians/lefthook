@@ -31,7 +31,9 @@ post-commit:
       run: curl -x POST status.com/done
 `),
 			result: &Config{
-				Colors: true, // defaults to true
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         true, // defaults to true
 				Hooks: map[string]*Hook{
 					"pre-commit": {
 						Glob:     "",

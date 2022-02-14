@@ -10,36 +10,12 @@ import (
 	"github.com/evilmartians/lefthook/pkg/git"
 )
 
-type repoTest struct {
-	hooksPath, rootPath, gitPath string
-}
-
-func (r repoTest) HooksPath() (string, error) {
-	return r.hooksPath, nil
-}
-
-func (r repoTest) RootPath() string {
-	return r.rootPath
-}
-
-func (r repoTest) GitPath() string {
-	return r.gitPath
-}
-
-func (r repoTest) OperationInProgress() bool {
-	return false
-}
-
-func RepoTest() git.Repository {
-	return repoTest{
-		hooksPath: "/src/.git/hooks",
-		rootPath:  "/src/",
-		gitPath:   "/src/",
-	}
-}
-
 func TestLefthookInstall(t *testing.T) {
-	repo := RepoTest()
+	repo := &git.Repository{
+		HooksPath: "/src/.git/hooks",
+		RootPath:  "/src/",
+		GitPath:   "/src/",
+	}
 
 	for n, tt := range [...]struct {
 		name, config            string
@@ -240,7 +216,7 @@ post-commit:
 
 			// Create files that should exist
 			for file, content := range tt.existingFiles {
-				if err := fs.MkdirAll(filepath.Base(file), 0664); err != nil {
+				if err := fs.MkdirAll(filepath.Base(file), 0755); err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
 				if err := afero.WriteFile(fs, file, []byte(content), 0755); err != nil {

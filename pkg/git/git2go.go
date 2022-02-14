@@ -6,7 +6,6 @@ import (
 	git2go "github.com/libgit2/git2go/v33"
 )
 
-// Git2GoRepository is a realization of Repository interface with bindings to libgit2
 type Git2GoRepository struct {
 	repo *git2go.Repository
 }

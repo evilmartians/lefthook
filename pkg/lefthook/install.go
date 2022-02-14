@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"crypto/md5"
 	"encoding/hex"
-	"fmt"
 	"io"
 	"path/filepath"
 	"regexp"
@@ -29,7 +28,7 @@ type InstallArgs struct {
 	Force, Aggressive bool
 }
 
-// Install installs the hooks from config file to the .git/hooks
+// Install installs the hooks from config file to the .git/hooks.
 func Install(opts *Options, args *InstallArgs) error {
 	lefthook, err := initialize(opts)
 	if err != nil {
@@ -50,19 +49,17 @@ func (l *Lefthook) Install(args *InstallArgs) error {
 }
 
 func (l *Lefthook) readOrCreateConfig() (*config.Config, error) {
-	path := l.repo.RootPath()
+	log.Debug("Searching config in:", l.repo.RootPath)
 
-	log.Debug("Searching config in:", path)
-
-	if !l.configExists(path) {
+	if !l.configExists(l.repo.RootPath) {
 		log.Info("Config not found, creating...")
 
-		if err := l.createConfig(path); err != nil {
+		if err := l.createConfig(l.repo.RootPath); err != nil {
 			return nil, err
 		}
 	}
 
-	return config.Load(l.Fs, path)
+	return config.Load(l.Fs, l.repo.RootPath)
 }
 
 func (l *Lefthook) configExists(path string) bool {
@@ -105,37 +102,23 @@ func (l *Lefthook) createHooks(cfg *config.Config, force bool) error {
 		return err
 	}
 
-	gitHooksPath, err := l.repo.HooksPath()
-	if err != nil {
-		return err
-	}
-
 	hookNames := make([]string, len(cfg.Hooks), len(cfg.Hooks)+1)
 	for hook := range cfg.Hooks {
 		hookNames = append(hookNames, hook)
 
-		hookPath := filepath.Join(gitHooksPath, hook)
+		err = l.cleanHook(hook, force)
 		if err != nil {
 			return err
 		}
 
-		err = l.cleanHook(hook, hookPath, force)
-		if err != nil {
-			return err
-		}
-
-		err = l.addHook(hook, hookPath, checksum)
+		err = l.addHook(hook, checksum)
 		if err != nil {
 			return err
 		}
 	}
 
-	// Add an informational hook to use for checksum comparation
-	err = l.addHook(
-		checksumHookFilename,
-		filepath.Join(gitHooksPath, checksumHookFilename),
-		checksum,
-	)
+	// Add an informational hook to use for checksum comparation.
+	err = l.addHook(checksumHookFilename, checksum)
 	if err != nil {
 		return err
 	}
@@ -146,70 +129,14 @@ func (l *Lefthook) createHooks(cfg *config.Config, force bool) error {
 	return nil
 }
 
-func (l *Lefthook) cleanHook(hook, hookPath string, force bool) error {
-	exists, err := afero.Exists(l.Fs, hookPath)
-	if err != nil {
-		return err
-	}
-	if !exists {
-		return nil
-	}
-
-	// Remove lefthook hook
-	if l.isLefthookFile(hookPath) {
-		if err = l.Fs.Remove(hookPath); err != nil {
-			return err
-		}
-
-		return nil
-	}
-
-	// Check if .old file already exists before renaming
-	exists, err = afero.Exists(l.Fs, hookPath+".old")
-	if err != nil {
-		return err
-	}
-	if exists {
-		if force {
-			log.Infof("File %s.old already exists, overwriting\n", hook)
-		} else {
-			return fmt.Errorf("Can't rename %s to %s.old - file already exists\n", hook, hook)
-		}
-	}
-
-	err = l.Fs.Rename(hookPath, hookPath+".old")
-	if err != nil {
-		return err
-	}
-
-	log.Infof("Renamed %s to %s.old\n", hookPath, hookPath)
-	return nil
-}
-
-func (l *Lefthook) addHook(hook, hookPath, configChecksum string) error {
-	err := afero.WriteFile(
-		l.Fs, hookPath, templates.Hook(hook, configChecksum), 0755,
-	)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (l *Lefthook) hooksSynchronized() bool {
 	checksum, err := l.configChecksum()
 	if err != nil {
 		return false
 	}
 
-	hooksPath, err := l.repo.HooksPath()
-	if err != nil {
-		return false
-	}
-
 	// Check checksum in a checksum file
-	hookFullPath := filepath.Join(hooksPath, checksumHookFilename)
+	hookFullPath := filepath.Join(l.repo.HooksPath, checksumHookFilename)
 	file, err := l.Fs.Open(hookFullPath)
 	if err != nil {
 		return false
@@ -230,7 +157,7 @@ func (l *Lefthook) hooksSynchronized() bool {
 }
 
 func (l *Lefthook) configChecksum() (checksum string, err error) {
-	m, err := afero.Glob(l.Fs, filepath.Join(l.repo.RootPath(), configGlob))
+	m, err := afero.Glob(l.Fs, filepath.Join(l.repo.RootPath, configGlob))
 	if err != nil {
 		return
 	}
