@@ -1,0 +1,11 @@
+This command will try to build the following structure in repository:
+├───.git
+│   └───hooks
+│       └───pre-commit // this executable will be added. Existed file with
+│                      // same name will be renamed to pre-commit.old
+(lefthook add this dirs if you run command with -d option)
+│
+├───.lefthook          // directory for project level hooks
+│   └───pre-commit     // directory with hooks executables
+└───.lefthook-local    // directory for personal hooks add it in .gitignore
+    └───pre-commit
