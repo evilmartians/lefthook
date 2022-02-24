@@ -1,11 +1,11 @@
 build:
-	go build -tags static,system_libgit2 -o lefthook cmd/lefthook/main.go
+	go build -tags static,system_libgit2 -o lefthook cmd/lefthook/*.go
 
 test:
-	go test -count=1 -timeout=30s -race ./...
+	go test -cpu 24 -race -count=1 -timeout=30s ./...
 
 bench:
-	go test -run=Bench -bench=. ./...
+	go test -cpu 24 -race -run=Bench -bench=. ./...
 
 bin/golangci-lint:
 	@test -x $$(go env GOPATH)/bin/golangci-lint || \
