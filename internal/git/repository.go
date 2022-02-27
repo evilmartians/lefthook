@@ -11,6 +11,7 @@ import (
 const (
 	cmdRootPath    = "git rev-parse --show-toplevel"
 	cmdHooksPath   = "git rev-parse --git-path hooks"
+	cmdGitPath     = "git rev-parse --git-dir"
 	cmdStagedFiles = "git diff --name-only --cached"
 	cmdAllFiles    = "git ls-files --cached"
 	cmdPushFiles   = "git diff --name-only HEAD @{push} || git diff --name-only HEAD master"
@@ -20,6 +21,8 @@ const (
 type Repository struct {
 	HooksPath string
 	RootPath  string
+
+	gitPath string
 }
 
 // NewRepository returns a Repository or an error, if git repository it not initialized.
@@ -34,9 +37,18 @@ func NewRepository() (*Repository, error) {
 		return nil, err
 	}
 
+	gitPath, err := execGit(cmdGitPath)
+	if err != nil {
+		return nil, err
+	}
+	if !filepath.IsAbs(gitPath) {
+		gitPath = filepath.Join(rootPath, gitPath)
+	}
+
 	return &Repository{
 		HooksPath: filepath.Join(rootPath, hooksSubpath),
 		RootPath:  rootPath,
+		gitPath:   gitPath,
 	}, nil
 }
 
