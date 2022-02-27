@@ -112,7 +112,6 @@ pre-push:
 								Tags: []string{"backend", "test"},
 							},
 							"lint": {
-								Skip: false,
 								Glob: "*.rb",
 								Run:  "docker exec -it ruby:2.7 bundle exec rubocop",
 								Tags: []string{"backend", "linter"},

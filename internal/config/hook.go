@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"sort"
 
 	"github.com/spf13/viper"
 
@@ -16,7 +17,8 @@ type Hook struct {
 	// Should be unmarshalled with `mapstructure:"commands"`
 	// But replacing '{cmd}' is still an issue
 	// Unmarshaling it manually, so omit auto unmarshaling
-	Commands map[string]*Command `mapstructure:"?"`
+	Commands       map[string]*Command `mapstructure:"?"`
+	CommandsSorted []string            `mapstructure:"?"`
 
 	// Should be unmarshalled with `mapstructure:"scripts"`
 	// But parsing keys with dots in it is still an issue: https://github.com/spf13/viper/issues/324
@@ -47,14 +49,21 @@ func unmarshalHooks(base, extra *viper.Viper) (*Hook, error) {
 		return nil, err
 	}
 
+	var commandsKeys []string
+	for commandKey := range commands {
+		commandsKeys = append(commandsKeys, commandKey)
+	}
+	sort.Strings(commandsKeys)
+
 	scripts, err := mergeScripts(base, extra)
 	if err != nil {
 		return nil, err
 	}
 
 	hook := Hook{
-		Commands: commands,
-		Scripts:  scripts,
+		Commands:       commands,
+		CommandsSorted: commandsKeys,
+		Scripts:        scripts,
 	}
 
 	if base == nil {
