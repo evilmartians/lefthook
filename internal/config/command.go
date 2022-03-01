@@ -1,12 +1,15 @@
 package config
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/spf13/viper"
 
 	"github.com/evilmartians/lefthook/internal/git"
 )
+
+var errFilesIncompatible = errors.New("One of your runners contains incompatible file types")
 
 type Command struct {
 	Run string `mapstructure:"run"`
@@ -23,19 +26,19 @@ type Command struct {
 	Runner string `mapstructure:"runner"`
 }
 
+func (c Command) Validate() error {
+	if !isRunnerFilesCompatible(c.Run) {
+		return errFilesIncompatible
+	}
+
+	return nil
+}
+
 func (c Command) DoSkip(gitState git.State) bool {
 	if value := c.Skip; value != nil {
 		return isSkip(gitState, value)
 	}
 	return false
-}
-
-func (c Command) GetRunner() string {
-	runner := c.Run
-	if runner == "" {
-		runner = c.Runner
-	}
-	return runner
 }
 
 type commandRunReplace struct {
