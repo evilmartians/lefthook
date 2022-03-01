@@ -12,8 +12,8 @@ const (
 
 type outputDisablerFn func(out ...interface{}) string
 
-func outputDisabler(output string, disabledOutputs []string, envDisabledOutputs []string) outputDisablerFn {
-	if isOutputDisabled(output, disabledOutputs, envDisabledOutputs) {
+func outputDisabler(output string, disabledOutputs []string) outputDisablerFn {
+	if isOutputDisabled(output, disabledOutputs) {
 		return func(...interface{}) string {
 			return ""
 		}
@@ -23,13 +23,8 @@ func outputDisabler(output string, disabledOutputs []string, envDisabledOutputs 
 	}
 }
 
-func isOutputDisabled(output string, disabledOutputs []string, envDisabledOutputs []string) bool {
+func isOutputDisabled(output string, disabledOutputs []string) bool {
 	for _, disabledOutput := range disabledOutputs {
-		if output == disabledOutput {
-			return true
-		}
-	}
-	for _, disabledOutput := range envDisabledOutputs {
 		if output == disabledOutput {
 			return true
 		}

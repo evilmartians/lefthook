@@ -105,11 +105,6 @@ func Bold(arg interface{}) aurora.Value {
 	return std.aurora.Bold(arg)
 }
 
-func Brown(arg interface{}) aurora.Value {
-	// aurora deprecated brown ??
-	return std.aurora.Yellow(arg)
-}
-
 func SetOutput(out io.Writer) {
 	std.SetOutput(out)
 }

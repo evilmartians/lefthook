@@ -97,6 +97,8 @@ post-commit:
 	} {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
+			defer dropState()
+
 			if err := fs.WriteFile("/lefthook.yml", tt.global, 0o644); err != nil {
 				t.Errorf("unexpected error: %s", err)
 			}
@@ -127,7 +129,6 @@ post-commit:
 			require.ElementsMatch(t, tt.okList, okList)
 			require.ElementsMatch(t, tt.failList, failList)
 		})
-		dropState()
 	}
 }
 
@@ -141,6 +142,7 @@ post-commit:
     test1:
       run: echo
 `)
+	defer dropState()
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	if err := fs.WriteFile("/lefthook.yml", global, 0o644); err != nil {
 		t.Errorf("unexpected error: %s", err)
@@ -158,7 +160,6 @@ post-commit:
 	require.ElementsMatch(t, nil, okList)
 	require.ElementsMatch(t, []string{"test0"}, failList)
 	require.Equal(t, true, isPipeBroken)
-	dropState()
 }
 
 func dropState() {

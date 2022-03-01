@@ -26,14 +26,6 @@ func (s Script) DoSkip(gitState git.State) bool {
 	return false
 }
 
-func (s Script) GetRunner() string {
-	runner := s.Runner
-	if runner == "" {
-		runner = s.Run
-	}
-	return runner
-}
-
 type scriptRunnerReplace struct {
 	Runner string `mapstructure:"runner"`
 	Run    string `mapstructure:"run"` // DEPRECATED

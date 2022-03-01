@@ -5,9 +5,9 @@ go 1.17
 require (
 	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/briandowns/spinner v1.18.1
+	github.com/creack/pty v1.1.17
 	github.com/gobwas/glob v0.2.3
 	github.com/google/go-cmp v0.5.6
-	github.com/kr/pty v1.1.1
 	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/mitchellh/mapstructure v1.4.2
 	github.com/spf13/afero v1.6.0
