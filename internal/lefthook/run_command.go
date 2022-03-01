@@ -30,7 +30,7 @@ func RunPlainCommand(command *exec.Cmd) (*bytes.Buffer, bool, error) {
 	}
 	defer ptyOut.Close()
 
-	commandOutput := bytes.NewBuffer(make([]byte, 0))
+	commandOutput := new(bytes.Buffer)
 	_, err = io.Copy(commandOutput, ptyOut)
 	if err != nil {
 		log.Debug(err)
