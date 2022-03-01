@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -31,8 +32,8 @@ var (
 )
 
 const (
-	execMode os.FileMode = 0751
-	execMask os.FileMode = 0111
+	execMode os.FileMode = 0o751
+	execMask os.FileMode = 0o111
 )
 
 func Run(opts *Options, hookName string, gitArgs []string) error {
@@ -84,7 +85,12 @@ func (l *Lefthook) Run(hookName string, gitArgs []string) error {
 	l.executeScripts(filepath.Join(cfg.SourceDir, hookName), gitArgs, hook, &wg)
 	l.executeScripts(filepath.Join(cfg.SourceDirLocal, hookName), gitArgs, hook, &wg)
 
-	for _, name := range hook.CommandsSorted {
+	var commandsSorted []string
+	for commandKey := range hook.Commands {
+		commandsSorted = append(commandsSorted, commandKey)
+	}
+	sort.Strings(commandsSorted)
+	for _, name := range commandsSorted {
 		wg.Add(1)
 
 		if hook.Parallel {
@@ -140,30 +146,26 @@ func (l *Lefthook) executeCommand(commandName string, gitArgs []string, hook *co
 	runner := command.Run
 	if strings.Contains(runner, config.SubStagedFiles) {
 		files, err := l.repo.StagedFiles()
-		files = prepareFiles(command, files)
 		if err == nil {
-			runner = strings.ReplaceAll(runner, config.SubStagedFiles, strings.Join(files, " "))
+			runner = strings.ReplaceAll(runner, config.SubStagedFiles, prepareFiles(command, files))
 		}
 	}
 	if strings.Contains(runner, config.SubFiles) || filesCommand != "" {
 		files, err := git.FilesByCommand(filesCommand)
-		files = prepareFiles(command, files)
 		if err == nil {
-			runner = strings.ReplaceAll(runner, config.SubFiles, strings.Join(files, " "))
+			runner = strings.ReplaceAll(runner, config.SubFiles, prepareFiles(command, files))
 		}
 	}
 	if strings.Contains(runner, config.PushFiles) {
 		files, err := l.repo.PushFiles()
-		files = prepareFiles(command, files)
 		if err == nil {
-			runner = strings.ReplaceAll(runner, config.PushFiles, strings.Join(files, " "))
+			runner = strings.ReplaceAll(runner, config.PushFiles, prepareFiles(command, files))
 		}
 	}
 	if strings.Contains(runner, config.SubAllFiles) {
 		files, err := l.repo.AllFiles()
-		files = prepareFiles(command, files)
 		if err == nil {
-			runner = strings.ReplaceAll(runner, config.SubAllFiles, strings.Join(files, " "))
+			runner = strings.ReplaceAll(runner, config.SubAllFiles, prepareFiles(command, files))
 		}
 	}
 
@@ -194,7 +196,11 @@ func (l *Lefthook) executeCommand(commandName string, gitArgs []string, hook *co
 	}
 }
 
-func prepareFiles(command *config.Command, files []string) []string {
+func prepareFiles(command *config.Command, files []string) string {
+	if files == nil {
+		return ""
+	}
+
 	log.Debug("\nFiles before filters: \n", files)
 
 	files = FilterGlob(files, command.Glob)
@@ -213,7 +219,7 @@ func prepareFiles(command *config.Command, files []string) []string {
 
 	log.Debug("Files after escaping: \n", files)
 
-	return files
+	return strings.Join(files, " ")
 }
 
 func (l *Lefthook) executeScripts(sourcePath string, gitArgs []string, hook *config.Hook, wg *sync.WaitGroup) {
@@ -356,6 +362,6 @@ func printSummary(execTime time.Duration) {
 	}
 
 	for _, fileName := range failList {
-		log.Infof("🥊  %s", log.Red(fileName))
+		log.Infof("🥊  %s\n", log.Red(fileName))
 	}
 }
