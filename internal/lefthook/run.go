@@ -143,29 +143,22 @@ func (l *Lefthook) executeCommand(commandName string, gitArgs []string, hook *co
 		filesCommand = command.Files
 	}
 
+	filesTypeToFn := map[string]func() ([]string, error){
+		config.SubStagedFiles: l.repo.StagedFiles,
+		config.PushFiles:      l.repo.PushFiles,
+		config.SubAllFiles:    l.repo.AllFiles,
+		config.SubFiles: func() ([]string, error) {
+			return git.FilesByCommand(filesCommand)
+		},
+	}
+
 	runner := command.Run
-	if strings.Contains(runner, config.SubStagedFiles) {
-		files, err := l.repo.StagedFiles()
-		if err == nil {
-			runner = strings.ReplaceAll(runner, config.SubStagedFiles, prepareFiles(command, files))
-		}
-	}
-	if strings.Contains(runner, config.SubFiles) || filesCommand != "" {
-		files, err := git.FilesByCommand(filesCommand)
-		if err == nil {
-			runner = strings.ReplaceAll(runner, config.SubFiles, prepareFiles(command, files))
-		}
-	}
-	if strings.Contains(runner, config.PushFiles) {
-		files, err := l.repo.PushFiles()
-		if err == nil {
-			runner = strings.ReplaceAll(runner, config.PushFiles, prepareFiles(command, files))
-		}
-	}
-	if strings.Contains(runner, config.SubAllFiles) {
-		files, err := l.repo.AllFiles()
-		if err == nil {
-			runner = strings.ReplaceAll(runner, config.SubAllFiles, prepareFiles(command, files))
+	for filesType, filesFn := range filesTypeToFn {
+		if strings.Contains(runner, filesType) {
+			files, err := filesFn()
+			if err == nil {
+				runner = strings.ReplaceAll(runner, filesType, prepareFiles(command, files))
+			}
 		}
 	}
 
