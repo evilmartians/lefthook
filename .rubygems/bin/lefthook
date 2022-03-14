@@ -26,7 +26,7 @@ binary = "#{binary}.exe" if os == "windows"
 args = $*.map { |x| x.include?(' ') ? "'" + x + "'" : x }
 cmd = File.expand_path "#{File.dirname(__FILE__)}/../libexec/#{binary}"
 
-unless File.exists?(cmd)
+unless File.exist?(cmd)
   raise "Invalid platform. Lefthook wasn't build for #{RUBY_PLATFORM}"
 end
 
