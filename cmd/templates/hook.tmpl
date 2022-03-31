@@ -23,12 +23,12 @@ call_lefthook()
   elif bundle exec lefthook -h >/dev/null 2>&1
   then
     bundle exec lefthook $@
-  elif npx @arkweid/lefthook -h >/dev/null 2>&1
-  then
-    npx @arkweid/lefthook $@
   elif yarn lefthook -h >/dev/null 2>&1
   then
     yarn lefthook $@
+  elif npx @arkweid/lefthook -h >/dev/null 2>&1
+  then
+    npx @arkweid/lefthook $@
   else
     echo "Can't find lefthook in PATH"
   fi
