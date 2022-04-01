@@ -1,24 +1,44 @@
 package config
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/spf13/viper"
+
+	"github.com/evilmartians/lefthook/internal/git"
 )
+
+var errFilesIncompatible = errors.New("One of your runners contains incompatible file types")
 
 type Command struct {
 	Run string `mapstructure:"run"`
 
-	Skip  bool     `mapstructure:"skip"`
-	Tags  []string `mapstructure:"tags"`
-	Glob  string   `mapstructure:"glob"`
-	Files string   `mapstructure:"files"`
+	Skip  interface{} `mapstructure:"skip"`
+	Tags  []string    `mapstructure:"tags"`
+	Glob  string      `mapstructure:"glob"`
+	Files string      `mapstructure:"files"`
 
 	Root    string `mapstructure:"root"`
 	Exclude string `mapstructure:"exclude"`
 
 	// DEPRECATED
 	Runner string `mapstructure:"runner"`
+}
+
+func (c Command) Validate() error {
+	if !isRunnerFilesCompatible(c.Run) {
+		return errFilesIncompatible
+	}
+
+	return nil
+}
+
+func (c Command) DoSkip(gitState git.State) bool {
+	if value := c.Skip; value != nil {
+		return isSkip(gitState, value)
+	}
+	return false
 }
 
 type commandRunReplace struct {

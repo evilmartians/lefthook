@@ -5,16 +5,25 @@ import (
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
+
+	"github.com/evilmartians/lefthook/internal/git"
 )
 
 type Script struct {
 	Runner string `mapstructure:"runner"`
 
-	Skip bool     `mapstructure:"skip"`
-	Tags []string `mapstructure:"tags"`
+	Skip interface{} `mapstructure:"skip"`
+	Tags []string    `mapstructure:"tags"`
 
 	// DEPRECATED
 	Run string `mapstructure:"run"`
+}
+
+func (s Script) DoSkip(gitState git.State) bool {
+	if value := s.Skip; value != nil {
+		return isSkip(gitState, value)
+	}
+	return false
 }
 
 type scriptRunnerReplace struct {

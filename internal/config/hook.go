@@ -2,6 +2,8 @@ package config
 
 import (
 	"errors"
+	"os"
+	"strings"
 
 	"github.com/spf13/viper"
 
@@ -67,6 +69,10 @@ func unmarshalHooks(base, extra *viper.Viper) (*Hook, error) {
 
 	if err := base.Unmarshal(&hook); err != nil {
 		return nil, err
+	}
+
+	if tags := os.Getenv("LEFTHOOK_EXCLUDE"); tags != "" {
+		hook.ExcludeTags = append(hook.ExcludeTags, strings.Split(tags, ",")...)
 	}
 
 	return &hook, nil
