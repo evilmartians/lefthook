@@ -576,7 +576,7 @@ Enable `CI` env variable if it doesn't exists on your service by default.
 
 ## Disable colors
 
-By agrs:
+By args:
 ```bash
 lefthook --no-colors run pre-commit
 ```
