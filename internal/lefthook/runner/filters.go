@@ -1,4 +1,4 @@
-package lefthook
+package runner
 
 import (
 	"regexp"
@@ -7,7 +7,7 @@ import (
 	"github.com/gobwas/glob"
 )
 
-func FilterGlob(vs []string, matcher string) []string {
+func filterGlob(vs []string, matcher string) []string {
 	if matcher == "" {
 		return vs
 	}
@@ -23,7 +23,7 @@ func FilterGlob(vs []string, matcher string) []string {
 	return vsf
 }
 
-func FilterExclude(vs []string, matcher string) []string {
+func filterExclude(vs []string, matcher string) []string {
 	if matcher == "" {
 		return vs
 	}
@@ -37,7 +37,7 @@ func FilterExclude(vs []string, matcher string) []string {
 	return vsf
 }
 
-func FilterRelative(vs []string, matcher string) []string {
+func filterRelative(vs []string, matcher string) []string {
 	if matcher == "" {
 		return vs
 	}

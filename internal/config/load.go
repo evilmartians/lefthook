@@ -1,7 +1,6 @@
 package config
 
 import (
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -126,10 +125,6 @@ func unmarshalConfigs(base, extra *viper.Viper, c *Config) error {
 	}
 	if err := base.Unmarshal(c); err != nil {
 		return err
-	}
-
-	if tags := os.Getenv("LEFTHOOK_QUIET"); tags != "" {
-		c.SkipOutput = append(c.SkipOutput, strings.Split(tags, ",")...)
 	}
 
 	return nil
