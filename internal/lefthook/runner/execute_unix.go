@@ -15,7 +15,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
-func Execute(name, root string, args []string) (*bytes.Buffer, error) {
+func Execute(root string, args []string) (*bytes.Buffer, error) {
 	command := exec.Command("sh", "-c", strings.Join(args, " "))
 	rootDir, _ := filepath.Abs(root)
 	command.Dir = rootDir

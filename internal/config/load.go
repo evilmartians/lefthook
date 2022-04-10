@@ -11,6 +11,7 @@ import (
 const (
 	DefaultSourceDir      = ".lefthook"
 	DefaultSourceDirLocal = ".lefthook-local"
+	DefaultColorsEnabled  = true
 )
 
 // Loads configs from the given directory with extensions.
@@ -27,7 +28,7 @@ func Load(fs afero.Fs, path string) (*Config, error) {
 
 	var config Config
 
-	config.Colors = true // by default colors are enabled
+	config.Colors = DefaultColorsEnabled
 	config.SourceDir = DefaultSourceDir
 	config.SourceDirLocal = DefaultSourceDirLocal
 

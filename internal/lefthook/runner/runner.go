@@ -261,7 +261,7 @@ func prepareFiles(command *config.Command, files []string) string {
 
 func (r *Runner) run(name string, root string, args []string) {
 	r.spinner.Start()
-	out, err := Execute(name, root, args)
+	out, err := Execute(root, args)
 	r.spinner.Stop()
 
 	var execName string

@@ -13,22 +13,20 @@ import (
 
 func TestLefthookInstall(t *testing.T) {
 	repo := &git.Repository{
-		HooksPath: "/src/.git/hooks",
-		RootPath:  "/src/",
+		HooksPath: hooksPath,
+		RootPath:  root,
 	}
 
 	for n, tt := range [...]struct {
 		name, config            string
 		args                    InstallArgs
-		existingFiles           map[string]string
+		existingHooks           map[string]string
 		wantExist, wantNotExist []string
 		wantError               bool
 	}{
 		{
-			name: "without a config file",
-			wantExist: []string{
-				"/src/lefthook.yml",
-			},
+			name:      "without a config file",
+			wantExist: []string{configPath},
 		},
 		{
 			name: "simple default config",
@@ -44,10 +42,10 @@ post-commit:
       run: echo 'Done!'
 `,
 			wantExist: []string{
-				"/src/lefthook.yml",
-				"/src/.git/hooks/pre-commit",
-				"/src/.git/hooks/post-commit",
-				"/src/.git/hooks/" + config.ChecksumHookName,
+				configPath,
+				hookPath("pre-commit"),
+				hookPath("post-commit"),
+				hookPath(config.ChecksumHookName),
 			},
 		},
 		{
@@ -63,15 +61,15 @@ post-commit:
     notify:
       run: echo 'Done!'
 `,
-			existingFiles: map[string]string{
-				"/src/.git/hooks/pre-commit": "",
+			existingHooks: map[string]string{
+				"pre-commit": "",
 			},
 			wantExist: []string{
-				"/src/lefthook.yml",
-				"/src/.git/hooks/pre-commit",
-				"/src/.git/hooks/pre-commit.old",
-				"/src/.git/hooks/post-commit",
-				"/src/.git/hooks/" + config.ChecksumHookName,
+				configPath,
+				hookPath("pre-commit"),
+				hookPath("pre-commit.old"),
+				hookPath("post-commit"),
+				hookPath(config.ChecksumHookName),
 			},
 		},
 		{
@@ -87,17 +85,17 @@ post-commit:
     notify:
       run: echo 'Done!'
 `,
-			existingFiles: map[string]string{
-				"/src/.git/hooks/pre-commit": "# LEFTHOOK file",
+			existingHooks: map[string]string{
+				"pre-commit": "# LEFTHOOK file",
 			},
 			wantExist: []string{
-				"/src/lefthook.yml",
-				"/src/.git/hooks/pre-commit",
-				"/src/.git/hooks/post-commit",
-				"/src/.git/hooks/" + config.ChecksumHookName,
+				configPath,
+				hookPath("pre-commit"),
+				hookPath("post-commit"),
+				hookPath(config.ChecksumHookName),
 			},
 			wantNotExist: []string{
-				"/src/.git/hooks/pre-commit.old",
+				hookPath("pre-commit.old"),
 			},
 		},
 		{
@@ -113,16 +111,16 @@ post-commit:
     notify:
       run: echo 'Done!'
 `,
-			existingFiles: map[string]string{
-				"/src/.git/hooks/prepare-commit-msg": "# lefthook_version: 8b2c9fc6b3391b3cf020b97ab7037c61",
+			existingHooks: map[string]string{
+				"prepare-commit-msg": "# lefthook_version: 8b2c9fc6b3391b3cf020b97ab7037c61",
 			},
 			wantExist: []string{
-				"/src/lefthook.yml",
-				"/src/.git/hooks/" + config.ChecksumHookName,
+				configPath,
+				hookPath(config.ChecksumHookName),
 			},
 			wantNotExist: []string{
-				"/src/.git/hooks/pre-commit",
-				"/src/.git/hooks/post-commit",
+				hookPath("pre-commit"),
+				hookPath("post-commit"),
 			},
 		},
 		{
@@ -139,14 +137,14 @@ post-commit:
     notify:
       run: echo 'Done!'
 `,
-			existingFiles: map[string]string{
-				"/src/.git/hooks/prepare-commit-msg": "# lefthook_version: 8b2c9fc6b3391b3cf020b97ab7037c61",
+			existingHooks: map[string]string{
+				"prepare-commit-msg": "# lefthook_version: 8b2c9fc6b3391b3cf020b97ab7037c61",
 			},
 			wantExist: []string{
-				"/src/lefthook.yml",
-				"/src/.git/hooks/pre-commit",
-				"/src/.git/hooks/post-commit",
-				"/src/.git/hooks/" + config.ChecksumHookName,
+				configPath,
+				hookPath("pre-commit"),
+				hookPath("post-commit"),
+				hookPath(config.ChecksumHookName),
 			},
 		},
 		{
@@ -162,18 +160,18 @@ post-commit:
     notify:
       run: echo 'Done!'
 `,
-			existingFiles: map[string]string{
-				"/src/.git/hooks/pre-commit":     "",
-				"/src/.git/hooks/pre-commit.old": "",
+			existingHooks: map[string]string{
+				"pre-commit":     "",
+				"pre-commit.old": "",
 			},
 			wantError: true,
 			wantExist: []string{
-				"/src/lefthook.yml",
-				"/src/.git/hooks/pre-commit",
-				"/src/.git/hooks/pre-commit.old",
+				configPath,
+				hookPath("pre-commit"),
+				hookPath("pre-commit.old"),
 			},
 			wantNotExist: []string{
-				"/src/.git/hooks/" + config.ChecksumHookName,
+				hookPath(config.ChecksumHookName),
 			},
 		},
 		{
@@ -190,16 +188,16 @@ post-commit:
     notify:
       run: echo 'Done!'
 `,
-			existingFiles: map[string]string{
-				"/src/.git/hooks/pre-commit":     "",
-				"/src/.git/hooks/pre-commit.old": "",
+			existingHooks: map[string]string{
+				"pre-commit":     "",
+				"pre-commit.old": "",
 			},
 			wantExist: []string{
-				"/src/lefthook.yml",
-				"/src/.git/hooks/pre-commit",
-				"/src/.git/hooks/pre-commit.old",
-				"/src/.git/hooks/post-commit",
-				"/src/.git/hooks/" + config.ChecksumHookName,
+				configPath,
+				hookPath("pre-commit"),
+				hookPath("pre-commit.old"),
+				hookPath("post-commit"),
+				hookPath(config.ChecksumHookName),
 			},
 		},
 	} {
@@ -209,17 +207,18 @@ post-commit:
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			// Create configuration file
 			if len(tt.config) > 0 {
-				if err := afero.WriteFile(fs, "/src/lefthook.yml", []byte(tt.config), 0o644); err != nil {
+				if err := afero.WriteFile(fs, configPath, []byte(tt.config), 0o644); err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
 			}
 
 			// Create files that should exist
-			for file, content := range tt.existingFiles {
-				if err := fs.MkdirAll(filepath.Base(file), 0o755); err != nil {
+			for hook, content := range tt.existingHooks {
+				path := hookPath(hook)
+				if err := fs.MkdirAll(filepath.Base(path), 0o755); err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
-				if err := afero.WriteFile(fs, file, []byte(content), 0o755); err != nil {
+				if err := afero.WriteFile(fs, path, []byte(content), 0o755); err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
 			}

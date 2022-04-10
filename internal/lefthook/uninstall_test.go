@@ -12,77 +12,77 @@ import (
 
 func TestLefthookUninstall(t *testing.T) {
 	repo := &git.Repository{
-		HooksPath: "/src/.git/hooks",
-		RootPath:  "/src/",
+		HooksPath: hooksPath,
+		RootPath:  root,
 	}
 
 	for n, tt := range [...]struct {
-		name                    string
+		name, config            string
 		args                    UninstallArgs
-		existingFiles           map[string]string
+		existingHooks           map[string]string
 		wantExist, wantNotExist []string
 	}{
 		{
 			name: "simple defaults",
-			existingFiles: map[string]string{
-				"/src/.git/hooks/pre-commit":  "not a lefthook hook",
-				"/src/.git/hooks/post-commit": `"$LEFTHOOK" file`,
-				"/src/lefthook.yml":           "# empty",
+			existingHooks: map[string]string{
+				"pre-commit":  "not a lefthook hook",
+				"post-commit": `"$LEFTHOOK" file`,
 			},
+			config: "# empty",
 			wantExist: []string{
-				"/src/.git/hooks/pre-commit",
+				hookPath("pre-commit"),
 			},
 			wantNotExist: []string{
-				"/src/lefthook.yml",
-				"/src/.git/hooks/post-commit",
+				configPath,
+				hookPath("post-commit"),
 			},
 		},
 		{
 			name: "with aggressive mode",
 			args: UninstallArgs{Aggressive: true},
-			existingFiles: map[string]string{
-				"/src/.git/hooks/pre-commit":  "not a lefthook hook",
-				"/src/.git/hooks/post-commit": "\n# LEFTHOOK file\n",
-				"/src/lefthook.yaml":          "# empty",
+			existingHooks: map[string]string{
+				"pre-commit":  "not a lefthook hook",
+				"post-commit": "\n# LEFTHOOK file\n",
 			},
+			config:    "# empty",
 			wantExist: []string{},
 			wantNotExist: []string{
-				"/src/lefthook.yaml",
-				"/src/.git/hooks/pre-commit",
-				"/src/.git/hooks/post-commit",
+				configPath,
+				hookPath("pre-commit"),
+				hookPath("post-commit"),
 			},
 		},
 		{
 			name: "with keep config arg",
 			args: UninstallArgs{KeepConfiguration: true},
-			existingFiles: map[string]string{
-				"/src/.git/hooks/pre-commit":  "not a lefthook hook",
-				"/src/.git/hooks/post-commit": "# LEFTHOOK",
-				"/src/lefthook.yml":           "# empty",
+			existingHooks: map[string]string{
+				"pre-commit":  "not a lefthook hook",
+				"post-commit": "# LEFTHOOK",
 			},
+			config: "# empty",
 			wantExist: []string{
-				"/src/.git/hooks/pre-commit",
-				"/src/lefthook.yml",
+				configPath,
+				hookPath("pre-commit"),
 			},
 			wantNotExist: []string{
-				"/src/.git/hooks/post-commit",
+				hookPath("post-commit"),
 			},
 		},
 		{
 			name: "with .old files",
-			existingFiles: map[string]string{
-				"/src/.git/hooks/pre-commit":      "not a lefthook hook",
-				"/src/.git/hooks/post-commit":     "LEFTHOOK file",
-				"/src/.git/hooks/post-commit.old": "not a lefthook hook",
-				"/src/lefthook.yml":               "# empty",
+			existingHooks: map[string]string{
+				"pre-commit":      "not a lefthook hook",
+				"post-commit":     "LEFTHOOK file",
+				"post-commit.old": "not a lefthook hook",
 			},
+			config: "# empty",
 			wantExist: []string{
-				"/src/.git/hooks/pre-commit",
-				"/src/.git/hooks/post-commit",
+				hookPath("pre-commit"),
+				hookPath("post-commit"),
 			},
 			wantNotExist: []string{
-				"/src/lefthook.yml",
-				"/src/.git/hooks/post-commit.old",
+				configPath,
+				hookPath("post-commit.old"),
 			},
 		},
 	} {
@@ -90,18 +90,24 @@ func TestLefthookUninstall(t *testing.T) {
 			fs := afero.NewMemMapFs()
 			lefthook := &Lefthook{Options: &Options{Fs: fs}, repo: repo}
 
+			err := afero.WriteFile(fs, configPath, []byte(tt.config), 0o644)
+			if err != nil {
+				t.Errorf("unexpected error: %s", err)
+			}
+
 			// Prepare files that should exist
-			for file, content := range tt.existingFiles {
-				if err := fs.MkdirAll(filepath.Base(file), 0o755); err != nil {
+			for hook, content := range tt.existingHooks {
+				path := hookPath(hook)
+				if err = fs.MkdirAll(filepath.Base(path), 0o755); err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
-				if err := afero.WriteFile(fs, file, []byte(content), 0o755); err != nil {
+				if err = afero.WriteFile(fs, path, []byte(content), 0o755); err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
 			}
 
 			// Do uninstall
-			err := lefthook.Uninstall(&tt.args)
+			err = lefthook.Uninstall(&tt.args)
 			if err != nil {
 				t.Errorf("unexpected error: %s", err)
 			}
