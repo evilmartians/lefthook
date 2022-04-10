@@ -1,50 +1,56 @@
 package version
 
 import (
+	"errors"
 	"regexp"
 	"strconv"
 )
 
 const Version = "1.0.0"
 
-var versionRegexp = regexp.MustCompile(
-	`^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?$`,
+var (
+	versionRegexp = regexp.MustCompile(
+		`^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?$`,
+	)
+
+	errIncorrectVersion = errors.New("format of 'min_version' setting is incorrect")
+	errUncovered        = errors.New("required Lefthook version is higher than current")
 )
 
-// IsCovered returns true if given version is less or equal than current
+// CheckCovered returns true if given version is less or equal than current
 // and false otherwise.
-func IsCovered(targetVersion string) bool {
+func CheckCovered(targetVersion string) error {
 	if len(targetVersion) == 0 {
-		return true
+		return nil
 	}
 
 	if !versionRegexp.MatchString(targetVersion) {
-		return false
+		return errIncorrectVersion
 	}
 
 	major, minor, patch, err := parseVersion(Version)
 	if err != nil {
-		return false
+		return err
 	}
 
 	tMajor, tMinor, tPatch, err := parseVersion(targetVersion)
 	if err != nil {
-		return false
+		return err
 	}
 
 	switch {
 	case major > tMajor:
-		return true
+		return nil
 	case major < tMajor:
-		return false
+		return errUncovered
 	case minor > tMinor:
-		return true
+		return nil
 	case minor < tMinor:
-		return false
+		return errUncovered
 	case patch >= tPatch:
-		return true
+		return nil
 	default:
-		return false
+		return errUncovered
 	}
 }
 

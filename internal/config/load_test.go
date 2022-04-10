@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"path/filepath"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -10,6 +11,11 @@ import (
 )
 
 func TestLoad(t *testing.T) {
+	root, err := filepath.Abs("")
+	if err != nil {
+		t.Errorf("unexpected error: %s", err)
+	}
+
 	for i, tt := range [...]struct {
 		name   string
 		global []byte
@@ -138,15 +144,15 @@ pre-push:
 	} {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			if err := fs.WriteFile("/lefthook.yml", tt.global, 0o644); err != nil {
+			if err := fs.WriteFile(filepath.Join(root, "lefthook.yml"), tt.global, 0o644); err != nil {
 				t.Errorf("unexpected error: %s", err)
 			}
 
-			if err := fs.WriteFile("/lefthook-local.yml", tt.local, 0o644); err != nil {
+			if err := fs.WriteFile(filepath.Join(root, "lefthook-local.yml"), tt.local, 0o644); err != nil {
 				t.Errorf("unexpected error: %s", err)
 			}
 
-			checkConfig, err := Load(fs.Fs, "/")
+			checkConfig, err := Load(fs.Fs, root)
 
 			if err != nil {
 				t.Errorf("should parse configs without errors: %s", err)

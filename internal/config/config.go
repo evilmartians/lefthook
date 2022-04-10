@@ -20,9 +20,5 @@ type Config struct {
 }
 
 func (c *Config) Validate() error {
-	if !version.IsCovered(c.MinVersion) {
-		return errInvalidVersion
-	}
-
-	return nil
+	return version.CheckCovered(c.MinVersion)
 }

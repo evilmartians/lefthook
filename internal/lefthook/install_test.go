@@ -12,6 +12,18 @@ import (
 )
 
 func TestLefthookInstall(t *testing.T) {
+	root, err := filepath.Abs("src")
+	if err != nil {
+		t.Errorf("unexpected error: %s", err)
+	}
+
+	configPath := filepath.Join(root, "lefthook.yml")
+	hooksPath := filepath.Join(root, ".git", "hooks")
+
+	hookPath := func(hook string) string {
+		return filepath.Join(root, ".git", "hooks", hook)
+	}
+
 	repo := &git.Repository{
 		HooksPath: hooksPath,
 		RootPath:  root,
