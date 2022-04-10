@@ -1,12 +1,8 @@
 package config
 
 import (
-	"errors"
-
 	"github.com/evilmartians/lefthook/internal/version"
 )
-
-var errInvalidVersion = errors.New("Current Lefhook version is lower than config version or 'min_version' is incorrect. Check the format: '0.9.9'")
 
 type Config struct {
 	Colors         bool     `mapstructure:"colors"`
