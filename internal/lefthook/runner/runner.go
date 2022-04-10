@@ -24,18 +24,17 @@ const (
 	executableFileMode os.FileMode = 0o751
 	executableMask     os.FileMode = 0o111
 
-	spinnerCharSet     int = 14
-	spinnerRefreshRate     = 100 * time.Millisecond
+	spinnerCharSet     = 14
+	spinnerRefreshRate = 100 * time.Millisecond
 )
 
 type Runner struct {
-	Failed bool
-
 	fs         afero.Fs
 	repo       *git.Repository
 	spinner    *spinner.Spinner
 	hook       *config.Hook
 	args       []string
+	failed     bool
 	resultChan chan Result
 }
 
@@ -70,7 +69,7 @@ func (r *Runner) RunAll(scriptDirs []string) {
 
 func (r *Runner) fail(name string) {
 	r.resultChan <- resultFail(name)
-	r.Failed = true
+	r.failed = true
 }
 
 func (r *Runner) success(name string) {
@@ -91,7 +90,7 @@ func (r *Runner) runScripts(dir string) {
 			continue
 		}
 
-		if r.Failed && r.hook.Piped {
+		if r.failed && r.hook.Piped {
 			log.Info(" ", log.Bold(file.Name()), log.Red("(SKIP BY BROKEN PIPE)"))
 			continue
 		}
@@ -157,7 +156,7 @@ func (r *Runner) runCommands() {
 	sort.Strings(commands)
 
 	for _, name := range commands {
-		if r.Failed && r.hook.Piped {
+		if r.failed && r.hook.Piped {
 			log.Info(" ", log.Bold(name), log.Red("(SKIP BY BROKEN PIPE)"))
 			continue
 		}

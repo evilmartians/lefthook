@@ -2,7 +2,6 @@ package lefthook
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"testing"
 
@@ -11,22 +10,15 @@ import (
 	"github.com/evilmartians/lefthook/internal/git"
 )
 
-// Common vars and functions for tests
-
-const root = string(os.PathSeparator) + "src"
-
-var (
-	configPath = filepath.Join(root, "lefthook.yml")
-	hooksPath  = filepath.Join(root, ".git", "hooks")
-)
-
-func hookPath(hook string) string {
-	return filepath.Join(root, ".git", "hooks", hook)
-}
-
-//
-
 func TestRun(t *testing.T) {
+	root, err := filepath.Abs("src")
+	if err != nil {
+		t.Errorf("unexpected error: %s", err)
+	}
+
+	configPath := filepath.Join(root, "lefthook.yml")
+	hooksPath := filepath.Join(root, ".git", "hooks")
+
 	repo := &git.Repository{
 		HooksPath: hooksPath,
 		RootPath:  root,
