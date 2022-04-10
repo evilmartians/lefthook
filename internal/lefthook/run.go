@@ -71,9 +71,12 @@ func (l *Lefthook) Run(hookName string, gitArgs []string) error {
 		}
 	}
 
-	log.SetColors(cfg.Colors)
+	if cfg.Colors != config.DefaultColorsEnabled {
+		log.SetColors(cfg.Colors)
+	}
+
 	if !outputSettings.doSkip(skipMeta) {
-		log.Info(log.Cyan("Lefthook v" + version.Version()))
+		log.Info(log.Cyan("Lefthook v" + version.Version))
 		log.Info(log.Cyan("RUNNING HOOK:"), log.Bold(hookName))
 	}
 

@@ -12,14 +12,15 @@ import (
 
 func TestLefthookAdd(t *testing.T) {
 	repo := &git.Repository{
-		HooksPath: "/src/.git/hooks",
-		RootPath:  "/src/",
+		HooksPath: hooksPath,
+		RootPath:  root,
 	}
 
 	for n, tt := range [...]struct {
 		name                    string
 		args                    *AddArgs
-		existingFiles           map[string]string
+		existingHooks           map[string]string
+		config                  string
 		wantExist, wantNotExist []string
 		wantError               bool
 	}{
@@ -27,11 +28,11 @@ func TestLefthookAdd(t *testing.T) {
 			name: "default empty repository",
 			args: &AddArgs{Hook: "pre-commit"},
 			wantExist: []string{
-				"/src/.git/hooks/pre-commit",
+				hookPath("pre-commit"),
 			},
 			wantNotExist: []string{
-				"/src/.lefthook",
-				"/src/.lefthook-local",
+				filepath.Join(root, ".lefthook"),
+				filepath.Join(root, ".lefthook-local"),
 			},
 		},
 		{
@@ -39,82 +40,80 @@ func TestLefthookAdd(t *testing.T) {
 			args:      &AddArgs{Hook: "super-star"},
 			wantError: true,
 			wantNotExist: []string{
-				"/src/.git/hooks/super-star",
-				"/src/.lefthook",
-				"/src/.lefthook-local",
+				hookPath("super-star"),
+				filepath.Join(root, ".lefthook"),
+				filepath.Join(root, ".lefthook-local"),
 			},
 		},
 		{
 			name: "with create dirs arg",
 			args: &AddArgs{Hook: "post-commit", CreateDirs: true},
 			wantExist: []string{
-				"/src/.git/hooks/post-commit",
-				"/src/.lefthook/",
-				"/src/.lefthook-local/",
+				hookPath("post-commit"),
+				filepath.Join(root, ".lefthook"),
+				filepath.Join(root, ".lefthook-local"),
 			},
 		},
 		{
 			name: "with configured source dirs",
 			args: &AddArgs{Hook: "post-commit", CreateDirs: true},
-			existingFiles: map[string]string{
-				"/src/lefthook.yml": `
+			config: `
 source_dir: .source_dir
 source_dir_local: .source_dir_local
 `,
-			},
 			wantExist: []string{
-				"/src/.git/hooks/post-commit",
-				"/src/.source_dir/post-commit/",
-				"/src/.source_dir_local/post-commit/",
+				hookPath("post-commit"),
+				filepath.Join(root, ".source_dir", "post-commit"),
+				filepath.Join(root, ".source_dir_local", "post-commit"),
 			},
 		},
 		{
 			name: "with existing hook",
 			args: &AddArgs{Hook: "post-commit"},
-			existingFiles: map[string]string{
-				"/src/.git/hooks/post-commit": "custom script",
+			existingHooks: map[string]string{
+				"post-commit": "custom script",
 			},
 			wantExist: []string{
-				"/src/.git/hooks/post-commit",
-				"/src/.git/hooks/post-commit.old",
+				hookPath("post-commit"),
+				hookPath("post-commit.old"),
 			},
 		},
 		{
 			name: "with existing lefthook hook",
 			args: &AddArgs{Hook: "post-commit"},
-			existingFiles: map[string]string{
-				"/src/.git/hooks/post-commit": "LEFTHOOK file",
+			existingHooks: map[string]string{
+				"post-commit": "LEFTHOOK file",
 			},
 			wantExist: []string{
-				"/src/.git/hooks/post-commit",
+				hookPath("post-commit"),
 			},
 			wantNotExist: []string{
-				"/src/.git/hooks/post-commit.old",
+				hookPath("post-commit.old"),
 			},
 		},
 		{
 			name: "with existing .old hook",
 			args: &AddArgs{Hook: "post-commit"},
-			existingFiles: map[string]string{
-				"/src/.git/hooks/post-commit":     "custom hook",
-				"/src/.git/hooks/post-commit.old": "custom old hook",
+			existingHooks: map[string]string{
+				"post-commit":     "custom hook",
+				"post-commit.old": "custom old hook",
 			},
 			wantError: true,
 			wantExist: []string{
-				"/src/.git/hooks/post-commit",
-				"/src/.git/hooks/post-commit.old",
+				hookPath("post-commit"),
+				hookPath("post-commit.old"),
 			},
 		},
 		{
 			name: "with existing .old hook, forced",
 			args: &AddArgs{Hook: "post-commit", Force: true},
-			existingFiles: map[string]string{
-				"/src/.git/hooks/post-commit":     "custom hook",
-				"/src/.git/hooks/post-commit.old": "custom old hook",
+			existingHooks: map[string]string{
+				"post-commit":     "custom hook",
+				"post-commit.old": "custom old hook",
 			},
 			wantExist: []string{
-				"/src/.git/hooks/post-commit",
-				"/src/.git/hooks/post-commit.old",
+				hookPath("post-commit"),
+				hookPath("post-commit.old"),
 			},
 		},
 	} {
@@ -122,11 +121,19 @@ source_dir_local: .source_dir_local
 			fs := afero.NewMemMapFs()
 			lefthook := &Lefthook{Options: &Options{Fs: fs}, repo: repo}
 
-			for file, content := range tt.existingFiles {
-				if err := fs.MkdirAll(filepath.Base(file), 0o755); err != nil {
+			if len(tt.config) > 0 {
+				err := afero.WriteFile(fs, configPath, []byte(tt.config), 0o644)
+				if err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
-				if err := afero.WriteFile(fs, file, []byte(content), 0o644); err != nil {
+			}
+
+			for hook, content := range tt.existingHooks {
+				path := hookPath(hook)
+				if err := fs.MkdirAll(filepath.Base(path), 0o755); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
+				if err := afero.WriteFile(fs, path, []byte(content), 0o644); err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
 			}

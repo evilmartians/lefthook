@@ -13,7 +13,7 @@ func newVersionCmd(opts *lefthook.Options) *cobra.Command {
 		Use:   "version",
 		Short: "Show lefthook version",
 		Run: func(cmd *cobra.Command, args []string) {
-			log.Println(version.Version())
+			log.Println(version.Version)
 		},
 	}
 
