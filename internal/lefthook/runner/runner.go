@@ -86,12 +86,12 @@ func (r *Runner) runScripts(dir string) {
 	for _, file := range files {
 		script, ok := r.hook.Scripts[file.Name()]
 		if !ok {
-			log.Debug(log.Bold(file.Name()), log.Red("(SKIP BY NOT EXIST IN CONFIG)"))
+			logSkip(file.Name(), "(SKIP BY NOT EXIST IN CONFIG)")
 			continue
 		}
 
 		if r.failed && r.hook.Piped {
-			log.Info(" ", log.Bold(file.Name()), log.Red("(SKIP BY BROKEN PIPE)"))
+			logSkip(file.Name(), "(SKIP BY BROKEN PIPE)")
 			continue
 		}
 
@@ -111,12 +111,12 @@ func (r *Runner) runScripts(dir string) {
 
 func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo) {
 	if script.DoSkip(r.repo.State()) {
-		log.Info(log.Bold(file.Name()), log.Cyan("(SKIP BY SETTINGS)"))
+		logSkip(file.Name(), "(SKIP BY SETTINGS)")
 		return
 	}
 
 	if intersect(r.hook.ExcludeTags, script.Tags) {
-		log.Info(log.Bold(file.Name()), log.Cyan("(SKIP BY TAGS)"))
+		logSkip(file.Name(), "(SKIP BY TAGS)")
 	}
 
 	// Skip non-regular files (dirs, symlinks, sockets, etc.)
@@ -157,7 +157,7 @@ func (r *Runner) runCommands() {
 
 	for _, name := range commands {
 		if r.failed && r.hook.Piped {
-			log.Info(" ", log.Bold(name), log.Red("(SKIP BY BROKEN PIPE)"))
+			logSkip(name, "(SKIP BY BROKEN PIPE)")
 			continue
 		}
 
@@ -177,12 +177,12 @@ func (r *Runner) runCommands() {
 
 func (r *Runner) runCommand(name string, command *config.Command) {
 	if command.DoSkip(r.repo.State()) {
-		log.Info(log.Cyan(fmt.Sprintf("%s: (SKIP BY SETTINGS)", name)))
+		logSkip(name, "(SKIP BY SETTINGS)")
 		return
 	}
 
 	if intersect(r.hook.ExcludeTags, command.Tags) {
-		log.Info(log.Cyan(fmt.Sprintf("%s: (SKIP BY TAGS)", name)))
+		logSkip(name, "(SKIP BY TAGS)")
 		return
 	}
 
@@ -191,8 +191,14 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 		return
 	}
 
+	args := r.buildCommandArgs(command)
+	if len(args) == 0 {
+		logSkip(name, "(SKIP. NO FILES FOR INSPECTION)")
+		return
+	}
+
 	root := filepath.Join(r.repo.RootPath, command.Root)
-	r.run(name, root, r.buildCommandArgs(command))
+	r.run(name, root, args)
 }
 
 func (r *Runner) buildCommandArgs(command *config.Command) []string {
@@ -216,6 +222,9 @@ func (r *Runner) buildCommandArgs(command *config.Command) []string {
 			files, err := filesFn()
 			if err != nil {
 				continue
+			}
+			if len(files) == 0 {
+				return nil
 			}
 			runString = strings.ReplaceAll(
 				runString, filesType, prepareFiles(command, files),
@@ -296,4 +305,8 @@ func intersect(a, b []string) bool {
 	}
 
 	return false
+}
+
+func logSkip(name, skipMsg string) {
+	log.Info(fmt.Sprintf("%s: %s", log.Bold(name), log.Yellow(skipMsg)))
 }

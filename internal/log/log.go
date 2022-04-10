@@ -101,6 +101,10 @@ func Red(arg interface{}) aurora.Value {
 	return std.aurora.Red(arg)
 }
 
+func Yellow(arg interface{}) aurora.Value {
+	return std.aurora.Yellow(arg)
+}
+
 func Bold(arg interface{}) aurora.Value {
 	return std.aurora.Bold(arg)
 }
