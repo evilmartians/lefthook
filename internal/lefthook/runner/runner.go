@@ -226,8 +226,14 @@ func (r *Runner) buildCommandArgs(command *config.Command) []string {
 			if len(files) == 0 {
 				return nil
 			}
+
+			filesStr := prepareFiles(command, files)
+			if len(filesStr) == 0 {
+				return nil
+			}
+
 			runString = strings.ReplaceAll(
-				runString, filesType, prepareFiles(command, files),
+				runString, filesType, filesStr,
 			)
 		}
 	}
