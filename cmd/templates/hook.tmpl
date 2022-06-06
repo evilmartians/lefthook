@@ -20,7 +20,7 @@ call_lefthook()
   elif test -f "$dir/node_modules/@evilmartians/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}"
   then
     eval "$dir/node_modules/@evilmartians/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}} $@"
-  elif test -f "$dir/node_modules/@evilmartians-installer/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}"
+  elif test -f "$dir/node_modules/@evilmartians/lefthook-installer/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}"
   then
     eval "$dir/node_modules/@evilmartians/lefthook-installer/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}} $@"
   elif bundle exec lefthook -h >/dev/null 2>&1

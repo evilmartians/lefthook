@@ -20,7 +20,7 @@ Lefthook is available on NPM in two flavors:
     yarn add -D @evilmartians/lefthook
     ```
 
- 2. [@evilmartians/lefthook-installer](https://www.npmjs.com/package/@evilmartians/lefthook) that wil fetch binary file on installation:
+ 2. [@evilmartians/lefthook-installer](https://www.npmjs.com/package/@evilmartians/lefthook-installer) that wil fetch binary file on installation:
 
     ```bash
     npm install @evilmartians/lefthook-installer --save-dev
