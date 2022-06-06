@@ -2,6 +2,15 @@
 
 ## master (unreleased)
 
+# 0.7.7 (2021-10-02)
+
+- Fix incorrect npx command in git hook script template ([PR #236](https://github.com/evilmartians/lefthook/pull/236)) @PikachuEXE
+- Update project URLs in NPM package.json ([PR #235](https://github.com/evilmartians/lefthook/pull/235)) @PikachuEXE
+- Pass all arguments to downstream hooks ([PR #231](https://github.com/evilmartians/lefthook/pull/231)) @pablobirukov
+- Allows lefthook to work when node_modules is not in root folder for npx ([PR #224](https://github.com/evilmartians/lefthook/pull/224)) @spearmootz
+- Do not initialize git config on `help` and `version` commands ([PR #209](https://github.com/evilmartians/lefthook/pull/209)) @pwinckles
+- node: fix postinstall: process.cwd is a function and should be called @Envek
+
 # 0.7.6 (2021-06-02)
 
 - Fix lefthook binary extension on Windows. @aminya
