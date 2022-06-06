@@ -1,0 +1,35 @@
+{
+  "name": "@evilmartians/lefthook",
+  "version": "0.7.7",
+  "description": "Simple git hooks manager",
+  "main": "index.js",
+  "bin": {
+    "lefthook": "./bin/index.js"
+  },
+  "repository": "https://github.com/evilmartians/lefthook",
+  "keywords": [
+    "git",
+    "hook",
+    "manager"
+  ],
+  "author": "Arkweid",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/evilmartians/lefthook/issues"
+  },
+  "homepage": "https://github.com/evilmartians/lefthook#readme",
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64",
+    "ia32"
+  ],
+  "scripts": {
+    "version": "git clean -fd bin/ && (cd ../../dist/ && find . -executable -type f -exec cp --parents \\{\\} ../packaging/npm-bundled/bin/ \\;) && cp -f ../../README.md ./",
+    "postinstall": "node postinstall.js"
+  }
+}
