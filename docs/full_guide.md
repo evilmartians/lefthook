@@ -10,18 +10,30 @@ go get github.com/evilmartians/lefthook
 
 ### npm or yarn
 
-```bash
-npm i @arkweid/lefthook --save-dev
-# or yarn:
-yarn add -D @arkweid/lefthook
-```
+Lefthook is available on NPM in two flavors:
+
+ 1. [@evilmartians/lefthook](https://www.npmjs.com/package/@evilmartians/lefthook) with pre-bundled binaries for all architectures:
+
+    ```bash
+    npm install @evilmartians/lefthook --save-dev
+    # or yarn:
+    yarn add -D @evilmartians/lefthook
+    ```
+
+ 2. [@evilmartians/lefthook-installer](https://www.npmjs.com/package/@evilmartians/lefthook-installer) that wil fetch binary file on installation:
+
+    ```bash
+    npm install @evilmartians/lefthook-installer --save-dev
+    # or yarn:
+    yarn add -D @evilmartians/lefthook-installer
+    ```
 
 NOTE: if you install it this way you should call it with `npx` or `yarn` for all listed examples below. (for example: `lefthook install` -> `npx lefthook install`)
 
 You can also install lefthook as a global dependency
 
 ```bash
-npm install -g @arkweid/lefthook
+npm install -g @evilmartians/lefthook
 ```
 
 

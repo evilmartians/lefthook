@@ -4,14 +4,23 @@ This is guide of using Lefthook git hook manager in Node.js projects. You can fi
 
 ## Install
 
-Lefthook is [available on npm](https://www.npmjs.com/package/@arkweid/lefthook):
+Lefthook is available on NPM in two flavors:
 
-```bash
-npm install @arkweid/lefthook --save-dev
-# or yarn:
-yarn add -D @arkweid/lefthook
-```
+ 1. [@evilmartians/lefthook](https://www.npmjs.com/package/@evilmartians/lefthook) with pre-bundled binaries for all architectures:
 
+    ```bash
+    npm install @evilmartians/lefthook --save-dev
+    # or yarn:
+    yarn add -D @evilmartians/lefthook
+    ```
+
+ 2. [@evilmartians/lefthook-installer](https://www.npmjs.com/package/@evilmartians/lefthook) that wil fetch binary file on installation:
+
+    ```bash
+    npm install @evilmartians/lefthook-installer --save-dev
+    # or yarn:
+    yarn add -D @evilmartians/lefthook-installer
+    ```
 
 ## Edit
 
@@ -33,7 +42,7 @@ pre-commit:
 
 ## Test it
 ```bash
-npx @arkweid/lefthook install && npx @arkweid/lefthook run pre-commit
+npx @evilmartians/lefthook install && npx @evilmartians/lefthook run pre-commit
 ```
 
 ### More info

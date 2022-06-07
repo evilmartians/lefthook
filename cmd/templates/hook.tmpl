@@ -17,18 +17,21 @@ call_lefthook()
   if lefthook{{.Extension}} -h >/dev/null 2>&1
   then
     eval lefthook{{.Extension}} $@
-  elif test -f "$dir/node_modules/@arkweid/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}"
+  elif test -f "$dir/node_modules/@evilmartians/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}"
   then
-    eval "$dir/node_modules/@arkweid/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}} $@"
+    eval "$dir/node_modules/@evilmartians/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}} $@"
+  elif test -f "$dir/node_modules/@evilmartians/lefthook-installer/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}"
+  then
+    eval "$dir/node_modules/@evilmartians/lefthook-installer/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}} $@"
   elif bundle exec lefthook -h >/dev/null 2>&1
   then
     bundle exec lefthook $@
   elif yarn lefthook -h >/dev/null 2>&1
   then
     yarn lefthook $@
-  elif npx @arkweid/lefthook -h >/dev/null 2>&1
+  elif npx @evilmartians/lefthook -h >/dev/null 2>&1
   then
-    npx @arkweid/lefthook $@
+    npx @evilmartians/lefthook $@
   else
     echo "Can't find lefthook in PATH"
   fi
