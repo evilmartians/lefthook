@@ -20,7 +20,9 @@ os =
   else raise "Unknown OS: #{platform.os}"
   end
 
-binary = "lefthook_#{os}_#{arch}/lefthook"
+suffix = arch == "amd64" ? "_v1" : "" # GOAMD64
+
+binary = "lefthook_#{os}_#{arch}#{suffix}/lefthook"
 binary = "#{binary}.exe" if os == "windows"
 
 args = $*.map { |x| x.include?(' ') ? "'" + x + "'" : x }

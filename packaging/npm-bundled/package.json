@@ -29,7 +29,7 @@
     "ia32"
   ],
   "scripts": {
-    "version": "git clean -fd bin/ && (cd ../../dist/ && find . -executable -type f -exec cp --parents \\{\\} ../packaging/npm-bundled/bin/ \\;) && cp -f ../../README.md ./",
+    "version": "git clean -fdX bin/ && (cd ../../dist/ && find . -maxdepth 2 -executable -type f -exec cp --parents \\{\\} ../packaging/npm-bundled/bin/ \\;) && cp -f ../../README.md ./",
     "postinstall": "node postinstall.js"
   }
 }
