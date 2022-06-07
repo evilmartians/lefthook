@@ -2,6 +2,18 @@
 
 ## master (unreleased)
 
+# 0.8.0 (2022-06-07)
+
+- Allow skipping hooks in certain git states: merge and/or rebase ([PR #173](https://github.com/evilmartians/lefthook/pull/173) by @DmitryTsepelev)
+- NPM: installer package that downloads the required binaries during installation ([PR #188](https://github.com/evilmartians/lefthook/pull/188) by @aminya, [PR #273](https://github.com/evilmartians/lefthook/pull/273) by @Envek)
+- Add ability to skip summary output. Also support a `LEFTHOOK_QUIET` env variable ([PR #187](https://github.com/evilmartians/lefthook/pull/187) by @washtubs)
+- Make filename globs case-insensitive ([PR #196](https://github.com/evilmartians/lefthook/pull/196) by @skryukov)
+- Fix lefthook binary extension on Windows ([PR #188](https://github.com/evilmartians/lefthook/pull/188) by @aminya)
+- Stop building 32-bit binaries for releases due to low usage (@Envek)
+- Allow lefthook to work when node_modules is not in root folder for npx ([PR #224](https://github.com/evilmartians/lefthook/pull/224) by @spearmootz)
+- Fix unreachable conditional in hook template ([PR #242](https://github.com/evilmartians/lefthook/pull/242) by @dannobytes)
+- Add cpu arch and os arch to lefthook's filepath in hook template ([PR #260](https://github.com/evilmartians/lefthook/pull/260) by @rmachado-studocu)
+
 # 0.7.7 (2021-10-02)
 
 - Fix incorrect npx command in git hook script template ([PR #236](https://github.com/evilmartians/lefthook/pull/236)) @PikachuEXE
