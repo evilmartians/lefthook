@@ -58,12 +58,12 @@ snapcrafts:
 
 nfpms:
   -
-    file_name_template: '{{ .ProjectName }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+    file_name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
     homepage:  https://github.com/evilmartians/lefthook
     description: Lefthook a single dependency-free binary to manage all your git hooks that works with any language in any environment, and in all common team workflows
     maintainer: Alexander Abroskin <arkweid@evilmartians.com>
     license: MIT
-    vendor: Arkweid
+    vendor: Evil Martians
     formats:
     - deb
     - rpm
