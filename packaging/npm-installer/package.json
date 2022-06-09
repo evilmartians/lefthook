@@ -1,6 +1,6 @@
 {
-  "name": "@arkweid/lefthook",
-  "version": "0.7.6",
+  "name": "@evilmartians/lefthook-installer",
+  "version": "0.8.0",
   "description": "Simple git hooks manager",
   "main": "index.js",
   "bin": {
@@ -28,6 +28,7 @@
     "arm64"
   ],
   "scripts": {
+    "version": "cp -f ../../README.md ./",
     "install": "node install.js"
   },
   "dependencies": {

@@ -10,18 +10,30 @@ go get github.com/evilmartians/lefthook
 
 ### npm or yarn
 
-```bash
-npm i @arkweid/lefthook --save-dev
-# or yarn:
-yarn add -D @arkweid/lefthook
-```
+Lefthook is available on NPM in two flavors:
+
+ 1. [@evilmartians/lefthook](https://www.npmjs.com/package/@evilmartians/lefthook) with pre-bundled binaries for all architectures:
+
+    ```bash
+    npm install @evilmartians/lefthook --save-dev
+    # or yarn:
+    yarn add -D @evilmartians/lefthook
+    ```
+
+ 2. [@evilmartians/lefthook-installer](https://www.npmjs.com/package/@evilmartians/lefthook-installer) that wil fetch binary file on installation:
+
+    ```bash
+    npm install @evilmartians/lefthook-installer --save-dev
+    # or yarn:
+    yarn add -D @evilmartians/lefthook-installer
+    ```
 
 NOTE: if you install it this way you should call it with `npx` or `yarn` for all listed examples below. (for example: `lefthook install` -> `npx lefthook install`)
 
 You can also install lefthook as a global dependency
 
 ```bash
-npm install -g @arkweid/lefthook
+npm install -g @evilmartians/lefthook
 ```
 
 
@@ -250,6 +262,28 @@ commit-msg:
 ```
 
 When you try to commit `git commit -m "haha bad commit text"` script `template_checker` will be executed. Since commit text doesn't match the described pattern the commit process will be interrupted.
+
+## Bash script example with Commitlint
+
+Let's create a bash script to check conventional commit status `.lefthook/commit-msg/commitlint.sh`:
+
+```bash
+echo $(head -n1 $1) | npx commitlint --color
+```
+
+Now we can ask lefthook to run our bash script by adding this code to
+`lefthook.yml` file:
+
+```yml
+# lefthook.yml
+
+commit-msg:
+  scripts:
+    "commitlint.sh":
+      runner: bash
+```
+
+When you try to commit `git commit -m "haha bad commit text"` script `commitlint.sh` will be executed. Since commit text doesn't match the default config or custom config that you setup for `commitlint`, the process will be interrupted.
 
 ## Local config
 
@@ -550,11 +584,11 @@ export LEFTHOOK_QUIET="meta,success,summary"
 
 ## CI integration
 
-Enable `CI` env variable if it doens't exists on your service by default.
+Enable `CI` env variable if it doesn't exists on your service by default.
 
 ## Disable colors
 
-By agrs:
+By args:
 ```bash
 lefthook --no-colors run pre-commit
 ```

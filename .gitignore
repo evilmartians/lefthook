@@ -8,12 +8,12 @@
 
 tmp/
 dist/
-.rubygems/pkg/
-.rubygems/libexec/
-.npm/bin/
-!.npm/bin/*.js
+packaging/rubygems/pkg/
+packaging/rubygems/libexec/
+packaging/npm-bundled/bin/
+packaging/npm-*/README.md
 package.json
-!.npm/package.json
+!packaging/npm-*/package.json
 node_modules/
 yarn.lock
 package-lock.json

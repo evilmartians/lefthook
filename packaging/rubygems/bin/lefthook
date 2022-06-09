@@ -20,13 +20,15 @@ os =
   else raise "Unknown OS: #{platform.os}"
   end
 
-binary = "lefthook_#{os}_#{arch}/lefthook"
+suffix = arch == "amd64" ? "_v1" : "" # GOAMD64
+
+binary = "lefthook_#{os}_#{arch}#{suffix}/lefthook"
 binary = "#{binary}.exe" if os == "windows"
 
 args = $*.map { |x| x.include?(' ') ? "'" + x + "'" : x }
 cmd = File.expand_path "#{File.dirname(__FILE__)}/../libexec/#{binary}"
 
-unless File.exists?(cmd)
+unless File.exist?(cmd)
   raise "Invalid platform. Lefthook wasn't build for #{RUBY_PLATFORM}"
 end
 
