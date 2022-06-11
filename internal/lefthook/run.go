@@ -118,8 +118,7 @@ func (l *Lefthook) Run(hookName string, gitArgs []string) error {
 	}
 
 	if len(failList) > 0 {
-		log.Error() // A newline just to make it look prettier
-		return errors.New("some steps failed")
+		return errors.New("") // No error should be printed
 	}
 
 	return nil

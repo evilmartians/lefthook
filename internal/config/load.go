@@ -2,6 +2,7 @@ package config
 
 import (
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/spf13/afero"
@@ -13,6 +14,8 @@ const (
 	DefaultSourceDirLocal = ".lefthook-local"
 	DefaultColorsEnabled  = true
 )
+
+var hookKeyRegexp = regexp.MustCompile(`^(?P<hookName>[^.]+)\.(scripts|commands)`)
 
 // Loads configs from the given directory with extensions.
 func Load(fs afero.Fs, path string) (*Config, error) {
@@ -103,21 +106,27 @@ func unmarshalConfigs(base, extra *viper.Viper, c *Config) error {
 	c.Hooks = make(map[string]*Hook)
 
 	for _, hookName := range AvailableHooks {
-		baseHook := base.Sub(hookName)
-		extraHook := extra.Sub(hookName)
-
-		resultHook, err := unmarshalHooks(baseHook, extraHook)
-		if err != nil {
+		if err := addHook(hookName, base, extra, c); err != nil {
 			return err
 		}
+	}
 
-		if resultHook == nil {
+	// For extra non-git hooks.
+	// This behavior will be deprecated in next versions.
+	for _, maybeHook := range base.AllKeys() {
+		if !hookKeyRegexp.MatchString(maybeHook) {
 			continue
 		}
 
-		resultHook.processDeprecations()
+		matches := hookKeyRegexp.FindStringSubmatch(maybeHook)
+		hookName := matches[hookKeyRegexp.SubexpIndex("hookName")]
+		if _, ok := c.Hooks[hookName]; ok {
+			continue
+		}
 
-		c.Hooks[hookName] = resultHook
+		if err := addHook(hookName, base, extra, c); err != nil {
+			return err
+		}
 	}
 
 	// Merge config and unmarshal it
@@ -127,6 +136,26 @@ func unmarshalConfigs(base, extra *viper.Viper, c *Config) error {
 	if err := base.Unmarshal(c); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func addHook(hookName string, base, extra *viper.Viper, c *Config) error {
+	baseHook := base.Sub(hookName)
+	extraHook := extra.Sub(hookName)
+
+	resultHook, err := unmarshalHooks(baseHook, extraHook)
+	if err != nil {
+		return err
+	}
+
+	if resultHook == nil {
+		return nil
+	}
+
+	resultHook.processDeprecations()
+
+	c.Hooks[hookName] = resultHook
 
 	return nil
 }

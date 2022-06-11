@@ -11,8 +11,6 @@ import (
 	"strings"
 
 	"github.com/creack/pty"
-
-	"github.com/evilmartians/lefthook/internal/log"
 )
 
 func Execute(root string, args []string) (*bytes.Buffer, error) {
@@ -25,12 +23,8 @@ func Execute(root string, args []string) (*bytes.Buffer, error) {
 		return nil, err
 	}
 	defer func() { _ = ptyOut.Close() }()
-
 	out := bytes.NewBuffer(make([]byte, 0))
-	_, err = io.Copy(out, ptyOut)
-	if err != nil {
-		log.Debug(err)
-	}
+	_, _ = io.Copy(out, ptyOut)
 
 	return out, command.Wait()
 }

@@ -141,6 +141,42 @@ pre-push:
 				},
 			},
 		},
+		{
+			name: "with extra hooks",
+			global: []byte(`
+tests:
+  commands:
+    tests:
+      run: go test ./...
+
+lints:
+  scripts:
+    "linter.sh":
+      runner: bash
+`),
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         true, // defaults to true
+				Hooks: map[string]*Hook{
+					"tests": {
+						Parallel: false,
+						Commands: map[string]*Command{
+							"tests": {
+								Run: "go test ./...",
+							},
+						},
+					},
+					"lints": {
+						Scripts: map[string]*Script{
+							"linter.sh": {
+								Runner: "bash",
+							},
+						},
+					},
+				},
+			},
+		},
 	} {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
