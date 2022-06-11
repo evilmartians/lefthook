@@ -7,9 +7,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
-	"time"
 
-	"github.com/briandowns/spinner"
 	"github.com/spf13/afero"
 	"gopkg.in/alessio/shellescape.v1"
 
@@ -23,15 +21,11 @@ type status int8
 const (
 	executableFileMode os.FileMode = 0o751
 	executableMask     os.FileMode = 0o111
-
-	spinnerCharSet     = 14
-	spinnerRefreshRate = 100 * time.Millisecond
 )
 
 type Runner struct {
 	fs         afero.Fs
 	repo       *git.Repository
-	spinner    *spinner.Spinner
 	hook       *config.Hook
 	args       []string
 	failed     bool
@@ -46,13 +40,8 @@ func NewRunner(
 	resultChan chan Result,
 ) *Runner {
 	return &Runner{
-		fs:   fs,
-		repo: repo,
-		spinner: spinner.New(
-			spinner.CharSets[spinnerCharSet],
-			spinnerRefreshRate,
-			spinner.WithSuffix(" waiting"),
-		),
+		fs:         fs,
+		repo:       repo,
 		hook:       hook,
 		args:       args,
 		resultChan: resultChan,
@@ -60,11 +49,14 @@ func NewRunner(
 }
 
 func (r *Runner) RunAll(scriptDirs []string) {
+	log.StartSpinner()
+
 	for _, dir := range scriptDirs {
 		r.runScripts(dir)
 	}
 	r.runCommands()
-	r.spinner.Stop() // make sure spinner is stopped
+
+	log.StopSpinner()
 }
 
 func (r *Runner) fail(name string) {
@@ -279,9 +271,7 @@ func prepareFiles(command *config.Command, files []string) string {
 }
 
 func (r *Runner) run(name string, root string, args []string) {
-	r.spinner.Start()
 	out, err := Execute(root, args)
-	r.spinner.Stop()
 
 	var execName string
 	if err != nil {
@@ -297,8 +287,6 @@ func (r *Runner) run(name string, root string, args []string) {
 	} else if err != nil {
 		log.Infof("%s\n%s\n", execName, err)
 	}
-
-	r.spinner.Start()
 }
 
 // Returns whether two arrays have at least one similar element.

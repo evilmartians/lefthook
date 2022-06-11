@@ -6,7 +6,9 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
+	"github.com/briandowns/spinner"
 	"github.com/logrusorgru/aurora"
 )
 
@@ -21,13 +23,17 @@ const (
 	WarnLevel
 	InfoLevel
 	DebugLevel
+
+	spinnerCharSet     = 14
+	spinnerRefreshRate = 100 * time.Millisecond
 )
 
 type Logger struct {
-	level  Level
-	aurora aurora.Aurora
-	out    io.Writer
-	mu     sync.Mutex
+	level   Level
+	aurora  aurora.Aurora
+	out     io.Writer
+	mu      sync.Mutex
+	spinner *spinner.Spinner
 }
 
 func New() *Logger {
@@ -35,7 +41,20 @@ func New() *Logger {
 		level:  InfoLevel,
 		out:    os.Stdout,
 		aurora: aurora.NewAurora(true),
+		spinner: spinner.New(
+			spinner.CharSets[spinnerCharSet],
+			spinnerRefreshRate,
+			spinner.WithSuffix(" waiting"),
+		),
 	}
+}
+
+func StartSpinner() {
+	std.spinner.Start()
+}
+
+func StopSpinner() {
+	std.spinner.Stop()
 }
 
 func Debug(args ...interface{}) {
@@ -186,12 +205,24 @@ func (l *Logger) Logf(level Level, format string, args ...interface{}) {
 func (l *Logger) Println(args ...interface{}) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
+
+	if l.spinner.Active() {
+		l.spinner.Stop()
+		defer func() { l.spinner.Start() }()
+	}
+
 	_, _ = fmt.Fprintln(l.out, args...)
 }
 
 func (l *Logger) Printf(format string, args ...interface{}) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
+
+	if l.spinner.Active() {
+		l.spinner.Stop()
+		defer func() { l.spinner.Start() }()
+	}
+
 	_, _ = fmt.Fprintf(l.out, format, args...)
 }
 
