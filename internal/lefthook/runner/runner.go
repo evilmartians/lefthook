@@ -218,7 +218,12 @@ func (r *Runner) buildCommandArgs(command *config.Command) []string {
 
 	runString := command.Run
 	for filesType, filesFn := range filesTypeToFn {
-		if strings.Contains(runString, filesType) {
+		// Checking substitutions and skipping execution if it is empty.
+		//
+		// Special case - `files` option: return if the result of files
+		// command is empty.
+		if strings.Contains(runString, filesType) ||
+			command.Files != "" && filesType == config.SubFiles {
 			files, err := filesFn()
 			if err != nil {
 				continue
