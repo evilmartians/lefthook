@@ -138,8 +138,6 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 }
 
 func (r *Runner) runCommands() {
-	var wg sync.WaitGroup
-
 	commands := make([]string, 0, len(r.hook.Commands))
 	for name := range r.hook.Commands {
 		commands = append(commands, name)
@@ -147,6 +145,7 @@ func (r *Runner) runCommands() {
 
 	sort.Strings(commands)
 
+	var wg sync.WaitGroup
 	for _, name := range commands {
 		if r.failed && r.hook.Piped {
 			logSkip(name, "(SKIP BY BROKEN PIPE)")
@@ -306,6 +305,6 @@ func intersect(a, b []string) bool {
 	return false
 }
 
-func logSkip(name, skipMsg string) {
-	log.Info(fmt.Sprintf("%s: %s", log.Bold(name), log.Yellow(skipMsg)))
+func logSkip(name, reason string) {
+	log.Info(fmt.Sprintf("%s: %s", log.Bold(name), log.Yellow(reason)))
 }
