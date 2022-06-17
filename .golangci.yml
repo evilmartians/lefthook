@@ -3,6 +3,8 @@ linters-settings:
     check-shadowing: true
   misspell:
     locale: US
+  gci:
+    local-prefixes: github.com/evilmartians/lefthook
 
 linters:
   disable-all: true
@@ -13,20 +15,28 @@ linters:
    - dogsled
    - dupl
    - errcheck
-   - exportloopref
    - exhaustive
+   - exportloopref
+   - gci
    - goconst
    - gocyclo
+   - gocyclo
+   - godot
+   - godox
    - gofmt
+   - gofumpt
    - goimports
+   - gomnd
    - goprintffuncname
    - gosimple
    - govet
    - ineffassign
    - misspell
    - nakedret
+   - nestif
    - noctx
    - nolintlint
+   - revive
    - rowserrcheck
    - staticcheck
    - structcheck
