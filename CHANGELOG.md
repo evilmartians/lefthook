@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+- Refactoring ([PR #275](https://github.com/evilmartians/lefthook/pull/275) by @mrexox, @skryukov, @markovichecha)
+
 # 0.8.0 (2022-06-07)
 
 - Allow skipping hooks in certain git states: merge and/or rebase ([PR #173](https://github.com/evilmartians/lefthook/pull/173) by @DmitryTsepelev)
