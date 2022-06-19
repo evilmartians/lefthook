@@ -2,7 +2,10 @@
 
 ## master (unreleased)
 
+# 1.0.0 (2022-06-19)
+
 - Refactoring ([PR #275](https://github.com/evilmartians/lefthook/pull/275) by @mrexox, @skryukov, @markovichecha)
+- Replace deprecated `File.exists?` with `exist?` for Ruby script ([PR #263](https://github.com/evilmartians/lefthook/pull/263) by @pocke)
 
 # 0.8.0 (2022-06-07)
 
