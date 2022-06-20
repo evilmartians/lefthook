@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+# 1.0.1 (2022-06-20) Ruby gem and NPM package fix
+
+- Fix folders structure for `@evilmartians/lefthook` and `@evilmartians/lefthook-installer` packages
+- Fix folders structure for `lefthook` gem
+
 # 1.0.0 (2022-06-19)
 
 - Refactoring ([PR #275](https://github.com/evilmartians/lefthook/pull/275) by @mrexox, @skryukov, @markovichecha)
