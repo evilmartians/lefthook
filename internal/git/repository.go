@@ -13,6 +13,7 @@ import (
 const (
 	cmdRootPath    = "git rev-parse --show-toplevel"
 	cmdHooksPath   = "git rev-parse --git-path hooks"
+	cmdInfoPath    = "git rev-parse --git-path info"
 	cmdGitPath     = "git rev-parse --git-dir"
 	cmdStagedFiles = "git diff --name-only --cached"
 	cmdAllFiles    = "git ls-files --cached"
@@ -25,6 +26,7 @@ type Repository struct {
 	HooksPath string
 	RootPath  string
 	GitPath   string
+	InfoPath  string
 }
 
 // NewRepository returns a Repository or an error, if git repository it not initialized.
@@ -42,6 +44,11 @@ func NewRepository(fs afero.Fs) (*Repository, error) {
 		hooksPath = filepath.Join(rootPath, hooksPath)
 	}
 
+	infoSubpath, err := execGit(cmdInfoPath)
+	if err != nil {
+		return nil, err
+	}
+
 	gitPath, err := execGit(cmdGitPath)
 	if err != nil {
 		return nil, err
@@ -55,6 +62,7 @@ func NewRepository(fs afero.Fs) (*Repository, error) {
 		HooksPath: hooksPath,
 		RootPath:  rootPath,
 		GitPath:   gitPath,
+		InfoPath:  filepath.Join(rootPath, infoSubpath),
 	}, nil
 }
 

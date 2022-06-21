@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/spf13/afero"
 
@@ -18,14 +19,23 @@ func TestLefthookInstall(t *testing.T) {
 	}
 
 	configPath := filepath.Join(root, "lefthook.yml")
-	hooksPath := filepath.Join(root, ".git", "hooks")
 
 	hookPath := func(hook string) string {
 		return filepath.Join(root, ".git", "hooks", hook)
 	}
 
+	infoPath := func(file string) string {
+		return filepath.Join(root, ".git", "info", file)
+	}
+
+	repo := &git.Repository{
+		HooksPath: filepath.Join(root, ".git", "hooks"),
+		RootPath:  root,
+		InfoPath:  filepath.Join(root, ".git", "info"),
+	}
+
 	for n, tt := range [...]struct {
-		name, config            string
+		name, config, checksum  string
 		args                    InstallArgs
 		existingHooks           map[string]string
 		wantExist, wantNotExist []string
@@ -52,7 +62,7 @@ post-commit:
 				configPath,
 				hookPath("pre-commit"),
 				hookPath("post-commit"),
-				hookPath(config.ChecksumHookName),
+				infoPath(config.ChecksumFileName),
 			},
 		},
 		{
@@ -76,7 +86,7 @@ post-commit:
 				hookPath("pre-commit"),
 				hookPath("pre-commit.old"),
 				hookPath("post-commit"),
-				hookPath(config.ChecksumHookName),
+				infoPath(config.ChecksumFileName),
 			},
 		},
 		{
@@ -99,7 +109,7 @@ post-commit:
 				configPath,
 				hookPath("pre-commit"),
 				hookPath("post-commit"),
-				hookPath(config.ChecksumHookName),
+				infoPath(config.ChecksumFileName),
 			},
 			wantNotExist: []string{
 				hookPath("pre-commit.old"),
@@ -118,12 +128,10 @@ post-commit:
     notify:
       run: echo 'Done!'
 `,
-			existingHooks: map[string]string{
-				"prepare-commit-msg": "# lefthook_version: 8b2c9fc6b3391b3cf020b97ab7037c61",
-			},
+			checksum: "8b2c9fc6b3391b3cf020b97ab7037c61 1655894410\n",
 			wantExist: []string{
 				configPath,
-				hookPath(config.ChecksumHookName),
+				infoPath(config.ChecksumFileName),
 			},
 			wantNotExist: []string{
 				hookPath("pre-commit"),
@@ -144,14 +152,58 @@ post-commit:
     notify:
       run: echo 'Done!'
 `,
-			existingHooks: map[string]string{
-				"prepare-commit-msg": "# lefthook_version: 8b2c9fc6b3391b3cf020b97ab7037c61",
-			},
+			checksum: "8b2c9fc6b3391b3cf020b97ab7037c61 1655894410\n",
 			wantExist: []string{
 				configPath,
 				hookPath("pre-commit"),
 				hookPath("post-commit"),
-				hookPath(config.ChecksumHookName),
+				infoPath(config.ChecksumFileName),
+			},
+		},
+		{
+			name: "with stale timestamp but synchronized",
+			args: InstallArgs{},
+			config: `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+
+post-commit:
+  commands:
+    notify:
+      run: echo 'Done!'
+`,
+			checksum: "8b2c9fc6b3391b3cf020b97ab7037c61 1555894310\n",
+			wantExist: []string{
+				configPath,
+				infoPath(config.ChecksumFileName),
+			},
+			wantNotExist: []string{
+				hookPath("pre-commit"),
+				hookPath("post-commit"),
+			},
+		},
+		{
+			name: "with stale timestamp and checksum",
+			args: InstallArgs{},
+			config: `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+
+post-commit:
+  commands:
+    notify:
+      run: echo 'Done!'
+`,
+			checksum: "8b2c9fc6b3391b3cf020b97ab7037c62 1555894310\n",
+			wantExist: []string{
+				configPath,
+				hookPath("pre-commit"),
+				hookPath("post-commit"),
+				infoPath(config.ChecksumFileName),
 			},
 		},
 		{
@@ -178,7 +230,7 @@ post-commit:
 				hookPath("pre-commit.old"),
 			},
 			wantNotExist: []string{
-				hookPath(config.ChecksumHookName),
+				infoPath(config.ChecksumFileName),
 			},
 		},
 		{
@@ -204,24 +256,30 @@ post-commit:
 				hookPath("pre-commit"),
 				hookPath("pre-commit.old"),
 				hookPath("post-commit"),
-				hookPath(config.ChecksumHookName),
+				infoPath(config.ChecksumFileName),
 			},
 		},
 	} {
 		fs := afero.NewMemMapFs()
 		lefthook := &Lefthook{
 			Options: &Options{Fs: fs},
-			repo: &git.Repository{
-				Fs:        fs,
-				HooksPath: hooksPath,
-				RootPath:  root,
-			},
+			repo:    repo,
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			// Create configuration file
 			if len(tt.config) > 0 {
 				if err := afero.WriteFile(fs, configPath, []byte(tt.config), 0o644); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
+				timestamp := time.Date(2022, time.June, 22, 10, 40, 10, 1, time.UTC)
+				if err := fs.Chtimes(configPath, timestamp, timestamp); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
+			}
+
+			if len(tt.checksum) > 0 {
+				if err := afero.WriteFile(fs, lefthook.checksumFilePath(), []byte(tt.checksum), 0o644); err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
 			}

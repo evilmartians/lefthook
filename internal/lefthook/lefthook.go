@@ -115,12 +115,7 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 // Creates a hook file using hook template.
 func (l *Lefthook) addHook(hook, configChecksum string) error {
 	hookPath := filepath.Join(l.repo.HooksPath, hook)
-	err := afero.WriteFile(
+	return afero.WriteFile(
 		l.Fs, hookPath, templates.Hook(hook, configChecksum), hookFileMode,
 	)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

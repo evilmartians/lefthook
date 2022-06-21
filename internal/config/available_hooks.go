@@ -1,7 +1,7 @@
 package config
 
-// ChecksumHookName - git hook, which is used just to store the current config checksum version.
-const ChecksumHookName = "prepare-commit-msg"
+// ChecksumFileName - the file, which is used just to store the current config checksum version.
+const ChecksumFileName = "lefthook.checksum"
 
 // AvailableHooks - list of hooks taken from https://git-scm.com/docs/githooks.
 var AvailableHooks = [...]string{

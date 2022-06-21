@@ -6,11 +6,9 @@ import (
 	"fmt"
 	"runtime"
 	"text/template"
-
-	"github.com/evilmartians/lefthook/internal/config"
 )
 
-const checksumFormat = "# lefthook_version: %s\n\ncall_lefthook \"install\""
+const checksumFormat = "%s %d\n"
 
 //go:embed *
 var templatesFS embed.FS
@@ -25,9 +23,8 @@ func Hook(hookName, configChecksum string) []byte {
 	buf := &bytes.Buffer{}
 	t := template.Must(template.ParseFS(templatesFS, "hook.tmpl"))
 	err := t.Execute(buf, hookTmplData{
-		AutoInstall: autoInstall(hookName, configChecksum),
-		HookName:    hookName,
-		Extension:   getExtension(),
+		HookName:  hookName,
+		Extension: getExtension(),
 	})
 	if err != nil {
 		panic(err)
@@ -45,12 +42,8 @@ func Config() []byte {
 	return tmpl
 }
 
-func autoInstall(hookName, configChecksum string) string {
-	if hookName != config.ChecksumHookName {
-		return ""
-	}
-
-	return fmt.Sprintf(checksumFormat, configChecksum)
+func Checksum(checksum string, timestamp int64) []byte {
+	return []byte(fmt.Sprintf(checksumFormat, checksum, timestamp))
 }
 
 func getExtension() string {
