@@ -50,7 +50,7 @@ pre-commit:
 
 ## Test it
 ```bash
-npx @evilmartians/lefthook install && npx @evilmartians/lefthook run pre-commit
+npx lefthook install && npx lefthook run pre-commit
 ```
 
 ### More info
