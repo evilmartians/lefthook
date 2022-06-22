@@ -12,8 +12,10 @@ packaging/rubygems/pkg/
 packaging/rubygems/libexec/
 packaging/npm-bundled/bin/
 packaging/npm-*/README.md
+packaging/npm/*/bin/
+packaging/npm/*/README.md
 package.json
-!packaging/npm-*/package.json
+!packaging/npm/*/package.json
 node_modules/
 yarn.lock
 package-lock.json
