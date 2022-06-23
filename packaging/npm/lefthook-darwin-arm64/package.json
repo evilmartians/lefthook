@@ -1,10 +1,7 @@
 {
   "name": "lefthook-darwin-arm64",
-  "version": "0.0.3",
+  "version": "1.0.0",
   "description": "The macOS ARM 64-bit binary for lefthook, git hooks manager.",
-  "bin": {
-    "lefthook": "bin/lefthook"
-  },
   "preferUnplugged": false,
   "repository": "https://github.com/evilmartians/lefthook",
   "license": "MIT",
