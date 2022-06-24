@@ -10,7 +10,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/config"
 )
 
-const checksumFormat = "# lefthook_version: %s"
+const checksumFormat = "# lefthook_version: %s\n\ncall_lefthook \"install\""
 
 //go:embed *
 var templatesFS embed.FS
