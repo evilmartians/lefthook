@@ -45,7 +45,7 @@ func (l *Lefthook) Run(hookName string, gitArgs []string) error {
 	}
 
 	if hookName == config.ChecksumHookName {
-		return nil
+		log.SetLevel(log.WarnLevel)
 	}
 
 	// Load config
