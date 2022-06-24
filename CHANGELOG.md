@@ -2,6 +2,13 @@
 
 ## master (unreleased)
 
+# 1.0.2 (2022-06-24)
+
+- Bring auto install back ([PR #286](https://github.com/evilmartians/lefthook/pull/286) by @mrexox)
+- Move main.go to root ([PR #285](https://github.com/evilmartians/lefthook/pull/285) by @mrexox)
+- Panic on commands structure misuse ([PR #284](https://github.com/evilmartians/lefthook/pull/284) by @mrexox)
+- Split npm package by os and cpu ([PR #281](https://github.com/evilmartians/lefthook/pull/281) by @mrexox)
+
 # 1.0.1 (2022-06-20) Ruby gem and NPM package fix
 
 - Fix folders structure for `@evilmartians/lefthook` and `@evilmartians/lefthook-installer` packages
