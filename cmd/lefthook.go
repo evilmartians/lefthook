@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"os"
@@ -6,7 +6,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
-func main() {
+func Lefthook() {
 	rootCmd := newRootCmd()
 
 	if err := rootCmd.Execute(); err != nil {
