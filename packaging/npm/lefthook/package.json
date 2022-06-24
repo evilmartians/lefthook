@@ -15,7 +15,8 @@
   "author": "mrexox",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/evilmartians/lefthook/issues"
+    "url": "https://github.com/evilmartians/lefthook/issues",
+    "email": "lefthook@evilmartians.com"
   },
   "homepage": "https://github.com/evilmartians/lefthook#readme",
   "optionalDependencies": {

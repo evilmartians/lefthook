@@ -1,8 +1,8 @@
 Gem::Specification.new do |spec|
   spec.name          = "lefthook"
   spec.version       = "1.0.2"
-  spec.authors       = ["A.A.Abroskin"]
-  spec.email         = ["arkweid@evilmartians.com"]
+  spec.authors       = ["A.A.Abroskin", "Evil Martians"]
+  spec.email         = ["lefthook@evilmartians.com"]
 
   spec.summary       = "A single dependency-free binary to manage all your git hooks that works with any language in any environment, and in all common team workflows."
   spec.homepage      = "https://github.com/evilmartians/lefthook"
