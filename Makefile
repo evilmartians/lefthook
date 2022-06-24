@@ -1,5 +1,5 @@
 build:
-	go build -o lefthook cmd/lefthook/*.go
+	go build -o lefthook
 
 test:
 	go test -cpu 24 -race -count=1 -timeout=30s ./...
