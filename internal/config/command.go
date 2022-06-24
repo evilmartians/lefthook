@@ -72,7 +72,12 @@ func mergeCommands(base, extra *viper.Viper) (map[string]*Command, error) {
 	for key := range commandsOrigin.AllSettings() {
 		var replace commandRunReplace
 
-		if err := commandsOrigin.Sub(key).Unmarshal(&replace); err != nil {
+		substructure := commandsOrigin.Sub(key)
+		if substructure == nil {
+			continue
+		}
+
+		if err := substructure.Unmarshal(&replace); err != nil {
 			return nil, err
 		}
 
