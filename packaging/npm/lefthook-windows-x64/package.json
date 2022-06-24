@@ -1,6 +1,6 @@
 {
   "name": "lefthook-windows-x64",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "The Windows 64-bit binary for lefthook, git hooks manager.",
   "preferUnplugged": false,
   "repository": "https://github.com/evilmartians/lefthook",
