@@ -33,4 +33,4 @@ put-readme:
 
 clean:
 	find . -name 'README.md' -exec rm \{} \;
-	find . -type f -executable -exec rm \{} \;
+	find . -type f -name 'lefthook*' -executable -exec rm \{} \;

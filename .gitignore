@@ -13,6 +13,7 @@ packaging/rubygems/libexec/
 packaging/npm-bundled/bin/
 packaging/npm-*/README.md
 packaging/npm/*/bin/
+!packaging/npm/lefthook/bin/index.js
 packaging/npm/*/README.md
 package.json
 !packaging/npm/*/package.json
