@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+# 1.0.3 (2022-06-25)
+
+- Fix NPM package
+- Update email information
+
 # 1.0.2 (2022-06-24)
 
 - Bring auto install back ([PR #286](https://github.com/evilmartians/lefthook/pull/286) by @mrexox)
