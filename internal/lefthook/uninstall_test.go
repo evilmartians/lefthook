@@ -23,11 +23,6 @@ func TestLefthookUninstall(t *testing.T) {
 		return filepath.Join(root, ".git", "hooks", hook)
 	}
 
-	repo := &git.Repository{
-		HooksPath: hooksPath,
-		RootPath:  root,
-	}
-
 	for n, tt := range [...]struct {
 		name, config            string
 		args                    UninstallArgs
@@ -100,7 +95,14 @@ func TestLefthookUninstall(t *testing.T) {
 	} {
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			fs := afero.NewMemMapFs()
-			lefthook := &Lefthook{Options: &Options{Fs: fs}, repo: repo}
+			lefthook := &Lefthook{
+				Options: &Options{Fs: fs},
+				repo: &git.Repository{
+					Fs:        fs,
+					HooksPath: hooksPath,
+					RootPath:  root,
+				},
+			}
 
 			err := afero.WriteFile(fs, configPath, []byte(tt.config), 0o644)
 			if err != nil {
