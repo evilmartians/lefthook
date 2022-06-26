@@ -24,11 +24,6 @@ func TestLefthookInstall(t *testing.T) {
 		return filepath.Join(root, ".git", "hooks", hook)
 	}
 
-	repo := &git.Repository{
-		HooksPath: hooksPath,
-		RootPath:  root,
-	}
-
 	for n, tt := range [...]struct {
 		name, config            string
 		args                    InstallArgs
@@ -214,7 +209,14 @@ post-commit:
 		},
 	} {
 		fs := afero.NewMemMapFs()
-		lefthook := &Lefthook{Options: &Options{Fs: fs}, repo: repo}
+		lefthook := &Lefthook{
+			Options: &Options{Fs: fs},
+			repo: &git.Repository{
+				Fs:        fs,
+				HooksPath: hooksPath,
+				RootPath:  root,
+			},
+		}
 
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			// Create configuration file

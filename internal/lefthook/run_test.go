@@ -18,16 +18,13 @@ func TestRun(t *testing.T) {
 
 	configPath := filepath.Join(root, "lefthook.yml")
 	hooksPath := filepath.Join(root, ".git", "hooks")
-
-	repo := &git.Repository{
-		HooksPath: hooksPath,
-		RootPath:  root,
-	}
+	gitPath := filepath.Join(root, ".git")
 
 	for i, tt := range [...]struct {
 		name, hook, config string
 		gitArgs            []string
 		envs               map[string]string
+		existingDirs       []string
 		error              bool
 	}{
 		{
@@ -82,10 +79,79 @@ pre-commit:
 `,
 			error: false,
 		},
+		{
+			name: "When in git rebase-merge flow",
+			hook: "pre-commit",
+			config: `
+pre-commit:
+  parallel: false
+  piped: true
+  commands:
+    echo:
+      skip:
+        - rebase
+        - merge
+      run: echo 'SHOULD NEVER RUN'
+`,
+			existingDirs: []string{
+				filepath.Join(gitPath, "rebase-merge"),
+			},
+			error: false,
+		},
+		{
+			name: "When in git rebase-apply flow",
+			hook: "pre-commit",
+			config: `
+pre-commit:
+  parallel: false
+  piped: true
+  commands:
+    echo:
+      skip:
+        - rebase
+        - merge
+      run: echo 'SHOULD NEVER RUN'
+`,
+			existingDirs: []string{
+				filepath.Join(gitPath, "rebase-apply"),
+			},
+			error: false,
+		},
+		{
+			name: "When not in rebase flow",
+			hook: "pre-commit",
+			config: `
+pre-commit:
+  parallel: false
+  piped: true
+  commands:
+    echo:
+      skip:
+        - rebase
+        - merge
+      run: echo 'SHOULD RUN'
+`,
+			error: true,
+		},
 	} {
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
 			fs := afero.NewMemMapFs()
-			lefthook := &Lefthook{Options: &Options{Fs: fs}, repo: repo}
+			lefthook := &Lefthook{
+				Options: &Options{Fs: fs},
+				repo: &git.Repository{
+					Fs:        fs,
+					HooksPath: hooksPath,
+					RootPath:  root,
+					GitPath:   gitPath,
+				},
+			}
+
+			// Create files that should exist
+			for _, path := range tt.existingDirs {
+				if err := fs.MkdirAll(path, 0o755); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
+			}
 
 			err := afero.WriteFile(fs, configPath, []byte(tt.config), 0o644)
 			if err != nil {

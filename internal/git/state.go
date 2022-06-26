@@ -24,15 +24,15 @@ func (r *Repository) State() State {
 }
 
 func (r *Repository) isMergeState() bool {
-	if _, err := os.Stat(filepath.Join(r.gitPath, "MERGE_HEAD")); os.IsNotExist(err) {
+	if _, err := r.Fs.Stat(filepath.Join(r.GitPath, "MERGE_HEAD")); os.IsNotExist(err) {
 		return false
 	}
 	return true
 }
 
 func (r *Repository) isRebaseState() bool {
-	if _, mergeErr := os.Stat(filepath.Join(r.gitPath, "rebase-merge")); os.IsNotExist(mergeErr) {
-		if _, applyErr := os.Stat(filepath.Join(r.gitPath, "rebase-apply")); os.IsNotExist(applyErr) {
+	if _, mergeErr := r.Fs.Stat(filepath.Join(r.GitPath, "rebase-merge")); os.IsNotExist(mergeErr) {
+		if _, applyErr := r.Fs.Stat(filepath.Join(r.GitPath, "rebase-apply")); os.IsNotExist(applyErr) {
 			return false
 		}
 	}

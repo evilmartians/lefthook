@@ -23,11 +23,6 @@ func TestLefthookAdd(t *testing.T) {
 		return filepath.Join(root, ".git", "hooks", hook)
 	}
 
-	repo := &git.Repository{
-		HooksPath: hooksPath,
-		RootPath:  root,
-	}
-
 	for n, tt := range [...]struct {
 		name                    string
 		args                    *AddArgs
@@ -131,7 +126,14 @@ source_dir_local: .source_dir_local
 	} {
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			fs := afero.NewMemMapFs()
-			lefthook := &Lefthook{Options: &Options{Fs: fs}, repo: repo}
+			lefthook := &Lefthook{
+				Options: &Options{Fs: fs},
+				repo: &git.Repository{
+					Fs:        fs,
+					HooksPath: hooksPath,
+					RootPath:  root,
+				},
+			}
 
 			if len(tt.config) > 0 {
 				err := afero.WriteFile(fs, configPath, []byte(tt.config), 0o644)
