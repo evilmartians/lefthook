@@ -10,7 +10,7 @@ func isSkip(gitSkipState git.State, value interface{}) bool {
 		return git.State(typedValue) == gitSkipState
 	case []interface{}:
 		for _, gitState := range typedValue {
-			if gitState == gitSkipState {
+			if git.State(gitState.(string)) == gitSkipState {
 				return true
 			}
 		}

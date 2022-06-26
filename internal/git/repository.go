@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/spf13/afero"
 )
 
 const (
@@ -19,14 +21,14 @@ const (
 
 // Repository represents a git repository.
 type Repository struct {
+	Fs        afero.Fs
 	HooksPath string
 	RootPath  string
-
-	gitPath string
+	GitPath   string
 }
 
 // NewRepository returns a Repository or an error, if git repository it not initialized.
-func NewRepository() (*Repository, error) {
+func NewRepository(fs afero.Fs) (*Repository, error) {
 	rootPath, err := execGit(cmdRootPath)
 	if err != nil {
 		return nil, err
@@ -46,44 +48,33 @@ func NewRepository() (*Repository, error) {
 	}
 
 	return &Repository{
+		Fs:        fs,
 		HooksPath: filepath.Join(rootPath, hooksSubpath),
 		RootPath:  rootPath,
-		gitPath:   gitPath,
+		GitPath:   gitPath,
 	}, nil
 }
 
 // StagedFiles returns a list of staged files
 // or an error if git command fails.
 func (r *Repository) StagedFiles() ([]string, error) {
-	return FilesByCommand(cmdStagedFiles)
+	return r.FilesByCommand(cmdStagedFiles)
 }
 
 // StagedFiles returns a list of all files in repository
 // or an error if git command fails.
 func (r *Repository) AllFiles() ([]string, error) {
-	return FilesByCommand(cmdAllFiles)
+	return r.FilesByCommand(cmdAllFiles)
 }
 
 // PushFiles returns a list of files that are ready to be pushed
 // or an error if git command fails.
 func (r *Repository) PushFiles() ([]string, error) {
-	return FilesByCommand(cmdPushFiles)
-}
-
-func execGit(command string) (string, error) {
-	args := strings.Split(command, " ")
-	cmd := exec.Command(args[0], args[1:]...)
-
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return "", err
-	}
-
-	return strings.TrimSpace(string(out)), nil
+	return r.FilesByCommand(cmdPushFiles)
 }
 
 // FilesByCommand accepts git command and returns its result as a list of filepaths.
-func FilesByCommand(command string) ([]string, error) {
+func (r *Repository) FilesByCommand(command string) ([]string, error) {
 	var cmd *exec.Cmd
 	if runtime.GOOS == "windows" {
 		commandArg := strings.Split(command, " ")
@@ -99,10 +90,10 @@ func FilesByCommand(command string) ([]string, error) {
 
 	lines := strings.Split(string(outputBytes), "\n")
 
-	return extractFiles(lines)
+	return r.extractFiles(lines)
 }
 
-func extractFiles(lines []string) ([]string, error) {
+func (r *Repository) extractFiles(lines []string) ([]string, error) {
 	var files []string
 
 	for _, line := range lines {
@@ -111,7 +102,7 @@ func extractFiles(lines []string) ([]string, error) {
 			continue
 		}
 
-		isFile, err := isFile(file)
+		isFile, err := r.isFile(file)
 		if err != nil {
 			return nil, err
 		}
@@ -123,8 +114,8 @@ func extractFiles(lines []string) ([]string, error) {
 	return files, nil
 }
 
-func isFile(path string) (bool, error) {
-	stat, err := os.Stat(path)
+func (r *Repository) isFile(path string) (bool, error) {
+	stat, err := r.Fs.Stat(path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return false, nil
@@ -133,4 +124,16 @@ func isFile(path string) (bool, error) {
 	}
 
 	return !stat.IsDir(), nil
+}
+
+func execGit(command string) (string, error) {
+	args := strings.Split(command, " ")
+	cmd := exec.Command(args[0], args[1:]...)
+
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(string(out)), nil
 }

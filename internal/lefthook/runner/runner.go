@@ -203,7 +203,7 @@ func (r *Runner) buildCommandArgs(command *config.Command) []string {
 		config.PushFiles:      r.repo.PushFiles,
 		config.SubAllFiles:    r.repo.AllFiles,
 		config.SubFiles: func() ([]string, error) {
-			return git.FilesByCommand(filesCommand)
+			return r.repo.FilesByCommand(filesCommand)
 		},
 	}
 
