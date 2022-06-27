@@ -95,11 +95,11 @@ func mergeCommands(base, extra *viper.Viper) (map[string]*Command, error) {
 	}
 
 	for key, replace := range runReplaces {
-		// Deprecated, will be deleted
 		if replace.Run != "" {
 			commands[key].Run = strings.Replace(commands[key].Run, CMD, replace.Run, -1)
 		}
 
+		// Deprecated, will be deleted
 		if replace.Runner != "" {
 			commands[key].Runner = strings.Replace(commands[key].Runner, CMD, replace.Runner, -1)
 		}

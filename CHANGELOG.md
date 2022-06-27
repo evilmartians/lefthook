@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+# 1.0.4 (2022-06-27)
+
 - Support skipping on rebase ([PR #289](https://github.com/evilmartians/lefthook/pull/289) by @mrexox)
 
 # 1.0.3 (2022-06-25)
