@@ -59,8 +59,8 @@ func (r *Runner) RunAll(scriptDirs []string) {
 	log.StopSpinner()
 }
 
-func (r *Runner) fail(name string) {
-	r.resultChan <- resultFail(name)
+func (r *Runner) fail(name, text string) {
+	r.resultChan <- resultFail(name, text)
 	r.failed = true
 }
 
@@ -121,7 +121,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 	if (file.Mode() & executableMask) == 0 {
 		if err := r.fs.Chmod(path, executableFileMode); err != nil {
 			log.Errorf("Couldn't change file mode to make file executable: %s", err)
-			r.fail(file.Name())
+			r.fail(file.Name(), "")
 			return
 		}
 	}
@@ -134,7 +134,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 	args = append(args, path)
 	args = append(args, r.args[:]...)
 
-	r.run(file.Name(), r.repo.RootPath, args)
+	r.run(file.Name(), r.repo.RootPath, script.FailText, args)
 }
 
 func (r *Runner) runCommands() {
@@ -178,7 +178,7 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 	}
 
 	if err := command.Validate(); err != nil {
-		r.fail(name)
+		r.fail(name, "")
 		return
 	}
 
@@ -189,7 +189,7 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 	}
 
 	root := filepath.Join(r.repo.RootPath, command.Root)
-	r.run(name, root, args)
+	r.run(name, root, command.FailText, args)
 }
 
 func (r *Runner) buildCommandArgs(command *config.Command) []string {
@@ -269,12 +269,12 @@ func prepareFiles(command *config.Command, files []string) string {
 	return strings.Join(files, " ")
 }
 
-func (r *Runner) run(name string, root string, args []string) {
+func (r *Runner) run(name, root, failText string, args []string) {
 	out, err := Execute(root, args)
 
 	var execName string
 	if err != nil {
-		r.fail(name)
+		r.fail(name, failText)
 		execName = fmt.Sprint(log.Red("\n  EXECUTE >"), log.Bold(name))
 	} else {
 		r.success(name)
