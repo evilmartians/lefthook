@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-const Version = "1.0.4"
+const Version = "1.0.5"
 
 var (
 	versionRegexp = regexp.MustCompile(

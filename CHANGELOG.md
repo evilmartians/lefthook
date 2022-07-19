@@ -2,6 +2,13 @@
 
 ## master (unreleased)
 
+## 1.0.5 (2022-07-19)
+
+- Submodules issue ([PR #300](https://github.com/evilmartians/lefthook/pull/300) by @mrexox)
+- Remove rspec tests ([PR #299](https://github.com/evilmartians/lefthook/pull/299) by @mrexox)
+- Add `when "mingw" then "windows"` case ([PR #297](https://github.com/evilmartians/lefthook/pull/297) by @ariccio)
+- Define security policy and contact method ([PR #293](https://github.com/evilmartians/lefthook/pull/293) by @Envek)
+
 # 1.0.4 (2022-06-27)
 
 - Support skipping on rebase ([PR #289](https://github.com/evilmartians/lefthook/pull/289) by @mrexox)
