@@ -22,7 +22,9 @@ type Command struct {
 	Root    string `mapstructure:"root"`
 	Exclude string `mapstructure:"exclude"`
 
-	// DEPRECATED
+	FailText string `mapstructure:"fail_text"`
+
+	// DEPRECATED, will be deleted in 1.2.0
 	Runner string `mapstructure:"runner"`
 }
 
@@ -43,7 +45,7 @@ func (c Command) DoSkip(gitState git.State) bool {
 
 type commandRunReplace struct {
 	Run    string `mapstructure:"run"`
-	Runner string `mapstructure:"runner"` // DEPRECATED
+	Runner string `mapstructure:"runner"` // DEPRECATED, will be deleted in 1.2.0
 }
 
 func mergeCommands(base, extra *viper.Viper) (map[string]*Command, error) {

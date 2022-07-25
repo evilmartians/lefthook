@@ -118,22 +118,19 @@ Run 'lefthook install' manually.`,
 		close(resultChan)
 	}()
 
-	var okList, failList []string
+	var results []runner.Result
 	for res := range resultChan {
-		switch res.Status {
-		case runner.StatusOk:
-			okList = append(okList, res.Name)
-		case runner.StatusErr:
-			failList = append(failList, res.Name)
-		}
+		results = append(results, res)
 	}
 
 	if !outputSettings.doSkip(skipSummary) {
-		printSummary(time.Since(startTime), okList, failList, outputSettings)
+		printSummary(time.Since(startTime), results, outputSettings)
 	}
 
-	if len(failList) > 0 {
-		return errors.New("") // No error should be printed
+	for _, result := range results {
+		if result.Status == runner.StatusErr {
+			return errors.New("") // No error should be printed
+		}
 	}
 
 	return nil
@@ -141,10 +138,10 @@ Run 'lefthook install' manually.`,
 
 func printSummary(
 	duration time.Duration,
-	okList, failList []string,
+	results []runner.Result,
 	outputSettings skipOutputSettings,
 ) {
-	if len(okList) == 0 && len(failList) == 0 {
+	if len(results) == 0 {
 		log.Info(log.Cyan("\nSUMMARY: (SKIP EMPTY)"))
 		return
 	}
@@ -154,14 +151,27 @@ func printSummary(
 	))
 
 	if !outputSettings.doSkip(skipSuccess) {
-		for _, fileName := range okList {
-			log.Infof("✔️  %s\n", log.Green(fileName))
+		for _, result := range results {
+			if result.Status != runner.StatusOk {
+				continue
+			}
+
+			log.Infof("✔️  %s\n", log.Green(result.Name))
 		}
 	}
 
 	if !outputSettings.doSkip(skipFailure) {
-		for _, fileName := range failList {
-			log.Infof("🥊  %s\n", log.Red(fileName))
+		for _, result := range results {
+			if result.Status != runner.StatusErr {
+				continue
+			}
+
+			var failText string
+			if len(result.Text) != 0 {
+				failText = fmt.Sprintf(": %s", result.Text)
+			}
+
+			log.Infof("🥊  %s%s\n", log.Red(result.Name), log.Red(failText))
 		}
 	}
 }

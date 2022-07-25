@@ -15,6 +15,8 @@ type Script struct {
 	Skip interface{} `mapstructure:"skip"`
 	Tags []string    `mapstructure:"tags"`
 
+	FailText string `mapstructure:"fail_text"`
+
 	// DEPRECATED
 	Run string `mapstructure:"run"`
 }
