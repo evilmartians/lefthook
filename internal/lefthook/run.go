@@ -44,7 +44,7 @@ func (l *Lefthook) Run(hookName string, gitArgs []string) error {
 		return nil
 	}
 
-	if hookName == config.ChecksumHookName {
+	if hookName == config.GhostHookName {
 		log.SetLevel(log.WarnLevel)
 	}
 
@@ -53,7 +53,7 @@ func (l *Lefthook) Run(hookName string, gitArgs []string) error {
 	if err != nil {
 		return err
 	}
-	if err := cfg.Validate(); err != nil {
+	if err = cfg.Validate(); err != nil {
 		return err
 	}
 
@@ -80,7 +80,18 @@ func (l *Lefthook) Run(hookName string, gitArgs []string) error {
 	}
 
 	if !outputSettings.doSkip(skipMeta) {
-		log.Info(log.Cyan("Lefthook v" + version.Version))
+		log.Info(log.Cyan("Lefthook v" + version.Version(false)))
+	}
+
+	// This line controls updating the git hook if config has changed
+	if err = l.createHooksIfNeeded(cfg, false); err != nil {
+		log.Warn(
+			`⚠️ There was a problem with synchronizing git hooks.
+Run 'lefthook install' manually.`,
+		)
+	}
+
+	if !outputSettings.doSkip(skipMeta) {
 		log.Info(log.Cyan("RUNNING HOOK:"), log.Bold(hookName))
 	}
 

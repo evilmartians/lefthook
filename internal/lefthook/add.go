@@ -35,7 +35,7 @@ func (l *Lefthook) Add(args *AddArgs) error {
 		return err
 	}
 
-	err = l.addHook(args.Hook, "")
+	err = l.addHook(args.Hook)
 	if err != nil {
 		return err
 	}
