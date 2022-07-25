@@ -19,7 +19,7 @@ type hookTmplData struct {
 	Extension   string
 }
 
-func Hook(hookName, configChecksum string) []byte {
+func Hook(hookName string) []byte {
 	buf := &bytes.Buffer{}
 	t := template.Must(template.ParseFS(templatesFS, "hook.tmpl"))
 	err := t.Execute(buf, hookTmplData{

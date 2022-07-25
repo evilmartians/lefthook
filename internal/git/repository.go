@@ -44,9 +44,12 @@ func NewRepository(fs afero.Fs) (*Repository, error) {
 		hooksPath = filepath.Join(rootPath, hooksPath)
 	}
 
-	infoSubpath, err := execGit(cmdInfoPath)
+	infoPath, err := execGit(cmdInfoPath)
 	if err != nil {
 		return nil, err
+	}
+	if exists, _ := afero.DirExists(fs, filepath.Join(rootPath, infoPath)); exists {
+		infoPath = filepath.Join(rootPath, infoPath)
 	}
 
 	gitPath, err := execGit(cmdGitPath)
@@ -62,7 +65,7 @@ func NewRepository(fs afero.Fs) (*Repository, error) {
 		HooksPath: hooksPath,
 		RootPath:  rootPath,
 		GitPath:   gitPath,
-		InfoPath:  filepath.Join(rootPath, infoSubpath),
+		InfoPath:  infoPath,
 	}, nil
 }
 

@@ -115,13 +115,12 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, force bool) error {
 			return err
 		}
 
-		err = l.addHook(hook, checksum)
+		err = l.addHook(hook)
 		if err != nil {
 			return err
 		}
 	}
 
-	// Add an informational hook to use for checksum comparation.
 	err = l.addChecksumFile(checksum)
 	if err != nil {
 		return err
