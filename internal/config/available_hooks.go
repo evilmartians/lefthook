@@ -3,6 +3,9 @@ package config
 // ChecksumFileName - the file, which is used just to store the current config checksum version.
 const ChecksumFileName = "lefthook.checksum"
 
+// GhostHookName - the hook which logs are not shown and which is used for synchronizing hooks.
+const GhostHookName = "prepare-commit-msg"
+
 // AvailableHooks - list of hooks taken from https://git-scm.com/docs/githooks.
 var AvailableHooks = [...]string{
 	"pre-applypatch",

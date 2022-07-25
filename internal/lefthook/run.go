@@ -44,6 +44,10 @@ func (l *Lefthook) Run(hookName string, gitArgs []string) error {
 		return nil
 	}
 
+	if hookName == config.GhostHookName {
+		log.SetLevel(log.WarnLevel)
+	}
+
 	// Load config
 	cfg, err := config.Load(l.Fs, l.repo.RootPath)
 	if err != nil {
@@ -76,7 +80,7 @@ func (l *Lefthook) Run(hookName string, gitArgs []string) error {
 	}
 
 	if !outputSettings.doSkip(skipMeta) {
-		log.Info(log.Cyan("Lefthook v" + version.Version))
+		log.Info(log.Cyan("Lefthook v" + version.Version(false)))
 	}
 
 	// This line controls updating the git hook if config has changed

@@ -110,19 +110,20 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, force bool) error {
 	for hook := range cfg.Hooks {
 		hookNames = append(hookNames, hook)
 
-		err = l.cleanHook(hook, force)
-		if err != nil {
+		if err = l.cleanHook(hook, force); err != nil {
 			return err
 		}
 
-		err = l.addHook(hook)
-		if err != nil {
+		if err = l.addHook(hook); err != nil {
 			return err
 		}
 	}
 
-	err = l.addChecksumFile(checksum)
-	if err != nil {
+	if err = l.addHook(config.GhostHookName); err != nil {
+		return nil
+	}
+
+	if err = l.addChecksumFile(checksum); err != nil {
 		return err
 	}
 

@@ -6,9 +6,12 @@ import (
 	"strconv"
 )
 
-const Version = "1.0.5"
+const version = "1.0.5"
 
 var (
+	// Is set via -X github.com/evilmartians/lefthook/internal/version.commit={commit}.
+	commit string
+
 	versionRegexp = regexp.MustCompile(
 		`^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?$`,
 	)
@@ -16,6 +19,14 @@ var (
 	errIncorrectVersion = errors.New("format of 'min_version' setting is incorrect")
 	errUncovered        = errors.New("required Lefthook version is higher than current")
 )
+
+func Version(verbose bool) string {
+	if verbose {
+		return version + " " + commit
+	}
+
+	return version
+}
 
 // CheckCovered returns true if given version is less or equal than current
 // and false otherwise.
@@ -28,7 +39,7 @@ func CheckCovered(targetVersion string) error {
 		return errIncorrectVersion
 	}
 
-	major, minor, patch, err := parseVersion(Version)
+	major, minor, patch, err := parseVersion(version)
 	if err != nil {
 		return err
 	}

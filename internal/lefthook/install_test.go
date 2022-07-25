@@ -62,6 +62,7 @@ post-commit:
 				configPath,
 				hookPath("pre-commit"),
 				hookPath("post-commit"),
+				hookPath(config.GhostHookName),
 				infoPath(config.ChecksumFileName),
 			},
 		},
@@ -86,6 +87,7 @@ post-commit:
 				hookPath("pre-commit"),
 				hookPath("pre-commit.old"),
 				hookPath("post-commit"),
+				hookPath(config.GhostHookName),
 				infoPath(config.ChecksumFileName),
 			},
 		},
@@ -109,6 +111,7 @@ post-commit:
 				configPath,
 				hookPath("pre-commit"),
 				hookPath("post-commit"),
+				hookPath(config.GhostHookName),
 				infoPath(config.ChecksumFileName),
 			},
 			wantNotExist: []string{
@@ -136,6 +139,7 @@ post-commit:
 			wantNotExist: []string{
 				hookPath("pre-commit"),
 				hookPath("post-commit"),
+				hookPath(config.GhostHookName),
 			},
 		},
 		{
@@ -157,6 +161,7 @@ post-commit:
 				configPath,
 				hookPath("pre-commit"),
 				hookPath("post-commit"),
+				hookPath(config.GhostHookName),
 				infoPath(config.ChecksumFileName),
 			},
 		},
@@ -182,6 +187,7 @@ post-commit:
 			wantNotExist: []string{
 				hookPath("pre-commit"),
 				hookPath("post-commit"),
+				hookPath(config.GhostHookName),
 			},
 		},
 		{
@@ -203,6 +209,7 @@ post-commit:
 				configPath,
 				hookPath("pre-commit"),
 				hookPath("post-commit"),
+				hookPath(config.GhostHookName),
 				infoPath(config.ChecksumFileName),
 			},
 		},
