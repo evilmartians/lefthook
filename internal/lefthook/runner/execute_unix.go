@@ -13,7 +13,9 @@ import (
 	"github.com/creack/pty"
 )
 
-func Execute(root string, args []string) (*bytes.Buffer, error) {
+type CommandExecutor struct{}
+
+func (e CommandExecutor) Execute(root string, args []string) (*bytes.Buffer, error) {
 	command := exec.Command("sh", "-c", strings.Join(args, " "))
 	rootDir, _ := filepath.Abs(root)
 	command.Dir = rootDir

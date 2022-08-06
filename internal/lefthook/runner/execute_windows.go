@@ -7,7 +7,9 @@ import (
 	"path/filepath"
 )
 
-func Execute(root string, args []string) (*bytes.Buffer, error) {
+type CommandExecutor struct{}
+
+func (e CommandExecutor) Execute(root string, args []string) (*bytes.Buffer, error) {
 	command := exec.Command(args[0], args[1:]...)
 	rootDir, _ := filepath.Abs(root)
 	command.Dir = rootDir
