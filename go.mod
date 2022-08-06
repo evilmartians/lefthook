@@ -1,6 +1,6 @@
 module github.com/evilmartians/lefthook
 
-go 1.17
+go 1.18
 
 require (
 	github.com/MakeNowJust/heredoc v1.0.0
