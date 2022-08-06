@@ -1,7 +1,7 @@
 COMMIT_HASH = $(shell git rev-parse HEAD)
 
 build:
-	go build -ldflags "-X github.com/evilmartians/lefthook/internal/version.commit=$(COMMIT_HASH)" -o lefthook
+	go build -ldflags "-s -w -X github.com/evilmartians/lefthook/internal/version.commit=$(COMMIT_HASH)" -o lefthook
 
 test:
 	go test -cpu 24 -race -count=1 -timeout=30s ./...
