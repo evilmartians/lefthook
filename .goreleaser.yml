@@ -12,6 +12,8 @@ builds:
   goarch:
     - amd64
     - arm64
+  ldflags:
+    - -s -w -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
 archives:
   - id: lefthook
     format: binary

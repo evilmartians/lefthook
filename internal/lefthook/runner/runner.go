@@ -30,6 +30,7 @@ type Runner struct {
 	args       []string
 	failed     bool
 	resultChan chan Result
+	exec       Executor
 }
 
 func NewRunner(
@@ -45,6 +46,7 @@ func NewRunner(
 		hook:       hook,
 		args:       args,
 		resultChan: resultChan,
+		exec:       CommandExecutor{},
 	}
 }
 
@@ -270,7 +272,7 @@ func prepareFiles(command *config.Command, files []string) string {
 }
 
 func (r *Runner) run(name, root, failText string, args []string) {
-	out, err := Execute(root, args)
+	out, err := r.exec.Execute(root, args)
 
 	var execName string
 	if err != nil {
