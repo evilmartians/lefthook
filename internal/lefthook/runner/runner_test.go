@@ -61,7 +61,7 @@ func TestRunAll(t *testing.T) {
 			name: "with simple command",
 			hook: &config.Hook{
 				Commands: map[string]*config.Command{
-					"test": &config.Command{
+					"test": {
 						Run: "success",
 					},
 				},
@@ -74,13 +74,13 @@ func TestRunAll(t *testing.T) {
 			hook: &config.Hook{
 				Parallel: true,
 				Commands: map[string]*config.Command{
-					"test": &config.Command{
+					"test": {
 						Run: "success",
 					},
-					"lint": &config.Command{
+					"lint": {
 						Run: "success",
 					},
-					"type-check": &config.Command{
+					"type-check": {
 						Run: "fail",
 					},
 				},
@@ -97,11 +97,11 @@ func TestRunAll(t *testing.T) {
 			hook: &config.Hook{
 				ExcludeTags: []string{"tests"},
 				Commands: map[string]*config.Command{
-					"test": &config.Command{
+					"test": {
 						Run:  "success",
 						Tags: []string{"tests"},
 					},
-					"lint": &config.Command{
+					"lint": {
 						Run:  "success",
 						Tags: []string{"linters"},
 					},
@@ -114,11 +114,11 @@ func TestRunAll(t *testing.T) {
 			name: "with skip boolean option",
 			hook: &config.Hook{
 				Commands: map[string]*config.Command{
-					"test": &config.Command{
+					"test": {
 						Run:  "success",
 						Skip: true,
 					},
-					"lint": &config.Command{
+					"lint": {
 						Run: "success",
 					},
 				},
@@ -133,11 +133,11 @@ func TestRunAll(t *testing.T) {
 			},
 			hook: &config.Hook{
 				Commands: map[string]*config.Command{
-					"test": &config.Command{
+					"test": {
 						Run:  "success",
 						Skip: "merge",
 					},
-					"lint": &config.Command{
+					"lint": {
 						Run: "success",
 					},
 				},
@@ -153,11 +153,11 @@ func TestRunAll(t *testing.T) {
 			},
 			hook: &config.Hook{
 				Commands: map[string]*config.Command{
-					"test": &config.Command{
+					"test": {
 						Run:  "success",
 						Skip: []interface{}{"merge", "rebase"},
 					},
-					"lint": &config.Command{
+					"lint": {
 						Run: "success",
 					},
 				},
@@ -169,7 +169,7 @@ func TestRunAll(t *testing.T) {
 			name: "with fail test",
 			hook: &config.Hook{
 				Commands: map[string]*config.Command{
-					"test": &config.Command{
+					"test": {
 						Run:      "fail",
 						FailText: "try 'success'",
 					},
@@ -190,10 +190,10 @@ func TestRunAll(t *testing.T) {
 			hook: &config.Hook{
 				Commands: map[string]*config.Command{},
 				Scripts: map[string]*config.Script{
-					"script.sh": &config.Script{
+					"script.sh": {
 						Runner: "success",
 					},
-					"failing.js": &config.Script{
+					"failing.js": {
 						Runner:   "fail",
 						FailText: "install node",
 					},

@@ -114,16 +114,20 @@ func unmarshalScripts(s map[string]interface{}) (map[string]*Script, error) {
 // `scripts` are unmarshalled manually because viper
 // uses "." as a key delimiter. So, this definition:
 //
-//   scripts:
-//     "example.sh":
+// ```yaml
+// scripts:
+//   "example.sh":
 //       runner: bash
+// ```
 //
 // Unmarshals into this:
 //
-//   scripts:
-//     example:
-//       sh:
-//         runner: bash
+// ```yaml
+// scripts:
+//   example:
+//     sh:
+//       runner: bash
+// ```
 //
 // This is not an expected behavior and cannot be controlled yet
 // Working with GetStringMap is the only way to get the structure "as is".
