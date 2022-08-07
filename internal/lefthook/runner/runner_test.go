@@ -87,8 +87,8 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{
-				{Name: "lint", Status: StatusOk},
 				{Name: "test", Status: StatusOk},
+				{Name: "lint", Status: StatusOk},
 			},
 			fail: []Result{{Name: "type-check", Status: StatusErr}},
 		},
@@ -238,26 +238,32 @@ func TestRunAll(t *testing.T) {
 				}
 			}
 
-			if !resultsEqual(success, tt.success) {
+			if !resultsMatch(success, tt.success) {
 				t.Errorf("success results are not matching")
 			}
 
-			if !resultsEqual(fail, tt.fail) {
+			if !resultsMatch(fail, tt.fail) {
 				t.Errorf("fail results are not matching")
 			}
 		})
 	}
 }
 
-func resultsEqual(a, b []Result) bool {
+func resultsMatch(a, b []Result) bool {
 	if len(a) != len(b) {
 		return false
 	}
 
-	for i, item := range a {
-		if item.Name != b[i].Name ||
-			item.Status != b[i].Status ||
-			item.Text != b[i].Text {
+	matches := make(map[string]struct{})
+
+	for _, item := range a {
+		str := fmt.Sprintf("%s_%d_%s", item.Name, item.Status, item.Text)
+		matches[str] = struct{}{}
+	}
+
+	for _, item := range b {
+		str := fmt.Sprintf("%s_%d_%s", item.Name, item.Status, item.Text)
+		if _, ok := matches[str]; !ok {
 			return false
 		}
 	}
