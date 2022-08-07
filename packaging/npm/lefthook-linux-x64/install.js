@@ -1,3 +1,4 @@
+const path = require("path")
 const { spawnSync } = require("child_process")
 
 function install() {
@@ -16,5 +17,5 @@ function install() {
 try {
   install()
 } catch(e) {
-  console.warn("'lefthook install' command failed. Try running it manually")
+  console.warn("'lefthook install' command failed. Try running it manually" + e)
 }
