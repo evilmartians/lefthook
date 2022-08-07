@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -110,10 +109,8 @@ Run 'lefthook install' manually.`,
 
 	go func() {
 		run.RunAll(
-			[]string{
-				filepath.Join(cfg.SourceDir, hookName),
-				filepath.Join(cfg.SourceDirLocal, hookName),
-			},
+			hookName,
+			[]string{cfg.SourceDir, cfg.SourceDirLocal},
 		)
 		close(resultChan)
 	}()

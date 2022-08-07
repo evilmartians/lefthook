@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -50,15 +51,25 @@ func NewRunner(
 	}
 }
 
-func (r *Runner) RunAll(scriptDirs []string) {
+func (r *Runner) RunAll(hookName string, sourceDirs []string) {
+	if err := r.runLFSHook(hookName); err != nil {
+		log.Error(err)
+	}
+
 	log.StartSpinner()
+	defer log.StopSpinner()
+
+	scriptDirs := make([]string, len(sourceDirs))
+	for _, sourceDir := range sourceDirs {
+		scriptDirs = append(scriptDirs, filepath.Join(
+			r.repo.RootPath, sourceDir, hookName,
+		))
+	}
 
 	for _, dir := range scriptDirs {
 		r.runScripts(dir)
 	}
 	r.runCommands()
-
-	log.StopSpinner()
 }
 
 func (r *Runner) fail(name, text string) {
@@ -68,6 +79,51 @@ func (r *Runner) fail(name, text string) {
 
 func (r *Runner) success(name string) {
 	r.resultChan <- resultSuccess(name)
+}
+
+func (r *Runner) runLFSHook(hookName string) error {
+	if !git.IsLFSHook(hookName) {
+		return nil
+	}
+
+	lfsRequiredFile := filepath.Join(r.repo.RootPath, git.LFSRequiredFile)
+	lfsConfigFile := filepath.Join(r.repo.RootPath, git.LFSConfigFile)
+
+	requiredExists, err := afero.Exists(r.repo.Fs, lfsRequiredFile)
+	if err != nil {
+		return err
+	}
+	configExists, err := afero.Exists(r.repo.Fs, lfsConfigFile)
+	if err != nil {
+		return err
+	}
+
+	if git.IsLFSAvailable() {
+		log.Debugf(
+			"Executing LFS Hook: `git lfs %s %s", hookName, strings.Join(r.args, " "),
+		)
+		err := r.exec.RawExecute(
+			"git",
+			append(
+				[]string{"lfs", hookName},
+				r.args...,
+			)...,
+		)
+		if err != nil {
+			return errors.New("git-lfs command failed")
+		}
+	} else if requiredExists || configExists {
+		log.Errorf(
+			"This repository requires Git LFS, but 'git-lfs' wasn't found.\n"+
+				"Install 'git-lfs' or consider reviewing the files:\n"+
+				"  - %s\n"+
+				"  - %s\n",
+			lfsRequiredFile, lfsConfigFile,
+		)
+		return errors.New("git-lfs is required")
+	}
+
+	return nil
 }
 
 func (r *Runner) runScripts(dir string) {

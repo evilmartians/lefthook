@@ -27,7 +27,13 @@ func (e TestExecutor) Execute(root string, args []string) (out *bytes.Buffer, er
 	return
 }
 
+func (e TestExecutor) RawExecute(command string, args ...string) error {
+	return nil
+}
+
 func TestRunAll(t *testing.T) {
+	hookName := "pre-commit"
+
 	root, err := filepath.Abs("src")
 	if err != nil {
 		t.Errorf("unexpected error: %s", err)
@@ -44,7 +50,7 @@ func TestRunAll(t *testing.T) {
 	for i, tt := range [...]struct {
 		name          string
 		args          []string
-		scriptDirs    []string
+		sourceDirs    []string
 		existingFiles []string
 		hook          *config.Hook
 		success, fail []Result
@@ -179,13 +185,11 @@ func TestRunAll(t *testing.T) {
 			fail: []Result{{Name: "test", Status: StatusErr, Text: "try 'success'"}},
 		},
 		{
-			name: "with simple scripts",
-			scriptDirs: []string{
-				filepath.Join(root, config.DefaultSourceDir),
-			},
+			name:       "with simple scripts",
+			sourceDirs: []string{config.DefaultSourceDir},
 			existingFiles: []string{
-				filepath.Join(root, config.DefaultSourceDir, "script.sh"),
-				filepath.Join(root, config.DefaultSourceDir, "failing.js"),
+				filepath.Join(root, config.DefaultSourceDir, hookName, "script.sh"),
+				filepath.Join(root, config.DefaultSourceDir, hookName, "failing.js"),
 			},
 			hook: &config.Hook{
 				Commands: map[string]*config.Command{},
@@ -226,7 +230,7 @@ func TestRunAll(t *testing.T) {
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			runner.RunAll(tt.scriptDirs)
+			runner.RunAll(hookName, tt.sourceDirs)
 			close(resultChan)
 
 			var success, fail []Result
@@ -238,12 +242,12 @@ func TestRunAll(t *testing.T) {
 				}
 			}
 
-			if !resultsMatch(success, tt.success) {
-				t.Errorf("success results are not matching")
+			if !resultsMatch(tt.success, success) {
+				t.Errorf("success results are not matching\n Need: %v\n Was: %v", tt.success, success)
 			}
 
-			if !resultsMatch(fail, tt.fail) {
-				t.Errorf("fail results are not matching")
+			if !resultsMatch(tt.fail, fail) {
+				t.Errorf("fail results are not matching:\n Need: %v\n Was: %v", tt.fail, fail)
 			}
 		})
 	}
