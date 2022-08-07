@@ -6,6 +6,7 @@ package runner
 import (
 	"bytes"
 	"io"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -29,4 +30,12 @@ func (e CommandExecutor) Execute(root string, args []string) (*bytes.Buffer, err
 	_, _ = io.Copy(out, ptyOut)
 
 	return out, command.Wait()
+}
+
+func (e CommandExecutor) RawExecute(command string, args ...string) error {
+	cmd := exec.Command(command, args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	return cmd.Run()
 }
