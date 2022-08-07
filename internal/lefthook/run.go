@@ -49,7 +49,7 @@ func (l *Lefthook) Run(hookName string, gitArgs []string) error {
 		cfg.SkipOutput = append(cfg.SkipOutput, strings.Split(tags, ",")...)
 	}
 
-	var logSettings log.SkipLogSettings
+	var logSettings log.SkipSettings
 	for _, skipOption := range cfg.SkipOutput {
 		(&logSettings).ApplySetting(skipOption)
 	}
@@ -116,7 +116,7 @@ Run 'lefthook install' manually.`,
 func printSummary(
 	duration time.Duration,
 	results []runner.Result,
-	logSettings log.SkipLogSettings,
+	logSettings log.SkipSettings,
 ) {
 	if len(results) == 0 {
 		log.Info(log.Cyan("\nSUMMARY: (SKIP EMPTY)"))

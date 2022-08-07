@@ -32,7 +32,7 @@ type Runner struct {
 	failed      bool
 	resultChan  chan Result
 	exec        Executor
-	logSettings log.SkipLogSettings
+	logSettings log.SkipSettings
 }
 
 func NewRunner(
@@ -41,7 +41,7 @@ func NewRunner(
 	hook *config.Hook,
 	args []string,
 	resultChan chan Result,
-	logSettings log.SkipLogSettings,
+	logSettings log.SkipSettings,
 ) *Runner {
 	return &Runner{
 		fs:          fs,
