@@ -25,13 +25,14 @@ const (
 )
 
 type Runner struct {
-	fs         afero.Fs
-	repo       *git.Repository
-	hook       *config.Hook
-	args       []string
-	failed     bool
-	resultChan chan Result
-	exec       Executor
+	fs          afero.Fs
+	repo        *git.Repository
+	hook        *config.Hook
+	args        []string
+	failed      bool
+	resultChan  chan Result
+	exec        Executor
+	logSettings log.SkipLogSettings
 }
 
 func NewRunner(
@@ -40,14 +41,16 @@ func NewRunner(
 	hook *config.Hook,
 	args []string,
 	resultChan chan Result,
+	logSettings log.SkipLogSettings,
 ) *Runner {
 	return &Runner{
-		fs:         fs,
-		repo:       repo,
-		hook:       hook,
-		args:       args,
-		resultChan: resultChan,
-		exec:       CommandExecutor{},
+		fs:          fs,
+		repo:        repo,
+		hook:        hook,
+		args:        args,
+		resultChan:  resultChan,
+		exec:        CommandExecutor{},
+		logSettings: logSettings,
 	}
 }
 
@@ -340,6 +343,10 @@ func (r *Runner) run(name, root, failText string, args []string) {
 	}
 
 	if out != nil {
+		if err == nil && r.logSettings.SkipExecution() {
+			return
+		}
+
 		log.Infof("%s\n%s\n", execName, out)
 	} else if err != nil {
 		log.Infof("%s\n%s\n", execName, err)

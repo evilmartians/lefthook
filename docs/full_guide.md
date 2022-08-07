@@ -573,7 +573,7 @@ source_dir_local: ".lefthook-local"
 
 You can manage the verbosity using the `skip_output` config.
 
-Possible values are `meta,success,failure,summary`.
+Possible values are `meta,success,failure,summary,execution`.
 
 This config quiets all outputs except failures:
 
@@ -581,9 +581,11 @@ This config quiets all outputs except failures:
 # lefthook.yml
 
 skip_output:
-  - meta
-  - success
-  - summary
+  - meta       # Skips lefthook version printing
+  - summary    # Skips summary block (successful and failed steps) printing
+  - success    # Skips successful steps printing
+  - failure    # Skips failed steps printing
+  - execution  # Skips printing successfully executed commands and their output (but still prints failed executions)
 ```
 
 You can also do this with an environment variable:
