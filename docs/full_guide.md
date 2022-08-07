@@ -549,6 +549,15 @@ SHA1=$3
 # ...
 ```
 
+## Git LFS support
+
+Lefthook runs LFS hooks internally for the following hooks:
+
+- post-checkout
+- post-commit
+- post-merge
+- pre-push
+
 ## Change directory for script files
 
 You can do this through this config keys:

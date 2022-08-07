@@ -23,6 +23,7 @@ func IsLFSAvailable() bool {
 	return err == nil
 }
 
+// IsLFSHook returns whether the hookName is supported by Git LFS.
 func IsLFSHook(hookName string) bool {
 	for _, lfsHookName := range lfsHooks {
 		if lfsHookName == hookName {
