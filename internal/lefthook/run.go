@@ -15,19 +15,8 @@ import (
 
 const (
 	envEnabled    = "LEFTHOOK"       // "0", "false"
-	envSkipOutput = "LEFTHOOK_QUIET" // "pre-commit,post-commit"
-
-	skipMeta    = 0b0001
-	skipSuccess = 0b0010
-	skipFailure = 0b0100
-	skipSummary = 0b1000
+	envSkipOutput = "LEFTHOOK_QUIET" // "meta,success,failure,summary,execution"
 )
-
-type skipOutputSettings int8
-
-func (s skipOutputSettings) doSkip(option int8) bool {
-	return int8(s)&option != 0
-}
 
 func Run(opts *Options, hookName string, gitArgs []string) error {
 	lefthook, err := initialize(opts)
@@ -60,25 +49,16 @@ func (l *Lefthook) Run(hookName string, gitArgs []string) error {
 		cfg.SkipOutput = append(cfg.SkipOutput, strings.Split(tags, ",")...)
 	}
 
-	var outputSettings skipOutputSettings
-	for _, param := range cfg.SkipOutput {
-		switch param {
-		case "meta":
-			outputSettings |= skipMeta
-		case "success":
-			outputSettings |= skipSuccess
-		case "failure":
-			outputSettings |= skipFailure
-		case "summary":
-			outputSettings |= skipSummary
-		}
+	var logSettings log.SkipSettings
+	for _, skipOption := range cfg.SkipOutput {
+		(&logSettings).ApplySetting(skipOption)
 	}
 
 	if cfg.Colors != config.DefaultColorsEnabled {
 		log.SetColors(cfg.Colors)
 	}
 
-	if !outputSettings.doSkip(skipMeta) {
+	if !logSettings.SkipMeta() {
 		log.Info(log.Cyan("Lefthook v" + version.Version(false)))
 	}
 
@@ -90,7 +70,7 @@ Run 'lefthook install' manually.`,
 		)
 	}
 
-	if !outputSettings.doSkip(skipMeta) {
+	if !logSettings.SkipMeta() {
 		log.Info(log.Cyan("RUNNING HOOK:"), log.Bold(hookName))
 	}
 
@@ -105,7 +85,7 @@ Run 'lefthook install' manually.`,
 
 	startTime := time.Now()
 	resultChan := make(chan runner.Result, len(hook.Commands)+len(hook.Scripts))
-	run := runner.NewRunner(l.Fs, l.repo, hook, gitArgs, resultChan)
+	run := runner.NewRunner(l.Fs, l.repo, hook, gitArgs, resultChan, logSettings)
 
 	go func() {
 		run.RunAll(
@@ -120,8 +100,8 @@ Run 'lefthook install' manually.`,
 		results = append(results, res)
 	}
 
-	if !outputSettings.doSkip(skipSummary) {
-		printSummary(time.Since(startTime), results, outputSettings)
+	if !logSettings.SkipSummary() {
+		printSummary(time.Since(startTime), results, logSettings)
 	}
 
 	for _, result := range results {
@@ -136,7 +116,7 @@ Run 'lefthook install' manually.`,
 func printSummary(
 	duration time.Duration,
 	results []runner.Result,
-	outputSettings skipOutputSettings,
+	logSettings log.SkipSettings,
 ) {
 	if len(results) == 0 {
 		log.Info(log.Cyan("\nSUMMARY: (SKIP EMPTY)"))
@@ -147,7 +127,7 @@ func printSummary(
 		fmt.Sprintf("\nSUMMARY: (done in %.2f seconds)", duration.Seconds()),
 	))
 
-	if !outputSettings.doSkip(skipSuccess) {
+	if !logSettings.SkipSuccess() {
 		for _, result := range results {
 			if result.Status != runner.StatusOk {
 				continue
@@ -157,7 +137,7 @@ func printSummary(
 		}
 	}
 
-	if !outputSettings.doSkip(skipFailure) {
+	if !logSettings.SkipFailure() {
 		for _, result := range results {
 			if result.Status != runner.StatusErr {
 				continue
