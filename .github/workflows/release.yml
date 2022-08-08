@@ -45,7 +45,7 @@ jobs:
           formula: lefthook
           token: ${{secrets.HOMEBREW_TOKEN}}
 
-      - name: Push to Rubygems
+      - name: Publish to Rubygems
         env:
           RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
         run: |
@@ -61,3 +61,14 @@ jobs:
           rake build
           gem push pkg/*.gem
           cd ../..
+
+      - name: Publish to NPM
+        env:
+          NPM_API_KEY: ${{ secrets.NPM_API_KEY }}
+        run: |
+          cat << EOF > ~/.npmrc
+          //registry.npmjs.org/:_authToken=${NPM_API_KEY}
+          EOF
+          cd packaging/npm/
+          make prepare
+          make publish
