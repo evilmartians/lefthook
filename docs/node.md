@@ -4,7 +4,7 @@ This is guide of using Lefthook git hook manager in Node.js projects. You can fi
 
 ## Install
 
-Lefthook is available on NPM in two flavors:
+Lefthook is available on NPM in the following flavors:
 
  1. [lefthook](https://www.npmjs.com/package/lefthook) that will install the proper binary:
 
