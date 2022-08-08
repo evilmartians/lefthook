@@ -44,3 +44,20 @@ jobs:
         with:
           formula: lefthook
           token: ${{secrets.HOMEBREW_TOKEN}}
+
+      - name: Push to Rubygems
+        env:
+          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+        run: |
+          mkdir ~/.gem/
+          cat << EOF > ~/.gem/credentials
+          ---
+          :rubygems_api_key: ${RUBYGEMS_API_KEY}
+          EOF
+          git clean -fdX packaging/rubygems/libexec/
+          cd dist
+          find . -maxdepth 2 -executable -type f -exec cp --parents \{\} ../packaging/rubygems/libexec/ \;
+          cd ../packaging/rubygems
+          rake build
+          gem push pkg/*.gem
+          cd ../..
