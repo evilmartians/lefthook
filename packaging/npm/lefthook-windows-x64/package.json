@@ -15,8 +15,5 @@
   ],
   "cpu": [
     "x64"
-  ],
-  "scripts": {
-    "install": "node install.js"
-  }
+  ]
 }

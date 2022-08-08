@@ -15,8 +15,5 @@
   ],
   "cpu": [
     "arm64"
-  ],
-  "scripts": {
-    "install": "node install.js"
-  }
+  ]
 }
