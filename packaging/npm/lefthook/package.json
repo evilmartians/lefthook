@@ -26,5 +26,8 @@
     "lefthook-linux-x64": "1.0.5",
     "lefthook-windows-arm64": "1.0.5",
     "lefthook-windows-x64": "1.0.5"
+  },
+  "scripts": {
+    "postinstall": "node postinstall.js"
   }
 }

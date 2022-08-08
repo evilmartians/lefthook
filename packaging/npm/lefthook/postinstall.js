@@ -1,14 +1,12 @@
-const path = require("path")
 const { spawnSync } = require("child_process")
+const { getExePath } = require("./get-exe")
 
 function install() {
   if (process.env.CI) {
     return
   }
 
-  const lefthook = path.join(__dirname, "bin", "lefthook")
-
-  spawnSync(lefthook, ["install", "-f"], {
+  spawnSync(getExePath(), ["install", "-f"], {
     cwd: process.env.INIT_CWD || process.cwd(),
     stdio: "inherit",
   })
