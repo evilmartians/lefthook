@@ -17,5 +17,5 @@ function install() {
 try {
   install()
 } catch(e) {
-  console.warn("'lefthook install' command failed. Try running it manually")
+  console.warn("'lefthook install' command failed. Try running it manually.\n" + e)
 }
