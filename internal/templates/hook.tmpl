@@ -17,6 +17,12 @@ call_lefthook()
   if lefthook{{.Extension}} -h >/dev/null 2>&1
   then
     eval lefthook{{.Extension}} $@
+  {{if .Extension -}}
+  {{/* Check if lefthook.bat exists. Ruby bundler creates such a wrapper */ -}}
+  elif lefthook.bat -h >/dev/null 2>&1
+  then
+    eval lefthook.bat $@
+  {{end -}}
   elif test -f "$dir/node_modules/@evilmartians/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}"
   then
     eval "$dir/node_modules/@evilmartians/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}} $@"
