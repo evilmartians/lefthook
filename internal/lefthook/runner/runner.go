@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -23,6 +24,8 @@ const (
 	executableFileMode os.FileMode = 0o751
 	executableMask     os.FileMode = 0o111
 )
+
+var surroundingQuotesRegexp = regexp.MustCompile(`^'(.*)'$`)
 
 type Runner struct {
 	fs          afero.Fs
@@ -298,6 +301,8 @@ func (r *Runner) buildCommandArgs(command *config.Command) []string {
 		runString = strings.ReplaceAll(runString, fmt.Sprintf("{%d}", i+1), gitArg)
 	}
 
+	log.Debug("Executing command is: ", runString)
+
 	return strings.Split(runString, " ")
 }
 
@@ -328,11 +333,13 @@ func prepareFiles(command *config.Command, files []string) []string {
 }
 
 func replaceQuoted(source, substitution string, files []string) string {
-	for quote, sub := range map[string]string{
-		"\"": "\"" + substitution + "\"",
-		"'":  "'" + substitution + "'",
-		"":   substitution,
+	for _, elem := range [][]string{
+		{"\"", "\"" + substitution + "\""},
+		{"'", "'" + substitution + "'"},
+		{"", substitution},
 	} {
+		quote := elem[0]
+		sub := elem[1]
 		if !strings.Contains(source, sub) {
 			continue
 		}
@@ -341,7 +348,8 @@ func replaceQuoted(source, substitution string, files []string) string {
 		if len(quote) != 0 {
 			quotedFiles = make([]string, 0, len(files))
 			for _, fileName := range files {
-				quotedFiles = append(quotedFiles, quote+fileName+quote)
+				quotedFiles = append(quotedFiles,
+					quote+surroundingQuotesRegexp.ReplaceAllString(fileName, "$1")+quote)
 			}
 		}
 
