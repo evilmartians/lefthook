@@ -17,6 +17,9 @@ call_lefthook()
   if lefthook{{.Extension}} -h >/dev/null 2>&1
   then
     eval lefthook{{.Extension}} $@
+  elif [ -n "{{.Extension}}" ] && lefthook.bat -h >/dev/null 2>&1
+  then
+    eval lefthook.bat $@
   elif test -f "$dir/node_modules/@evilmartians/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}"
   then
     eval "$dir/node_modules/@evilmartians/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}} $@"
