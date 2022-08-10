@@ -284,14 +284,12 @@ func (r *Runner) buildCommandArgs(command *config.Command) []string {
 				return nil
 			}
 
-			filesStr := prepareFiles(command, files)
-			if len(filesStr) == 0 {
+			filesPrepared := prepareFiles(command, files)
+			if len(filesPrepared) == 0 {
 				return nil
 			}
 
-			runString = strings.ReplaceAll(
-				runString, filesType, filesStr,
-			)
+			runString = replaceQuoted(runString, filesType, filesPrepared)
 		}
 	}
 
@@ -303,9 +301,9 @@ func (r *Runner) buildCommandArgs(command *config.Command) []string {
 	return strings.Split(runString, " ")
 }
 
-func prepareFiles(command *config.Command, files []string) string {
+func prepareFiles(command *config.Command, files []string) []string {
 	if files == nil {
-		return ""
+		return []string{}
 	}
 
 	log.Debug("Files before filters:\n", files)
@@ -323,11 +321,36 @@ func prepareFiles(command *config.Command, files []string) string {
 			filesEsc = append(filesEsc, shellescape.Quote(fileName))
 		}
 	}
-	files = filesEsc
 
-	log.Debug("Files after escaping:\n", files)
+	log.Debug("Files after escaping:\n", filesEsc)
 
-	return strings.Join(files, " ")
+	return filesEsc
+}
+
+func replaceQuoted(source, substitution string, files []string) string {
+	for quote, sub := range map[string]string{
+		"\"": "\"" + substitution + "\"",
+		"'":  "'" + substitution + "'",
+		"":   substitution,
+	} {
+		if !strings.Contains(source, sub) {
+			continue
+		}
+
+		quotedFiles := files
+		if len(quote) != 0 {
+			quotedFiles = make([]string, 0, len(files))
+			for _, fileName := range files {
+				quotedFiles = append(quotedFiles, quote+fileName+quote)
+			}
+		}
+
+		source = strings.ReplaceAll(
+			source, sub, strings.Join(quotedFiles, " "),
+		)
+	}
+
+	return source
 }
 
 func (r *Runner) run(name, root, failText string, args []string) {
