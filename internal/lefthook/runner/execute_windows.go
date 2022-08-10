@@ -5,12 +5,18 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
+	"syscall"
 )
 
 type CommandExecutor struct{}
 
 func (e CommandExecutor) Execute(root string, args []string) (*bytes.Buffer, error) {
-	command := exec.Command(args[0], args[1:]...)
+	command := exec.Command(args[0])
+	command.SysProcAttr = &syscall.SysProcAttr{
+		CmdLine: strings.Join(args, " "),
+	}
+
 	rootDir, _ := filepath.Abs(root)
 	command.Dir = rootDir
 
