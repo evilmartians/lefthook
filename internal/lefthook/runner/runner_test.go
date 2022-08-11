@@ -274,3 +274,75 @@ func resultsMatch(a, b []Result) bool {
 
 	return true
 }
+
+func TestReplaceQuoted(t *testing.T) {
+	for i, tt := range [...]struct {
+		name, source, substitution string
+		files                      []string
+		result                     string
+	}{
+		{
+			name:         "without substitutions",
+			source:       "echo",
+			substitution: "{staged_files}",
+			files:        []string{"a", "b"},
+			result:       "echo",
+		},
+		{
+			name:         "with simple substitution",
+			source:       "echo {staged_files}",
+			substitution: "{staged_files}",
+			files:        []string{"test.rb", "README"},
+			result:       "echo test.rb README",
+		},
+		{
+			name:         "with single quoted substitution",
+			source:       "echo '{staged_files}'",
+			substitution: "{staged_files}",
+			files:        []string{"test.rb", "README"},
+			result:       "echo 'test.rb' 'README'",
+		},
+		{
+			name:         "with double quoted substitution",
+			source:       `echo "{staged_files}"`,
+			substitution: "{staged_files}",
+			files:        []string{"test.rb", "README"},
+			result:       `echo "test.rb" "README"`,
+		},
+		{
+			name:         "with escaped files double quoted",
+			source:       `echo "{staged_files}"`,
+			substitution: "{staged_files}",
+			files:        []string{"'test me.rb'", "README"},
+			result:       `echo "test me.rb" "README"`,
+		},
+		{
+			name:         "with escaped files single quoted",
+			source:       "echo '{staged_files}'",
+			substitution: "{staged_files}",
+			files:        []string{"'test me.rb'", "README"},
+			result:       `echo 'test me.rb' 'README'`,
+		},
+		{
+			name:         "with escaped files",
+			source:       "echo {staged_files}",
+			substitution: "{staged_files}",
+			files:        []string{"'test me.rb'", "README"},
+			result:       `echo 'test me.rb' README`,
+		},
+		{
+			name:         "with many substitutions",
+			source:       `echo "{staged_files}" {staged_files}`,
+			substitution: "{staged_files}",
+			files:        []string{"'test me.rb'", "README"},
+			result:       `echo "test me.rb" "README" 'test me.rb' README`,
+		},
+	} {
+		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
+			result := replaceQuoted(tt.source, tt.substitution, tt.files)
+			if result != tt.result {
+				t.Errorf("Expected `%s` to eq `%s`", result, tt.result)
+			}
+		})
+	}
+}
