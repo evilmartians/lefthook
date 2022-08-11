@@ -168,6 +168,24 @@ pre-commit:
 
 Note: If using `all_files` with RuboCop, it will ignore RuboCop's `Exclude` configuration setting. To avoid this, pass `--force-exclusion`.
 
+If you want to have all you files quoted with double quotes `"` or single quotes `'`, quote the appropriate shorthand:
+
+```yml
+pre-commit
+  commands:
+    lint:
+      glob: "*.js"
+      # Quoting with double quotes `"` might be helpful for Windows users
+      run: yarn eslint "{staged_files}" # will run `yarn eslint "file1.js" "file2.js" "[strange name].js"`
+    test:
+      glob: "*.{spec.js}"
+      run: yarn test '{staged_files}' # will run `yarn eslint 'file1.spec.js' 'file2.spec.js' '[strange name].spec.js'`
+    format:
+      glob: "*.js"
+      # Will quote where needed with single quotes
+      run: yarn test {staged_files} # will run `yarn eslint file1.js file2.js '[strange name].spec.js'`
+```
+
 ## Custom file list
 
 Lefthook can be even more specific in selecting files.

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -23,6 +24,8 @@ const (
 	executableFileMode os.FileMode = 0o751
 	executableMask     os.FileMode = 0o111
 )
+
+var surroundingQuotesRegexp = regexp.MustCompile(`^'(.*)'$`)
 
 type Runner struct {
 	fs          afero.Fs
@@ -284,14 +287,12 @@ func (r *Runner) buildCommandArgs(command *config.Command) []string {
 				return nil
 			}
 
-			filesStr := prepareFiles(command, files)
-			if len(filesStr) == 0 {
+			filesPrepared := prepareFiles(command, files)
+			if len(filesPrepared) == 0 {
 				return nil
 			}
 
-			runString = strings.ReplaceAll(
-				runString, filesType, filesStr,
-			)
+			runString = replaceQuoted(runString, filesType, filesPrepared)
 		}
 	}
 
@@ -300,12 +301,14 @@ func (r *Runner) buildCommandArgs(command *config.Command) []string {
 		runString = strings.ReplaceAll(runString, fmt.Sprintf("{%d}", i+1), gitArg)
 	}
 
+	log.Debug("Executing command is: ", runString)
+
 	return strings.Split(runString, " ")
 }
 
-func prepareFiles(command *config.Command, files []string) string {
+func prepareFiles(command *config.Command, files []string) []string {
 	if files == nil {
-		return ""
+		return []string{}
 	}
 
 	log.Debug("Files before filters:\n", files)
@@ -323,11 +326,39 @@ func prepareFiles(command *config.Command, files []string) string {
 			filesEsc = append(filesEsc, shellescape.Quote(fileName))
 		}
 	}
-	files = filesEsc
 
-	log.Debug("Files after escaping:\n", files)
+	log.Debug("Files after escaping:\n", filesEsc)
 
-	return strings.Join(files, " ")
+	return filesEsc
+}
+
+func replaceQuoted(source, substitution string, files []string) string {
+	for _, elem := range [][]string{
+		{"\"", "\"" + substitution + "\""},
+		{"'", "'" + substitution + "'"},
+		{"", substitution},
+	} {
+		quote := elem[0]
+		sub := elem[1]
+		if !strings.Contains(source, sub) {
+			continue
+		}
+
+		quotedFiles := files
+		if len(quote) != 0 {
+			quotedFiles = make([]string, 0, len(files))
+			for _, fileName := range files {
+				quotedFiles = append(quotedFiles,
+					quote+surroundingQuotesRegexp.ReplaceAllString(fileName, "$1")+quote)
+			}
+		}
+
+		source = strings.ReplaceAll(
+			source, sub, strings.Join(quotedFiles, " "),
+		)
+	}
+
+	return source
 }
 
 func (r *Runner) run(name, root, failText string, args []string) {
