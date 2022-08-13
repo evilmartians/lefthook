@@ -27,8 +27,6 @@ jobs:
 
       - name: Install Snapcraft
         uses: samuelmeuli/action-snapcraft@v1
-        with:
-          snapcraft_token: ${{ secrets.SNAPCRAFT_TOKEN }}
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
@@ -38,6 +36,7 @@ jobs:
           args: release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
 
       - name: Update Homebrew formula
         uses: dawidd6/action-homebrew-bump-formula@v3
