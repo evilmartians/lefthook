@@ -208,7 +208,7 @@ func (l *Logger) Println(args ...interface{}) {
 
 	if l.spinner.Active() {
 		l.spinner.Stop()
-		defer func() { l.spinner.Start() }()
+		defer l.spinner.Start()
 	}
 
 	_, _ = fmt.Fprintln(l.out, args...)
@@ -220,7 +220,7 @@ func (l *Logger) Printf(format string, args ...interface{}) {
 
 	if l.spinner.Active() {
 		l.spinner.Stop()
-		defer func() { l.spinner.Start() }()
+		defer l.spinner.Start()
 	}
 
 	_, _ = fmt.Fprintf(l.out, format, args...)
