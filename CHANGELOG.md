@@ -2,6 +2,21 @@
 
 ## master (unreleased)
 
+## 1.1.0 (2022-08-13)
+
+- Add goreleaser action ([PR #307](https://github.com/evilmartians/lefthook/pull/307) by @mrexox)
+- Windows escaping issues ([PR #314](https://github.com/evilmartians/lefthook/pull/314) by @mrexox)
+- Check for lefthook.bat in hook template ([PR #316](https://github.com/evilmartians/lefthook/pull/316) by @mrexox)
+- Update node.md docs ([PR #312](https://github.com/evilmartians/lefthook/pull/312) by @fantua)
+- Move postinstall script to main lefthook NPM package ([PR #311](https://github.com/evilmartians/lefthook/pull/311) by @mrexox)
+- Allow suppressing execution output ([PR #309](https://github.com/evilmartians/lefthook/pull/309) by @mrexox)
+- Update dependencies ([PR #308](https://github.com/evilmartians/lefthook/pull/308) by @mrexox)
+- Add support for Git LFS ([PR #306](https://github.com/evilmartians/lefthook/pull/306) by @mrexox)
+- Bump Go version to 1.19 ([PR #305](https://github.com/evilmartians/lefthook/pull/305) by @mrexox)
+- Add tests on runner ([PR #304](https://github.com/evilmartians/lefthook/pull/304) by @mrexox)
+- Add fail text option ([PR #301](https://github.com/evilmartians/lefthook/pull/301) by @mrexox)
+- Store lefthook checksum in non-hook file ([PR #280](https://github.com/evilmartians/lefthook/pull/280) by @mrexox)
+
 ## 1.0.5 (2022-07-19)
 
 - Submodules issue ([PR #300](https://github.com/evilmartians/lefthook/pull/300) by @mrexox)
