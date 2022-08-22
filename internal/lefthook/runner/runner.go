@@ -151,14 +151,16 @@ func (r *Runner) runScripts(dir string) {
 			continue
 		}
 
+		scriptPath := shellescape.Quote(filepath.Join(dir, file.Name()))
+
 		if r.hook.Parallel {
 			wg.Add(1)
 			go func(script *config.Script, path string, file os.FileInfo) {
 				defer wg.Done()
 				r.runScript(script, path, file)
-			}(script, filepath.Join(dir, file.Name()), file)
+			}(script, scriptPath, file)
 		} else {
-			r.runScript(script, filepath.Join(dir, file.Name()), file)
+			r.runScript(script, scriptPath, file)
 		}
 	}
 
@@ -246,7 +248,12 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 		return
 	}
 
-	args := r.buildCommandArgs(command)
+	args, err := r.buildCommandArgs(command)
+	if err != nil {
+		log.Error(err)
+		logSkip(name, "(SKIP. ERROR)")
+		return
+	}
 	if len(args) == 0 {
 		logSkip(name, "(SKIP. NO FILES FOR INSPECTION)")
 		return
@@ -256,7 +263,7 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 	r.run(name, root, command.FailText, args)
 }
 
-func (r *Runner) buildCommandArgs(command *config.Command) []string {
+func (r *Runner) buildCommandArgs(command *config.Command) ([]string, error) {
 	filesCommand := r.hook.Files
 	if command.Files != "" {
 		filesCommand = command.Files
@@ -278,18 +285,18 @@ func (r *Runner) buildCommandArgs(command *config.Command) []string {
 		// Special case - `files` option: return if the result of files
 		// command is empty.
 		if strings.Contains(runString, filesType) ||
-			command.Files != "" && filesType == config.SubFiles {
+			filesCommand != "" && filesType == config.SubFiles {
 			files, err := filesFn()
 			if err != nil {
-				continue
+				return nil, fmt.Errorf("error replacing %s: %s", filesType, err)
 			}
 			if len(files) == 0 {
-				return nil
+				return nil, nil
 			}
 
 			filesPrepared := prepareFiles(command, files)
 			if len(filesPrepared) == 0 {
-				return nil
+				return nil, nil
 			}
 
 			runString = replaceQuoted(runString, filesType, filesPrepared)
@@ -303,7 +310,7 @@ func (r *Runner) buildCommandArgs(command *config.Command) []string {
 
 	log.Debug("Executing command is: ", runString)
 
-	return strings.Split(runString, " ")
+	return strings.Split(runString, " "), nil
 }
 
 func prepareFiles(command *config.Command, files []string) []string {
