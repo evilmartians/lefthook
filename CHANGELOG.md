@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.1.1 (2022-08-22)
+
+- Quote path to script ([PR #321](https://github.com/evilmartians/lefthook/pull/321) by @mrexox)
+
 ## 1.1.0 (2022-08-13)
 
 - Add goreleaser action ([PR #307](https://github.com/evilmartians/lefthook/pull/307) by @mrexox)
