@@ -288,13 +288,7 @@ func (r *Runner) buildCommandArgs(command *config.Command) ([]string, error) {
 			filesCommand != "" && filesType == config.SubFiles {
 			files, err := filesFn()
 			if err != nil {
-				var gitErr error
-				if filesType == config.SubFiles {
-					gitErr = fmt.Errorf("error running '%s': %s", filesCommand, err)
-				} else {
-					gitErr = fmt.Errorf("error replacing %s: %s", filesType, err)
-				}
-				return nil, gitErr
+				return nil, fmt.Errorf("error replacing %s: %s", filesType, err)
 			}
 			if len(files) == 0 {
 				return nil, nil
