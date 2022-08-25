@@ -2,88 +2,9 @@
 
 Add Lefthook to your system or build it from sources.
 
-### go
-
-```bash
-go get github.com/evilmartians/lefthook
-```
-
-### npm or yarn
-
-Lefthook is available on NPM in two flavors:
-
- 1. [@evilmartians/lefthook](https://www.npmjs.com/package/@evilmartians/lefthook) with pre-bundled binaries for all architectures:
-
-    ```bash
-    npm install @evilmartians/lefthook --save-dev
-    # or yarn:
-    yarn add -D @evilmartians/lefthook
-    ```
-
- 2. [@evilmartians/lefthook-installer](https://www.npmjs.com/package/@evilmartians/lefthook-installer) that wil fetch binary file on installation:
-
-    ```bash
-    npm install @evilmartians/lefthook-installer --save-dev
-    # or yarn:
-    yarn add -D @evilmartians/lefthook-installer
-    ```
-
-NOTE: if you install it this way you should call it with `npx` or `yarn` for all listed examples below. (for example: `lefthook install` -> `npx lefthook install`)
-
-You can also install lefthook as a global dependency
-
-```bash
-npm install -g @evilmartians/lefthook
-```
-
-
-### Rubygems
-
-```bash
-gem install lefthook
-```
-
-### Homebrew for MacOS and Linux
-
-```bash
-brew install lefthook
-```
-
-### AUR for Arch
-
-You can install lefthook [package](https://aur.archlinux.org/packages/lefthook) from AUR
-
-### Snap for Linux
-
-```sh
-snap install --classic lefthook
-```
-
-### APT packages for Debian/Ubuntu Linux
-
-```sh
-curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.sh' | sudo -E bash
-sudo apt install lefthook
-```
-
-See all instructions: https://cloudsmith.io/~evilmartians/repos/lefthook/setup/#formats-deb
-
-[![Hosted By: Cloudsmith](https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=flat-square)](https://cloudsmith.com "Debian package repository hosting is graciously provided by Cloudsmith")
-
-### RPM packages for CentOS/Fedora Linux
-
-```sh
-curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.rpm.sh' | sudo -E bash
-sudo yum install lefthook
-```
-
-See all instructions: https://cloudsmith.io/~evilmartians/repos/lefthook/setup/#repository-setup-yum
-
-[![Hosted By: Cloudsmith](https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=flat-square)](https://cloudsmith.com "RPM package repository hosting is graciously provided by Cloudsmith")
-
-### Anything else
-
-Or take it from [binaries](https://github.com/evilmartians/lefthook/releases) and install manually
+* [npm or yarn](./node.md)
+* [Rubygems](./ruby.md)
+* [Other environments](./other.md)
 
 ## Scenarios
 
