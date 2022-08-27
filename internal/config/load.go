@@ -3,10 +3,15 @@ package config
 import (
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
+	"sync"
 
+	"github.com/evilmartians/lefthook/internal/git"
+	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -24,7 +29,7 @@ func Load(fs afero.Fs, path string) (*Config, error) {
 		return nil, err
 	}
 
-	extends, err := mergeAllExtends(fs, path)
+	extends, err := mergeAll(fs, path)
 	if err != nil {
 		return nil, err
 	}
@@ -61,10 +66,14 @@ func read(fs afero.Fs, path string, name string) (*viper.Viper, error) {
 	return v, nil
 }
 
-// Merges extends from .lefthook and .lefthook-local.
-func mergeAllExtends(fs afero.Fs, path string) (*viper.Viper, error) {
+// mergeAll merges remotes and extends from .lefthook and .lefthook-local.
+func mergeAll(fs afero.Fs, path string) (*viper.Viper, error) {
 	extends, err := read(fs, path, "lefthook")
 	if err != nil {
+		return nil, err
+	}
+
+	if err := remotes(fs, extends); err != nil {
 		return nil, err
 	}
 
@@ -79,6 +88,10 @@ func mergeAllExtends(fs afero.Fs, path string) (*viper.Viper, error) {
 		}
 	}
 
+	if err := remotes(fs, extends); err != nil {
+		return nil, err
+	}
+
 	if err := extend(fs, extends); err != nil {
 		return nil, err
 	}
@@ -86,19 +99,88 @@ func mergeAllExtends(fs afero.Fs, path string) (*viper.Viper, error) {
 	return extends, nil
 }
 
-func extend(fs afero.Fs, v *viper.Viper) error {
-	for _, path := range v.GetStringSlice("extends") {
-		name := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
+func remotes(fs afero.Fs, v *viper.Viper) error {
+	var remotes []Remote
+	err := v.UnmarshalKey("remotes", &remotes)
+	if err != nil {
+		return err
+	}
 
-		another, err := read(fs, filepath.Dir(path), name)
-		if err != nil {
-			return err
+	if len(remotes) == 0 {
+		return nil
+	}
+
+	var (
+		wg           sync.WaitGroup
+		eg           errgroup.Group
+		configPaths  []string
+		configPathCh = make(chan string)
+	)
+
+	wg.Add(1)
+	go func() {
+		for configPath := range configPathCh {
+			configPaths = append(configPaths, configPath)
 		}
-		if err = v.MergeConfigMap(another.AllSettings()); err != nil {
+		wg.Done()
+	}()
+
+	for i := range remotes {
+		remote := remotes[i]
+		eg.Go(func() error {
+			dir, err := git.InitRemote(fs, remote.URL, remote.Rev)
+			if err != nil {
+				return err
+			}
+
+			for _, path := range remote.Configs {
+				configPathCh <- filepath.Join(dir, path)
+			}
+			return nil
+		})
+	}
+
+	// Wait on errgroup to finish before closing the channel.
+	err = eg.Wait()
+	close(configPathCh)
+	if err != nil {
+		return err
+	}
+
+	// Wait for all of the configPaths to be added.
+	wg.Wait()
+
+	// Stable sort to ensure that the merge order is deterministic.
+	sort.SliceStable(configPaths, func(i, j int) bool { return configPaths[i] < configPaths[j] })
+
+	for _, configPath := range configPaths {
+		log.Infof("Merging remote path: %v\n", configPath)
+		if err := merge(fs, configPath, v); err != nil {
 			return err
 		}
 	}
+	return nil
+}
 
+func extend(fs afero.Fs, v *viper.Viper) error {
+	for _, path := range v.GetStringSlice("extends") {
+		if err := merge(fs, path, v); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func merge(fs afero.Fs, path string, v *viper.Viper) error {
+	name := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
+
+	another, err := read(fs, filepath.Dir(path), name)
+	if err != nil {
+		return err
+	}
+	if err = v.MergeConfigMap(another.AllSettings()); err != nil {
+		return err
+	}
 	return nil
 }
 
