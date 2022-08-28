@@ -154,7 +154,7 @@ func remotes(fs afero.Fs, v *viper.Viper) error {
 	sort.SliceStable(configPaths, func(i, j int) bool { return configPaths[i] < configPaths[j] })
 
 	for _, configPath := range configPaths {
-		log.Infof("Merging remote path: %v\n", configPath)
+		log.Debugf("Merging remote config: %v", configPath)
 		if err := merge(fs, configPath, v); err != nil {
 			return err
 		}
