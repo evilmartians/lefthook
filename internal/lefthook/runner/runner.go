@@ -175,6 +175,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 
 	if intersect(r.hook.ExcludeTags, script.Tags) {
 		logSkip(file.Name(), "(SKIP BY TAGS)")
+		return
 	}
 
 	// Skip non-regular files (dirs, symlinks, sockets, etc.)
