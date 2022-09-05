@@ -27,9 +27,9 @@ func (e CommandExecutor) Execute(root string, args []string) (*bytes.Buffer, err
 	}
 
 	defer func() { _ = p.Close() }()
-	defer command.Process.Kill()
+	defer func() { _ = command.Process.Kill() }()
 
-	go func() { io.Copy(p, os.Stdin) }()
+	go func() { _, _ = io.Copy(p, os.Stdin) }()
 
 	out := bytes.NewBuffer(make([]byte, 0))
 	_, _ = io.Copy(out, p)
