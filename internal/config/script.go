@@ -15,7 +15,8 @@ type Script struct {
 	Skip interface{} `mapstructure:"skip"`
 	Tags []string    `mapstructure:"tags"`
 
-	FailText string `mapstructure:"fail_text"`
+	FailText    string `mapstructure:"fail_text"`
+	Interactive bool   `mapstructure:"interactive"`
 
 	// DEPRECATED
 	Run string `mapstructure:"run"`
@@ -116,17 +117,21 @@ func unmarshalScripts(s map[string]interface{}) (map[string]*Script, error) {
 //
 // ```yaml
 // scripts:
-//   "example.sh":
-//       runner: bash
+//
+//	"example.sh":
+//	    runner: bash
+//
 // ```
 //
 // Unmarshals into this:
 //
 // ```yaml
 // scripts:
-//   example:
-//     sh:
-//       runner: bash
+//
+//	example:
+//	  sh:
+//	    runner: bash
+//
 // ```
 //
 // This is not an expected behavior and cannot be controlled yet

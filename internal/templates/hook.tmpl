@@ -4,10 +4,6 @@ if [ "$LEFTHOOK" = "0" ]; then
   exit 0
 fi
 
-if [ -t 1 ] ; then
-  exec < /dev/tty ; # <- enables interactive shell
-fi
-
 call_lefthook()
 {
   dir="$(git rev-parse --show-toplevel)"

@@ -11,7 +11,7 @@ import (
 
 type CommandExecutor struct{}
 
-func (e CommandExecutor) Execute(root string, args []string) (*bytes.Buffer, error) {
+func (e CommandExecutor) Execute(root string, args []string, _ bool) (*bytes.Buffer, error) {
 	command := exec.Command(args[0])
 	command.SysProcAttr = &syscall.SysProcAttr{
 		CmdLine: strings.Join(args, " "),

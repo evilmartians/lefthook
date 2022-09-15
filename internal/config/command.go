@@ -22,7 +22,8 @@ type Command struct {
 	Root    string `mapstructure:"root"`
 	Exclude string `mapstructure:"exclude"`
 
-	FailText string `mapstructure:"fail_text"`
+	FailText    string `mapstructure:"fail_text"`
+	Interactive bool   `mapstructure:"interactive"`
 
 	// DEPRECATED, will be deleted in 1.2.0
 	Runner string `mapstructure:"runner"`
