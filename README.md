@@ -1,4 +1,5 @@
-![Build Status](https://api.travis-ci.org/evilmartians/lefthook.svg?branch=master)
+
+![Build Status](https://github.com/evilmartians/lefthook/actions/workflows/test.yml/badge.svg?branch=master)
 
 # Lefthook
 
@@ -10,45 +11,98 @@
 Fast and powerful Git hooks manager for Node.js, Ruby or any other type of projects.
 
 * **Fast.** It is written in Go. Can run commands in parallel.
-* **Powerful.** With a few lines in the config you can check only the changed files on `pre-push` hook.
+* **Powerful.** It allows to control execution and files you pass to your commands.
 * **Simple.** It is single dependency-free binary which can work in any environment.
 
 📖 [Read the introduction post](https://evilmartians.com/chronicles/lefthook-knock-your-teams-code-back-into-shape?utm_source=lefthook)
 
-```yml
-# On `git push` lefthook will run spelling and links check for all of the changed files
-pre-push:
-  parallel: true
-  commands:
-    spelling:
-      files: git diff --name-only HEAD @{push}
-      glob: "*.md"
-      run: npx yaspeller {files}
-    check-links:
-      files: git diff --name-only HEAD @{push}
-      glob: "*.md"
-      run: npx markdown-link-check {files}
-```
-
 <a href="https://evilmartians.com/?utm_source=lefthook">
 <img src="https://evilmartians.com/badges/sponsored-by-evil-martians.svg" alt="Sponsored by Evil Martians" width="236" height="54"></a>
 
-## Usage
+## Install
 
-Choose your environment:
+With Go:
+
+```bash
+# Using Go >= 1.19
+go install github.com/evilmartians/lefthook@latest
+```
+
+With package manager:
 
 * **[Node.js](./docs/node.md)**
 * **[Ruby](./docs/ruby.md)**
 * [Other environments](./docs/other.md)
 
-Then you can find all Lefthook features in [the full guide](./docs/full_guide.md) and explore [wiki](https://github.com/evilmartians/lefthook/wiki).
+
+## Usage
+
+Edit the config:
+```yml
+# lefthook.yml
+
+# This hook executes on `git commit`
+pre-commit:
+  parallel: true # All commands will be executed concurrently
+  commands:      # Commands section
+    # `js-lint` will call `npx eslit --fix` only on staged files.
+    # It will filter staged files by glob.
+    # If there are no files left after filtering, this command will be skipped
+    js-lint:
+      glob: "*.{js,ts}"
+      run: npx eslint --fix {staged_files} && git add {staged_files}
+
+  # `ruby-test` will skip execution only when in a merging or rebasing state.
+  ruby-test:
+    skip:
+      - merge
+      - rebase
+      run: bundle exec rspec
+      fail_text: Run bundle install
+
+  # `ruby-lint` has `files` option which is a git command for replacing
+  # the {files} template. Then lefthook applies glob pattern to the result.
+  # If the final list is empty, the command will be skipped.
+  # Otherwise the {files} templace will be replaces with list.
+  #
+  # Note: if a template has surrounding quotes, they will be used to wrap
+  # each file in the list.
+  # Double quotes `"` and single quotes `'` are supported.
+  ruby-lint:
+    glob: "*.rb"
+    files: git diff-tree -r --name-only --diff-filter=CDMR HEAD origin/master
+    run: bundle exec rubocop --force-exclusion --parallel '{files}'
+
+# You can provide more hooks.
+pre-push:
+  commands:
+    spelling:
+      files: git diff --name-only HEAD @{push}
+      glob: "*.md"
+      run: npx yaspeller {files}
+```
+
+
+Install the hooks:
+```bash
+lefthook install
+```
+
+Start working with Git:
+```bash
+git add -A
+git commit -m 'chore: Add lefthook'
+git push
+```
+
+Find all Lefthook features in [the full guide](./docs/full_guide.md) and explore [wiki](https://github.com/evilmartians/lefthook/wiki).
 
 ***
 
 ## Why Lefthook
 
 * ### **Parallel execution**
-If you want more speed. [Example](./docs/full_guide.md#parallel-execution)
+Gives you more speed. [Example](./docs/full_guide.md#parallel-execution)
 
 ```yml
 pre-push:
