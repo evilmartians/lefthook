@@ -15,7 +15,7 @@ import (
 
 type TestExecutor struct{}
 
-func (e TestExecutor) Execute(root string, args []string) (out *bytes.Buffer, err error) {
+func (e TestExecutor) Execute(root string, args []string, interactive bool) (out *bytes.Buffer, err error) {
 	out = bytes.NewBuffer(make([]byte, 0))
 
 	if args[0] == "success" {

@@ -27,6 +27,14 @@ const (
 
 var surroundingQuotesRegexp = regexp.MustCompile(`^'(.*)'$`)
 
+// RunOptions contains the options that control the execution.
+type RunOptions struct {
+	name, root, failText string
+	args                 []string
+	interactive          bool
+}
+
+// Runner responds for actual execution and handling the results.
 type Runner struct {
 	fs          afero.Fs
 	repo        *git.Repository
@@ -57,6 +65,8 @@ func NewRunner(
 	}
 }
 
+// RunAll runs scripts and commands.
+// LFS hook is executed at first if needed.
 func (r *Runner) RunAll(hookName string, sourceDirs []string) {
 	if err := r.runLFSHook(hookName); err != nil {
 		log.Error(err)
@@ -201,7 +211,13 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 	args = append(args, path)
 	args = append(args, r.args[:]...)
 
-	r.run(file.Name(), r.repo.RootPath, script.FailText, args)
+	r.run(RunOptions{
+		name:        file.Name(),
+		root:        r.repo.RootPath,
+		args:        args,
+		failText:    script.FailText,
+		interactive: script.Interactive,
+	})
 }
 
 func (r *Runner) runCommands() {
@@ -260,8 +276,13 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 		return
 	}
 
-	root := filepath.Join(r.repo.RootPath, command.Root)
-	r.run(name, root, command.FailText, args)
+	r.run(RunOptions{
+		name:        name,
+		root:        filepath.Join(r.repo.RootPath, command.Root),
+		args:        args,
+		failText:    command.FailText,
+		interactive: command.Interactive,
+	})
 }
 
 func (r *Runner) buildCommandArgs(command *config.Command) ([]string, error) {
@@ -369,16 +390,16 @@ func replaceQuoted(source, substitution string, files []string) string {
 	return source
 }
 
-func (r *Runner) run(name, root, failText string, args []string) {
-	out, err := r.exec.Execute(root, args)
+func (r *Runner) run(opts RunOptions) {
+	out, err := r.exec.Execute(opts.root, opts.args, opts.interactive)
 
 	var execName string
 	if err != nil {
-		r.fail(name, failText)
-		execName = fmt.Sprint(log.Red("\n  EXECUTE >"), log.Bold(name))
+		r.fail(opts.name, opts.failText)
+		execName = fmt.Sprint(log.Red("\n  EXECUTE >"), log.Bold(opts.name))
 	} else {
-		r.success(name)
-		execName = fmt.Sprint(log.Cyan("\n  EXECUTE >"), log.Bold(name))
+		r.success(opts.name)
+		execName = fmt.Sprint(log.Cyan("\n  EXECUTE >"), log.Bold(opts.name))
 	}
 
 	if out != nil {
