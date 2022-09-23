@@ -161,23 +161,24 @@ func (r *Runner) runScripts(dir string) {
 			continue
 		}
 
-		scriptPath := shellescape.Quote(filepath.Join(dir, file.Name()))
+		unquotedScriptPath := filepath.Join(dir, file.Name())
 
 		if r.hook.Parallel {
 			wg.Add(1)
 			go func(script *config.Script, path string, file os.FileInfo) {
 				defer wg.Done()
-				r.runScript(script, path, file)
-			}(script, scriptPath, file)
+				r.runScript(script, path, file, dir)
+			}(script, unquotedScriptPath, file)
 		} else {
-			r.runScript(script, scriptPath, file)
+			r.runScript(script, unquotedScriptPath, file, dir)
 		}
 	}
 
 	wg.Wait()
 }
 
-func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo) {
+func (r *Runner) runScript(script *config.Script, unquotedPath string, file os.FileInfo, dir string) {
+	quotedScriptPath := shellescape.Quote(unquotedPath)
 	if script.DoSkip(r.repo.State()) {
 		logSkip(file.Name(), "(SKIP BY SETTINGS)")
 		return
@@ -196,7 +197,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 
 	// Make sure file is executable
 	if (file.Mode() & executableMask) == 0 {
-		if err := r.fs.Chmod(path, executableFileMode); err != nil {
+		if err := r.fs.Chmod(unquotedPath, executableFileMode); err != nil {
 			log.Errorf("Couldn't change file mode to make file executable: %s", err)
 			r.fail(file.Name(), "")
 			return
@@ -208,7 +209,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 		args = strings.Split(script.Runner, " ")
 	}
 
-	args = append(args, path)
+	args = append(args, quotedScriptPath)
 	args = append(args, r.args[:]...)
 
 	r.run(RunOptions{
