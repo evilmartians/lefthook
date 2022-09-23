@@ -167,17 +167,17 @@ func (r *Runner) runScripts(dir string) {
 			wg.Add(1)
 			go func(script *config.Script, path string, file os.FileInfo) {
 				defer wg.Done()
-				r.runScript(script, path, file, dir)
+				r.runScript(script, path, file)
 			}(script, unquotedScriptPath, file)
 		} else {
-			r.runScript(script, unquotedScriptPath, file, dir)
+			r.runScript(script, unquotedScriptPath, file)
 		}
 	}
 
 	wg.Wait()
 }
 
-func (r *Runner) runScript(script *config.Script, unquotedPath string, file os.FileInfo, dir string) {
+func (r *Runner) runScript(script *config.Script, unquotedPath string, file os.FileInfo) {
 	quotedScriptPath := shellescape.Quote(unquotedPath)
 	if script.DoSkip(r.repo.State()) {
 		logSkip(file.Name(), "(SKIP BY SETTINGS)")
