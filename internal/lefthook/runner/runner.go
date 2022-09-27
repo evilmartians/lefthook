@@ -178,7 +178,6 @@ func (r *Runner) runScripts(dir string) {
 }
 
 func (r *Runner) runScript(script *config.Script, unquotedPath string, file os.FileInfo) {
-	quotedScriptPath := shellescape.Quote(unquotedPath)
 	if script.DoSkip(r.repo.State()) {
 		logSkip(file.Name(), "(SKIP BY SETTINGS)")
 		return
@@ -209,6 +208,7 @@ func (r *Runner) runScript(script *config.Script, unquotedPath string, file os.F
 		args = strings.Split(script.Runner, " ")
 	}
 
+	quotedScriptPath := shellescape.Quote(unquotedPath)
 	args = append(args, quotedScriptPath)
 	args = append(args, r.args[:]...)
 
