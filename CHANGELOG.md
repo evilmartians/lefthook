@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+## 1.1.2 (2022-10-10)
+
+- Fix regression from #314 (chmod missed fix) ([PR #330](https://github.com/evilmartians/lefthook/pull/330) by @ariccio)
+- Pass stdin by default ([PR #324](https://github.com/evilmartians/lefthook/pull/324) by @mrexox)
+
 ## 1.1.1 (2022-08-22)
 
 - Quote path to script ([PR #321](https://github.com/evilmartians/lefthook/pull/321) by @mrexox)
