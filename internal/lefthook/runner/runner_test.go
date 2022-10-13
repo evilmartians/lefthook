@@ -101,11 +101,14 @@ func TestRunAll(t *testing.T) {
 		{
 			name: "with exclude tags",
 			hook: &config.Hook{
-				ExcludeTags: []string{"tests"},
+				ExcludeTags: []string{"tests", "formatter"},
 				Commands: map[string]*config.Command{
 					"test": {
 						Run:  "success",
 						Tags: []string{"tests"},
+					},
+					"formatter": {
+						Run: "success",
 					},
 					"lint": {
 						Run:  "success",
