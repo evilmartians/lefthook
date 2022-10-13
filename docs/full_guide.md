@@ -451,10 +451,10 @@ LEFTHOOK=0 git commit -am "Lefthook skipped"
 
 ## Skip some tags on the fly
 
-Use LEFTHOOK_EXCLUDE={list of tags to be excluded} for that
+Use LEFTHOOK_EXCLUDE={list of tags or command names to be excluded} for that
 
 ```bash
-LEFTHOOK_EXCLUDE=ruby,security git commit -am "Skip some tag checks"
+LEFTHOOK_EXCLUDE=ruby,security,lint git commit -am "Skip some tag checks"
 ```
 
 ## Concurrent files overrides
