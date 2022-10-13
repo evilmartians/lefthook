@@ -261,6 +261,11 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 		return
 	}
 
+	if intersect(r.hook.ExcludeTags, []string{name}) {
+		logSkip(name, "(SKIP BY NAME)")
+		return
+	}
+
 	if err := command.Validate(); err != nil {
 		r.fail(name, "")
 		return
