@@ -17,14 +17,25 @@ func newUninstallCmd(opts *lefthook.Options) *cobra.Command {
 		},
 	}
 
+	var deprecatedKeepConfig bool
 	uninstallCmd.Flags().BoolVarP(
-		&args.KeepConfiguration, "keep-config", "k", false,
-		"keep configuration files and source directories present",
+		&deprecatedKeepConfig, "keep-config", "k", false,
+		"DEPRECATED: This option is enabled by default. It will be removed in next release.",
 	)
 
 	uninstallCmd.Flags().BoolVarP(
-		&args.Aggressive, "aggressive", "a", false,
+		&args.Force, "aggressive", "a", false,
+		"DEPRECATED: will behave like -f/--force option",
+	)
+
+	uninstallCmd.Flags().BoolVarP(
+		&args.Force, "force", "f", false,
 		"remove all git hooks even not lefthook-related",
+	)
+
+	uninstallCmd.Flags().BoolVarP(
+		&args.RemoveConfig, "remove-configs", "c", false,
+		"remove lefthook.yml and lefthook-local.yml",
 	)
 
 	return &uninstallCmd

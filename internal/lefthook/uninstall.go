@@ -9,7 +9,7 @@ import (
 )
 
 type UninstallArgs struct {
-	KeepConfiguration, Aggressive bool
+	Force, RemoveConfig bool
 }
 
 func Uninstall(opts *Options, args *UninstallArgs) error {
@@ -22,11 +22,11 @@ func Uninstall(opts *Options, args *UninstallArgs) error {
 }
 
 func (l *Lefthook) Uninstall(args *UninstallArgs) error {
-	if err := l.deleteHooks(args.Aggressive || l.Options.Aggressive); err != nil {
+	if err := l.deleteHooks(args.Force || l.Options.Aggressive); err != nil {
 		return err
 	}
 
-	if !args.KeepConfiguration {
+	if args.RemoveConfig {
 		for _, glob := range []string{
 			"lefthook.y*ml",
 			"lefthook-local.y*ml",

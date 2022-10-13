@@ -37,41 +37,40 @@ func TestLefthookUninstall(t *testing.T) {
 			},
 			config: "# empty",
 			wantExist: []string{
+				configPath,
 				hookPath("pre-commit"),
 			},
 			wantNotExist: []string{
-				configPath,
 				hookPath("post-commit"),
 			},
 		},
 		{
-			name: "with aggressive mode",
-			args: UninstallArgs{Aggressive: true},
+			name: "with force",
+			args: UninstallArgs{Force: true},
 			existingHooks: map[string]string{
 				"pre-commit":  "not a lefthook hook",
 				"post-commit": "\n# LEFTHOOK file\n",
 			},
 			config:    "# empty",
-			wantExist: []string{},
+			wantExist: []string{configPath},
 			wantNotExist: []string{
-				configPath,
 				hookPath("pre-commit"),
 				hookPath("post-commit"),
 			},
 		},
 		{
-			name: "with keep config arg",
-			args: UninstallArgs{KeepConfiguration: true},
+			name: "with --remove-config option",
+			args: UninstallArgs{RemoveConfig: true},
 			existingHooks: map[string]string{
 				"pre-commit":  "not a lefthook hook",
 				"post-commit": "# LEFTHOOK",
 			},
 			config: "# empty",
 			wantExist: []string{
-				configPath,
 				hookPath("pre-commit"),
 			},
 			wantNotExist: []string{
+				configPath,
 				hookPath("post-commit"),
 			},
 		},
@@ -84,11 +83,11 @@ func TestLefthookUninstall(t *testing.T) {
 			},
 			config: "# empty",
 			wantExist: []string{
+				configPath,
 				hookPath("pre-commit"),
 				hookPath("post-commit"),
 			},
 			wantNotExist: []string{
-				configPath,
 				hookPath("post-commit.old"),
 			},
 		},
