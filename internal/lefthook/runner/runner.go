@@ -397,6 +397,10 @@ func replaceQuoted(source, substitution string, files []string) string {
 }
 
 func (r *Runner) run(opts RunOptions) {
+	if !r.logSettings.SkipExecution() {
+		execName = fmt.Sprint(log.Cyan("\n  EXECUTE >"), log.Bold(opts.name))
+		log.Infof("%s\n", execName)
+	}
 	out, err := r.exec.Execute(opts.root, opts.args, opts.interactive)
 
 	var execName string
@@ -405,15 +409,13 @@ func (r *Runner) run(opts RunOptions) {
 		execName = fmt.Sprint(log.Red("\n  EXECUTE >"), log.Bold(opts.name))
 	} else {
 		r.success(opts.name)
-		execName = fmt.Sprint(log.Cyan("\n  EXECUTE >"), log.Bold(opts.name))
 	}
 
 	if out != nil {
 		if err == nil && r.logSettings.SkipExecution() {
 			return
 		}
-
-		log.Infof("%s\n%s\n", execName, out)
+		log.Infof("%s\n", out)
 	} else if err != nil {
 		log.Infof("%s\n%s\n", execName, err)
 	}
