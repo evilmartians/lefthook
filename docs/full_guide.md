@@ -508,6 +508,21 @@ source_dir: ".lefthook"
 source_dir_local: ".lefthook-local"
 ```
 
+## Custom preset ENV variables
+
+Lefthook allows you to set ENV variables for the commands and scripts. This is helpful when you use lefthook on different OSes and need to pass ENV vars to your executables.
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    test:
+      run: bundle exec rspec
+      env:
+        RAILS_ENV: test
+```
+
 ## Manage verbosity
 
 You can manage the verbosity using the `skip_output` config.
