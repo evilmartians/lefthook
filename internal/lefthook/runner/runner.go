@@ -27,13 +27,6 @@ const (
 
 var surroundingQuotesRegexp = regexp.MustCompile(`^'(.*)'$`)
 
-// RunOptions contains the options that control the execution.
-type RunOptions struct {
-	name, root, failText string
-	args                 []string
-	interactive          bool
-}
-
 // Runner responds for actual execution and handling the results.
 type Runner struct {
 	fs          afero.Fs
@@ -212,12 +205,13 @@ func (r *Runner) runScript(script *config.Script, unquotedPath string, file os.F
 	args = append(args, quotedScriptPath)
 	args = append(args, r.args[:]...)
 
-	r.run(RunOptions{
+	r.run(ExecuteOptions{
 		name:        file.Name(),
 		root:        r.repo.RootPath,
 		args:        args,
 		failText:    script.FailText,
 		interactive: script.Interactive,
+		env:         script.Env,
 	})
 }
 
@@ -282,12 +276,13 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 		return
 	}
 
-	r.run(RunOptions{
+	r.run(ExecuteOptions{
 		name:        name,
 		root:        filepath.Join(r.repo.RootPath, command.Root),
 		args:        args,
 		failText:    command.FailText,
 		interactive: command.Interactive,
+		env:         command.Env,
 	})
 }
 
@@ -396,11 +391,11 @@ func replaceQuoted(source, substitution string, files []string) string {
 	return source
 }
 
-func (r *Runner) run(opts RunOptions) {
+func (r *Runner) run(opts ExecuteOptions) {
 	log.SetName(opts.name)
 	defer log.UnsetName(opts.name)
 
-	out, err := r.exec.Execute(opts.root, opts.args, opts.interactive)
+	out, err := r.exec.Execute(opts)
 
 	var execName string
 	if err != nil {
