@@ -13,7 +13,7 @@ import (
 type CommandExecutor struct{}
 
 func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
-	command := exec.Command(args[0])
+	command := exec.Command(opts.args[0])
 	command.SysProcAttr = &syscall.SysProcAttr{
 		CmdLine: strings.Join(opts.args, " "),
 	}
