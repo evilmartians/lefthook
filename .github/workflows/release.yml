@@ -28,6 +28,11 @@ jobs:
       - name: Install Snapcraft
         uses: samuelmeuli/action-snapcraft@v1
 
+      - name: Prevent from snapcraft fail
+        run: |
+          mkdir -p $HOME/.cache/snapcraft/download
+          mkdir -p $HOME/.cache/snapcraft/stage-packages
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
