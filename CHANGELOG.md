@@ -2,6 +2,14 @@
 
 ## master (unreleased)
 
+## 1.1.3 (2022-10-15)
+- ci: Fix snapcraft trying to create dirs in parallel by @mrexox
+- feature: Allow setting env vars ([PR #337](https://github.com/evilmartians/lefthook/pull/337) by @mrexox)
+- feature: Show current running command and script name(s) ([PR #338](https://github.com/evilmartians/lefthook/pull/338) by @mrexox)
+- feature: Exclude by command names too ([PR #335](https://github.com/evilmartians/lefthook/pull/335) by @mrexox)
+- fix: Don't uninstall lefthook.yml and lefthook-local.yml by default ([PR #334](https://github.com/evilmartians/lefthook/pull/334) by @mrexox)
+- fix: Fixing typo in gemspec ([PR #333](https://github.com/evilmartians/lefthook/pull/333) by @kerrizor)
+
 ## 1.1.2 (2022-10-10)
 
 - Fix regression from #314 (chmod missed fix) ([PR #330](https://github.com/evilmartians/lefthook/pull/330) by @ariccio)

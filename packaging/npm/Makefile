@@ -1,5 +1,5 @@
 # NPM package version to release
-VERSION := 1.1.2
+VERSION := 1.1.3
 
 DIST_DIR := ../../dist
 
