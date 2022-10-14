@@ -26,6 +26,7 @@ const (
 
 	spinnerCharSet     = 14
 	spinnerRefreshRate = 100 * time.Millisecond
+	spinnerText        = " waiting"
 )
 
 type Logger struct {
@@ -34,6 +35,7 @@ type Logger struct {
 	out     io.Writer
 	mu      sync.Mutex
 	spinner *spinner.Spinner
+	names   []string
 }
 
 func New() *Logger {
@@ -44,7 +46,7 @@ func New() *Logger {
 		spinner: spinner.New(
 			spinner.CharSets[spinnerCharSet],
 			spinnerRefreshRate,
-			spinner.WithSuffix(" waiting"),
+			spinner.WithSuffix(spinnerText),
 		),
 	}
 }
@@ -193,6 +195,52 @@ func (l *Logger) Warnf(format string, args ...interface{}) {
 func (l *Logger) Log(level Level, args ...interface{}) {
 	if l.IsLevelEnabled(level) {
 		l.Println(args...)
+	}
+}
+
+func SetName(name string) {
+	std.SetName(name)
+}
+
+func UnsetName(name string) {
+	std.UnsetName(name)
+}
+
+func (l *Logger) SetName(name string) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	if l.spinner.Active() {
+		l.spinner.Stop()
+		defer l.spinner.Start()
+	}
+
+	l.names = append(l.names, name)
+	l.spinner.Suffix = fmt.Sprintf("%s: %s", spinnerText, strings.Join(l.names, ", "))
+}
+
+func (l *Logger) UnsetName(name string) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	if l.spinner.Active() {
+		l.spinner.Stop()
+		defer l.spinner.Start()
+	}
+
+	newNames := make([]string, 0, len(l.names)-1)
+	for _, n := range l.names {
+		if n != name {
+			newNames = append(newNames, n)
+		}
+	}
+
+	l.names = newNames
+
+	if len(l.names) != 0 {
+		l.spinner.Suffix = fmt.Sprintf("%s: %s", spinnerText, strings.Join(l.names, ", "))
+	} else {
+		l.spinner.Suffix = spinnerText
 	}
 }
 

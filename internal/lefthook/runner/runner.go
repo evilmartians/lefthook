@@ -397,6 +397,9 @@ func replaceQuoted(source, substitution string, files []string) string {
 }
 
 func (r *Runner) run(opts RunOptions) {
+	log.SetName(opts.name)
+	defer log.UnsetName(opts.name)
+
 	out, err := r.exec.Execute(opts.root, opts.args, opts.interactive)
 
 	var execName string
