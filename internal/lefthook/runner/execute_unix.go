@@ -5,6 +5,7 @@ package runner
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -19,9 +20,9 @@ import (
 
 type CommandExecutor struct{}
 
-func (e CommandExecutor) Execute(root string, args []string, interactive bool) (*bytes.Buffer, error) {
+func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
 	stdin := os.Stdin
-	if interactive && !isatty.IsTerminal(os.Stdin.Fd()) {
+	if opts.interactive && !isatty.IsTerminal(os.Stdin.Fd()) {
 		tty, err := os.Open("/dev/tty")
 		if err == nil {
 			defer tty.Close()
@@ -30,9 +31,16 @@ func (e CommandExecutor) Execute(root string, args []string, interactive bool) (
 			log.Errorf("Couldn't enable TTY input: %s\n", err)
 		}
 	}
-	command := exec.Command("sh", "-c", strings.Join(args, " "))
-	rootDir, _ := filepath.Abs(root)
+	command := exec.Command("sh", "-c", strings.Join(opts.args, " "))
+	rootDir, _ := filepath.Abs(opts.root)
 	command.Dir = rootDir
+
+	envList := make([]string, len(opts.env))
+	for name, value := range opts.env {
+		envList = append(envList, fmt.Sprintf("%s=%s", strings.ToUpper(name), value))
+	}
+
+	command.Env = append(os.Environ(), envList...)
 
 	p, err := pty.Start(command)
 	if err != nil {

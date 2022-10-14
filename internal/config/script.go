@@ -12,8 +12,9 @@ import (
 type Script struct {
 	Runner string `mapstructure:"runner"`
 
-	Skip interface{} `mapstructure:"skip"`
-	Tags []string    `mapstructure:"tags"`
+	Skip interface{}       `mapstructure:"skip"`
+	Tags []string          `mapstructure:"tags"`
+	Env  map[string]string `mapstructure:"env"`
 
 	FailText    string `mapstructure:"fail_text"`
 	Interactive bool   `mapstructure:"interactive"`

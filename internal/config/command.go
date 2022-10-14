@@ -14,10 +14,11 @@ var errFilesIncompatible = errors.New("One of your runners contains incompatible
 type Command struct {
 	Run string `mapstructure:"run"`
 
-	Skip  interface{} `mapstructure:"skip"`
-	Tags  []string    `mapstructure:"tags"`
-	Glob  string      `mapstructure:"glob"`
-	Files string      `mapstructure:"files"`
+	Skip  interface{}       `mapstructure:"skip"`
+	Tags  []string          `mapstructure:"tags"`
+	Glob  string            `mapstructure:"glob"`
+	Files string            `mapstructure:"files"`
+	Env   map[string]string `mapstructure:"env"`
 
 	Root    string `mapstructure:"root"`
 	Exclude string `mapstructure:"exclude"`

@@ -2,6 +2,7 @@ package runner
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -11,13 +12,20 @@ import (
 
 type CommandExecutor struct{}
 
-func (e CommandExecutor) Execute(root string, args []string, _ bool) (*bytes.Buffer, error) {
-	command := exec.Command(args[0])
+func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
+	command := exec.Command(opts.args[0])
 	command.SysProcAttr = &syscall.SysProcAttr{
-		CmdLine: strings.Join(args, " "),
+		CmdLine: strings.Join(opts.args, " "),
 	}
 
-	rootDir, _ := filepath.Abs(root)
+	envList := make([]string, len(opts.env))
+	for name, value := range opts.env {
+		envList = append(envList, fmt.Sprintf("%s=%s", strings.ToUpper(name), value))
+	}
+
+	command.Env = append(os.Environ(), envList...)
+
+	rootDir, _ := filepath.Abs(opts.root)
 	command.Dir = rootDir
 
 	var out bytes.Buffer
