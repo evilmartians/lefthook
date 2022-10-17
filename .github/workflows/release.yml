@@ -53,7 +53,7 @@ jobs:
         env:
           RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
         run: |
-          mkdir ~/.gem/
+          mkdir -p ~/.gem/
           cat << EOF > ~/.gem/credentials
           ---
           :rubygems_api_key: ${RUBYGEMS_API_KEY}
