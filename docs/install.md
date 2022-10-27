@@ -1,5 +1,7 @@
 # Install lefthook
 
+Choose your fighter:
+
 - [Ruby](#ruby)
 - [Node.js](#node)
 - [Go](#go)
