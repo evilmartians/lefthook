@@ -3,18 +3,16 @@ package config
 import (
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
-	"sync"
 
 	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
-	"golang.org/x/sync/errgroup"
 )
 
 const (
+	DefaultConfigName     = "lefthook.yml"
 	DefaultSourceDir      = ".lefthook"
 	DefaultSourceDirLocal = ".lefthook-local"
 	DefaultColorsEnabled  = true
@@ -73,7 +71,7 @@ func mergeAll(fs afero.Fs, path string) (*viper.Viper, error) {
 		return nil, err
 	}
 
-	if err := remotes(fs, extends); err != nil {
+	if err := mergeRemote(fs, extends); err != nil {
 		return nil, err
 	}
 
@@ -88,10 +86,6 @@ func mergeAll(fs afero.Fs, path string) (*viper.Viper, error) {
 		}
 	}
 
-	if err := remotes(fs, extends); err != nil {
-		return nil, err
-	}
-
 	if err := extend(fs, extends); err != nil {
 		return nil, err
 	}
@@ -99,66 +93,39 @@ func mergeAll(fs afero.Fs, path string) (*viper.Viper, error) {
 	return extends, nil
 }
 
-func remotes(fs afero.Fs, v *viper.Viper) error {
-	var remotes []Remote
-	err := v.UnmarshalKey("remotes", &remotes)
+func mergeRemote(fs afero.Fs, v *viper.Viper) error {
+	var remote Remote
+	err := v.UnmarshalKey("remote", &remote)
 	if err != nil {
 		return err
 	}
 
-	if len(remotes) == 0 {
+	if !remote.Configured() {
 		return nil
 	}
 
-	var (
-		wg           sync.WaitGroup
-		eg           errgroup.Group
-		configPaths  []string
-		configPathCh = make(chan string)
-	)
-
-	wg.Add(1)
-	go func() {
-		for configPath := range configPathCh {
-			configPaths = append(configPaths, configPath)
-		}
-		wg.Done()
-	}()
-
-	for i := range remotes {
-		remote := remotes[i]
-		eg.Go(func() error {
-			dir, err := git.InitRemote(fs, remote.URL, remote.Rev)
-			if err != nil {
-				return err
-			}
-
-			for _, path := range remote.Configs {
-				configPathCh <- filepath.Join(dir, path)
-			}
-			return nil
-		})
-	}
-
-	// Wait on errgroup to finish before closing the channel.
-	err = eg.Wait()
-	close(configPathCh)
+	remotePath, err := git.RemoteFolder(remote.GitURL)
 	if err != nil {
 		return err
 	}
 
-	// Wait for all of the configPaths to be added.
-	wg.Wait()
-
-	// Stable sort to ensure that the merge order is deterministic.
-	sort.SliceStable(configPaths, func(i, j int) bool { return configPaths[i] < configPaths[j] })
-
-	for _, configPath := range configPaths {
-		log.Debugf("Merging remote config: %v", configPath)
-		if err := merge(fs, configPath, v); err != nil {
-			return err
-		}
+	configFile := DefaultConfigName
+	if len(remote.Config) > 0 {
+		configFile = remote.Config
 	}
+	configPath := filepath.Join(remotePath, configFile)
+
+	log.Debugf("Merging remote config: %s", configPath)
+
+	_, err = fs.Stat(configPath)
+	if err != nil {
+		return nil
+	}
+
+	if err := merge(fs, configPath, v); err != nil {
+		return err
+	}
+
 	return nil
 }
 
