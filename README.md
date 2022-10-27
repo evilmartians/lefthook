@@ -28,7 +28,7 @@ With Go:
 go install github.com/evilmartians/lefthook@latest
 ```
 
-For other installation instructions see **[Installation guide](./docs/install.md)**
+See **[Installation guide](./docs/install.md)** for different installation instructions.
 
 ## Usage
 
@@ -90,7 +90,7 @@ git commit -m 'chore: Add lefthook'
 git push
 ```
 
-Find all Lefthook features in [the full guide](./docs/full_guide.md) and explore [wiki](https://github.com/evilmartians/lefthook/wiki).
+Find all Lefthook features in [the full guide](./docs/configuration.md) and explore [wiki](https://github.com/evilmartians/lefthook/wiki).
 
 ***
 

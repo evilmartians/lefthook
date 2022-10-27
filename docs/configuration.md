@@ -1,11 +1,3 @@
-## Installation
-
-Add Lefthook to your system or build it from sources.
-
-* [npm or yarn](./node.md)
-* [Rubygems](./ruby.md)
-* [Other environments](./other.md)
-
 ## Scenarios
 
 ### Examples
