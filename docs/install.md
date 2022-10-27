@@ -1,4 +1,4 @@
-# Install
+# Install lefthook
 
 - [Ruby](#ruby)
 - [Node.js](#node)
@@ -7,20 +7,17 @@
 - [Homebrew](#homebrew)
 - [Snap](#snap)
 - [Debian-based distro](#deb)
-- [RedHat/CentOS/Fedora distro](#rpm)
+- [RPM-based distro](#rpm)
 - [Arch Linux](#arch)
 - [Manual](#else)
 
-
 ## <a id="ruby"></a> Ruby
-
-Simply:
 
 ```bash
 gem install lefthook
 ```
 
-### Troubleshooting: Ruby
+### Troubleshooting
 
 If you see the error `lefthook: command not found` you need to check your $PATH. Also try to restart your terminal.
 
@@ -62,6 +59,10 @@ go get github.com/evilmartians/lefthook
 ## <a id="python"></a> Python
 
 You can find Python wrapper here [package](https://github.com/life4/lefthook)
+
+```sh
+python3 -m pip install --user lefthook
+```
 
 
 ## <a id="homebrew"></a> Homebrew for MacOS and Linux
@@ -106,9 +107,17 @@ You can install lefthook [package](https://aur.archlinux.org/packages/lefthook) 
 yay -S lefthook
 ```
 
-## <a id="else"></a> Anything else
+## <a id="else"></a> Manuall installation with prebuilt executable
 
-Or take it from [binaries](https://github.com/evilmartians/lefthook/releases) and install manually,
+Or take it from [binaries](https://github.com/evilmartians/lefthook/releases) and install manually.
+
+1. Download the executable for your OS and Arch
+1. Put the executable under the $PATH (for unix systems)
 
 ### More info
-Have a question? Check the [wiki](https://github.com/evilmartians/lefthook/wiki).
+
+Have a question?
+
+:monocle_face: Check the [wiki](https://github.com/evilmartians/lefthook/wiki)
+
+:thinking: Or start a [discussion](https://github.com/evilmartians/lefthook/discussions)
