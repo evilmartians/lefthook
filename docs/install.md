@@ -1,0 +1,114 @@
+# Install
+
+- [Ruby](#ruby)
+- [Node.js](#node)
+- [Go](#go)
+- [Python](#python)
+- [Homebrew](#homebrew)
+- [Snap](#snap)
+- [Debian-based distro](#deb)
+- [RedHat/CentOS/Fedora distro](#rpm)
+- [Arch Linux](#arch)
+- [Manual](#else)
+
+
+## <a id="ruby"></a> Ruby
+
+Simply:
+
+```bash
+gem install lefthook
+```
+
+### Troubleshooting: Ruby
+
+If you see the error `lefthook: command not found` you need to check your $PATH. Also try to restart your terminal.
+
+
+## <a id="node"></a> Node.js
+
+Lefthook is available on NPM in the following flavors:
+
+ 1. [lefthook](https://www.npmjs.com/package/lefthook) that will install the proper binary:
+
+    ```bash
+    npm install lefthook --save-dev
+    # or yarn:
+    yarn add -D lefthook
+    ```
+
+ 1. [@evilmartians/lefthook](https://www.npmjs.com/package/@evilmartians/lefthook) with pre-bundled binaries for all architectures:
+
+    ```bash
+    npm install @evilmartians/lefthook --save-dev
+    # or yarn:
+    yarn add -D @evilmartians/lefthook
+    ```
+
+ 1. [@evilmartians/lefthook-installer](https://www.npmjs.com/package/@evilmartians/lefthook-installer) that will fetch binary file on installation:
+
+    ```bash
+    npm install @evilmartians/lefthook-installer --save-dev
+    # or yarn:
+    yarn add -D @evilmartians/lefthook-installer
+    ```
+
+## <a id="go"></a> Go
+
+```bash
+go get github.com/evilmartians/lefthook
+```
+
+## <a id="python"></a> Python
+
+You can find Python wrapper here [package](https://github.com/life4/lefthook)
+
+
+## <a id="homebrew"></a> Homebrew for MacOS and Linux
+
+```bash
+brew install lefthook
+```
+
+## <a id="snap"></a> Snap for Linux
+
+```sh
+snap install --classic lefthook
+```
+
+## <a id="deb"></a> APT packages for Debian/Ubuntu Linux
+
+```sh
+curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.sh' | sudo -E bash
+sudo apt install lefthook
+```
+
+See all instructions: https://cloudsmith.io/~evilmartians/repos/lefthook/setup/#formats-deb
+
+[![Hosted By: Cloudsmith](https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=flat-square)](https://cloudsmith.com "Debian package repository hosting is graciously provided by Cloudsmith")
+
+## <a id="rpm"></a> RPM packages for CentOS/Fedora Linux
+
+```sh
+curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.rpm.sh' | sudo -E bash
+sudo yum install lefthook
+```
+
+See all instructions: https://cloudsmith.io/~evilmartians/repos/lefthook/setup/#repository-setup-yum
+
+[![Hosted By: Cloudsmith](https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=flat-square)](https://cloudsmith.com "RPM package repository hosting is graciously provided by Cloudsmith")
+
+## <a id="arch"></a> AUR for Arch
+
+You can install lefthook [package](https://aur.archlinux.org/packages/lefthook) from AUR.
+
+```sh
+yay -S lefthook
+```
+
+## <a id="else"></a> Anything else
+
+Or take it from [binaries](https://github.com/evilmartians/lefthook/releases) and install manually,
+
+### More info
+Have a question? Check the [wiki](https://github.com/evilmartians/lefthook/wiki).

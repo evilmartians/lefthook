@@ -28,12 +28,7 @@ With Go:
 go install github.com/evilmartians/lefthook@latest
 ```
 
-With package manager:
-
-* **[Node.js](./docs/node.md)**
-* **[Ruby](./docs/ruby.md)**
-* [Other environments](./docs/other.md)
-
+For other installation instructions see **[Installation guide](./docs/install.md)**
 
 ## Usage
 
@@ -264,4 +259,3 @@ skip_output:
 * [Automatically linting docker containers](https://dev.to/nitzano/linting-docker-containers-2lo6?utm_source=lefthook)
 * [Smooth PostgreSQL upgrades in DockerDev environments with Lefthook](https://dev.to/palkan_tula/smooth-postgresql-upgrades-in-dockerdev-environments-with-lefthook-203k?utm_source=lefthook)
 * [Lefthook for React/React Native apps](https://blog.logrocket.com/deep-dive-into-lefthook-react-native?utm_source=lefthook)
-
