@@ -13,13 +13,15 @@ Choose your fighter:
 - [Arch Linux](#arch)
 - [Manual](#else)
 
+----
+
 ## <a id="ruby"></a> Ruby
 
 ```bash
 gem install lefthook
 ```
 
-### Troubleshooting
+**Troubleshooting**
 
 If you see the error `lefthook: command not found` you need to check your $PATH. Also try to restart your terminal.
 

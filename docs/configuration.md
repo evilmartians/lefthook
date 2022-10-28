@@ -7,13 +7,31 @@
   - [`skip_output`](#skip_output)
   - [`source_dir`](#source_dir)
   - [`source_dir_local`](#source_dir_local)
-- [Hooks](#git-hooks)
+- [Hook](#git-hook)
   - [`files`](#files-global)
   - [`parallel`](#parallel)
   - [`piped`](#piped)
   - [`exclude_tags`](#exclude_tags)
-- [Commands](#commands)
-- [Scripts](#scripts)
+  - [`commands`](#commands)
+  - [`scripts`](#scripts)
+- [Command](#command)
+  - [`run`](#run)
+  - [`skip`](#skip)
+  - [`tags`](#tags)
+  - [`glob`](#glob)
+  - [`files`](#files)
+  - [`env`](#env)
+  - [`root`](#root)
+  - [`exclude`](#exclude)
+  - [`fail_text`](#fail_text)
+  - [`interactive`](#interactive)
+- [Script](#script)
+  - [`runner`](#runner)
+  - [`skip`](#skip)
+  - [`tags`](#tags)
+  - [`env`](#env)
+  - [`fail_text`](#fail_text)
+  - [`interactive`](#interactive)
 - [Examples](#examples)
 
 ----
@@ -91,7 +109,18 @@ LEFTHOOK_QUIET="meta,success,summary" lefthook run pre-commit
 
 **Default: `.lefthook/`**
 
-Change a directory for script files.
+Change a directory for script files. Directory for script files contains folders with git hook names which contain script files.
+
+Example of directory tree:
+
+```
+.lefthook/
+├── pre-commit/
+│   ├── lint.sh
+│   └── test.py
+└── pre-push/
+    └── check-files.rb
+```
 
 ### `source_dir_local`
 
@@ -101,7 +130,7 @@ Change a directory for *local* script files (not stored in VCS).
 
 This option is useful if you have a `lefthook-local.yml` config file and want to reference different scripts there.
 
-## Git hooks
+## Git hook
 
 Commands and scripts are defined for git hooks. You can defined a hook for all hooks listed in [this file](../internal/config/available_hooks.go).
 
@@ -164,9 +193,230 @@ lefthook run pre-commit # will only run check-syntax command
 
 This option is good to specify in `lefthook-local.yml` when you want to skip some execution locally.
 
-## Commands
+### `commands`
 
-## Scripts
+Commands to be executed for the hook. Each command has a name and associated run [options](#command).
+
+**Example**
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      ... # command options
+```
+
+### `scripts`
+
+Scripts to be executed for the hook. Each script has a name (filename in scripts dir) and associated run [options](#script).
+
+**:warning: Important**: script must exist under `<source_dir>/<git-hook-name>/` folder. See [`source_dir`](#source_dir).
+
+**Example**
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  scripts:
+    "lint.sh":
+      ... # script options
+```
+
+Correct folders structure:
+```
+.lefthook/
+└── pre-commit/
+    └── lint.sh
+```
+
+## Command
+
+### `run`
+
+This is a mandatory option for a command. This is actually a command that is executed for the hook.
+
+You can use files templates that will be substituted with the appropriate files on execution:
+
+- `{files}` - custom [`files`](#files) command result.
+- `{staged_files}` - staged files which you try to commit.
+- `{all_files}` - all files tracked by git.
+- `{0}` - shorthand for the single space-joint string of git hook arguments.
+- `{N}` - shorthand for the N-th git hook argument.
+
+**Example**
+
+TBD
+
+**Notes**
+
+#### Rubocop
+
+If using `{all_files}` with RuboCop, it will ignore RuboCop's `Exclude` configuration setting. To avoid this, pass `--force-exclusion`.
+
+#### Quotes
+
+If you want to have all you files quoted with double quotes `"` or single quotes `'`, quote the appropriate shorthand:
+
+```yml
+pre-commit
+  commands:
+    lint:
+      glob: "*.js"
+      # Quoting with double quotes `"` might be helpful for Windows users
+      run: yarn eslint "{staged_files}" # will run `yarn eslint "file1.js" "file2.js" "[strange name].js"`
+    test:
+      glob: "*.{spec.js}"
+      run: yarn test '{staged_files}' # will run `yarn eslint 'file1.spec.js' 'file2.spec.js' '[strange name].spec.js'`
+    format:
+      glob: "*.js"
+      # Will quote where needed with single quotes
+      run: yarn test {staged_files} # will run `yarn eslint file1.js file2.js '[strange name].spec.js'`
+```
+
+### `skip`
+
+You can skip commands or scripts using `skip` option. You can only skip when merging or rebasing if you want.
+
+**Example**
+
+Always skipping:
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      skip: true
+      run: yarn lint
+```
+
+Skipping on merging and rebasing:
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      skip:
+        - merge
+        - rebase
+      run: yarn lint
+```
+
+**Notes**
+
+Always skipping is useful when you have a `lefthook-local.yml` config and you don't want to run some commands locally. So you just overwrite the `skip` option for them to be `true`.
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      run: yarn lint
+```
+
+```yml
+# lefthook-local.yml
+
+pre-commit:
+  commands:
+    lint:
+      skip: true
+```
+
+### `tags`
+
+You can specify tags for commands and scripts. This is useful for [excluding](#exclude_tags). You can specify more than one tag using comma or space.
+
+**Example**
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      tags: frontend,js
+      run: yarn lint
+    test:
+      tags: backend ruby
+      run: bundle exec rspec
+```
+
+### `glob`
+
+You can set a glob to filter files for your command. This is only used if you use a file template in [`run`](#run) option or provide your custom [`files`](#files) command.
+
+**Example**
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      glob: "*.{js,ts,jsx,tsx}"
+      run: yarn eslint {staged_files}
+```
+
+**Notes**
+
+For patterns that you can use see [this](https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm) reference. We use [glob](https://github.com/gobwas/glob) library and
+
+### `files`
+
+TBD
+
+### `env`
+
+You can specify some ENV variables for the command or script.
+
+**Example**
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    test:
+      env:
+        RAILS_ENV: test
+      run: bundle exec rspec
+```
+
+**Notes**
+
+This option is useful when using lefthook on different OSes or shells where ENV variables are set in different ways.
+
+### `root`
+
+TBD
+
+### `exclude`
+
+TBD
+
+### `fail_text`
+
+TBD
+
+### `interactive`
+
+**Default: `false`**
+
+Whether to use interactive mode and provide a STDIN for a command or script.
+
+## Script
+
+### `runner`
+
+TBD
 
 ## Examples
 
@@ -672,17 +922,6 @@ skip_output:
 You can also do this with an environment variable:
 ```bash
 export LEFTHOOK_QUIET="meta,success,summary"
-```
-
-## Disable colors
-
-By args:
-```bash
-lefthook --no-colors run pre-commit
-```
-By config `lefthook.yml`, just add the option:
-```yml
-colors: false
 ```
 
 ## More info
