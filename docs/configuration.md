@@ -1,45 +1,180 @@
-## Scenarios
+# Configure lefthook.yml
 
-### Examples
+- [Top level options](#top-level-options)
+  - [`colors`](#colors)
+  - [`extends`](#extends)
+  - [`min_version`](#min_version)
+  - [`skip_output`](#skip_output)
+  - [`source_dir`](#source_dir)
+  - [`source_dir_local`](#source_dir_local)
+- [Hooks](#git-hooks)
+  - [`files`](#files-global)
+  - [`parallel`](#parallel)
+  - [`piped`](#piped)
+  - [`exclude_tags`](#exclude_tags)
+- [Commands](#commands)
+- [Scripts](#scripts)
+- [Examples](#examples)
+
+----
+
+## Top level options
+
+### `colors`
+
+**Default: `true`**
+
+Whether enable or disable colorful output of Lefthook. This option can be overwritten with `--no-colors` option.
+
+**Example**
+
+```yml
+# lefthook.yml
+
+colors: false
+```
+
+### `extends`
+
+You can extend your config with another one YAML file.
+
+**Example**
+
+```yml
+# lefthook.yml
+
+extends:
+  - $HOME/work/lefthook-extend.yml
+  - $HOME/work/lefthook-extend-2.yml
+```
+
+### `min_version`
+
+If you want to specify a minimum version for lefthook binary (e.g. if you need some features older versions don't have) you can set this option.
+
+**Example**
+
+```yml
+# lefthook.yml
+
+min_version: 1.1.3
+```
+
+### `skip_output`
+
+You can manage the verbosity using the `skip_output` config. You can set whether lefthook should print some parts of its output.
+
+Possible values are `meta,success,failure,summary,execution`.
+
+This config quiets all outputs except for errors.
+
+**Example**
+
+```yml
+# lefthook.yml
+
+skip_output:
+  - meta       # Skips lefthook version printing
+  - summary    # Skips summary block (successful and failed steps) printing
+  - success    # Skips successful steps printing
+  - failure    # Skips failed steps printing
+  - execution  # Skips printing successfully executed commands and their output (but still prints failed executions)
+```
+
+You can also *extend* this list with an environment variable `LEFTHOOK_QUIET`:
+
+```bash
+LEFTHOOK_QUIET="meta,success,summary" lefthook run pre-commit
+```
+
+### `source_dir`
+
+**Default: `.lefthook/`**
+
+Change a directory for script files.
+
+### `source_dir_local`
+
+**Default: `.lefthook-local/`**
+
+Change a directory for *local* script files (not stored in VCS).
+
+This option is useful if you have a `lefthook-local.yml` config file and want to reference different scripts there.
+
+## Git hooks
+
+Commands and scripts are defined for git hooks. You can defined a hook for all hooks listed in [this file](../internal/config/available_hooks.go).
+
+### `files` (global)
+
+A custom git command for files to be referenced in `{files}` template. See [`run`](#run) and [`files`](#files).
+
+If the result of this command is empty, the execution of commands will be skipped.
+
+**Example**
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  files: git diff --name-only master # custom list of files
+  commands:
+    ...
+```
+
+### `parallel`
+
+**Default: `false`**
+
+Whether run commands and scripts in concurrently.
+
+### `piped`
+
+**Default: `true`**
+
+Whether run commands and scripts sequentially.
+
+### `exclude_tags`
+
+[Tags](#tags) or command names that you want to exclude. This option can be overwritten with `LEFTHOOK_EXCLUDE` env variable.
+
+**Example**
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  exclude_tags: frontend
+  commands:
+    lint:
+      tag: frontend
+      ...
+    test:
+      tag: frontend
+      ...
+    check-syntax:
+      tag: documentation
+```
+
+```bash
+lefthook run pre-commit # will only run check-syntax command
+```
+
+**Notes**
+
+This option is good to specify in `lefthook-local.yml` when you want to skip some execution locally.
+
+## Commands
+
+## Scripts
+
+## Examples
 
 We have a directory with few examples. You can check it [here](https://github.com/evilmartians/lefthook/tree/master/examples).
 
-### First time user
+----
 
-Initialize lefthook with the following command
-
-```bash
-lefthook install
-```
-
-It creates `lefthook.yml` in the project root directory
-
-Register your hook (You can choose any hook from [this list](https://git-scm.com/docs/githooks))
-In our example it `pre-push` githook:
-
-```bash
-lefthook add pre-push
-```
-
-Describe pre-push commands in `lefthook.yml`:
-
-```yml
-pre-push: # githook name
-  commands: # list of commands
-    packages-audit: # command name
-      run: yarn audit # command for execution
-```
-
-That's all! Now on `git push` the `yarn audit` command will be run.
-If it fails the `git push` will be interrupted.
-
-### If you already have a lefthook config file
-
-Just initialize lefthook to make it work :)
-
-```bash
-lefthook install
-```
+TBD
 
 ## More options
 
@@ -539,10 +674,6 @@ You can also do this with an environment variable:
 export LEFTHOOK_QUIET="meta,success,summary"
 ```
 
-## CI integration
-
-Enable `CI` env variable if it doesn't exists on your service by default.
-
 ## Disable colors
 
 By args:
@@ -552,18 +683,6 @@ lefthook --no-colors run pre-commit
 By config `lefthook.yml`, just add the option:
 ```yml
 colors: false
-```
-
-## Version
-
-```bash
-lefthook version
-```
-
-## Uninstall
-
-```bash
-lefthook uninstall
 ```
 
 ## More info
