@@ -33,6 +33,7 @@
   - [`fail_text`](#fail_text)
   - [`interactive`](#interactive)
 - [Examples](#examples)
+- [More info](#more-info)
 
 ----
 
@@ -65,6 +66,11 @@ extends:
   - $HOME/work/lefthook-extend.yml
   - $HOME/work/lefthook-extend-2.yml
 ```
+
+**Notes**
+
+Files for extend should *not* be named "lefthook.yml". All file names should be unique.
+
 
 ### `min_version`
 
@@ -163,6 +169,23 @@ Whether run commands and scripts in concurrently.
 
 Whether run commands and scripts sequentially.
 
+**Example**
+
+```yml
+# lefthook.yml
+
+database:
+  piped: true # if you perfer explicit configuration
+  commands:
+    1_create:
+      run: rake db:create
+    2_migrate:
+      run: rake db:migrate
+    3_seed:
+      run: rake db:seed
+```
+
+
 ### `exclude_tags`
 
 [Tags](#tags) or command names that you want to exclude. This option can be overwritten with `LEFTHOOK_EXCLUDE` env variable.
@@ -192,6 +215,29 @@ lefthook run pre-commit # will only run check-syntax command
 **Notes**
 
 This option is good to specify in `lefthook-local.yml` when you want to skip some execution locally.
+
+```yml
+# lefthook.yml
+
+pre-push:
+  commands:
+    packages-audit:
+      tags: frontend security
+      run: yarn audit
+    gems-audit:
+      tags: backend security
+      run: bundle audit
+```
+
+You can skip commands by tags:
+
+```yml
+# lefthook-local.yml
+
+pre-push:
+  exclude_tags:
+    - frontend
+```
 
 ### `commands`
 
@@ -243,12 +289,113 @@ You can use files templates that will be substituted with the appropriate files 
 - `{files}` - custom [`files`](#files) command result.
 - `{staged_files}` - staged files which you try to commit.
 - `{all_files}` - all files tracked by git.
+- `{cmd}` - shorthand for the command from `lefthook.yml`.
 - `{0}` - shorthand for the single space-joint string of git hook arguments.
 - `{N}` - shorthand for the N-th git hook argument.
 
 **Example**
 
-TBD
+Run `yarn lint` on `pre-commit` hook.
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      run: yarn lint
+```
+
+#### `{files}` template
+
+Run `go vet` only on files listed with `git ls-files -m` command with `.go` extension.
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    govet:
+      files: git ls-files -m
+      glob: "*.go"
+      run: go vet {files}
+```
+
+#### `{staged_files}` template
+
+Run `yarn eslint` only on staged files with `.js`, `.ts`, `.jsx`, and `.tsx` extensions.
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    eslint:
+      glob: "*.{js,ts,jsx,tsx}"
+      run: yarn eslint {staged_files}
+```
+
+#### `{all_files}` template
+
+Simply run `bundle exec rubocop` on all files with `.rb` extension excluding `application.rb` and `routes.rb` files.
+
+**Note:** `--force-exclusion` will apply `Exclude` configuration setting of Rubocop.
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    rubocop:
+      tags: backend style
+      glob: "*.rb"
+      exclude: "application.rb|routes.rb"
+      run: bundle exec rubocop --force-exclusion {all_files}
+```
+
+#### `{cmd}` template
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      run: yarn lint
+  scripts:
+    "good_job.js":
+      runner: node
+```
+
+You can wrap it in docker runner locally:
+
+```yml
+# lefthook-local.yml
+
+pre-commit:
+  commands:
+    lint:
+      run: docker run -it --rm <container_id_or_name> {cmd}
+  scripts:
+    "good_job.js":
+      runner: docker run -it --rm <container_id_or_name> {cmd}
+```
+
+#### Git arguments
+
+Make sure commits are signed.
+
+```yml
+# lefthook.yml
+
+# Note: commit-msg hook takes a single parameter,
+#       the name of the file that holds the proposed commit log message.
+# Source: https://git-scm.com/docs/githooks#_commit_msg
+commit-msg:
+  commands:
+    multiple-sign-off:
+      run: 'test $(grep -c "^Signed-off-by: " {1}) -lt 2'
+```
 
 **Notes**
 
@@ -305,6 +452,18 @@ pre-commit:
       skip:
         - merge
         - rebase
+      run: yarn lint
+```
+
+Or
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      skip: merge
       run: yarn lint
 ```
 
@@ -371,7 +530,41 @@ For patterns that you can use see [this](https://tldp.org/LDP/GNU-Linux-Tools-Su
 
 ### `files`
 
-TBD
+A custom git command for files to be referenced in `{files}` template for [`run`](#run) setting.
+
+If the result of this command is empty, the execution of commands will be skipped.
+
+This option overwrites the [hook-level `files`](#files-global) option.
+
+**Example**
+
+Provide a git command to list files.
+
+```yml
+# lefthook.yml
+
+pre-push:
+  commands:
+    stylelint:
+      tags: frontend style
+      files: git diff --name-only master
+      glob: "*.js"
+      run: yarn stylelint {files}
+```
+
+Call a custom script for listing files.
+
+```yml
+# lefthook.yml
+
+pre-push:
+  commands:
+    rubocop:
+      tags: backend
+      glob: "**/*.rb"
+      files: node ./lefthook-scripts/ls-files.js # you can call your own scripts
+      run: bundle exec rubocop --force-exclusion --parallel {files}
+```
 
 ### `env`
 
@@ -396,15 +589,84 @@ This option is useful when using lefthook on different OSes or shells where ENV 
 
 ### `root`
 
-TBD
+You can change the CWD for the command you execute using `root` option.
+
+This is useful when you execute some `npm` or `yarn` command but the `package.json` is in another directory.
+
+**Example**
+
+Format and stage files from a `client/` folder.
+
+```bash
+# Folders structure
+
+$ tree .
+.
+├── client/
+│   ├── package.json
+│   ├── node_modules/
+|   ├── ...
+├── server/
+|   ...
+```
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      root: "client/"
+      glob: "*.{js,ts}"
+      run: yarn eslint --fix {staged_files} && git add {staged_files}
+```
 
 ### `exclude`
 
-TBD
+You can provide a regular expression to exclude some files from being passed to [`run`](#run) command.
+
+**Example**
+
+Run Rubocop on staged files with `.rb` extension except for `application.rb`, `routes.rb`, and `rails_helper.rb` (wherever they are).
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      glob: ".rb"
+      exclude: "application.rb|routes.rb|rails_helper.rb"
+      run: bundle exec rubocop --force-exclusion {staged_files}
+```
 
 ### `fail_text`
 
-TBD
+You can specify a text to show when the command or script fails.
+
+**Example**
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      run: yarn lint
+      fail_text: Add node executable to $PATH
+```
+
+```bash
+$ git commit -m 'fix: Some bug'
+
+Lefthook v1.1.3
+RUNNING HOOK: pre-commit
+
+  EXECUTE > lint
+
+SUMMARY: (done in 0.01 seconds)
+🥊  lint: Add node executable to $PATH env
+```
 
 ### `interactive`
 
@@ -414,144 +676,23 @@ Whether to use interactive mode and provide a STDIN for a command or script.
 
 ## Script
 
-### `runner`
+Scripts are stored under `<source_dir>/<hook-name>/` folder. These scripts are your own executables which are being run in the project root (if you don't specify a [`root`](#root) option).
 
-TBD
+To add a script for a `pre-commit` hook:
 
-## Examples
+1. Run `lefthook add -d pre-commit`
+1. Edit `.lefthook/pre-commit/my-script.sh`
+1. Add an entry to `lefthook.yml`
+   ```yml
+   # lefthook.yml
 
-We have a directory with few examples. You can check it [here](https://github.com/evilmartians/lefthook/tree/master/examples).
+   pre-commit:
+     scripts:
+       "my-script.sh":
+         runner: bash
+   ```
 
-----
-
-TBD
-
-## More options
-
-## Use glob patterns to choose what files you want to check
-
-```yml
-# lefthook.yml
-
-pre-commit:
-  commands:
-    lint:
-      glob: "*.{js,ts,jsx,tsx}"
-      run: yarn eslint
-```
-
-## Select specific file groups
-
-In some cases you want to run checks only against some specific file group.
-For example: you may want to run eslint for staged files only.
-
-There are two shorthands for such situations:
-`{staged_files}` - staged git files which you try to commit
-
-`{all_files}` - all tracked files by git
-
-```yml
-# lefthook.yml
-
-pre-commit:
-  commands:
-    frontend-linter:
-      glob: "*.{js,ts,jsx,tsx}" # glob filter for list of files
-      run: yarn eslint {staged_files} # {staged_files} - list of files
-    backend-linter:
-      glob: "*.rb" # glob filter for list of files
-      exclude: "application.rb|routes.rb" # regexp filter for list of files
-      run: bundle exec rubocop --force-exclusion {all_files} # {all_files} - list of files
-```
-
-Note: If using `all_files` with RuboCop, it will ignore RuboCop's `Exclude` configuration setting. To avoid this, pass `--force-exclusion`.
-
-If you want to have all you files quoted with double quotes `"` or single quotes `'`, quote the appropriate shorthand:
-
-```yml
-pre-commit
-  commands:
-    lint:
-      glob: "*.js"
-      # Quoting with double quotes `"` might be helpful for Windows users
-      run: yarn eslint "{staged_files}" # will run `yarn eslint "file1.js" "file2.js" "[strange name].js"`
-    test:
-      glob: "*.{spec.js}"
-      run: yarn test '{staged_files}' # will run `yarn eslint 'file1.spec.js' 'file2.spec.js' '[strange name].spec.js'`
-    format:
-      glob: "*.js"
-      # Will quote where needed with single quotes
-      run: yarn test {staged_files} # will run `yarn eslint file1.js file2.js '[strange name].spec.js'`
-```
-
-## Custom file list
-
-Lefthook can be even more specific in selecting files.
-If you want to choose diff of all changed files between the current branch and master branch you can do it this way:
-
-```yml
-# lefthook.yml
-
-pre-push:
-  commands:
-    frontend-style:
-      files: git diff --name-only master # custom list of files
-      glob: "*.js"
-      run: yarn stylelint {files}
-```
-
-`{files}` - shorthand for a custom list of files
-
-## Git hook argument shorthands in commands
-
-If you want to use the original Git hook arguments in a command you can do it
-using the indexed shorthands:
-
-```yml
-# lefthook.yml
-
-# Note: commit-msg hook takes a single parameter,
-# the name of the file that holds the proposed commit log message.
-# Source: https://git-scm.com/docs/githooks#_commit_msg
-commit-msg:
-  commands:
-    multiple-sign-off:
-      run: 'test $(grep -c "^Signed-off-by: " {1}) -lt 2'
-```
-`{0}` - shorthand for the single space-joint string of Git hook arguments
-
-`{i}` - shorthand for the i-th Git hook argument
-
-## Managing scripts
-
-If you run `lefthook add` command with `-d` flag, lefthook will create two directories where you can put scripts and reference them from `lefthook.yml` file.
-
-Example:
-Let's create `commit-msg` hook with `-d` flag
-
-```bash
-lefthook add -d commit-msg
-```
-
-This command will create `.lefthook/commit-msg` and `.lefthook-local/commit-msg` dirs.
-
-The first one is for common project level scripts.
-The second one is for personal scripts. It would be a good idea to add dir`.lefthook-local` to `.gitignore`.
-
-Create scripts `.lefthook/commit-msg/hello.js` and `.lefthook/commit-msg/hi.rb`
-
-```yml
-# lefthook.yml
-
-commit-msg:
-  scripts:
-    "hello.js":
-      runner: node
-    "hi.rb":
-      runner: ruby
-```
-
-### Bash script example
+**Example**
 
 Let's create a bash script to check commit templates `.lefthook/commit-msg/template_checker`:
 
@@ -577,352 +718,33 @@ commit-msg:
       runner: bash
 ```
 
-When you try to commit `git commit -m "haha bad commit text"` script `template_checker` will be executed. Since commit text doesn't match the described pattern the commit process will be interrupted.
+When you try to commit `git commit -m "bad commit text"` script `template_checker` will be executed. Since commit text doesn't match the described pattern the commit process will be interrupted.
 
-## Bash script example with Commitlint
+### `runner`
 
-Let's create a bash script to check conventional commit status `.lefthook/commit-msg/commitlint.sh`:
+You should specify a runner for the script. This is a command that should execute a script file. It will be called the following way: `<runner> <path-to-script>` (e.g. `ruby .lefthook/pre-commit/lint.rb`).
 
-```bash
-echo $(head -n1 $1) | npx commitlint --color
-```
-
-Now we can ask lefthook to run our bash script by adding this code to
-`lefthook.yml` file:
-
-```yml
-# lefthook.yml
-
-commit-msg:
-  scripts:
-    "commitlint.sh":
-      runner: bash
-```
-
-When you try to commit `git commit -m "haha bad commit text"` script `commitlint.sh` will be executed. Since commit text doesn't match the default config or custom config that you setup for `commitlint`, the process will be interrupted.
-
-## Local config
-
-We can use `lefthook-local.yml` as local config. Options in this file will overwrite options in `lefthook.yml`. (Don't forget to add this file to `.gitignore`)
-
-## Skipping commands
-
-You can skip commands by `skip` option:
-
-```yml
-# lefthook-local.yml
-
-pre-push:
-  commands:
-    packages-audit:
-      skip: true
-```
-
-## Skipping commands during rebase or merge
-
-You can skip commands during rebase and/or merge by the same `skip` option:
-
-```yml
-pre-push:
-  commands:
-    packages-audit:
-      skip: merge
-
-# or
-
-pre-push:
-  commands:
-    packages-audit:
-      skip:
-        - merge
-        - rebase
-```
-
-## Skipping commands by tags
-
-If we have a lot of commands and scripts we can tag them and run skip commands with a specific tag.
-
-For example, if we have `lefthook.yml` like this:
-
-```yml
-# lefthook.yml
-
-pre-push:
-  commands:
-    packages-audit:
-      tags: frontend security
-      run: yarn audit
-    gems-audit:
-      tags: backend security
-      run: bundle audit
-```
-
-You can skip commands by tags:
-
-```yml
-# lefthook-local.yml
-
-pre-push:
-  exclude_tags:
-    - frontend
-```
-
-## Piped option
-If any command in the sequence fails, the other will not be executed.
-```yml
-# lefthook.yml
-
-database:
-  piped: true
-  commands:
-    1_create:
-      run: rake db:create
-    2_migrate:
-      run: rake db:migrate
-    3_seed:
-      run: rake db:seed
-```
-
-## Extends option
-If you need to extend config from some another place, just add top level:
-```yml
-# lefthook.yml
-
-extends:
-  - $HOME/work/lefthook-extend.yml
-  - $HOME/work/lefthook-extend-2.yml
-```
-NOTE: Files for extend should have name NOT a "lefthook.yml" and should be unique.
-
-## Referencing commands from lefthook.yml
-
-If you have the following config
+**Example**
 
 ```yml
 # lefthook.yml
 
 pre-commit:
   scripts:
-    "good_job.js":
+    "lint.js":
       runner: node
-```
-
-You can wrap it in docker runner locally:
-
-```yml
-# lefthook-local.yml
-
-pre-commit:
-  scripts:
-    "good_job.js":
-      runner: docker run -it --rm <container_id_or_name> {cmd}
-```
-
-`{cmd}` - shorthand for the command from `lefthook.yml`
-
-## Run githook group directly
-
-```bash
-lefthook run pre-commit
-```
-
-## Parallel execution
-
-You can enable parallel execution if you want to speed up your checks.
-Lets get example from [discourse](https://github.com/discourse/discourse/blob/master/.travis.yml#L77-L83) project.
-
-```
-bundle exec rubocop --parallel && \
-bundle exec danger && \
-yarn eslint --ext .es6 app/assets/javascripts && \
-yarn eslint --ext .es6 test/javascripts && \
-yarn eslint --ext .es6 plugins/**/assets/javascripts && \
-yarn eslint --ext .es6 plugins/**/test/javascripts && \
-yarn eslint app/assets/javascripts test/javascripts
-```
-
-Rewrite it in lefthook custom group. We call it `lint`:
-
-```yml
-# lefthook.yml
-
-lint:
-  parallel: true
-  commands:
-    rubocop:
-      run: bundle exec rubocop --parallel
-    danger:
-      run: bundle exec danger
-    eslint-assets:
-      run: yarn eslint --ext .es6 app/assets/javascripts
-    eslint-test:
-      run: yarn eslint --ext .es6 test/javascripts
-    eslint-plugins-assets:
-      run: yarn eslint --ext .es6 plugins/**/assets/javascripts
-    eslint-plugins-test:
-      run: yarn eslint --ext .es6 plugins/**/test/javascripts
-    eslint-assets-tests:
-      run: yarn eslint app/assets/javascripts test/javascripts
-```
-
-Then call this group directly:
-
-```
-lefthook run lint
-```
-
-## Complete example
-
-```yml
-# lefthook.yml
-color: false
-extends: $HOME/work/lefthook-extend.yml
-
-pre-commit:
-  commands:
-    eslint:
-      glob: "*.{js,ts,jsx,tsx}"
-      run: yarn eslint {staged_files}
-    rubocop:
-      tags: backend style
-      glob: "*.rb"
-      exclude: "application.rb|routes.rb"
-      run: bundle exec rubocop --force-exclusion {all_files}
-    govet:
-      tags: backend style
-      files: git ls-files -m
-      glob: "*.go"
-      run: go vet {files}
-
-  scripts:
-    "hello.js":
-      runner: node
-    "any.go":
+    "check.go":
       runner: go run
-
-  parallel: true
 ```
 
-```yml
-# lefthook-local.yml
+## Examples
 
-pre-commit:
-  exclude_tags:
-    - backend
-
-  scripts:
-    "hello.js":
-      runner: docker run -it --rm <container_id_or_name> {cmd}
-  commands:
-    govet:
-      skip: true
-```
-
-## Skip lefthook execution
-
-We can set env variable `LEFTHOOK` to zero for that
-
-```bash
-LEFTHOOK=0 git commit -am "Lefthook skipped"
-```
-
-## Skip some tags on the fly
-
-Use LEFTHOOK_EXCLUDE={list of tags or command names to be excluded} for that
-
-```bash
-LEFTHOOK_EXCLUDE=ruby,security,lint git commit -am "Skip some tag checks"
-```
-
-## Concurrent files overrides
-
-To prevent concurrent problems with read/write files try `flock`
-utility.
-
-```yml
-# lefthook.yml
-
-graphql-schema:
-  glob: "{Gemfile.lock,app/graphql/**/*}"
-  run: flock webpack/application/typings/graphql-schema.json yarn typings:update && git diff --exit-code --stat HEAD webpack/application/typings
-frontend-tests:
-  glob: "**/*.js"
-  run: flock -s webpack/application/typings/graphql-schema.json yarn test --findRelatedTests {files}
-frontend-typings:
-  glob: "**/*.js"
-  run: flock -s webpack/application/typings/graphql-schema.json yarn run flow focus-check {files}
-```
-
-## Capture ARGS from git in the script
-
-Example script for `prepare-commit-msg` hook:
-
-```bash
-COMMIT_MSG_FILE=$1
-COMMIT_SOURCE=$2
-SHA1=$3
-
-# ...
-```
-
-## Git LFS support
-
-Lefthook runs LFS hooks internally for the following hooks:
-
-- post-checkout
-- post-commit
-- post-merge
-- pre-push
-
-## Change directory for script files
-
-You can do this through this config keys:
-
-```yml
-# lefthook.yml
-
-source_dir: ".lefthook"
-source_dir_local: ".lefthook-local"
-```
-
-## Custom preset ENV variables
-
-Lefthook allows you to set ENV variables for the commands and scripts. This is helpful when you use lefthook on different OSes and need to pass ENV vars to your executables.
-
-```yml
-# lefthook.yml
-
-pre-commit:
-  commands:
-    test:
-      run: bundle exec rspec
-      env:
-        RAILS_ENV: test
-```
-
-## Manage verbosity
-
-You can manage the verbosity using the `skip_output` config.
-
-Possible values are `meta,success,failure,summary,execution`.
-
-This config quiets all outputs except failures:
-
-```yml
-# lefthook.yml
-
-skip_output:
-  - meta       # Skips lefthook version printing
-  - summary    # Skips summary block (successful and failed steps) printing
-  - success    # Skips successful steps printing
-  - failure    # Skips failed steps printing
-  - execution  # Skips printing successfully executed commands and their output (but still prints failed executions)
-```
-
-You can also do this with an environment variable:
-```bash
-export LEFTHOOK_QUIET="meta,success,summary"
-```
+We have a directory with few examples. You can check it [here](https://github.com/evilmartians/lefthook/tree/master/examples).
 
 ## More info
-Have a question? Check the [wiki](https://github.com/evilmartians/lefthook/wiki).
+
+Have a question?
+
+:monocle_face: Check the [wiki](https://github.com/evilmartians/lefthook/wiki)
+
+:thinking: Or start a [discussion](https://github.com/evilmartians/lefthook/discussions)
