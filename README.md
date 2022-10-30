@@ -1,4 +1,5 @@
-![Build Status](https://api.travis-ci.org/evilmartians/lefthook.svg?branch=master)
+
+![Build Status](https://github.com/evilmartians/lefthook/actions/workflows/test.yml/badge.svg?branch=master)
 
 # Lefthook
 
@@ -10,45 +11,53 @@
 Fast and powerful Git hooks manager for Node.js, Ruby or any other type of projects.
 
 * **Fast.** It is written in Go. Can run commands in parallel.
-* **Powerful.** With a few lines in the config you can check only the changed files on `pre-push` hook.
+* **Powerful.** It allows to control execution and files you pass to your commands.
 * **Simple.** It is single dependency-free binary which can work in any environment.
 
 📖 [Read the introduction post](https://evilmartians.com/chronicles/lefthook-knock-your-teams-code-back-into-shape?utm_source=lefthook)
 
-```yml
-# On `git push` lefthook will run spelling and links check for all of the changed files
-pre-push:
-  parallel: true
-  commands:
-    spelling:
-      files: git diff --name-only HEAD @{push}
-      glob: "*.md"
-      run: npx yaspeller {files}
-    check-links:
-      files: git diff --name-only HEAD @{push}
-      glob: "*.md"
-      run: npx markdown-link-check {files}
-```
-
 <a href="https://evilmartians.com/?utm_source=lefthook">
 <img src="https://evilmartians.com/badges/sponsored-by-evil-martians.svg" alt="Sponsored by Evil Martians" width="236" height="54"></a>
 
+## Install
+
+With **Go** (>= 1.19):
+
+```bash
+go install github.com/evilmartians/lefthook@latest
+```
+
+With **NPM**:
+
+```bash
+npm install lefthook --save-dev
+```
+
+With **Ruby**:
+
+```bash
+gem install lefthook
+```
+
+**[Installation guide](./docs/install.md)** with more different installation instructions.
+
 ## Usage
 
-Choose your environment:
+Lefthook is easy to use. Once you configure and setup you can forget that it even exists and rely on the magic underneath.
 
-* **[Node.js](./docs/node.md)**
-* **[Ruby](./docs/ruby.md)**
-* [Other environments](./docs/other.md)
+See:
 
-Then you can find all Lefthook features in [the full guide](./docs/full_guide.md) and explore [wiki](https://github.com/evilmartians/lefthook/wiki).
+- [**Usage**](./docs/usage.md) of **lefthook** CLI utility.
+- [**Configuration**](./docs/configuration.md) details for `lefthook.yml`
+- [**Wiki**](https://github.com/evilmartians/lefthook/wiki) for other information.
+- [**Discussions**](https://github.com/evilmartians/lefthook/discussions) if you want to ask a question, suggest a feature, or report a bug.
 
 ***
 
 ## Why Lefthook
 
 * ### **Parallel execution**
-If you want more speed. [Example](./docs/full_guide.md#parallel-execution)
+Gives you more speed. [Example](./docs/full_guide.md#parallel-execution)
 
 ```yml
 pre-push:
@@ -181,10 +190,15 @@ skip_output:
 ## Table of contents:
 
 ### Guides
-* [Node.js](./docs/node.md)
-* [Ruby](./docs/ruby.md)
-* [Other environments](./docs/other.md)
-* [Full features guide](./docs/full_guide.md)
+
+* [Install with Node.js](./docs/install.md#node)
+* [Install with Ruby](./docs/install.md#ruby)
+* [Install with Homebrew](./docs/install.md#homebrew)
+* [Install for Debian-based Linux](./docs/install.md#deb)
+* [Install for RPM-based Linux](./docs/install.md#rpm)
+* [Install for Arch Linux](./docs/install.md#arch)
+* [Usage](./docs/usage.md)
+* [Configuration](./docs/configuration.md)
 * [Troubleshooting](https://github.com/evilmartians/lefthook/wiki/Troubleshooting)
 
 ### Migrate from
@@ -193,7 +207,7 @@ skip_output:
 * [Overcommit](https://github.com/evilmartians/lefthook/wiki/Migration-from-overcommit)
 
 ### Examples
-* [Simple script](https://github.com/evilmartians/lefthook/tree/master/examples/scripts)
+* [Simple script](https://github.com/evilmartians/lefthook/tree/master/examples/with_scripts)
 * [Full features](https://github.com/evilmartians/lefthook/tree/master/examples/complete)
 
 ### Benchmarks
@@ -210,4 +224,3 @@ skip_output:
 * [Automatically linting docker containers](https://dev.to/nitzano/linting-docker-containers-2lo6?utm_source=lefthook)
 * [Smooth PostgreSQL upgrades in DockerDev environments with Lefthook](https://dev.to/palkan_tula/smooth-postgresql-upgrades-in-dockerdev-environments-with-lefthook-203k?utm_source=lefthook)
 * [Lefthook for React/React Native apps](https://blog.logrocket.com/deep-dive-into-lefthook-react-native?utm_source=lefthook)
-
