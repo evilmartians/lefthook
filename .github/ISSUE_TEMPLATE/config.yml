@@ -1,0 +1,15 @@
+---
+blank_issues_enabled: false
+
+contact_links:
+  - name: 💡 Discuss an idea
+    url: https://github.com/evilmartians/lefthook/discussions/new?category=ideas
+    about: Suggest a feature or an improvement.
+
+  - name: ❔ Ask a question
+    url: https://github.com/evilmartians/lefthook/discussions/new
+    about: Ask questions and discuss with other `lefthook` users or maintainers.
+
+  - name: 🙏 Request help
+    url: https://github.com/remirror/remirror/discussions/new
+    about: Ask the `lefthook` community for help.
