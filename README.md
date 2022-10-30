@@ -21,24 +21,36 @@ Fast and powerful Git hooks manager for Node.js, Ruby or any other type of proje
 
 ## Install
 
-With Go:
+With Go (>= 1.19):
 
 ```bash
-# Using Go >= 1.19
 go install github.com/evilmartians/lefthook@latest
+```
+
+With NPM:
+
+```bash
+npm install lefthook --save-dev
+```
+
+With Ruby:
+
+```bash
+gem install lefthook
 ```
 
 See **[Installation guide](./docs/install.md)** for different installation instructions.
 
 ## Usage
 
-See [**Usage docs**](./docs/usage.md) for **lefthook** CLI utility usage.
+Lefthook is easy to use. Once you configure and setup you can forget that it even exists and rely on the magic underneath.
 
-See [**Configuration docs**](./docs/configuration.md) for `lefthook.yml` config.
+See:
 
-Explore [**Wiki**](https://github.com/evilmartians/lefthook/wiki) for other information.
-
-Welcome to [**Discussions**](https://github.com/evilmartians/lefthook/discussions) if you want to ask a question, suggest a feature, or report a bug.
+- [**Usage docs**](./docs/usage.md) for **lefthook** CLI utility usage.
+- [**Configuration docs**](./docs/configuration.md) for `lefthook.yml` config.
+- [**Wiki**](https://github.com/evilmartians/lefthook/wiki) for other information.
+- [**Discussions**](https://github.com/evilmartians/lefthook/discussions) if you want to ask a question, suggest a feature, or report a bug.
 
 ***
 
@@ -178,10 +190,15 @@ skip_output:
 ## Table of contents:
 
 ### Guides
-* [Node.js](./docs/node.md)
-* [Ruby](./docs/ruby.md)
-* [Other environments](./docs/other.md)
-* [Full features guide](./docs/full_guide.md)
+
+* [Install with Node.js](./docs/install.md#node)
+* [Install with Ruby](./docs/install.md#ruby)
+* [Install with Homebrew](./docs/install.md#homebrew)
+* [Install for Debian-based Linux](./docs/install.md#deb)
+* [Install for RPM-based Linux](./docs/install.md#rpm)
+* [Install for Arch Linux](./docs/install.md#arch)
+* [Usage](./docs/usage.md)
+* [Configuration](./docs/configuration.md)
 * [Troubleshooting](https://github.com/evilmartians/lefthook/wiki/Troubleshooting)
 
 ### Migrate from
@@ -190,7 +207,7 @@ skip_output:
 * [Overcommit](https://github.com/evilmartians/lefthook/wiki/Migration-from-overcommit)
 
 ### Examples
-* [Simple script](https://github.com/evilmartians/lefthook/tree/master/examples/scripts)
+* [Simple script](https://github.com/evilmartians/lefthook/tree/master/examples/with_scripts)
 * [Full features](https://github.com/evilmartians/lefthook/tree/master/examples/complete)
 
 ### Benchmarks
