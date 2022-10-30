@@ -32,65 +32,13 @@ See **[Installation guide](./docs/install.md)** for different installation instr
 
 ## Usage
 
-Edit the config:
-```yml
-# lefthook.yml
+See [**Usage docs**](./docs/usage.md) for **lefthook** CLI utility usage.
 
-# This hook executes on `git commit`
-pre-commit:
-  parallel: true # All commands will be executed concurrently
-  commands:      # Commands section
-    # `js-lint` will call `npx eslit --fix` only on staged files.
-    # It will filter staged files by glob.
-    # If there are no files left after filtering, this command will be skipped
-    js-lint:
-      glob: "*.{js,ts}"
-      run: npx eslint --fix {staged_files} && git add {staged_files}
+See [**Configuration docs**](./docs/configuration.md) for `lefthook.yml` config.
 
-  # `ruby-test` will skip execution only when in a merging or rebasing state.
-  ruby-test:
-    skip:
-      - merge
-      - rebase
-      run: bundle exec rspec
-      fail_text: Run bundle install
+Explore [**Wiki**](https://github.com/evilmartians/lefthook/wiki) for other information.
 
-  # `ruby-lint` has `files` option which is a git command for replacing
-  # the {files} template. Then lefthook applies glob pattern to the result.
-  # If the final list is empty, the command will be skipped.
-  # Otherwise the {files} templace will be replaces with list.
-  #
-  # Note: if a template has surrounding quotes, they will be used to wrap
-  # each file in the list.
-  # Double quotes `"` and single quotes `'` are supported.
-  ruby-lint:
-    glob: "*.rb"
-    files: git diff-tree -r --name-only --diff-filter=CDMR HEAD origin/master
-    run: bundle exec rubocop --force-exclusion --parallel '{files}'
-
-# You can provide more hooks.
-pre-push:
-  commands:
-    spelling:
-      files: git diff --name-only HEAD @{push}
-      glob: "*.md"
-      run: npx yaspeller {files}
-```
-
-
-Install the hooks:
-```bash
-lefthook install
-```
-
-Start working with Git:
-```bash
-git add -A
-git commit -m 'chore: Add lefthook'
-git push
-```
-
-Find all Lefthook features in [the full guide](./docs/configuration.md) and explore [wiki](https://github.com/evilmartians/lefthook/wiki).
+Welcome to [**Discussions**](https://github.com/evilmartians/lefthook/discussions) if you want to ask a question, suggest a feature, or report a bug.
 
 ***
 

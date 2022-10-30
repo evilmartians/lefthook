@@ -39,6 +39,8 @@
 
 ## Top level options
 
+These options are not related to git hooks, and they only control lefthook behavior.
+
 ### `colors`
 
 **Default: `true`**

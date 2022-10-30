@@ -8,9 +8,9 @@
   - [`lefthook version`](#lefthook-version)
 - [Control behavior with ENV variables](#control-behavior-with-env-variables)
   - [`LEFTHOOK`](#lefthook)
-  - [`LEFTHOOK_EXCLUDE`](#lefthook-exclude)
-  - [`LEFTHOOK_QUIET`](#lefthook-quiet)
-- [Tips](#tips)
+  - [`LEFTHOOK_EXCLUDE`](#lefthook_exclude)
+  - [`LEFTHOOK_QUIET`](#lefthook_quiet)
+- [Features and tips](#features-and-tips)
   - [Disable lefthook in CI](#disable-lefthook-in-ci)
   - [Local config](#local-config)
   - [Commitlint example](#commitlint-example)
@@ -29,7 +29,7 @@ Here are the description of common usage of these commands.
 
 ### `lefthook install`
 
-Run `lefthook install` to initialize a `lefthook.yml` config and/or synchronize `.git/hooks/` with your configuration. This is usually the first thing you do after cloning the repo with `lefthook.yml` config.
+Run `lefthook install` to initialize a `lefthook.yml` config and/or synchronize `.git/hooks/` with your configuration. This is usually the first thing you do after cloning the repo with `lefthook.yml` config. For config options see our [configuration documentation](./configuration.md).
 
 > If you use lefthook with NPM package manager it should have already run `lefthook install` in postinstall scripts.
 
@@ -140,7 +140,7 @@ LEFTHOOK=0 git commit -am "Lefthook skipped"
 
 ### `LEFTHOOK_EXCLUDE`
 
-Use LEFTHOOK_EXCLUDE={list of tags or command names to be excluded} to skip some commands or scripts by tag or name (for commands only).
+Use `LEFTHOOK_EXCLUDE=`{list of tags or command names to be excluded} to skip some commands or scripts by tag or name (for commands only). See [`exclude_tags`](./configuration.md#exclude_tags) config option for more details.
 
 **Example**
 
@@ -150,7 +150,7 @@ LEFTHOOK_EXCLUDE=ruby,security,lint git commit -am "Skip some tag checks"
 
 ### `LEFTHOOK_QUIET`
 
-You can skip some output printed by lefthook with `LEFTHOOK_QUIET` ENV variable. Just provide a list of output types. See [`skip_output`](./configuration.md#skip_output) for more details.
+You can skip some output printed by lefthook with `LEFTHOOK_QUIET` ENV variable. Just provide a list of output types. See [`skip_output`](./configuration.md#skip_output) config option for more details.
 
 **Example**
 
@@ -163,7 +163,7 @@ SUMMARY: (done in 0.01 seconds)
 🥊  lint
 ```
 
-## Tips
+## Features and tips
 
 ### Disable lefthook in CI
 
