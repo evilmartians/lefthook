@@ -47,8 +47,8 @@ Lefthook is easy to use. Once you configure and setup you can forget that it eve
 
 See:
 
-- [**Usage docs**](./docs/usage.md) for **lefthook** CLI utility usage.
-- [**Configuration docs**](./docs/configuration.md) for `lefthook.yml` config.
+- [**Usage**](./docs/usage.md) of **lefthook** CLI utility.
+- [**Configuration**](./docs/configuration.md) details of `lefthook.yml`.
 - [**Wiki**](https://github.com/evilmartians/lefthook/wiki) for other information.
 - [**Discussions**](https://github.com/evilmartians/lefthook/discussions) if you want to ask a question, suggest a feature, or report a bug.
 
