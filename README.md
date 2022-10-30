@@ -21,25 +21,25 @@ Fast and powerful Git hooks manager for Node.js, Ruby or any other type of proje
 
 ## Install
 
-With Go (>= 1.19):
+With **Go** (>= 1.19):
 
 ```bash
 go install github.com/evilmartians/lefthook@latest
 ```
 
-With NPM:
+With **NPM**:
 
 ```bash
 npm install lefthook --save-dev
 ```
 
-With Ruby:
+With **Ruby**:
 
 ```bash
 gem install lefthook
 ```
 
-See **[Installation guide](./docs/install.md)** for different installation instructions.
+**[Installation guide](./docs/install.md)** with more different installation instructions.
 
 ## Usage
 
@@ -48,7 +48,7 @@ Lefthook is easy to use. Once you configure and setup you can forget that it eve
 See:
 
 - [**Usage**](./docs/usage.md) of **lefthook** CLI utility.
-- [**Configuration**](./docs/configuration.md) details of `lefthook.yml`.
+- [**Configuration**](./docs/configuration.md) details for `lefthook.yml`
 - [**Wiki**](https://github.com/evilmartians/lefthook/wiki) for other information.
 - [**Discussions**](https://github.com/evilmartians/lefthook/discussions) if you want to ask a question, suggest a feature, or report a bug.
 
