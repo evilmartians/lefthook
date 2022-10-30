@@ -1,74 +1,180 @@
-# Usage TBD
+# Usage
 
-- [Install](#install)
-- [Uninstall](#uninstall)
-- [Version](#version)
-- [Disable in CI](#disable-lefthook-in-ci)
+- [Commands](#commands)
+  - [`lefthook install`](#lefthook-install)
+  - [`lefthook uninstall`](#lefthook-uninstall)
+  - [`lefthook add`](#lefthook-add)
+  - [`lefthook run`](#lefthook-run)
+  - [`lefthook version`](#lefthook-version)
+- [Control behavior with ENV variables](#control-behavior-with-env-variables)
+  - [`LEFTHOOK`](#lefthook)
+  - [`LEFTHOOK_EXCLUDE`](#lefthook-exclude)
+  - [`LEFTHOOK_QUIET`](#lefthook-quiet)
+- [Tips](#tips)
+  - [Disable lefthook in CI](#disable-lefthook-in-ci)
+  - [Local config](#local-config)
+  - [Commitlint example](#commitlint-example)
+  - [Parallel execution](#parallel-execution)
+  - [Concurrent files overrides](#concurrent-files-overrides)
+  - [Capture ARGS from git in the script](#capture-args-from-git-in-the-script)
+  - [Git LFS support](#git-lfs-support)
 
 ----
 
-## Install
+## Commands
 
-### First time user
+Lefthook is a CLI utility and it has several commands for convenience. You can check the usage via `lefthook help` or `lefthook <command> -h/--help`.
 
-Initialize lefthook with the following command
+Here are the description of common usage of these commands.
+
+### `lefthook install`
+
+Run `lefthook install` to initialize a `lefthook.yml` config and/or synchronize `.git/hooks/` with your configuration. This is usually the first thing you do after cloning the repo with `lefthook.yml` config.
+
+> If you use lefthook with NPM package manager it should have already run `lefthook install` in postinstall scripts.
+
+### `lefthook uninstall`
+
+Run `lefthook uninstall` when you want to clear hooks `.git/hooks/` related to `lefthook.yml` configuration. Use `-f/--force` flag to remove all git hooks.
+
+> Sometimes you feel like your git hooks are a mess and you want to start from the beginning. Use `lefthook uninstall` in this case.
+
+### `lefthook add`
+
+Run `lefthook add pre-commit`, and lefthook will create a hook `.git/hooks/pre-commit`. This is the same lefthook does for [`install`](#lefthook-install) command but you don't need to create a configuration first.
+
+If you want to use scripts you can simplify adding new scripts with `lefthook add --dirs pre-commit`.
+
+**Example**
 
 ```bash
-lefthook install
-```
-
-It creates `lefthook.yml` in the project root directory
-
-Register your hook (You can choose any hook from [this list](https://git-scm.com/docs/githooks))
-In our example it `pre-push` githook:
-
-```bash
-lefthook add pre-push
+$ lefthook add --dirs pre-push
 ```
 
 Describe pre-push commands in `lefthook.yml`:
 
 ```yml
-pre-push: # githook name
-  commands: # list of commands
-    packages-audit: # command name
-      run: yarn audit # command for execution
+pre-push:
+  scripts:
+    "audit.sh":
+      runner: bash
 ```
 
-That's all! Now on `git push` the `yarn audit` command will be run.
+Edit the script:
+
+```bash
+$ vim .lefthook/pre-push/audit.sh
+...
+```
+
+That's all! Now on `git push` the `audit.sh` command will be run in `bash` interpreter.
 If it fails the `git push` will be interrupted.
 
-### If you already have a lefthook config file
+### `lefthook run`
 
-Just initialize lefthook to make it work :)
+This command is implicitly called in every git hook managed by lefthook. You can also use it for manual invoking some hooks handlers. You can also describe your own hooks that can be called manually only.
 
-```bash
-lefthook install
+**Example**
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      run: yarn lint --fix
+
+test:
+  commands:
+    js-test:
+      run: yarn test
 ```
 
-## Uninstall
+Install the hook.
 
 ```bash
-lefthook uninstall
+$ lefthook install
 ```
 
-## Version
+Run `test`.
 
 ```bash
-lefthook version
+$ lefthook run test # will run 'yarn test'
 ```
 
-## Disable lefthook in CI
+Commit changes.
+
+```bash
+$ git commit # will run pre-commit hook ('yarn lint --fix')
+```
+
+Or run manually also
+
+```bash
+$ lefthook run pre-commit
+```
+
+### `lefthook version`
+
+You can check version with `lefthook version` and you can also check the commit hash with `lefthook version --full`
+
+**Example**
+
+```bash
+$ lefthook version --full
+
+1.1.3 bb099d13c24114d2859815d9d23671a32932ffe2
+```
+
+## Control behavior with ENV variables
+
+### `LEFTHOOK`
+
+You can set ENV variable `LEFTHOOK` to `0` or `false` to disable lefthook.
+
+**Example**
+
+```bash
+LEFTHOOK=0 git commit -am "Lefthook skipped"
+```
+
+### `LEFTHOOK_EXCLUDE`
+
+Use LEFTHOOK_EXCLUDE={list of tags or command names to be excluded} to skip some commands or scripts by tag or name (for commands only).
+
+**Example**
+
+```bash
+LEFTHOOK_EXCLUDE=ruby,security,lint git commit -am "Skip some tag checks"
+```
+
+### `LEFTHOOK_QUIET`
+
+You can skip some output printed by lefthook with `LEFTHOOK_QUIET` ENV variable. Just provide a list of output types. See [`skip_output`](./configuration.md#skip_output) for more details.
+
+**Example**
+
+```bash
+$ LEFTHOOK_QUIET=meta,execution lefthook run pre-commit
+
+  EXECUTE > lint
+
+SUMMARY: (done in 0.01 seconds)
+🥊  lint
+```
+
+## Tips
+
+### Disable lefthook in CI
 
 Add `CI=true` env variable if it doesn't exists on your service by default. Otherwise, if you use lefthook NPM package it will try running `lefthook install` in postinstall scripts.
 
 
-## Local config
+### Local config
 
 We can use `lefthook-local.yml` as local config. Options in this file will overwrite options in `lefthook.yml`. (Don't forget to add this file to `.gitignore`)
 
-
-## Bash script example with Commitlint
+### Commitlint example
 
 Let's create a bash script to check conventional commit status `.lefthook/commit-msg/commitlint.sh`:
 
@@ -90,15 +196,7 @@ commit-msg:
 
 When you try to commit `git commit -m "haha bad commit text"` script `commitlint.sh` will be executed. Since commit text doesn't match the default config or custom config that you setup for `commitlint`, the process will be interrupted.
 
-
-## Run githook group directly
-
-```bash
-lefthook run pre-commit
-```
-
-
-## Parallel execution
+### Parallel execution
 
 You can enable parallel execution if you want to speed up your checks.
 Lets get example from [discourse](https://github.com/discourse/discourse/blob/master/.travis.yml#L77-L83) project.
@@ -143,23 +241,7 @@ Then call this group directly:
 lefthook run lint
 ```
 
-## Skip lefthook execution
-
-We can set env variable `LEFTHOOK` to zero for that
-
-```bash
-LEFTHOOK=0 git commit -am "Lefthook skipped"
-```
-
-## Skip some tags on the fly
-
-Use LEFTHOOK_EXCLUDE={list of tags or command names to be excluded} for that
-
-```bash
-LEFTHOOK_EXCLUDE=ruby,security,lint git commit -am "Skip some tag checks"
-```
-
-## Concurrent files overrides
+### Concurrent files overrides
 
 To prevent concurrent problems with read/write files try `flock`
 utility.
@@ -178,7 +260,7 @@ frontend-typings:
   run: flock -s webpack/application/typings/graphql-schema.json yarn run flow focus-check {files}
 ```
 
-## Capture ARGS from git in the script
+### Capture ARGS from git in the script
 
 Example script for `prepare-commit-msg` hook:
 
@@ -190,7 +272,7 @@ SHA1=$3
 # ...
 ```
 
-## Git LFS support
+### Git LFS support
 
 Lefthook runs LFS hooks internally for the following hooks:
 
