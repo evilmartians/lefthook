@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -70,7 +71,7 @@ func (l *Lefthook) Run(hookName string, gitArgs []string) error {
 	// This line controls updating the git hook if config has changed
 	if err = l.createHooksIfNeeded(cfg, false); err != nil {
 		log.Warn(
-			`⚠️ There was a problem with synchronizing git hooks.
+			`⚠️  There was a problem with synchronizing git hooks.
 Run 'lefthook install' manually.`,
 		)
 	}
@@ -92,11 +93,24 @@ Run 'lefthook install' manually.`,
 	resultChan := make(chan runner.Result, len(hook.Commands)+len(hook.Scripts))
 	run := runner.NewRunner(l.Fs, l.repo, hook, gitArgs, resultChan, logSettings)
 
-	go func() {
-		run.RunAll(
-			hookName,
-			[]string{cfg.SourceDir, cfg.SourceDirLocal},
+	sourceDirs := []string{
+		filepath.Join(l.repo.RootPath, cfg.SourceDir),
+		filepath.Join(l.repo.RootPath, cfg.SourceDirLocal),
+	}
+
+	if cfg.Remote.Configured() {
+		// Apend only source_dir, because source_dir_local doesn't make sense
+		sourceDirs = append(
+			sourceDirs,
+			filepath.Join(
+				l.repo.RemoteFolder(cfg.Remote.GitURL),
+				cfg.SourceDir,
+			),
 		)
+	}
+
+	go func() {
+		run.RunAll(hookName, sourceDirs)
 		close(resultChan)
 	}()
 

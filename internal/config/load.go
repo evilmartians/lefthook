@@ -94,6 +94,7 @@ func mergeAll(fs afero.Fs, path string) (*viper.Viper, error) {
 	return extends, nil
 }
 
+// mergeRemote merges remote config to the current one.
 func mergeRemote(fs afero.Fs, v *viper.Viper) error {
 	var remote Remote
 	err := v.UnmarshalKey("remote", &remote)
@@ -123,7 +124,10 @@ func mergeRemote(fs afero.Fs, v *viper.Viper) error {
 		return nil
 	}
 
-	if err := merge(fs, configPath, v); err != nil {
+	// TODO: Rewrite using common merge()
+	v.SetConfigName("remote")
+	v.SetConfigFile(configPath)
+	if err := v.MergeInConfig(); err != nil {
 		return err
 	}
 
@@ -139,6 +143,7 @@ func extend(fs afero.Fs, v *viper.Viper) error {
 	return nil
 }
 
+// FIXME: Use MergeInConfig because MergeConfigMap destroys scripts names.
 func merge(fs afero.Fs, path string, v *viper.Viper) error {
 	name := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
 

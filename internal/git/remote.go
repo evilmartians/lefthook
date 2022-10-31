@@ -30,6 +30,17 @@ func RemoteFolder(url string) (string, error) {
 	), nil
 }
 
+func (r *Repository) RemoteFolder(url string) string {
+	remotesPath := filepath.Join(r.InfoPath, remotesFolder)
+
+	return filepath.Join(
+		remotesPath,
+		filepath.Base(
+			strings.TrimSuffix(url, filepath.Ext(url)),
+		),
+	)
+}
+
 // SyncRemote clones or pulls the latest changes for a git repository that was
 // specified as a remote config repository. If successful, the path to the root
 // of the repository will be returned.

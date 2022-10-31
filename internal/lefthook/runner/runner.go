@@ -71,7 +71,7 @@ func (r *Runner) RunAll(hookName string, sourceDirs []string) {
 	scriptDirs := make([]string, len(sourceDirs))
 	for _, sourceDir := range sourceDirs {
 		scriptDirs = append(scriptDirs, filepath.Join(
-			r.repo.RootPath, sourceDir, hookName,
+			sourceDir, hookName,
 		))
 	}
 
