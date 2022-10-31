@@ -53,6 +53,9 @@ func (l *Lefthook) Install(args *InstallArgs) error {
 		} else {
 			// Reread the config file with synced remotes
 			cfg, err = l.readOrCreateConfig()
+			if err != nil {
+				return err
+			}
 		}
 	}
 

@@ -9,7 +9,10 @@ import (
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
-const remotesFolder = "remotes"
+const (
+	remotesFolder     = "remotes"
+	remotesFolderMode = 0o755
+)
 
 func RemoteFolder(url string) (string, error) {
 	infoPath, err := execGit(cmdInfoPath)
@@ -32,7 +35,8 @@ func RemoteFolder(url string) (string, error) {
 // of the repository will be returned.
 func (r *Repository) SyncRemote(url, ref string) error {
 	remotesPath := filepath.Join(r.InfoPath, remotesFolder)
-	err := r.Fs.MkdirAll(remotesPath, 0755)
+
+	err := r.Fs.MkdirAll(remotesPath, remotesFolderMode)
 	if err != nil && !errors.Is(err, os.ErrExist) {
 		return err
 	}
@@ -46,7 +50,7 @@ func (r *Repository) SyncRemote(url, ref string) error {
 
 	_, err = r.Fs.Stat(remotePath)
 	if err == nil {
-		if err := r.updateRemote(remotePath, url, ref); err != nil {
+		if err := r.updateRemote(remotePath, ref); err != nil {
 			return err
 		}
 
@@ -60,7 +64,7 @@ func (r *Repository) SyncRemote(url, ref string) error {
 	return nil
 }
 
-func (r *Repository) updateRemote(path, url, ref string) error {
+func (r *Repository) updateRemote(path, ref string) error {
 	log.Debugf("Updating remote config repository: %s", path)
 
 	cmdFetch := []string{"git", "-C", path, "pull", "--quiet"}

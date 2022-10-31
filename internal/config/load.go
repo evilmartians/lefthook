@@ -5,10 +5,11 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/evilmartians/lefthook/internal/git"
-	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
+
+	"github.com/evilmartians/lefthook/internal/git"
+	"github.com/evilmartians/lefthook/internal/log"
 )
 
 const (
