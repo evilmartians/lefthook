@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.1.4 (2022-11-1)
+
+- feature: Add `LEFTHOOK_VERBOSE` env ([PR #346](https://github.com/evilmartians/lefthook/pull/346) by @mrexox)
+
 ## 1.1.3 (2022-10-15)
 - ci: Fix snapcraft trying to create dirs in parallel by @mrexox
 - feature: Allow setting env vars ([PR #337](https://github.com/evilmartians/lefthook/pull/337) by @mrexox)
