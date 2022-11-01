@@ -10,6 +10,7 @@
   - [`LEFTHOOK`](#lefthook)
   - [`LEFTHOOK_EXCLUDE`](#lefthook_exclude)
   - [`LEFTHOOK_QUIET`](#lefthook_quiet)
+  - [`LEFTHOOK_VERBOSE`](#lefthook_verbose)
 - [Features and tips](#features-and-tips)
   - [Disable lefthook in CI](#disable-lefthook-in-ci)
   - [Local config](#local-config)
@@ -162,6 +163,10 @@ $ LEFTHOOK_QUIET=meta,execution lefthook run pre-commit
 SUMMARY: (done in 0.01 seconds)
 🥊  lint
 ```
+
+### `LEFTHOOK_VERBOSE`
+
+Set `LEFTHOOK_VERBOSE=1` or `LEFTHOOK_VERBOSE=true` to enable verbose printing.
 
 ## Features and tips
 

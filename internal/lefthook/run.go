@@ -14,8 +14,9 @@ import (
 )
 
 const (
-	envEnabled    = "LEFTHOOK"       // "0", "false"
-	envSkipOutput = "LEFTHOOK_QUIET" // "meta,success,failure,summary,execution"
+	envEnabled    = "LEFTHOOK"         // "0", "false"
+	envSkipOutput = "LEFTHOOK_QUIET"   // "meta,success,failure,summary,execution"
+	envVerbose    = "LEFTHOOK_VERBOSE" // keep all output
 )
 
 func Run(opts *Options, hookName string, gitArgs []string) error {
@@ -32,8 +33,12 @@ func (l *Lefthook) Run(hookName string, gitArgs []string) error {
 		return nil
 	}
 
-	if hookName == config.GhostHookName {
-		log.SetLevel(log.WarnLevel)
+	if l.Verbose || os.Getenv(envVerbose) == "1" || os.Getenv(envVerbose) == "true" {
+		log.SetLevel(log.DebugLevel)
+	} else {
+		if hookName == config.GhostHookName {
+			log.SetLevel(log.WarnLevel)
+		}
 	}
 
 	// Load config
