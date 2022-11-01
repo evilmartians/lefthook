@@ -58,6 +58,7 @@ jobs:
           ---
           :rubygems_api_key: ${RUBYGEMS_API_KEY}
           EOF
+          chmod 0600 ~/.gem/credentials
           git clean -fdX packaging/rubygems/libexec/
           cd dist
           find . -maxdepth 2 -executable -type f -exec cp --parents \{\} ../packaging/rubygems/libexec/ \;
