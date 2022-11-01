@@ -33,7 +33,7 @@ func (l *Lefthook) Run(hookName string, gitArgs []string) error {
 		return nil
 	}
 
-	if os.Getenv(envVerbose) == "1" || os.Getenv(envVerbose) == "true" {
+	if l.Verbose || os.Getenv(envVerbose) == "1" || os.Getenv(envVerbose) == "true" {
 		log.SetLevel(log.DebugLevel)
 	} else {
 		if hookName == config.GhostHookName {
