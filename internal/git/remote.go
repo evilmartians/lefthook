@@ -14,22 +14,6 @@ const (
 	remotesFolderMode = 0o755
 )
 
-func RemoteFolder(url string) (string, error) {
-	infoPath, err := execGit(cmdInfoPath)
-	if err != nil {
-		return "", err
-	}
-
-	remotesPath := filepath.Join(infoPath, remotesFolder)
-
-	return filepath.Join(
-		remotesPath,
-		filepath.Base(
-			strings.TrimSuffix(url, filepath.Ext(url)),
-		),
-	), nil
-}
-
 func (r *Repository) RemoteFolder(url string) string {
 	remotesPath := filepath.Join(r.InfoPath, remotesFolder)
 

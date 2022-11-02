@@ -43,7 +43,7 @@ func (l *Lefthook) Run(hookName string, gitArgs []string) error {
 	}
 
 	// Load config
-	cfg, err := config.Load(l.Fs, l.repo.RootPath)
+	cfg, err := config.Load(l.Fs, l.repo)
 	if err != nil {
 		return err
 	}

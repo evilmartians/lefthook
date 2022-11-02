@@ -189,7 +189,7 @@ func TestRunAll(t *testing.T) {
 		},
 		{
 			name:       "with simple scripts",
-			sourceDirs: []string{config.DefaultSourceDir},
+			sourceDirs: []string{filepath.Join(root, config.DefaultSourceDir)},
 			existingFiles: []string{
 				filepath.Join(root, config.DefaultSourceDir, hookName, "script.sh"),
 				filepath.Join(root, config.DefaultSourceDir, hookName, "failing.js"),

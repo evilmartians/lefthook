@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -22,13 +23,13 @@ const (
 var hookKeyRegexp = regexp.MustCompile(`^(?P<hookName>[^.]+)\.(scripts|commands)`)
 
 // Loads configs from the given directory with extensions.
-func Load(fs afero.Fs, path string) (*Config, error) {
-	global, err := read(fs, path, "lefthook")
+func Load(fs afero.Fs, repo *git.Repository) (*Config, error) {
+	global, err := read(fs, repo.RootPath, "lefthook")
 	if err != nil {
 		return nil, err
 	}
 
-	extends, err := mergeAll(fs, path)
+	extends, err := mergeAll(fs, repo)
 	if err != nil {
 		return nil, err
 	}
@@ -66,13 +67,13 @@ func read(fs afero.Fs, path string, name string) (*viper.Viper, error) {
 }
 
 // mergeAll merges remotes and extends from .lefthook and .lefthook-local.
-func mergeAll(fs afero.Fs, path string) (*viper.Viper, error) {
-	extends, err := read(fs, path, "lefthook")
+func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
+	extends, err := read(fs, repo.RootPath, "lefthook")
 	if err != nil {
 		return nil, err
 	}
 
-	if err := mergeRemote(fs, extends); err != nil {
+	if err := mergeRemote(fs, repo, extends); err != nil {
 		return nil, err
 	}
 
@@ -80,8 +81,7 @@ func mergeAll(fs afero.Fs, path string) (*viper.Viper, error) {
 		return nil, err
 	}
 
-	extends.SetConfigName("lefthook-local")
-	if err := extends.MergeInConfig(); err != nil {
+	if err := merge("lefthook-local", "", extends); err != nil {
 		if _, notFoundErr := err.(viper.ConfigFileNotFoundError); !notFoundErr {
 			return nil, err
 		}
@@ -95,7 +95,7 @@ func mergeAll(fs afero.Fs, path string) (*viper.Viper, error) {
 }
 
 // mergeRemote merges remote config to the current one.
-func mergeRemote(fs afero.Fs, v *viper.Viper) error {
+func mergeRemote(fs afero.Fs, repo *git.Repository, v *viper.Viper) error {
 	var remote Remote
 	err := v.UnmarshalKey("remote", &remote)
 	if err != nil {
@@ -106,11 +106,7 @@ func mergeRemote(fs afero.Fs, v *viper.Viper) error {
 		return nil
 	}
 
-	remotePath, err := git.RemoteFolder(remote.GitURL)
-	if err != nil {
-		return err
-	}
-
+	remotePath := repo.RemoteFolder(remote.GitURL)
 	configFile := DefaultConfigName
 	if len(remote.Config) > 0 {
 		configFile = remote.Config
@@ -124,36 +120,33 @@ func mergeRemote(fs afero.Fs, v *viper.Viper) error {
 		return nil
 	}
 
-	// TODO: Rewrite using common merge()
-	v.SetConfigName("remote")
-	v.SetConfigFile(configPath)
-	if err := v.MergeInConfig(); err != nil {
+	if err := merge("remote", configPath, v); err != nil {
 		return err
 	}
 
 	return nil
 }
 
+// extend merges all files listed in 'extends' option into the config.
 func extend(fs afero.Fs, v *viper.Viper) error {
-	for _, path := range v.GetStringSlice("extends") {
-		if err := merge(fs, path, v); err != nil {
+	for i, path := range v.GetStringSlice("extends") {
+		if err := merge(fmt.Sprintf("extend_%d", i), path, v); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-// FIXME: Use MergeInConfig because MergeConfigMap destroys scripts names.
-func merge(fs afero.Fs, path string, v *viper.Viper) error {
-	name := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
+// merge merges the configuration using viper builtin MergeInConfig.
+func merge(name, path string, v *viper.Viper) error {
+	v.SetConfigName(name)
+	if len(path) > 0 {
+		v.SetConfigFile(path)
+	}
+	if err := v.MergeInConfig(); err != nil {
+		return err
+	}
 
-	another, err := read(fs, filepath.Dir(path), name)
-	if err != nil {
-		return err
-	}
-	if err = v.MergeConfigMap(another.AllSettings()); err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -167,7 +160,7 @@ func unmarshalConfigs(base, extra *viper.Viper, c *Config) error {
 	}
 
 	// For extra non-git hooks.
-	// This behavior will be deprecated in next versions.
+	// This behavior may be deprecated in next versions.
 	for _, maybeHook := range base.AllKeys() {
 		if !hookKeyRegexp.MatchString(maybeHook) {
 			continue

@@ -8,6 +8,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/spf13/afero"
+
+	"github.com/evilmartians/lefthook/internal/git"
 )
 
 func TestLoad(t *testing.T) {
@@ -17,10 +19,12 @@ func TestLoad(t *testing.T) {
 	}
 
 	for i, tt := range [...]struct {
-		name   string
-		global []byte
-		local  []byte
-		result *Config
+		name             string
+		global           []byte
+		local            []byte
+		remote           []byte
+		remoteConfigPath string
+		result           *Config
 	}{
 		{
 			name: "simple",
@@ -157,7 +161,7 @@ lints:
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
-				Colors:         true, // defaults to true
+				Colors:         DefaultColorsEnabled,
 				Hooks: map[string]*Hook{
 					"tests": {
 						Parallel: false,
@@ -177,8 +181,108 @@ lints:
 				},
 			},
 		},
+		{
+			name: "with remote",
+			global: []byte(`
+remote:
+  git_url: git@github.com:evilmartians/lefthook
+`),
+			remote: []byte(`
+pre-commit:
+  commands:
+    lint:
+      run: yarn lint
+  scripts:
+    "test.sh":
+      runner: bash
+`),
+			remoteConfigPath: filepath.Join(root, ".git", "info", "remotes", "lefthook", "lefthook.yml"),
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         DefaultColorsEnabled,
+				Remote: Remote{
+					GitURL: "git@github.com:evilmartians/lefthook",
+				},
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Commands: map[string]*Command{
+							"lint": {
+								Run: "yarn lint",
+							},
+						},
+						Scripts: map[string]*Script{
+							"test.sh": {
+								Runner: "bash",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "with remote and custom config name",
+			global: []byte(`
+remote:
+  git_url: git@github.com:evilmartians/lefthook
+  ref: v1.0.0
+  config: examples/custom.yml
+
+pre-commit:
+  commands:
+    global:
+      run: echo 'Global!'
+    lint:
+      run: this will be overwritten
+`),
+			remote: []byte(`
+pre-commit:
+  commands:
+    lint:
+      run: yarn lint
+      skip: true
+  scripts:
+    "test.sh":
+      runner: bash
+`),
+			remoteConfigPath: filepath.Join(root, ".git", "info", "remotes", "lefthook", "examples", "custom.yml"),
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         DefaultColorsEnabled,
+				Remote: Remote{
+					GitURL: "git@github.com:evilmartians/lefthook",
+					Ref:    "v1.0.0",
+					Config: "examples/custom.yml",
+				},
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Commands: map[string]*Command{
+							"lint": {
+								Run:  "yarn lint",
+								Skip: true,
+							},
+							"global": {
+								Run: "echo 'Global!'",
+							},
+						},
+						Scripts: map[string]*Script{
+							"test.sh": {
+								Runner: "bash",
+							},
+						},
+					},
+				},
+			},
+		},
 	} {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		repo := &git.Repository{
+			Fs:       fs,
+			RootPath: root,
+			InfoPath: filepath.Join(root, ".git", "info"),
+		}
+
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
 			if err := fs.WriteFile(filepath.Join(root, "lefthook.yml"), tt.global, 0o644); err != nil {
 				t.Errorf("unexpected error: %s", err)
@@ -188,7 +292,17 @@ lints:
 				t.Errorf("unexpected error: %s", err)
 			}
 
-			checkConfig, err := Load(fs.Fs, root)
+			if len(tt.remoteConfigPath) > 0 {
+				if err := fs.MkdirAll(filepath.Base(tt.remoteConfigPath), 0o755); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
+
+				if err := fs.WriteFile(tt.remoteConfigPath, tt.remote, 0o644); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
+			}
+
+			checkConfig, err := Load(fs.Fs, repo)
 
 			if err != nil {
 				t.Errorf("should parse configs without errors: %s", err)
