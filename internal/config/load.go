@@ -73,11 +73,11 @@ func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
 		return nil, err
 	}
 
-	if err := mergeRemote(fs, repo, extends); err != nil {
+	if err := extend(extends); err != nil {
 		return nil, err
 	}
 
-	if err := extend(extends); err != nil {
+	if err := mergeRemote(fs, repo, extends); err != nil {
 		return nil, err
 	}
 
