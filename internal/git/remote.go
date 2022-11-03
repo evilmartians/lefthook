@@ -10,19 +10,24 @@ import (
 )
 
 const (
-	remotesFolder     = "remotes"
+	remotesFolder     = "lefthook-remotes"
 	remotesFolderMode = 0o755
 )
 
+// RemoteFolder returns the path to the folder where the remote
+// repository is located.
 func (r *Repository) RemoteFolder(url string) string {
-	remotesPath := filepath.Join(r.InfoPath, remotesFolder)
-
 	return filepath.Join(
-		remotesPath,
+		r.RemotesFolder(),
 		filepath.Base(
 			strings.TrimSuffix(url, filepath.Ext(url)),
 		),
 	)
+}
+
+// RemotesFolder returns the path to the lefthook remotes folder.
+func (r *Repository) RemotesFolder() string {
+	return filepath.Join(r.InfoPath, remotesFolder)
 }
 
 // SyncRemote clones or pulls the latest changes for a git repository that was

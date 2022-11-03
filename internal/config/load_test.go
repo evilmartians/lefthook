@@ -196,7 +196,7 @@ pre-commit:
     "test.sh":
       runner: bash
 `,
-			remoteConfigPath: filepath.Join(root, ".git", "info", "remotes", "lefthook", "lefthook.yml"),
+			remoteConfigPath: filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook", "lefthook.yml"),
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
@@ -245,7 +245,7 @@ pre-commit:
     "test.sh":
       runner: bash
 `,
-			remoteConfigPath: filepath.Join(root, ".git", "info", "remotes", "lefthook", "examples", "custom.yml"),
+			remoteConfigPath: filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook", "examples", "custom.yml"),
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
@@ -308,7 +308,7 @@ pre-push:
     remote:
       run: echo remote
 `,
-			remoteConfigPath: filepath.Join(root, ".git", "info", "remotes", "lefthook", "examples", "config.yml"),
+			remoteConfigPath: filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook", "examples", "config.yml"),
 			extends: map[string]string{
 				"global-extend.yml": `
 pre-push:
@@ -322,7 +322,7 @@ pre-push:
     "local-extend":
       runner: bash
 `,
-				".git/info/remotes/lefthook/remote-extend.yml": `
+				".git/info/lefthook-remotes/lefthook/remote-extend.yml": `
 pre-push:
   scripts:
     "remote-extend":

@@ -35,6 +35,10 @@ func (l *Lefthook) Uninstall(args *UninstallArgs) error {
 		}
 	}
 
+	if err := l.Fs.RemoveAll(l.repo.RemotesFolder()); err != nil {
+		return err
+	}
+
 	return nil
 }
 
