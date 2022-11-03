@@ -61,7 +61,7 @@ colors: false
 
 ### `extends`
 
-You can extend your config with another one YAML file.
+You can extend your config with another one YAML file. Its content will be merged. Extends for `lefthook.yml`, `lefthook-local.yml`, and [`remote`](#remote) configs are handled separately, so you can have different extends in these files.
 
 **Example**
 
@@ -69,14 +69,11 @@ You can extend your config with another one YAML file.
 # lefthook.yml
 
 extends:
-  - $HOME/work/lefthook-extend.yml
-  - $HOME/work/lefthook-extend-2.yml
+  - /home/user/work/lefthook-extend.yml
+  - /home/user/work/lefthook-extend-2.yml
+  - lefthook-extends/file.yml
+  - ../extend.yml
 ```
-
-**Notes**
-
-Files for extend should *not* be named "lefthook.yml". All file names should be unique.
-
 
 ### `min_version`
 
@@ -147,6 +144,10 @@ This option is useful if you have a `lefthook-local.yml` config file and want to
 > :test_tube: This feature is in **Beta** version
 
 You can provide a remote config if you want to share your lefthook configuration across many projects. Lefthook will automatically download and merge the configuration into your local `lefthook.yml`.
+
+You can use [`extends`](#extends) related to the config file (not absolute paths).
+
+If you provide [`scripts`](#scripts) in a remote file, the [scripts](#source_dir) folder must be in the **root of the repository**.
 
 **Note**
 
