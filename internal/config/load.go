@@ -73,7 +73,7 @@ func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
 		return nil, err
 	}
 
-	if err := extend(extends); err != nil {
+	if err := extend(extends, repo.RootPath); err != nil {
 		return nil, err
 	}
 
@@ -87,7 +87,7 @@ func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
 		}
 	}
 
-	if err := extend(extends); err != nil {
+	if err := extend(extends, repo.RootPath); err != nil {
 		return nil, err
 	}
 
@@ -124,12 +124,19 @@ func mergeRemote(fs afero.Fs, repo *git.Repository, v *viper.Viper) error {
 		return err
 	}
 
+	if err := extend(v, filepath.Dir(configPath)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // extend merges all files listed in 'extends' option into the config.
-func extend(v *viper.Viper) error {
+func extend(v *viper.Viper, root string) error {
 	for i, path := range v.GetStringSlice("extends") {
+		if !filepath.IsAbs(path) {
+			path = filepath.Join(root, path)
+		}
 		if err := merge(fmt.Sprintf("extend_%d", i), path, v); err != nil {
 			return err
 		}

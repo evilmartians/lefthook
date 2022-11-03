@@ -144,7 +144,7 @@ source_dir_local: .source_dir_local
 
 			for hook, content := range tt.existingHooks {
 				path := hookPath(hook)
-				if err := fs.MkdirAll(filepath.Base(path), 0o755); err != nil {
+				if err := fs.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
 				if err := afero.WriteFile(fs, path, []byte(content), 0o644); err != nil {

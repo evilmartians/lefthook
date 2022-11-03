@@ -224,7 +224,7 @@ func TestRunAll(t *testing.T) {
 		}
 
 		for _, file := range tt.existingFiles {
-			if err := fs.MkdirAll(filepath.Base(file), 0o755); err != nil {
+			if err := fs.MkdirAll(filepath.Dir(file), 0o755); err != nil {
 				t.Errorf("unexpected error: %s", err)
 			}
 			if err := afero.WriteFile(fs, file, []byte{}, 0o755); err != nil {

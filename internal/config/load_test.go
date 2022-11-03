@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -19,31 +20,30 @@ func TestLoad(t *testing.T) {
 	}
 
 	for i, tt := range [...]struct {
-		name             string
-		global           []byte
-		local            []byte
-		remote           []byte
-		remoteConfigPath string
-		result           *Config
+		name                  string
+		global, local, remote string
+		remoteConfigPath      string
+		extends               map[string]string
+		result                *Config
 	}{
 		{
 			name: "simple",
-			global: []byte(`
+			global: `
 pre-commit:
   commands:
     tests:
       runner: yarn test # Using deprecated field
-`),
-			local: []byte(`
+`,
+			local: `
 post-commit:
   commands:
     ping-done:
       run: curl -x POST status.com/done
-`),
+`,
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
-				Colors:         true, // defaults to true
+				Colors:         DefaultColorsEnabled,
 				Hooks: map[string]*Hook{
 					"pre-commit": {
 						Parallel: false,
@@ -67,7 +67,7 @@ post-commit:
 		},
 		{
 			name: "with overrides",
-			global: []byte(`
+			global: `
 min_version: 0.6.0
 source_dir: $HOME/sources
 source_dir_local: $HOME/sources_local
@@ -85,8 +85,8 @@ pre-commit:
   scripts:
     "format.sh":
       runner: bash
-`),
-			local: []byte(`
+`,
+			local: `
 min_version: 1.0.0
 colors: false
 
@@ -105,7 +105,7 @@ pre-push:
     rubocop:
       run: bundle exec rubocop
       tags: [backend, linter]
-`),
+`,
 			result: &Config{
 				MinVersion:     "1.0.0",
 				Colors:         false,
@@ -147,7 +147,7 @@ pre-push:
 		},
 		{
 			name: "with extra hooks",
-			global: []byte(`
+			global: `
 tests:
   commands:
     tests:
@@ -157,7 +157,7 @@ lints:
   scripts:
     "linter.sh":
       runner: bash
-`),
+`,
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
@@ -183,11 +183,11 @@ lints:
 		},
 		{
 			name: "with remote",
-			global: []byte(`
+			global: `
 remote:
   git_url: git@github.com:evilmartians/lefthook
-`),
-			remote: []byte(`
+`,
+			remote: `
 pre-commit:
   commands:
     lint:
@@ -195,7 +195,7 @@ pre-commit:
   scripts:
     "test.sh":
       runner: bash
-`),
+`,
 			remoteConfigPath: filepath.Join(root, ".git", "info", "remotes", "lefthook", "lefthook.yml"),
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
@@ -222,7 +222,7 @@ pre-commit:
 		},
 		{
 			name: "with remote and custom config name",
-			global: []byte(`
+			global: `
 remote:
   git_url: git@github.com:evilmartians/lefthook
   ref: v1.0.0
@@ -234,8 +234,8 @@ pre-commit:
       run: echo 'Global!'
     lint:
       run: this will be overwritten
-`),
-			remote: []byte(`
+`,
+			remote: `
 pre-commit:
   commands:
     lint:
@@ -244,7 +244,7 @@ pre-commit:
   scripts:
     "test.sh":
       runner: bash
-`),
+`,
 			remoteConfigPath: filepath.Join(root, ".git", "info", "remotes", "lefthook", "examples", "custom.yml"),
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
@@ -275,6 +275,97 @@ pre-commit:
 				},
 			},
 		},
+		{
+			name: "with extends",
+			global: `
+extends:
+  - global-extend.yml
+
+remote:
+  git_url: https://github.com/evilmartians/lefthook
+  config: examples/config.yml
+
+pre-push:
+  commands:
+    global:
+      run: echo global
+`,
+			local: `
+extends:
+  - local-extend.yml
+
+pre-push:
+  commands:
+    local:
+      run: echo local
+`,
+			remote: `
+extends:
+  - ../remote-extend.yml
+
+pre-push:
+  commands:
+    remote:
+      run: echo remote
+`,
+			remoteConfigPath: filepath.Join(root, ".git", "info", "remotes", "lefthook", "examples", "config.yml"),
+			extends: map[string]string{
+				"global-extend.yml": `
+pre-push:
+  scripts:
+    "global-extend":
+      runner: bash
+`,
+				"local-extend.yml": `
+pre-push:
+  scripts:
+    "local-extend":
+      runner: bash
+`,
+				".git/info/remotes/lefthook/remote-extend.yml": `
+pre-push:
+  scripts:
+    "remote-extend":
+      runner: bash
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         DefaultColorsEnabled,
+				Remote: Remote{
+					GitURL: "https://github.com/evilmartians/lefthook",
+					Config: "examples/config.yml",
+				},
+				Extends: []string{"local-extend.yml"},
+				Hooks: map[string]*Hook{
+					"pre-push": {
+						Commands: map[string]*Command{
+							"global": {
+								Run: "echo global",
+							},
+							"local": {
+								Run: "echo local",
+							},
+							"remote": {
+								Run: "echo remote",
+							},
+						},
+						Scripts: map[string]*Script{
+							"global-extend": {
+								Runner: "bash",
+							},
+							"local-extend": {
+								Runner: "bash",
+							},
+							"remote-extend": {
+								Runner: "bash",
+							},
+						},
+					},
+				},
+			},
+		},
 	} {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		repo := &git.Repository{
@@ -284,11 +375,11 @@ pre-commit:
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			if err := fs.WriteFile(filepath.Join(root, "lefthook.yml"), tt.global, 0o644); err != nil {
+			if err := fs.WriteFile(filepath.Join(root, "lefthook.yml"), []byte(tt.global), 0o644); err != nil {
 				t.Errorf("unexpected error: %s", err)
 			}
 
-			if err := fs.WriteFile(filepath.Join(root, "lefthook-local.yml"), tt.local, 0o644); err != nil {
+			if err := fs.WriteFile(filepath.Join(root, "lefthook-local.yml"), []byte(tt.local), 0o644); err != nil {
 				t.Errorf("unexpected error: %s", err)
 			}
 
@@ -297,7 +388,23 @@ pre-commit:
 					t.Errorf("unexpected error: %s", err)
 				}
 
-				if err := fs.WriteFile(tt.remoteConfigPath, tt.remote, 0o644); err != nil {
+				if err := fs.WriteFile(tt.remoteConfigPath, []byte(tt.remote), 0o644); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
+			}
+
+			for name, content := range tt.extends {
+				path := filepath.Join(
+					root,
+					filepath.Join(strings.Split(name, "/")...),
+				)
+				dir := filepath.Dir(path)
+
+				if err := fs.MkdirAll(dir, 0o775); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
+
+				if err := fs.WriteFile(path, []byte(content), 0o644); err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
 			}
