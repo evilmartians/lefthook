@@ -10,4 +10,5 @@
 
 pre-commit:
   commands:
-    run: echo pong
+    pong:
+      run: echo pong
