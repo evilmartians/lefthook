@@ -7,6 +7,10 @@
   - [`skip_output`](#skip_output)
   - [`source_dir`](#source_dir)
   - [`source_dir_local`](#source_dir_local)
+- [`remote` (Beta :test_tube:)](#remote)
+  - [`git_url`](#git_url)
+  - [`ref`](#ref)
+  - [`config`](#config)
 - [Hook](#git-hook)
   - [`files`](#files-global)
   - [`parallel`](#parallel)
@@ -57,7 +61,7 @@ colors: false
 
 ### `extends`
 
-You can extend your config with another one YAML file.
+You can extend your config with another one YAML file. Its content will be merged. Extends for `lefthook.yml`, `lefthook-local.yml`, and [`remote`](#remote) configs are handled separately, so you can have different extends in these files.
 
 **Example**
 
@@ -65,14 +69,11 @@ You can extend your config with another one YAML file.
 # lefthook.yml
 
 extends:
-  - $HOME/work/lefthook-extend.yml
-  - $HOME/work/lefthook-extend-2.yml
+  - /home/user/work/lefthook-extend.yml
+  - /home/user/work/lefthook-extend-2.yml
+  - lefthook-extends/file.yml
+  - ../extend.yml
 ```
-
-**Notes**
-
-Files for extend should *not* be named "lefthook.yml". All file names should be unique.
-
 
 ### `min_version`
 
@@ -137,6 +138,80 @@ Example of directory tree:
 Change a directory for *local* script files (not stored in VCS).
 
 This option is useful if you have a `lefthook-local.yml` config file and want to reference different scripts there.
+
+## `remote`
+
+> :test_tube: This feature is in **Beta** version
+
+You can provide a remote config if you want to share your lefthook configuration across many projects. Lefthook will automatically download and merge the configuration into your local `lefthook.yml`.
+
+You can use [`extends`](#extends) related to the config file (not absolute paths).
+
+If you provide [`scripts`](#scripts) in a remote file, the [scripts](#source_dir) folder must be in the **root of the repository**.
+
+**Note**
+
+Configuration in `remote` will be merged to confiuration in `lefthook.yml`, so the priority will be the following:
+
+- `lefthook.yml`
+- `remote`
+- `lefthook-local.yml`
+
+This can be changed in the future. For convenience, please use `remote` configuration without any hooks configuration in `lefthook.yml`.
+
+### `git_url`
+
+A URL to Git repository. It will be accessed with priveleges of the machine lefthook runs on.
+
+**Example**
+
+```yml
+# lefthook.yml
+
+remote:
+  git_url: git@github.com:evilmartians/lefthook
+```
+
+Or
+
+```yml
+# lefthook.yml
+
+remote:
+  git_url: https://github.com/evilmartians/lefthook
+```
+
+### `ref`
+
+An optional *branch* or *tag* name.
+
+**Example**
+
+```yml
+# lefthook.yml
+
+remote:
+  git_url: git@github.com:evilmartians/lefthook
+  ref: v1.0.0
+```
+
+
+### `config`
+
+**Default:** `lefthook.yml`
+
+An optional config path from remote's root.
+
+**Example**
+
+```yml
+# lefthook.yml
+
+remote:
+  git_url: git@github.com:evilmartians/remote
+  ref: v1.0.0
+  config: examples/ruby-linter.yml
+```
 
 ## Git hook
 

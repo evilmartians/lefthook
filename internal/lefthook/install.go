@@ -18,12 +18,11 @@ import (
 )
 
 const (
-	configFileMode    = 0o666
-	checksumFileMode  = 0o644
-	configDefaultName = "lefthook.yml"
-	configGlob        = "lefthook.y*ml"
-	timestampBase     = 10
-	timestampBitsize  = 64
+	configFileMode   = 0o666
+	checksumFileMode = 0o644
+	configGlob       = "lefthook.y*ml"
+	timestampBase    = 10
+	timestampBitsize = 64
 )
 
 var lefthookChecksumRegexp = regexp.MustCompile(`(\w+)\s+(\d+)`)
@@ -48,6 +47,18 @@ func (l *Lefthook) Install(args *InstallArgs) error {
 		return err
 	}
 
+	if cfg.Remote.Configured() {
+		if err := l.repo.SyncRemote(cfg.Remote.GitURL, cfg.Remote.Ref); err != nil {
+			log.Warnf("Couldn't sync remotes. Will continue without them: %s", err)
+		} else {
+			// Reread the config file with synced remotes
+			cfg, err = l.readOrCreateConfig()
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	return l.createHooksIfNeeded(cfg,
 		args.Force || args.Aggressive || l.Options.Force || l.Options.Aggressive)
 }
@@ -63,7 +74,7 @@ func (l *Lefthook) readOrCreateConfig() (*config.Config, error) {
 		}
 	}
 
-	return config.Load(l.Fs, l.repo.RootPath)
+	return config.Load(l.Fs, l.repo)
 }
 
 func (l *Lefthook) configExists(path string) bool {
@@ -82,7 +93,7 @@ func (l *Lefthook) configExists(path string) bool {
 }
 
 func (l *Lefthook) createConfig(path string) error {
-	file := filepath.Join(path, configDefaultName)
+	file := filepath.Join(path, config.DefaultConfigName)
 
 	err := afero.WriteFile(l.Fs, file, templates.Config(), configFileMode)
 	if err != nil {

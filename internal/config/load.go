@@ -1,15 +1,20 @@
 package config
 
 import (
+	"fmt"
 	"path/filepath"
 	"regexp"
 	"strings"
 
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
+
+	"github.com/evilmartians/lefthook/internal/git"
+	"github.com/evilmartians/lefthook/internal/log"
 )
 
 const (
+	DefaultConfigName     = "lefthook.yml"
 	DefaultSourceDir      = ".lefthook"
 	DefaultSourceDirLocal = ".lefthook-local"
 	DefaultColorsEnabled  = true
@@ -18,13 +23,13 @@ const (
 var hookKeyRegexp = regexp.MustCompile(`^(?P<hookName>[^.]+)\.(scripts|commands)`)
 
 // Loads configs from the given directory with extensions.
-func Load(fs afero.Fs, path string) (*Config, error) {
-	global, err := read(fs, path, "lefthook")
+func Load(fs afero.Fs, repo *git.Repository) (*Config, error) {
+	global, err := read(fs, repo.RootPath, "lefthook")
 	if err != nil {
 		return nil, err
 	}
 
-	extends, err := mergeAllExtends(fs, path)
+	extends, err := mergeAll(fs, repo)
 	if err != nil {
 		return nil, err
 	}
@@ -61,42 +66,92 @@ func read(fs afero.Fs, path string, name string) (*viper.Viper, error) {
 	return v, nil
 }
 
-// Merges extends from .lefthook and .lefthook-local.
-func mergeAllExtends(fs afero.Fs, path string) (*viper.Viper, error) {
-	extends, err := read(fs, path, "lefthook")
+// mergeAll merges remotes and extends from .lefthook and .lefthook-local.
+func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
+	extends, err := read(fs, repo.RootPath, "lefthook")
 	if err != nil {
 		return nil, err
 	}
 
-	if err := extend(fs, extends); err != nil {
+	if err := extend(extends, repo.RootPath); err != nil {
 		return nil, err
 	}
 
-	extends.SetConfigName("lefthook-local")
-	if err := extends.MergeInConfig(); err != nil {
+	if err := mergeRemote(fs, repo, extends); err != nil {
+		return nil, err
+	}
+
+	if err := merge("lefthook-local", "", extends); err != nil {
 		if _, notFoundErr := err.(viper.ConfigFileNotFoundError); !notFoundErr {
 			return nil, err
 		}
 	}
 
-	if err := extend(fs, extends); err != nil {
+	if err := extend(extends, repo.RootPath); err != nil {
 		return nil, err
 	}
 
 	return extends, nil
 }
 
-func extend(fs afero.Fs, v *viper.Viper) error {
-	for _, path := range v.GetStringSlice("extends") {
-		name := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
+// mergeRemote merges remote config to the current one.
+func mergeRemote(fs afero.Fs, repo *git.Repository, v *viper.Viper) error {
+	var remote Remote
+	err := v.UnmarshalKey("remote", &remote)
+	if err != nil {
+		return err
+	}
 
-		another, err := read(fs, filepath.Dir(path), name)
-		if err != nil {
+	if !remote.Configured() {
+		return nil
+	}
+
+	remotePath := repo.RemoteFolder(remote.GitURL)
+	configFile := DefaultConfigName
+	if len(remote.Config) > 0 {
+		configFile = remote.Config
+	}
+	configPath := filepath.Join(remotePath, configFile)
+
+	log.Debugf("Merging remote config: %s", configPath)
+
+	_, err = fs.Stat(configPath)
+	if err != nil {
+		return nil
+	}
+
+	if err := merge("remote", configPath, v); err != nil {
+		return err
+	}
+
+	if err := extend(v, filepath.Dir(configPath)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// extend merges all files listed in 'extends' option into the config.
+func extend(v *viper.Viper, root string) error {
+	for i, path := range v.GetStringSlice("extends") {
+		if !filepath.IsAbs(path) {
+			path = filepath.Join(root, path)
+		}
+		if err := merge(fmt.Sprintf("extend_%d", i), path, v); err != nil {
 			return err
 		}
-		if err = v.MergeConfigMap(another.AllSettings()); err != nil {
-			return err
-		}
+	}
+	return nil
+}
+
+// merge merges the configuration using viper builtin MergeInConfig.
+func merge(name, path string, v *viper.Viper) error {
+	v.SetConfigName(name)
+	if len(path) > 0 {
+		v.SetConfigFile(path)
+	}
+	if err := v.MergeInConfig(); err != nil {
+		return err
 	}
 
 	return nil
@@ -112,7 +167,7 @@ func unmarshalConfigs(base, extra *viper.Viper, c *Config) error {
 	}
 
 	// For extra non-git hooks.
-	// This behavior will be deprecated in next versions.
+	// This behavior may be deprecated in next versions.
 	for _, maybeHook := range base.AllKeys() {
 		if !hookKeyRegexp.MatchString(maybeHook) {
 			continue

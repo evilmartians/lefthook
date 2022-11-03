@@ -61,7 +61,7 @@ func (l *Lefthook) getSourceDirs() (global, local string) {
 	global = config.DefaultSourceDir
 	local = config.DefaultSourceDirLocal
 
-	cfg, err := config.Load(l.Fs, l.repo.RootPath)
+	cfg, err := config.Load(l.Fs, l.repo)
 	if err == nil {
 		if len(cfg.SourceDir) > 0 {
 			global = cfg.SourceDir
