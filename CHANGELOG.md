@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+- fix: Full support for interactive commands and scripts ([PR #352](https://github.com/evilmartians/lefthook/pull/352) by @mrexox)
+- chore: Remove deprecated config options ([PR #351](https://github.com/evilmartians/lefthook/pull/351) by @mrexox)
+- feature: Add remote config support ([PR #343](https://github.com/evilmartians/lefthook/pull/343) by @oatovar and @mrexox)
+
 ## 1.1.4 (2022-11-1)
 
 - feature: Add `LEFTHOOK_VERBOSE` env ([PR #346](https://github.com/evilmartians/lefthook/pull/346) by @mrexox)
