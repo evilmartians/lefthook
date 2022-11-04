@@ -21,7 +21,7 @@ type Options struct {
 	Fs                afero.Fs
 	Verbose, NoColors bool
 
-	// DEPRECATED.
+	// DEPRECATED. Will be removed in 1.3.0.
 	Force, Aggressive bool
 }
 

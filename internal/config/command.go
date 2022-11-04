@@ -25,9 +25,6 @@ type Command struct {
 
 	FailText    string `mapstructure:"fail_text"`
 	Interactive bool   `mapstructure:"interactive"`
-
-	// DEPRECATED, will be deleted in 1.2.0
-	Runner string `mapstructure:"runner"`
 }
 
 func (c Command) Validate() error {
@@ -46,8 +43,7 @@ func (c Command) DoSkip(gitState git.State) bool {
 }
 
 type commandRunReplace struct {
-	Run    string `mapstructure:"run"`
-	Runner string `mapstructure:"runner"` // DEPRECATED, will be deleted in 1.2.0
+	Run string `mapstructure:"run"`
 }
 
 func mergeCommands(base, extra *viper.Viper) (map[string]*Command, error) {
@@ -101,11 +97,6 @@ func mergeCommands(base, extra *viper.Viper) (map[string]*Command, error) {
 	for key, replace := range runReplaces {
 		if replace.Run != "" {
 			commands[key].Run = strings.Replace(commands[key].Run, CMD, replace.Run, -1)
-		}
-
-		// Deprecated, will be deleted
-		if replace.Runner != "" {
-			commands[key].Runner = strings.Replace(commands[key].Runner, CMD, replace.Runner, -1)
 		}
 	}
 

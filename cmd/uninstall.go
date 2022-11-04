@@ -17,12 +17,6 @@ func newUninstallCmd(opts *lefthook.Options) *cobra.Command {
 		},
 	}
 
-	var deprecatedKeepConfig bool
-	uninstallCmd.Flags().BoolVarP(
-		&deprecatedKeepConfig, "keep-config", "k", false,
-		"DEPRECATED: This option is enabled by default. It will be removed in next release.",
-	)
-
 	uninstallCmd.Flags().BoolVarP(
 		&args.Force, "aggressive", "a", false,
 		"DEPRECATED: will behave like -f/--force option",

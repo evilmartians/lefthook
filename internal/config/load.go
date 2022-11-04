@@ -208,8 +208,6 @@ func addHook(hookName string, base, extra *viper.Viper, c *Config) error {
 		return nil
 	}
 
-	resultHook.processDeprecations()
-
 	c.Hooks[hookName] = resultHook
 
 	return nil

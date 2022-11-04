@@ -32,7 +32,7 @@ func TestLoad(t *testing.T) {
 pre-commit:
   commands:
     tests:
-      runner: yarn test # Using deprecated field
+      run: yarn test
 `,
 			local: `
 post-commit:
@@ -49,8 +49,7 @@ post-commit:
 						Parallel: false,
 						Commands: map[string]*Command{
 							"tests": {
-								Run:    "yarn test", // copies Runner to Run
-								Runner: "yarn test",
+								Run: "yarn test",
 							},
 						},
 					},

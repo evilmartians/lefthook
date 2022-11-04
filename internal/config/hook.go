@@ -6,8 +6,6 @@ import (
 	"strings"
 
 	"github.com/spf13/viper"
-
-	"github.com/evilmartians/lefthook/internal/log"
 )
 
 const CMD = "{cmd}"
@@ -76,36 +74,4 @@ func unmarshalHooks(base, extra *viper.Viper) (*Hook, error) {
 	}
 
 	return &hook, nil
-}
-
-func (h Hook) processDeprecations() {
-	var cmdDeprecationUsed, scriptDeprecationUsed bool
-
-	for _, command := range h.Commands {
-		if command.Runner != "" {
-			cmdDeprecationUsed = true
-
-			if command.Run == "" {
-				command.Run = command.Runner
-			}
-		}
-	}
-
-	for _, script := range h.Scripts {
-		if script.Run != "" {
-			scriptDeprecationUsed = true
-
-			if script.Runner == "" {
-				script.Runner = script.Run
-			}
-		}
-	}
-
-	if cmdDeprecationUsed {
-		log.Errorf("Warning: `runner` alias for commands is deprecated, use `run` instead.\n")
-	}
-
-	if scriptDeprecationUsed {
-		log.Errorf("Warning: `run` alias for scripts is deprecated, use `runner` instead.\n")
-	}
 }
