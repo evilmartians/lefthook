@@ -13,11 +13,25 @@ import (
 	"strings"
 
 	"github.com/creack/pty"
+	"github.com/mattn/go-isatty"
+
+	"github.com/evilmartians/lefthook/internal/log"
 )
 
 type CommandExecutor struct{}
 
 func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
+	stdin := os.Stdin
+	if opts.interactive && !isatty.IsTerminal(os.Stdin.Fd()) {
+		tty, err := os.Open("/dev/tty")
+		if err == nil {
+			defer tty.Close()
+			stdin = tty
+		} else {
+			log.Errorf("Couldn't enable TTY input: %s\n", err)
+		}
+	}
+
 	command := exec.Command("sh", "-c", strings.Join(opts.args, " "))
 
 	rootDir, _ := filepath.Abs(opts.root)
@@ -37,7 +51,7 @@ func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
 
 	if opts.interactive {
 		command.Stdout = os.Stdout
-		command.Stdin = os.Stdin
+		command.Stdin = stdin
 		command.Stderr = os.Stderr
 		err := command.Start()
 		if err != nil {
@@ -51,7 +65,7 @@ func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
 
 		defer func() { _ = p.Close() }()
 
-		go func() { _, _ = io.Copy(p, os.Stdin) }()
+		go func() { _, _ = io.Copy(p, stdin) }()
 
 		out = bytes.NewBuffer(make([]byte, 0))
 		_, _ = io.Copy(out, p)

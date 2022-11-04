@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"github.com/spf13/afero"
 	"gopkg.in/alessio/shellescape.v1"
@@ -33,7 +34,7 @@ type Runner struct {
 	repo        *git.Repository
 	hook        *config.Hook
 	args        []string
-	failed      bool
+	failed      atomic.Bool
 	resultChan  chan Result
 	exec        Executor
 	logSettings log.SkipSettings
@@ -84,7 +85,7 @@ func (r *Runner) RunAll(hookName string, sourceDirs []string) {
 
 func (r *Runner) fail(name, text string) {
 	r.resultChan <- resultFail(name, text)
-	r.failed = true
+	r.failed.Store(true)
 }
 
 func (r *Runner) success(name string) {
@@ -142,68 +143,51 @@ func (r *Runner) runScripts(dir string) {
 		return
 	}
 
-	if r.hook.Parallel {
-		var hasInteractive bool
-		var wg sync.WaitGroup
+	interactiveScripts := make([]os.FileInfo, 0)
+	var wg sync.WaitGroup
 
-		for _, file := range files {
-			script, ok := r.hook.Scripts[file.Name()]
-			if !ok {
-				logSkip(file.Name(), "(SKIP BY NOT EXIST IN CONFIG)")
-				continue
-			}
-			if script.Interactive {
-				hasInteractive = true
-				continue
-			}
+	for _, file := range files {
+		script, ok := r.hook.Scripts[file.Name()]
+		if !ok {
+			logSkip(file.Name(), "(SKIP BY NOT EXIST IN CONFIG)")
+			continue
+		}
 
-			unquotedScriptPath := filepath.Join(dir, file.Name())
+		if r.failed.Load() && r.hook.Piped {
+			logSkip(file.Name(), "(SKIP BY BROKEN PIPE)")
+			continue
+		}
 
+		if script.Interactive {
+			interactiveScripts = append(interactiveScripts, file)
+			continue
+		}
+
+		unquotedScriptPath := filepath.Join(dir, file.Name())
+
+		if r.hook.Parallel {
 			wg.Add(1)
 			go func(script *config.Script, path string, file os.FileInfo) {
 				defer wg.Done()
 				r.runScript(script, path, file)
 			}(script, unquotedScriptPath, file)
-		}
-
-		wg.Wait()
-
-		if hasInteractive {
-			for _, file := range files {
-				script, ok := r.hook.Scripts[file.Name()]
-				if !ok {
-					continue
-				}
-
-				if !script.Interactive {
-					continue
-				}
-
-				if r.failed {
-					logSkip(file.Name(), "(SKIP INTERACTIVE BY FAILED)")
-					continue
-				}
-
-				unquotedScriptPath := filepath.Join(dir, file.Name())
-				r.runScript(script, unquotedScriptPath, file)
-			}
-		}
-	} else {
-		for _, file := range files {
-			script, ok := r.hook.Scripts[file.Name()]
-			if !ok {
-				logSkip(file.Name(), "(SKIP BY NOT EXIST IN CONFIG)")
-				continue
-			}
-
-			if r.failed && r.hook.Piped {
-				logSkip(file.Name(), "(SKIP BY BROKEN PIPE)")
-				continue
-			}
-
-			unquotedScriptPath := filepath.Join(dir, file.Name())
+		} else {
 			r.runScript(script, unquotedScriptPath, file)
 		}
+	}
+
+	wg.Wait()
+
+	for _, file := range interactiveScripts {
+		script := r.hook.Scripts[file.Name()]
+		if r.failed.Load() {
+			logSkip(file.Name(), "(SKIP INTERACTIVE BY FAILED)")
+			continue
+		}
+
+		unquotedScriptPath := filepath.Join(dir, file.Name())
+
+		r.runScript(script, unquotedScriptPath, file)
 	}
 }
 
@@ -265,47 +249,40 @@ func (r *Runner) runCommands() {
 
 	sort.Strings(commands)
 
-	if r.hook.Parallel {
-		var hasInteractive bool
-		var wg sync.WaitGroup
-		for _, name := range commands {
-			if r.hook.Commands[name].Interactive {
-				continue
-				hasInteractive = true
-			}
+	interactiveCommands := make([]string, 0)
+	var wg sync.WaitGroup
 
+	for _, name := range commands {
+		if r.failed.Load() && r.hook.Piped {
+			logSkip(name, "(SKIP BY BROKEN PIPE)")
+			continue
+		}
+
+		if r.hook.Commands[name].Interactive {
+			interactiveCommands = append(interactiveCommands, name)
+			continue
+		}
+
+		if r.hook.Parallel {
 			wg.Add(1)
 			go func(name string, command *config.Command) {
 				defer wg.Done()
 				r.runCommand(name, command)
 			}(name, r.hook.Commands[name])
-		}
-
-		wg.Wait()
-
-		if hasInteractive {
-			for _, name := range commands {
-				if !r.hook.Commands[name].Interactive {
-					continue
-				}
-
-				if r.failed {
-					logSkip(name, "(SKIP INTERACTIVE BY FAILED)")
-					continue
-				}
-
-				r.runCommand(name, r.hook.Commands[name])
-			}
-		}
-	} else {
-		for _, name := range commands {
-			if r.failed && r.hook.Piped {
-				logSkip(name, "(SKIP BY BROKEN PIPE)")
-				continue
-			}
-
+		} else {
 			r.runCommand(name, r.hook.Commands[name])
 		}
+	}
+
+	wg.Wait()
+
+	for _, name := range interactiveCommands {
+		if r.failed.Load() {
+			logSkip(name, "(SKIP INTERACTIVE BY FAILED)")
+			continue
+		}
+
+		r.runCommand(name, r.hook.Commands[name])
 	}
 }
 
