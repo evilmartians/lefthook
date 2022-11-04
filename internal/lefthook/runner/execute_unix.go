@@ -19,12 +19,16 @@ type CommandExecutor struct{}
 
 func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
 	command := exec.Command("sh", "-c", strings.Join(opts.args, " "))
+
 	rootDir, _ := filepath.Abs(opts.root)
 	command.Dir = rootDir
 
 	envList := make([]string, len(opts.env))
 	for name, value := range opts.env {
-		envList = append(envList, fmt.Sprintf("%s=%s", strings.ToUpper(name), value))
+		envList = append(
+			envList,
+			fmt.Sprintf("%s=%s", strings.ToUpper(name), value),
+		)
 	}
 
 	command.Env = append(os.Environ(), envList...)
@@ -46,7 +50,6 @@ func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
 		}
 
 		defer func() { _ = p.Close() }()
-		defer func() { _ = command.Process.Kill() }()
 
 		go func() { _, _ = io.Copy(p, os.Stdin) }()
 
@@ -54,7 +57,7 @@ func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
 		_, _ = io.Copy(out, p)
 	}
 
-	defer command.Process.Kill()
+	defer func() { _ = command.Process.Kill() }()
 
 	return out, command.Wait()
 }

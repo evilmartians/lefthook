@@ -209,6 +209,37 @@ func TestRunAll(t *testing.T) {
 			success: []Result{{Name: "script.sh", Status: StatusOk}},
 			fail:    []Result{{Name: "failing.js", Status: StatusErr, Text: "install node"}},
 		},
+		{
+			name:       "with interactive and parallel",
+			sourceDirs: []string{filepath.Join(root, config.DefaultSourceDir)},
+			existingFiles: []string{
+				filepath.Join(root, config.DefaultSourceDir, hookName, "script.sh"),
+				filepath.Join(root, config.DefaultSourceDir, hookName, "failing.js"),
+			},
+			hook: &config.Hook{
+				Parallel: true,
+				Commands: map[string]*config.Command{
+					"ok": {
+						Run:         "success",
+						Interactive: true,
+					},
+					"fail": {
+						Run: "fail",
+					},
+				},
+				Scripts: map[string]*config.Script{
+					"script.sh": {
+						Runner:      "success",
+						Interactive: true,
+					},
+					"failing.js": {
+						Runner: "fail",
+					},
+				},
+			},
+			success: []Result{}, // script.sh and ok are skipped
+			fail:    []Result{{Name: "failing.js", Status: StatusErr}, {Name: "fail", Status: StatusErr}},
+		},
 	} {
 		fs := afero.NewMemMapFs()
 		repo.Fs = fs

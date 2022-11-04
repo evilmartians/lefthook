@@ -242,9 +242,9 @@ Whether run commands and scripts in concurrently.
 
 ### `piped`
 
-**Default: `true`**
+**Default: `false`**
 
-Whether run commands and scripts sequentially.
+Whether run commands and scripts sequentially. Will stop execution if one of the commands/scripts fail.
 
 **Example**
 
@@ -252,7 +252,7 @@ Whether run commands and scripts sequentially.
 # lefthook.yml
 
 database:
-  piped: true # if you perfer explicit configuration
+  piped: true # Stop if one of the steps fail
   commands:
     1_create:
       run: rake db:create

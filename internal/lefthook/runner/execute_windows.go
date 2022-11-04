@@ -23,7 +23,10 @@ func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
 
 	envList := make([]string, len(opts.env))
 	for name, value := range opts.env {
-		envList = append(envList, fmt.Sprintf("%s=%s", strings.ToUpper(name), value))
+		envList = append(
+			envList,
+			fmt.Sprintf("%s=%s", strings.ToUpper(name), value),
+		)
 	}
 
 	command.Env = append(os.Environ(), envList...)
@@ -43,7 +46,7 @@ func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
 		return nil, err
 	}
 
-	defer command.Process.Kill()
+	defer func() { _ = command.Process.Kill() }()
 
 	return &out, command.Wait()
 }
