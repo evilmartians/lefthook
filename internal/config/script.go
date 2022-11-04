@@ -18,9 +18,6 @@ type Script struct {
 
 	FailText    string `mapstructure:"fail_text"`
 	Interactive bool   `mapstructure:"interactive"`
-
-	// DEPRECATED
-	Run string `mapstructure:"run"`
 }
 
 func (s Script) DoSkip(gitState git.State) bool {
@@ -32,7 +29,6 @@ func (s Script) DoSkip(gitState git.State) bool {
 
 type scriptRunnerReplace struct {
 	Runner string `mapstructure:"runner"`
-	Run    string `mapstructure:"run"` // DEPRECATED
 }
 
 func mergeScripts(base, extra *viper.Viper) (map[string]*Script, error) {
@@ -81,11 +77,6 @@ func mergeScripts(base, extra *viper.Viper) (map[string]*Script, error) {
 	}
 
 	for key, replace := range runReplaces {
-		// Deprecated, will be deleted
-		if replace.Run != "" {
-			scripts[key].Run = strings.Replace(scripts[key].Run, CMD, replace.Run, -1)
-		}
-
 		if replace.Runner != "" {
 			scripts[key].Runner = strings.Replace(scripts[key].Runner, CMD, replace.Runner, -1)
 		}
