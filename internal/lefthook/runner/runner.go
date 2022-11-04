@@ -78,6 +78,7 @@ func (r *Runner) RunAll(hookName string, sourceDirs []string) {
 	for _, dir := range scriptDirs {
 		r.runScripts(dir)
 	}
+
 	r.runCommands()
 }
 
@@ -205,6 +206,11 @@ func (r *Runner) runScript(script *config.Script, unquotedPath string, file os.F
 	args = append(args, quotedScriptPath)
 	args = append(args, r.args[:]...)
 
+	if script.Interactive {
+		log.StopSpinner()
+		defer log.StartSpinner()
+	}
+
 	r.run(ExecuteOptions{
 		name:        file.Name(),
 		root:        r.repo.RootPath,
@@ -274,6 +280,11 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 	if len(args) == 0 {
 		logSkip(name, "(SKIP. NO FILES FOR INSPECTION)")
 		return
+	}
+
+	if command.Interactive {
+		log.StopSpinner()
+		defer log.StartSpinner()
 	}
 
 	r.run(ExecuteOptions{
