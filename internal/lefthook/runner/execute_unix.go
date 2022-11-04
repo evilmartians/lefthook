@@ -31,29 +31,47 @@ func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
 			log.Errorf("Couldn't enable TTY input: %s\n", err)
 		}
 	}
+
 	command := exec.Command("sh", "-c", strings.Join(opts.args, " "))
+
 	rootDir, _ := filepath.Abs(opts.root)
 	command.Dir = rootDir
 
 	envList := make([]string, len(opts.env))
 	for name, value := range opts.env {
-		envList = append(envList, fmt.Sprintf("%s=%s", strings.ToUpper(name), value))
+		envList = append(
+			envList,
+			fmt.Sprintf("%s=%s", strings.ToUpper(name), value),
+		)
 	}
 
 	command.Env = append(os.Environ(), envList...)
 
-	p, err := pty.Start(command)
-	if err != nil {
-		return nil, err
+	var out *bytes.Buffer
+
+	if opts.interactive {
+		command.Stdout = os.Stdout
+		command.Stdin = stdin
+		command.Stderr = os.Stderr
+		err := command.Start()
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		p, err := pty.Start(command)
+		if err != nil {
+			return nil, err
+		}
+
+		defer func() { _ = p.Close() }()
+
+		go func() { _, _ = io.Copy(p, stdin) }()
+
+		out = bytes.NewBuffer(make([]byte, 0))
+		_, _ = io.Copy(out, p)
 	}
 
-	defer func() { _ = p.Close() }()
 	defer func() { _ = command.Process.Kill() }()
-
-	go func() { _, _ = io.Copy(p, stdin) }()
-
-	out := bytes.NewBuffer(make([]byte, 0))
-	_, _ = io.Copy(out, p)
 
 	return out, command.Wait()
 }

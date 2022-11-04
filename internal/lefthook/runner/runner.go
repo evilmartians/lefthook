@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"github.com/spf13/afero"
 	"gopkg.in/alessio/shellescape.v1"
@@ -33,7 +34,7 @@ type Runner struct {
 	repo        *git.Repository
 	hook        *config.Hook
 	args        []string
-	failed      bool
+	failed      atomic.Bool
 	resultChan  chan Result
 	exec        Executor
 	logSettings log.SkipSettings
@@ -78,12 +79,13 @@ func (r *Runner) RunAll(hookName string, sourceDirs []string) {
 	for _, dir := range scriptDirs {
 		r.runScripts(dir)
 	}
+
 	r.runCommands()
 }
 
 func (r *Runner) fail(name, text string) {
 	r.resultChan <- resultFail(name, text)
-	r.failed = true
+	r.failed.Store(true)
 }
 
 func (r *Runner) success(name string) {
@@ -141,7 +143,9 @@ func (r *Runner) runScripts(dir string) {
 		return
 	}
 
+	interactiveScripts := make([]os.FileInfo, 0)
 	var wg sync.WaitGroup
+
 	for _, file := range files {
 		script, ok := r.hook.Scripts[file.Name()]
 		if !ok {
@@ -149,8 +153,13 @@ func (r *Runner) runScripts(dir string) {
 			continue
 		}
 
-		if r.failed && r.hook.Piped {
+		if r.failed.Load() && r.hook.Piped {
 			logSkip(file.Name(), "(SKIP BY BROKEN PIPE)")
+			continue
+		}
+
+		if script.Interactive {
+			interactiveScripts = append(interactiveScripts, file)
 			continue
 		}
 
@@ -168,6 +177,18 @@ func (r *Runner) runScripts(dir string) {
 	}
 
 	wg.Wait()
+
+	for _, file := range interactiveScripts {
+		script := r.hook.Scripts[file.Name()]
+		if r.failed.Load() {
+			logSkip(file.Name(), "(SKIP INTERACTIVE BY FAILED)")
+			continue
+		}
+
+		unquotedScriptPath := filepath.Join(dir, file.Name())
+
+		r.runScript(script, unquotedScriptPath, file)
+	}
 }
 
 func (r *Runner) runScript(script *config.Script, unquotedPath string, file os.FileInfo) {
@@ -205,6 +226,11 @@ func (r *Runner) runScript(script *config.Script, unquotedPath string, file os.F
 	args = append(args, quotedScriptPath)
 	args = append(args, r.args[:]...)
 
+	if script.Interactive {
+		log.StopSpinner()
+		defer log.StartSpinner()
+	}
+
 	r.run(ExecuteOptions{
 		name:        file.Name(),
 		root:        r.repo.RootPath,
@@ -223,10 +249,17 @@ func (r *Runner) runCommands() {
 
 	sort.Strings(commands)
 
+	interactiveCommands := make([]string, 0)
 	var wg sync.WaitGroup
+
 	for _, name := range commands {
-		if r.failed && r.hook.Piped {
+		if r.failed.Load() && r.hook.Piped {
 			logSkip(name, "(SKIP BY BROKEN PIPE)")
+			continue
+		}
+
+		if r.hook.Commands[name].Interactive {
+			interactiveCommands = append(interactiveCommands, name)
 			continue
 		}
 
@@ -242,6 +275,15 @@ func (r *Runner) runCommands() {
 	}
 
 	wg.Wait()
+
+	for _, name := range interactiveCommands {
+		if r.failed.Load() {
+			logSkip(name, "(SKIP INTERACTIVE BY FAILED)")
+			continue
+		}
+
+		r.runCommand(name, r.hook.Commands[name])
+	}
 }
 
 func (r *Runner) runCommand(name string, command *config.Command) {
@@ -274,6 +316,11 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 	if len(args) == 0 {
 		logSkip(name, "(SKIP. NO FILES FOR INSPECTION)")
 		return
+	}
+
+	if command.Interactive {
+		log.StopSpinner()
+		defer log.StartSpinner()
 	}
 
 	r.run(ExecuteOptions{

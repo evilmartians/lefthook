@@ -18,19 +18,27 @@ func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
 		CmdLine: strings.Join(opts.args, " "),
 	}
 
+	rootDir, _ := filepath.Abs(opts.root)
+	command.Dir = rootDir
+
 	envList := make([]string, len(opts.env))
 	for name, value := range opts.env {
-		envList = append(envList, fmt.Sprintf("%s=%s", strings.ToUpper(name), value))
+		envList = append(
+			envList,
+			fmt.Sprintf("%s=%s", strings.ToUpper(name), value),
+		)
 	}
 
 	command.Env = append(os.Environ(), envList...)
 
-	rootDir, _ := filepath.Abs(opts.root)
-	command.Dir = rootDir
-
 	var out bytes.Buffer
 
-	command.Stdout = &out
+	if opts.interactive {
+		command.Stdout = os.Stdout
+	} else {
+		command.Stdout = &out
+	}
+
 	command.Stdin = os.Stdin
 	command.Stderr = os.Stderr
 	err := command.Start()
@@ -38,7 +46,7 @@ func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
 		return nil, err
 	}
 
-	defer command.Process.Kill()
+	defer func() { _ = command.Process.Kill() }()
 
 	return &out, command.Wait()
 }
