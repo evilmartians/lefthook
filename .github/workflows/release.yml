@@ -49,31 +49,21 @@ jobs:
           formula: lefthook
           token: ${{secrets.HOMEBREW_TOKEN}}
 
-      - name: Publish to Rubygems
+      - name: Publish to NPM and Rubygems
         env:
+          NPM_API_KEY: ${{ secrets.NPM_API_KEY }}
           RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
         run: |
+          cat << EOF > ~/.npmrc
+          //registry.npmjs.org/:_authToken=${NPM_API_KEY}
+          EOF
+          chmod 0600 ~/.npmrc
           mkdir -p ~/.gem/
           cat << EOF > ~/.gem/credentials
           ---
           :rubygems_api_key: ${RUBYGEMS_API_KEY}
           EOF
           chmod 0600 ~/.gem/credentials
-          git clean -fdX packaging/rubygems/libexec/
-          cd dist
-          find . -maxdepth 2 -executable -type f -exec cp --parents \{\} ../packaging/rubygems/libexec/ \;
-          cd ../packaging/rubygems
-          rake build
-          gem push pkg/*.gem
-          cd ../..
-
-      - name: Publish to NPM
-        env:
-          NPM_API_KEY: ${{ secrets.NPM_API_KEY }}
-        run: |
-          cat << EOF > ~/.npmrc
-          //registry.npmjs.org/:_authToken=${NPM_API_KEY}
-          EOF
-          cd packaging/npm/
+          cd packaging/
           make prepare
           make publish

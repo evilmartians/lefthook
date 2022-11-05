@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.2.0 (2022-11-7)
+
 - fix: Full support for interactive commands and scripts ([PR #352](https://github.com/evilmartians/lefthook/pull/352) by @mrexox)
 - chore: Remove deprecated config options ([PR #351](https://github.com/evilmartians/lefthook/pull/351) by @mrexox)
 - feature: Add remote config support ([PR #343](https://github.com/evilmartians/lefthook/pull/343) by @oatovar and @mrexox)
