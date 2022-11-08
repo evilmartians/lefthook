@@ -13,10 +13,10 @@ DARWIN_ARM64_BIN=$(DIST_DIR)/lefthook_darwin_arm64/lefthook
 prepare: clean set-version put-readme put-binaries
 
 publish:
-	find npm -type d -name 'lefthook*' -exec npm publish --access public \{} \;
-	npm publish --access public npm-bundled
-	npm publish --access public npm-installer
-	cd rubygems; rake build; gem push pkg/*.gem
+	cd npm; find . -type d -name 'lefthook*' -exec npm publish --access public \{} \; ; cd -
+	cd npm-bundled; npm publish --access public ; cd -
+	cd npm-installer; npm publish --access public ; cd -
+	cd rubygems; rake build; gem push pkg/*.gem ; cd -
 
 # Update versions of all packages
 set-version:
@@ -44,7 +44,5 @@ put-readme:
 clean:
 	find npm/ -name 'README.md' -exec rm \{} \;
 	find npm/ -type f -name 'lefthook*' -executable -exec rm \{} \;
-	rm npm-bundled/README.md
-	git clean -fdX npm-bundled/bin/
-	rm npm-installer/README.md
+	git clean -fdX npm-installer/ npm-bundled/ npm-bundled/bin/
 	git clean -fdX rubygems/libexec/ rubygems/pkg/
