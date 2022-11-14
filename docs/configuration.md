@@ -413,6 +413,20 @@ pre-commit:
       run: yarn eslint {staged_files}
 ```
 
+#### `{push_files}` template
+
+If you want to lint files only before pushing them.
+
+```yml
+# lefthook.yml
+
+pre-push:
+  commands:
+    eslint:
+      glob: "*.{js,ts,jsx,tsx}"
+      run: yarn eslint {push_files}
+```
+
 #### `{all_files}` template
 
 Simply run `bundle exec rubocop` on all files with `.rb` extension excluding `application.rb` and `routes.rb` files.
