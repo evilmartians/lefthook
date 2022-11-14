@@ -34,7 +34,7 @@ put-binaries:
 	install -D $(DARWIN_AMD64_BIN) npm/lefthook-darwin-x64/bin/lefthook
 	install -D $(DARWIN_ARM64_BIN) npm/lefthook-darwin-arm64/bin/lefthook
 	cd npm-bundled; npm version $(VERSION) --allow-same-version; cd -
-	cd ../dist; find . -maxdepth 2 -executable -type f -exec cp --parents \{\} ../packaging/rubygems/libexec/ \;
+	cd $(DIST_DIR); find . -maxdepth 2 -executable -type f -exec cp --parents \{\} ../packaging/rubygems/libexec/ \;
 
 put-readme:
 	find npm/ -type d -name 'lefthook*' -exec cp -f ../README.md \{} \;

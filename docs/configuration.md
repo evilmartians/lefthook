@@ -365,6 +365,7 @@ You can use files templates that will be substituted with the appropriate files 
 
 - `{files}` - custom [`files`](#files) command result.
 - `{staged_files}` - staged files which you try to commit.
+- `{push_files}` - files that are committed but not pushed.
 - `{all_files}` - all files tracked by git.
 - `{cmd}` - shorthand for the command from `lefthook.yml`.
 - `{0}` - shorthand for the single space-joint string of git hook arguments.
