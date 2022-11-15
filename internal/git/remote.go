@@ -67,14 +67,24 @@ func (r *Repository) SyncRemote(url, ref string) error {
 func (r *Repository) updateRemote(path, ref string) error {
 	log.Debugf("Updating remote config repository: %s", path)
 
-	cmdFetch := []string{"git", "-C", path, "pull", "--quiet"}
-	if len(ref) == 0 {
-		cmdFetch = append(cmdFetch, "origin", ref)
-	}
+	if len(ref) != 0 {
+		cmdFetch := []string{"git", "-C", path, "fetch", "--quiet", "--depth", "1", "origin", ref}
+		_, err := execGit(strings.Join(cmdFetch, " "))
+		if err != nil {
+			return err
+		}
 
-	_, err := execGit(strings.Join(cmdFetch, " "))
-	if err != nil {
-		return err
+		cmdFetch = []string{"git", "-C", path, "checkout", "FETCH_HEAD"}
+		_, err = execGit(strings.Join(cmdFetch, " "))
+		if err != nil {
+			return err
+		}
+	} else {
+		cmdFetch := []string{"git", "-C", path, "pull", "--quiet"}
+		_, err := execGit(strings.Join(cmdFetch, " "))
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

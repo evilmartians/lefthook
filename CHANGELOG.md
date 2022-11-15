@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+- fix: Allow changing refs for remote ([PR #363](https://github.com/evilmartians/lefthook/pull/363) by @mrexox)
+
 ## 1.2.0 (2022-11-7)
 
 - fix: Full support for interactive commands and scripts ([PR #352](https://github.com/evilmartians/lefthook/pull/352) by @mrexox)
