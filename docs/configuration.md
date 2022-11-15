@@ -195,6 +195,7 @@ remote:
   ref: v1.0.0
 ```
 
+> :warning: Please, note that if you initially had `ref` option, ran `lefthook install`, and then removed it, lefthook won't decide which branch/tag to use as a ref. So, if you added it once, please, use it always to avoid issues in local setups.
 
 ### `config`
 
