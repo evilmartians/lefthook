@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/afero"
 
+	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
 )
 
@@ -17,7 +18,10 @@ func TestLefthookUninstall(t *testing.T) {
 	}
 
 	configPath := filepath.Join(root, "lefthook.yml")
-	hooksPath := filepath.Join(root, ".git", "hooks")
+	gitPath := filepath.Join(root, ".git")
+	hooksPath := filepath.Join(gitPath, "hooks")
+	infoPath := filepath.Join(gitPath, "info")
+	checksumPath := filepath.Join(infoPath, config.ChecksumFileName)
 
 	hookPath := func(hook string) string {
 		return filepath.Join(root, ".git", "hooks", hook)
@@ -41,6 +45,7 @@ func TestLefthookUninstall(t *testing.T) {
 				hookPath("pre-commit"),
 			},
 			wantNotExist: []string{
+				checksumPath,
 				hookPath("post-commit"),
 			},
 		},
@@ -54,6 +59,7 @@ func TestLefthookUninstall(t *testing.T) {
 			config:    "# empty",
 			wantExist: []string{configPath},
 			wantNotExist: []string{
+				checksumPath,
 				hookPath("pre-commit"),
 				hookPath("post-commit"),
 			},
@@ -70,6 +76,7 @@ func TestLefthookUninstall(t *testing.T) {
 				hookPath("pre-commit"),
 			},
 			wantNotExist: []string{
+				checksumPath,
 				configPath,
 				hookPath("post-commit"),
 			},
@@ -88,6 +95,7 @@ func TestLefthookUninstall(t *testing.T) {
 				hookPath("post-commit"),
 			},
 			wantNotExist: []string{
+				checksumPath,
 				hookPath("post-commit.old"),
 			},
 		},
@@ -100,10 +108,17 @@ func TestLefthookUninstall(t *testing.T) {
 					Fs:        fs,
 					HooksPath: hooksPath,
 					RootPath:  root,
+					GitPath:   gitPath,
+					InfoPath:  infoPath,
 				},
 			}
 
+			// Create config and checksum file
 			err := afero.WriteFile(fs, configPath, []byte(tt.config), 0o644)
+			if err != nil {
+				t.Errorf("unexpected error: %s", err)
+			}
+			err = afero.WriteFile(fs, checksumPath, []byte("CHECKSUM"), 0o644)
 			if err != nil {
 				t.Errorf("unexpected error: %s", err)
 			}
