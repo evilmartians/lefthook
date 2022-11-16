@@ -26,6 +26,12 @@ func (l *Lefthook) Uninstall(args *UninstallArgs) error {
 		return err
 	}
 
+	if err := l.Fs.Remove(l.checksumFilePath()); err == nil {
+		log.Debugf("%s removed", l.checksumFilePath())
+	} else {
+		log.Errorf("Failed removing %s: %s\n", l.checksumFilePath(), err)
+	}
+
 	if args.RemoveConfig {
 		for _, glob := range []string{
 			"lefthook.y*ml",
