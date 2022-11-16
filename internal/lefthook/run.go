@@ -34,12 +34,10 @@ func (l *Lefthook) Run(hookName string, gitArgs []string) error {
 		return nil
 	}
 
+	var verbose bool
 	if l.Verbose || os.Getenv(envVerbose) == "1" || os.Getenv(envVerbose) == "true" {
 		log.SetLevel(log.DebugLevel)
-	} else {
-		if hookName == config.GhostHookName {
-			log.SetLevel(log.WarnLevel)
-		}
+		verbose = true
 	}
 
 	// Load config
@@ -49,6 +47,14 @@ func (l *Lefthook) Run(hookName string, gitArgs []string) error {
 	}
 	if err = cfg.Validate(); err != nil {
 		return err
+	}
+
+	// Suppress prepare-commit-msg output if the hook doesn't exists in config.
+	// prepare-commit-msg hook is used for seemless synchronization of hooks with config.
+	// See: internal/lefthook/install.go
+	_, ok := cfg.Hooks[hookName]
+	if hookName == config.GhostHookName && !ok && !verbose {
+		log.SetLevel(log.WarnLevel)
 	}
 
 	if tags := os.Getenv(envSkipOutput); tags != "" {
