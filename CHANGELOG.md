@@ -2,6 +2,7 @@
 
 ## master (unreleased)
 
+- fix: Print prepare-commit-msg hook if it exists in config ([PR #368](https://github.com/evilmartians/lefthook/pull/368) by @mrexox)
 - fix: Allow changing refs for remote ([PR #363](https://github.com/evilmartians/lefthook/pull/363) by @mrexox)
 
 ## 1.2.0 (2022-11-7)
