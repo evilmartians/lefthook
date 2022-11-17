@@ -222,9 +222,7 @@ func (r *Runner) runScript(script *config.Script, unquotedPath string, file os.F
 		args = strings.Split(script.Runner, " ")
 	}
 
-	quotedScriptPath := fmt.Sprintf("%#v", unquotedPath)
-
-	args = append(args, quotedScriptPath)
+	args = append(args, fmt.Sprintf("%#v", unquotedPath))
 	args = append(args, r.args[:]...)
 
 	if script.Interactive {
