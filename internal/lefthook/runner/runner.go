@@ -163,16 +163,16 @@ func (r *Runner) runScripts(dir string) {
 			continue
 		}
 
-		unquotedScriptPath := filepath.Join(dir, file.Name())
+		path := filepath.Join(dir, file.Name())
 
 		if r.hook.Parallel {
 			wg.Add(1)
 			go func(script *config.Script, path string, file os.FileInfo) {
 				defer wg.Done()
 				r.runScript(script, path, file)
-			}(script, unquotedScriptPath, file)
+			}(script, path, file)
 		} else {
-			r.runScript(script, unquotedScriptPath, file)
+			r.runScript(script, path, file)
 		}
 	}
 
@@ -185,13 +185,13 @@ func (r *Runner) runScripts(dir string) {
 			continue
 		}
 
-		unquotedScriptPath := filepath.Join(dir, file.Name())
+		path := filepath.Join(dir, file.Name())
 
-		r.runScript(script, unquotedScriptPath, file)
+		r.runScript(script, path, file)
 	}
 }
 
-func (r *Runner) runScript(script *config.Script, unquotedPath string, file os.FileInfo) {
+func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo) {
 	if script.DoSkip(r.repo.State()) {
 		logSkip(file.Name(), "(SKIP BY SETTINGS)")
 		return
@@ -210,7 +210,7 @@ func (r *Runner) runScript(script *config.Script, unquotedPath string, file os.F
 
 	// Make sure file is executable
 	if (file.Mode() & executableMask) == 0 {
-		if err := r.fs.Chmod(unquotedPath, executableFileMode); err != nil {
+		if err := r.fs.Chmod(path, executableFileMode); err != nil {
 			log.Errorf("Couldn't change file mode to make file executable: %s", err)
 			r.fail(file.Name(), "")
 			return
@@ -222,7 +222,7 @@ func (r *Runner) runScript(script *config.Script, unquotedPath string, file os.F
 		args = strings.Split(script.Runner, " ")
 	}
 
-	args = append(args, fmt.Sprintf("%#v", unquotedPath))
+	args = append(args, path)
 	args = append(args, r.args[:]...)
 
 	if script.Interactive {
