@@ -2,6 +2,7 @@
 
 ## master (unreleased)
 
+- fix: Remove quoting for scripts ([PR #371](https://github.com/evilmartians/lefthook/pull/371) by @stonesbg + @mrexox)
 - fix: remove lefthook.checksum on uninstall ([PR #370](https://github.com/evilmartians/lefthook/pull370) by @JuliusHenke)
 - fix: Print prepare-commit-msg hook if it exists in config ([PR #368](https://github.com/evilmartians/lefthook/pull/368) by @mrexox)
 - fix: Allow changing refs for remote ([PR #363](https://github.com/evilmartians/lefthook/pull/363) by @mrexox)
