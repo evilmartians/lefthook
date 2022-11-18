@@ -51,10 +51,13 @@ func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
 	return &out, command.Wait()
 }
 
-func (e CommandExecutor) RawExecute(command string, args ...string) error {
+func (e CommandExecutor) RawExecute(command string, args ...string) (*bytes.Buffer, error) {
 	cmd := exec.Command(command, args...)
-	cmd.Stdout = os.Stdout
+
+	var out bytes.Buffer
+
+	cmd.Stdout = &out
 	cmd.Stderr = os.Stderr
 
-	return cmd.Run()
+	return &out, cmd.Run()
 }

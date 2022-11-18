@@ -111,17 +111,32 @@ func (r *Runner) runLFSHook(hookName string) error {
 
 	if git.IsLFSAvailable() {
 		log.Debugf(
-			"Executing LFS Hook: `git lfs %s %s", hookName, strings.Join(r.args, " "),
+			"[git-lfs] executing hook: git lfs %s %s", hookName, strings.Join(r.args, " "),
 		)
-		err := r.exec.RawExecute(
+		out, err := r.exec.RawExecute(
 			"git",
 			append(
 				[]string{"lfs", hookName},
 				r.args...,
 			)...,
 		)
+
+		var output string
+		if out != nil {
+			output = strings.Trim(out.String(), "\n")
+			log.Debug("[git-lfs] output: ", output)
+		}
 		if err != nil {
-			return errors.New("git-lfs command failed")
+			log.Debug("[git-lfs] error: ", err)
+		}
+
+		if err == nil && output != "" {
+			log.Info(output)
+		}
+
+		if err != nil && (requiredExists || configExists) {
+			log.Warn(output)
+			return fmt.Errorf("git-lfs command failed: %w", err)
 		}
 	} else if requiredExists || configExists {
 		log.Errorf(
