@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+- fix: Omit LFS output unless it is required ([PR #373](https://github.com/evilmartians/lefthook/pull/373) by @mrexox)
+
 ## 1.2.1 (2022-11-17)
 
 - fix: Remove quoting for scripts ([PR #371](https://github.com/evilmartians/lefthook/pull/371) by @stonesbg + @mrexox)

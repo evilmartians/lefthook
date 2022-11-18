@@ -111,19 +111,37 @@ func (r *Runner) runLFSHook(hookName string) error {
 
 	if git.IsLFSAvailable() {
 		log.Debugf(
-			"Executing LFS Hook: `git lfs %s %s", hookName, strings.Join(r.args, " "),
+			"[git-lfs] executing hook: git lfs %s %s", hookName, strings.Join(r.args, " "),
 		)
-		err := r.exec.RawExecute(
+		out, err := r.exec.RawExecute(
 			"git",
 			append(
 				[]string{"lfs", hookName},
 				r.args...,
 			)...,
 		)
-		if err != nil {
-			return errors.New("git-lfs command failed")
+
+		output := strings.Trim(out.String(), "\n")
+		if output != "" {
+			log.Debug("[git-lfs] output: ", output)
 		}
-	} else if requiredExists || configExists {
+		if err != nil {
+			log.Debug("[git-lfs] error: ", err)
+		}
+
+		if err == nil && output != "" {
+			log.Info(output)
+		}
+
+		if err != nil && (requiredExists || configExists) {
+			log.Warn(output)
+			return fmt.Errorf("git-lfs command failed: %w", err)
+		}
+
+		return nil
+	}
+
+	if requiredExists || configExists {
 		log.Errorf(
 			"This repository requires Git LFS, but 'git-lfs' wasn't found.\n"+
 				"Install 'git-lfs' or consider reviewing the files:\n"+
@@ -204,7 +222,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 
 	// Skip non-regular files (dirs, symlinks, sockets, etc.)
 	if !file.Mode().IsRegular() {
-		log.Debugf("File %s is not a regular file, skipping", file.Name())
+		log.Debugf("[lefthook] file %s is not a regular file, skipping", file.Name())
 		return
 	}
 
@@ -377,7 +395,7 @@ func (r *Runner) buildCommandArgs(command *config.Command) ([]string, error) {
 		runString = strings.ReplaceAll(runString, fmt.Sprintf("{%d}", i+1), gitArg)
 	}
 
-	log.Debug("Executing command is: ", runString)
+	log.Debug("[lefthook] executing: ", runString)
 
 	return strings.Split(runString, " "), nil
 }
@@ -387,13 +405,13 @@ func prepareFiles(command *config.Command, files []string) []string {
 		return []string{}
 	}
 
-	log.Debug("Files before filters:\n", files)
+	log.Debug("[lefthook] files before filters:\n", files)
 
 	files = filterGlob(files, command.Glob)
 	files = filterExclude(files, command.Exclude)
 	files = filterRelative(files, command.Root)
 
-	log.Debug("Files after filters:\n", files)
+	log.Debug("[lefthook] files after filters:\n", files)
 
 	// Escape file names to prevent unexpected bugs
 	var filesEsc []string
@@ -403,7 +421,7 @@ func prepareFiles(command *config.Command, files []string) []string {
 		}
 	}
 
-	log.Debug("Files after escaping:\n", filesEsc)
+	log.Debug("[lefthook] files after escaping:\n", filesEsc)
 
 	return filesEsc
 }

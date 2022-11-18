@@ -27,8 +27,8 @@ func (e TestExecutor) Execute(opts ExecuteOptions) (out *bytes.Buffer, err error
 	return
 }
 
-func (e TestExecutor) RawExecute(command string, args ...string) error {
-	return nil
+func (e TestExecutor) RawExecute(command string, args ...string) (*bytes.Buffer, error) {
+	return nil, nil
 }
 
 func TestRunAll(t *testing.T) {

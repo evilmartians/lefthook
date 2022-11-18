@@ -279,9 +279,13 @@ SHA1=$3
 
 ### Git LFS support
 
+> :warning: If git-lfs binary is not installed and not required in your project, LFS hooks won't be executed, and you won't be warned about it.
+
 Lefthook runs LFS hooks internally for the following hooks:
 
 - post-checkout
 - post-commit
 - post-merge
 - pre-push
+
+Errors are suppressed if git LFS is not required for the project. You can use [`LEFTHOOK_VERBOSE`](#lefthook_verbose) ENV to make lefthook show git LFS output.
