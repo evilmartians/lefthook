@@ -12,6 +12,7 @@
   - [`ref`](#ref)
   - [`config`](#config)
 - [Hook](#git-hook)
+  - [`skip`](#skip)
   - [`files`](#files-global)
   - [`parallel`](#parallel)
   - [`piped`](#piped)
@@ -518,11 +519,11 @@ pre-commit
 
 ### `skip`
 
-You can skip commands or scripts using `skip` option. You can only skip when merging or rebasing if you want.
+You can skip all or specific commands and scripts using `skip` option. You can also skip when merging, rebasing, or being on a specific branch.
 
 **Example**
 
-Always skipping:
+Always skipping a command:
 
 ```yml
 # lefthook.yml
@@ -558,6 +559,21 @@ pre-commit:
     lint:
       skip: merge
       run: yarn lint
+```
+
+Skipping the whole hook on `main` branch:
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  skip:
+    - ref: main
+  commands:
+    lint:
+      run: yarn lint
+    text:
+      run: yarn test
 ```
 
 **Notes**
