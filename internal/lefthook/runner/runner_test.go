@@ -48,7 +48,7 @@ func TestRunAll(t *testing.T) {
 	}
 
 	for i, tt := range [...]struct {
-		name          string
+		name, branch  string
 		args          []string
 		sourceDirs    []string
 		existingFiles []string
@@ -155,6 +155,25 @@ func TestRunAll(t *testing.T) {
 			success: []Result{{Name: "lint", Status: StatusOk}},
 		},
 		{
+			name: "with global skip merge",
+			existingFiles: []string{
+				filepath.Join(gitPath, "MERGE_HEAD"),
+			},
+			hook: &config.Hook{
+				Skip: "merge",
+				Commands: map[string]*config.Command{
+					"test": {
+						Run: "success",
+					},
+					"lint": {
+						Run: "success",
+					},
+				},
+				Scripts: map[string]*config.Script{},
+			},
+			success: []Result{},
+		},
+		{
 			name: "with skip rebase and merge in an array",
 			existingFiles: []string{
 				filepath.Join(gitPath, "rebase-merge"),
@@ -173,6 +192,49 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{{Name: "lint", Status: StatusOk}},
+		},
+		{
+			name:   "with global skip on ref",
+			branch: "main",
+			existingFiles: []string{
+				filepath.Join(gitPath, "HEAD"),
+			},
+			hook: &config.Hook{
+				Skip: []interface{}{"merge", map[string]interface{}{"ref": "main"}},
+				Commands: map[string]*config.Command{
+					"test": {
+						Run: "success",
+					},
+					"lint": {
+						Run: "success",
+					},
+				},
+				Scripts: map[string]*config.Script{},
+			},
+			success: []Result{},
+		},
+		{
+			name:   "with global skip on another ref",
+			branch: "fix",
+			existingFiles: []string{
+				filepath.Join(gitPath, "HEAD"),
+			},
+			hook: &config.Hook{
+				Skip: []interface{}{"merge", map[string]interface{}{"ref": "main"}},
+				Commands: map[string]*config.Command{
+					"test": {
+						Run: "success",
+					},
+					"lint": {
+						Run: "success",
+					},
+				},
+				Scripts: map[string]*config.Script{},
+			},
+			success: []Result{
+				{Name: "test", Status: StatusOk},
+				{Name: "lint", Status: StatusOk},
+			},
 		},
 		{
 			name: "with fail test",
@@ -259,6 +321,12 @@ func TestRunAll(t *testing.T) {
 				t.Errorf("unexpected error: %s", err)
 			}
 			if err := afero.WriteFile(fs, file, []byte{}, 0o755); err != nil {
+				t.Errorf("unexpected error: %s", err)
+			}
+		}
+
+		if len(tt.branch) > 0 {
+			if err := afero.WriteFile(fs, filepath.Join(gitPath, "HEAD"), []byte("ref: refs/heads/"+tt.branch), 0o644); err != nil {
 				t.Errorf("unexpected error: %s", err)
 			}
 		}

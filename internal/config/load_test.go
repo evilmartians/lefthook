@@ -228,6 +228,8 @@ remote:
   config: examples/custom.yml
 
 pre-commit:
+  skip:
+    - ref: main
   commands:
     global:
       run: echo 'Global!'
@@ -239,7 +241,8 @@ pre-commit:
   commands:
     lint:
       run: yarn lint
-      skip: true
+      skip:
+        - merge
   scripts:
     "test.sh":
       runner: bash
@@ -256,10 +259,11 @@ pre-commit:
 				},
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Skip: []interface{}{map[string]interface{}{"ref": "main"}},
 						Commands: map[string]*Command{
 							"lint": {
 								Run:  "yarn lint",
-								Skip: true,
+								Skip: []interface{}{"merge"},
 							},
 							"global": {
 								Run: "echo 'Global!'",

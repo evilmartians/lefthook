@@ -7,12 +7,12 @@ func isSkip(gitState git.State, value interface{}) bool {
 	case bool:
 		return typedValue
 	case string:
-		return string(typedValue) == gitState.Step
+		return typedValue == gitState.Step
 	case []interface{}:
 		for _, state := range typedValue {
 			switch typedState := state.(type) {
 			case string:
-				if string(typedState) == gitState.Step {
+				if typedState == gitState.Step {
 					return true
 				}
 			case map[string]interface{}:
