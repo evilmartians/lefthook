@@ -24,6 +24,8 @@
     "lefthook-darwin-x64": "1.2.1",
     "lefthook-linux-arm64": "1.2.1",
     "lefthook-linux-x64": "1.2.1",
+    "lefthook-freebsd-arm64": "1.2.1",
+    "lefthook-freebsd-x64": "1.2.1",
     "lefthook-windows-arm64": "1.2.1",
     "lefthook-windows-x64": "1.2.1"
   },
