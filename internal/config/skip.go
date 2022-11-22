@@ -2,16 +2,23 @@ package config
 
 import "github.com/evilmartians/lefthook/internal/git"
 
-func isSkip(gitSkipState git.State, value interface{}) bool {
+func isSkip(gitState git.State, value interface{}) bool {
 	switch typedValue := value.(type) {
 	case bool:
 		return typedValue
 	case string:
-		return git.State(typedValue) == gitSkipState
+		return string(typedValue) == gitState.Step
 	case []interface{}:
-		for _, gitState := range typedValue {
-			if git.State(gitState.(string)) == gitSkipState {
-				return true
+		for _, state := range typedValue {
+			switch typedState := state.(type) {
+			case string:
+				if string(typedState) == gitState.Step {
+					return true
+				}
+			case map[string]interface{}:
+				if typedState["ref"].(string) == gitState.Branch {
+					return true
+				}
 			}
 		}
 	}

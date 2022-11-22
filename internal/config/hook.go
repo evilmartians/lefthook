@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/spf13/viper"
+
+	"github.com/evilmartians/lefthook/internal/git"
 )
 
 const CMD = "{cmd}"
@@ -23,10 +25,11 @@ type Hook struct {
 	// Unmarshaling it manually, so omit auto unmarshaling
 	Scripts map[string]*Script `mapstructure:"?"`
 
-	Files       string   `mapstructure:"files"`
-	Parallel    bool     `mapstructure:"parallel"`
-	Piped       bool     `mapstructure:"piped"`
-	ExcludeTags []string `mapstructure:"exclude_tags"`
+	Files       string      `mapstructure:"files"`
+	Parallel    bool        `mapstructure:"parallel"`
+	Piped       bool        `mapstructure:"piped"`
+	ExcludeTags []string    `mapstructure:"exclude_tags"`
+	Skip        interface{} `mapstructure:"skip"`
 }
 
 func (h *Hook) Validate() error {
@@ -35,6 +38,13 @@ func (h *Hook) Validate() error {
 	}
 
 	return nil
+}
+
+func (h *Hook) DoSkip(gitState git.State) bool {
+	if value := h.Skip; value != nil {
+		return isSkip(gitState, value)
+	}
+	return false
 }
 
 func unmarshalHooks(base, extra *viper.Viper) (*Hook, error) {

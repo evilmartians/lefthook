@@ -66,6 +66,11 @@ func (r *Runner) RunAll(hookName string, sourceDirs []string) {
 		log.Error(err)
 	}
 
+	if r.hook.Skip != nil && r.hook.DoSkip(r.repo.State()) {
+		logSkip(hookName, "(SKIP BY HOOK SETTING)")
+		return
+	}
+
 	log.StartSpinner()
 	defer log.StopSpinner()
 
@@ -210,7 +215,7 @@ func (r *Runner) runScripts(dir string) {
 }
 
 func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo) {
-	if script.DoSkip(r.repo.State()) {
+	if script.Skip != nil && script.DoSkip(r.repo.State()) {
 		logSkip(file.Name(), "(SKIP BY SETTINGS)")
 		return
 	}
@@ -304,7 +309,7 @@ func (r *Runner) runCommands() {
 }
 
 func (r *Runner) runCommand(name string, command *config.Command) {
-	if command.DoSkip(r.repo.State()) {
+	if command.Skip != nil && command.DoSkip(r.repo.State()) {
 		logSkip(name, "(SKIP BY SETTINGS)")
 		return
 	}
