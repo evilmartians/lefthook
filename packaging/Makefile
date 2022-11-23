@@ -5,6 +5,8 @@ DIST_DIR := ../dist
 
 LINUX_AMD64_BIN=$(DIST_DIR)/lefthook_linux_amd64_v1/lefthook
 LINUX_ARM64_BIN=$(DIST_DIR)/lefthook_linux_arm64/lefthook
+FREEBSD_AMD64_BIN=$(DIST_DIR)/lefthook_freebsd_amd64_v1/lefthook
+FREEBSD_ARM64_BIN=$(DIST_DIR)/lefthook_freebsd_arm64/lefthook
 WINDOWS_AMD64_BIN=$(DIST_DIR)/lefthook_windows_amd64_v1/lefthook.exe
 WINDOWS_ARM64_BIN=$(DIST_DIR)/lefthook_windows_arm64/lefthook.exe
 DARWIN_AMD64_BIN=$(DIST_DIR)/lefthook_darwin_amd64_v1/lefthook
@@ -29,6 +31,8 @@ set-version:
 put-binaries:
 	install -D $(LINUX_AMD64_BIN) npm/lefthook-linux-x64/bin/lefthook
 	install -D $(LINUX_ARM64_BIN) npm/lefthook-linux-arm64/bin/lefthook
+	install -D $(FREEBSD_AMD64_BIN) npm/lefthook-freebsd-x64/bin/lefthook
+	install -D $(FREEBSD_ARM64_BIN) npm/lefthook-freebsd-arm64/bin/lefthook
 	install -D $(WINDOWS_AMD64_BIN) npm/lefthook-windows-x64/bin/lefthook.exe
 	install -D $(WINDOWS_ARM64_BIN) npm/lefthook-windows-arm64/bin/lefthook.exe
 	install -D $(DARWIN_AMD64_BIN) npm/lefthook-darwin-x64/bin/lefthook

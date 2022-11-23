@@ -1,0 +1,19 @@
+{
+  "name": "lefthook-freebsd-x64",
+  "version": "1.2.1",
+  "description": "The FreeBSD 64-bit binary for lefthook, git hooks manager.",
+  "preferUnplugged": false,
+  "repository": "https://github.com/evilmartians/lefthook",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/evilmartians/lefthook/issues",
+    "email": "lefthook@evilmartians.com"
+  },
+  "homepage": "https://github.com/evilmartians/lefthook#readme",
+  "os": [
+    "freebsd"
+  ],
+  "cpu": [
+    "x64"
+  ]
+}
