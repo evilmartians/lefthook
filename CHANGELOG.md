@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.2.2 (2022-11-23)
+
 - chore: Add FreeBSD OS to packages ([PR #377](https://github.com/evilmartians/lefthook/pull/377) by @mrexox)
 - feature: Skip based on branch name and allow global skip rules ([PR #376](https://github.com/evilmartians/lefthook/pull/376) by @mrexox)
 - fix: Omit LFS output unless it is required ([PR #373](https://github.com/evilmartians/lefthook/pull/373) by @mrexox)
@@ -24,6 +26,7 @@
 - feature: Add `LEFTHOOK_VERBOSE` env ([PR #346](https://github.com/evilmartians/lefthook/pull/346) by @mrexox)
 
 ## 1.1.3 (2022-10-15)
+
 - ci: Fix snapcraft trying to create dirs in parallel by @mrexox
 - feature: Allow setting env vars ([PR #337](https://github.com/evilmartians/lefthook/pull/337) by @mrexox)
 - feature: Show current running command and script name(s) ([PR #338](https://github.com/evilmartians/lefthook/pull/338) by @mrexox)
