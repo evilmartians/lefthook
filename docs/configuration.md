@@ -240,7 +240,7 @@ pre-commit:
 
 **Default: `false`**
 
-Whether run commands and scripts in concurrently.
+Whether run commands and scripts concurrently.
 
 ### `piped`
 
