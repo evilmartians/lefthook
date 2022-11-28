@@ -57,7 +57,7 @@ See:
 ## Why Lefthook
 
 * ### **Parallel execution**
-Gives you more speed. [Example](./docs/full_guide.md#parallel-execution)
+Gives you more speed. [Example](./docs/configuration.md#parallel)
 
 ```yml
 pre-push:
@@ -65,7 +65,7 @@ pre-push:
 ```
 
 * ### **Flexible list of files**
-If you want your own list. [Custom](./docs/full_guide.md#custom-file-list) and [prebuilt](./docs/full_guide.md#select-specific-file-groups) examples.
+If you want your own list. [Custom](./docs/configuration.md#files) and [prebuilt](./docs/configuration.md#run) examples.
 
 ```yml
 pre-commit:
@@ -105,7 +105,7 @@ pre-commit:
 
 * ### **Run scripts**
 
-If oneline commands are not enough, you can execute files. [Example](./docs/full_guide.md#bash-script-example).
+If oneline commands are not enough, you can execute files. [Example](./docs/configuration.md#script).
 
 ```yml
 commit-msg:
@@ -115,7 +115,7 @@ commit-msg:
 ```
 
 * ### **Tags**
-If you want to control a group of commands. [Example](./docs/full_guide.md#skipping-commands-by-tags).
+If you want to control a group of commands. [Example](./docs/configuration.md#tags).
 
 ```yml
 pre-push:
@@ -130,7 +130,7 @@ pre-push:
 
 * ### **Support Docker**
 
-If you are in the Docker environment. [Example](./docs/full_guide.md#referencing-commands-from-lefthookyml).
+If you are in the Docker environment. [Example](./docs/configuration.md#cmd-template).
 
 ```yml
 pre-commit:
@@ -141,7 +141,7 @@ pre-commit:
 
 * ### **Local config**
 
-If you a frontend/backend developer and want to skip unnecessary commands or override something into Docker. [Description](./docs/full_guide.md#local-config).
+If you a frontend/backend developer and want to skip unnecessary commands or override something into Docker. [Description](./docs/usage.md#local-config).
 
 ```yml
 # lefthook-local.yml
@@ -178,7 +178,9 @@ $ lefthook run fixer
 ```
 
 * ### **Optional output**
-If you don't want to see supporting information:
+
+If you [don't want to see](./docs/configuration.md#skip_output) supporting information:
+
 ```yml
 skip_output:
   - meta #(version and which hook running)
