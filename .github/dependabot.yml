@@ -1,0 +1,16 @@
+---
+version: 2
+updates:
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "6:00"  # 6:00 UTC
+    assignees:
+      - "mrexox"
+    reviewers:
+      - "mrexox"
+    commit-message:
+      prefix: "deps"
+    open-pull-requests-limit: 10
