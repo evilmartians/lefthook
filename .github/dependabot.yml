@@ -6,7 +6,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "6:00"  # 6:00 UTC
+      time: "06:00"  # 6:00 UTC
     assignees:
       - "mrexox"
     reviewers:
