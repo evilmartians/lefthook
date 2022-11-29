@@ -3,14 +3,15 @@ version: 2
 updates:
   - package-ecosystem: "gomod"
     directory: "/"
+    target-branch: "dependencies"
+    open-pull-requests-limit: 10
     schedule:
       interval: "weekly"
       day: "monday"
       time: "06:00"  # 6:00 UTC
+    commit-message:
+      prefix: "deps"
     assignees:
       - "mrexox"
     reviewers:
       - "mrexox"
-    commit-message:
-      prefix: "deps"
-    open-pull-requests-limit: 10
