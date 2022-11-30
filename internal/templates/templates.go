@@ -14,9 +14,8 @@ const checksumFormat = "%s %d\n"
 var templatesFS embed.FS
 
 type hookTmplData struct {
-	AutoInstall string
-	HookName    string
-	Extension   string
+	HookName  string
+	Extension string
 }
 
 func Hook(hookName string) []byte {

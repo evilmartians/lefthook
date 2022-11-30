@@ -25,7 +25,7 @@ func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
 	for name, value := range opts.env {
 		envList = append(
 			envList,
-			fmt.Sprintf("%s=%s", strings.ToUpper(name), value),
+			fmt.Sprintf("%s=%s", strings.ToUpper(name), os.ExpandEnv(value)),
 		)
 	}
 
