@@ -2,6 +2,9 @@
 
 ## master (unreleased)
 
+- feature: Expand env variables ([PR #391](https://github.com/evilmartians/lefthook/pull/391) by @mrexox)
+- deps: Update important dependencies ([PR #389](https://github.com/evilmartians/lefthook/pull/389) by @mrexox)
+
 ## 1.2.2 (2022-11-23)
 
 - chore: Add FreeBSD OS to packages ([PR #377](https://github.com/evilmartians/lefthook/pull/377) by @mrexox)
