@@ -143,7 +143,7 @@ This option is useful if you have a `lefthook-local.yml` config file and want to
 
 ### `rc`
 
-Provide an [**rc**](https://www.baeldung.com/linux/rc-files) file, which is actually a simple shell-like file. Currently it can be used to set ENV variables that are not accessible from non-shell programs.
+Provide an [**rc**](https://www.baeldung.com/linux/rc-files) file, which is actually a simple `sh` script. Currently it can be used to set ENV variables that are not accessible from non-shell programs.
 
 **Example**
 
