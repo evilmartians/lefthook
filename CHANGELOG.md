@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+- feature: Allow providing rc file ([PR #392](https://github.com/evilmartians/lefthook/pull/392) by @mrexox)
+
 ## 1.2.3 (2022-11-30)
 
 - feature: Expand env variables ([PR #391](https://github.com/evilmartians/lefthook/pull/391) by @mrexox)
