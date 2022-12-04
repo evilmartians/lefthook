@@ -7,6 +7,7 @@
   - [`skip_output`](#skip_output)
   - [`source_dir`](#source_dir)
   - [`source_dir_local`](#source_dir_local)
+  - [`rc`](#rc)
 - [`remote` (Beta :test_tube:)](#remote)
   - [`git_url`](#git_url)
   - [`ref`](#ref)
@@ -139,6 +140,65 @@ Example of directory tree:
 Change a directory for *local* script files (not stored in VCS).
 
 This option is useful if you have a `lefthook-local.yml` config file and want to reference different scripts there.
+
+### `rc`
+
+Provide an [**rc**](https://www.baeldung.com/linux/rc-files) file, which is actually a simple shell-like file. Currently it can be used to set ENV variables that are not accessible from non-shell programs.
+
+**Example**
+
+Use cases:
+
+- You have a GUI program that runs git hooks (e.g., VSCode)
+- You reference executables that are accessible only from a tweaked $PATH environment variable (e.g., when using rbenv or nvm)
+- Or even if your GUI programm cannot locate the `lefthook` executable :scream:
+- Or if you want to use ENV variables that control the executables behavior in `lefthook.yml`
+
+```bash
+# An npm executable which is managed by nvm
+$ which npm
+/home/user/.nvm/versions/node/v15.14.0/bin/npm
+```
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      run: npm run eslint {staged_files}
+```
+
+Provide a tweak to access `npm` executable the same way you do it in your ~/<shell>rc
+
+```yml
+# lefthook-local.yml
+
+# You can choose whatever name you want.
+# You can share it between projects where you use lefthook.
+# Make sure the path is absolute.
+rc: ~/.lefthookrc
+```
+
+```bash
+# ~/.lefthookrc
+
+# An nvm way
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+# Or maybe just
+
+PATH=$PATH:$HOME/.nvm/versions/node/v15.14.0/bin
+```
+
+```bash
+# Make sure you updated git hooks. This is important.
+$ lefthook install -f
+```
+
+Now any program that runs your hooks will have a tweaked PATH environment variable and will be able to get `nvm` :wink:
 
 ## `remote`
 
