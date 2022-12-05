@@ -4,6 +4,12 @@ if [ "$LEFTHOOK" = "0" ]; then
   exit 0
 fi
 
+{{- if .Rc}}
+{{/* Load rc file and export all ENV vars defined in it */}}
+set -a
+[ -f '{{.Rc}}' ] && source '{{.Rc}}'
+{{- end}}
+
 call_lefthook()
 {
   dir="$(git rev-parse --show-toplevel)"

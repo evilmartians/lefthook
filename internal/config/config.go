@@ -12,6 +12,7 @@ type Config struct {
 	SkipOutput     []string `mapstructure:"skip_output"`
 	SourceDir      string   `mapstructure:"source_dir"`
 	SourceDirLocal string   `mapstructure:"source_dir_local"`
+	Rc             string   `mapstructure:"rc"`
 
 	Hooks map[string]*Hook
 }
