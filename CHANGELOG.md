@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.2.4 (2022-12-05)
+
 - feature: Allow providing rc file ([PR #392](https://github.com/evilmartians/lefthook/pull/392) by @mrexox)
 
 ## 1.2.3 (2022-11-30)
