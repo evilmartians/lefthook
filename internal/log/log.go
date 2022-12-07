@@ -9,10 +9,16 @@ import (
 	"time"
 
 	"github.com/briandowns/spinner"
-	"github.com/logrusorgru/aurora"
+	"github.com/charmbracelet/lipgloss"
 )
 
-const grayColor = 11
+const (
+	colorCyan   = "#70C0BA"
+	colorYellow = "#fada5e"
+	colorRed    = "#ff6347"
+	colorGreen  = "#76ff7a"
+	colorGray   = "#808080"
+)
 
 var std = New()
 
@@ -31,18 +37,18 @@ const (
 
 type Logger struct {
 	level   Level
-	aurora  aurora.Aurora
 	out     io.Writer
 	mu      sync.Mutex
-	spinner *spinner.Spinner
+	colors  bool
 	names   []string
+	spinner *spinner.Spinner
 }
 
 func New() *Logger {
 	return &Logger{
 		level:  InfoLevel,
 		out:    os.Stdout,
-		aurora: aurora.NewAurora(true),
+		colors: true,
 		spinner: spinner.New(
 			spinner.CharSets[spinnerCharSet],
 			spinnerRefreshRate,
@@ -61,7 +67,7 @@ func StopSpinner() {
 
 func Debug(args ...interface{}) {
 	res := fmt.Sprint(args...)
-	std.Debug(std.aurora.Gray(grayColor, res))
+	std.Debug(color(colorGray).Render(res))
 }
 
 func Debugf(format string, args ...interface{}) {
@@ -87,7 +93,7 @@ func Errorf(format string, args ...interface{}) {
 
 func Warn(args ...interface{}) {
 	res := fmt.Sprint(args...)
-	std.Warn(std.aurora.Yellow(res))
+	std.Warn(Yellow(res))
 }
 
 func Warnf(format string, args ...interface{}) {
@@ -107,27 +113,35 @@ func SetLevel(level Level) {
 }
 
 func SetColors(enable bool) {
-	std.aurora = aurora.NewAurora(enable)
+	std.colors = enable
 }
 
-func Cyan(arg interface{}) aurora.Value {
-	return std.aurora.Cyan(arg)
+func Cyan(s string) string {
+	return color(colorCyan).Render(s)
 }
 
-func Green(arg interface{}) aurora.Value {
-	return std.aurora.Green(arg)
+func Green(s string) string {
+	return color(colorGreen).Render(s)
 }
 
-func Red(arg interface{}) aurora.Value {
-	return std.aurora.Red(arg)
+func Red(s string) string {
+	return color(colorRed).Render(s)
 }
 
-func Yellow(arg interface{}) aurora.Value {
-	return std.aurora.Yellow(arg)
+func Yellow(s string) string {
+	return color(colorYellow).Render(s)
 }
 
-func Bold(arg interface{}) aurora.Value {
-	return std.aurora.Bold(arg)
+func Bold(s string) string {
+	return lipgloss.NewStyle().Bold(true).Render(s)
+}
+
+func color(colorCode string) lipgloss.Style {
+	if !std.colors {
+		return lipgloss.NewStyle()
+	}
+
+	return lipgloss.NewStyle().Foreground(lipgloss.Color(colorCode))
 }
 
 func SetOutput(out io.Writer) {
