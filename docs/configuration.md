@@ -2,6 +2,7 @@
 
 - [Top level options](#top-level-options)
   - [`colors`](#colors)
+  - [`no_tty`](#no-tty)
   - [`extends`](#extends)
   - [`min_version`](#min_version)
   - [`skip_output`](#skip_output)
@@ -59,6 +60,20 @@ Whether enable or disable colorful output of Lefthook. This option can be overwr
 # lefthook.yml
 
 colors: false
+```
+
+### `no_tty`
+
+**Default: `false`**
+
+Whether hide spinner and other interactive things. This can be also controlled with `--no-tty` option for `lefthook run` command.
+
+**Example**
+
+```yml
+# lefthook.yml
+
+no_tty: true
 ```
 
 ### `extends`

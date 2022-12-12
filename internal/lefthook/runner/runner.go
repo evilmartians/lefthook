@@ -30,15 +30,15 @@ var surroundingQuotesRegexp = regexp.MustCompile(`^'(.*)'$`)
 
 // Runner responds for actual execution and handling the results.
 type Runner struct {
-	fs             afero.Fs
-	repo           *git.Repository
-	hook           *config.Hook
-	args           []string
-	failed         atomic.Bool
-	resultChan     chan Result
-	exec           Executor
-	logSettings    log.SkipSettings
-	spinnerEnabled bool
+	fs          afero.Fs
+	repo        *git.Repository
+	hook        *config.Hook
+	args        []string
+	failed      atomic.Bool
+	resultChan  chan Result
+	exec        Executor
+	logSettings log.SkipSettings
+	ttyDisabled bool
 }
 
 func NewRunner(
@@ -48,17 +48,17 @@ func NewRunner(
 	args []string,
 	resultChan chan Result,
 	logSettings log.SkipSettings,
-	spinnerEnabled bool,
+	ttyDisabled bool,
 ) *Runner {
 	return &Runner{
-		fs:             fs,
-		repo:           repo,
-		hook:           hook,
-		args:           args,
-		resultChan:     resultChan,
-		exec:           CommandExecutor{},
-		logSettings:    logSettings,
-		spinnerEnabled: spinnerEnabled,
+		fs:          fs,
+		repo:        repo,
+		hook:        hook,
+		args:        args,
+		resultChan:  resultChan,
+		exec:        CommandExecutor{},
+		logSettings: logSettings,
+		ttyDisabled: ttyDisabled,
 	}
 }
 
@@ -74,7 +74,7 @@ func (r *Runner) RunAll(hookName string, sourceDirs []string) {
 		return
 	}
 
-	if r.spinnerEnabled {
+	if !r.ttyDisabled {
 		log.StartSpinner()
 		defer log.StopSpinner()
 	}
@@ -253,7 +253,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 	args = append(args, path)
 	args = append(args, r.args[:]...)
 
-	if script.Interactive && r.spinnerEnabled {
+	if script.Interactive && !r.ttyDisabled {
 		log.StopSpinner()
 		defer log.StartSpinner()
 	}
@@ -263,7 +263,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 		root:        r.repo.RootPath,
 		args:        args,
 		failText:    script.FailText,
-		interactive: script.Interactive,
+		interactive: script.Interactive && !r.ttyDisabled,
 		env:         script.Env,
 	})
 }
@@ -345,7 +345,7 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 		return
 	}
 
-	if command.Interactive && r.spinnerEnabled {
+	if command.Interactive && !r.ttyDisabled {
 		log.StopSpinner()
 		defer log.StartSpinner()
 	}
@@ -355,7 +355,7 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 		root:        filepath.Join(r.repo.RootPath, command.Root),
 		args:        args,
 		failText:    command.FailText,
-		interactive: command.Interactive,
+		interactive: command.Interactive && !r.ttyDisabled,
 		env:         command.Env,
 	})
 }

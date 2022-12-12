@@ -18,7 +18,6 @@ const (
 	DefaultSourceDir      = ".lefthook"
 	DefaultSourceDirLocal = ".lefthook-local"
 	DefaultColorsEnabled  = true
-	DefaultSpinnerEnabled = true
 )
 
 var hookKeyRegexp = regexp.MustCompile(`^(?P<hookName>[^.]+)\.(scripts|commands)`)
@@ -40,7 +39,6 @@ func Load(fs afero.Fs, repo *git.Repository) (*Config, error) {
 	config.Colors = DefaultColorsEnabled
 	config.SourceDir = DefaultSourceDir
 	config.SourceDirLocal = DefaultSourceDirLocal
-	config.Spinner = DefaultSpinnerEnabled
 
 	err = unmarshalConfigs(global, extends, &config)
 	if err != nil {

@@ -20,16 +20,20 @@ const (
 	envVerbose    = "LEFTHOOK_VERBOSE" // keep all output
 )
 
-func Run(opts *Options, hookName string, gitArgs []string) error {
+type RunArgs struct {
+	NoTTY bool
+}
+
+func Run(opts *Options, args RunArgs, hookName string, gitArgs []string) error {
 	lefthook, err := initialize(opts)
 	if err != nil {
 		return err
 	}
 
-	return lefthook.Run(hookName, gitArgs)
+	return lefthook.Run(hookName, args, gitArgs)
 }
 
-func (l *Lefthook) Run(hookName string, gitArgs []string) error {
+func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	if os.Getenv(envEnabled) == "0" || os.Getenv(envEnabled) == "false" {
 		return nil
 	}
@@ -97,7 +101,16 @@ Run 'lefthook install' manually.`,
 
 	startTime := time.Now()
 	resultChan := make(chan runner.Result, len(hook.Commands)+len(hook.Scripts))
-	run := runner.NewRunner(l.Fs, l.repo, hook, gitArgs, resultChan, logSettings, cfg.Spinner)
+
+	run := runner.NewRunner(
+		l.Fs,
+		l.repo,
+		hook,
+		gitArgs,
+		resultChan,
+		logSettings,
+		cfg.NoTTY || args.NoTTY,
+	)
 
 	sourceDirs := []string{
 		filepath.Join(l.repo.RootPath, cfg.SourceDir),
