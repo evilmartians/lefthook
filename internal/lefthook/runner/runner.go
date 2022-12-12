@@ -469,10 +469,10 @@ func (r *Runner) run(opts ExecuteOptions) {
 	var execName string
 	if err != nil {
 		r.fail(opts.name, opts.failText)
-		execName = fmt.Sprint(log.Red("\n  EXECUTE >"), log.Bold(opts.name))
+		execName = fmt.Sprint(log.Red("\n  EXECUTE > "), log.Bold(opts.name))
 	} else {
 		r.success(opts.name)
-		execName = fmt.Sprint(log.Cyan("\n  EXECUTE >"), log.Bold(opts.name))
+		execName = fmt.Sprint(log.Cyan("\n  EXECUTE > "), log.Bold(opts.name))
 	}
 
 	if out != nil {
