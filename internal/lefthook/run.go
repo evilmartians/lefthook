@@ -97,7 +97,7 @@ Run 'lefthook install' manually.`,
 
 	startTime := time.Now()
 	resultChan := make(chan runner.Result, len(hook.Commands)+len(hook.Scripts))
-	run := runner.NewRunner(l.Fs, l.repo, hook, gitArgs, resultChan, logSettings)
+	run := runner.NewRunner(l.Fs, l.repo, hook, gitArgs, resultChan, logSettings, cfg.Spinner)
 
 	sourceDirs := []string{
 		filepath.Join(l.repo.RootPath, cfg.SourceDir),

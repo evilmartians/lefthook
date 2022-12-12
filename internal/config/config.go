@@ -13,6 +13,7 @@ type Config struct {
 	SourceDir      string   `mapstructure:"source_dir"`
 	SourceDirLocal string   `mapstructure:"source_dir_local"`
 	Rc             string   `mapstructure:"rc"`
+	Spinner        bool     `mapstructure:"spinner"`
 
 	Hooks map[string]*Hook
 }

@@ -30,14 +30,15 @@ var surroundingQuotesRegexp = regexp.MustCompile(`^'(.*)'$`)
 
 // Runner responds for actual execution and handling the results.
 type Runner struct {
-	fs          afero.Fs
-	repo        *git.Repository
-	hook        *config.Hook
-	args        []string
-	failed      atomic.Bool
-	resultChan  chan Result
-	exec        Executor
-	logSettings log.SkipSettings
+	fs             afero.Fs
+	repo           *git.Repository
+	hook           *config.Hook
+	args           []string
+	failed         atomic.Bool
+	resultChan     chan Result
+	exec           Executor
+	logSettings    log.SkipSettings
+	spinnerEnabled bool
 }
 
 func NewRunner(
@@ -47,15 +48,17 @@ func NewRunner(
 	args []string,
 	resultChan chan Result,
 	logSettings log.SkipSettings,
+	spinnerEnabled bool,
 ) *Runner {
 	return &Runner{
-		fs:          fs,
-		repo:        repo,
-		hook:        hook,
-		args:        args,
-		resultChan:  resultChan,
-		exec:        CommandExecutor{},
-		logSettings: logSettings,
+		fs:             fs,
+		repo:           repo,
+		hook:           hook,
+		args:           args,
+		resultChan:     resultChan,
+		exec:           CommandExecutor{},
+		logSettings:    logSettings,
+		spinnerEnabled: spinnerEnabled,
 	}
 }
 
@@ -71,8 +74,10 @@ func (r *Runner) RunAll(hookName string, sourceDirs []string) {
 		return
 	}
 
-	log.StartSpinner()
-	defer log.StopSpinner()
+	if r.spinnerEnabled {
+		log.StartSpinner()
+		defer log.StopSpinner()
+	}
 
 	scriptDirs := make([]string, len(sourceDirs))
 	for _, sourceDir := range sourceDirs {
@@ -248,7 +253,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 	args = append(args, path)
 	args = append(args, r.args[:]...)
 
-	if script.Interactive {
+	if script.Interactive && r.spinnerEnabled {
 		log.StopSpinner()
 		defer log.StartSpinner()
 	}
@@ -340,7 +345,7 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 		return
 	}
 
-	if command.Interactive {
+	if command.Interactive && r.spinnerEnabled {
 		log.StopSpinner()
 		defer log.StartSpinner()
 	}
