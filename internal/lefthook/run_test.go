@@ -162,7 +162,7 @@ pre-commit:
 				t.Setenv(env, value)
 			}
 
-			err = lefthook.Run(tt.hook, tt.gitArgs)
+			err = lefthook.Run(tt.hook, RunArgs{}, tt.gitArgs)
 			if err != nil {
 				if !tt.error {
 					t.Errorf("unexpected error: %s", err)
