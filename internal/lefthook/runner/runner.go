@@ -38,6 +38,7 @@ type Runner struct {
 	resultChan  chan Result
 	exec        Executor
 	logSettings log.SkipSettings
+	ttyDisabled bool
 }
 
 func NewRunner(
@@ -47,6 +48,7 @@ func NewRunner(
 	args []string,
 	resultChan chan Result,
 	logSettings log.SkipSettings,
+	ttyDisabled bool,
 ) *Runner {
 	return &Runner{
 		fs:          fs,
@@ -56,6 +58,7 @@ func NewRunner(
 		resultChan:  resultChan,
 		exec:        CommandExecutor{},
 		logSettings: logSettings,
+		ttyDisabled: ttyDisabled,
 	}
 }
 
@@ -71,8 +74,10 @@ func (r *Runner) RunAll(hookName string, sourceDirs []string) {
 		return
 	}
 
-	log.StartSpinner()
-	defer log.StopSpinner()
+	if !r.ttyDisabled {
+		log.StartSpinner()
+		defer log.StopSpinner()
+	}
 
 	scriptDirs := make([]string, len(sourceDirs))
 	for _, sourceDir := range sourceDirs {
@@ -248,7 +253,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 	args = append(args, path)
 	args = append(args, r.args[:]...)
 
-	if script.Interactive {
+	if script.Interactive && !r.ttyDisabled {
 		log.StopSpinner()
 		defer log.StartSpinner()
 	}
@@ -258,7 +263,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 		root:        r.repo.RootPath,
 		args:        args,
 		failText:    script.FailText,
-		interactive: script.Interactive,
+		interactive: script.Interactive && !r.ttyDisabled,
 		env:         script.Env,
 	})
 }
@@ -340,7 +345,7 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 		return
 	}
 
-	if command.Interactive {
+	if command.Interactive && !r.ttyDisabled {
 		log.StopSpinner()
 		defer log.StartSpinner()
 	}
@@ -350,7 +355,7 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 		root:        filepath.Join(r.repo.RootPath, command.Root),
 		args:        args,
 		failText:    command.FailText,
-		interactive: command.Interactive,
+		interactive: command.Interactive && !r.ttyDisabled,
 		env:         command.Env,
 	})
 }
