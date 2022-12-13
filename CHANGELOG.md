@@ -2,6 +2,12 @@
 
 ## master (unreleased)
 
+## 1.2.5 (2022-12-13)
+
+- feature: Add an option to disable spinner ([#396](https://github.com/evilmartians/lefthook/pull/396)) by @mrexox
+- feature: Use pnpm before npx ([#393](https://github.com/evilmartians/lefthook/pull/393)) by @mrexox
+- chore: Use lipgloss for output ([#395](https://github.com/evilmartians/lefthook/pull/395)) by @mrexox
+
 ## 1.2.4 (2022-12-05)
 
 - feature: Allow providing rc file ([PR #392](https://github.com/evilmartians/lefthook/pull/392) by @mrexox)
