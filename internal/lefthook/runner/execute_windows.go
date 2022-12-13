@@ -3,6 +3,7 @@ package runner
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -12,7 +13,7 @@ import (
 
 type CommandExecutor struct{}
 
-func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
+func (e CommandExecutor) Execute(opts ExecuteOptions, out io.Writer) error {
 	command := exec.Command(opts.args[0])
 	command.SysProcAttr = &syscall.SysProcAttr{
 		CmdLine: strings.Join(opts.args, " "),
@@ -31,12 +32,10 @@ func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
 
 	command.Env = append(os.Environ(), envList...)
 
-	var out bytes.Buffer
-
 	if opts.interactive {
 		command.Stdout = os.Stdout
 	} else {
-		command.Stdout = &out
+		command.Stdout = out
 	}
 
 	command.Stdin = os.Stdin
@@ -48,7 +47,7 @@ func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
 
 	defer func() { _ = command.Process.Kill() }()
 
-	return &out, command.Wait()
+	return command.Wait()
 }
 
 func (e CommandExecutor) RawExecute(command string, args ...string) (*bytes.Buffer, error) {

@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -28,37 +29,29 @@ const (
 
 var surroundingQuotesRegexp = regexp.MustCompile(`^'(.*)'$`)
 
-// Runner responds for actual execution and handling the results.
-type Runner struct {
-	fs          afero.Fs
-	repo        *git.Repository
-	hook        *config.Hook
-	args        []string
-	failed      atomic.Bool
-	resultChan  chan Result
-	exec        Executor
-	logSettings log.SkipSettings
-	ttyDisabled bool
+type Opts struct {
+	Fs           afero.Fs
+	Repo         *git.Repository
+	Hook         *config.Hook
+	GitArgs      []string
+	ResultChan   chan Result
+	SkipSettings log.SkipSettings
+	DisableTTY   bool
+	Follow       bool
 }
 
-func NewRunner(
-	fs afero.Fs,
-	repo *git.Repository,
-	hook *config.Hook,
-	args []string,
-	resultChan chan Result,
-	logSettings log.SkipSettings,
-	ttyDisabled bool,
-) *Runner {
+// Runner responds for actual execution and handling the results.
+type Runner struct {
+	Opts
+
+	failed   atomic.Bool
+	executor Executor
+}
+
+func NewRunner(opts Opts) *Runner {
 	return &Runner{
-		fs:          fs,
-		repo:        repo,
-		hook:        hook,
-		args:        args,
-		resultChan:  resultChan,
-		exec:        CommandExecutor{},
-		logSettings: logSettings,
-		ttyDisabled: ttyDisabled,
+		Opts:     opts,
+		executor: CommandExecutor{},
 	}
 }
 
@@ -69,12 +62,12 @@ func (r *Runner) RunAll(hookName string, sourceDirs []string) {
 		log.Error(err)
 	}
 
-	if r.hook.Skip != nil && r.hook.DoSkip(r.repo.State()) {
+	if r.Hook.Skip != nil && r.Hook.DoSkip(r.Repo.State()) {
 		logSkip(hookName, "(SKIP BY HOOK SETTING)")
 		return
 	}
 
-	if !r.ttyDisabled {
+	if !r.DisableTTY && !r.Follow {
 		log.StartSpinner()
 		defer log.StopSpinner()
 	}
@@ -94,12 +87,12 @@ func (r *Runner) RunAll(hookName string, sourceDirs []string) {
 }
 
 func (r *Runner) fail(name, text string) {
-	r.resultChan <- resultFail(name, text)
+	r.ResultChan <- resultFail(name, text)
 	r.failed.Store(true)
 }
 
 func (r *Runner) success(name string) {
-	r.resultChan <- resultSuccess(name)
+	r.ResultChan <- resultSuccess(name)
 }
 
 func (r *Runner) runLFSHook(hookName string) error {
@@ -107,27 +100,27 @@ func (r *Runner) runLFSHook(hookName string) error {
 		return nil
 	}
 
-	lfsRequiredFile := filepath.Join(r.repo.RootPath, git.LFSRequiredFile)
-	lfsConfigFile := filepath.Join(r.repo.RootPath, git.LFSConfigFile)
+	lfsRequiredFile := filepath.Join(r.Repo.RootPath, git.LFSRequiredFile)
+	lfsConfigFile := filepath.Join(r.Repo.RootPath, git.LFSConfigFile)
 
-	requiredExists, err := afero.Exists(r.repo.Fs, lfsRequiredFile)
+	requiredExists, err := afero.Exists(r.Fs, lfsRequiredFile)
 	if err != nil {
 		return err
 	}
-	configExists, err := afero.Exists(r.repo.Fs, lfsConfigFile)
+	configExists, err := afero.Exists(r.Fs, lfsConfigFile)
 	if err != nil {
 		return err
 	}
 
 	if git.IsLFSAvailable() {
 		log.Debugf(
-			"[git-lfs] executing hook: git lfs %s %s", hookName, strings.Join(r.args, " "),
+			"[git-lfs] executing hook: git lfs %s %s", hookName, strings.Join(r.GitArgs, " "),
 		)
-		out, err := r.exec.RawExecute(
+		out, err := r.executor.RawExecute(
 			"git",
 			append(
 				[]string{"lfs", hookName},
-				r.args...,
+				r.GitArgs...,
 			)...,
 		)
 
@@ -166,7 +159,7 @@ func (r *Runner) runLFSHook(hookName string) error {
 }
 
 func (r *Runner) runScripts(dir string) {
-	files, err := afero.ReadDir(r.fs, dir) // ReadDir already sorts files by .Name()
+	files, err := afero.ReadDir(r.Fs, dir) // ReadDir already sorts files by .Name()
 	if err != nil || len(files) == 0 {
 		return
 	}
@@ -175,13 +168,13 @@ func (r *Runner) runScripts(dir string) {
 	var wg sync.WaitGroup
 
 	for _, file := range files {
-		script, ok := r.hook.Scripts[file.Name()]
+		script, ok := r.Hook.Scripts[file.Name()]
 		if !ok {
 			logSkip(file.Name(), "(SKIP BY NOT EXIST IN CONFIG)")
 			continue
 		}
 
-		if r.failed.Load() && r.hook.Piped {
+		if r.failed.Load() && r.Hook.Piped {
 			logSkip(file.Name(), "(SKIP BY BROKEN PIPE)")
 			continue
 		}
@@ -193,7 +186,7 @@ func (r *Runner) runScripts(dir string) {
 
 		path := filepath.Join(dir, file.Name())
 
-		if r.hook.Parallel {
+		if r.Hook.Parallel {
 			wg.Add(1)
 			go func(script *config.Script, path string, file os.FileInfo) {
 				defer wg.Done()
@@ -207,7 +200,7 @@ func (r *Runner) runScripts(dir string) {
 	wg.Wait()
 
 	for _, file := range interactiveScripts {
-		script := r.hook.Scripts[file.Name()]
+		script := r.Hook.Scripts[file.Name()]
 		if r.failed.Load() {
 			logSkip(file.Name(), "(SKIP INTERACTIVE BY FAILED)")
 			continue
@@ -220,12 +213,12 @@ func (r *Runner) runScripts(dir string) {
 }
 
 func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo) {
-	if script.Skip != nil && script.DoSkip(r.repo.State()) {
+	if script.Skip != nil && script.DoSkip(r.Repo.State()) {
 		logSkip(file.Name(), "(SKIP BY SETTINGS)")
 		return
 	}
 
-	if intersect(r.hook.ExcludeTags, script.Tags) {
+	if intersect(r.Hook.ExcludeTags, script.Tags) {
 		logSkip(file.Name(), "(SKIP BY TAGS)")
 		return
 	}
@@ -238,7 +231,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 
 	// Make sure file is executable
 	if (file.Mode() & executableMask) == 0 {
-		if err := r.fs.Chmod(path, executableFileMode); err != nil {
+		if err := r.Fs.Chmod(path, executableFileMode); err != nil {
 			log.Errorf("Couldn't change file mode to make file executable: %s", err)
 			r.fail(file.Name(), "")
 			return
@@ -251,26 +244,27 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 	}
 
 	args = append(args, path)
-	args = append(args, r.args[:]...)
+	args = append(args, r.GitArgs[:]...)
 
-	if script.Interactive && !r.ttyDisabled {
+	if script.Interactive && !r.DisableTTY && !r.Follow {
 		log.StopSpinner()
 		defer log.StartSpinner()
 	}
 
 	r.run(ExecuteOptions{
 		name:        file.Name(),
-		root:        r.repo.RootPath,
+		root:        r.Repo.RootPath,
 		args:        args,
 		failText:    script.FailText,
-		interactive: script.Interactive && !r.ttyDisabled,
+		interactive: script.Interactive && !r.DisableTTY,
 		env:         script.Env,
+		follow:      r.Follow,
 	})
 }
 
 func (r *Runner) runCommands() {
-	commands := make([]string, 0, len(r.hook.Commands))
-	for name := range r.hook.Commands {
+	commands := make([]string, 0, len(r.Hook.Commands))
+	for name := range r.Hook.Commands {
 		commands = append(commands, name)
 	}
 
@@ -280,24 +274,24 @@ func (r *Runner) runCommands() {
 	var wg sync.WaitGroup
 
 	for _, name := range commands {
-		if r.failed.Load() && r.hook.Piped {
+		if r.failed.Load() && r.Hook.Piped {
 			logSkip(name, "(SKIP BY BROKEN PIPE)")
 			continue
 		}
 
-		if r.hook.Commands[name].Interactive {
+		if r.Hook.Commands[name].Interactive {
 			interactiveCommands = append(interactiveCommands, name)
 			continue
 		}
 
-		if r.hook.Parallel {
+		if r.Hook.Parallel {
 			wg.Add(1)
 			go func(name string, command *config.Command) {
 				defer wg.Done()
 				r.runCommand(name, command)
-			}(name, r.hook.Commands[name])
+			}(name, r.Hook.Commands[name])
 		} else {
-			r.runCommand(name, r.hook.Commands[name])
+			r.runCommand(name, r.Hook.Commands[name])
 		}
 	}
 
@@ -309,22 +303,22 @@ func (r *Runner) runCommands() {
 			continue
 		}
 
-		r.runCommand(name, r.hook.Commands[name])
+		r.runCommand(name, r.Hook.Commands[name])
 	}
 }
 
 func (r *Runner) runCommand(name string, command *config.Command) {
-	if command.Skip != nil && command.DoSkip(r.repo.State()) {
+	if command.Skip != nil && command.DoSkip(r.Repo.State()) {
 		logSkip(name, "(SKIP BY SETTINGS)")
 		return
 	}
 
-	if intersect(r.hook.ExcludeTags, command.Tags) {
+	if intersect(r.Hook.ExcludeTags, command.Tags) {
 		logSkip(name, "(SKIP BY TAGS)")
 		return
 	}
 
-	if intersect(r.hook.ExcludeTags, []string{name}) {
+	if intersect(r.Hook.ExcludeTags, []string{name}) {
 		logSkip(name, "(SKIP BY NAME)")
 		return
 	}
@@ -345,33 +339,34 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 		return
 	}
 
-	if command.Interactive && !r.ttyDisabled {
+	if command.Interactive && !r.DisableTTY && !r.Follow {
 		log.StopSpinner()
 		defer log.StartSpinner()
 	}
 
 	r.run(ExecuteOptions{
 		name:        name,
-		root:        filepath.Join(r.repo.RootPath, command.Root),
+		root:        filepath.Join(r.Repo.RootPath, command.Root),
 		args:        args,
 		failText:    command.FailText,
-		interactive: command.Interactive && !r.ttyDisabled,
+		interactive: command.Interactive && !r.DisableTTY,
 		env:         command.Env,
+		follow:      r.Follow,
 	})
 }
 
 func (r *Runner) buildCommandArgs(command *config.Command) ([]string, error) {
-	filesCommand := r.hook.Files
+	filesCommand := r.Hook.Files
 	if command.Files != "" {
 		filesCommand = command.Files
 	}
 
 	filesTypeToFn := map[string]func() ([]string, error){
-		config.SubStagedFiles: r.repo.StagedFiles,
-		config.PushFiles:      r.repo.PushFiles,
-		config.SubAllFiles:    r.repo.AllFiles,
+		config.SubStagedFiles: r.Repo.StagedFiles,
+		config.PushFiles:      r.Repo.PushFiles,
+		config.SubAllFiles:    r.Repo.AllFiles,
 		config.SubFiles: func() ([]string, error) {
-			return r.repo.FilesByCommand(filesCommand)
+			return r.Repo.FilesByCommand(filesCommand)
 		},
 	}
 
@@ -400,8 +395,8 @@ func (r *Runner) buildCommandArgs(command *config.Command) ([]string, error) {
 		}
 	}
 
-	runString = strings.ReplaceAll(runString, "{0}", strings.Join(r.args, " "))
-	for i, gitArg := range r.args {
+	runString = strings.ReplaceAll(runString, "{0}", strings.Join(r.GitArgs, " "))
+	for i, gitArg := range r.GitArgs {
 		runString = strings.ReplaceAll(runString, fmt.Sprintf("{%d}", i+1), gitArg)
 	}
 
@@ -469,7 +464,18 @@ func (r *Runner) run(opts ExecuteOptions) {
 	log.SetName(opts.name)
 	defer log.UnsetName(opts.name)
 
-	out, err := r.exec.Execute(opts)
+	if (opts.follow || opts.interactive) && !r.SkipSettings.SkipExecution() {
+		err := r.executor.Execute(opts, os.Stdout)
+		if err != nil {
+			r.fail(opts.name, opts.failText)
+		} else {
+			r.success(opts.name)
+		}
+		return
+	}
+
+	out := bytes.NewBuffer(make([]byte, 0))
+	err := r.executor.Execute(opts, out)
 
 	var execName string
 	if err != nil {
@@ -480,15 +486,19 @@ func (r *Runner) run(opts ExecuteOptions) {
 		execName = fmt.Sprint(log.Cyan("\n  EXECUTE > "), log.Bold(opts.name))
 	}
 
-	if out != nil {
-		if err == nil && r.logSettings.SkipExecution() {
-			return
-		}
-
-		log.Infof("%s\n%s\n", execName, out)
-	} else if err != nil {
-		log.Infof("%s\n%s\n", execName, err)
+	if opts.follow {
+		return
 	}
+
+	if err == nil && r.SkipSettings.SkipExecution() {
+		return
+	}
+
+	log.Infof("%s\n%s", execName, out)
+	if err != nil {
+		log.Infof("%s", err)
+	}
+	log.Infof("\n")
 }
 
 // Returns whether two arrays have at least one similar element.

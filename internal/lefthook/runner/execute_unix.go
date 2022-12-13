@@ -20,7 +20,7 @@ import (
 
 type CommandExecutor struct{}
 
-func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
+func (e CommandExecutor) Execute(opts ExecuteOptions, out io.Writer) error {
 	stdin := os.Stdin
 	if opts.interactive && !isatty.IsTerminal(os.Stdin.Fd()) {
 		tty, err := os.Open("/dev/tty")
@@ -47,33 +47,30 @@ func (e CommandExecutor) Execute(opts ExecuteOptions) (*bytes.Buffer, error) {
 
 	command.Env = append(os.Environ(), envList...)
 
-	var out *bytes.Buffer
-
 	if opts.interactive {
 		command.Stdout = os.Stdout
 		command.Stdin = stdin
 		command.Stderr = os.Stderr
 		err := command.Start()
 		if err != nil {
-			return nil, err
+			return err
 		}
 	} else {
 		p, err := pty.Start(command)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		defer func() { _ = p.Close() }()
 
 		go func() { _, _ = io.Copy(p, stdin) }()
 
-		out = bytes.NewBuffer(make([]byte, 0))
 		_, _ = io.Copy(out, p)
 	}
 
 	defer func() { _ = command.Process.Kill() }()
 
-	return out, command.Wait()
+	return command.Wait()
 }
 
 func (e CommandExecutor) RawExecute(command string, args ...string) (*bytes.Buffer, error) {

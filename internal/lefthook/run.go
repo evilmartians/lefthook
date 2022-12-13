@@ -21,7 +21,7 @@ const (
 )
 
 type RunArgs struct {
-	NoTTY bool
+	NoTTY, Follow bool
 }
 
 func Run(opts *Options, args RunArgs, hookName string, gitArgs []string) error {
@@ -103,13 +103,16 @@ Run 'lefthook install' manually.`,
 	resultChan := make(chan runner.Result, len(hook.Commands)+len(hook.Scripts))
 
 	run := runner.NewRunner(
-		l.Fs,
-		l.repo,
-		hook,
-		gitArgs,
-		resultChan,
-		logSettings,
-		cfg.NoTTY || args.NoTTY,
+		runner.Opts{
+			Fs:           l.Fs,
+			Repo:         l.repo,
+			Hook:         hook,
+			GitArgs:      gitArgs,
+			ResultChan:   resultChan,
+			SkipSettings: logSettings,
+			DisableTTY:   cfg.NoTTY || args.NoTTY,
+			Follow:       args.Follow,
+		},
 	)
 
 	sourceDirs := []string{

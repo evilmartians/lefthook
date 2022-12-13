@@ -26,5 +26,10 @@ func newRunCmd(opts *lefthook.Options) *cobra.Command {
 		"run hook non-interactively, disable spinner",
 	)
 
+	runCmd.Flags().BoolVarP(
+		&runArgs.Follow, "follow", "f", false,
+		"follow output while commands and scripts are running",
+	)
+
 	return &runCmd
 }
