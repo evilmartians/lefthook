@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+## 1.2.6 (2022-12-14)
+
+- feature: Allow following output ([#397](https://github.com/evilmartians/lefthook/pull/397)) by @mrexox
+- fix: Remove quotes for rc in template ([#398](https://github.com/evilmartians/lefthook/pull/398)) by @mrexox
+
 ## 1.2.5 (2022-12-13)
 
 - feature: Add an option to disable spinner ([#396](https://github.com/evilmartians/lefthook/pull/396)) by @mrexox
