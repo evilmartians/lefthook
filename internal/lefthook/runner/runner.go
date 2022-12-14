@@ -37,7 +37,6 @@ type Opts struct {
 	ResultChan   chan Result
 	SkipSettings log.SkipSettings
 	DisableTTY   bool
-	Follow       bool
 }
 
 // Runner responds for actual execution and handling the results.
@@ -67,7 +66,7 @@ func (r *Runner) RunAll(hookName string, sourceDirs []string) {
 		return
 	}
 
-	if !r.DisableTTY && !r.Follow {
+	if !r.DisableTTY && !r.Hook.Follow {
 		log.StartSpinner()
 		defer log.StopSpinner()
 	}
@@ -246,7 +245,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 	args = append(args, path)
 	args = append(args, r.GitArgs[:]...)
 
-	if script.Interactive && !r.DisableTTY && !r.Follow {
+	if script.Interactive && !r.DisableTTY && !r.Hook.Follow {
 		log.StopSpinner()
 		defer log.StartSpinner()
 	}
@@ -258,7 +257,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 		failText:    script.FailText,
 		interactive: script.Interactive && !r.DisableTTY,
 		env:         script.Env,
-		follow:      r.Follow,
+		follow:      r.Hook.Follow,
 	})
 }
 
@@ -339,7 +338,7 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 		return
 	}
 
-	if command.Interactive && !r.DisableTTY && !r.Follow {
+	if command.Interactive && !r.DisableTTY && !r.Hook.Follow {
 		log.StopSpinner()
 		defer log.StartSpinner()
 	}
@@ -351,7 +350,7 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 		failText:    command.FailText,
 		interactive: command.Interactive && !r.DisableTTY,
 		env:         command.Env,
-		follow:      r.Follow,
+		follow:      r.Hook.Follow,
 	})
 }
 

@@ -21,7 +21,7 @@ const (
 )
 
 type RunArgs struct {
-	NoTTY, Follow bool
+	NoTTY bool
 }
 
 func Run(opts *Options, args RunArgs, hookName string, gitArgs []string) error {
@@ -111,7 +111,6 @@ Run 'lefthook install' manually.`,
 			ResultChan:   resultChan,
 			SkipSettings: logSettings,
 			DisableTTY:   cfg.NoTTY || args.NoTTY,
-			Follow:       args.Follow || hook.Follow,
 		},
 	)
 
