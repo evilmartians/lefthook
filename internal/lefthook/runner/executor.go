@@ -11,7 +11,6 @@ type ExecuteOptions struct {
 	args                 []string
 	interactive          bool
 	env                  map[string]string
-	follow               bool
 }
 
 // Executor provides an interface for command execution.

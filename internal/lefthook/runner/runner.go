@@ -257,8 +257,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 		failText:    script.FailText,
 		interactive: script.Interactive && !r.DisableTTY,
 		env:         script.Env,
-		follow:      r.Hook.Follow,
-	})
+	}, r.Hook.Follow)
 }
 
 func (r *Runner) runCommands() {
@@ -350,8 +349,7 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 		failText:    command.FailText,
 		interactive: command.Interactive && !r.DisableTTY,
 		env:         command.Env,
-		follow:      r.Hook.Follow,
-	})
+	}, r.Hook.Follow)
 }
 
 func (r *Runner) buildCommandArgs(command *config.Command) ([]string, error) {
@@ -459,11 +457,11 @@ func replaceQuoted(source, substitution string, files []string) string {
 	return source
 }
 
-func (r *Runner) run(opts ExecuteOptions) {
+func (r *Runner) run(opts ExecuteOptions, follow bool) {
 	log.SetName(opts.name)
 	defer log.UnsetName(opts.name)
 
-	if (opts.follow || opts.interactive) && !r.SkipSettings.SkipExecution() {
+	if (follow || opts.interactive) && !r.SkipSettings.SkipExecution() {
 		log.Info(log.Cyan("\n  EXECUTE > "), log.Bold(opts.name))
 		err := r.executor.Execute(opts, os.Stdout)
 		if err != nil {
@@ -484,10 +482,6 @@ func (r *Runner) run(opts ExecuteOptions) {
 	} else {
 		r.success(opts.name)
 		execName = fmt.Sprint(log.Cyan("\n  EXECUTE > "), log.Bold(opts.name))
-	}
-
-	if opts.follow {
-		return
 	}
 
 	if err == nil && r.SkipSettings.SkipExecution() {
