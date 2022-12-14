@@ -42,7 +42,7 @@ func (e CommandExecutor) Execute(opts ExecuteOptions, out io.Writer) error {
 	command.Stderr = os.Stderr
 	err := command.Start()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	defer func() { _ = command.Process.Kill() }()
