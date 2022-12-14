@@ -18,6 +18,7 @@
   - [`files`](#files-global)
   - [`parallel`](#parallel)
   - [`piped`](#piped)
+  - [`follow`](#follow)
   - [`exclude_tags`](#exclude_tags)
   - [`commands`](#commands)
   - [`scripts`](#scripts)
@@ -339,6 +340,29 @@ database:
       run: rake db:seed
 ```
 
+### `follow`
+
+**Default: `false`**
+
+Follow the STDOUT of the running commands and scripts.
+
+**Example**
+
+```yml
+# lefthook.yml
+
+pre-push:
+  follow: true
+  commands:
+    backend-tests:
+      run: bundle exec rspec
+    frontend-tests:
+      run: yarn test
+```
+
+**Notes**
+
+If used with [`parallel`](#parallel) the output can be a mess, so please avoid setting both options to `true`.
 
 ### `exclude_tags`
 
