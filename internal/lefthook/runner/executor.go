@@ -2,6 +2,7 @@ package runner
 
 import (
 	"bytes"
+	"io"
 )
 
 // ExecutorOptions contains the options that control the execution.
@@ -15,6 +16,6 @@ type ExecuteOptions struct {
 // Executor provides an interface for command execution.
 // It is used here for testing purpose mostly.
 type Executor interface {
-	Execute(opts ExecuteOptions) (*bytes.Buffer, error)
+	Execute(opts ExecuteOptions, out io.Writer) error
 	RawExecute(command string, args ...string) (*bytes.Buffer, error)
 }

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"path/filepath"
 	"testing"
 
@@ -15,9 +16,7 @@ import (
 
 type TestExecutor struct{}
 
-func (e TestExecutor) Execute(opts ExecuteOptions) (out *bytes.Buffer, err error) {
-	out = bytes.NewBuffer(make([]byte, 0))
-
+func (e TestExecutor) Execute(opts ExecuteOptions, out io.Writer) (err error) {
 	if opts.args[0] == "success" {
 		err = nil
 	} else {
@@ -66,6 +65,19 @@ func TestRunAll(t *testing.T) {
 		{
 			name: "with simple command",
 			hook: &config.Hook{
+				Commands: map[string]*config.Command{
+					"test": {
+						Run: "success",
+					},
+				},
+				Scripts: map[string]*config.Script{},
+			},
+			success: []Result{{Name: "test", Status: StatusOk}},
+		},
+		{
+			name: "with simple command in follow mode",
+			hook: &config.Hook{
+				Follow: true,
 				Commands: map[string]*config.Command{
 					"test": {
 						Run: "success",
@@ -308,12 +320,14 @@ func TestRunAll(t *testing.T) {
 		resultChan := make(chan Result, len(tt.hook.Commands)+len(tt.hook.Scripts))
 		executor := TestExecutor{}
 		runner := &Runner{
-			fs:         fs,
-			repo:       repo,
-			hook:       tt.hook,
-			args:       tt.args,
-			resultChan: resultChan,
-			exec:       executor,
+			Opts: Opts{
+				Fs:         fs,
+				Repo:       repo,
+				Hook:       tt.hook,
+				GitArgs:    tt.args,
+				ResultChan: resultChan,
+			},
+			executor: executor,
 		}
 
 		for _, file := range tt.existingFiles {

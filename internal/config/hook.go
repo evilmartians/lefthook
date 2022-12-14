@@ -30,6 +30,7 @@ type Hook struct {
 	Piped       bool        `mapstructure:"piped"`
 	ExcludeTags []string    `mapstructure:"exclude_tags"`
 	Skip        interface{} `mapstructure:"skip"`
+	Follow      bool        `mapstructure:"follow"`
 }
 
 func (h *Hook) Validate() error {
