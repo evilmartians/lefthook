@@ -53,7 +53,6 @@ func TestRunAll(t *testing.T) {
 		existingFiles []string
 		hook          *config.Hook
 		success, fail []Result
-		follow        bool
 	}{
 		{
 			name: "empty hook",
@@ -78,6 +77,7 @@ func TestRunAll(t *testing.T) {
 		{
 			name: "with simple command in follow mode",
 			hook: &config.Hook{
+				Follow: true,
 				Commands: map[string]*config.Command{
 					"test": {
 						Run: "success",
@@ -86,7 +86,6 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{{Name: "test", Status: StatusOk}},
-			follow:  true,
 		},
 		{
 			name: "with multiple commands ran in parallel",
@@ -327,7 +326,6 @@ func TestRunAll(t *testing.T) {
 				Hook:       tt.hook,
 				GitArgs:    tt.args,
 				ResultChan: resultChan,
-				Follow:     tt.follow,
 			},
 			executor: executor,
 		}
