@@ -111,7 +111,7 @@ Run 'lefthook install' manually.`,
 			ResultChan:   resultChan,
 			SkipSettings: logSettings,
 			DisableTTY:   cfg.NoTTY || args.NoTTY,
-			Follow:       args.Follow,
+			Follow:       args.Follow || hook.Follow,
 		},
 	)
 

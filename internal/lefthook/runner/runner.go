@@ -465,6 +465,7 @@ func (r *Runner) run(opts ExecuteOptions) {
 	defer log.UnsetName(opts.name)
 
 	if (opts.follow || opts.interactive) && !r.SkipSettings.SkipExecution() {
+		log.Info(log.Cyan("\n  EXECUTE > "), log.Bold(opts.name))
 		err := r.executor.Execute(opts, os.Stdout)
 		if err != nil {
 			r.fail(opts.name, opts.failText)
