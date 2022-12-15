@@ -598,10 +598,12 @@ If using `{all_files}` with RuboCop, it will ignore RuboCop's `Exclude` configur
 
 #### Quotes
 
-If you want to have all you files quoted with double quotes `"` or single quotes `'`, quote the appropriate shorthand:
+If you want to have all your files quoted with double quotes `"` or single quotes `'`, quote the appropriate shorthand:
 
 ```yml
-pre-commit
+# lefthook.yml
+
+pre-commit:
   commands:
     lint:
       glob: "*.js"
