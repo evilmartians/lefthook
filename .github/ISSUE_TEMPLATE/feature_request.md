@@ -4,7 +4,7 @@ about: Want something to be implemented in `lefthook`? Create a feature request!
 labels: 'feature request'
 ---
 
-### Summary
+### :zap: Summary
 
 <!-- A brief summary of a feature. -->
 
