@@ -107,6 +107,7 @@ Run 'lefthook install' manually.`,
 			Fs:           l.Fs,
 			Repo:         l.repo,
 			Hook:         hook,
+			HookName:     hookName,
 			GitArgs:      gitArgs,
 			ResultChan:   resultChan,
 			SkipSettings: logSettings,
@@ -131,7 +132,7 @@ Run 'lefthook install' manually.`,
 	}
 
 	go func() {
-		run.RunAll(hookName, sourceDirs)
+		run.RunAll(sourceDirs)
 		close(resultChan)
 	}()
 

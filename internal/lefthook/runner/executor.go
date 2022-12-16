@@ -1,7 +1,6 @@
 package runner
 
 import (
-	"bytes"
 	"io"
 )
 
@@ -17,5 +16,5 @@ type ExecuteOptions struct {
 // It is used here for testing purpose mostly.
 type Executor interface {
 	Execute(opts ExecuteOptions, out io.Writer) error
-	RawExecute(command string, args ...string) (*bytes.Buffer, error)
+	RawExecute(command []string, out io.Writer) error
 }

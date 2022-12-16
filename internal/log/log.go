@@ -132,6 +132,10 @@ func Yellow(s string) string {
 	return color(colorYellow).Render(s)
 }
 
+func Gray(s string) string {
+	return color(colorGray).Render(s)
+}
+
 func Bold(s string) string {
 	return lipgloss.NewStyle().Bold(true).Render(s)
 }

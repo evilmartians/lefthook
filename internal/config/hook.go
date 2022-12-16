@@ -31,6 +31,7 @@ type Hook struct {
 	ExcludeTags []string    `mapstructure:"exclude_tags"`
 	Skip        interface{} `mapstructure:"skip"`
 	Follow      bool        `mapstructure:"follow"`
+	Restage     bool        `mapstructure:"restage"`
 }
 
 func (h *Hook) Validate() error {

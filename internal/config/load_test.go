@@ -416,11 +416,9 @@ pre-push:
 
 			if err != nil {
 				t.Errorf("should parse configs without errors: %s", err)
-			} else {
-				if !cmp.Equal(checkConfig, tt.result, cmpopts.IgnoreUnexported(Hook{})) {
-					t.Errorf("configs should be equal")
-					t.Errorf("(-want +got):\n%s", cmp.Diff(tt.result, checkConfig))
-				}
+			} else if !cmp.Equal(checkConfig, tt.result, cmpopts.IgnoreUnexported(Hook{})) {
+				t.Errorf("configs should be equal")
+				t.Errorf("(-want +got):\n%s", cmp.Diff(tt.result, checkConfig))
 			}
 		})
 	}

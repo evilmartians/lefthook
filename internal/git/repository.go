@@ -15,7 +15,7 @@ const (
 	cmdHooksPath   = "git rev-parse --git-path hooks"
 	cmdInfoPath    = "git rev-parse --git-path info"
 	cmdGitPath     = "git rev-parse --git-dir"
-	cmdStagedFiles = "git diff --name-only --cached"
+	cmdStagedFiles = "git diff --name-only --cached --diff-filter=ACMR"
 	cmdAllFiles    = "git ls-files --cached"
 	cmdPushFiles   = "git diff --name-only HEAD @{push} || git diff --name-only HEAD master"
 	infoDirMode    = 0o775

@@ -1,7 +1,6 @@
 package runner
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -26,8 +25,8 @@ func (e TestExecutor) Execute(opts ExecuteOptions, out io.Writer) (err error) {
 	return
 }
 
-func (e TestExecutor) RawExecute(command string, args ...string) (*bytes.Buffer, error) {
-	return nil, nil
+func (e TestExecutor) RawExecute(command []string, out io.Writer) error {
+	return nil
 }
 
 func TestRunAll(t *testing.T) {
@@ -324,6 +323,7 @@ func TestRunAll(t *testing.T) {
 				Fs:         fs,
 				Repo:       repo,
 				Hook:       tt.hook,
+				HookName:   hookName,
 				GitArgs:    tt.args,
 				ResultChan: resultChan,
 			},
@@ -346,7 +346,7 @@ func TestRunAll(t *testing.T) {
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			runner.RunAll(hookName, tt.sourceDirs)
+			runner.RunAll(tt.sourceDirs)
 			close(resultChan)
 
 			var success, fail []Result
