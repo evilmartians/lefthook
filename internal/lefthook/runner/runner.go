@@ -57,7 +57,7 @@ func NewRunner(opts Opts) *Runner {
 // RunAll runs scripts and commands.
 // LFS hook is executed at first if needed.
 func (r *Runner) RunAll(sourceDirs []string) {
-	if err := r.runLFSHook(r.HookName); err != nil {
+	if err := r.runLFSHook(); err != nil {
 		log.Error(err)
 	}
 
@@ -94,8 +94,8 @@ func (r *Runner) success(name string) {
 	r.ResultChan <- resultSuccess(name)
 }
 
-func (r *Runner) runLFSHook(hookName string) error {
-	if !git.IsLFSHook(hookName) {
+func (r *Runner) runLFSHook() error {
+	if !git.IsLFSHook(r.HookName) {
 		return nil
 	}
 
@@ -113,12 +113,12 @@ func (r *Runner) runLFSHook(hookName string) error {
 
 	if git.IsLFSAvailable() {
 		log.Debugf(
-			"[git-lfs] executing hook: git lfs %s %s", hookName, strings.Join(r.GitArgs, " "),
+			"[git-lfs] executing hook: git lfs %s %s", r.HookName, strings.Join(r.GitArgs, " "),
 		)
 		out := bytes.NewBuffer(make([]byte, 0))
 		err := r.executor.RawExecute(
 			append(
-				[]string{"git", "lfs", hookName},
+				[]string{"git", "lfs", r.HookName},
 				r.GitArgs...,
 			),
 			out,
