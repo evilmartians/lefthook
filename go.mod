@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/MakeNowJust/heredoc v1.0.0
-	github.com/briandowns/spinner v1.19.0
+	github.com/briandowns/spinner v1.20.0
 	github.com/charmbracelet/lipgloss v0.6.0
 	github.com/creack/pty v1.1.18
 	github.com/gobwas/glob v0.2.3
@@ -15,6 +15,8 @@ require (
 	github.com/spf13/viper v1.14.0
 	gopkg.in/alessio/shellescape.v1 v1.0.0-20170105083845-52074bc9df61
 )
+
+require golang.org/x/term v0.1.0 // indirect
 
 require (
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
