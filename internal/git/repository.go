@@ -19,15 +19,19 @@ const (
 	cmdAllFiles    = "git ls-files --cached"
 	cmdPushFiles   = "git diff --name-only HEAD @{push} || git diff --name-only HEAD master"
 	infoDirMode    = 0o775
+	cmdStatusShort = "git status --short"
+	cmdCreateStash = "git stash create"
+	stashMessage   = "lefthook auto backup"
 )
 
 // Repository represents a git repository.
 type Repository struct {
-	Fs        afero.Fs
-	HooksPath string
-	RootPath  string
-	GitPath   string
-	InfoPath  string
+	Fs                afero.Fs
+	HooksPath         string
+	RootPath          string
+	GitPath           string
+	InfoPath          string
+	unstagedPatchPath string
 }
 
 // NewRepository returns a Repository or an error, if git repository it not initialized.
@@ -66,11 +70,12 @@ func NewRepository(fs afero.Fs) (*Repository, error) {
 	}
 
 	return &Repository{
-		Fs:        fs,
-		HooksPath: hooksPath,
-		RootPath:  rootPath,
-		GitPath:   gitPath,
-		InfoPath:  infoPath,
+		Fs:                fs,
+		HooksPath:         hooksPath,
+		RootPath:          rootPath,
+		GitPath:           gitPath,
+		InfoPath:          infoPath,
+		unstagedPatchPath: filepath.Join(infoPath, "lefthook-unstaged.patch"),
 	}, nil
 }
 
@@ -92,9 +97,108 @@ func (r *Repository) PushFiles() ([]string, error) {
 	return r.FilesByCommand(cmdPushFiles)
 }
 
+// PartiallyStagedFiles returns the list of files that have both staged and
+// unstaged changes.
+// See https://git-scm.com/docs/git-status#_short_format.
+func (r *Repository) PartiallyStagedFiles() ([]string, error) {
+	lines, err := r.gitLines(cmdStatusShort)
+	if err != nil {
+		return []string{}, err
+	}
+
+	partiallyStaged := make([]string, 0)
+
+	for _, line := range lines {
+		if len(line) < 3 {
+			continue
+		}
+		m1 := line[0] // index
+		m2 := line[1] // working tree
+		filename := line[3:]
+		if m1 != ' ' && m1 != '?' && m2 != ' ' && m2 != '?' && len(filename) > 0 {
+			partiallyStaged = append(partiallyStaged, filename)
+		}
+	}
+
+	return partiallyStaged, nil
+}
+
+func (r *Repository) SaveUnstaged(files []string) error {
+	_, err := execGitCmd(
+		append([]string{
+			"git",
+			"diff",
+			"--binary",          // support binary files
+			"--unified=0",       // do not add lines around diff for consistent behaviour
+			"--no-color",        // disable colors for consistent behaviour
+			"--no-ext-diff",     // disable external diff tools for consistent behaviour
+			"--src-prefix=a/",   // force prefix for consistent behaviour
+			"--dst-prefix=b/",   // force prefix for consistent behaviour
+			"--patch",           // output a patch that can be applied
+			"--submodule=short", // always use the default short format for submodules
+			"--output",
+			r.unstagedPatchPath,
+			"--",
+		}, files...)...,
+	)
+
+	return err
+}
+
+func (r *Repository) RestoreUnstaged() error {
+	if ok, _ := afero.Exists(r.Fs, r.unstagedPatchPath); !ok {
+		return nil
+	}
+
+	_, err := execGitCmd(
+		"git",
+		"apply",
+		"-v",
+		"--whitespace=nowarn",
+		"--recount",
+		"--unidiff-zero",
+		r.unstagedPatchPath,
+	)
+
+	return err
+}
+
+func (r *Repository) StashUnstaged() (string, error) {
+	stashHash, err := execGit(cmdCreateStash)
+	if err != nil {
+		return "", err
+	}
+
+	_, err = execGitCmd(
+		"git",
+		"stash",
+		"store",
+		"--quiet",
+		"--message",
+		stashMessage,
+		stashHash,
+	)
+	if err != nil {
+		return "", err
+	}
+
+	return stashHash, nil
+}
+
 // FilesByCommand accepts git command and returns its result as a list of filepaths.
 func (r *Repository) FilesByCommand(command string) ([]string, error) {
+
+	lines, err := r.gitLines(command)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.extractFiles(lines)
+}
+
+func (r *Repository) gitLines(command string) ([]string, error) {
 	var cmd *exec.Cmd
+
 	if runtime.GOOS == "windows" {
 		commandArg := strings.Split(command, " ")
 		cmd = exec.Command(commandArg[0], commandArg[1:]...)
@@ -104,12 +208,10 @@ func (r *Repository) FilesByCommand(command string) ([]string, error) {
 
 	outputBytes, err := cmd.CombinedOutput()
 	if err != nil {
-		return []string{}, err
+		return nil, err
 	}
 
-	lines := strings.Split(string(outputBytes), "\n")
-
-	return r.extractFiles(lines)
+	return strings.Split(string(outputBytes), "\n"), nil
 }
 
 func (r *Repository) extractFiles(lines []string) ([]string, error) {
@@ -147,6 +249,10 @@ func (r *Repository) isFile(path string) (bool, error) {
 
 func execGit(command string) (string, error) {
 	args := strings.Split(command, " ")
+	return execGitCmd(args...)
+}
+
+func execGitCmd(args ...string) (string, error) {
 	cmd := exec.Command(args[0], args[1:]...)
 
 	out, err := cmd.CombinedOutput()

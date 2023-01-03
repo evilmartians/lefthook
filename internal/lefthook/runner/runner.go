@@ -43,8 +43,10 @@ type Opts struct {
 type Runner struct {
 	Opts
 
-	failed   atomic.Bool
-	executor Executor
+	partiallyStagedFiles     []string
+	partiallyStagedStashHash string
+	failed                   atomic.Bool
+	executor                 Executor
 }
 
 func NewRunner(opts Opts) *Runner {
@@ -78,11 +80,15 @@ func (r *Runner) RunAll(sourceDirs []string) {
 		))
 	}
 
+	r.preHook()
+
 	for _, dir := range scriptDirs {
 		r.runScripts(dir)
 	}
 
 	r.runCommands()
+
+	r.postHook()
 }
 
 func (r *Runner) fail(name, text string) {
@@ -146,7 +152,7 @@ func (r *Runner) runLFSHook() error {
 
 	if requiredExists || configExists {
 		log.Errorf(
-			"This repository requires Git LFS, but 'git-lfs' wasn't found.\n"+
+			"This Repository requires Git LFS, but 'git-lfs' wasn't found.\n"+
 				"Install 'git-lfs' or consider reviewing the files:\n"+
 				"  - %s\n"+
 				"  - %s\n",
@@ -156,6 +162,39 @@ func (r *Runner) runLFSHook() error {
 	}
 
 	return nil
+}
+
+func (r *Runner) preHook() {
+	if !config.HookUsesStagedFiles(r.HookName) {
+		return
+	}
+
+	partiallyStagedFiles, err := r.Repo.PartiallyStagedFiles()
+	if err != nil {
+		log.Warnf("Couldn't find partially staged files: %w\n", err)
+		return
+	}
+
+	if len(partiallyStagedFiles) == 0 {
+		return
+	}
+
+	r.partiallyStagedFiles = partiallyStagedFiles
+	r.Repo.SaveUnstaged(r.partiallyStagedFiles)
+
+	stashHash, err := r.Repo.StashUnstaged()
+	if err != nil {
+		log.Warnf("Couldn't stash partially staged files: %w\n", err)
+		return
+	}
+
+	r.partiallyStagedStashHash = stashHash
+}
+
+func (r *Runner) postHook() {
+	if err := r.Repo.RestoreUnstaged(); err != nil {
+		log.Warnf("Couldn't restore hiden unstaged files: %w\n", err)
+	}
 }
 
 func (r *Runner) runScripts(dir string) {
@@ -314,8 +353,8 @@ func (r *Runner) run(opts ExecuteOptions, follow bool) {
 	log.SetName(opts.name)
 	defer log.UnsetName(opts.name)
 
-	defer r.postRun(opts)
 	r.preRun(opts)
+	defer r.postRun(opts)
 
 	if (follow || opts.interactive) && !r.SkipSettings.SkipExecution() {
 		log.Info(log.Cyan("\n  EXECUTE > "), log.Bold(opts.name))

@@ -39,7 +39,7 @@ var AvailableHooks = [...]string{
 	"sendemail-validate",
 }
 
-func HookHasStagedFiles(hook string) bool {
+func HookUsesStagedFiles(hook string) bool {
 	return hook == "pre-commit"
 }
 
