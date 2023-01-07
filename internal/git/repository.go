@@ -18,6 +18,7 @@ const (
 	cmdStagedFiles = "git diff --name-only --cached"
 	cmdAllFiles    = "git ls-files --cached"
 	cmdPushFiles   = "git diff --name-only HEAD @{push} || git diff --name-only HEAD master"
+	infoDirMode    = 0o775
 )
 
 // Repository represents a git repository.
@@ -48,8 +49,12 @@ func NewRepository(fs afero.Fs) (*Repository, error) {
 	if err != nil {
 		return nil, err
 	}
-	if exists, _ := afero.DirExists(fs, filepath.Join(rootPath, infoPath)); exists {
-		infoPath = filepath.Join(rootPath, infoPath)
+	infoPath = filepath.Join(rootPath, infoPath)
+	if exists, _ := afero.DirExists(fs, infoPath); !exists {
+		err = fs.Mkdir(infoPath, infoDirMode)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	gitPath, err := execGit(cmdGitPath)
