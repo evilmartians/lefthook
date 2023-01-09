@@ -145,6 +145,19 @@ func (r *Repository) SaveUnstaged(files []string) error {
 	return err
 }
 
+func (r *Repository) HideUnstaged(files []string) error {
+	_, err := execGitCmd(
+		append([]string{
+			"git",
+			"checkout",
+			"--force",
+			"--",
+		}, files...)...,
+	)
+
+	return err
+}
+
 func (r *Repository) RestoreUnstaged() error {
 	if ok, _ := afero.Exists(r.Fs, r.unstagedPatchPath); !ok {
 		return nil
@@ -159,6 +172,10 @@ func (r *Repository) RestoreUnstaged() error {
 		"--unidiff-zero",
 		r.unstagedPatchPath,
 	)
+
+	if err == nil {
+		err = r.Fs.Remove(r.unstagedPatchPath)
+	}
 
 	return err
 }
@@ -183,6 +200,18 @@ func (r *Repository) StashUnstaged() (string, error) {
 	}
 
 	return stashHash, nil
+}
+
+func (r *Repository) DropUnstagedStash(hash string) error {
+	_, err := execGitCmd(
+		"git",
+		"stash",
+		"drop",
+		"--quiet",
+		hash,
+	)
+
+	return err
 }
 
 // FilesByCommand accepts git command and returns its result as a list of filepaths.
@@ -252,8 +281,11 @@ func execGit(command string) (string, error) {
 	return execGitCmd(args...)
 }
 
+// execGitCmd executes git command with LEFTHOOK=0 in order
+// to prevent calling subsequent lefthook hooks.
 func execGitCmd(args ...string) (string, error) {
 	cmd := exec.Command(args[0], args[1:]...)
+	cmd.Env = append(os.Environ(), "LEFTHOOK=0")
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {

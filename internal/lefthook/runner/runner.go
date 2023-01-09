@@ -144,7 +144,7 @@ func (r *Runner) runLFSHook() error {
 
 		if err != nil && (requiredExists || configExists) {
 			log.Warn(output)
-			return fmt.Errorf("git-lfs command failed: %w", err)
+			return fmt.Errorf("git-lfs command failed: %s", err)
 		}
 
 		return nil
@@ -171,7 +171,7 @@ func (r *Runner) preHook() {
 
 	partiallyStagedFiles, err := r.Repo.PartiallyStagedFiles()
 	if err != nil {
-		log.Warnf("Couldn't find partially staged files: %w\n", err)
+		log.Warnf("Couldn't find partially staged files: %s\n", err)
 		return
 	}
 
@@ -184,16 +184,29 @@ func (r *Runner) preHook() {
 
 	stashHash, err := r.Repo.StashUnstaged()
 	if err != nil {
-		log.Warnf("Couldn't stash partially staged files: %w\n", err)
+		log.Warnf("Couldn't stash partially staged files: %s\n", err)
 		return
 	}
+
+	err = r.Repo.HideUnstaged(r.partiallyStagedFiles)
+	if err != nil {
+		log.Warnf("Couldn't hide unstaged files: %s\n", err)
+		return
+	}
+
+	log.Debugf("[lefthook] hide partially staged files: %v\n", r.partiallyStagedFiles)
 
 	r.partiallyStagedStashHash = stashHash
 }
 
 func (r *Runner) postHook() {
 	if err := r.Repo.RestoreUnstaged(); err != nil {
-		log.Warnf("Couldn't restore hiden unstaged files: %w\n", err)
+		log.Warnf("Couldn't restore hidden unstaged files: %s\n", err)
+		return
+	}
+
+	if err := r.Repo.DropUnstagedStash(r.partiallyStagedStashHash); err != nil {
+		log.Warnf("Couldn't remove unstaged files backup: %s\n", err)
 	}
 }
 
