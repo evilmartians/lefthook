@@ -2,6 +2,15 @@
 
 ## master (unreleased)
 
+## 1.2.7 (2023-01-10)
+
+- fix: Make info dir when it is absent ([#414](https://github.com/evilmartians/lefthook/pull/414)) by @sato11
+- deps: bump github.com/mattn/go-isatty from 0.0.16 to 0.0.17 ([#409](https://github.com/evilmartians/lefthook/pull/409)) by @dependabot
+- deps: bump github.com/briandowns/spinner from 1.19.0 to 1.20.0 ([#406](https://github.com/evilmartians/lefthook/pull/406)) by @dependabot
+- fix: Double quote eval statements with $dir ([#404](https://github.com/evilmartians/lefthook/pull/404)) by @jrfoell
+- chore: Add PR template ([#401](https://github.com/evilmartians/lefthook/pull/401)) by @mrexox
+- chore: Fix yml syntax missing colon ([#399](https://github.com/evilmartians/lefthook/pull/399)) by @aaronkelton
+
 ## 1.2.6 (2022-12-14)
 
 - feature: Allow following output ([#397](https://github.com/evilmartians/lefthook/pull/397)) by @mrexox
