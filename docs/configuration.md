@@ -228,7 +228,7 @@ If you provide [`scripts`](#scripts) in a remote file, the [scripts](#source_dir
 
 **Note**
 
-Configuration in `remote` will be merged to confiuration in `lefthook.yml`, so the priority will be the following:
+Configuration in `remote` will be merged to configuration in `lefthook.yml`, so the priority will be the following:
 
 - `lefthook.yml`
 - `remote`

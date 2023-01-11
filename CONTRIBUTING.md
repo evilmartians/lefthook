@@ -1,6 +1,6 @@
 # Contributing
 
-First off, thanks for taking the time to contribute! Feel free to make Pull Request with you changes.
+First off, thanks for taking the time to contribute! Feel free to make Pull Request with your changes.
 
 # Requirements
 
