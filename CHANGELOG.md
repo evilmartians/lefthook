@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+- fix: Don't join info path with root ([#418](https://github.com/evilmartians/lefthook/pull/418)) by @mrexox
+
 ## 1.2.7 (2023-01-10)
 
 - fix: Make info dir when it is absent ([#414](https://github.com/evilmartians/lefthook/pull/414)) by @sato11
