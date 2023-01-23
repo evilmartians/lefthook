@@ -49,7 +49,7 @@ func NewRepository(fs afero.Fs) (*Repository, error) {
 	if err != nil {
 		return nil, err
 	}
-	infoPath = filepath.Join(rootPath, infoPath)
+	infoPath = filepath.Clean(infoPath)
 	if exists, _ := afero.DirExists(fs, infoPath); !exists {
 		err = fs.Mkdir(infoPath, infoDirMode)
 		if err != nil {
