@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.2.8 (2023-01-23)
+
 - fix: Don't join info path with root ([#418](https://github.com/evilmartians/lefthook/pull/418)) by @mrexox
 
 ## 1.2.7 (2023-01-10)
