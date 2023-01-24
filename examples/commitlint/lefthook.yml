@@ -1,0 +1,12 @@
+# Use this to build commit messages
+prepare-commit-msg:
+  commands:
+    commitzen:
+      interactive: true
+      run: LEFTHOOK=0 yarn run cz
+
+# Use this to validate commit messages
+commit-msg:
+  commands:
+    "lint commit message":
+      run: yarn run commitlint --edit {1}
