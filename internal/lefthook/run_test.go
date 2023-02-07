@@ -10,6 +10,24 @@ import (
 	"github.com/evilmartians/lefthook/internal/git"
 )
 
+type GitMock struct{}
+
+func (g GitMock) Cmd(cmd string) (string, error) {
+	return "", nil
+}
+
+func (g GitMock) CmdArgs(args ...string) (string, error) {
+	return "", nil
+}
+
+func (g GitMock) CmdLines(cmd string) ([]string, error) {
+	return nil, nil
+}
+
+func (g GitMock) RawCmd(cmd string) (string, error) {
+	return "", nil
+}
+
 func TestRun(t *testing.T) {
 	root, err := filepath.Abs("src")
 	if err != nil {
@@ -140,6 +158,7 @@ pre-commit:
 				Options: &Options{Fs: fs},
 				repo: &git.Repository{
 					Fs:        fs,
+					Git:       GitMock{},
 					HooksPath: hooksPath,
 					RootPath:  root,
 					GitPath:   gitPath,

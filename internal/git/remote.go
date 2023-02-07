@@ -68,20 +68,22 @@ func (r *Repository) updateRemote(path, ref string) error {
 	log.Debugf("Updating remote config repository: %s", path)
 
 	if len(ref) != 0 {
-		cmdFetch := []string{"git", "-C", path, "fetch", "--quiet", "--depth", "1", "origin", ref}
-		_, err := execGit(strings.Join(cmdFetch, " "))
+		_, err := r.Git.CmdArgs(
+			"git", "-C", path, "fetch", "--quiet", "--depth", "1",
+			"origin", ref,
+		)
 		if err != nil {
 			return err
 		}
 
-		cmdFetch = []string{"git", "-C", path, "checkout", "FETCH_HEAD"}
-		_, err = execGit(strings.Join(cmdFetch, " "))
+		_, err = r.Git.CmdArgs(
+			"git", "-C", path, "checkout", "FETCH_HEAD",
+		)
 		if err != nil {
 			return err
 		}
 	} else {
-		cmdFetch := []string{"git", "-C", path, "pull", "--quiet"}
-		_, err := execGit(strings.Join(cmdFetch, " "))
+		_, err := r.Git.CmdArgs("git", "-C", path, "pull", "--quiet")
 		if err != nil {
 			return err
 		}
@@ -99,7 +101,7 @@ func (r *Repository) cloneRemote(path, url, ref string) error {
 	}
 	cmdClone = append(cmdClone, url)
 
-	_, err := execGit(strings.Join(cmdClone, " "))
+	_, err := r.Git.CmdArgs(cmdClone...)
 	if err != nil {
 		return err
 	}

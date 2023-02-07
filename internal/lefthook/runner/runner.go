@@ -43,10 +43,9 @@ type Opts struct {
 type Runner struct {
 	Opts
 
-	partiallyStagedFiles     []string
-	partiallyStagedStashHash string
-	failed                   atomic.Bool
-	executor                 Executor
+	partiallyStagedFiles []string
+	failed               atomic.Bool
+	executor             Executor
 }
 
 func NewRunner(opts Opts) *Runner {
@@ -143,8 +142,8 @@ func (r *Runner) runLFSHook() error {
 		}
 
 		if err != nil && (requiredExists || configExists) {
-			log.Warn(output)
-			return fmt.Errorf("git-lfs command failed: %s", err)
+			log.Warnf("git-lfs command failed: %s\n", output)
+			return err
 		}
 
 		return nil
@@ -179,10 +178,16 @@ func (r *Runner) preHook() {
 		return
 	}
 
-	r.partiallyStagedFiles = partiallyStagedFiles
-	r.Repo.SaveUnstaged(r.partiallyStagedFiles)
+	log.Debug("[lefthook] saving partially staged files")
 
-	stashHash, err := r.Repo.StashUnstaged()
+	r.partiallyStagedFiles = partiallyStagedFiles
+	err = r.Repo.SaveUnstaged(r.partiallyStagedFiles)
+	if err != nil {
+		log.Warnf("Couldn't save unstaged changes: %s\n", err)
+		return
+	}
+
+	err = r.Repo.StashUnstaged()
 	if err != nil {
 		log.Warnf("Couldn't stash partially staged files: %s\n", err)
 		return
@@ -195,8 +200,6 @@ func (r *Runner) preHook() {
 	}
 
 	log.Debugf("[lefthook] hide partially staged files: %v\n", r.partiallyStagedFiles)
-
-	r.partiallyStagedStashHash = stashHash
 }
 
 func (r *Runner) postHook() {
@@ -205,7 +208,7 @@ func (r *Runner) postHook() {
 		return
 	}
 
-	if err := r.Repo.DropUnstagedStash(r.partiallyStagedStashHash); err != nil {
+	if err := r.Repo.DropUnstagedStash(); err != nil {
 		log.Warnf("Couldn't remove unstaged files backup: %s\n", err)
 	}
 }

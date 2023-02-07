@@ -41,7 +41,7 @@ func initialize(opts *Options) (*Lefthook, error) {
 
 	log.SetColors(!opts.NoColors)
 
-	repo, err := git.NewRepository(opts.Fs)
+	repo, err := git.NewRepository(opts.Fs, git.NewOsExec())
 	if err != nil {
 		return nil, err
 	}

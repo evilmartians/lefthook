@@ -29,6 +29,24 @@ func (e TestExecutor) RawExecute(command []string, out io.Writer) error {
 	return nil
 }
 
+type GitMock struct{}
+
+func (g GitMock) Cmd(cmd string) (string, error) {
+	return "", nil
+}
+
+func (g GitMock) CmdArgs(args ...string) (string, error) {
+	return "", nil
+}
+
+func (g GitMock) CmdLines(cmd string) ([]string, error) {
+	return nil, nil
+}
+
+func (g GitMock) RawCmd(cmd string) (string, error) {
+	return "", nil
+}
+
 func TestRunAll(t *testing.T) {
 	hookName := "pre-commit"
 
@@ -39,6 +57,7 @@ func TestRunAll(t *testing.T) {
 
 	gitPath := filepath.Join(root, ".git")
 	repo := &git.Repository{
+		Git:       GitMock{},
 		HooksPath: filepath.Join(gitPath, "hooks"),
 		RootPath:  root,
 		GitPath:   gitPath,
