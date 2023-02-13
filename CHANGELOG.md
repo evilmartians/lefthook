@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.2.9 (2023-02-13)
+
+- fix: memory leak dependency ([#426](https://github.com/evilmartians/lefthook/pull/426)) by @strpc
+
 ## 1.2.8 (2023-01-23)
 
 - fix: Don't join info path with root ([#418](https://github.com/evilmartians/lefthook/pull/418)) by @mrexox
