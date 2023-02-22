@@ -35,7 +35,7 @@ jobs:
         with:
           distribution: goreleaser
           version: latest
-          args: build --snapshot --skip-validate --rm-dist
+          args: build --snapshot --skip-validate --clean
       - name: Tar binaries to preserve executable bit
         run: 'tar -cvf lefthook-binaries.tar --directory dist/ $(find dist/ -executable -type f -printf "%P\0" | xargs --null)'
       - name: Upload binaries as artifacts
