@@ -43,3 +43,21 @@ jobs:
         with:
           name: Executables
           path: lefthook-binaries.tar
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.19.x
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Report coverage
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          go test ./... -coverprofile cover.out
+          go install github.com/jandelgado/gcov2lcov@latest
+          gcov2lcov -infile=cover.out -outfile=coverage.lcov
+          curl -L https://github.com/coverallsapp/coverage-reporter/releases/latest/download/coveralls-linux.tar.gz | tar zxv
+          ./coveralls --file=coverage.lcov

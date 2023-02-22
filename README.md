@@ -1,6 +1,8 @@
 
 ![Build Status](https://github.com/evilmartians/lefthook/actions/workflows/test.yml/badge.svg?branch=master)
 
+[![Coverage Status](https://coveralls.io/repos/github/evilmartians/lefthook/badge.svg?branch=master)](https://coveralls.io/github/evilmartians/lefthook?branch=master)
+
 # Lefthook
 
 > The fastest polyglot Git hooks manager out there
