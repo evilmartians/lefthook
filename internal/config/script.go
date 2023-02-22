@@ -78,7 +78,7 @@ func mergeScripts(base, extra *viper.Viper) (map[string]*Script, error) {
 
 	for key, replace := range runReplaces {
 		if replace.Runner != "" {
-			scripts[key].Runner = strings.Replace(scripts[key].Runner, CMD, replace.Runner, -1)
+			scripts[key].Runner = strings.ReplaceAll(scripts[key].Runner, CMD, replace.Runner)
 		}
 	}
 

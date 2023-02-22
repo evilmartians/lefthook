@@ -1,7 +1,6 @@
 package runner
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -26,8 +25,26 @@ func (e TestExecutor) Execute(opts ExecuteOptions, out io.Writer) (err error) {
 	return
 }
 
-func (e TestExecutor) RawExecute(command string, args ...string) (*bytes.Buffer, error) {
+func (e TestExecutor) RawExecute(command []string, out io.Writer) error {
+	return nil
+}
+
+type GitMock struct{}
+
+func (g GitMock) Cmd(cmd string) (string, error) {
+	return "", nil
+}
+
+func (g GitMock) CmdArgs(args ...string) (string, error) {
+	return "", nil
+}
+
+func (g GitMock) CmdLines(cmd string) ([]string, error) {
 	return nil, nil
+}
+
+func (g GitMock) RawCmd(cmd string) (string, error) {
+	return "", nil
 }
 
 func TestRunAll(t *testing.T) {
@@ -40,6 +57,7 @@ func TestRunAll(t *testing.T) {
 
 	gitPath := filepath.Join(root, ".git")
 	repo := &git.Repository{
+		Git:       GitMock{},
 		HooksPath: filepath.Join(gitPath, "hooks"),
 		RootPath:  root,
 		GitPath:   gitPath,
@@ -324,6 +342,7 @@ func TestRunAll(t *testing.T) {
 				Fs:         fs,
 				Repo:       repo,
 				Hook:       tt.hook,
+				HookName:   hookName,
 				GitArgs:    tt.args,
 				ResultChan: resultChan,
 			},
@@ -346,7 +365,7 @@ func TestRunAll(t *testing.T) {
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			runner.RunAll(hookName, tt.sourceDirs)
+			runner.RunAll(tt.sourceDirs)
 			close(resultChan)
 
 			var success, fail []Result

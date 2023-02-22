@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
 	"regexp"
@@ -82,7 +83,8 @@ func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
 	}
 
 	if err := merge("lefthook-local", "", extends); err != nil {
-		if _, notFoundErr := err.(viper.ConfigFileNotFoundError); !notFoundErr {
+		var notFoundErr viper.ConfigFileNotFoundError
+		if ok := errors.As(err, &notFoundErr); !ok {
 			return nil, err
 		}
 	}

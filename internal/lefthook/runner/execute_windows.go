@@ -1,7 +1,6 @@
 package runner
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -50,13 +49,11 @@ func (e CommandExecutor) Execute(opts ExecuteOptions, out io.Writer) error {
 	return command.Wait()
 }
 
-func (e CommandExecutor) RawExecute(command string, args ...string) (*bytes.Buffer, error) {
-	cmd := exec.Command(command, args...)
+func (e CommandExecutor) RawExecute(command []string, out io.Writer) error {
+	cmd := exec.Command(command[0], command[1:]...)
 
-	var out bytes.Buffer
-
-	cmd.Stdout = &out
+	cmd.Stdout = out
 	cmd.Stderr = os.Stderr
 
-	return &out, cmd.Run()
+	return cmd.Run()
 }

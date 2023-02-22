@@ -96,7 +96,7 @@ func mergeCommands(base, extra *viper.Viper) (map[string]*Command, error) {
 
 	for key, replace := range runReplaces {
 		if replace.Run != "" {
-			commands[key].Run = strings.Replace(commands[key].Run, CMD, replace.Run, -1)
+			commands[key].Run = strings.ReplaceAll(commands[key].Run, CMD, replace.Run)
 		}
 	}
 

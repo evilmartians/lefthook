@@ -39,6 +39,10 @@ var AvailableHooks = [...]string{
 	"sendemail-validate",
 }
 
+func HookUsesStagedFiles(hook string) bool {
+	return hook == "pre-commit"
+}
+
 func HookAvailable(hook string) bool {
 	for _, name := range AvailableHooks {
 		if name == hook {

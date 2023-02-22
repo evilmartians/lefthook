@@ -13,7 +13,6 @@ import (
 	"sync/atomic"
 
 	"github.com/spf13/afero"
-	"gopkg.in/alessio/shellescape.v1"
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
@@ -33,6 +32,7 @@ type Opts struct {
 	Fs           afero.Fs
 	Repo         *git.Repository
 	Hook         *config.Hook
+	HookName     string
 	GitArgs      []string
 	ResultChan   chan Result
 	SkipSettings log.SkipSettings
@@ -43,8 +43,9 @@ type Opts struct {
 type Runner struct {
 	Opts
 
-	failed   atomic.Bool
-	executor Executor
+	partiallyStagedFiles []string
+	failed               atomic.Bool
+	executor             Executor
 }
 
 func NewRunner(opts Opts) *Runner {
@@ -56,13 +57,13 @@ func NewRunner(opts Opts) *Runner {
 
 // RunAll runs scripts and commands.
 // LFS hook is executed at first if needed.
-func (r *Runner) RunAll(hookName string, sourceDirs []string) {
-	if err := r.runLFSHook(hookName); err != nil {
+func (r *Runner) RunAll(sourceDirs []string) {
+	if err := r.runLFSHook(); err != nil {
 		log.Error(err)
 	}
 
 	if r.Hook.Skip != nil && r.Hook.DoSkip(r.Repo.State()) {
-		logSkip(hookName, "(SKIP BY HOOK SETTING)")
+		logSkip(r.HookName, "hook setting")
 		return
 	}
 
@@ -74,15 +75,19 @@ func (r *Runner) RunAll(hookName string, sourceDirs []string) {
 	scriptDirs := make([]string, len(sourceDirs))
 	for _, sourceDir := range sourceDirs {
 		scriptDirs = append(scriptDirs, filepath.Join(
-			sourceDir, hookName,
+			sourceDir, r.HookName,
 		))
 	}
+
+	r.preHook()
 
 	for _, dir := range scriptDirs {
 		r.runScripts(dir)
 	}
 
 	r.runCommands()
+
+	r.postHook()
 }
 
 func (r *Runner) fail(name, text string) {
@@ -94,8 +99,8 @@ func (r *Runner) success(name string) {
 	r.ResultChan <- resultSuccess(name)
 }
 
-func (r *Runner) runLFSHook(hookName string) error {
-	if !git.IsLFSHook(hookName) {
+func (r *Runner) runLFSHook() error {
+	if !git.IsLFSHook(r.HookName) {
 		return nil
 	}
 
@@ -113,14 +118,15 @@ func (r *Runner) runLFSHook(hookName string) error {
 
 	if git.IsLFSAvailable() {
 		log.Debugf(
-			"[git-lfs] executing hook: git lfs %s %s", hookName, strings.Join(r.GitArgs, " "),
+			"[git-lfs] executing hook: git lfs %s %s", r.HookName, strings.Join(r.GitArgs, " "),
 		)
-		out, err := r.executor.RawExecute(
-			"git",
+		out := bytes.NewBuffer(make([]byte, 0))
+		err := r.executor.RawExecute(
 			append(
-				[]string{"lfs", hookName},
+				[]string{"git", "lfs", r.HookName},
 				r.GitArgs...,
-			)...,
+			),
+			out,
 		)
 
 		output := strings.Trim(out.String(), "\n")
@@ -136,8 +142,8 @@ func (r *Runner) runLFSHook(hookName string) error {
 		}
 
 		if err != nil && (requiredExists || configExists) {
-			log.Warn(output)
-			return fmt.Errorf("git-lfs command failed: %w", err)
+			log.Warnf("git-lfs command failed: %s\n", output)
+			return err
 		}
 
 		return nil
@@ -145,7 +151,7 @@ func (r *Runner) runLFSHook(hookName string) error {
 
 	if requiredExists || configExists {
 		log.Errorf(
-			"This repository requires Git LFS, but 'git-lfs' wasn't found.\n"+
+			"This Repository requires Git LFS, but 'git-lfs' wasn't found.\n"+
 				"Install 'git-lfs' or consider reviewing the files:\n"+
 				"  - %s\n"+
 				"  - %s\n",
@@ -155,6 +161,56 @@ func (r *Runner) runLFSHook(hookName string) error {
 	}
 
 	return nil
+}
+
+func (r *Runner) preHook() {
+	if !config.HookUsesStagedFiles(r.HookName) {
+		return
+	}
+
+	partiallyStagedFiles, err := r.Repo.PartiallyStagedFiles()
+	if err != nil {
+		log.Warnf("Couldn't find partially staged files: %s\n", err)
+		return
+	}
+
+	if len(partiallyStagedFiles) == 0 {
+		return
+	}
+
+	log.Debug("[lefthook] saving partially staged files")
+
+	r.partiallyStagedFiles = partiallyStagedFiles
+	err = r.Repo.SaveUnstaged(r.partiallyStagedFiles)
+	if err != nil {
+		log.Warnf("Couldn't save unstaged changes: %s\n", err)
+		return
+	}
+
+	err = r.Repo.StashUnstaged()
+	if err != nil {
+		log.Warnf("Couldn't stash partially staged files: %s\n", err)
+		return
+	}
+
+	err = r.Repo.HideUnstaged(r.partiallyStagedFiles)
+	if err != nil {
+		log.Warnf("Couldn't hide unstaged files: %s\n", err)
+		return
+	}
+
+	log.Debugf("[lefthook] hide partially staged files: %v\n", r.partiallyStagedFiles)
+}
+
+func (r *Runner) postHook() {
+	if err := r.Repo.RestoreUnstaged(); err != nil {
+		log.Warnf("Couldn't restore hidden unstaged files: %s\n", err)
+		return
+	}
+
+	if err := r.Repo.DropUnstagedStash(); err != nil {
+		log.Warnf("Couldn't remove unstaged files backup: %s\n", err)
+	}
 }
 
 func (r *Runner) runScripts(dir string) {
@@ -169,12 +225,12 @@ func (r *Runner) runScripts(dir string) {
 	for _, file := range files {
 		script, ok := r.Hook.Scripts[file.Name()]
 		if !ok {
-			logSkip(file.Name(), "(SKIP BY NOT EXIST IN CONFIG)")
+			logSkip(file.Name(), "not specified in config file")
 			continue
 		}
 
 		if r.failed.Load() && r.Hook.Piped {
-			logSkip(file.Name(), "(SKIP BY BROKEN PIPE)")
+			logSkip(file.Name(), "broken pipe")
 			continue
 		}
 
@@ -201,7 +257,7 @@ func (r *Runner) runScripts(dir string) {
 	for _, file := range interactiveScripts {
 		script := r.Hook.Scripts[file.Name()]
 		if r.failed.Load() {
-			logSkip(file.Name(), "(SKIP INTERACTIVE BY FAILED)")
+			logSkip(file.Name(), "non-interactive scripts failed")
 			continue
 		}
 
@@ -212,38 +268,11 @@ func (r *Runner) runScripts(dir string) {
 }
 
 func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo) {
-	if script.Skip != nil && script.DoSkip(r.Repo.State()) {
-		logSkip(file.Name(), "(SKIP BY SETTINGS)")
+	args, err := r.prepareScript(script, path, file)
+	if err != nil {
+		logSkip(file.Name(), err.Error())
 		return
 	}
-
-	if intersect(r.Hook.ExcludeTags, script.Tags) {
-		logSkip(file.Name(), "(SKIP BY TAGS)")
-		return
-	}
-
-	// Skip non-regular files (dirs, symlinks, sockets, etc.)
-	if !file.Mode().IsRegular() {
-		log.Debugf("[lefthook] file %s is not a regular file, skipping", file.Name())
-		return
-	}
-
-	// Make sure file is executable
-	if (file.Mode() & executableMask) == 0 {
-		if err := r.Fs.Chmod(path, executableFileMode); err != nil {
-			log.Errorf("Couldn't change file mode to make file executable: %s", err)
-			r.fail(file.Name(), "")
-			return
-		}
-	}
-
-	var args []string
-	if len(script.Runner) > 0 {
-		args = strings.Split(script.Runner, " ")
-	}
-
-	args = append(args, path)
-	args = append(args, r.GitArgs[:]...)
 
 	if script.Interactive && !r.DisableTTY && !r.Hook.Follow {
 		log.StopSpinner()
@@ -273,7 +302,7 @@ func (r *Runner) runCommands() {
 
 	for _, name := range commands {
 		if r.failed.Load() && r.Hook.Piped {
-			logSkip(name, "(SKIP BY BROKEN PIPE)")
+			logSkip(name, "broken pipe")
 			continue
 		}
 
@@ -297,7 +326,7 @@ func (r *Runner) runCommands() {
 
 	for _, name := range interactiveCommands {
 		if r.failed.Load() {
-			logSkip(name, "(SKIP INTERACTIVE BY FAILED)")
+			logSkip(name, "non-interactive commands failed")
 			continue
 		}
 
@@ -306,34 +335,9 @@ func (r *Runner) runCommands() {
 }
 
 func (r *Runner) runCommand(name string, command *config.Command) {
-	if command.Skip != nil && command.DoSkip(r.Repo.State()) {
-		logSkip(name, "(SKIP BY SETTINGS)")
-		return
-	}
-
-	if intersect(r.Hook.ExcludeTags, command.Tags) {
-		logSkip(name, "(SKIP BY TAGS)")
-		return
-	}
-
-	if intersect(r.Hook.ExcludeTags, []string{name}) {
-		logSkip(name, "(SKIP BY NAME)")
-		return
-	}
-
-	if err := command.Validate(); err != nil {
-		r.fail(name, "")
-		return
-	}
-
-	args, err := r.buildCommandArgs(command)
+	args, err := r.prepareCommand(name, command)
 	if err != nil {
-		log.Error(err)
-		logSkip(name, "(SKIP. ERROR)")
-		return
-	}
-	if len(args) == 0 {
-		logSkip(name, "(SKIP. NO FILES FOR INSPECTION)")
+		logSkip(name, err.Error())
 		return
 	}
 
@@ -350,111 +354,6 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 		interactive: command.Interactive && !r.DisableTTY,
 		env:         command.Env,
 	}, r.Hook.Follow)
-}
-
-func (r *Runner) buildCommandArgs(command *config.Command) ([]string, error) {
-	filesCommand := r.Hook.Files
-	if command.Files != "" {
-		filesCommand = command.Files
-	}
-
-	filesTypeToFn := map[string]func() ([]string, error){
-		config.SubStagedFiles: r.Repo.StagedFiles,
-		config.PushFiles:      r.Repo.PushFiles,
-		config.SubAllFiles:    r.Repo.AllFiles,
-		config.SubFiles: func() ([]string, error) {
-			return r.Repo.FilesByCommand(filesCommand)
-		},
-	}
-
-	runString := command.Run
-	for filesType, filesFn := range filesTypeToFn {
-		// Checking substitutions and skipping execution if it is empty.
-		//
-		// Special case - `files` option: return if the result of files
-		// command is empty.
-		if strings.Contains(runString, filesType) ||
-			filesCommand != "" && filesType == config.SubFiles {
-			files, err := filesFn()
-			if err != nil {
-				return nil, fmt.Errorf("error replacing %s: %s", filesType, err)
-			}
-			if len(files) == 0 {
-				return nil, nil
-			}
-
-			filesPrepared := prepareFiles(command, files)
-			if len(filesPrepared) == 0 {
-				return nil, nil
-			}
-
-			runString = replaceQuoted(runString, filesType, filesPrepared)
-		}
-	}
-
-	runString = strings.ReplaceAll(runString, "{0}", strings.Join(r.GitArgs, " "))
-	for i, gitArg := range r.GitArgs {
-		runString = strings.ReplaceAll(runString, fmt.Sprintf("{%d}", i+1), gitArg)
-	}
-
-	log.Debug("[lefthook] executing: ", runString)
-
-	return strings.Split(runString, " "), nil
-}
-
-func prepareFiles(command *config.Command, files []string) []string {
-	if files == nil {
-		return []string{}
-	}
-
-	log.Debug("[lefthook] files before filters:\n", files)
-
-	files = filterGlob(files, command.Glob)
-	files = filterExclude(files, command.Exclude)
-	files = filterRelative(files, command.Root)
-
-	log.Debug("[lefthook] files after filters:\n", files)
-
-	// Escape file names to prevent unexpected bugs
-	var filesEsc []string
-	for _, fileName := range files {
-		if len(fileName) > 0 {
-			filesEsc = append(filesEsc, shellescape.Quote(fileName))
-		}
-	}
-
-	log.Debug("[lefthook] files after escaping:\n", filesEsc)
-
-	return filesEsc
-}
-
-func replaceQuoted(source, substitution string, files []string) string {
-	for _, elem := range [][]string{
-		{"\"", "\"" + substitution + "\""},
-		{"'", "'" + substitution + "'"},
-		{"", substitution},
-	} {
-		quote := elem[0]
-		sub := elem[1]
-		if !strings.Contains(source, sub) {
-			continue
-		}
-
-		quotedFiles := files
-		if len(quote) != 0 {
-			quotedFiles = make([]string, 0, len(files))
-			for _, fileName := range files {
-				quotedFiles = append(quotedFiles,
-					quote+surroundingQuotesRegexp.ReplaceAllString(fileName, "$1")+quote)
-			}
-		}
-
-		source = strings.ReplaceAll(
-			source, sub, strings.Join(quotedFiles, " "),
-		)
-	}
-
-	return source
 }
 
 func (r *Runner) run(opts ExecuteOptions, follow bool) {
@@ -513,5 +412,12 @@ func intersect(a, b []string) bool {
 }
 
 func logSkip(name, reason string) {
-	log.Info(fmt.Sprintf("%s: %s", log.Bold(name), log.Yellow(reason)))
+	log.Info(
+		fmt.Sprintf(
+			"%s: %s %s",
+			log.Bold(name),
+			log.Gray("(skip)"),
+			log.Yellow(reason),
+		),
+	)
 }
