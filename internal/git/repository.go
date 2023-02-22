@@ -1,6 +1,7 @@
 package git
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -10,22 +11,25 @@ import (
 )
 
 const (
-	cmdRootPath    = "git rev-parse --show-toplevel"
-	cmdHooksPath   = "git rev-parse --git-path hooks"
-	cmdInfoPath    = "git rev-parse --git-path info"
-	cmdGitPath     = "git rev-parse --git-dir"
-	cmdStagedFiles = "git diff --name-only --cached --diff-filter=ACMR"
-	cmdAllFiles    = "git ls-files --cached"
-	cmdPushFiles   = "git diff --name-only HEAD @{push} || git diff --name-only HEAD master"
-	cmdStatusShort = "git status --short"
-	cmdCreateStash = "git stash create"
-	cmdListStash   = "git stash list"
+	cmdRootPath      = "git rev-parse --show-toplevel"
+	cmdHooksPath     = "git rev-parse --git-path hooks"
+	cmdInfoPath      = "git rev-parse --git-path info"
+	cmdGitPath       = "git rev-parse --git-dir"
+	cmdStagedFiles   = "git diff --name-only --cached --diff-filter=ACMR"
+	cmdAllFiles      = "git ls-files --cached"
+	cmdPushFilesBase = "git diff --name-only HEAD @{push}"
+	cmdPushFilesHead = "git diff --name-only HEAD %s"
+	cmdStatusShort   = "git status --short"
+	cmdCreateStash   = "git stash create"
+	cmdListStash     = "git stash list"
 
 	stashMessage      = "lefthook auto backup"
 	unstagedPatchName = "lefthook-unstaged.patch"
 	infoDirMode       = 0o775
 	minStatusLen      = 3
 )
+
+var headBranchRegexp = regexp.MustCompile(`HEAD -> (?P<name>.*)$`)
 
 // Repository represents a git repository.
 type Repository struct {
@@ -36,6 +40,7 @@ type Repository struct {
 	GitPath           string
 	InfoPath          string
 	unstagedPatchPath string
+	headBranch        string
 }
 
 // NewRepository returns a Repository or an error, if git repository it not initialized.
@@ -99,7 +104,27 @@ func (r *Repository) AllFiles() ([]string, error) {
 // PushFiles returns a list of files that are ready to be pushed
 // or an error if git command fails.
 func (r *Repository) PushFiles() ([]string, error) {
-	return r.FilesByCommand(cmdPushFiles)
+	res, err := r.FilesByCommand(cmdPushFilesBase)
+	if err == nil {
+		return res, nil
+	}
+
+	if len(r.headBranch) == 0 {
+		branches, err := r.Git.CmdLines("git branch --remotes")
+		if err != nil {
+			return nil, err
+		}
+		for _, branch := range branches {
+			if !headBranchRegexp.MatchString(branch) {
+				continue
+			}
+
+			matches := headBranchRegexp.FindStringSubmatch(branch)
+			r.headBranch = matches[headBranchRegexp.SubexpIndex("name")]
+			break
+		}
+	}
+	return r.FilesByCommand(fmt.Sprintf(cmdPushFilesHead, r.headBranch))
 }
 
 // PartiallyStagedFiles returns the list of files that have both staged and

@@ -4,6 +4,8 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/evilmartians/lefthook/internal/log"
 )
 
 type Exec interface {
@@ -56,10 +58,14 @@ func (o *OsExec) RawCmd(cmd string) (string, error) {
 // rawExecArgs executes git command with LEFTHOOK=0 in order
 // to prevent calling subsequent lefthook hooks.
 func (o *OsExec) rawExecArgs(args ...string) (string, error) {
+	log.Debug("[lefthook] cmd: ", args)
+
 	cmd := exec.Command(args[0], args[1:]...)
 	cmd.Env = append(os.Environ(), "LEFTHOOK=0")
 
 	out, err := cmd.CombinedOutput()
+	log.Debug("[lefthook] err: ", err)
+	log.Debug("[lefthook] out: ", string(out))
 	if err != nil {
 		return "", err
 	}
