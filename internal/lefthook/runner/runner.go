@@ -356,21 +356,9 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 	}, r.Hook.Follow)
 }
 
-func (r *Runner) preRun(opts ExecuteOptions) {
-	// if !config.HookHasStagedFiles(r.HookName) {
-	// 	return
-	// }
-
-	// Hide unstaged changes
-	// Save stash name
-}
-
 func (r *Runner) run(opts ExecuteOptions, follow bool) {
 	log.SetName(opts.name)
 	defer log.UnsetName(opts.name)
-
-	r.preRun(opts)
-	defer r.postRun(opts)
 
 	if (follow || opts.interactive) && !r.SkipSettings.SkipExecution() {
 		log.Info(log.Cyan("\n  EXECUTE > "), log.Bold(opts.name))
@@ -404,16 +392,6 @@ func (r *Runner) run(opts ExecuteOptions, follow bool) {
 		log.Infof("%s", err)
 	}
 	log.Infof("\n")
-}
-
-func (r *Runner) postRun(opts ExecuteOptions) {
-	// if !config.HookHasStagedFiles(r.HookName) {
-	// 	return
-	// }
-
-	// Restage files which were staged (if configured)
-	// Return if there is no stash set in preRun
-	// Unstash it
 }
 
 // Returns whether two arrays have at least one similar element.

@@ -21,11 +21,13 @@ func NewOsExec() *OsExec {
 	return &OsExec{}
 }
 
+// Cmd runs plain string command. Trims spaces around output.
 func (o *OsExec) Cmd(cmd string) (string, error) {
 	args := strings.Split(cmd, " ")
 	return o.CmdArgs(args...)
 }
 
+// CmdLines runs plain string command, returns its output split by newline.
 func (o *OsExec) CmdLines(cmd string) ([]string, error) {
 	out, err := o.RawCmd(cmd)
 	if err != nil {
@@ -35,6 +37,7 @@ func (o *OsExec) CmdLines(cmd string) ([]string, error) {
 	return strings.Split(out, "\n"), nil
 }
 
+// CmdArgs runs a command provided with separted words. Trims spaces around output.
 func (o *OsExec) CmdArgs(args ...string) (string, error) {
 	out, err := o.rawExecArgs(args...)
 	if err != nil {
@@ -44,6 +47,7 @@ func (o *OsExec) CmdArgs(args ...string) (string, error) {
 	return strings.TrimSpace(out), nil
 }
 
+// RawCmd runs a plain string command returning unprocessed output as string.
 func (o *OsExec) RawCmd(cmd string) (string, error) {
 	args := strings.Split(cmd, " ")
 	return o.rawExecArgs(args...)
