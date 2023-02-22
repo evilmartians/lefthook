@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+## 1.3.0 (2023-02-22)
+
+- fix: Use correct branch for {push_files} template ([#429](https://github.com/evilmartians/lefthook/pull/429)) by @mrexox
+- feature: Skip unstaged changes for pre-commit hook ([#402](https://github.com/evilmartians/lefthook/pull/402)) by @mrexox
+
 ## 1.2.9 (2023-02-13)
 
 - fix: memory leak dependency ([#426](https://github.com/evilmartians/lefthook/pull/426)) by @strpc
