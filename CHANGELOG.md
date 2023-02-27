@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.3.2 (2023-02-27)
+
+- fix: Allow sh syntax in files ([#435](https://github.com/evilmartians/lefthook/pull/435)) by @mrexox
+
 ## 1.3.1 (2023-02-27)
 
 - fix: Force creation of git hooks folder ([#434](https://github.com/evilmartians/lefthook/pull/434)) by @mrexox
