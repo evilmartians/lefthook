@@ -3,6 +3,7 @@ package git
 import (
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 
 	"github.com/evilmartians/lefthook/internal/log"
@@ -51,7 +52,13 @@ func (o *OsExec) CmdArgs(args ...string) (string, error) {
 
 // RawCmd runs a plain string command returning unprocessed output as string.
 func (o *OsExec) RawCmd(cmd string) (string, error) {
-	args := strings.Split(cmd, " ")
+	var args []string
+	if runtime.GOOS == "windows" {
+		args = strings.Split(cmd, " ")
+	} else {
+		args = []string{"sh", "-c", cmd}
+	}
+
 	return o.rawExecArgs(args...)
 }
 
