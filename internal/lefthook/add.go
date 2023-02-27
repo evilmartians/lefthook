@@ -35,6 +35,10 @@ func (l *Lefthook) Add(args *AddArgs) error {
 		return err
 	}
 
+	if err = l.ensureHooksDirExists(); err != nil {
+		return err
+	}
+
 	err = l.addHook(args.Hook, "")
 	if err != nil {
 		return err
