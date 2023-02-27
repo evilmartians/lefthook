@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.3.1 (2023-02-27)
+
+- fix: Force creation of git hooks folder ([#434](https://github.com/evilmartians/lefthook/pull/434)) by @mrexox
+
 ## 1.3.0 (2023-02-22)
 
 - fix: Use correct branch for {push_files} template ([#429](https://github.com/evilmartians/lefthook/pull/429)) by @mrexox
