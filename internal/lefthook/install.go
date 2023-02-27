@@ -20,6 +20,7 @@ import (
 const (
 	configFileMode   = 0o666
 	checksumFileMode = 0o644
+	hooksDirMode     = 0o755
 	configGlob       = "lefthook.y*ml"
 	timestampBase    = 10
 	timestampBitsize = 64
@@ -114,6 +115,10 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, force bool) error {
 
 	checksum, err := l.configChecksum()
 	if err != nil {
+		return err
+	}
+
+	if err = l.ensureHooksDirExists(); err != nil {
 		return err
 	}
 
@@ -243,4 +248,16 @@ func (l *Lefthook) addChecksumFile(checksum string) error {
 
 func (l *Lefthook) checksumFilePath() string {
 	return filepath.Join(l.repo.InfoPath, config.ChecksumFileName)
+}
+
+func (l *Lefthook) ensureHooksDirExists() error {
+	exists, err := afero.Exists(l.Fs, l.repo.HooksPath)
+	if !exists || err != nil {
+		err = l.Fs.MkdirAll(l.repo.HooksPath, hooksDirMode)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
