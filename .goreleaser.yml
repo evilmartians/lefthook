@@ -23,9 +23,9 @@ archives:
     name_template: >-
       {{ .ProjectName }}_
       {{- .Version }}_
-      {{- if eq .Os "darwin" }}MacOS_
+      {{- if eq .Os "darwin" }}MacOS
       {{- else }}{{ title .Os }}{{ end }}_
-      {{- if eq .Arch "amd64" }}x86_64_
+      {{- if eq .Arch "amd64" }}x86_64
       {{- else }}{{ .Arch }}{{ end }}
   - id: lefthook-gz
     format: gz
@@ -34,10 +34,10 @@ archives:
     name_template: >-
       {{ .ProjectName }}_
       {{- .Version }}_
-      {{- if eq .Os "darwin" }}MacOS_
+      {{- if eq .Os "darwin" }}MacOS
       {{- else }}{{ title .Os }}{{ end }}_
-      {{- if eq .Arch "amd64" }}x86_64_
-      {{- else if eq .Arch "386" }}i386_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
 checksum:
   name_template: '{{ .ProjectName }}_checksums.txt'
