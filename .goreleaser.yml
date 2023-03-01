@@ -24,7 +24,7 @@ archives:
       {{ .ProjectName }}_
       {{- .Version }}_
       {{- if eq .Os "darwin" }}MacOS
-      {{- else }}{{ title .Os }}_{{ end }}
+      {{- else }}{{ title .Os }}{{ end }}_
       {{- if eq .Arch "amd64" }}x86_64
       {{- else }}{{ .Arch }}{{ end }}
   - id: lefthook-gz
