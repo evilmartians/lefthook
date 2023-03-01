@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.3.3 (2023-03-01)
+
+- fix: restore release assets name ([#437[(https://github.com/evilmartians/lefthook/pull/437)) by @watarukura
+
 ## 1.3.2 (2023-02-27)
 
 - fix: Allow sh syntax in files ([#435](https://github.com/evilmartians/lefthook/pull/435)) by @mrexox
