@@ -20,7 +20,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Test
-        run: go test ./...
+        run: go test ./... -coverprofile coverage.out
+      - name: Report coverage
+        uses: coverallsapp/github-action@v2
+        with:
+          file: coverage.out
+          parallel: true
+          flag-name: ${{ join(matrix.*, ' ') }}
+
   build:
     runs-on: ubuntu-latest
     steps:
@@ -43,17 +50,12 @@ jobs:
         with:
           name: Executables
           path: lefthook-binaries.tar
+
   coverage:
     runs-on: ubuntu-latest
+    needs: test
     steps:
-      - name: Install Go
-        uses: actions/setup-go@v2
+      - uses: coverallsapp/github-action@v2
         with:
-          go-version: 1.19.x
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - run: go test ./... -coverprofile coverage.out
-      - name: Report coverage
-        uses: coverallsapp/github-action@v2
-        with:
-          file: coverage.out
+          carryforward: "1.19.x ubuntu-latest,1.19.x macos-latest,1.19.x windows-latest"
+          parallel-finished: true
