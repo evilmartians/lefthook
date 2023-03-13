@@ -82,15 +82,15 @@ func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
 		return nil, err
 	}
 
-	if err := merge("lefthook-local", "", extends); err != nil {
+	if err := merge("lefthook-local", "", extends); err == nil {
+		if err = extend(extends, repo.RootPath); err != nil {
+			return nil, err
+		}
+	} else {
 		var notFoundErr viper.ConfigFileNotFoundError
 		if ok := errors.As(err, &notFoundErr); !ok {
 			return nil, err
 		}
-	}
-
-	if err := extend(extends, repo.RootPath); err != nil {
-		return nil, err
 	}
 
 	return extends, nil
@@ -135,6 +135,7 @@ func mergeRemote(fs afero.Fs, repo *git.Repository, v *viper.Viper) error {
 
 // extend merges all files listed in 'extends' option into the config.
 func extend(v *viper.Viper, root string) error {
+	log.Debugf("extends %v\n", v.GetStringSlice("extends"))
 	for i, path := range v.GetStringSlice("extends") {
 		if !filepath.IsAbs(path) {
 			path = filepath.Join(root, path)
