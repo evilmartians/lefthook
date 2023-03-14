@@ -18,6 +18,7 @@ type Script struct {
 
 	FailText    string `mapstructure:"fail_text"`
 	Interactive bool   `mapstructure:"interactive"`
+	StageFixed  bool   `mapstructure:"stage_fixed"`
 }
 
 func (s Script) DoSkip(gitState git.State) bool {

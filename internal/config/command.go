@@ -25,6 +25,7 @@ type Command struct {
 
 	FailText    string `mapstructure:"fail_text"`
 	Interactive bool   `mapstructure:"interactive"`
+	StageFixed  bool   `mapstructure:"stage_fixed"`
 }
 
 func (c Command) Validate() error {

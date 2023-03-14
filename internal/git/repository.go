@@ -272,6 +272,18 @@ func (r *Repository) DropUnstagedStash() error {
 	return nil
 }
 
+func (r *Repository) AddFiles(files []string) error {
+	if len(files) == 0 {
+		return nil
+	}
+
+	_, err := r.Git.CmdArgs(
+		append([]string{"git", "add"}, files...)...,
+	)
+
+	return err
+}
+
 // FilesByCommand accepts git command and returns its result as a list of filepaths.
 func (r *Repository) FilesByCommand(command string) ([]string, error) {
 	lines, err := r.Git.CmdLines(command)
