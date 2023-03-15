@@ -8,8 +8,8 @@ import (
 type ExecuteOptions struct {
 	name, root, failText string
 	args                 []string
-	interactive          bool
 	env                  map[string]string
+	interactive          bool
 }
 
 // Executor provides an interface for command execution.

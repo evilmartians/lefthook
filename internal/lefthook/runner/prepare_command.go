@@ -11,7 +11,12 @@ import (
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
-func (r *Runner) prepareCommand(name string, command *config.Command) ([]string, error) {
+type commandArgs struct {
+	all   []string
+	files []string
+}
+
+func (r *Runner) prepareCommand(name string, command *config.Command) (*commandArgs, error) {
 	if command.Skip != nil && command.DoSkip(r.Repo.State()) {
 		return nil, errors.New("settings")
 	}
@@ -34,14 +39,14 @@ func (r *Runner) prepareCommand(name string, command *config.Command) ([]string,
 		log.Error(err)
 		return nil, errors.New("error")
 	}
-	if len(args) == 0 {
+	if args == nil || len(args.all) == 0 {
 		return nil, errors.New("no files for inspection")
 	}
 
 	return args, nil
 }
 
-func (r *Runner) buildCommandArgs(command *config.Command) ([]string, error) {
+func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error) {
 	filesCommand := r.Hook.Files
 	if command.Files != "" {
 		filesCommand = command.Files
@@ -56,6 +61,7 @@ func (r *Runner) buildCommandArgs(command *config.Command) ([]string, error) {
 		},
 	}
 
+	filteredFiles := []string{}
 	runString := command.Run
 	for filesType, filesFn := range filesTypeToFn {
 		// Checking substitutions and skipping execution if it is empty.
@@ -76,7 +82,7 @@ func (r *Runner) buildCommandArgs(command *config.Command) ([]string, error) {
 			if len(filesPrepared) == 0 {
 				return nil, nil
 			}
-
+			filteredFiles = append(filteredFiles, filesPrepared...)
 			runString = replaceQuoted(runString, filesType, filesPrepared)
 		}
 	}
@@ -88,7 +94,10 @@ func (r *Runner) buildCommandArgs(command *config.Command) ([]string, error) {
 
 	log.Debug("[lefthook] executing: ", runString)
 
-	return strings.Split(runString, " "), nil
+	return &commandArgs{
+		files: filteredFiles,
+		all:   strings.Split(runString, " "),
+	}, nil
 }
 
 func prepareFiles(command *config.Command, files []string) []string {
