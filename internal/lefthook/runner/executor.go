@@ -6,10 +6,10 @@ import (
 
 // ExecutorOptions contains the options that control the execution.
 type ExecuteOptions struct {
-	name, root, failText    string
-	args                    []string
-	env                     map[string]string
-	interactive, stageFixed bool
+	name, root, failText string
+	args                 []string
+	env                  map[string]string
+	interactive          bool
 }
 
 // Executor provides an interface for command execution.

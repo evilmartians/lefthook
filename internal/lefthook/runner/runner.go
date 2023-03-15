@@ -286,7 +286,6 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 		failText:    script.FailText,
 		interactive: script.Interactive && !r.DisableTTY,
 		env:         script.Env,
-		stageFixed:  script.StageFixed,
 	}, r.Hook.Follow)
 
 	if finished && config.HookUsesStagedFiles(r.HookName) && script.StageFixed {

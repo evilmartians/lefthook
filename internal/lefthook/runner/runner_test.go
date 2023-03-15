@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/spf13/afero"
@@ -29,22 +30,36 @@ func (e TestExecutor) RawExecute(command []string, out io.Writer) error {
 	return nil
 }
 
-type GitMock struct{}
+type GitMock struct {
+	commands []string
+}
 
-func (g GitMock) Cmd(cmd string) (string, error) {
+func (g *GitMock) Cmd(cmd string) (string, error) {
+	g.commands = append(g.commands, cmd)
+
 	return "", nil
 }
 
-func (g GitMock) CmdArgs(args ...string) (string, error) {
+func (g *GitMock) CmdArgs(args ...string) (string, error) {
+	g.commands = append(g.commands, strings.Join(args, " "))
+
 	return "", nil
 }
 
-func (g GitMock) CmdLines(cmd string) ([]string, error) {
+func (g *GitMock) CmdLines(cmd string) ([]string, error) {
+	g.commands = append(g.commands, cmd)
+
 	return nil, nil
 }
 
-func (g GitMock) RawCmd(cmd string) (string, error) {
+func (g *GitMock) RawCmd(cmd string) (string, error) {
+	g.commands = append(g.commands, cmd)
+
 	return "", nil
+}
+
+func (g *GitMock) reset() {
+	g.commands = []string{}
 }
 
 func TestRunAll(t *testing.T) {
@@ -55,9 +70,10 @@ func TestRunAll(t *testing.T) {
 		t.Errorf("unexpected error: %s", err)
 	}
 
+	gitExec := &GitMock{}
 	gitPath := filepath.Join(root, ".git")
 	repo := &git.Repository{
-		Git:       GitMock{},
+		Git:       gitExec,
 		HooksPath: filepath.Join(gitPath, "hooks"),
 		RootPath:  root,
 		GitPath:   gitPath,
@@ -71,6 +87,7 @@ func TestRunAll(t *testing.T) {
 		existingFiles []string
 		hook          *config.Hook
 		success, fail []Result
+		gitCommands   []string
 	}{
 		{
 			name: "empty hook",
@@ -78,6 +95,11 @@ func TestRunAll(t *testing.T) {
 				Commands: map[string]*config.Command{},
 				Scripts:  map[string]*config.Script{},
 				Piped:    true,
+			},
+			gitCommands: []string{
+				"git status --short",
+				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
+				"git stash list",
 			},
 		},
 		{
@@ -91,6 +113,11 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{{Name: "test", Status: StatusOk}},
+			gitCommands: []string{
+				"git status --short",
+				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
+				"git stash list",
+			},
 		},
 		{
 			name: "with simple command in follow mode",
@@ -104,6 +131,11 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{{Name: "test", Status: StatusOk}},
+			gitCommands: []string{
+				"git status --short",
+				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
+				"git stash list",
+			},
 		},
 		{
 			name: "with multiple commands ran in parallel",
@@ -127,6 +159,11 @@ func TestRunAll(t *testing.T) {
 				{Name: "lint", Status: StatusOk},
 			},
 			fail: []Result{{Name: "type-check", Status: StatusErr}},
+			gitCommands: []string{
+				"git status --short",
+				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
+				"git stash list",
+			},
 		},
 		{
 			name: "with exclude tags",
@@ -148,6 +185,11 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{{Name: "lint", Status: StatusOk}},
+			gitCommands: []string{
+				"git status --short",
+				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
+				"git stash list",
+			},
 		},
 		{
 			name: "with skip boolean option",
@@ -164,6 +206,11 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{{Name: "lint", Status: StatusOk}},
+			gitCommands: []string{
+				"git status --short",
+				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
+				"git stash list",
+			},
 		},
 		{
 			name: "with skip merge",
@@ -183,6 +230,11 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{{Name: "lint", Status: StatusOk}},
+			gitCommands: []string{
+				"git status --short",
+				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
+				"git stash list",
+			},
 		},
 		{
 			name: "with global skip merge",
@@ -222,6 +274,11 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{{Name: "lint", Status: StatusOk}},
+			gitCommands: []string{
+				"git status --short",
+				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
+				"git stash list",
+			},
 		},
 		{
 			name:   "with global skip on ref",
@@ -265,6 +322,11 @@ func TestRunAll(t *testing.T) {
 				{Name: "test", Status: StatusOk},
 				{Name: "lint", Status: StatusOk},
 			},
+			gitCommands: []string{
+				"git status --short",
+				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
+				"git stash list",
+			},
 		},
 		{
 			name: "with fail test",
@@ -278,6 +340,11 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			fail: []Result{{Name: "test", Status: StatusErr, Text: "try 'success'"}},
+			gitCommands: []string{
+				"git status --short",
+				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
+				"git stash list",
+			},
 		},
 		{
 			name:       "with simple scripts",
@@ -300,6 +367,11 @@ func TestRunAll(t *testing.T) {
 			},
 			success: []Result{{Name: "script.sh", Status: StatusOk}},
 			fail:    []Result{{Name: "failing.js", Status: StatusErr, Text: "install node"}},
+			gitCommands: []string{
+				"git status --short",
+				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
+				"git stash list",
+			},
 		},
 		{
 			name:       "with interactive and parallel",
@@ -331,6 +403,51 @@ func TestRunAll(t *testing.T) {
 			},
 			success: []Result{}, // script.sh and ok are skipped
 			fail:    []Result{{Name: "failing.js", Status: StatusErr}, {Name: "fail", Status: StatusErr}},
+			gitCommands: []string{
+				"git status --short",
+				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
+				"git stash list",
+			},
+		},
+		{
+			name:       "with stage_fixed in true",
+			sourceDirs: []string{filepath.Join(root, config.DefaultSourceDir)},
+			existingFiles: []string{
+				filepath.Join(root, config.DefaultSourceDir, hookName, "success.sh"),
+				filepath.Join(root, config.DefaultSourceDir, hookName, "failing.js"),
+			},
+			hook: &config.Hook{
+				Parallel: true,
+				Commands: map[string]*config.Command{
+					"ok": {
+						Run:        "success",
+						StageFixed: true,
+					},
+					"fail": {
+						Run:        "fail",
+						StageFixed: true,
+					},
+				},
+				Scripts: map[string]*config.Script{
+					"success.sh": {
+						Runner:     "success",
+						StageFixed: true,
+					},
+					"failing.js": {
+						Runner:     "fail",
+						StageFixed: true,
+					},
+				},
+			},
+			success: []Result{{Name: "ok", Status: StatusOk}, {Name: "success.sh", Status: StatusOk}},
+			fail:    []Result{{Name: "fail", Status: StatusErr}, {Name: "failing.js", Status: StatusErr}},
+			gitCommands: []string{
+				"git status --short",
+				"git diff --name-only --cached --diff-filter=ACMR",
+				"git diff --name-only --cached --diff-filter=ACMR",
+				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
+				"git stash list",
+			},
 		},
 	} {
 		fs := afero.NewMemMapFs()
@@ -348,6 +465,7 @@ func TestRunAll(t *testing.T) {
 			},
 			executor: executor,
 		}
+		gitExec.reset()
 
 		for _, file := range tt.existingFiles {
 			if err := fs.MkdirAll(filepath.Dir(file), 0o755); err != nil {
@@ -383,6 +501,16 @@ func TestRunAll(t *testing.T) {
 
 			if !resultsMatch(tt.fail, fail) {
 				t.Errorf("fail results are not matching:\n Need: %v\n Was: %v", tt.fail, fail)
+			}
+
+			if len(gitExec.commands) != len(tt.gitCommands) {
+				t.Errorf("wrong git commands\nExpected: %#v\nWas: %#v", gitExec.commands, tt.gitCommands)
+			} else {
+				for i, command := range gitExec.commands {
+					if tt.gitCommands[i] != command {
+						t.Errorf("wrong git command #%d\nExpected: %s\nWas: %s", i, command, tt.gitCommands[i])
+					}
+				}
 			}
 		})
 	}
