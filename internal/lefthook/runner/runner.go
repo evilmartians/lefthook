@@ -382,6 +382,12 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 			files = prepareFiles(command, stagedFiles)
 		}
 
+		if len(command.Root) > 0 {
+			for i, file := range files {
+				files[i] = filepath.Join(command.Root, file)
+			}
+		}
+
 		if err := r.Repo.AddFiles(files); err != nil {
 			log.Warn("Couldn't stage fixed files:", err)
 		}
