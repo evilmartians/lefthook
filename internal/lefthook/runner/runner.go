@@ -203,6 +203,10 @@ func (r *Runner) preHook() {
 }
 
 func (r *Runner) postHook() {
+	if !config.HookUsesStagedFiles(r.HookName) {
+		return
+	}
+
 	if err := r.Repo.RestoreUnstaged(); err != nil {
 		log.Warnf("Couldn't restore hidden unstaged files: %s\n", err)
 		return

@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
+	"regexp"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/spf13/afero"
@@ -31,40 +33,58 @@ func (e TestExecutor) RawExecute(command []string, out io.Writer) error {
 }
 
 type GitMock struct {
+	mux      sync.Mutex
 	commands []string
 }
 
 func (g *GitMock) Cmd(cmd string) (string, error) {
+	g.mux.Lock()
 	g.commands = append(g.commands, cmd)
+	g.mux.Unlock()
 
 	return "", nil
 }
 
 func (g *GitMock) CmdArgs(args ...string) (string, error) {
+	g.mux.Lock()
 	g.commands = append(g.commands, strings.Join(args, " "))
+	g.mux.Unlock()
 
 	return "", nil
 }
 
 func (g *GitMock) CmdLines(cmd string) ([]string, error) {
+	g.mux.Lock()
 	g.commands = append(g.commands, cmd)
+	g.mux.Unlock()
+
+	if cmd == "git diff --name-only --cached --diff-filter=ACMR" ||
+		cmd == "git diff --name-only HEAD @{push}" {
+		root, _ := filepath.Abs("src")
+		return []string{
+			filepath.Join(root, "script.sh"),
+			filepath.Join(root, "README.md"),
+		}, nil
+	}
 
 	return nil, nil
 }
 
 func (g *GitMock) RawCmd(cmd string) (string, error) {
+	g.mux.Lock()
 	g.commands = append(g.commands, cmd)
+	g.mux.Unlock()
 
 	return "", nil
 }
 
 func (g *GitMock) reset() {
+	g.mux.Lock()
 	g.commands = []string{}
+	g.mux.Unlock()
 }
 
 func TestRunAll(t *testing.T) {
-	hookName := "pre-commit"
-
 	root, err := filepath.Abs("src")
 	if err != nil {
 		t.Errorf("unexpected error: %s", err)
@@ -81,29 +101,26 @@ func TestRunAll(t *testing.T) {
 	}
 
 	for i, tt := range [...]struct {
-		name, branch  string
-		args          []string
-		sourceDirs    []string
-		existingFiles []string
-		hook          *config.Hook
-		success, fail []Result
-		gitCommands   []string
+		name, branch, hookName string
+		args                   []string
+		sourceDirs             []string
+		existingFiles          []string
+		hook                   *config.Hook
+		success, fail          []Result
+		gitCommands            []string
 	}{
 		{
-			name: "empty hook",
+			name:     "empty hook",
+			hookName: "post-commit",
 			hook: &config.Hook{
 				Commands: map[string]*config.Command{},
 				Scripts:  map[string]*config.Script{},
 				Piped:    true,
 			},
-			gitCommands: []string{
-				"git status --short",
-				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
-				"git stash list",
-			},
 		},
 		{
-			name: "with simple command",
+			name:     "with simple command",
+			hookName: "post-commit",
 			hook: &config.Hook{
 				Commands: map[string]*config.Command{
 					"test": {
@@ -113,14 +130,10 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{{Name: "test", Status: StatusOk}},
-			gitCommands: []string{
-				"git status --short",
-				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
-				"git stash list",
-			},
 		},
 		{
-			name: "with simple command in follow mode",
+			name:     "with simple command in follow mode",
+			hookName: "post-commit",
 			hook: &config.Hook{
 				Follow: true,
 				Commands: map[string]*config.Command{
@@ -131,14 +144,10 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{{Name: "test", Status: StatusOk}},
-			gitCommands: []string{
-				"git status --short",
-				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
-				"git stash list",
-			},
 		},
 		{
-			name: "with multiple commands ran in parallel",
+			name:     "with multiple commands ran in parallel",
+			hookName: "post-commit",
 			hook: &config.Hook{
 				Parallel: true,
 				Commands: map[string]*config.Command{
@@ -159,14 +168,10 @@ func TestRunAll(t *testing.T) {
 				{Name: "lint", Status: StatusOk},
 			},
 			fail: []Result{{Name: "type-check", Status: StatusErr}},
-			gitCommands: []string{
-				"git status --short",
-				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
-				"git stash list",
-			},
 		},
 		{
-			name: "with exclude tags",
+			name:     "with exclude tags",
+			hookName: "post-commit",
 			hook: &config.Hook{
 				ExcludeTags: []string{"tests", "formatter"},
 				Commands: map[string]*config.Command{
@@ -185,14 +190,10 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{{Name: "lint", Status: StatusOk}},
-			gitCommands: []string{
-				"git status --short",
-				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
-				"git stash list",
-			},
 		},
 		{
-			name: "with skip boolean option",
+			name:     "with skip boolean option",
+			hookName: "post-commit",
 			hook: &config.Hook{
 				Commands: map[string]*config.Command{
 					"test": {
@@ -206,14 +207,10 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{{Name: "lint", Status: StatusOk}},
-			gitCommands: []string{
-				"git status --short",
-				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
-				"git stash list",
-			},
 		},
 		{
-			name: "with skip merge",
+			name:     "with skip merge",
+			hookName: "post-commit",
 			existingFiles: []string{
 				filepath.Join(gitPath, "MERGE_HEAD"),
 			},
@@ -230,14 +227,10 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{{Name: "lint", Status: StatusOk}},
-			gitCommands: []string{
-				"git status --short",
-				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
-				"git stash list",
-			},
 		},
 		{
-			name: "with global skip merge",
+			name:     "with global skip merge",
+			hookName: "post-commit",
 			existingFiles: []string{
 				filepath.Join(gitPath, "MERGE_HEAD"),
 			},
@@ -256,7 +249,8 @@ func TestRunAll(t *testing.T) {
 			success: []Result{},
 		},
 		{
-			name: "with skip rebase and merge in an array",
+			name:     "with skip rebase and merge in an array",
+			hookName: "post-commit",
 			existingFiles: []string{
 				filepath.Join(gitPath, "rebase-merge"),
 				filepath.Join(gitPath, "rebase-apply"),
@@ -274,11 +268,6 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{{Name: "lint", Status: StatusOk}},
-			gitCommands: []string{
-				"git status --short",
-				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
-				"git stash list",
-			},
 		},
 		{
 			name:   "with global skip on ref",
@@ -286,6 +275,7 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(gitPath, "HEAD"),
 			},
+			hookName: "post-commit",
 			hook: &config.Hook{
 				Skip: []interface{}{"merge", map[string]interface{}{"ref": "main"}},
 				Commands: map[string]*config.Command{
@@ -306,6 +296,7 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(gitPath, "HEAD"),
 			},
+			hookName: "post-commit",
 			hook: &config.Hook{
 				Skip: []interface{}{"merge", map[string]interface{}{"ref": "main"}},
 				Commands: map[string]*config.Command{
@@ -322,14 +313,10 @@ func TestRunAll(t *testing.T) {
 				{Name: "test", Status: StatusOk},
 				{Name: "lint", Status: StatusOk},
 			},
-			gitCommands: []string{
-				"git status --short",
-				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
-				"git stash list",
-			},
 		},
 		{
-			name: "with fail test",
+			name:     "with fail test",
+			hookName: "post-commit",
 			hook: &config.Hook{
 				Commands: map[string]*config.Command{
 					"test": {
@@ -340,19 +327,15 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			fail: []Result{{Name: "test", Status: StatusErr, Text: "try 'success'"}},
-			gitCommands: []string{
-				"git status --short",
-				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
-				"git stash list",
-			},
 		},
 		{
 			name:       "with simple scripts",
 			sourceDirs: []string{filepath.Join(root, config.DefaultSourceDir)},
 			existingFiles: []string{
-				filepath.Join(root, config.DefaultSourceDir, hookName, "script.sh"),
-				filepath.Join(root, config.DefaultSourceDir, hookName, "failing.js"),
+				filepath.Join(root, config.DefaultSourceDir, "post-commit", "script.sh"),
+				filepath.Join(root, config.DefaultSourceDir, "post-commit", "failing.js"),
 			},
+			hookName: "post-commit",
 			hook: &config.Hook{
 				Commands: map[string]*config.Command{},
 				Scripts: map[string]*config.Script{
@@ -367,19 +350,15 @@ func TestRunAll(t *testing.T) {
 			},
 			success: []Result{{Name: "script.sh", Status: StatusOk}},
 			fail:    []Result{{Name: "failing.js", Status: StatusErr, Text: "install node"}},
-			gitCommands: []string{
-				"git status --short",
-				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
-				"git stash list",
-			},
 		},
 		{
 			name:       "with interactive and parallel",
 			sourceDirs: []string{filepath.Join(root, config.DefaultSourceDir)},
 			existingFiles: []string{
-				filepath.Join(root, config.DefaultSourceDir, hookName, "script.sh"),
-				filepath.Join(root, config.DefaultSourceDir, hookName, "failing.js"),
+				filepath.Join(root, config.DefaultSourceDir, "post-commit", "script.sh"),
+				filepath.Join(root, config.DefaultSourceDir, "post-commit", "failing.js"),
 			},
+			hookName: "post-commit",
 			hook: &config.Hook{
 				Parallel: true,
 				Commands: map[string]*config.Command{
@@ -403,21 +382,51 @@ func TestRunAll(t *testing.T) {
 			},
 			success: []Result{}, // script.sh and ok are skipped
 			fail:    []Result{{Name: "failing.js", Status: StatusErr}, {Name: "fail", Status: StatusErr}},
-			gitCommands: []string{
-				"git status --short",
-				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
-				"git stash list",
-			},
 		},
 		{
 			name:       "with stage_fixed in true",
 			sourceDirs: []string{filepath.Join(root, config.DefaultSourceDir)},
 			existingFiles: []string{
-				filepath.Join(root, config.DefaultSourceDir, hookName, "success.sh"),
-				filepath.Join(root, config.DefaultSourceDir, hookName, "failing.js"),
+				filepath.Join(root, config.DefaultSourceDir, "post-commit", "success.sh"),
+				filepath.Join(root, config.DefaultSourceDir, "post-commit", "failing.js"),
+			},
+			hookName: "post-commit",
+			hook: &config.Hook{
+				Commands: map[string]*config.Command{
+					"ok": {
+						Run:        "success",
+						StageFixed: true,
+					},
+					"fail": {
+						Run:        "fail",
+						StageFixed: true,
+					},
+				},
+				Scripts: map[string]*config.Script{
+					"success.sh": {
+						Runner:     "success",
+						StageFixed: true,
+					},
+					"failing.js": {
+						Runner:     "fail",
+						StageFixed: true,
+					},
+				},
+			},
+			success: []Result{{Name: "ok", Status: StatusOk}, {Name: "success.sh", Status: StatusOk}},
+			fail:    []Result{{Name: "fail", Status: StatusErr}, {Name: "failing.js", Status: StatusErr}},
+		},
+		{
+			name:       "pre-commit hook simple",
+			hookName:   "pre-commit",
+			sourceDirs: []string{filepath.Join(root, config.DefaultSourceDir)},
+			existingFiles: []string{
+				filepath.Join(root, config.DefaultSourceDir, "pre-commit", "success.sh"),
+				filepath.Join(root, config.DefaultSourceDir, "pre-commit", "failing.js"),
+				filepath.Join(root, "script.sh"),
+				filepath.Join(root, "README.md"),
 			},
 			hook: &config.Hook{
-				Parallel: true,
 				Commands: map[string]*config.Command{
 					"ok": {
 						Run:        "success",
@@ -444,9 +453,70 @@ func TestRunAll(t *testing.T) {
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
+				"git add .*script.sh.*README.md",
 				"git diff --name-only --cached --diff-filter=ACMR",
+				"git diff --name-only --cached --diff-filter=ACMR",
+				"git diff --name-only --cached --diff-filter=ACMR",
+				"git add .*script.sh.*README.md",
 				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
 				"git stash list",
+			},
+		},
+		{
+			name:     "pre-commit hook with implicit skip",
+			hookName: "pre-commit",
+			existingFiles: []string{
+				filepath.Join(root, "README.md"),
+			},
+			hook: &config.Hook{
+				Commands: map[string]*config.Command{
+					"ok": {
+						Run:        "success",
+						StageFixed: true,
+						Glob:       "*.md",
+					},
+					"fail": {
+						Run:        "fail",
+						StageFixed: true,
+						Glob:       "*.sh",
+					},
+				},
+			},
+			success: []Result{{Name: "ok", Status: StatusOk}},
+			gitCommands: []string{
+				"git status --short",
+				"git diff --name-only --cached --diff-filter=ACMR",
+				"git diff --name-only --cached --diff-filter=ACMR",
+				"git diff --name-only --cached --diff-filter=ACMR",
+				"git add .*README.md",
+				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
+				"git stash list",
+			},
+		},
+		{
+			name:     "pre-push hook with implicit skip",
+			hookName: "pre-push",
+			existingFiles: []string{
+				filepath.Join(root, "README.md"),
+			},
+			hook: &config.Hook{
+				Commands: map[string]*config.Command{
+					"ok": {
+						Run:        "success",
+						StageFixed: true,
+						Glob:       "*.md",
+					},
+					"fail": {
+						Run:        "fail",
+						StageFixed: true,
+						Glob:       "*.sh",
+					},
+				},
+			},
+			success: []Result{{Name: "ok", Status: StatusOk}},
+			gitCommands: []string{
+				"git diff --name-only HEAD @{push}",
+				"git diff --name-only HEAD @{push}",
 			},
 		},
 	} {
@@ -459,7 +529,7 @@ func TestRunAll(t *testing.T) {
 				Fs:         fs,
 				Repo:       repo,
 				Hook:       tt.hook,
-				HookName:   hookName,
+				HookName:   tt.hookName,
 				GitArgs:    tt.args,
 				ResultChan: resultChan,
 			},
@@ -504,11 +574,12 @@ func TestRunAll(t *testing.T) {
 			}
 
 			if len(gitExec.commands) != len(tt.gitCommands) {
-				t.Errorf("wrong git commands\nExpected: %#v\nWas: %#v", gitExec.commands, tt.gitCommands)
+				t.Errorf("wrong git commands\nExpected: %#v\nWas:      %#v", tt.gitCommands, gitExec.commands)
 			} else {
 				for i, command := range gitExec.commands {
-					if tt.gitCommands[i] != command {
-						t.Errorf("wrong git command #%d\nExpected: %s\nWas: %s", i, command, tt.gitCommands[i])
+					gitCommandRe := regexp.MustCompile(tt.gitCommands[i])
+					if !gitCommandRe.MatchString(command) {
+						t.Errorf("wrong git command regexp #%d\nExpected: %s\nWas: %s", i, tt.gitCommands[i], command)
 					}
 				}
 			}
