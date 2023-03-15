@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.3.5 (2024-03-15)
+
+- feat: add stage_fixed option ([#445](https://github.com/evilmartians/lefthook/pull/445)) by @mrexox
+
 ## 1.3.4 (2024-03-13)
 
 - fix: don't extra extend config if lefthook-local.yml is missing ([#444](https://github.com/evilmartians/lefthook/pull/444)) by @mrexox
