@@ -299,9 +299,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 			return
 		}
 
-		if err := r.Repo.AddFiles(files); err != nil {
-			log.Warn("Couldn't stage fixed files:", err)
-		}
+		r.addStagedFiles(files)
 	}
 }
 
@@ -388,9 +386,13 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 			}
 		}
 
-		if err := r.Repo.AddFiles(files); err != nil {
-			log.Warn("Couldn't stage fixed files:", err)
-		}
+		r.addStagedFiles(files)
+	}
+}
+
+func (r *Runner) addStagedFiles(files []string) {
+	if err := r.Repo.AddFiles(files); err != nil {
+		log.Warn("Couldn't stage fixed files:", err)
 	}
 }
 

@@ -62,7 +62,7 @@ func (g *GitMock) CmdLines(cmd string) ([]string, error) {
 		cmd == "git diff --name-only HEAD @{push}" {
 		root, _ := filepath.Abs("src")
 		return []string{
-			filepath.Join(root, "script.sh"),
+			filepath.Join(root, "scripts", "script.sh"),
 			filepath.Join(root, "README.md"),
 		}, nil
 	}
@@ -423,7 +423,7 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(root, config.DefaultSourceDir, "pre-commit", "success.sh"),
 				filepath.Join(root, config.DefaultSourceDir, "pre-commit", "failing.js"),
-				filepath.Join(root, "script.sh"),
+				filepath.Join(root, "scripts", "script.sh"),
 				filepath.Join(root, "README.md"),
 			},
 			hook: &config.Hook{
@@ -489,6 +489,32 @@ func TestRunAll(t *testing.T) {
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git add .*README.md",
+				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
+				"git stash list",
+			},
+		},
+		{
+			name:     "pre-commit hook with stage_fixed under root",
+			hookName: "pre-commit",
+			existingFiles: []string{
+				filepath.Join(root, "scripts", "script.sh"),
+				filepath.Join(root, "README.md"),
+			},
+			hook: &config.Hook{
+				Commands: map[string]*config.Command{
+					"ok": {
+						Run:        "success",
+						Root:       filepath.Join(root, "scripts"),
+						StageFixed: true,
+					},
+				},
+			},
+			success: []Result{{Name: "ok", Status: StatusOk}},
+			gitCommands: []string{
+				"git status --short",
+				"git diff --name-only --cached --diff-filter=ACMR",
+				"git diff --name-only --cached --diff-filter=ACMR",
+				"git add .*scripts.*script.sh",
 				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
 				"git stash list",
 			},
