@@ -89,8 +89,6 @@ func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error,
 
 	if len(filteredFiles) == 0 && config.HookUsesStagedFiles(r.HookName) {
 		files, err := r.Repo.StagedFiles()
-		log.Infof("FILES: %#v\n", files)
-		log.Infof("FILES Prepared: %#v\n", prepareFiles(command, files))
 		if err == nil {
 			if len(prepareFiles(command, files)) == 0 {
 				return nil, nil, errors.New("no matching staged files")
