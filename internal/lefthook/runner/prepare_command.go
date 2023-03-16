@@ -34,19 +34,19 @@ func (r *Runner) prepareCommand(name string, command *config.Command) (*commandA
 		return nil, errors.New("invalid conig")
 	}
 
-	args, err := r.buildCommandArgs(command)
+	args, err, skipReason := r.buildCommandArgs(command)
 	if err != nil {
 		log.Error(err)
 		return nil, errors.New("error")
 	}
-	if args == nil || len(args.all) == 0 {
-		return nil, errors.New("no files for inspection")
+	if skipReason != nil {
+		return nil, skipReason
 	}
 
 	return args, nil
 }
 
-func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error) {
+func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error, error) {
 	filesCommand := r.Hook.Files
 	if command.Files != "" {
 		filesCommand = command.Files
@@ -72,18 +72,36 @@ func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error)
 			filesCommand != "" && filesType == config.SubFiles {
 			files, err := filesFn()
 			if err != nil {
-				return nil, fmt.Errorf("error replacing %s: %w", filesType, err)
+				return nil, fmt.Errorf("error replacing %s: %w", filesType, err), nil
 			}
 			if len(files) == 0 {
-				return nil, nil
+				return nil, nil, errors.New("no files for inspection")
 			}
 
 			filesPrepared := prepareFiles(command, files)
 			if len(filesPrepared) == 0 {
-				return nil, nil
+				return nil, nil, errors.New("no files for inspection")
 			}
 			filteredFiles = append(filteredFiles, filesPrepared...)
 			runString = replaceQuoted(runString, filesType, filesPrepared)
+		}
+	}
+
+	if len(filteredFiles) == 0 && config.HookUsesStagedFiles(r.HookName) {
+		files, err := r.Repo.StagedFiles()
+		if err == nil {
+			if len(prepareFiles(command, files)) == 0 {
+				return nil, nil, errors.New("no matching staged files")
+			}
+		}
+	}
+
+	if len(filteredFiles) == 0 && config.HookUsesPushFiles(r.HookName) {
+		files, err := r.Repo.PushFiles()
+		if err == nil {
+			if len(prepareFiles(command, files)) == 0 {
+				return nil, nil, errors.New("no matching push files")
+			}
 		}
 	}
 
@@ -97,7 +115,7 @@ func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error)
 	return &commandArgs{
 		files: filteredFiles,
 		all:   strings.Split(runString, " "),
-	}, nil
+	}, nil, nil
 }
 
 func prepareFiles(command *config.Command, files []string) []string {

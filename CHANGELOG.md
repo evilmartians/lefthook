@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+- feat: implitic skip on missing files for pre-commit and pre-push hooks ([#448](https://github.com/evilmartians/lefthook/pull/448)) by @mrexox
+
 ## 1.3.5 (2024-03-15)
 
 - feat: add stage_fixed option ([#445](https://github.com/evilmartians/lefthook/pull/445)) by @mrexox

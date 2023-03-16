@@ -738,7 +738,19 @@ pre-commit:
 
 **Notes**
 
-For patterns that you can use see [this](https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm) reference. We use [glob](https://github.com/gobwas/glob) library and
+For patterns that you can use see [this](https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm) reference. We use [glob](https://github.com/gobwas/glob) library.
+
+If you've specified `glob` but don't have a files template in [`run`](#run) option, lefthook will check `{staged_files}` for `pre-commit` hook and `{push_files}` for `pre-push` hook and apply filtering. If no files left, the command will be skipped.
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      glob: ".js"
+      run: npm run lint # skipped if no .js files staged
+```
 
 ### `files`
 
@@ -873,6 +885,20 @@ pre-commit:
       glob: ".rb"
       exclude: "application.rb|routes.rb|rails_helper.rb"
       run: bundle exec rubocop --force-exclusion {staged_files}
+```
+
+**Notes**
+
+If you've specified `exclude` but don't have a files template in [`run`](#run) option, lefthook will check `{staged_files}` for `pre-commit` hook and `{push_files}` for `pre-push` hook and apply filtering. If no files left, the command will be skipped.
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      exclude: "application.rb"
+      run: bundle exec rubocop # skipped if only application.rb was staged
 ```
 
 ### `fail_text`

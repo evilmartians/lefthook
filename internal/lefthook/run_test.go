@@ -137,9 +137,9 @@ pre-commit:
 		},
 		{
 			name: "When not in rebase flow",
-			hook: "pre-commit",
+			hook: "post-commit",
 			config: `
-pre-commit:
+post-commit:
   parallel: false
   piped: true
   commands:

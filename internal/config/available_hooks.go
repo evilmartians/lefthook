@@ -43,6 +43,10 @@ func HookUsesStagedFiles(hook string) bool {
 	return hook == "pre-commit"
 }
 
+func HookUsesPushFiles(hook string) bool {
+	return hook == "pre-push"
+}
+
 func HookAvailable(hook string) bool {
 	for _, name := range AvailableHooks {
 		if name == hook {
