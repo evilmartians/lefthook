@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.3.6 (2024-03-16)
+
 - fix: stage fixed when root specified ([#449](https://github.com/evilmartians/lefthook/pull/449)) by @mrexox
 - feat: implitic skip on missing files for pre-commit and pre-push hooks ([#448](https://github.com/evilmartians/lefthook/pull/448)) by @mrexox
 

@@ -15,3 +15,11 @@ bin/golangci-lint:
 
 lint: bin/golangci-lint
 	$$(go env GOPATH)/bin/golangci-lint run
+
+.ONESHELL:
+version:
+	@read -p "New version: " version
+	sed -i "s/const version = .*/const version = \"$$version\"/" internal/version/version.go
+	sed -i "s/VERSION := .*/VERSION := $$version/" packaging/Makefile
+	make -C packaging clean set-version
+	git add internal/version/version.go packaging/*

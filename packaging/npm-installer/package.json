@@ -1,6 +1,6 @@
 {
   "name": "@evilmartians/lefthook-installer",
-  "version": "1.3.5",
+  "version": "1.3.6",
   "description": "Simple git hooks manager",
   "main": "index.js",
   "bin": {
