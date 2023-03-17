@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/MakeNowJust/heredoc v1.0.0
-	github.com/briandowns/spinner v1.21.0
+	github.com/briandowns/spinner v1.23.0
 	github.com/charmbracelet/lipgloss v0.7.1
 	github.com/creack/pty v1.1.18
 	github.com/gobwas/glob v0.2.3
