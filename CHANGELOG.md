@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+- fix: don't fail on missing config file ([#450](https://github.com/evilmartians/lefthook/pull/450)) by @mrexox
+
 ## 1.3.6 (2024-03-16)
 
 - fix: stage fixed when root specified ([#449](https://github.com/evilmartians/lefthook/pull/449)) by @mrexox
