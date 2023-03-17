@@ -23,10 +23,25 @@ const (
 
 var hookKeyRegexp = regexp.MustCompile(`^(?P<hookName>[^.]+)\.(scripts|commands)`)
 
+// NotFoundError wraps viper.ConfigFileNotFoundError for lefthook.
+type NotFoundError struct {
+	message string
+}
+
+// Error returns message of viper.ConfigFileNotFoundError.
+func (err NotFoundError) Error() string {
+	return err.message
+}
+
 // Loads configs from the given directory with extensions.
 func Load(fs afero.Fs, repo *git.Repository) (*Config, error) {
 	global, err := read(fs, repo.RootPath, "lefthook")
 	if err != nil {
+		var notFoundErr viper.ConfigFileNotFoundError
+		if ok := errors.As(err, &notFoundErr); ok {
+			return nil, NotFoundError{err.Error()}
+		}
+
 		return nil, err
 	}
 
