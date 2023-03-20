@@ -622,7 +622,7 @@ pre-commit:
 
 ### `skip`
 
-You can skip all or specific commands and scripts using `skip` option. You can also skip when merging, rebasing, or being on a specific branch.
+You can skip all or specific commands and scripts using `skip` option. You can also skip when merging, rebasing, or being on a specific branch. Globs are available for branches.
 
 **Example**
 
@@ -672,6 +672,21 @@ Skipping the whole hook on `main` branch:
 pre-commit:
   skip:
     - ref: main
+  commands:
+    lint:
+      run: yarn lint
+    text:
+      run: yarn test
+```
+
+Skipping hook for all `dev/*` branches:
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  skip:
+    - ref: dev/*
   commands:
     lint:
       run: yarn lint
