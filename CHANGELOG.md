@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+- fix: allow globs in skip option ([#457](https://github.com/evilmartians/lefthook/pull/457)) by @mrexox
+- deps: dependencies update (March 2023) ([#455](https://github.com/evilmartians/lefthook/pull/455)) by @mrexox
 - fix: don't fail on missing config file ([#450](https://github.com/evilmartians/lefthook/pull/450)) by @mrexox
 
 ## 1.3.6 (2024-03-16)
