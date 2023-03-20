@@ -2,20 +2,22 @@
 
 ## master (unreleased)
 
+## 1.3.7 (2023-03-20)
+
 - fix: allow globs in skip option ([#457](https://github.com/evilmartians/lefthook/pull/457)) by @mrexox
 - deps: dependencies update (March 2023) ([#455](https://github.com/evilmartians/lefthook/pull/455)) by @mrexox
 - fix: don't fail on missing config file ([#450](https://github.com/evilmartians/lefthook/pull/450)) by @mrexox
 
-## 1.3.6 (2024-03-16)
+## 1.3.6 (2023-03-16)
 
 - fix: stage fixed when root specified ([#449](https://github.com/evilmartians/lefthook/pull/449)) by @mrexox
 - feat: implitic skip on missing files for pre-commit and pre-push hooks ([#448](https://github.com/evilmartians/lefthook/pull/448)) by @mrexox
 
-## 1.3.5 (2024-03-15)
+## 1.3.5 (2023-03-15)
 
 - feat: add stage_fixed option ([#445](https://github.com/evilmartians/lefthook/pull/445)) by @mrexox
 
-## 1.3.4 (2024-03-13)
+## 1.3.4 (2023-03-13)
 
 - fix: don't extra extend config if lefthook-local.yml is missing ([#444](https://github.com/evilmartians/lefthook/pull/444)) by @mrexox
 
