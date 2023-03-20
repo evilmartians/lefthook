@@ -1,6 +1,10 @@
 package config
 
-import "github.com/evilmartians/lefthook/internal/git"
+import (
+	"github.com/gobwas/glob"
+
+	"github.com/evilmartians/lefthook/internal/git"
+)
 
 func isSkip(gitState git.State, value interface{}) bool {
 	switch typedValue := value.(type) {
@@ -16,7 +20,13 @@ func isSkip(gitState git.State, value interface{}) bool {
 					return true
 				}
 			case map[string]interface{}:
-				if typedState["ref"].(string) == gitState.Branch {
+				ref := typedState["ref"].(string)
+				if ref == gitState.Branch {
+					return true
+				}
+
+				g := glob.MustCompile(ref)
+				if g.Match(gitState.Branch) {
 					return true
 				}
 			}
