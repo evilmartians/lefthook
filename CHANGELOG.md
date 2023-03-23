@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.3.8 (2023-03-23)
+
+- fix: make hook template compatible with shells without source command ([#458](https://github.com/evilmartians/lefthook/pull/458)) by @mdesantis
+
 ## 1.3.7 (2023-03-20)
 
 - fix: allow globs in skip option ([#457](https://github.com/evilmartians/lefthook/pull/457)) by @mrexox
