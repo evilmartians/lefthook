@@ -7,7 +7,7 @@ fi
 {{- if .Rc}}
 {{/* Load rc file and export all ENV vars defined in it */}}
 set -a
-[ -f {{.Rc}} ] && source {{.Rc}}
+[ -f {{.Rc}} ] && . {{.Rc}}
 {{- end}}
 
 call_lefthook()
