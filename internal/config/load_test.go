@@ -181,6 +181,43 @@ lints:
 			},
 		},
 		{
+			name: "with extra hooks only in local config",
+			global: `
+tests:
+  commands:
+    tests:
+      run: go test ./...
+`,
+			local: `
+lints:
+  scripts:
+    "linter.sh":
+      runner: bash
+`,
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         DefaultColorsEnabled,
+				Hooks: map[string]*Hook{
+					"tests": {
+						Parallel: false,
+						Commands: map[string]*Command{
+							"tests": {
+								Run: "go test ./...",
+							},
+						},
+					},
+					"lints": {
+						Scripts: map[string]*Script{
+							"linter.sh": {
+								Runner: "bash",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
 			name: "with remote",
 			global: `
 remote:
