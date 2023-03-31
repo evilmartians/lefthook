@@ -31,7 +31,7 @@ func (r *Runner) prepareCommand(name string, command *config.Command) (*commandA
 
 	if err := command.Validate(); err != nil {
 		r.fail(name, "")
-		return nil, errors.New("invalid conig")
+		return nil, errors.New("invalid config")
 	}
 
 	args, err, skipReason := r.buildCommandArgs(command)
