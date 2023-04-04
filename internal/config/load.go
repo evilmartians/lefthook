@@ -186,7 +186,8 @@ func unmarshalConfigs(base, extra *viper.Viper, c *Config) error {
 
 	// For extra non-git hooks.
 	// This behavior may be deprecated in next versions.
-	for _, maybeHook := range base.AllKeys() {
+	// Notice that with append we're allowing extra hooks to be added in local config
+	for _, maybeHook := range append(base.AllKeys(), extra.AllKeys()...) {
 		if !hookKeyRegexp.MatchString(maybeHook) {
 			continue
 		}
