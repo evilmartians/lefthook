@@ -2,6 +2,9 @@
 
 ## master (unreleased)
 
+- feat: allow extra hooks in local config ([#462](https://github.com/evilmartians/lefthook/pull/462)) by @fabn
+- feat: pass numeric placeholders to files command ([#461](https://github.com/evilmartians/lefthook/pull/461)) by @fabn
+
 ## 1.3.8 (2023-03-23)
 
 - fix: make hook template compatible with shells without source command ([#458](https://github.com/evilmartians/lefthook/pull/458)) by @mdesantis
