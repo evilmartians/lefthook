@@ -31,7 +31,7 @@ func (r *Runner) prepareCommand(name string, command *config.Command) (*commandA
 
 	if err := command.Validate(); err != nil {
 		r.fail(name, "")
-		return nil, errors.New("invalid conig")
+		return nil, errors.New("invalid config")
 	}
 
 	args, err, skipReason := r.buildCommandArgs(command)
@@ -57,6 +57,7 @@ func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error,
 		config.PushFiles:      r.Repo.PushFiles,
 		config.SubAllFiles:    r.Repo.AllFiles,
 		config.SubFiles: func() ([]string, error) {
+			filesCommand = r.replacePositionalArguments(filesCommand)
 			return r.Repo.FilesByCommand(filesCommand)
 		},
 	}
@@ -105,10 +106,7 @@ func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error,
 		}
 	}
 
-	runString = strings.ReplaceAll(runString, "{0}", strings.Join(r.GitArgs, " "))
-	for i, gitArg := range r.GitArgs {
-		runString = strings.ReplaceAll(runString, fmt.Sprintf("{%d}", i+1), gitArg)
-	}
+	runString = r.replacePositionalArguments(runString)
 
 	log.Debug("[lefthook] executing: ", runString)
 
@@ -116,6 +114,14 @@ func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error,
 		files: filteredFiles,
 		all:   strings.Split(runString, " "),
 	}, nil, nil
+}
+
+func (r *Runner) replacePositionalArguments(runString string) string {
+	runString = strings.ReplaceAll(runString, "{0}", strings.Join(r.GitArgs, " "))
+	for i, gitArg := range r.GitArgs {
+		runString = strings.ReplaceAll(runString, fmt.Sprintf("{%d}", i+1), gitArg)
+	}
+	return runString
 }
 
 func prepareFiles(command *config.Command, files []string) []string {
