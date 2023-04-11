@@ -6,6 +6,7 @@ const (
 	skipFailure
 	skipSummary
 	skipExecution
+  skipSkip
 )
 
 type SkipSettings int8
@@ -20,6 +21,8 @@ func (s *SkipSettings) ApplySetting(setting string) {
 		*s |= skipFailure
 	case "summary":
 		*s |= skipSummary
+  case "skip":
+    *s |= skipSkip
 	case "execution":
 		*s |= skipExecution
 	}
@@ -43,6 +46,10 @@ func (s SkipSettings) SkipMeta() bool {
 
 func (s SkipSettings) SkipExecution() bool {
 	return s.doSkip(skipExecution)
+}
+
+func (s SkipSettings) SkipSkip() bool {
+  return s.doSkip(skipSkip)
 }
 
 func (s SkipSettings) doSkip(option int8) bool {
