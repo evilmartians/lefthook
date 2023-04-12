@@ -351,9 +351,10 @@ func (r *Runner) runCommands() {
 func (r *Runner) runCommand(name string, command *config.Command) {
 	args, err := r.prepareCommand(name, command)
 	if err != nil {
-		if !(r.SkipSettings.SkipSkip() && err.Error() == "no files for inspection" || err.Error() == "no matching staged_files") {
-			logSkip(name, err.Error())
+		if r.SkipSettings.SkipSkips() && (err.Error() == "no files for inspection" || err.Error() == "no matching staged_files") {
+			return
 		}
+		logSkip(name, err.Error())
 		return
 	}
 
