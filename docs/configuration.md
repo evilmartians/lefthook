@@ -111,7 +111,7 @@ min_version: 1.1.3
 
 You can manage the verbosity using the `skip_output` config. You can set whether lefthook should print some parts of its output.
 
-Possible values are `meta,success,failure,summary,execution,skip`.
+Possible values are `meta,success,failure,summary,execution,skips`.
 
 This config quiets all outputs except for errors.
 
@@ -126,7 +126,7 @@ skip_output:
   - success    # Skips successful steps printing
   - failure    # Skips failed steps printing
   - execution  # Skips printing successfully executed commands and their output (but still prints failed executions)
-  - skip       # Skips skip printing (ie no files matched)
+  - skips      # Skips "skip" printing (i.e. no files matched)
 ```
 
 You can also *extend* this list with an environment variable `LEFTHOOK_QUIET`:
