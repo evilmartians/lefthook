@@ -63,7 +63,7 @@ func (r *Runner) RunAll(sourceDirs []string) {
 	}
 
 	if r.Hook.Skip != nil && r.Hook.DoSkip(r.Repo.State()) {
-		logSkip(r.HookName, "hook setting")
+		r.logSkip(r.HookName, "hook setting")
 		return
 	}
 
@@ -229,12 +229,12 @@ func (r *Runner) runScripts(dir string) {
 	for _, file := range files {
 		script, ok := r.Hook.Scripts[file.Name()]
 		if !ok {
-			logSkip(file.Name(), "not specified in config file")
+			r.logSkip(file.Name(), "not specified in config file")
 			continue
 		}
 
 		if r.failed.Load() && r.Hook.Piped {
-			logSkip(file.Name(), "broken pipe")
+			r.logSkip(file.Name(), "broken pipe")
 			continue
 		}
 
@@ -261,7 +261,7 @@ func (r *Runner) runScripts(dir string) {
 	for _, file := range interactiveScripts {
 		script := r.Hook.Scripts[file.Name()]
 		if r.failed.Load() {
-			logSkip(file.Name(), "non-interactive scripts failed")
+			r.logSkip(file.Name(), "non-interactive scripts failed")
 			continue
 		}
 
@@ -274,7 +274,7 @@ func (r *Runner) runScripts(dir string) {
 func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo) {
 	args, err := r.prepareScript(script, path, file)
 	if err != nil {
-		logSkip(file.Name(), err.Error())
+		r.logSkip(file.Name(), err.Error())
 		return
 	}
 
@@ -316,7 +316,7 @@ func (r *Runner) runCommands() {
 
 	for _, name := range commands {
 		if r.failed.Load() && r.Hook.Piped {
-			logSkip(name, "broken pipe")
+			r.logSkip(name, "broken pipe")
 			continue
 		}
 
@@ -340,7 +340,7 @@ func (r *Runner) runCommands() {
 
 	for _, name := range interactiveCommands {
 		if r.failed.Load() {
-			logSkip(name, "non-interactive commands failed")
+			r.logSkip(name, "non-interactive commands failed")
 			continue
 		}
 
@@ -351,7 +351,7 @@ func (r *Runner) runCommands() {
 func (r *Runner) runCommand(name string, command *config.Command) {
 	args, err := r.prepareCommand(name, command)
 	if err != nil {
-		logSkip(name, err.Error())
+		r.logSkip(name, err.Error())
 		return
 	}
 
@@ -453,7 +453,11 @@ func intersect(a, b []string) bool {
 	return false
 }
 
-func logSkip(name, reason string) {
+func (r *Runner) logSkip(name, reason string) {
+	if r.SkipSettings.SkipSkips() {
+		return
+	}
+
 	log.Info(
 		fmt.Sprintf(
 			"%s: %s %s",
