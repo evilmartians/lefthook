@@ -28,6 +28,10 @@ labels: 'bug'
 
 <!--- Optionally suggest a fix or reason for the bug -->
 
-### Screenshots (if appropriate)
+### Logs / Screenshots
 
-<!--- If this is a bug that can be represented visually then please provide a screenshot or animated GIF/SVG. Doing so makes it easier to verify and debug issues and will speed up response times -->
+<!--- If the error can be reproduced via GUI or CLI command, please send the logs. Make sure you have set LEFTHOOK_VERBOSE=true before running the command -->
+
+```bash
+LEFTHOOK_VERBOSE=true git ...
+```
