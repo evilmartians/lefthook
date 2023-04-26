@@ -99,6 +99,7 @@ Run 'lefthook install' manually.`,
 	// Find the hook
 	hook, ok := cfg.Hooks[hookName]
 	if !ok {
+		log.Debugf("[lefthook] skip: Hook %s doesn't exist in the config", hookName)
 		return nil
 	}
 	if err := hook.Validate(); err != nil {

@@ -150,7 +150,6 @@ func mergeRemote(fs afero.Fs, repo *git.Repository, v *viper.Viper) error {
 
 // extend merges all files listed in 'extends' option into the config.
 func extend(v *viper.Viper, root string) error {
-	log.Debugf("extends %v\n", v.GetStringSlice("extends"))
 	for i, path := range v.GetStringSlice("extends") {
 		if !filepath.IsAbs(path) {
 			path = filepath.Join(root, path)
