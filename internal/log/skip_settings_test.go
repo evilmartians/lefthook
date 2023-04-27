@@ -22,13 +22,15 @@ func TestSkipSetting(t *testing.T) {
 			},
 		},
 		{
-			settings: []string{"meta", "summary", "success", "failure", "execution"},
+			settings: []string{"meta", "summary", "success", "failure", "execution", "execution_out", "skips"},
 			results: map[string]bool{
-				"meta":      true,
-				"summary":   true,
-				"success":   true,
-				"failure":   true,
-				"execution": true,
+				"meta":          true,
+				"summary":       true,
+				"success":       true,
+				"failure":       true,
+				"execution":     true,
+				"execution_out": true,
+				"skips":         true,
 			},
 		},
 	} {
@@ -57,6 +59,14 @@ func TestSkipSetting(t *testing.T) {
 
 			if settings.SkipExecution() != tt.results["execution"] {
 				t.Errorf("expected SkipExecution to be %v", tt.results["execution"])
+			}
+
+			if settings.SkipExecutionOutput() != tt.results["execution_out"] {
+				t.Errorf("expected SkipExecutionOutput to be %v", tt.results["execution_out"])
+			}
+
+			if settings.SkipSkips() != tt.results["skips"] {
+				t.Errorf("expected SkipSkips to be %v", tt.results["skip"])
 			}
 		})
 	}

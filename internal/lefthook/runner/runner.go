@@ -427,7 +427,12 @@ func (r *Runner) run(opts ExecuteOptions, follow bool) bool {
 		return false
 	}
 
-	log.Infof("%s\n%s", execName, out)
+	if r.SkipSettings.SkipExecutionOutput() {
+		log.Infof("%s\n", execName)
+	} else {
+		log.Infof("%s\n%s", execName, out)
+	}
+
 	if err != nil {
 		log.Infof("%s", err)
 	}
