@@ -2,7 +2,16 @@
 
 ## master (unreleased)
 
-## 1.3.9 (2024-04-04)
+## 1.3.11 (2023-04-27)
+
+- feat: add execution_out to skip output settings ([#475](https://github.com/evilmartians/lefthook/pull/475)) by @mrexox
+- chore: add debug logs when hook is skipped ([#474](https://github.com/evilmartians/lefthook/pull/474)) by @mrexox
+
+## 1.3.10
+
+- feat: don't show when commands are skipped because of no matched files ([#468](https://github.com/evilmartians/lefthook/pull/468)) by @technicalpickles
+
+## 1.3.9 (2023-04-04)
 
 - feat: allow extra hooks in local config ([#462](https://github.com/evilmartians/lefthook/pull/462)) by @fabn
 - feat: pass numeric placeholders to files command ([#461](https://github.com/evilmartians/lefthook/pull/461)) by @fabn
