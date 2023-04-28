@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.3.12 (2023-04-28)
+
+- fix: allow skipping execution_out with interactive mode ([#476](https://github.com/evilmartians/lefthook/pull/476)) by @mrexox
+
 ## 1.3.11 (2023-04-27)
 
 - feat: add execution_out to skip output settings ([#475](https://github.com/evilmartians/lefthook/pull/475)) by @mrexox
