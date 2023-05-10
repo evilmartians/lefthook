@@ -15,6 +15,7 @@ type Command struct {
 	Run string `mapstructure:"run"`
 
 	Skip  interface{}       `mapstructure:"skip"`
+	Only  interface{}       `mapstructure:"only"`
 	Tags  []string          `mapstructure:"tags"`
 	Glob  string            `mapstructure:"glob"`
 	Files string            `mapstructure:"files"`
@@ -37,10 +38,18 @@ func (c Command) Validate() error {
 }
 
 func (c Command) DoSkip(gitState git.State) bool {
+	var doSkip bool
 	if value := c.Skip; value != nil {
-		return isSkip(gitState, value)
+		doSkip = isSkip(gitState, value)
 	}
-	return false
+	if doSkip {
+		return true
+	}
+
+	if value := c.Only; value != nil {
+		doSkip = !isSkip(gitState, value)
+	}
+	return doSkip
 }
 
 type commandRunReplace struct {

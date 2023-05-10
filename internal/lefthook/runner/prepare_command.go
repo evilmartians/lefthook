@@ -17,7 +17,7 @@ type commandArgs struct {
 }
 
 func (r *Runner) prepareCommand(name string, command *config.Command) (*commandArgs, error) {
-	if command.Skip != nil && command.DoSkip(r.Repo.State()) {
+	if command.DoSkip(r.Repo.State()) {
 		return nil, errors.New("settings")
 	}
 
