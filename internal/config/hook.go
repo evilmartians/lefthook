@@ -43,18 +43,7 @@ func (h *Hook) Validate() error {
 }
 
 func (h *Hook) DoSkip(gitState git.State) bool {
-	var doSkip bool
-	if value := h.Skip; value != nil {
-		doSkip = isSkip(gitState, value)
-	}
-	if doSkip {
-		return true
-	}
-
-	if value := h.Only; value != nil {
-		doSkip = !isSkip(gitState, value)
-	}
-	return doSkip
+	return doSkip(gitState, h.Skip, h.Only)
 }
 
 func unmarshalHooks(base, extra *viper.Viper) (*Hook, error) {

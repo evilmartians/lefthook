@@ -23,18 +23,7 @@ type Script struct {
 }
 
 func (s Script) DoSkip(gitState git.State) bool {
-	var doSkip bool
-	if value := s.Skip; value != nil {
-		doSkip = isSkip(gitState, value)
-	}
-	if doSkip {
-		return true
-	}
-
-	if value := s.Only; value != nil {
-		doSkip = !isSkip(gitState, value)
-	}
-	return doSkip
+	return doSkip(gitState, s.Skip, s.Only)
 }
 
 type scriptRunnerReplace struct {

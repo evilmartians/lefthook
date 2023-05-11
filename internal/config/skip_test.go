@@ -6,76 +6,114 @@ import (
 	"github.com/evilmartians/lefthook/internal/git"
 )
 
-func TestIsSkip(t *testing.T) {
+func TestDoSkip(t *testing.T) {
 	for _, tt := range [...]struct {
-		name    string
-		skip    interface{}
-		state   git.State
-		skipped bool
+		name       string
+		state      git.State
+		skip, only interface{}
+		skipped    bool
 	}{
 		{
 			name:    "when true",
-			skip:    true,
 			state:   git.State{},
+			skip:    true,
 			skipped: true,
 		},
 		{
 			name:    "when false",
-			skip:    false,
 			state:   git.State{},
+			skip:    false,
 			skipped: false,
 		},
 		{
 			name:    "when merge",
-			skip:    "merge",
 			state:   git.State{Step: "merge"},
+			skip:    "merge",
 			skipped: true,
 		},
 		{
 			name:    "when rebase (but want merge)",
-			skip:    "merge",
 			state:   git.State{Step: "rebase"},
+			skip:    "merge",
 			skipped: false,
 		},
 		{
 			name:    "when rebase",
-			skip:    []interface{}{"rebase"},
 			state:   git.State{Step: "rebase"},
+			skip:    []interface{}{"rebase"},
 			skipped: true,
 		},
 		{
 			name:    "when rebase (but want merge)",
-			skip:    []interface{}{"merge"},
 			state:   git.State{Step: "rebase"},
+			skip:    []interface{}{"merge"},
 			skipped: false,
 		},
 		{
 			name:    "when branch",
-			skip:    []interface{}{map[string]interface{}{"ref": "feat/skipme"}},
 			state:   git.State{Branch: "feat/skipme"},
+			skip:    []interface{}{map[string]interface{}{"ref": "feat/skipme"}},
 			skipped: true,
 		},
 		{
 			name:    "when branch doesn't match",
-			skip:    []interface{}{map[string]interface{}{"ref": "feat/skipme"}},
 			state:   git.State{Branch: "feat/important"},
+			skip:    []interface{}{map[string]interface{}{"ref": "feat/skipme"}},
 			skipped: false,
 		},
 		{
 			name:    "when branch glob",
-			skip:    []interface{}{map[string]interface{}{"ref": "feat/*"}},
 			state:   git.State{Branch: "feat/important"},
+			skip:    []interface{}{map[string]interface{}{"ref": "feat/*"}},
 			skipped: true,
 		},
 		{
 			name:    "when branch glob doesn't match",
-			skip:    []interface{}{map[string]interface{}{"ref": "feat/*"}},
 			state:   git.State{Branch: "feat"},
+			skip:    []interface{}{map[string]interface{}{"ref": "feat/*"}},
 			skipped: false,
+		},
+		{
+			name:    "when only specified",
+			state:   git.State{Branch: "feat"},
+			only:    []interface{}{map[string]interface{}{"ref": "feat"}},
+			skipped: false,
+		},
+		{
+			name:    "when only branch doesn't match",
+			state:   git.State{Branch: "dev"},
+			only:    []interface{}{map[string]interface{}{"ref": "feat"}},
+			skipped: true,
+		},
+		{
+			name:    "when only branch with glob",
+			state:   git.State{Branch: "feat/important"},
+			only:    []interface{}{map[string]interface{}{"ref": "feat/*"}},
+			skipped: false,
+		},
+		{
+			name:    "when only merge",
+			state:   git.State{Step: "merge"},
+			only:    []interface{}{"merge"},
+			skipped: false,
+		},
+		{
+			name:    "when only and skip",
+			state:   git.State{Step: "rebase"},
+			skip:    []interface{}{map[string]interface{}{"ref": "feat/*"}},
+			only:    "rebase",
+			skipped: false,
+		},
+		{
+			name:    "when only and skip applies skip",
+			state:   git.State{Step: "rebase"},
+			skip:    []interface{}{"rebase"},
+			only:    "rebase",
+			skipped: true,
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			if isSkip(tt.state, tt.skip) != tt.skipped {
+			if doSkip(tt.state, tt.skip, tt.only) != tt.skipped {
 				t.Errorf("Expected: %v, Was %v", tt.skipped, !tt.skipped)
 			}
 		})

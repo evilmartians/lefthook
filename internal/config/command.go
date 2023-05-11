@@ -38,18 +38,7 @@ func (c Command) Validate() error {
 }
 
 func (c Command) DoSkip(gitState git.State) bool {
-	var doSkip bool
-	if value := c.Skip; value != nil {
-		doSkip = isSkip(gitState, value)
-	}
-	if doSkip {
-		return true
-	}
-
-	if value := c.Only; value != nil {
-		doSkip = !isSkip(gitState, value)
-	}
-	return doSkip
+	return doSkip(gitState, c.Skip, c.Only)
 }
 
 type commandRunReplace struct {

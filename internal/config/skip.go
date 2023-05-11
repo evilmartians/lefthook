@@ -6,7 +6,21 @@ import (
 	"github.com/evilmartians/lefthook/internal/git"
 )
 
-func isSkip(gitState git.State, value interface{}) bool {
+func doSkip(gitState git.State, skip, only interface{}) bool {
+	if skip != nil {
+		if matches(gitState, skip) {
+			return true
+		}
+	}
+
+	if only != nil {
+		return !matches(gitState, only)
+	}
+
+	return false
+}
+
+func matches(gitState git.State, value interface{}) bool {
 	switch typedValue := value.(type) {
 	case bool:
 		return typedValue
