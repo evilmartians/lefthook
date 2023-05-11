@@ -63,7 +63,7 @@ func (r *Runner) RunAll(sourceDirs []string) {
 		log.Error(err)
 	}
 
-	if r.Hook.Skip != nil && r.Hook.DoSkip(r.Repo.State()) {
+	if r.Hook.DoSkip(r.Repo.State()) {
 		r.logSkip(r.HookName, "hook setting")
 		return
 	}

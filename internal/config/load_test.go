@@ -97,7 +97,7 @@ pre-commit:
       run: docker exec -it ruby:2.7 {cmd}
   scripts:
     "format.sh":
-      skip: true
+      only: true
 
 pre-push:
   commands:
@@ -128,7 +128,7 @@ pre-push:
 						},
 						Scripts: map[string]*Script{
 							"format.sh": {
-								Skip:   true,
+								Only:   true,
 								Runner: "bash",
 							},
 						},
@@ -265,7 +265,7 @@ remote:
   config: examples/custom.yml
 
 pre-commit:
-  skip:
+  only:
     - ref: main
   commands:
     global:
@@ -277,11 +277,14 @@ pre-commit:
 pre-commit:
   commands:
     lint:
-      run: yarn lint
-      skip:
+      only:
         - merge
+        - rebase
+      run: yarn lint
   scripts:
     "test.sh":
+      skip:
+        - merge
       runner: bash
 `,
 			remoteConfigPath: filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook", "examples", "custom.yml"),
@@ -296,11 +299,11 @@ pre-commit:
 				},
 				Hooks: map[string]*Hook{
 					"pre-commit": {
-						Skip: []interface{}{map[string]interface{}{"ref": "main"}},
+						Only: []interface{}{map[string]interface{}{"ref": "main"}},
 						Commands: map[string]*Command{
 							"lint": {
 								Run:  "yarn lint",
-								Skip: []interface{}{"merge"},
+								Only: []interface{}{"merge", "rebase"},
 							},
 							"global": {
 								Run: "echo 'Global!'",
@@ -309,6 +312,7 @@ pre-commit:
 						Scripts: map[string]*Script{
 							"test.sh": {
 								Runner: "bash",
+								Skip:   []interface{}{"merge"},
 							},
 						},
 					},

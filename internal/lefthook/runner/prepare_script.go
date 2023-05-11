@@ -10,7 +10,7 @@ import (
 )
 
 func (r *Runner) prepareScript(script *config.Script, path string, file os.FileInfo) ([]string, error) {
-	if script.Skip != nil && script.DoSkip(r.Repo.State()) {
+	if script.DoSkip(r.Repo.State()) {
 		return nil, errors.New("settings")
 	}
 

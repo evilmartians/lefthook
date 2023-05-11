@@ -229,6 +229,46 @@ func TestRunAll(t *testing.T) {
 			success: []Result{{Name: "lint", Status: StatusOk}},
 		},
 		{
+			name:     "with only on merge",
+			hookName: "post-commit",
+			existingFiles: []string{
+				filepath.Join(gitPath, "MERGE_HEAD"),
+			},
+			hook: &config.Hook{
+				Commands: map[string]*config.Command{
+					"test": {
+						Run:  "success",
+						Only: "merge",
+					},
+					"lint": {
+						Run: "success",
+					},
+				},
+				Scripts: map[string]*config.Script{},
+			},
+			success: []Result{
+				{Name: "lint", Status: StatusOk},
+				{Name: "test", Status: StatusOk},
+			},
+		},
+		{
+			name:     "with only on merge",
+			hookName: "post-commit",
+			hook: &config.Hook{
+				Commands: map[string]*config.Command{
+					"test": {
+						Run:  "success",
+						Only: "merge",
+					},
+					"lint": {
+						Run: "success",
+					},
+				},
+				Scripts: map[string]*config.Script{},
+			},
+			success: []Result{{Name: "lint", Status: StatusOk}},
+		},
+		{
 			name:     "with global skip merge",
 			hookName: "post-commit",
 			existingFiles: []string{
@@ -247,6 +287,46 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{},
+		},
+		{
+			name:     "with global only on merge",
+			hookName: "post-commit",
+			hook: &config.Hook{
+				Only: "merge",
+				Commands: map[string]*config.Command{
+					"test": {
+						Run: "success",
+					},
+					"lint": {
+						Run: "success",
+					},
+				},
+				Scripts: map[string]*config.Script{},
+			},
+			success: []Result{},
+		},
+		{
+			name:     "with global only on merge",
+			hookName: "post-commit",
+			existingFiles: []string{
+				filepath.Join(gitPath, "MERGE_HEAD"),
+			},
+			hook: &config.Hook{
+				Only: "merge",
+				Commands: map[string]*config.Command{
+					"test": {
+						Run: "success",
+					},
+					"lint": {
+						Run: "success",
+					},
+				},
+				Scripts: map[string]*config.Script{},
+			},
+			success: []Result{
+				{Name: "lint", Status: StatusOk},
+				{Name: "test", Status: StatusOk},
+			},
 		},
 		{
 			name:     "with skip rebase and merge in an array",
@@ -278,6 +358,51 @@ func TestRunAll(t *testing.T) {
 			hookName: "post-commit",
 			hook: &config.Hook{
 				Skip: []interface{}{"merge", map[string]interface{}{"ref": "main"}},
+				Commands: map[string]*config.Command{
+					"test": {
+						Run: "success",
+					},
+					"lint": {
+						Run: "success",
+					},
+				},
+				Scripts: map[string]*config.Script{},
+			},
+			success: []Result{},
+		},
+		{
+			name:   "with global only on ref",
+			branch: "main",
+			existingFiles: []string{
+				filepath.Join(gitPath, "HEAD"),
+			},
+			hookName: "post-commit",
+			hook: &config.Hook{
+				Only: []interface{}{"merge", map[string]interface{}{"ref": "main"}},
+				Commands: map[string]*config.Command{
+					"test": {
+						Run: "success",
+					},
+					"lint": {
+						Run: "success",
+					},
+				},
+				Scripts: map[string]*config.Script{},
+			},
+			success: []Result{
+				{Name: "lint", Status: StatusOk},
+				{Name: "test", Status: StatusOk},
+			},
+		},
+		{
+			name:   "with global only on ref",
+			branch: "develop",
+			existingFiles: []string{
+				filepath.Join(gitPath, "HEAD"),
+			},
+			hookName: "post-commit",
+			hook: &config.Hook{
+				Only: []interface{}{"merge", map[string]interface{}{"ref": "main"}},
 				Commands: map[string]*config.Command{
 					"test": {
 						Run: "success",
@@ -350,6 +475,57 @@ func TestRunAll(t *testing.T) {
 			},
 			success: []Result{{Name: "script.sh", Status: StatusOk}},
 			fail:    []Result{{Name: "failing.js", Status: StatusErr, Text: "install node"}},
+		},
+		{
+			name:       "with simple scripts and only option",
+			sourceDirs: []string{filepath.Join(root, config.DefaultSourceDir)},
+			existingFiles: []string{
+				filepath.Join(root, config.DefaultSourceDir, "post-commit", "script.sh"),
+				filepath.Join(root, config.DefaultSourceDir, "post-commit", "failing.js"),
+				filepath.Join(gitPath, "MERGE_HEAD"),
+			},
+			hookName: "post-commit",
+			hook: &config.Hook{
+				Commands: map[string]*config.Command{},
+				Scripts: map[string]*config.Script{
+					"script.sh": {
+						Runner: "success",
+						Only:   "merge",
+					},
+					"failing.js": {
+						Only:     "merge",
+						Runner:   "fail",
+						FailText: "install node",
+					},
+				},
+			},
+			success: []Result{{Name: "script.sh", Status: StatusOk}},
+			fail:    []Result{{Name: "failing.js", Status: StatusErr, Text: "install node"}},
+		},
+		{
+			name:       "with simple scripts and only option",
+			sourceDirs: []string{filepath.Join(root, config.DefaultSourceDir)},
+			existingFiles: []string{
+				filepath.Join(root, config.DefaultSourceDir, "post-commit", "script.sh"),
+				filepath.Join(root, config.DefaultSourceDir, "post-commit", "failing.js"),
+			},
+			hookName: "post-commit",
+			hook: &config.Hook{
+				Commands: map[string]*config.Command{},
+				Scripts: map[string]*config.Script{
+					"script.sh": {
+						Only:   "merge",
+						Runner: "success",
+					},
+					"failing.js": {
+						Only:     "merge",
+						Runner:   "fail",
+						FailText: "install node",
+					},
+				},
+			},
+			success: []Result{},
+			fail:    []Result{},
 		},
 		{
 			name:       "with interactive and parallel",

@@ -30,6 +30,7 @@ type Hook struct {
 	Piped       bool        `mapstructure:"piped"`
 	ExcludeTags []string    `mapstructure:"exclude_tags"`
 	Skip        interface{} `mapstructure:"skip"`
+	Only        interface{} `mapstructure:"only"`
 	Follow      bool        `mapstructure:"follow"`
 }
 
@@ -42,10 +43,7 @@ func (h *Hook) Validate() error {
 }
 
 func (h *Hook) DoSkip(gitState git.State) bool {
-	if value := h.Skip; value != nil {
-		return isSkip(gitState, value)
-	}
-	return false
+	return doSkip(gitState, h.Skip, h.Only)
 }
 
 func unmarshalHooks(base, extra *viper.Viper) (*Hook, error) {

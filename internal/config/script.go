@@ -13,6 +13,7 @@ type Script struct {
 	Runner string `mapstructure:"runner"`
 
 	Skip interface{}       `mapstructure:"skip"`
+	Only interface{}       `mapstructure:"only"`
 	Tags []string          `mapstructure:"tags"`
 	Env  map[string]string `mapstructure:"env"`
 
@@ -22,10 +23,7 @@ type Script struct {
 }
 
 func (s Script) DoSkip(gitState git.State) bool {
-	if value := s.Skip; value != nil {
-		return isSkip(gitState, value)
-	}
-	return false
+	return doSkip(gitState, s.Skip, s.Only)
 }
 
 type scriptRunnerReplace struct {
