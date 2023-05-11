@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.3.13 (2023-05-11)
+
+- feat: add only option ([#478](https://github.com/evilmartians/lefthook/pull/478)) by @mrexox
+
 ## 1.3.12 (2023-04-28)
 
 - fix: allow skipping execution_out with interactive mode ([#476](https://github.com/evilmartians/lefthook/pull/476)) by @mrexox
