@@ -2,6 +2,11 @@
 
 - [Top level options](#top-level-options)
   - [`colors`](#colors)
+    - [`yellow`](#colors)
+    - [`green`](#colors)
+    - [`cyan`](#colors)
+    - [`gray`](#colors)
+    - [`red`](#colors)
   - [`no_tty`](#no_tty)
   - [`extends`](#extends)
   - [`min_version`](#min_version)
