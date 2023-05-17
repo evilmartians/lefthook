@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -137,11 +138,6 @@ func SetColors(colors interface{}) {
 		std.colors = typedColors
 		return
 	case map[string]interface{}:
-		// red := typedColors["red"].(string)
-		// green := typedColors["green"].(string)
-		// yellow := typedColors["yellow"].(string)
-		// cyan := typedColors["cyan"].(string)
-		// gray := typedColors["gray"].(string)
 		std.colors = true
 		setColor(typedColors["red"], &colorRed)
 		setColor(typedColors["green"], &colorGreen)
@@ -158,7 +154,17 @@ func setColor(colorCode interface{}, adaptiveColor *lipgloss.TerminalColor) {
 	if colorCode == nil {
 		return
 	}
-	code := colorCode.(string)
+
+	var code string
+	switch typedCode := colorCode.(type) {
+	case int:
+		code = strconv.Itoa(typedCode)
+	case string:
+		code = typedCode
+	default:
+		return
+	}
+
 	if len(code) == 0 {
 		return
 	}

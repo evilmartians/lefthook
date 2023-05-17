@@ -185,7 +185,7 @@ lints:
 			global: `
 colors:
   yellow: '#FFE4B5'
-  red: '#FF69B4'
+  red: 196
 tests:
   commands:
     tests:
@@ -200,7 +200,7 @@ lints:
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
-				Colors:         map[string]interface{}{"yellow": "#FFE4B5", "red": "#FF69B4"},
+				Colors:         map[string]interface{}{"yellow": "#FFE4B5", "red": 196},
 				Hooks: map[string]*Hook{
 					"tests": {
 						Parallel: false,
