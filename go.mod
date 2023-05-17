@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/briandowns/spinner v1.23.0
-	github.com/charmbracelet/lipgloss v0.7.1
+	github.com/charmbracelet/lipgloss v0.6.0
 	github.com/creack/pty v1.1.18
 	github.com/gobwas/glob v0.2.3
 	github.com/google/go-cmp v0.5.9
@@ -41,5 +41,5 @@ require (
 	golang.org/x/term v0.5.0 // indirect
 	golang.org/x/text v0.5.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gopkg.in/yaml.v3 v3.0.1
 )
