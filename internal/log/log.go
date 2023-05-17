@@ -12,15 +12,34 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-const (
-	colorCyan   = "#70C0BA"
-	colorYellow = "#fada5e"
-	colorRed    = "#ff6347"
-	colorGreen  = "#76ff7a"
-	colorGray   = "#808080"
-)
+var (
+	colorRed = lipgloss.CompleteAdaptiveColor{
+		Dark:  lipgloss.CompleteColor{TrueColor: "#ff6347", ANSI256: "196", ANSI: "9"},
+		Light: lipgloss.CompleteColor{TrueColor: "#d70000", ANSI256: "160", ANSI: "1"},
+	}
 
-var std = New()
+	colorGreen = lipgloss.CompleteAdaptiveColor{
+		Dark:  lipgloss.CompleteColor{TrueColor: "#76ff7a", ANSI256: "155", ANSI: "10"},
+		Light: lipgloss.CompleteColor{TrueColor: "#afd700", ANSI256: "148", ANSI: "2"},
+	}
+
+	colorYellow = lipgloss.CompleteAdaptiveColor{
+		Dark:  lipgloss.CompleteColor{TrueColor: "#fada5e", ANSI256: "191", ANSI: "11"},
+		Light: lipgloss.CompleteColor{TrueColor: "#ffaf00", ANSI256: "214", ANSI: "3"},
+	}
+
+	colorCyan = lipgloss.CompleteAdaptiveColor{
+		Dark:  lipgloss.CompleteColor{TrueColor: "#70C0BA", ANSI256: "37", ANSI: "14"},
+		Light: lipgloss.CompleteColor{TrueColor: "#00af87", ANSI256: "36", ANSI: "6"},
+	}
+
+	colorGray = lipgloss.CompleteAdaptiveColor{
+		Dark:  lipgloss.CompleteColor{TrueColor: "#808080", ANSI256: "244", ANSI: "7"},
+		Light: lipgloss.CompleteColor{TrueColor: "#4e4e4e", ANSI256: "239", ANSI: "8"},
+	}
+
+	std = New()
+)
 
 type Level uint32
 
@@ -140,12 +159,12 @@ func Bold(s string) string {
 	return lipgloss.NewStyle().Bold(true).Render(s)
 }
 
-func color(colorCode string) lipgloss.Style {
+func color(clr lipgloss.CompleteAdaptiveColor) lipgloss.Style {
 	if !std.colors {
 		return lipgloss.NewStyle()
 	}
 
-	return lipgloss.NewStyle().Foreground(lipgloss.Color(colorCode))
+	return lipgloss.NewStyle().Foreground(clr)
 }
 
 func SetOutput(out io.Writer) {
