@@ -18,20 +18,20 @@ type Hook struct {
 	// Should be unmarshalled with `mapstructure:"commands"`
 	// But replacing '{cmd}' is still an issue
 	// Unmarshaling it manually, so omit auto unmarshaling
-	Commands map[string]*Command `mapstructure:"?"`
+	Commands map[string]*Command `mapstructure:"?" yaml:",omitempty"`
 
 	// Should be unmarshalled with `mapstructure:"scripts"`
 	// But parsing keys with dots in it is still an issue: https://github.com/spf13/viper/issues/324
 	// Unmarshaling it manually, so omit auto unmarshaling
-	Scripts map[string]*Script `mapstructure:"?"`
+	Scripts map[string]*Script `mapstructure:"?" yaml:",omitempty"`
 
-	Files       string      `mapstructure:"files"`
-	Parallel    bool        `mapstructure:"parallel"`
-	Piped       bool        `mapstructure:"piped"`
-	ExcludeTags []string    `mapstructure:"exclude_tags"`
-	Skip        interface{} `mapstructure:"skip"`
-	Only        interface{} `mapstructure:"only"`
-	Follow      bool        `mapstructure:"follow"`
+	Files       string      `mapstructure:"files" yaml:",omitempty"`
+	Parallel    bool        `mapstructure:"parallel" yaml:",omitempty"`
+	Piped       bool        `mapstructure:"piped" yaml:",omitempty"`
+	ExcludeTags []string    `mapstructure:"exclude_tags" yaml:"exclude_tags,omitempty"`
+	Skip        interface{} `mapstructure:"skip" yaml:",omitempty"`
+	Only        interface{} `mapstructure:"only" yaml:",omitempty"`
+	Follow      bool        `mapstructure:"follow" yaml:",omitempty"`
 }
 
 func (h *Hook) Validate() error {
