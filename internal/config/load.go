@@ -18,7 +18,6 @@ const (
 	DefaultConfigName     = "lefthook.yml"
 	DefaultSourceDir      = ".lefthook"
 	DefaultSourceDirLocal = ".lefthook-local"
-	DefaultColorsEnabled  = true
 )
 
 var hookKeyRegexp = regexp.MustCompile(`^(?P<hookName>[^.]+)\.(scripts|commands)`)
@@ -52,7 +51,6 @@ func Load(fs afero.Fs, repo *git.Repository) (*Config, error) {
 
 	var config Config
 
-	config.Colors = DefaultColorsEnabled
 	config.SourceDir = DefaultSourceDir
 	config.SourceDirLocal = DefaultSourceDirLocal
 
@@ -61,6 +59,7 @@ func Load(fs afero.Fs, repo *git.Repository) (*Config, error) {
 		return nil, err
 	}
 
+	log.SetColors(config.Colors)
 	return &config, nil
 }
 

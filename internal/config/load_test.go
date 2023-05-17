@@ -43,7 +43,7 @@ post-commit:
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
-				Colors:         DefaultColorsEnabled,
+				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"pre-commit": {
 						Parallel: false,
@@ -160,7 +160,7 @@ lints:
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
-				Colors:         DefaultColorsEnabled,
+				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"tests": {
 						Parallel: false,
@@ -183,6 +183,9 @@ lints:
 		{
 			name: "with extra hooks only in local config",
 			global: `
+colors:
+  yellow: '#FFE4B5'
+  red: '#FF69B4'
 tests:
   commands:
     tests:
@@ -197,7 +200,7 @@ lints:
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
-				Colors:         DefaultColorsEnabled,
+				Colors:         map[string]interface{}{"yellow": "#FFE4B5", "red": "#FF69B4"},
 				Hooks: map[string]*Hook{
 					"tests": {
 						Parallel: false,
@@ -236,7 +239,7 @@ pre-commit:
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
-				Colors:         DefaultColorsEnabled,
+				Colors:         nil,
 				Remote: Remote{
 					GitURL: "git@github.com:evilmartians/lefthook",
 				},
@@ -291,7 +294,7 @@ pre-commit:
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
-				Colors:         DefaultColorsEnabled,
+				Colors:         nil,
 				Remote: Remote{
 					GitURL: "git@github.com:evilmartians/lefthook",
 					Ref:    "v1.0.0",
@@ -376,7 +379,7 @@ pre-push:
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
-				Colors:         DefaultColorsEnabled,
+				Colors:         nil,
 				Remote: Remote{
 					GitURL: "https://github.com/evilmartians/lefthook",
 					Config: "examples/config.yml",

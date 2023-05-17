@@ -13,27 +13,27 @@ import (
 )
 
 var (
-	colorRed = lipgloss.CompleteAdaptiveColor{
+	colorRed lipgloss.TerminalColor = lipgloss.CompleteAdaptiveColor{
 		Dark:  lipgloss.CompleteColor{TrueColor: "#ff6347", ANSI256: "196", ANSI: "9"},
 		Light: lipgloss.CompleteColor{TrueColor: "#d70000", ANSI256: "160", ANSI: "1"},
 	}
 
-	colorGreen = lipgloss.CompleteAdaptiveColor{
+	colorGreen lipgloss.TerminalColor = lipgloss.CompleteAdaptiveColor{
 		Dark:  lipgloss.CompleteColor{TrueColor: "#76ff7a", ANSI256: "155", ANSI: "10"},
 		Light: lipgloss.CompleteColor{TrueColor: "#afd700", ANSI256: "148", ANSI: "2"},
 	}
 
-	colorYellow = lipgloss.CompleteAdaptiveColor{
+	colorYellow lipgloss.TerminalColor = lipgloss.CompleteAdaptiveColor{
 		Dark:  lipgloss.CompleteColor{TrueColor: "#fada5e", ANSI256: "191", ANSI: "11"},
 		Light: lipgloss.CompleteColor{TrueColor: "#ffaf00", ANSI256: "214", ANSI: "3"},
 	}
 
-	colorCyan = lipgloss.CompleteAdaptiveColor{
+	colorCyan lipgloss.TerminalColor = lipgloss.CompleteAdaptiveColor{
 		Dark:  lipgloss.CompleteColor{TrueColor: "#70C0BA", ANSI256: "37", ANSI: "14"},
 		Light: lipgloss.CompleteColor{TrueColor: "#00af87", ANSI256: "36", ANSI: "6"},
 	}
 
-	colorGray = lipgloss.CompleteAdaptiveColor{
+	colorGray lipgloss.TerminalColor = lipgloss.CompleteAdaptiveColor{
 		Dark:  lipgloss.CompleteColor{TrueColor: "#808080", ANSI256: "244", ANSI: "7"},
 		Light: lipgloss.CompleteColor{TrueColor: "#4e4e4e", ANSI256: "239", ANSI: "8"},
 	}
@@ -131,8 +131,39 @@ func SetLevel(level Level) {
 	std.SetLevel(level)
 }
 
-func SetColors(enable bool) {
-	std.colors = enable
+func SetColors(colors interface{}) {
+	switch typedColors := colors.(type) {
+	case bool:
+		std.colors = typedColors
+		return
+	case map[string]interface{}:
+		// red := typedColors["red"].(string)
+		// green := typedColors["green"].(string)
+		// yellow := typedColors["yellow"].(string)
+		// cyan := typedColors["cyan"].(string)
+		// gray := typedColors["gray"].(string)
+		std.colors = true
+		setColor(typedColors["red"], &colorRed)
+		setColor(typedColors["green"], &colorGreen)
+		setColor(typedColors["yellow"], &colorYellow)
+		setColor(typedColors["cyan"], &colorCyan)
+		setColor(typedColors["gray"], &colorGray)
+		return
+	default:
+		std.colors = true
+	}
+}
+
+func setColor(colorCode interface{}, adaptiveColor *lipgloss.TerminalColor) {
+	if colorCode == nil {
+		return
+	}
+	code := colorCode.(string)
+	if len(code) == 0 {
+		return
+	}
+
+	*adaptiveColor = lipgloss.Color(code)
 }
 
 func Cyan(s string) string {
@@ -159,7 +190,7 @@ func Bold(s string) string {
 	return lipgloss.NewStyle().Bold(true).Render(s)
 }
 
-func color(clr lipgloss.CompleteAdaptiveColor) lipgloss.Style {
+func color(clr lipgloss.TerminalColor) lipgloss.Style {
 	if !std.colors {
 		return lipgloss.NewStyle()
 	}
