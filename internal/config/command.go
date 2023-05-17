@@ -12,21 +12,21 @@ import (
 var errFilesIncompatible = errors.New("One of your runners contains incompatible file types")
 
 type Command struct {
-	Run string `mapstructure:"run"`
+	Run string `mapstructure:"run" yaml:",omitempty"`
 
-	Skip  interface{}       `mapstructure:"skip"`
-	Only  interface{}       `mapstructure:"only"`
-	Tags  []string          `mapstructure:"tags"`
-	Glob  string            `mapstructure:"glob"`
-	Files string            `mapstructure:"files"`
-	Env   map[string]string `mapstructure:"env"`
+	Skip  interface{}       `mapstructure:"skip" yaml:",omitempty"`
+	Only  interface{}       `mapstructure:"only" yaml:",omitempty"`
+	Tags  []string          `mapstructure:"tags" yaml:",omitempty"`
+	Glob  string            `mapstructure:"glob" yaml:",omitempty"`
+	Files string            `mapstructure:"files" yaml:",omitempty"`
+	Env   map[string]string `mapstructure:"env" yaml:",omitempty"`
 
-	Root    string `mapstructure:"root"`
-	Exclude string `mapstructure:"exclude"`
+	Root    string `mapstructure:"root" yaml:",omitempty"`
+	Exclude string `mapstructure:"exclude" yaml:",omitempty"`
 
-	FailText    string `mapstructure:"fail_text"`
-	Interactive bool   `mapstructure:"interactive"`
-	StageFixed  bool   `mapstructure:"stage_fixed"`
+	FailText    string `mapstructure:"fail_text" yaml:"fail_text,omitempty"`
+	Interactive bool   `mapstructure:"interactive" yaml:",omitempty"`
+	StageFixed  bool   `mapstructure:"stage_fixed" yaml:"stage_fixed,omitempty"`
 }
 
 func (c Command) Validate() error {
