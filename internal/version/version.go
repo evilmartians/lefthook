@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-const version = "1.3.13"
+const version = "1.4.0"
 
 var (
 	// Is set via -X github.com/evilmartians/lefthook/internal/version.commit={commit}.

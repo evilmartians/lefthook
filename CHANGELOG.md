@@ -2,6 +2,12 @@
 
 ## master (unreleased)
 
+## 1.4.0 (2023-05-18)
+
+- feat: add adaptive colors ([#482](https://github.com/evilmartians/lefthook/pull/482))
+- fix: skip output for interactive commands if configured ([#483](https://github.com/evilmartians/lefthook/pull/483))
+- feat: add dump command ([#481](https://github.com/evilmartians/lefthook/pull/481))
+
 ## 1.3.13 (2023-05-11)
 
 - feat: add only option ([#478](https://github.com/evilmartians/lefthook/pull/478)) by @mrexox
