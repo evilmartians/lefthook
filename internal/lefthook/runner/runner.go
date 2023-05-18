@@ -402,7 +402,7 @@ func (r *Runner) run(opts ExecuteOptions, follow bool) bool {
 	defer log.UnsetName(opts.name)
 
 	if (follow || opts.interactive) && !r.SkipSettings.SkipExecution() {
-		log.Info(log.Cyan("\n  EXECUTE > "), log.Bold(opts.name))
+		log.Info(log.Cyan("\n  EXECUTE >"), log.Bold(opts.name))
 
 		var out io.Writer
 		if r.SkipSettings.SkipExecutionOutput() {
