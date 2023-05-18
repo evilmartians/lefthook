@@ -47,7 +47,7 @@ func (e CommandExecutor) Execute(opts ExecuteOptions, out io.Writer) error {
 	command.Env = append(os.Environ(), envList...)
 
 	if opts.interactive {
-		command.Stdout = os.Stdout
+		command.Stdout = out
 		command.Stdin = stdin
 		command.Stderr = os.Stderr
 		err := command.Start()
