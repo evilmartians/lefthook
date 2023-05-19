@@ -7,14 +7,20 @@ import (
 )
 
 func newDumpCmd(opts *lefthook.Options) *cobra.Command {
+	dumpArgs := lefthook.DumpArgs{}
 	dumpCmd := cobra.Command{
 		Use:     "dump",
-		Short:   "Prints config merged from all extensions",
+		Short:   "Prints config merged from all extensions (in YAML format by default)",
 		Example: "lefthook dump",
-		Run: func(cmd *cobra.Command, hooks []string) {
-			lefthook.Dump(opts)
+		Run: func(cmd *cobra.Command, args []string) {
+			lefthook.Dump(opts, dumpArgs)
 		},
 	}
+
+	dumpCmd.Flags().BoolVarP(
+		&dumpArgs.JSON, "json", "j", false,
+		"dump in JSON format",
+	)
 
 	return &dumpCmd
 }
