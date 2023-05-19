@@ -2,11 +2,13 @@
 
 ## master (unreleased)
 
+- feat: allow dumping with JSON ([#485](https://github.com/evilmartians/lefthook/pull/485) by @mrexox
+
 ## 1.4.0 (2023-05-18)
 
-- feat: add adaptive colors ([#482](https://github.com/evilmartians/lefthook/pull/482))
-- fix: skip output for interactive commands if configured ([#483](https://github.com/evilmartians/lefthook/pull/483))
-- feat: add dump command ([#481](https://github.com/evilmartians/lefthook/pull/481))
+- feat: add adaptive colors ([#482](https://github.com/evilmartians/lefthook/pull/482)) by @mrexox
+- fix: skip output for interactive commands if configured ([#483](https://github.com/evilmartians/lefthook/pull/483)) by @mrexox
+- feat: add dump command ([#481](https://github.com/evilmartians/lefthook/pull/481)) by @mrexox
 
 ## 1.3.13 (2023-05-11)
 
