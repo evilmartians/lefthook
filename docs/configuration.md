@@ -144,13 +144,14 @@ This config quiets all outputs except for errors.
 # lefthook.yml
 
 skip_output:
-  - meta          # Skips lefthook version printing
-  - summary       # Skips summary block (successful and failed steps) printing
-  - success       # Skips successful steps printing
-  - failure       # Skips failed steps printing
-  - execution     # Skips printing successfully executed commands and their output (but still prints failed executions)
-  - execution_out # Skips printing commands output (but still prints failed commands output)
-  - skips         # Skips "skip" printing (i.e. no files matched)
+  - meta           # Skips lefthook version printing
+  - summary        # Skips summary block (successful and failed steps) printing
+  - success        # Skips successful steps printing
+  - failure        # Skips failed steps printing
+  - execution      # Skips printing any execution logs (but prints if the execution failed)
+  - execution_out  # Skips printing execution output (but still prints failed commands output)
+  - execution_info # Skips printing `EXECUTE > ...` logging
+  - skips          # Skips "skip" printing (i.e. no files matched)
 ```
 
 You can also *extend* this list with an environment variable `LEFTHOOK_QUIET`:
