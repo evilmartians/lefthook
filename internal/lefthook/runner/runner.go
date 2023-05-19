@@ -402,7 +402,7 @@ func (r *Runner) run(opts ExecuteOptions, follow bool) bool {
 	defer log.UnsetName(opts.name)
 
 	if (follow || opts.interactive) && !r.SkipSettings.SkipExecution() {
-		log.Info(log.Cyan("\n  EXECUTE >"), log.Bold(opts.name))
+		r.logExecute(opts.name, nil, nil)
 
 		var out io.Writer
 		if r.SkipSettings.SkipExecutionOutput() {
@@ -424,29 +424,13 @@ func (r *Runner) run(opts ExecuteOptions, follow bool) bool {
 	out := bytes.NewBuffer(make([]byte, 0))
 	err := r.executor.Execute(opts, out)
 
-	var execName string
 	if err != nil {
 		r.fail(opts.name, opts.failText)
-		execName = fmt.Sprint(log.Red("\n  EXECUTE > "), log.Bold(opts.name))
 	} else {
 		r.success(opts.name)
-		execName = fmt.Sprint(log.Cyan("\n  EXECUTE > "), log.Bold(opts.name))
 	}
 
-	if err == nil && r.SkipSettings.SkipExecution() {
-		return false
-	}
-
-	if r.SkipSettings.SkipExecutionOutput() {
-		log.Infof("%s\n", execName)
-	} else {
-		log.Infof("%s\n%s", execName, out)
-	}
-
-	if err != nil {
-		log.Infof("%s", err)
-	}
-	log.Infof("\n")
+	r.logExecute(opts.name, err, out)
 
 	return err == nil
 }
@@ -481,4 +465,34 @@ func (r *Runner) logSkip(name, reason string) {
 			log.Yellow(reason),
 		),
 	)
+}
+
+func (r *Runner) logExecute(name string, err error, out io.Reader) {
+	if err == nil && r.SkipSettings.SkipExecution() {
+		return
+	}
+
+	var execLog string
+	switch {
+	case r.SkipSettings.SkipExecutionInfo():
+		execLog = "\n"
+	case err != nil:
+		execLog = fmt.Sprint(log.Red("\n  EXECUTE > "), log.Bold(name))
+	default:
+		execLog = fmt.Sprint(log.Cyan("\n  EXECUTE > "), log.Bold(name))
+	}
+
+	if err == nil && r.SkipSettings.SkipExecutionOutput() {
+		log.Info(execLog)
+		return
+	}
+
+	log.Info(execLog)
+	if out != nil {
+		log.Info(out)
+	}
+
+	if err != nil {
+		log.Infof("%s", err)
+	}
 }
