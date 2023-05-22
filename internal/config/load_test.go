@@ -466,4 +466,79 @@ pre-push:
 			}
 		})
 	}
+
+	for i, tt := range [...]struct {
+		name       string
+		yaml, json string
+		result     *Config
+	}{
+		{
+			name: "simple configs",
+			yaml: `
+pre-commit:
+  commands:
+    echo:
+      run: echo 1
+`,
+			json: `
+{
+  "pre-commit": {
+    "commands": {
+      "echo": { "run": "echo 1" }
+    }
+  }
+}`,
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Commands: map[string]*Command{
+							"echo": {
+								Run: "echo 1",
+							},
+						},
+					},
+				},
+			},
+		},
+	} {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		repo := &git.Repository{
+			Fs:       fs,
+			RootPath: root,
+			InfoPath: filepath.Join(root, ".git", "info"),
+		}
+
+		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
+			yamlConfig := filepath.Join(root, "lefthook.yml")
+			if err := fs.WriteFile(yamlConfig, []byte(tt.yaml), 0o644); err != nil {
+				t.Errorf("unexpected error: %s", err)
+			}
+
+			checkConfig, err := Load(fs.Fs, repo)
+			if err != nil {
+				t.Errorf("should parse configs without errors: %s", err)
+			} else if !cmp.Equal(checkConfig, tt.result, cmpopts.IgnoreUnexported(Hook{})) {
+				t.Errorf("configs should be equal")
+				t.Errorf("(-want +got):\n%s", cmp.Diff(tt.result, checkConfig))
+			}
+
+			if err = fs.Remove(yamlConfig); err != nil {
+				t.Errorf("unexpected error: %s", err)
+			}
+
+			if err = fs.WriteFile(filepath.Join(root, "lefthook.json"), []byte(tt.json), 0o644); err != nil {
+				t.Errorf("unexpected error: %s", err)
+			}
+
+			checkConfig, err = Load(fs.Fs, repo)
+			if err != nil {
+				t.Errorf("should parse configs without errors: %s", err)
+			} else if !cmp.Equal(checkConfig, tt.result, cmpopts.IgnoreUnexported(Hook{})) {
+				t.Errorf("configs should be equal")
+				t.Errorf("(-want +got):\n%s", cmp.Diff(tt.result, checkConfig))
+			}
+		})
+	}
 }
