@@ -6,6 +6,10 @@ type Remote struct {
 	Config string `mapstructure:"config"  yaml:",omitempty"        json:"config,omitempty" toml:"config,omitempty"`
 }
 
-func (r Remote) Configured() bool {
+func (r *Remote) Configured() bool {
+	if r == nil {
+		return false
+	}
+
 	return len(r.GitURL) > 0
 }

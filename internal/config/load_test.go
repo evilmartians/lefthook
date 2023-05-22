@@ -240,7 +240,7 @@ pre-commit:
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
 				Colors:         nil,
-				Remote: Remote{
+				Remote: &Remote{
 					GitURL: "git@github.com:evilmartians/lefthook",
 				},
 				Hooks: map[string]*Hook{
@@ -295,7 +295,7 @@ pre-commit:
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
 				Colors:         nil,
-				Remote: Remote{
+				Remote: &Remote{
 					GitURL: "git@github.com:evilmartians/lefthook",
 					Ref:    "v1.0.0",
 					Config: "examples/custom.yml",
@@ -380,7 +380,7 @@ pre-push:
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
 				Colors:         nil,
-				Remote: Remote{
+				Remote: &Remote{
 					GitURL: "https://github.com/evilmartians/lefthook",
 					Config: "examples/config.yml",
 				},

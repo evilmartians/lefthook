@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 
+	"github.com/mitchellh/mapstructure"
 	toml "github.com/pelletier/go-toml/v2"
 	"gopkg.in/yaml.v3"
 
@@ -14,17 +15,17 @@ import (
 const dumpIndent = 2
 
 type Config struct {
-	Colors         interface{} `mapstructure:"colors"           yaml:"colors,omitempty"           toml:"colors,omitempty"           json:"colors,omitempty"`
-	Extends        []string    `mapstructure:"extends"          yaml:"extends,omitempty"          toml:"extends,omitempty"          json:"extends,omitempty"`
-	Remote         Remote      `mapstructure:"remote"           yaml:"remote,omitempty"           toml:"remote,omitempty"           json:"remote,omitempty"`
-	MinVersion     string      `mapstructure:"min_version"      yaml:"min_version,omitempty"      toml:"min_version,omitempty"      json:"min_version,omitempty"`
-	SkipOutput     []string    `mapstructure:"skip_output"      yaml:"skip_output,omitempty"      toml:"skip_output,omitempty"      json:"skip_output,omitempty"`
+	Colors         interface{} `mapstructure:"colors,omitempty"           yaml:"colors,omitempty"           toml:"colors,omitempty"           json:"colors,omitempty"`
+	Extends        []string    `mapstructure:"extends,omitempty"          yaml:"extends,omitempty"          toml:"extends,omitempty"          json:"extends,omitempty"`
+	Remote         *Remote     `mapstructure:"remote,omitempty"           yaml:"remote,omitempty"           toml:"remote,omitempty"           json:"remote,omitempty"`
+	MinVersion     string      `mapstructure:"min_version,omitempty"      yaml:"min_version,omitempty"      toml:"min_version,omitempty"      json:"min_version,omitempty"`
+	SkipOutput     []string    `mapstructure:"skip_output,omitempty"      yaml:"skip_output,omitempty"      toml:"skip_output,omitempty"      json:"skip_output,omitempty"`
 	SourceDir      string      `mapstructure:"source_dir"       yaml:"source_dir,omitempty"       toml:"source_dir,omitempty"       json:"source_dir,omitempty"`
 	SourceDirLocal string      `mapstructure:"source_dir_local" yaml:"source_dir_local,omitempty" toml:"source_dir_local,omitempty" json:"source_dir_local,omitempty"`
-	Rc             string      `mapstructure:"rc"               yaml:"rc,omitempty"               toml:"rc,omitempty"               json:"rc,omitempty"`
-	NoTTY          bool        `mapstructure:"no_tty"           yaml:"no_tty,omitempty"           toml:"no_tty,omitempty"           json:"no_tty,omitempty"`
+	Rc             string      `mapstructure:"rc,omitempty"               yaml:"rc,omitempty"               toml:"rc,omitempty"               json:"rc,omitempty"`
+	NoTTY          bool        `mapstructure:"no_tty,omitempty"           yaml:"no_tty,omitempty"           toml:"no_tty,omitempty"           json:"no_tty,omitempty"`
 
-	Hooks map[string]*Hook `yaml:",inline" json:"-"`
+	Hooks map[string]*Hook `mapstructure:"-" yaml:",inline" json:"-" toml:"-"`
 }
 
 func (c *Config) Validate() error {
@@ -89,63 +90,9 @@ func (c *Config) dumpJSON() error {
 }
 
 func (c *Config) dumpTOML() error {
-	// type ConfigForMarshalling *Config
-	// res, err := toml.Marshal(ConfigForMarshalling(c))
-	// if err != nil {
-	// 	return err
-	// }
-
-	// var rawMarshalled map[string]interface{}
-	// if err = json.Unmarshal(res, &rawMarshalled); err != nil {
-	// 	return err
-	// }
-
-	// for hook, contents := range c.Hooks {
-	// 	var hookMarshalled interface{}
-	// 	hookMarshalled, err = toml.Marshal(contents)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	rawMarshalled[hook] = hookMarshalled
-	// }
-
-	// res, err = toml.Marshal(rawMarshalled)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// log.Info(string(res))
-
-	// return nil
-
 	res := make(map[string]interface{})
-
-	if c.Colors != nil {
-		res["colors"] = c.Colors
-	}
-	if len(c.Extends) != 0 {
-		res["extends"] = c.Extends
-	}
-	if len(c.Remote.GitURL) != 0 {
-		res["remote"] = c.Remote
-	}
-	if len(c.MinVersion) != 0 {
-		res["min_version"] = c.MinVersion
-	}
-	if len(c.SkipOutput) != 0 {
-		res["skip_output"] = c.SkipOutput
-	}
-	if c.SourceDir != DefaultSourceDir {
-		res["source_dir"] = c.SourceDir
-	}
-	if c.SourceDirLocal != DefaultSourceDirLocal {
-		res["source_dir_local"] = c.SourceDirLocal
-	}
-	if len(c.Rc) != 0 {
-		res["rc"] = c.Rc
-	}
-	if c.NoTTY {
-		res["no_tty"] = c.NoTTY
+	if err := mapstructure.Decode(c, &res); err != nil {
+		return err
 	}
 
 	for hookName, hook := range c.Hooks {
@@ -153,7 +100,6 @@ func (c *Config) dumpTOML() error {
 	}
 
 	encoder := toml.NewEncoder(os.Stdout)
-	// err := encoder.Encode(c)
 	err := encoder.Encode(res)
 	if err != nil {
 		return err
