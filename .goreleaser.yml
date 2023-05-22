@@ -13,6 +13,14 @@ builds:
   goarch:
     - amd64
     - arm64
+    - 386
+  ignore:
+    - goos: darwin
+      goarch: 386
+    - goos: linux
+      goarch: 386
+    - goos: freebsd
+      goarch: 386
   ldflags:
     - -s -w -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
 archives:
@@ -52,6 +60,7 @@ changelog:
     - '^spec:'
     - '^tmp:'
     - '^context:'
+    - '^\d\.\d\.\d:'
 
 snapcrafts:
   -
