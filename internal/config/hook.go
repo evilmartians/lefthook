@@ -18,20 +18,20 @@ type Hook struct {
 	// Should be unmarshalled with `mapstructure:"commands"`
 	// But replacing '{cmd}' is still an issue
 	// Unmarshaling it manually, so omit auto unmarshaling
-	Commands map[string]*Command `mapstructure:"?" yaml:",omitempty" json:"commands,omitempty"`
+	Commands map[string]*Command `mapstructure:"?" yaml:",omitempty" toml:"commands,omitempty" json:"commands,omitempty"`
 
 	// Should be unmarshalled with `mapstructure:"scripts"`
 	// But parsing keys with dots in it is still an issue: https://github.com/spf13/viper/issues/324
 	// Unmarshaling it manually, so omit auto unmarshaling
-	Scripts map[string]*Script `mapstructure:"?" yaml:",omitempty" json:"scripts,omitempty"`
+	Scripts map[string]*Script `mapstructure:"?" yaml:",omitempty" toml:"scripts,omitempty" json:"scripts,omitempty"`
 
-	Files       string      `mapstructure:"files"        yaml:",omitempty"             json:"files,omitempty"`
-	Parallel    bool        `mapstructure:"parallel"     yaml:",omitempty"             json:"parallel,omitempty"`
-	Piped       bool        `mapstructure:"piped"        yaml:",omitempty"             json:"piped,omitempty"`
-	ExcludeTags []string    `mapstructure:"exclude_tags" yaml:"exclude_tags,omitempty" json:"exclude_tags,omitempty"`
-	Skip        interface{} `mapstructure:"skip"         yaml:",omitempty"             json:"skip,omitempty"`
-	Only        interface{} `mapstructure:"only"         yaml:",omitempty"             json:"only,omitempty"`
-	Follow      bool        `mapstructure:"follow"       yaml:",omitempty"             json:"follow,omitempty"`
+	Files       string      `mapstructure:"files"        yaml:",omitempty"             toml:"files,omitempty"        json:"files,omitempty"`
+	Parallel    bool        `mapstructure:"parallel"     yaml:",omitempty"             toml:"parallel,omitempty"     json:"parallel,omitempty"`
+	Piped       bool        `mapstructure:"piped"        yaml:",omitempty"             toml:"piped,omitempty"        json:"piped,omitempty"`
+	ExcludeTags []string    `mapstructure:"exclude_tags" yaml:"exclude_tags,omitempty" toml:"exclude_tags,omitempty" json:"exclude_tags,omitempty"`
+	Skip        interface{} `mapstructure:"skip"         yaml:",omitempty"             toml:"skip,omitempty"         json:"skip,omitempty"`
+	Only        interface{} `mapstructure:"only"         yaml:",omitempty"             toml:"only,omitempty"         json:"only,omitempty"`
+	Follow      bool        `mapstructure:"follow"       yaml:",omitempty"             toml:"follow,omitempty"       json:"follow,omitempty"`
 }
 
 func (h *Hook) Validate() error {

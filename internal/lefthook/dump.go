@@ -7,6 +7,7 @@ import (
 
 type DumpArgs struct {
 	JSON bool
+	TOML bool
 }
 
 func Dump(opts *Options, args DumpArgs) {
@@ -22,7 +23,7 @@ func Dump(opts *Options, args DumpArgs) {
 		return
 	}
 
-	if err := cfg.Dump(args.JSON); err != nil {
+	if err := cfg.Dump(args.JSON, args.TOML); err != nil {
 		log.Errorf("couldn't dump config: %s\n", err)
 		return
 	}
