@@ -16,7 +16,7 @@ import (
 
 const (
 	envEnabled    = "LEFTHOOK"         // "0", "false"
-	envSkipOutput = "LEFTHOOK_QUIET"   // "meta,success,failure,summary,execution,execution_out,skips"
+	envSkipOutput = "LEFTHOOK_QUIET"   // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
 	envVerbose    = "LEFTHOOK_VERBOSE" // keep all output
 )
 
