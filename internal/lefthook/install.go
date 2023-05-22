@@ -31,6 +31,7 @@ const (
 var (
 	lefthookChecksumRegexp = regexp.MustCompile(`(\w+)\s+(\d+)`)
 	configGlob             = glob.MustCompile("lefthook.{json,yaml,yml}")
+	errNoConfig            = fmt.Errorf("no lefthook config found")
 )
 
 type InstallArgs struct {
@@ -84,7 +85,6 @@ func (l *Lefthook) readOrCreateConfig() (*config.Config, error) {
 
 func (l *Lefthook) configExists(path string) bool {
 	paths, err := afero.ReadDir(l.Fs, path)
-	// paths, err := afero.Glob(l.Fs, filepath.Join(path, configGlob))
 	if err != nil {
 		return false
 	}
@@ -217,7 +217,7 @@ func (l *Lefthook) configLastUpdateTimestamp() (timestamp int64, err error) {
 	}
 
 	if config == nil {
-		err = fmt.Errorf("no config")
+		err = errNoConfig
 		return
 	}
 
@@ -239,7 +239,7 @@ func (l *Lefthook) configChecksum() (checksum string, err error) {
 		}
 	}
 	if len(config) == 0 {
-		err = fmt.Errorf("no config")
+		err = errNoConfig
 		return
 	}
 
