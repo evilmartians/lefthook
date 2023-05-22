@@ -5,7 +5,11 @@ import (
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
-func Dump(opts *Options) {
+type DumpArgs struct {
+	JSON bool
+}
+
+func Dump(opts *Options, args DumpArgs) {
 	lefthook, err := initialize(opts)
 	if err != nil {
 		log.Errorf("couldn't initialize lefthook: %s\n", err)
@@ -18,7 +22,7 @@ func Dump(opts *Options) {
 		return
 	}
 
-	if err := cfg.Dump(); err != nil {
+	if err := cfg.Dump(args.JSON); err != nil {
 		log.Errorf("couldn't dump config: %s\n", err)
 		return
 	}
