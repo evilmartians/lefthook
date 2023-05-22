@@ -468,9 +468,9 @@ pre-push:
 	}
 
 	for i, tt := range [...]struct {
-		name       string
-		yaml, json string
-		result     *Config
+		name             string
+		yaml, json, toml string
+		result           *Config
 	}{
 		{
 			name: "simple configs",
@@ -488,6 +488,10 @@ pre-commit:
     }
   }
 }`,
+			toml: `
+[pre-commit.commands.echo]
+run = "echo 1"
+`,
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
@@ -528,7 +532,25 @@ pre-commit:
 				t.Errorf("unexpected error: %s", err)
 			}
 
-			if err = fs.WriteFile(filepath.Join(root, "lefthook.json"), []byte(tt.json), 0o644); err != nil {
+			jsonConfig := filepath.Join(root, "lefthook.yml")
+			if err = fs.WriteFile(jsonConfig, []byte(tt.json), 0o644); err != nil {
+				t.Errorf("unexpected error: %s", err)
+			}
+
+			checkConfig, err = Load(fs.Fs, repo)
+			if err != nil {
+				t.Errorf("should parse configs without errors: %s", err)
+			} else if !cmp.Equal(checkConfig, tt.result, cmpopts.IgnoreUnexported(Hook{})) {
+				t.Errorf("configs should be equal")
+				t.Errorf("(-want +got):\n%s", cmp.Diff(tt.result, checkConfig))
+			}
+
+			if err = fs.Remove(yamlConfig); err != nil {
+				t.Errorf("unexpected error: %s", err)
+			}
+
+			tomlConfig := filepath.Join(root, "lefthook.toml")
+			if err = fs.WriteFile(tomlConfig, []byte(tt.toml), 0o644); err != nil {
 				t.Errorf("unexpected error: %s", err)
 			}
 
