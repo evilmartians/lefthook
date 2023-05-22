@@ -117,10 +117,44 @@ func (c *Config) dumpTOML() error {
 	// log.Info(string(res))
 
 	// return nil
-	encoder := toml.NewEncoder(os.Stdout)
-	encoder.SetIndentTables(false)
 
-	err := encoder.Encode(c)
+	res := make(map[string]interface{})
+
+	if c.Colors != nil {
+		res["colors"] = c.Colors
+	}
+	if len(c.Extends) != 0 {
+		res["extends"] = c.Extends
+	}
+	if len(c.Remote.GitURL) != 0 {
+		res["remote"] = c.Remote
+	}
+	if len(c.MinVersion) != 0 {
+		res["min_version"] = c.MinVersion
+	}
+	if len(c.SkipOutput) != 0 {
+		res["skip_output"] = c.SkipOutput
+	}
+	if c.SourceDir != DefaultSourceDir {
+		res["source_dir"] = c.SourceDir
+	}
+	if c.SourceDirLocal != DefaultSourceDirLocal {
+		res["source_dir_local"] = c.SourceDirLocal
+	}
+	if len(c.Rc) != 0 {
+		res["rc"] = c.Rc
+	}
+	if c.NoTTY {
+		res["no_tty"] = c.NoTTY
+	}
+
+	for hookName, hook := range c.Hooks {
+		res[hookName] = hook
+	}
+
+	encoder := toml.NewEncoder(os.Stdout)
+	// err := encoder.Encode(c)
+	err := encoder.Encode(res)
 	if err != nil {
 		return err
 	}
