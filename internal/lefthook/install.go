@@ -4,12 +4,15 @@ import (
 	"bufio"
 	"crypto/md5"
 	"encoding/hex"
+	"fmt"
 	"io"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 
+	"github.com/gobwas/glob"
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/internal/config"
@@ -21,12 +24,15 @@ const (
 	configFileMode   = 0o666
 	checksumFileMode = 0o644
 	hooksDirMode     = 0o755
-	configGlob       = "lefthook.y*ml"
 	timestampBase    = 10
 	timestampBitsize = 64
 )
 
-var lefthookChecksumRegexp = regexp.MustCompile(`(\w+)\s+(\d+)`)
+var (
+	lefthookChecksumRegexp = regexp.MustCompile(`(\w+)\s+(\d+)`)
+	configGlob             = glob.MustCompile("lefthook.{json,yaml,yml}")
+	errNoConfig            = fmt.Errorf("no lefthook config found")
+)
 
 type InstallArgs struct {
 	Force, Aggressive bool
@@ -69,7 +75,6 @@ func (l *Lefthook) readOrCreateConfig() (*config.Config, error) {
 
 	if !l.configExists(l.repo.RootPath) {
 		log.Info("Config not found, creating...")
-
 		if err := l.createConfig(l.repo.RootPath); err != nil {
 			return nil, err
 		}
@@ -79,13 +84,13 @@ func (l *Lefthook) readOrCreateConfig() (*config.Config, error) {
 }
 
 func (l *Lefthook) configExists(path string) bool {
-	paths, err := afero.Glob(l.Fs, filepath.Join(path, configGlob))
+	paths, err := afero.ReadDir(l.Fs, path)
 	if err != nil {
 		return false
 	}
 
-	for _, config := range paths {
-		if ok, _ := afero.Exists(l.Fs, config); ok {
+	for _, file := range paths {
+		if ok := configGlob.Match(file.Name()); ok {
 			return true
 		}
 	}
@@ -199,27 +204,46 @@ func (l *Lefthook) hooksSynchronized() bool {
 }
 
 func (l *Lefthook) configLastUpdateTimestamp() (timestamp int64, err error) {
-	m, err := afero.Glob(l.Fs, filepath.Join(l.repo.RootPath, configGlob))
+	paths, err := afero.ReadDir(l.Fs, l.repo.RootPath)
 	if err != nil {
 		return
 	}
+	var config os.FileInfo
+	for _, file := range paths {
+		if ok := configGlob.Match(file.Name()); ok {
+			config = file
+			break
+		}
+	}
 
-	info, err := l.Fs.Stat(m[0])
-	if err != nil {
+	if config == nil {
+		err = errNoConfig
 		return
 	}
 
-	timestamp = info.ModTime().Unix()
+	timestamp = config.ModTime().Unix()
 	return
 }
 
 func (l *Lefthook) configChecksum() (checksum string, err error) {
-	m, err := afero.Glob(l.Fs, filepath.Join(l.repo.RootPath, configGlob))
+	paths, err := afero.ReadDir(l.Fs, l.repo.RootPath)
 	if err != nil {
 		return
 	}
 
-	file, err := l.Fs.Open(m[0])
+	var config string
+	for _, file := range paths {
+		if ok := configGlob.Match(file.Name()); ok {
+			config = file.Name()
+			break
+		}
+	}
+	if len(config) == 0 {
+		err = errNoConfig
+		return
+	}
+
+	file, err := l.Fs.Open(filepath.Join(l.repo.RootPath, config))
 	if err != nil {
 		return
 	}
