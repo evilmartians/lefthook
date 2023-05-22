@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+- feat: support json configs ([#489](https://github.com/evilmartians/lefthook/pull/489)) by @mrexox
+
 ## 1.4.1 (2024-05-22)
 
 - fix: add win32 binary to artifacts (by @mrexox)
