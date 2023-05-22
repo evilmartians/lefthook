@@ -2,7 +2,12 @@
 
 ## master (unreleased)
 
+## 1.4.1 (2024-05-22)
+
+- fix: add win32 binary to artifacts (by @mrexox)
 - feat: allow dumping with JSON ([#485](https://github.com/evilmartians/lefthook/pull/485) by @mrexox
+- feat: add skip execution_info option ([#484](https://github.com/evilmartians/lefthook/pull/484)) by @mrexox
+- deps: from 05.2023 ([#487](https://github.com/evilmartians/lefthook/pull/487)) by @mrexox
 
 ## 1.4.0 (2023-05-18)
 
