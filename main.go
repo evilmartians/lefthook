@@ -1,7 +1,11 @@
 package main
 
-import "github.com/evilmartians/lefthook/cmd"
+import (
+	"os"
+
+	"github.com/evilmartians/lefthook/cmd"
+)
 
 func main() {
-	cmd.Lefthook()
+	os.Exit(cmd.Lefthook())
 }

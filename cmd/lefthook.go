@@ -1,18 +1,16 @@
 package cmd
 
-import (
-	"os"
+import "github.com/evilmartians/lefthook/internal/log"
 
-	"github.com/evilmartians/lefthook/internal/log"
-)
-
-func Lefthook() {
+func Lefthook() int {
 	rootCmd := newRootCmd()
 
 	if err := rootCmd.Execute(); err != nil {
 		if err.Error() != "" {
 			log.Errorf("Error: %s", err)
 		}
-		os.Exit(1)
+		return 1
 	}
+
+	return 0
 }

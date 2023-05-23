@@ -1,0 +1,4 @@
+exec git init
+exec lefthook add pre-commit
+exists .git/hooks/pre-commit
+! stderr .
