@@ -12,21 +12,21 @@ import (
 var errFilesIncompatible = errors.New("One of your runners contains incompatible file types")
 
 type Command struct {
-	Run string `mapstructure:"run" yaml:"run" toml:"run" json:"run"`
+	Run string `mapstructure:"run" yaml:"run" json:"run" toml:"run"`
 
-	Skip  interface{}       `mapstructure:"skip"  yaml:",omitempty"  toml:"skip,omitempty"  json:"skip,omitempty"`
-	Only  interface{}       `mapstructure:"only"  yaml:",omitempty"  toml:"only,omitempty,inline"  json:"only,omitempty"`
-	Tags  []string          `mapstructure:"tags"  yaml:",omitempty"  toml:"tags,omitempty"  json:"tags,omitempty"`
-	Glob  string            `mapstructure:"glob"  yaml:",omitempty"  toml:"glob,omitempty"  json:"glob,omitempty"`
-	Files string            `mapstructure:"files" yaml:",omitempty"  toml:"files,omitempty" json:"files,omitempty"`
-	Env   map[string]string `mapstructure:"env"   yaml:",omitempty"  toml:"env,omitempty"   json:"env,omitempty"`
+	Skip  interface{}       `mapstructure:"skip"  yaml:",omitempty"  json:"skip,omitempty"  toml:"skip,omitempty,inline"`
+	Only  interface{}       `mapstructure:"only"  yaml:",omitempty"  json:"only,omitempty"  toml:"only,omitempty,inline"`
+	Tags  []string          `mapstructure:"tags"  yaml:",omitempty"  json:"tags,omitempty"  toml:"tags,omitempty"`
+	Glob  string            `mapstructure:"glob"  yaml:",omitempty"  json:"glob,omitempty"  toml:"glob,omitempty"`
+	Files string            `mapstructure:"files" yaml:",omitempty"  json:"files,omitempty" toml:"files,omitempty"`
+	Env   map[string]string `mapstructure:"env"   yaml:",omitempty"  json:"env,omitempty"   toml:"env,omitempty"`
 
-	Root    string `mapstructure:"root"    yaml:",omitempty" toml:"root,omitempty"    json:"root,omitempty"`
-	Exclude string `mapstructure:"exclude" yaml:",omitempty" toml:"exclude,omitempty" json:"exclude,omitempty"`
+	Root    string `mapstructure:"root"    yaml:",omitempty" json:"root,omitempty"    toml:"root,omitempty"`
+	Exclude string `mapstructure:"exclude" yaml:",omitempty" json:"exclude,omitempty" toml:"exclude,omitempty"`
 
-	FailText    string `mapstructure:"fail_text"   yaml:"fail_text,omitempty"   toml:"fail_text,omitempty"   json:"fail_text,omitempty"`
-	Interactive bool   `mapstructure:"interactive" yaml:",omitempty"            toml:"interactive,omitempty" json:"interactive,omitempty"`
-	StageFixed  bool   `mapstructure:"stage_fixed" yaml:"stage_fixed,omitempty" toml:"stage_fixed,omitempty" json:"stage_fixed,omitempty"`
+	FailText    string `mapstructure:"fail_text"   yaml:"fail_text,omitempty"   json:"fail_text,omitempty"   toml:"fail_text,omitempty"`
+	Interactive bool   `mapstructure:"interactive" yaml:",omitempty"            json:"interactive,omitempty" toml:"interactive,omitempty"`
+	StageFixed  bool   `mapstructure:"stage_fixed" yaml:"stage_fixed,omitempty" json:"stage_fixed,omitempty" toml:"stage_fixed,omitempty"`
 }
 
 func (c Command) Validate() error {

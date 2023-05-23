@@ -15,15 +15,15 @@ import (
 const dumpIndent = 2
 
 type Config struct {
-	Colors         interface{} `mapstructure:"colors,omitempty"`
-	Extends        []string    `mapstructure:"extends,omitempty"`
-	Remote         *Remote     `mapstructure:"remote,omitempty" `
 	MinVersion     string      `mapstructure:"min_version,omitempty"`
-	SkipOutput     []string    `mapstructure:"skip_output,omitempty"`
 	SourceDir      string      `mapstructure:"source_dir"`
 	SourceDirLocal string      `mapstructure:"source_dir_local"`
 	Rc             string      `mapstructure:"rc,omitempty"`
+	SkipOutput     []string    `mapstructure:"skip_output,omitempty"`
+	Extends        []string    `mapstructure:"extends,omitempty"`
 	NoTTY          bool        `mapstructure:"no_tty,omitempty"`
+	Colors         interface{} `mapstructure:"colors,omitempty"`
+	Remote         *Remote     `mapstructure:"remote,omitempty" `
 
 	Hooks map[string]*Hook `mapstructure:"-"`
 }
