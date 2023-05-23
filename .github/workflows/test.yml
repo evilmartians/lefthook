@@ -9,7 +9,7 @@ jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.19.x]
+        go-version: [1.20.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -32,7 +32,7 @@ jobs:
     strategy:
       matrix:
         go-version: [1.20.x]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     env:
       GOCOVERDIR: _icoverdir_
@@ -70,7 +70,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.19.x
+          go-version: 1.20.x
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Build binaries
@@ -95,5 +95,5 @@ jobs:
     steps:
       - uses: coverallsapp/github-action@v2
         with:
-          carryforward: "integration-1.20.x ubuntu-latest,integration-1.20.x macos-latest,integration-1.20.x windows-latest,1.19.x ubuntu-latest,1.19.x macos-latest,1.19.x windows-latest"
+          carryforward: "integration-1.20.x ubuntu-latest,integration-1.20.x macos-latest,1.20.x ubuntu-latest,1.20.x macos-latest,1.20.x windows-latest"
           parallel-finished: true

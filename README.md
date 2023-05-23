@@ -21,7 +21,7 @@ Fast and powerful Git hooks manager for Node.js, Ruby or any other type of proje
 
 ## Install
 
-With **Go** (>= 1.19):
+With **Go** (>= 1.20):
 
 ```bash
 go install github.com/evilmartians/lefthook@latest
