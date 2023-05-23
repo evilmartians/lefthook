@@ -12,7 +12,7 @@ import (
 var errFilesIncompatible = errors.New("One of your runners contains incompatible file types")
 
 type Command struct {
-	Run string `mapstructure:"run"`
+	Run string `mapstructure:"run" yaml:"run" toml:"run" json:"run"`
 
 	Skip  interface{}       `mapstructure:"skip"  yaml:",omitempty"  toml:"skip,omitempty"  json:"skip,omitempty"`
 	Only  interface{}       `mapstructure:"only"  yaml:",omitempty"  toml:"only,omitempty,inline"  json:"only,omitempty"`
