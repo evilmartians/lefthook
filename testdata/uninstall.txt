@@ -1,0 +1,18 @@
+exec git init
+exec lefthook install
+exists .git/hooks/pre-push
+exec lefthook uninstall
+! exists .git/hooks-pre-push
+exists lefthook.yml
+
+exec lefthook install
+exists .git/hooks/pre-push
+exec lefthook uninstall -c
+! exists .git/hooks-pre-push
+! exists lefthook.yml
+
+-- lefthook.yml --
+pre-push:
+  commands:
+    echo:
+      run: echo pre-push
