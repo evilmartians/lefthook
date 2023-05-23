@@ -9,7 +9,7 @@ jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.19.x]
+        go-version: [1.20.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -28,13 +28,49 @@ jobs:
           parallel: true
           flag-name: ${{ join(matrix.*, ' ') }}
 
+  test-integration:
+    strategy:
+      matrix:
+        go-version: [1.20.x]
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      GOCOVERDIR: _icoverdir_
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Integration tests
+        run: |
+          mkdir _icoverdir_
+          make build-with-coverage
+          cp examples/complete/lefthook.yml .
+      # TODO: prepare a framework to test the results
+      - run: |
+          ./lefthook dump
+          ./lefthook dump --json
+          ./lefthook dump --toml
+      - name: Format coverage
+        run: |
+          go tool covdata textfmt -i _icoverdir_ -o coverage.out
+      - name: Report coverage
+        uses: coverallsapp/github-action@v2
+        with:
+          file: coverage.out
+          format: golang
+          parallel: true
+          flag-name: integration-${{ join(matrix.*, ' ') }}
+
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.19.x
+          go-version: 1.20.x
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Build binaries
@@ -53,9 +89,11 @@ jobs:
 
   coverage:
     runs-on: ubuntu-latest
-    needs: test
+    needs:
+      - test
+      - test-integration
     steps:
       - uses: coverallsapp/github-action@v2
         with:
-          carryforward: "1.19.x ubuntu-latest,1.19.x macos-latest,1.19.x windows-latest"
+          carryforward: "integration-1.20.x ubuntu-latest,integration-1.20.x macos-latest,1.20.x ubuntu-latest,1.20.x macos-latest,1.20.x windows-latest"
           parallel-finished: true

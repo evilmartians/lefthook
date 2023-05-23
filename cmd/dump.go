@@ -22,5 +22,10 @@ func newDumpCmd(opts *lefthook.Options) *cobra.Command {
 		"dump in JSON format",
 	)
 
+	dumpCmd.Flags().BoolVarP(
+		&dumpArgs.TOML, "toml", "t", false,
+		"dump in TOML format",
+	)
+
 	return &dumpCmd
 }
