@@ -1,0 +1,3 @@
+exec lefthook version
+stdout \d\.\d\.\d
+! stderr .

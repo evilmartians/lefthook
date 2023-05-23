@@ -28,14 +28,14 @@ jobs:
           parallel: true
           flag-name: ${{ join(matrix.*, ' ') }}
 
-  test-integration:
+  test-integrity:
     strategy:
       matrix:
         go-version: [1.20.x]
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     env:
-      GOCOVERDIR: _icoverdir_
+      GOCOVERDIR: ${{ github.workspace }}/_icoverdir_
     steps:
       - name: Install Go
         uses: actions/setup-go@v2
@@ -46,13 +46,8 @@ jobs:
       - name: Integration tests
         run: |
           mkdir _icoverdir_
-          make build-with-coverage
-          cp examples/complete/lefthook.yml .
-      # TODO: prepare a framework to test the results
-      - run: |
-          ./lefthook dump
-          ./lefthook dump --json
-          ./lefthook dump --toml
+          go install -cover
+      - run: go test integrity_test.go -tags=integrity
       - name: Format coverage
         run: |
           go tool covdata textfmt -i _icoverdir_ -o coverage.out
@@ -91,7 +86,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - test
-      - test-integration
+      - test-integrity
     steps:
       - uses: coverallsapp/github-action@v2
         with:

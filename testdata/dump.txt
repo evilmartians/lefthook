@@ -1,0 +1,86 @@
+exec git init
+exec lefthook dump
+cmp stdout lefthook-dumped.yml
+! stderr .
+
+exec lefthook dump --json
+cmp stdout lefthook-dumped.json
+! stderr .
+
+exec lefthook dump --toml
+cmp stdout lefthook-dumped.toml
+! stderr .
+
+-- lefthook.yml --
+colors: false
+pre-commit:
+  follow: true
+  commands:
+    lint:
+      interactive: true
+      skip:
+        - merge
+        - rebase
+        - ref: main
+      run: yarn lint {staged_files}
+    test:
+      skip: merge
+      glob: "*.js"
+      run: yarn test
+-- lefthook-dumped.yml --
+colors: false
+pre-commit:
+  commands:
+    lint:
+      run: yarn lint {staged_files}
+      skip:
+        - merge
+        - rebase
+        - ref: main
+      interactive: true
+    test:
+      run: yarn test
+      skip: merge
+      glob: '*.js'
+  follow: true
+-- lefthook-dumped.json --
+{
+  "colors": false,
+  "pre-commit": {
+    "commands": {
+      "lint": {
+        "run": "yarn lint {staged_files}",
+        "skip": [
+          "merge",
+          "rebase",
+          {
+            "ref": "main"
+          }
+        ],
+        "interactive": true
+      },
+      "test": {
+        "run": "yarn test",
+        "skip": "merge",
+        "glob": "*.js"
+      }
+    },
+    "follow": true
+  }
+}
+-- lefthook-dumped.toml --
+colors = false
+
+[pre-commit]
+follow = true
+
+[pre-commit.commands]
+[pre-commit.commands.lint]
+run = 'yarn lint {staged_files}'
+skip = ['merge', 'rebase', {ref = 'main'}]
+interactive = true
+
+[pre-commit.commands.test]
+run = 'yarn test'
+skip = 'merge'
+glob = '*.js'
