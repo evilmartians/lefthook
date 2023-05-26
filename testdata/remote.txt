@@ -1,0 +1,19 @@
+exec git init
+exec lefthook install
+
+exec lefthook dump
+cmp stdout lefthook-dump.yml
+
+-- lefthook.yml --
+remote:
+  git_url: https://github.com/evilmartians/lefthook
+  config: examples/with_scripts/lefthook.yml
+
+-- lefthook-dump.yml --
+pre-commit:
+  scripts:
+    good_job.js:
+      runner: node
+remote:
+  config: examples/with_scripts/lefthook.yml
+  git_url: https://github.com/evilmartians/lefthook
