@@ -43,12 +43,13 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Integration tests
+      - name: Prepare lefthook
         run: |
           mkdir _icoverdir_
           go install -cover
-      - run: go test integrity_test.go -tags=integrity
-      - name: Format coverage
+      - name: Run integrity tests
+        run: go test integrity_test.go -tags=integrity
+      - name: Collect coverage
         run: |
           go tool covdata textfmt -i _icoverdir_ -o coverage.out
       - name: Report coverage

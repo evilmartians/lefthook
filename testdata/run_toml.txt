@@ -15,4 +15,3 @@ skip_output = [
 
 [pre-commit.commands.echo]
 run = "echo Hi there from Lefthook"
-

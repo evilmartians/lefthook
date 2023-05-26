@@ -1,0 +1,22 @@
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+exec lefthook install
+exec git commit -m 'test'
+stderr '\s*Hi there from script\s*'
+
+-- lefthook.yml --
+skip_output:
+  - meta
+  - summary
+  - execution_info
+pre-commit:
+  scripts:
+    "file.sh":
+      runner: sh
+
+-- .lefthook/pre-commit/file.sh --
+#!/usr/bin/env sh
+
+echo Hi there from scripts
