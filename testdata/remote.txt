@@ -8,6 +8,7 @@ cmp stdout lefthook-dump.yml
 remote:
   git_url: https://github.com/evilmartians/lefthook
   config: examples/with_scripts/lefthook.yml
+  ref: v1.4.0
 
 -- lefthook-dump.yml --
 pre-commit:
@@ -17,3 +18,4 @@ pre-commit:
 remote:
   config: examples/with_scripts/lefthook.yml
   git_url: https://github.com/evilmartians/lefthook
+  ref: v1.4.0
