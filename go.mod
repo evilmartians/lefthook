@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/briandowns/spinner v1.23.0
-	github.com/charmbracelet/lipgloss v0.6.0
+	github.com/charmbracelet/lipgloss v0.7.1
 	github.com/creack/pty v1.1.18
 	github.com/gobwas/glob v0.2.3
 	github.com/google/go-cmp v0.5.9
@@ -17,10 +17,7 @@ require (
 	gopkg.in/alessio/shellescape.v1 v1.0.0-20170105083845-52074bc9df61
 )
 
-require (
-	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	gopkg.in/errgo.v2 v2.1.0 // indirect
-)
+require github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 
 require (
 	github.com/alessio/shellescape v1.4.1 // indirect
