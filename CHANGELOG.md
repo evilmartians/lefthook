@@ -2,6 +2,9 @@
 
 ## master (unreleased)
 
+## 1.4.2 (2024-06-13)
+
+- deps: June 2023 ([#499](https://github.com/evilmartians/lefthook/pull/499))
 - feat: support toml dumpint ([#490](https://github.com/evilmartians/lefthook/pull/490)) by @mrexox
 - feat: support json configs ([#489](https://github.com/evilmartians/lefthook/pull/489)) by @mrexox
 
@@ -126,7 +129,7 @@
 ## 1.2.1 (2022-11-17)
 
 - fix: Remove quoting for scripts ([PR #371](https://github.com/evilmartians/lefthook/pull/371) by @stonesbg + @mrexox)
-- fix: remove lefthook.checksum on uninstall ([PR #370](https://github.com/evilmartians/lefthook/pull370) by @JuliusHenke)
+- fix: remove lefthook.checksum on uninstall ([PR #370](https://github.com/evilmartians/lefthook/pull/370) by @JuliusHenke)
 - fix: Print prepare-commit-msg hook if it exists in config ([PR #368](https://github.com/evilmartians/lefthook/pull/368) by @mrexox)
 - fix: Allow changing refs for remote ([PR #363](https://github.com/evilmartians/lefthook/pull/363) by @mrexox)
 
