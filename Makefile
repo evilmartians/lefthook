@@ -9,10 +9,8 @@ build-with-coverage:
 test:
 	go test -cpu 24 -race -count=1 -timeout=30s ./...
 
-test-integration: build-with-coverage
-	./lefthook dump
-	./lefthook dump --json
-	./lefthook dump --toml
+test-integrity:
+	go test -cpu 24 -race -count=1 -timeout=30s -tags=integrity integrity_test.go
 
 bench:
 	go test -cpu 24 -race -run=Bench -bench=. ./...

@@ -13,8 +13,13 @@ min_version: 1.1.1
 pre-commit:
   commands:
     edit_file:
-      run: echo newline >> file.txt
+      run: |
+        echo newline >> "[file].js"
+        echo newline >> file.txt
       stage_fixed: true
 
 -- file.txt --
-firstline
+sometext
+
+-- [file].js --
+somecode
