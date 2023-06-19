@@ -6,13 +6,14 @@ build:
 build-with-coverage:
 	go build -cover -ldflags "-s -w -X github.com/evilmartians/lefthook/internal/version.commit=$(COMMIT_HASH)" -o lefthook
 
+install: build
+	cp lefthook $(GOPATH)/bin/
+
 test:
 	go test -cpu 24 -race -count=1 -timeout=30s ./...
 
-test-integration: build-with-coverage
-	./lefthook dump
-	./lefthook dump --json
-	./lefthook dump --toml
+test-integrity: install
+	go test -cpu 24 -race -count=1 -timeout=30s -tags=integrity integrity_test.go
 
 bench:
 	go test -cpu 24 -race -run=Bench -bench=. ./...

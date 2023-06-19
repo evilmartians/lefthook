@@ -62,7 +62,7 @@ func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error,
 		},
 	}
 
-	filteredFiles := []string{}
+	filesFiltered := make([]string, 0)
 	runString := command.Run
 	for filesType, filesFn := range filesTypeToFn {
 		// Checking substitutions and skipping execution if it is empty.
@@ -79,28 +79,31 @@ func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error,
 				return nil, nil, errors.New("no files for inspection")
 			}
 
-			filesPrepared := prepareFiles(command, files)
-			if len(filesPrepared) == 0 {
+			filtered := filterFiles(command, files)
+			filesFiltered = append(filesFiltered, filtered...)
+
+			prepared := escapeFiles(filtered)
+			if len(prepared) == 0 {
 				return nil, nil, errors.New("no files for inspection")
 			}
-			filteredFiles = append(filteredFiles, filesPrepared...)
-			runString = replaceQuoted(runString, filesType, filesPrepared)
+
+			runString = replaceQuoted(runString, filesType, prepared)
 		}
 	}
 
-	if len(filteredFiles) == 0 && config.HookUsesStagedFiles(r.HookName) {
+	if len(filesFiltered) == 0 && config.HookUsesStagedFiles(r.HookName) {
 		files, err := r.Repo.StagedFiles()
 		if err == nil {
-			if len(prepareFiles(command, files)) == 0 {
+			if len(filterFiles(command, files)) == 0 {
 				return nil, nil, errors.New("no matching staged files")
 			}
 		}
 	}
 
-	if len(filteredFiles) == 0 && config.HookUsesPushFiles(r.HookName) {
+	if len(filesFiltered) == 0 && config.HookUsesPushFiles(r.HookName) {
 		files, err := r.Repo.PushFiles()
 		if err == nil {
-			if len(prepareFiles(command, files)) == 0 {
+			if len(filterFiles(command, files)) == 0 {
 				return nil, nil, errors.New("no matching push files")
 			}
 		}
@@ -111,7 +114,7 @@ func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error,
 	log.Debug("[lefthook] executing: ", runString)
 
 	return &commandArgs{
-		files: filteredFiles,
+		files: filesFiltered,
 		all:   strings.Split(runString, " "),
 	}, nil, nil
 }
@@ -124,7 +127,7 @@ func (r *Runner) replacePositionalArguments(runString string) string {
 	return runString
 }
 
-func prepareFiles(command *config.Command, files []string) []string {
+func filterFiles(command *config.Command, files []string) []string {
 	if files == nil {
 		return []string{}
 	}
@@ -137,7 +140,11 @@ func prepareFiles(command *config.Command, files []string) []string {
 
 	log.Debug("[lefthook] files after filters:\n", files)
 
-	// Escape file names to prevent unexpected bugs
+	return files
+}
+
+// Escape file names to prevent unexpected bugs.
+func escapeFiles(files []string) []string {
 	var filesEsc []string
 	for _, fileName := range files {
 		if len(fileName) > 0 {

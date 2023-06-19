@@ -372,13 +372,16 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 
 	if finished && config.HookUsesStagedFiles(r.HookName) && command.StageFixed {
 		files := args.files
+
 		if len(files) == 0 {
-			stagedFiles, err := r.Repo.StagedFiles()
+			var err error
+			files, err = r.Repo.StagedFiles()
 			if err != nil {
 				log.Warn("Couldn't stage fixed files:", err)
 				return
 			}
-			files = prepareFiles(command, stagedFiles)
+
+			files = filterFiles(command, files)
 		}
 
 		if len(command.Root) > 0 {
