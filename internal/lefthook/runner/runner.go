@@ -373,7 +373,7 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 	if finished && config.HookUsesStagedFiles(r.HookName) && command.StageFixed {
 		files := args.files
 
-		if files == nil || len(files) == 0 {
+		if len(files) == 0 {
 			var err error
 			files, err = r.Repo.StagedFiles()
 			if err != nil {
