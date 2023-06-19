@@ -1,5 +1,5 @@
 # Packages version to release
-VERSION := 1.4.2
+VERSION := 1.4.3
 
 DIST_DIR := ../dist
 

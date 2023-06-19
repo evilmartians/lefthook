@@ -2,13 +2,17 @@
 
 ## master (unreleased)
 
-## 1.4.2 (2024-06-13)
+## 1.4.3 (2023-06-19)
+
+- fix: auto stage non-standard files ([#506](https://github.com/evilmartians/lefthook/pull/506)) by @mrexox
+
+## 1.4.2 (2023-06-13)
 
 - deps: June 2023 ([#499](https://github.com/evilmartians/lefthook/pull/499))
 - feat: support toml dumpint ([#490](https://github.com/evilmartians/lefthook/pull/490)) by @mrexox
 - feat: support json configs ([#489](https://github.com/evilmartians/lefthook/pull/489)) by @mrexox
 
-## 1.4.1 (2024-05-22)
+## 1.4.1 (2023-05-22)
 
 - fix: add win32 binary to artifacts (by @mrexox)
 - feat: allow dumping with JSON ([#485](https://github.com/evilmartians/lefthook/pull/485) by @mrexox
