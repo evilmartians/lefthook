@@ -43,12 +43,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
 
-      - name: Update Homebrew formula
-        uses: dawidd6/action-homebrew-bump-formula@v3
-        with:
-          formula: lefthook
-          token: ${{secrets.HOMEBREW_TOKEN}}
-
       - name: Publish to NPM and Rubygems
         env:
           NPM_API_KEY: ${{ secrets.NPM_API_KEY }}
@@ -67,3 +61,9 @@ jobs:
           cd packaging/
           make prepare
           make publish
+
+      - name: Update Homebrew formula
+        uses: dawidd6/action-homebrew-bump-formula@v3
+        with:
+          formula: lefthook
+          token: ${{secrets.HOMEBREW_TOKEN}}
