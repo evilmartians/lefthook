@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+## 1.4.4 (2023-07-10)
+
+- fix: don't render bold ANSI sequence when colors are disabled ([#515](https://github.com/evilmartians/lefthook/pull/515)) by @adam12
+- deps: July 2023 ([#514](https://github.com/evilmartians/lefthook/pull/514)) by @mrexox
+
 ## 1.4.3 (2023-06-19)
 
 - fix: auto stage non-standard files ([#506](https://github.com/evilmartians/lefthook/pull/506)) by @mrexox
