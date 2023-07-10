@@ -193,6 +193,10 @@ func Gray(s string) string {
 }
 
 func Bold(s string) string {
+	if !std.colors {
+		return lipgloss.NewStyle().Render(s)
+	}
+
 	return lipgloss.NewStyle().Bold(true).Render(s)
 }
 
