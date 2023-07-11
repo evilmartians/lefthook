@@ -134,7 +134,7 @@ min_version: 1.1.3
 
 You can manage the verbosity using the `skip_output` config. You can set whether lefthook should print some parts of its output.
 
-Possible values are `meta,success,failure,summary,execution,execution_out,skips`.
+Possible values are `meta,summary,success,failure,execution,execution_out,execution_info,skips`.
 
 This config quiets all outputs except for errors.
 
