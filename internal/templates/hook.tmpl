@@ -43,7 +43,7 @@ call_lefthook()
   elif pnpm lefthook -h >/dev/null 2>&1
   then
     pnpm lefthook "$@"
-  elif npx @evilmartians/lefthook -h >/dev/null 2>&1
+  elif command -v npx >/dev/null 2>&1
   then
     npx @evilmartians/lefthook "$@"
   else
