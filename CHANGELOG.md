@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+## 1.4.5 (2024-07-12)
+
+- docs: improve documentation and examples ([#517](https://github.com/evilmartians/lefthook/pull/517)) by @hyperupcall
+- fix: improve hook template ([#516](https://github.com/evilmartians/lefthook/pull/516)) by @hyperupcall
+
 ## 1.4.4 (2023-07-10)
 
 - fix: don't render bold ANSI sequence when colors are disabled ([#515](https://github.com/evilmartians/lefthook/pull/515)) by @adam12
