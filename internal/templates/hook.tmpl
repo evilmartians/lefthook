@@ -13,42 +13,42 @@ set -a
 call_lefthook()
 {
   dir="$(git rev-parse --show-toplevel)"
-  osArch=$(echo "$(uname)" | tr '[:upper:]' '[:lower:]')
-  cpuArch=$(echo "$(uname -m)" | sed 's/aarch64/arm64/')
+  osArch=$(uname | tr '[:upper:]' '[:lower:]')
+  cpuArch=$(uname -m | sed 's/aarch64/arm64/')
 
   if lefthook{{.Extension}} -h >/dev/null 2>&1
   then
-    eval lefthook{{.Extension}} $@
+    lefthook{{.Extension}} "$@"
   {{if .Extension -}}
   {{/* Check if lefthook.bat exists. Ruby bundler creates such a wrapper */ -}}
   elif lefthook.bat -h >/dev/null 2>&1
   then
-    eval lefthook.bat $@
+    lefthook.bat "$@"
   {{end -}}
   elif test -f "$dir/node_modules/lefthook/bin/index.js"
   then
-    eval "\"$dir/node_modules/lefthook/bin/index.js\" $@"
+    "$dir/node_modules/lefthook/bin/index.js" "$@"
   elif test -f "$dir/node_modules/@evilmartians/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}"
   then
-    eval "\"$dir/node_modules/@evilmartians/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}\" $@"
+    "$dir/node_modules/@evilmartians/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}" "$@"
   elif test -f "$dir/node_modules/@evilmartians/lefthook-installer/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}"
   then
-    eval "\"$dir/node_modules/@evilmartians/lefthook-installer/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}\" $@"
+    "$dir/node_modules/@evilmartians/lefthook-installer/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}" "$@"
   elif bundle exec lefthook -h >/dev/null 2>&1
   then
-    bundle exec lefthook $@
+    bundle exec lefthook "$@"
   elif yarn lefthook -h >/dev/null 2>&1
   then
-    yarn lefthook $@
+    yarn lefthook "$@"
   elif pnpm lefthook -h >/dev/null 2>&1
   then
-    pnpm lefthook $@
-  elif npx @evilmartians/lefthook -h >/dev/null 2>&1
+    pnpm lefthook "$@"
+  elif command -v npx >/dev/null 2>&1
   then
-    npx @evilmartians/lefthook $@
+    npx @evilmartians/lefthook "$@"
   else
     echo "Can't find lefthook in PATH"
   fi
 }
 
-call_lefthook "run {{.HookName}} $@"
+call_lefthook run "{{.HookName}}" "$@"
