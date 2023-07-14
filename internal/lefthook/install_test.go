@@ -18,7 +18,6 @@ func TestLefthookInstall(t *testing.T) {
 		t.Errorf("unexpected error: %s", err)
 	}
 
-	dotConfigPath := filepath.Join(root, ".lefthook.yml")
 	configPath := filepath.Join(root, "lefthook.yml")
 
 	hookPath := func(hook string) string {
@@ -44,7 +43,7 @@ func TestLefthookInstall(t *testing.T) {
 	}{
 		{
 			name:      "without a config file",
-			wantExist: []string{dotConfigPath},
+			wantExist: []string{configPath},
 		},
 		{
 			name: "simple default config",

@@ -99,7 +99,7 @@ func (l *Lefthook) configExists(path string) bool {
 }
 
 func (l *Lefthook) createConfig(path string) error {
-	file := filepath.Join(path, config.DefaultDotConfigName)
+	file := filepath.Join(path, config.DefaultConfigName)
 
 	err := afero.WriteFile(l.Fs, file, templates.Config(), configFileMode)
 	if err != nil {
