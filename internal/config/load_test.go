@@ -229,6 +229,114 @@ pre-push:
 			},
 		},
 		{
+			name: "with overrides, dot",
+			otherFiles: map[string]string{
+				".lefthook.yml": `
+pre-push:
+  scripts:
+    "global-extend":
+      runner: bash
+`,
+				".lefthook-local.yml": `
+pre-push:
+  scripts:
+    "local-extend":
+      runner: bash
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         nil,
+				Hooks: map[string]*Hook{
+					"pre-push": {
+						Scripts: map[string]*Script{
+							"global-extend": {
+								Runner: "bash",
+							},
+							"local-extend": {
+								Runner: "bash",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "with overrides, dot, nodot",
+			otherFiles: map[string]string{
+				"lefthook.yml": `
+pre-push:
+  scripts:
+    "global-extend":
+      runner: bash
+`,
+				".lefthook-local.yml": `
+pre-push:
+  scripts:
+    "local-extend":
+      runner: bash
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         nil,
+				Hooks: map[string]*Hook{
+					"pre-push": {
+						Scripts: map[string]*Script{
+							"global-extend": {
+								Runner: "bash",
+							},
+							"local-extend": {
+								Runner: "bash",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "with overrides, dot has priority",
+			otherFiles: map[string]string{
+				"lefthook.yml": `
+pre-push:
+  scripts:
+    "global-extend":
+      runner: bash
+`,
+				".lefthook-local.yml": `
+pre-push:
+  scripts:
+    "local-extend":
+      runner: bash1
+`,
+				"lefthook-local.yml": `
+pre-push:
+  scripts:
+    "local-extend":
+      runner: bash2
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         nil,
+				Hooks: map[string]*Hook{
+					"pre-push": {
+						Scripts: map[string]*Script{
+							"global-extend": {
+								Runner: "bash",
+							},
+							"local-extend": {
+								Runner: "bash1",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
 			name: "with extra hooks",
 			global: `
 tests:
