@@ -485,12 +485,12 @@ func (r *Runner) logExecute(name string, err error, out io.Reader) {
 		execLog = fmt.Sprint(log.Cyan("\n  EXECUTE > "), log.Bold(name))
 	}
 
+	log.Info(execLog)
+
 	if err == nil && r.SkipSettings.SkipExecutionOutput() {
-		log.Info(execLog)
 		return
 	}
 
-	log.Info(execLog)
 	if out != nil {
 		log.Info(out)
 	}
