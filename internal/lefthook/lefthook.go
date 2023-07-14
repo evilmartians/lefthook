@@ -3,6 +3,7 @@ package lefthook
 import (
 	"bufio"
 	"fmt"
+	"os"
 	"path/filepath"
 	"regexp"
 
@@ -35,6 +36,10 @@ type Lefthook struct {
 
 // New returns an instance of Lefthook.
 func initialize(opts *Options) (*Lefthook, error) {
+	if os.Getenv(envVerbose) == "1" || os.Getenv(envVerbose) == "true" {
+		opts.Verbose = true
+	}
+
 	if opts.Verbose {
 		log.SetLevel(log.DebugLevel)
 	}

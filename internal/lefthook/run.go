@@ -39,7 +39,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	}
 
 	var verbose bool
-	if l.Verbose || os.Getenv(envVerbose) == "1" || os.Getenv(envVerbose) == "true" {
+	if l.Verbose {
 		log.SetLevel(log.DebugLevel)
 		verbose = true
 	}
