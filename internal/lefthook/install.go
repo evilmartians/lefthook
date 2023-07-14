@@ -30,7 +30,7 @@ const (
 
 var (
 	lefthookChecksumRegexp = regexp.MustCompile(`(\w+)\s+(\d+)`)
-	configGlob             = glob.MustCompile("lefthook.{yml,yaml,json,toml}")
+	configGlob             = glob.MustCompile("{.,}lefthook.{yml,yaml,json,toml}")
 	errNoConfig            = fmt.Errorf("no lefthook config found")
 )
 
@@ -99,7 +99,7 @@ func (l *Lefthook) configExists(path string) bool {
 }
 
 func (l *Lefthook) createConfig(path string) error {
-	file := filepath.Join(path, config.DefaultConfigName)
+	file := filepath.Join(path, config.DefaultDotConfigName)
 
 	err := afero.WriteFile(l.Fs, file, templates.Config(), configFileMode)
 	if err != nil {

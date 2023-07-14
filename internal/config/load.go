@@ -15,6 +15,7 @@ import (
 )
 
 const (
+	DefaultDotConfigName  = ".lefthook.yml"
 	DefaultConfigName     = "lefthook.yml"
 	DefaultSourceDir      = ".lefthook"
 	DefaultSourceDirLocal = ".lefthook-local"
