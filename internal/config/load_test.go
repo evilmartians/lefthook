@@ -23,9 +23,93 @@ func TestLoad(t *testing.T) {
 		name                  string
 		global, local, remote string
 		remoteConfigPath      string
-		extends               map[string]string
+		otherFiles            map[string]string
 		result                *Config
 	}{
+		{
+			name: "with global, dot",
+			otherFiles: map[string]string{
+				".lefthook.yml": `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         nil,
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Parallel: false,
+						Commands: map[string]*Command{
+							"tests": {
+								Run: "yarn test",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "with global, nodot",
+			otherFiles: map[string]string{
+				"lefthook.yml": `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         nil,
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Parallel: false,
+						Commands: map[string]*Command{
+							"tests": {
+								Run: "yarn test",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "with global, dot has priority",
+			otherFiles: map[string]string{
+				".lefthook.yml": `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test1
+`,
+				"lefthook.yml": `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test2
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         nil,
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Parallel: false,
+						Commands: map[string]*Command{
+							"tests": {
+								Run: "yarn test1",
+							},
+						},
+					},
+				},
+			},
+		},
 		{
 			name: "simple",
 			global: `
@@ -356,7 +440,7 @@ pre-push:
       run: echo remote
 `,
 			remoteConfigPath: filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook", "examples", "config.yml"),
-			extends: map[string]string{
+			otherFiles: map[string]string{
 				"global-extend.yml": `
 pre-push:
   scripts:
@@ -440,7 +524,7 @@ pre-push:
 				}
 			}
 
-			for name, content := range tt.extends {
+			for name, content := range tt.otherFiles {
 				path := filepath.Join(
 					root,
 					filepath.Join(strings.Split(name, "/")...),

@@ -34,13 +34,8 @@ func (err NotFoundError) Error() string {
 
 // Loads configs from the given directory with extensions.
 func Load(fs afero.Fs, repo *git.Repository) (*Config, error) {
-	global, err := read(fs, repo.RootPath, "lefthook")
+	global, err := readOne(fs, repo.RootPath, []string{".lefthook", "lefthook"})
 	if err != nil {
-		var notFoundErr viper.ConfigFileNotFoundError
-		if ok := errors.As(err, &notFoundErr); ok {
-			return nil, NotFoundError{err.Error()}
-		}
-
 		return nil, err
 	}
 
@@ -81,9 +76,27 @@ func read(fs afero.Fs, path string, name string) (*viper.Viper, error) {
 	return v, nil
 }
 
+func readOne(fs afero.Fs, path string, names []string) (*viper.Viper, error) {
+	for _, name := range names {
+		v, err := read(fs, path, name)
+		if err != nil {
+			var notFoundErr viper.ConfigFileNotFoundError
+			if ok := errors.As(err, &notFoundErr); ok {
+				continue
+			} else {
+				return nil, err
+			}
+		}
+
+		return v, nil
+	}
+
+	return nil, NotFoundError{fmt.Sprintf("No config files with names %q could not be found in \"%s\"", names, path)}
+}
+
 // mergeAll merges remotes and extends from .lefthook and .lefthook-local.
 func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
-	extends, err := read(fs, repo.RootPath, "lefthook")
+	extends, err := readOne(fs, repo.RootPath, []string{".lefthook", "lefthook"})
 	if err != nil {
 		return nil, err
 	}
