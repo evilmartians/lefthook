@@ -35,7 +35,7 @@ func (err NotFoundError) Error() string {
 
 // Loads configs from the given directory with extensions.
 func Load(fs afero.Fs, repo *git.Repository) (*Config, error) {
-	global, err := readOne(fs, repo.RootPath, []string{".lefthook", "lefthook"})
+	global, err := readOne(fs, repo.RootPath, []string{"lefthook", ".lefthook"})
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func readOne(fs afero.Fs, path string, names []string) (*viper.Viper, error) {
 // mergeAll merges (.lefthook or lefthook) and (extended config) and (remote)
 // and (.lefthook-local or .lefthook-local) configs.
 func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
-	extends, err := readOne(fs, repo.RootPath, []string{".lefthook", "lefthook"})
+	extends, err := readOne(fs, repo.RootPath, []string{"lefthook", ".lefthook"})
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
 		return nil, err
 	}
 
-	if err := mergeOne([]string{".lefthook-local", "lefthook-local"}, "", extends); err == nil {
+	if err := mergeOne([]string{"lefthook-local", ".lefthook-local"}, "", extends); err == nil {
 		if err = extend(extends, repo.RootPath); err != nil {
 			return nil, err
 		}

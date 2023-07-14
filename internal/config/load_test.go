@@ -79,7 +79,7 @@ pre-commit:
 			},
 		},
 		{
-			name: "with global, dot has priority",
+			name: "with global, nodot has priority",
 			otherFiles: map[string]string{
 				".lefthook.yml": `
 pre-commit:
@@ -103,7 +103,7 @@ pre-commit:
 						Parallel: false,
 						Commands: map[string]*Command{
 							"tests": {
-								Run: "yarn test1",
+								Run: "yarn test2",
 							},
 						},
 					},
@@ -297,7 +297,7 @@ pre-push:
 			},
 		},
 		{
-			name: "with overrides, dot has priority",
+			name: "with overrides, nodot has priority",
 			otherFiles: map[string]string{
 				"lefthook.yml": `
 pre-push:
@@ -329,7 +329,7 @@ pre-push:
 								Runner: "bash",
 							},
 							"local-extend": {
-								Runner: "bash1",
+								Runner: "bash2",
 							},
 						},
 					},
@@ -614,12 +614,16 @@ pre-push:
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			if err := fs.WriteFile(filepath.Join(root, "lefthook.yml"), []byte(tt.global), 0o644); err != nil {
-				t.Errorf("unexpected error: %s", err)
+			if tt.global != "" {
+				if err := fs.WriteFile(filepath.Join(root, "lefthook.yml"), []byte(tt.global), 0o644); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
 			}
 
-			if err := fs.WriteFile(filepath.Join(root, "lefthook-local.yml"), []byte(tt.local), 0o644); err != nil {
-				t.Errorf("unexpected error: %s", err)
+			if tt.local != "" {
+				if err := fs.WriteFile(filepath.Join(root, "lefthook-local.yml"), []byte(tt.local), 0o644); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
 			}
 
 			if len(tt.remoteConfigPath) > 0 {
