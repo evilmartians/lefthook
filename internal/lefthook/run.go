@@ -15,9 +15,8 @@ import (
 )
 
 const (
-	envEnabled    = "LEFTHOOK"         // "0", "false"
-	envSkipOutput = "LEFTHOOK_QUIET"   // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
-	envVerbose    = "LEFTHOOK_VERBOSE" // keep all output
+	envEnabled    = "LEFTHOOK"       // "0", "false"
+	envSkipOutput = "LEFTHOOK_QUIET" // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
 )
 
 type RunArgs struct {
@@ -39,7 +38,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	}
 
 	var verbose bool
-	if l.Verbose || os.Getenv(envVerbose) == "1" || os.Getenv(envVerbose) == "true" {
+	if l.Verbose {
 		log.SetLevel(log.DebugLevel)
 		verbose = true
 	}

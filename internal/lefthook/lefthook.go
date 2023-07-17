@@ -3,6 +3,7 @@ package lefthook
 import (
 	"bufio"
 	"fmt"
+	"os"
 	"path/filepath"
 	"regexp"
 
@@ -13,7 +14,10 @@ import (
 	"github.com/evilmartians/lefthook/internal/templates"
 )
 
-const hookFileMode = 0o755
+const (
+	hookFileMode = 0o755
+	envVerbose   = "LEFTHOOK_VERBOSE" // keep all output
+)
 
 var lefthookContentRegexp = regexp.MustCompile("LEFTHOOK")
 
@@ -35,6 +39,10 @@ type Lefthook struct {
 
 // New returns an instance of Lefthook.
 func initialize(opts *Options) (*Lefthook, error) {
+	if os.Getenv(envVerbose) == "1" || os.Getenv(envVerbose) == "true" {
+		opts.Verbose = true
+	}
+
 	if opts.Verbose {
 		log.SetLevel(log.DebugLevel)
 	}
