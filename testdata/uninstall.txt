@@ -4,15 +4,22 @@ exists .git/hooks/pre-push
 exec lefthook uninstall
 ! exists .git/hooks-pre-push
 exists lefthook.yml
+exists .lefthook-local.toml
 
 exec lefthook install
 exists .git/hooks/pre-push
 exec lefthook uninstall -c
 ! exists .git/hooks-pre-push
 ! exists lefthook.yml
+! exists .lefthook-local.toml
 
 -- lefthook.yml --
 pre-push:
   commands:
     echo:
       run: echo pre-push
+
+
+-- .lefthook-local.toml --
+[pre-commit.commands.echo]
+run = "echo pre-commit"
