@@ -33,13 +33,17 @@ func (l *Lefthook) Uninstall(args *UninstallArgs) error {
 	}
 
 	if args.RemoveConfig {
-		for _, glob := range []string{
-			".lefthook.y*ml",
-			"lefthook.y*ml",
-			".lefthook-local.y*ml",
-			"lefthook-local.y*ml",
+		for _, name := range []string{
+			".lefthook",
+			"lefthook",
+			".lefthook-local",
+			"lefthook-local",
 		} {
-			l.removeFile(filepath.Join(l.repo.RootPath, glob))
+			for _, extension := range []string{
+				".yml", ".yaml", ".toml", ".json",
+			} {
+				l.removeFile(filepath.Join(l.repo.RootPath, name+extension))
+			}
 		}
 	}
 
