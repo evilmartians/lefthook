@@ -30,7 +30,7 @@ const (
 
 var (
 	lefthookChecksumRegexp = regexp.MustCompile(`(\w+)\s+(\d+)`)
-	configGlob             = glob.MustCompile("lefthook.{yml,yaml,json,toml}")
+	configGlob             = glob.MustCompile("{.,}lefthook.{yml,yaml,json,toml}")
 	errNoConfig            = fmt.Errorf("no lefthook config found")
 )
 

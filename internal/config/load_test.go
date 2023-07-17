@@ -23,9 +23,93 @@ func TestLoad(t *testing.T) {
 		name                  string
 		global, local, remote string
 		remoteConfigPath      string
-		extends               map[string]string
+		otherFiles            map[string]string
 		result                *Config
 	}{
+		{
+			name: "with global, dot",
+			otherFiles: map[string]string{
+				".lefthook.yml": `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         nil,
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Parallel: false,
+						Commands: map[string]*Command{
+							"tests": {
+								Run: "yarn test",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "with global, nodot",
+			otherFiles: map[string]string{
+				"lefthook.yml": `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         nil,
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Parallel: false,
+						Commands: map[string]*Command{
+							"tests": {
+								Run: "yarn test",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "with global, nodot has priority",
+			otherFiles: map[string]string{
+				".lefthook.yml": `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test1
+`,
+				"lefthook.yml": `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test2
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         nil,
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Parallel: false,
+						Commands: map[string]*Command{
+							"tests": {
+								Run: "yarn test2",
+							},
+						},
+					},
+				},
+			},
+		},
 		{
 			name: "simple",
 			global: `
@@ -138,6 +222,114 @@ pre-push:
 							"rubocop": {
 								Run:  "bundle exec rubocop",
 								Tags: []string{"backend", "linter"},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "with overrides, dot",
+			otherFiles: map[string]string{
+				".lefthook.yml": `
+pre-push:
+  scripts:
+    "global-extend":
+      runner: bash
+`,
+				".lefthook-local.yml": `
+pre-push:
+  scripts:
+    "local-extend":
+      runner: bash
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         nil,
+				Hooks: map[string]*Hook{
+					"pre-push": {
+						Scripts: map[string]*Script{
+							"global-extend": {
+								Runner: "bash",
+							},
+							"local-extend": {
+								Runner: "bash",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "with overrides, dot, nodot",
+			otherFiles: map[string]string{
+				"lefthook.yml": `
+pre-push:
+  scripts:
+    "global-extend":
+      runner: bash
+`,
+				".lefthook-local.yml": `
+pre-push:
+  scripts:
+    "local-extend":
+      runner: bash
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         nil,
+				Hooks: map[string]*Hook{
+					"pre-push": {
+						Scripts: map[string]*Script{
+							"global-extend": {
+								Runner: "bash",
+							},
+							"local-extend": {
+								Runner: "bash",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "with overrides, nodot has priority",
+			otherFiles: map[string]string{
+				"lefthook.yml": `
+pre-push:
+  scripts:
+    "global-extend":
+      runner: bash
+`,
+				".lefthook-local.yml": `
+pre-push:
+  scripts:
+    "local-extend":
+      runner: bash1
+`,
+				"lefthook-local.yml": `
+pre-push:
+  scripts:
+    "local-extend":
+      runner: bash2
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         nil,
+				Hooks: map[string]*Hook{
+					"pre-push": {
+						Scripts: map[string]*Script{
+							"global-extend": {
+								Runner: "bash",
+							},
+							"local-extend": {
+								Runner: "bash2",
 							},
 						},
 					},
@@ -356,7 +548,7 @@ pre-push:
       run: echo remote
 `,
 			remoteConfigPath: filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook", "examples", "config.yml"),
-			extends: map[string]string{
+			otherFiles: map[string]string{
 				"global-extend.yml": `
 pre-push:
   scripts:
@@ -422,12 +614,16 @@ pre-push:
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			if err := fs.WriteFile(filepath.Join(root, "lefthook.yml"), []byte(tt.global), 0o644); err != nil {
-				t.Errorf("unexpected error: %s", err)
+			if tt.global != "" {
+				if err := fs.WriteFile(filepath.Join(root, "lefthook.yml"), []byte(tt.global), 0o644); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
 			}
 
-			if err := fs.WriteFile(filepath.Join(root, "lefthook-local.yml"), []byte(tt.local), 0o644); err != nil {
-				t.Errorf("unexpected error: %s", err)
+			if tt.local != "" {
+				if err := fs.WriteFile(filepath.Join(root, "lefthook-local.yml"), []byte(tt.local), 0o644); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
 			}
 
 			if len(tt.remoteConfigPath) > 0 {
@@ -440,7 +636,7 @@ pre-push:
 				}
 			}
 
-			for name, content := range tt.extends {
+			for name, content := range tt.otherFiles {
 				path := filepath.Join(
 					root,
 					filepath.Join(strings.Split(name, "/")...),

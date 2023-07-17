@@ -34,13 +34,8 @@ func (err NotFoundError) Error() string {
 
 // Loads configs from the given directory with extensions.
 func Load(fs afero.Fs, repo *git.Repository) (*Config, error) {
-	global, err := read(fs, repo.RootPath, "lefthook")
+	global, err := readOne(fs, repo.RootPath, []string{"lefthook", ".lefthook"})
 	if err != nil {
-		var notFoundErr viper.ConfigFileNotFoundError
-		if ok := errors.As(err, &notFoundErr); ok {
-			return nil, NotFoundError{err.Error()}
-		}
-
 		return nil, err
 	}
 
@@ -81,9 +76,28 @@ func read(fs afero.Fs, path string, name string) (*viper.Viper, error) {
 	return v, nil
 }
 
-// mergeAll merges remotes and extends from .lefthook and .lefthook-local.
+func readOne(fs afero.Fs, path string, names []string) (*viper.Viper, error) {
+	for _, name := range names {
+		v, err := read(fs, path, name)
+		if err != nil {
+			var notFoundErr viper.ConfigFileNotFoundError
+			if ok := errors.As(err, &notFoundErr); ok {
+				continue
+			} else {
+				return nil, err
+			}
+		}
+
+		return v, nil
+	}
+
+	return nil, NotFoundError{fmt.Sprintf("No config files with names %q could not be found in \"%s\"", names, path)}
+}
+
+// mergeAll merges (.lefthook or lefthook) and (extended config) and (remote)
+// and (.lefthook-local or .lefthook-local) configs.
 func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
-	extends, err := read(fs, repo.RootPath, "lefthook")
+	extends, err := readOne(fs, repo.RootPath, []string{"lefthook", ".lefthook"})
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +110,7 @@ func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
 		return nil, err
 	}
 
-	if err := merge("lefthook-local", "", extends); err == nil {
+	if err := mergeOne([]string{"lefthook-local", ".lefthook-local"}, "", extends); err == nil {
 		if err = extend(extends, repo.RootPath); err != nil {
 			return nil, err
 		}
@@ -168,6 +182,22 @@ func merge(name, path string, v *viper.Viper) error {
 	}
 	if err := v.MergeInConfig(); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func mergeOne(names []string, path string, v *viper.Viper) error {
+	for _, name := range names {
+		err := merge(name, path, v)
+		if err == nil {
+			break
+		} else {
+			var notFoundErr viper.ConfigFileNotFoundError
+			if ok := errors.As(err, &notFoundErr); !ok {
+				return err
+			}
+		}
 	}
 
 	return nil
