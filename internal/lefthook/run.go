@@ -15,9 +15,8 @@ import (
 )
 
 const (
-	envEnabled    = "LEFTHOOK"         // "0", "false"
-	envSkipOutput = "LEFTHOOK_QUIET"   // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
-	envVerbose    = "LEFTHOOK_VERBOSE" // keep all output
+	envEnabled    = "LEFTHOOK"       // "0", "false"
+	envSkipOutput = "LEFTHOOK_QUIET" // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
 )
 
 type RunArgs struct {

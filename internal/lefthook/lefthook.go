@@ -14,7 +14,10 @@ import (
 	"github.com/evilmartians/lefthook/internal/templates"
 )
 
-const hookFileMode = 0o755
+const (
+	hookFileMode = 0o755
+	envVerbose   = "LEFTHOOK_VERBOSE" // keep all output
+)
 
 var lefthookContentRegexp = regexp.MustCompile("LEFTHOOK")
 
