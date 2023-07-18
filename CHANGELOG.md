@@ -2,7 +2,14 @@
 
 ## master (unreleased)
 
-## 1.4.5 (2024-07-12)
+## 1.4.6 (2023-07-18)
+
+- fix: do not print extraneous newlines when executionInfo output is hidden ([#519](https://github.com/evilmartians/lefthook/pull/519)) by @hyperupcall
+- fix: uninstall all possible formats ([#523](https://github.com/evilmartians/lefthook/pull/523)) by @mrexox
+- fix: LEFTHOOK_VERBOSE properly overrides --verbose flag ([#521](https://github.com/evilmartians/lefthook/pull/521)) by @hyperupcall
+- feat: support .lefthook.yml and .lefthook-local.yml ([#520](https://github.com/evilmartians/lefthook/pull/520)) by @hyperupcall
+
+## 1.4.5 (2023-07-12)
 
 - docs: improve documentation and examples ([#517](https://github.com/evilmartians/lefthook/pull/517)) by @hyperupcall
 - fix: improve hook template ([#516](https://github.com/evilmartians/lefthook/pull/516)) by @hyperupcall
