@@ -478,19 +478,21 @@ func (r *Runner) logExecute(name string, err error, out io.Reader) {
 	var execLog string
 	switch {
 	case r.SkipSettings.SkipExecutionInfo():
-		execLog = "\n"
+		execLog = ""
 	case err != nil:
 		execLog = fmt.Sprint(log.Red("\n  EXECUTE > "), log.Bold(name))
 	default:
 		execLog = fmt.Sprint(log.Cyan("\n  EXECUTE > "), log.Bold(name))
 	}
 
-	if err == nil && r.SkipSettings.SkipExecutionOutput() {
+	if execLog != "" {
 		log.Info(execLog)
+	}
+
+	if err == nil && r.SkipSettings.SkipExecutionOutput() {
 		return
 	}
 
-	log.Info(execLog)
 	if out != nil {
 		log.Info(out)
 	}
