@@ -728,7 +728,7 @@ run = "echo 1"
 				t.Errorf("unexpected error: %s", err)
 			}
 
-			jsonConfig := filepath.Join(root, "lefthook.yml")
+			jsonConfig := filepath.Join(root, "lefthook.json")
 			if err = fs.WriteFile(jsonConfig, []byte(tt.json), 0o644); err != nil {
 				t.Errorf("unexpected error: %s", err)
 			}
@@ -741,7 +741,7 @@ run = "echo 1"
 				t.Errorf("(-want +got):\n%s", cmp.Diff(tt.result, checkConfig))
 			}
 
-			if err = fs.Remove(yamlConfig); err != nil {
+			if err = fs.Remove(jsonConfig); err != nil {
 				t.Errorf("unexpected error: %s", err)
 			}
 
@@ -756,6 +756,10 @@ run = "echo 1"
 			} else if !cmp.Equal(checkConfig, tt.result, cmpopts.IgnoreUnexported(Hook{})) {
 				t.Errorf("configs should be equal")
 				t.Errorf("(-want +got):\n%s", cmp.Diff(tt.result, checkConfig))
+			}
+
+			if err = fs.Remove(tomlConfig); err != nil {
+				t.Errorf("unexpected error: %s", err)
 			}
 		})
 	}
