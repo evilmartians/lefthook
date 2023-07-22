@@ -3,7 +3,7 @@ name: goreleaser
 on:
   push:
     tags:
-      - '*'
+      - "*"
 
 permissions:
   contents: write
@@ -67,3 +67,9 @@ jobs:
         with:
           formula: lefthook
           token: ${{secrets.HOMEBREW_TOKEN}}
+
+      - name: Publish to Winget
+        uses: vedantmgoyal2009/winget-releaser@v2
+        with:
+          identifier: evilmartians.lefthook
+          token: ${{ secrets.WINGET_TOKEN }}
