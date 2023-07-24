@@ -7,6 +7,7 @@ Choose your fighter:
 - [Go](#go)
 - [Python](#python)
 - [Homebrew](#homebrew)
+- [Winget](#winget)
 - [Snap](#snap)
 - [Debian-based distro](#deb)
 - [RPM-based distro](#rpm)
@@ -73,6 +74,12 @@ python3 -m pip install --user lefthook
 
 ```bash
 brew install lefthook
+```
+
+## <a id="winget"></a> Winget for Windows
+
+```sh
+winget install evilmartians.lefthook
 ```
 
 ## <a id="snap"></a> Snap for Linux
