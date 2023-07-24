@@ -158,6 +158,9 @@ func mergeRemote(fs afero.Fs, repo *git.Repository, v *viper.Viper) error {
 		return err
 	}
 
+	// Reset extends to omit issues when extending with remote extends.
+	v.MergeConfigMap(map[string]interface{}{"extends": nil})
+
 	return nil
 }
 
@@ -171,6 +174,7 @@ func extend(v *viper.Viper, root string) error {
 			return err
 		}
 	}
+
 	return nil
 }
 
