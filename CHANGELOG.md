@@ -2,6 +2,13 @@
 
 ## master (unreleased)
 
+## 1.4.7 (2023-07-24)
+
+- docs: add scoop installation method ([#527](https://github.com/evilmartians/lefthook/pull/527)) by @sitiom
+- fix: correct merging of extends from remote config ([#529](https://github.com/evilmartians/lefthook/pull/529)) by @mrexox
+- ci: add Winget Releaser action ([#526](https://github.com/evilmartians/lefthook/pull/526)) by @sitiom
+- chore: improve correctness of load_test.go ([#525](https://github.com/evilmartians/lefthook/pull/525)) by @hyperupcall
+
 ## 1.4.6 (2023-07-18)
 
 - fix: do not print extraneous newlines when executionInfo output is hidden ([#519](https://github.com/evilmartians/lefthook/pull/519)) by @hyperupcall
