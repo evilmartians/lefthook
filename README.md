@@ -196,6 +196,7 @@ skip_output:
 * [Install with Node.js](./docs/install.md#node)
 * [Install with Ruby](./docs/install.md#ruby)
 * [Install with Homebrew](./docs/install.md#homebrew)
+* [Install with Winget](./docs/install.md#winget)
 * [Install for Debian-based Linux](./docs/install.md#deb)
 * [Install for RPM-based Linux](./docs/install.md#rpm)
 * [Install for Arch Linux](./docs/install.md#arch)
