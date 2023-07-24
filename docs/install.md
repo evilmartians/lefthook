@@ -6,6 +6,7 @@ Choose your fighter:
 - [Node.js](#node)
 - [Go](#go)
 - [Python](#python)
+- [Scoop](#scoop)
 - [Homebrew](#homebrew)
 - [Winget](#winget)
 - [Snap](#snap)
@@ -69,6 +70,11 @@ You can find Python wrapper here [package](https://github.com/life4/lefthook)
 python3 -m pip install --user lefthook
 ```
 
+## <a id="scoop"></a> Scoop for Windowss
+
+```sh
+scoop install lefthook
+```
 
 ## <a id="homebrew"></a> Homebrew for MacOS and Linux
 
