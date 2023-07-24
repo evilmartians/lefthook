@@ -72,4 +72,5 @@ jobs:
         uses: vedantmgoyal2009/winget-releaser@v2
         with:
           identifier: evilmartians.lefthook
+          fork-user: mrexox
           token: ${{ secrets.WINGET_TOKEN }}
