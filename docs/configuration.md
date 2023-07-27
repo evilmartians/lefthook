@@ -146,6 +146,7 @@ This config quiets all outputs except for errors.
 skip_output:
   - meta           # Skips lefthook version printing
   - summary        # Skips summary block (successful and failed steps) printing
+  - empty_summary  # Skips summary heading when there are no steps to run
   - success        # Skips successful steps printing
   - failure        # Skips failed steps printing
   - execution      # Skips printing any execution logs (but prints if the execution failed)
