@@ -162,7 +162,9 @@ func printSummary(
 	logSettings log.SkipSettings,
 ) {
 	if len(results) == 0 {
-		log.Info(log.Cyan("\nSUMMARY: (SKIP EMPTY)"))
+		if !logSettings.SkipEmptySummary() {
+			log.Info(log.Cyan("\nSUMMARY: (SKIP EMPTY)"))
+		}
 		return
 	}
 
