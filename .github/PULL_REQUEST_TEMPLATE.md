@@ -10,3 +10,4 @@ Closes # (issue)
 
 - [ ] Check locally
 - [ ] Add tests
+- [ ] Add documentation
