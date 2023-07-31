@@ -2,6 +2,12 @@
 
 ## master (unreleased)
 
+## 1.4.8 (2023-07-31)
+
+- feat: add assert_lefthook_installed option ([#533](https://github.com/evilmartians/lefthook/pull/533)) by @mrexox
+- chore: add *Add docs* to PR template ([#532](https://github.com/evilmartians/lefthook/pull/532)) by @technicalpickles
+- feat: add support for skipping empty summaries ([#531](https://github.com/evilmartians/lefthook/pull/531)) by @technicalpickles
+
 ## 1.4.7 (2023-07-24)
 
 - docs: add scoop installation method ([#527](https://github.com/evilmartians/lefthook/pull/527)) by @sitiom
