@@ -48,6 +48,9 @@ call_lefthook()
     npx @evilmartians/lefthook "$@"
   else
     echo "Can't find lefthook in PATH"
+    {{- if .AssertLefthookInstalled}}
+    exit 1
+    {{- end}}
   fi
 }
 

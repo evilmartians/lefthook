@@ -14,18 +14,20 @@ const checksumFormat = "%s %d\n"
 var templatesFS embed.FS
 
 type hookTmplData struct {
-	HookName  string
-	Extension string
-	Rc        string
+	HookName                string
+	Extension               string
+	Rc                      string
+	AssertLefthookInstalled bool
 }
 
-func Hook(hookName, rc string) []byte {
+func Hook(hookName, rc string, assertLefthookInstalled bool) []byte {
 	buf := &bytes.Buffer{}
 	t := template.Must(template.ParseFS(templatesFS, "hook.tmpl"))
 	err := t.Execute(buf, hookTmplData{
-		HookName:  hookName,
-		Extension: getExtension(),
-		Rc:        rc,
+		HookName:                hookName,
+		Extension:               getExtension(),
+		Rc:                      rc,
+		AssertLefthookInstalled: assertLefthookInstalled,
 	})
 	if err != nil {
 		panic(err)

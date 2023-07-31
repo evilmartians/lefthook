@@ -135,12 +135,12 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, force bool) error {
 			return err
 		}
 
-		if err = l.addHook(hook, cfg.Rc); err != nil {
+		if err = l.addHook(hook, cfg.Rc, cfg.AssertLefthookInstalled); err != nil {
 			return err
 		}
 	}
 
-	if err = l.addHook(config.GhostHookName, cfg.Rc); err != nil {
+	if err = l.addHook(config.GhostHookName, cfg.Rc, cfg.AssertLefthookInstalled); err != nil {
 		return nil
 	}
 
