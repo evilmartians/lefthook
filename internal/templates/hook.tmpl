@@ -48,6 +48,12 @@ call_lefthook()
     npx @evilmartians/lefthook "$@"
   else
     echo "Can't find lefthook in PATH"
+    {{- if .AssertLefthookInstalled}}
+    echo "ERROR: Operation is aborted due to lefthook settings."
+    echo "Make sure lefthook is available in your environment and re-try."
+    echo "To skip these checks use --no-verify git argument or set LEFTHOOK=0 env variable."
+    exit 1
+    {{- end}}
   fi
 }
 

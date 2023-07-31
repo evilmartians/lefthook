@@ -1,19 +1,20 @@
 # Configure lefthook.yml
 
 - [Top level options](#top-level-options)
+  - [`assert_lefthook_installed`](#assert_lefthook_installed)
   - [`colors`](#colors)
     - [`yellow`](#colors)
     - [`green`](#colors)
     - [`cyan`](#colors)
     - [`gray`](#colors)
     - [`red`](#colors)
-  - [`no_tty`](#no_tty)
   - [`extends`](#extends)
   - [`min_version`](#min_version)
+  - [`no_tty`](#no_tty)
+  - [`rc`](#rc)
   - [`skip_output`](#skip_output)
   - [`source_dir`](#source_dir)
   - [`source_dir_local`](#source_dir_local)
-  - [`rc`](#rc)
 - [`remote` (Beta :test_tube:)](#remote)
   - [`git_url`](#git_url)
   - [`ref`](#ref)
@@ -58,6 +59,12 @@
 ## Top level options
 
 These options are not related to git hooks, and they only control lefthook behavior.
+
+### `assert_lefthook_installed`
+
+**Default: `false`**
+
+When set to `true`, fail (with exit status 1) if `lefthook` executable can't be found in $PATH, under node_modules/, as a Ruby gem, or other supported method. This makes sure git hook won't omit `lefthook` rules if `lefthook` ever was installed.
 
 ### `colors`
 
