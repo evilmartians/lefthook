@@ -38,6 +38,7 @@ type Opts struct {
 	ResultChan   chan Result
 	SkipSettings log.SkipSettings
 	DisableTTY   bool
+	AllFiles     bool
 }
 
 // Runner responds for actual execution and handling the results.

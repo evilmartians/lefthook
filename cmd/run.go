@@ -26,5 +26,10 @@ func newRunCmd(opts *lefthook.Options) *cobra.Command {
 		"run hook non-interactively, disable spinner",
 	)
 
+	runCmd.Flags().BoolVar(
+		&runArgs.AllFiles, "all-files", false,
+		"run hooks on all files",
+	)
+
 	return &runCmd
 }

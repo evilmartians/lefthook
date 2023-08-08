@@ -52,8 +52,13 @@ func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error,
 		filesCommand = command.Files
 	}
 
+	stagedFiles := r.Repo.StagedFiles
+	if r.AllFiles {
+		stagedFiles = r.Repo.AllFiles
+	}
+
 	filesTypeToFn := map[string]func() ([]string, error){
-		config.SubStagedFiles: r.Repo.StagedFiles,
+		config.SubStagedFiles: stagedFiles,
 		config.PushFiles:      r.Repo.PushFiles,
 		config.SubAllFiles:    r.Repo.AllFiles,
 		config.SubFiles: func() ([]string, error) {
