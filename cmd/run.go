@@ -31,5 +31,7 @@ func newRunCmd(opts *lefthook.Options) *cobra.Command {
 		"run hooks on all files",
 	)
 
+	runCmd.Flags().StringSliceVar(&runArgs.RunOnlyCommands, "commands", nil, "run only specified commands")
+
 	return &runCmd
 }
