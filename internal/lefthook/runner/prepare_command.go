@@ -53,7 +53,9 @@ func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error,
 	}
 
 	stagedFiles := r.Repo.StagedFiles
-	if r.AllFiles {
+	if len(r.Files) > 0 {
+		stagedFiles = func() ([]string, error) { return r.Files, nil }
+	} else if r.AllFiles {
 		stagedFiles = r.Repo.AllFiles
 	}
 
