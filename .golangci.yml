@@ -5,6 +5,10 @@ linters-settings:
     locale: US
   gci:
     local-prefixes: github.com/evilmartians/lefthook
+  revive:
+    rules:
+      - name: unused-parameter
+        disabled: true
 
 linters:
   disable-all: true
@@ -16,7 +20,6 @@ linters:
     - containedctx
     - contextcheck
     - decorder
-    - depguard
     - dogsled
     - dupl
     - dupword

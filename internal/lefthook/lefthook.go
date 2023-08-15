@@ -90,11 +90,7 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 
 	// Just remove lefthook hook
 	if l.isLefthookFile(hookPath) {
-		if err = l.Fs.Remove(hookPath); err != nil {
-			return err
-		}
-
-		return nil
+		return l.Fs.Remove(hookPath)
 	}
 
 	// Check if .old file already exists before renaming.

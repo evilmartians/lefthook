@@ -8,7 +8,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/version"
 )
 
-func newVersionCmd(opts *lefthook.Options) *cobra.Command {
+func newVersionCmd(_opts *lefthook.Options) *cobra.Command {
 	var verbose bool
 
 	versionCmd := cobra.Command{

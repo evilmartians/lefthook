@@ -50,18 +50,10 @@ func (r *Repository) SyncRemote(url, ref string) error {
 
 	_, err = r.Fs.Stat(remotePath)
 	if err == nil {
-		if err := r.updateRemote(remotePath, ref); err != nil {
-			return err
-		}
-
-		return nil
+		return r.updateRemote(remotePath, ref)
 	}
 
-	if err := r.cloneRemote(remotesPath, url, ref); err != nil {
-		return err
-	}
-
-	return nil
+	return r.cloneRemote(remotesPath, url, ref)
 }
 
 func (r *Repository) updateRemote(path, ref string) error {

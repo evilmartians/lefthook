@@ -18,7 +18,7 @@ import (
 
 type TestExecutor struct{}
 
-func (e TestExecutor) Execute(opts ExecuteOptions, out io.Writer) (err error) {
+func (e TestExecutor) Execute(opts ExecuteOptions, _out io.Writer) (err error) {
 	if opts.args[0] == "success" {
 		err = nil
 	} else {
@@ -28,7 +28,7 @@ func (e TestExecutor) Execute(opts ExecuteOptions, out io.Writer) (err error) {
 	return
 }
 
-func (e TestExecutor) RawExecute(command []string, out io.Writer) error {
+func (e TestExecutor) RawExecute(_command []string, _out io.Writer) error {
 	return nil
 }
 
