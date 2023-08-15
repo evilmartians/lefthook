@@ -2,6 +2,12 @@
 
 ## master (unreleased)
 
+# 1.4.9 (2023-08-15)
+
+- chore: fix linter issues ([#537](https://github.com/evilmartians/lefthook/pull/537)) by @mrexox
+- feat: add files, all-files, and commands flags ([#534](https://github.com/evilmartians/lefthook/pull/534)) by @nihalgonsalves
+- chore: bump go to 1.21 ([#536](https://github.com/evilmartians/lefthook/pull/536)) by @nihalgonsalves
+
 ## 1.4.8 (2023-07-31)
 
 - feat: add assert_lefthook_installed option ([#533](https://github.com/evilmartians/lefthook/pull/533)) by @mrexox
