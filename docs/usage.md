@@ -115,6 +115,21 @@ Or run manually also
 $ lefthook run pre-commit
 ```
 
+You can also specify a flag to run only some commands:
+
+```bash
+$ lefthook run pre-commit --commands lint
+```
+
+and optionally run either on all files (any `{staged_files}` placeholder acts as `{all_files}`) or a list of files:
+
+```bash
+$ lefthook run pre-commit --all-files
+$ lefthook run pre-commit --files file1.js,file2.js
+```
+
+(if both are specified, `--all-files` is ignored)
+
 ### `lefthook version`
 
 You can check version with `lefthook version` and you can also check the commit hash with `lefthook version --full`

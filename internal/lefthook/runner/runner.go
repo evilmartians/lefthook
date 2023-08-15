@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -30,14 +31,17 @@ const (
 var surroundingQuotesRegexp = regexp.MustCompile(`^'(.*)'$`)
 
 type Opts struct {
-	Fs           afero.Fs
-	Repo         *git.Repository
-	Hook         *config.Hook
-	HookName     string
-	GitArgs      []string
-	ResultChan   chan Result
-	SkipSettings log.SkipSettings
-	DisableTTY   bool
+	Fs              afero.Fs
+	Repo            *git.Repository
+	Hook            *config.Hook
+	HookName        string
+	GitArgs         []string
+	ResultChan      chan Result
+	SkipSettings    log.SkipSettings
+	DisableTTY      bool
+	AllFiles        bool
+	Files           []string
+	RunOnlyCommands []string
 }
 
 // Runner responds for actual execution and handling the results.
@@ -307,7 +311,10 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 func (r *Runner) runCommands() {
 	commands := make([]string, 0, len(r.Hook.Commands))
 	for name := range r.Hook.Commands {
-		commands = append(commands, name)
+		if len(r.RunOnlyCommands) == 0 || slices.Contains(r.RunOnlyCommands, name) {
+			commands = append(commands, name)
+		}
+
 	}
 
 	sort.Strings(commands)
