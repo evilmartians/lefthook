@@ -86,7 +86,7 @@ func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error,
 				return nil, nil, errors.New("no files for inspection")
 			}
 
-			filtered := filterFiles(command, files)
+			filtered := r.filterFiles(command, files)
 			filesFiltered = append(filesFiltered, filtered...)
 
 			prepared := escapeFiles(filtered)
@@ -101,7 +101,7 @@ func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error,
 	if len(filesFiltered) == 0 && config.HookUsesStagedFiles(r.HookName) {
 		files, err := r.Repo.StagedFiles()
 		if err == nil {
-			if len(filterFiles(command, files)) == 0 {
+			if len(r.filterFiles(command, files)) == 0 {
 				return nil, nil, errors.New("no matching staged files")
 			}
 		}
@@ -110,7 +110,7 @@ func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error,
 	if len(filesFiltered) == 0 && config.HookUsesPushFiles(r.HookName) {
 		files, err := r.Repo.PushFiles()
 		if err == nil {
-			if len(filterFiles(command, files)) == 0 {
+			if len(r.filterFiles(command, files)) == 0 {
 				return nil, nil, errors.New("no matching push files")
 			}
 		}
@@ -134,7 +134,7 @@ func (r *Runner) replacePositionalArguments(runString string) string {
 	return runString
 }
 
-func filterFiles(command *config.Command, files []string) []string {
+func (r *Runner) filterFiles(command *config.Command, files []string) []string {
 	if files == nil {
 		return []string{}
 	}
@@ -144,6 +144,9 @@ func filterFiles(command *config.Command, files []string) []string {
 	files = filterGlob(files, command.Glob)
 	files = filterExclude(files, command.Exclude)
 	files = filterRelative(files, command.Root)
+	if command.SkipSymlinks {
+		files = filterSymlinks(files, r.Fs)
+	}
 
 	log.Debug("[lefthook] files after filters:\n", files)
 

@@ -24,9 +24,10 @@ type Command struct {
 	Root    string `mapstructure:"root"    yaml:",omitempty" json:"root,omitempty"    toml:"root,omitempty"`
 	Exclude string `mapstructure:"exclude" yaml:",omitempty" json:"exclude,omitempty" toml:"exclude,omitempty"`
 
-	FailText    string `mapstructure:"fail_text"   yaml:"fail_text,omitempty"   json:"fail_text,omitempty"   toml:"fail_text,omitempty"`
-	Interactive bool   `mapstructure:"interactive" yaml:",omitempty"            json:"interactive,omitempty" toml:"interactive,omitempty"`
-	StageFixed  bool   `mapstructure:"stage_fixed" yaml:"stage_fixed,omitempty" json:"stage_fixed,omitempty" toml:"stage_fixed,omitempty"`
+	FailText     string `mapstructure:"fail_text"     yaml:"fail_text,omitempty"     json:"fail_text,omitempty"     toml:"fail_text,omitempty"`
+	Interactive  bool   `mapstructure:"interactive"   yaml:",omitempty"              json:"interactive,omitempty"   toml:"interactive,omitempty"`
+	StageFixed   bool   `mapstructure:"stage_fixed"   yaml:"stage_fixed,omitempty"   json:"stage_fixed,omitempty"   toml:"stage_fixed,omitempty"`
+	SkipSymlinks bool   `mapstructure:"skip_symlinks" yaml:"skip_symlinks,omitempty" json:"skip_symlinks,omitempty" toml:"skip_symlinks,omitempty"`
 }
 
 func (c Command) Validate() error {
