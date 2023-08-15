@@ -314,7 +314,6 @@ func (r *Runner) runCommands() {
 		if len(r.RunOnlyCommands) == 0 || slices.Contains(r.RunOnlyCommands, name) {
 			commands = append(commands, name)
 		}
-
 	}
 
 	sort.Strings(commands)

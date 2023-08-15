@@ -12,19 +12,19 @@ import (
 
 type GitMock struct{}
 
-func (g GitMock) Cmd(cmd string) (string, error) {
+func (g GitMock) Cmd(_cmd string) (string, error) {
 	return "", nil
 }
 
-func (g GitMock) CmdArgs(args ...string) (string, error) {
+func (g GitMock) CmdArgs(_args ...string) (string, error) {
 	return "", nil
 }
 
-func (g GitMock) CmdLines(cmd string) ([]string, error) {
+func (g GitMock) CmdLines(_cmd string) ([]string, error) {
 	return nil, nil
 }
 
-func (g GitMock) RawCmd(cmd string) (string, error) {
+func (g GitMock) RawCmd(_cmd string) (string, error) {
 	return "", nil
 }
 
