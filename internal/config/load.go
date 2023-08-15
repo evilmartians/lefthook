@@ -83,9 +83,9 @@ func readOne(fs afero.Fs, path string, names []string) (*viper.Viper, error) {
 			var notFoundErr viper.ConfigFileNotFoundError
 			if ok := errors.As(err, &notFoundErr); ok {
 				continue
-			} else {
-				return nil, err
 			}
+
+			return nil, err
 		}
 
 		return v, nil
@@ -159,11 +159,7 @@ func mergeRemote(fs afero.Fs, repo *git.Repository, v *viper.Viper) error {
 	}
 
 	// Reset extends to omit issues when extending with remote extends.
-	if err := v.MergeConfigMap(map[string]interface{}{"extends": nil}); err != nil {
-		return err
-	}
-
-	return nil
+	return v.MergeConfigMap(map[string]interface{}{"extends": nil})
 }
 
 // extend merges all files listed in 'extends' option into the config.
@@ -186,11 +182,7 @@ func merge(name, path string, v *viper.Viper) error {
 	if len(path) > 0 {
 		v.SetConfigFile(path)
 	}
-	if err := v.MergeInConfig(); err != nil {
-		return err
-	}
-
-	return nil
+	return v.MergeInConfig()
 }
 
 func mergeOne(names []string, path string, v *viper.Viper) error {
@@ -198,11 +190,11 @@ func mergeOne(names []string, path string, v *viper.Viper) error {
 		err := merge(name, path, v)
 		if err == nil {
 			break
-		} else {
-			var notFoundErr viper.ConfigFileNotFoundError
-			if ok := errors.As(err, &notFoundErr); !ok {
-				return err
-			}
+		}
+
+		var notFoundErr viper.ConfigFileNotFoundError
+		if ok := errors.As(err, &notFoundErr); !ok {
+			return err
 		}
 	}
 
@@ -241,11 +233,8 @@ func unmarshalConfigs(base, extra *viper.Viper, c *Config) error {
 	if err := base.MergeConfigMap(extra.AllSettings()); err != nil {
 		return err
 	}
-	if err := base.Unmarshal(c); err != nil {
-		return err
-	}
 
-	return nil
+	return base.Unmarshal(c)
 }
 
 func addHook(hookName string, base, extra *viper.Viper, c *Config) error {

@@ -16,7 +16,6 @@ linters:
     - containedctx
     - contextcheck
     - decorder
-    - depguard
     - dogsled
     - dupl
     - dupword
