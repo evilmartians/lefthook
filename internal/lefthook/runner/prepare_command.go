@@ -11,12 +11,13 @@ import (
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
-type commandArgs struct {
-	all   []string
-	files []string
+// An object that described the single command's run option.
+type run struct {
+	commands [][]string
+	files    []string
 }
 
-func (r *Runner) prepareCommand(name string, command *config.Command) (*commandArgs, error) {
+func (r *Runner) prepareCommand(name string, command *config.Command) (*run, error) {
 	if command.DoSkip(r.Repo.State()) {
 		return nil, errors.New("settings")
 	}
@@ -34,7 +35,7 @@ func (r *Runner) prepareCommand(name string, command *config.Command) (*commandA
 		return nil, errors.New("invalid config")
 	}
 
-	args, err, skipReason := r.buildCommandArgs(command)
+	args, err, skipReason := r.buildRun(command)
 	if err != nil {
 		log.Error(err)
 		return nil, errors.New("error")
@@ -46,17 +47,20 @@ func (r *Runner) prepareCommand(name string, command *config.Command) (*commandA
 	return args, nil
 }
 
-func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error, error) {
-	filesCommand := r.Hook.Files
-	if command.Files != "" {
-		filesCommand = command.Files
+func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
+	filesCmd := r.Hook.Files
+	if len(command.Files) > 0 {
+		filesCmd = command.Files
 	}
 
-	stagedFiles := r.Repo.StagedFiles
-	if len(r.Files) > 0 {
+	var stagedFiles func() ([]string, error)
+	switch {
+	case len(r.Files) > 0:
 		stagedFiles = func() ([]string, error) { return r.Files, nil }
-	} else if r.AllFiles {
+	case r.AllFiles:
 		stagedFiles = r.Repo.AllFiles
+	default:
+		stagedFiles = r.Repo.StagedFiles
 	}
 
 	filesTypeToFn := map[string]func() ([]string, error){
@@ -64,8 +68,8 @@ func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error,
 		config.PushFiles:      r.Repo.PushFiles,
 		config.SubAllFiles:    r.Repo.AllFiles,
 		config.SubFiles: func() ([]string, error) {
-			filesCommand = r.replacePositionalArguments(filesCommand)
-			return r.Repo.FilesByCommand(filesCommand)
+			filesCmd = r.replacePositionalArguments(filesCmd)
+			return r.Repo.FilesByCommand(filesCmd)
 		},
 	}
 
@@ -76,8 +80,7 @@ func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error,
 		//
 		// Special case - `files` option: return if the result of files
 		// command is empty.
-		if strings.Contains(runString, filesType) ||
-			filesCommand != "" && filesType == config.SubFiles {
+		if strings.Contains(runString, filesType) || len(filesCmd) > 0 && filesType == config.SubFiles {
 			files, err := filesFn()
 			if err != nil {
 				return nil, fmt.Errorf("error replacing %s: %w", filesType, err), nil
@@ -120,9 +123,9 @@ func (r *Runner) buildCommandArgs(command *config.Command) (*commandArgs, error,
 
 	log.Debug("[lefthook] executing: ", runString)
 
-	return &commandArgs{
-		files: filesFiltered,
-		all:   strings.Split(runString, " "),
+	return &run{
+		commands: [][]string{strings.Split(runString, " ")},
+		files:    filesFiltered,
 	}, nil, nil
 }
 

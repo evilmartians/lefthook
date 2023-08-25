@@ -20,35 +20,54 @@ import (
 type CommandExecutor struct{}
 
 func (e CommandExecutor) Execute(opts ExecuteOptions, out io.Writer) error {
-	stdin := os.Stdin
+	in := os.Stdin
 	if opts.interactive && !isatty.IsTerminal(os.Stdin.Fd()) {
 		tty, err := os.Open("/dev/tty")
 		if err == nil {
 			defer tty.Close()
-			stdin = tty
+			in = tty
 		} else {
 			log.Errorf("Couldn't enable TTY input: %s\n", err)
 		}
 	}
 
-	command := exec.Command("sh", "-c", strings.Join(opts.args, " "))
-
-	rootDir, _ := filepath.Abs(opts.root)
-	command.Dir = rootDir
-
-	envList := make([]string, len(opts.env))
+	root, _ := filepath.Abs(opts.root)
+	envs := make([]string, len(opts.env))
 	for name, value := range opts.env {
-		envList = append(
-			envList,
+		envs = append(
+			envs,
 			fmt.Sprintf("%s=%s", strings.ToUpper(name), os.ExpandEnv(value)),
 		)
 	}
 
-	command.Env = append(os.Environ(), envList...)
+	// We can have one command split into separate to fit into shell command max length.
+	// In this case we execute those commands one by one.
+	for _, args := range opts.commands {
+		if err := e.executeOne(args, root, envs, opts.interactive, in, out); err != nil {
+			return err
+		}
+	}
 
-	if opts.interactive {
+	return nil
+}
+
+func (e CommandExecutor) RawExecute(command []string, out io.Writer) error {
+	cmd := exec.Command(command[0], command[1:]...)
+
+	cmd.Stdout = out
+	cmd.Stderr = os.Stderr
+
+	return cmd.Run()
+}
+
+func (e CommandExecutor) executeOne(args []string, root string, envs []string, interactive bool, in io.Reader, out io.Writer) error {
+	command := exec.Command("sh", "-c", strings.Join(args, " "))
+	command.Dir = root
+	command.Env = append(os.Environ(), envs...)
+
+	if interactive {
 		command.Stdout = out
-		command.Stdin = stdin
+		command.Stdin = in
 		command.Stderr = os.Stderr
 		err := command.Start()
 		if err != nil {
@@ -62,7 +81,7 @@ func (e CommandExecutor) Execute(opts ExecuteOptions, out io.Writer) error {
 
 		defer func() { _ = p.Close() }()
 
-		go func() { _, _ = io.Copy(p, stdin) }()
+		go func() { _, _ = io.Copy(p, in) }()
 
 		_, _ = io.Copy(out, p)
 	}
@@ -70,13 +89,4 @@ func (e CommandExecutor) Execute(opts ExecuteOptions, out io.Writer) error {
 	defer func() { _ = command.Process.Kill() }()
 
 	return command.Wait()
-}
-
-func (e CommandExecutor) RawExecute(command []string, out io.Writer) error {
-	cmd := exec.Command(command[0], command[1:]...)
-
-	cmd.Stdout = out
-	cmd.Stderr = os.Stderr
-
-	return cmd.Run()
 }

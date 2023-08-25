@@ -291,7 +291,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 	finished := r.run(ExecuteOptions{
 		name:        file.Name(),
 		root:        r.Repo.RootPath,
-		args:        args,
+		commands:    [][]string{args},
 		failText:    script.FailText,
 		interactive: script.Interactive && !r.DisableTTY,
 		env:         script.Env,
@@ -356,7 +356,7 @@ func (r *Runner) runCommands() {
 }
 
 func (r *Runner) runCommand(name string, command *config.Command) {
-	args, err := r.prepareCommand(name, command)
+	run, err := r.prepareCommand(name, command)
 	if err != nil {
 		r.logSkip(name, err.Error())
 		return
@@ -370,14 +370,14 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 	finished := r.run(ExecuteOptions{
 		name:        name,
 		root:        filepath.Join(r.Repo.RootPath, command.Root),
-		args:        args.all,
+		commands:    run.commands,
 		failText:    command.FailText,
 		interactive: command.Interactive && !r.DisableTTY,
 		env:         command.Env,
 	}, r.Hook.Follow)
 
 	if finished && config.HookUsesStagedFiles(r.HookName) && command.StageFixed {
-		files := args.files
+		files := run.files
 
 		if len(files) == 0 {
 			var err error

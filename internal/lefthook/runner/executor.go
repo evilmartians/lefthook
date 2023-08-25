@@ -7,7 +7,7 @@ import (
 // ExecutorOptions contains the options that control the execution.
 type ExecuteOptions struct {
 	name, root, failText string
-	args                 []string
+	commands             [][]string
 	env                  map[string]string
 	interactive          bool
 }

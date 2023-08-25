@@ -19,10 +19,10 @@ import (
 type TestExecutor struct{}
 
 func (e TestExecutor) Execute(opts ExecuteOptions, _out io.Writer) (err error) {
-	if opts.args[0] == "success" {
+	if opts.commands[0][0] == "success" {
 		err = nil
 	} else {
-		err = errors.New(opts.args[0])
+		err = errors.New(opts.commands[0][0])
 	}
 
 	return

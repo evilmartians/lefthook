@@ -13,40 +13,22 @@ import (
 type CommandExecutor struct{}
 
 func (e CommandExecutor) Execute(opts ExecuteOptions, out io.Writer) error {
-	command := exec.Command(opts.args[0])
-	command.SysProcAttr = &syscall.SysProcAttr{
-		CmdLine: strings.Join(opts.args, " "),
-	}
-
-	rootDir, _ := filepath.Abs(opts.root)
-	command.Dir = rootDir
-
-	envList := make([]string, len(opts.env))
+	root, _ := filepath.Abs(opts.root)
+	envs := make([]string, len(opts.env))
 	for name, value := range opts.env {
-		envList = append(
-			envList,
+		envs = append(
+			envs,
 			fmt.Sprintf("%s=%s", strings.ToUpper(name), os.ExpandEnv(value)),
 		)
 	}
 
-	command.Env = append(os.Environ(), envList...)
-
-	if opts.interactive {
-		command.Stdout = os.Stdout
-	} else {
-		command.Stdout = out
+	for _, args := range opts.commands {
+		if err := e.executeOne(args, root, envs, opts.interactive, os.Stdin, out); err != nil {
+			return err
+		}
 	}
 
-	command.Stdin = os.Stdin
-	command.Stderr = os.Stderr
-	err := command.Start()
-	if err != nil {
-		return err
-	}
-
-	defer func() { _ = command.Process.Kill() }()
-
-	return command.Wait()
+	return nil
 }
 
 func (e CommandExecutor) RawExecute(command []string, out io.Writer) error {
@@ -56,4 +38,30 @@ func (e CommandExecutor) RawExecute(command []string, out io.Writer) error {
 	cmd.Stderr = os.Stderr
 
 	return cmd.Run()
+}
+
+func (e CommandExecutor) executeOne(args []string, root string, envs []string, interactive bool, in io.Reader, out io.Writer) error {
+	command := exec.Command(args)
+	command.SysProcAttr = &syscall.SysProcAttr{
+		CmdLine: strings.Join(args, " "),
+	}
+	command.Dir = root
+	command.Env = append(os.Environ(), envs...)
+
+	if interactive {
+		command.Stdout = os.Stdout
+	} else {
+		command.Stdout = out
+	}
+
+	command.Stdin = in
+	command.Stderr = os.Stderr
+	err := command.Start()
+	if err != nil {
+		return err
+	}
+
+	defer func() { _ = command.Process.Kill() }()
+
+	return command.Wait()
 }
