@@ -95,8 +95,8 @@ func (r *Runner) RunAll(sourceDirs []string) {
 	r.postHook()
 }
 
-func (r *Runner) fail(name, text string) {
-	r.ResultChan <- resultFail(name, text)
+func (r *Runner) fail(name string, err error) {
+	r.ResultChan <- resultFail(name, err.Error())
 	r.failed.Store(true)
 }
 
@@ -422,7 +422,7 @@ func (r *Runner) run(opts ExecuteOptions, follow bool) bool {
 
 		err := r.executor.Execute(opts, out)
 		if err != nil {
-			r.fail(opts.name, opts.failText)
+			r.fail(opts.name, errors.New(opts.failText))
 		} else {
 			r.success(opts.name)
 		}
@@ -434,7 +434,7 @@ func (r *Runner) run(opts ExecuteOptions, follow bool) bool {
 	err := r.executor.Execute(opts, out)
 
 	if err != nil {
-		r.fail(opts.name, opts.failText)
+		r.fail(opts.name, errors.New(opts.failText))
 	} else {
 		r.success(opts.name)
 	}

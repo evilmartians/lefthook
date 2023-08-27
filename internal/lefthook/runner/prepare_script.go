@@ -28,7 +28,7 @@ func (r *Runner) prepareScript(script *config.Script, path string, file os.FileI
 	if (file.Mode() & executableMask) == 0 {
 		if err := r.Fs.Chmod(path, executableFileMode); err != nil {
 			log.Errorf("Couldn't change file mode to make file executable: %s", err)
-			r.fail(file.Name(), "")
+			r.fail(file.Name(), nil)
 			return nil, errors.New("system error")
 		}
 	}

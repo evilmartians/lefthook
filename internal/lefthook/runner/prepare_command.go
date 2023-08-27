@@ -3,6 +3,7 @@ package runner
 import (
 	"errors"
 	"fmt"
+	"runtime"
 	"strings"
 
 	"gopkg.in/alessio/shellescape.v1"
@@ -16,6 +17,20 @@ type run struct {
 	commands [][]string
 	files    []string
 }
+
+type template struct {
+	files []string
+	cnt   int
+}
+
+const (
+	// https://serverfault.com/questions/69430/what-is-the-maximum-length-of-a-command-line-in-mac-os-x
+	// https://support.microsoft.com/en-us/help/830473/command-prompt-cmd-exe-command-line-string-limitation
+	// https://unix.stackexchange.com/a/120652
+	maxCommandLengthDarwin  = 260000 // 262144
+	maxCommandLengthWindows = 8000   // 8191
+	maxCommandLengthLinux   = 130000 // 131072
+)
 
 func (r *Runner) prepareCommand(name string, command *config.Command) (*run, error) {
 	if command.DoSkip(r.Repo.State()) {
@@ -31,8 +46,8 @@ func (r *Runner) prepareCommand(name string, command *config.Command) (*run, err
 	}
 
 	if err := command.Validate(); err != nil {
-		r.fail(name, "")
-		return nil, errors.New("invalid config")
+		r.fail(name, err)
+		return nil, err
 	}
 
 	args, err, skipReason := r.buildRun(command)
@@ -63,7 +78,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 		stagedFiles = r.Repo.StagedFiles
 	}
 
-	filesTypeToFn := map[string]func() ([]string, error){
+	filesFns := map[string]func() ([]string, error){
 		config.SubStagedFiles: stagedFiles,
 		config.PushFiles:      r.Repo.PushFiles,
 		config.SubAllFiles:    r.Repo.AllFiles,
@@ -73,35 +88,58 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 		},
 	}
 
-	filesFiltered := make([]string, 0)
-	runString := command.Run
-	for filesType, filesFn := range filesTypeToFn {
-		// Checking substitutions and skipping execution if it is empty.
-		//
-		// Special case - `files` option: return if the result of files
-		// command is empty.
-		if strings.Contains(runString, filesType) || len(filesCmd) > 0 && filesType == config.SubFiles {
-			files, err := filesFn()
-			if err != nil {
-				return nil, fmt.Errorf("error replacing %s: %w", filesType, err), nil
-			}
-			if len(files) == 0 {
-				return nil, nil, errors.New("no files for inspection")
-			}
+	templates := make(map[string]*template)
 
-			filtered := filterFiles(command, files)
-			filesFiltered = append(filesFiltered, filtered...)
+	for filesType, fn := range filesFns {
+		cnt := strings.Count(filesType, command.Run)
+		if cnt == 0 {
+			continue
+		}
 
-			prepared := escapeFiles(filtered)
-			if len(prepared) == 0 {
-				return nil, nil, errors.New("no files for inspection")
-			}
+		templ := &template{cnt: cnt}
+		templates[filesType] = templ
 
-			runString = replaceQuoted(runString, filesType, prepared)
+		files, err := fn()
+		if err != nil {
+			return nil, fmt.Errorf("error replacing %s: %w", filesType, err), nil
+		}
+
+		files = filterFiles(command, files)
+		files = escapeFiles(files)
+		if len(files) == 0 {
+			return nil, nil, errors.New("no files for inspection")
+		}
+
+		templ.files = files
+	}
+
+	// Checking substitutions and skipping execution if it is empty.
+	//
+	// Special case - `files` option: return if the result of files
+	// command is empty.
+	if len(filesCmd) > 0 && templates[config.SubFiles] == nil {
+		files, err := filesFns[config.SubFiles]()
+		if err != nil {
+			return nil, fmt.Errorf("error calling replace command for %s: %w", config.SubFiles, err), nil
+		}
+
+		files = filterFiles(command, files)
+		files = escapeFiles(files)
+
+		if len(files) == 0 {
+			return nil, nil, errors.New("no files for inspection")
 		}
 	}
 
-	if len(filesFiltered) == 0 && config.HookUsesStagedFiles(r.HookName) {
+	runString := command.Run
+	runString = r.replacePositionalArguments(runString)
+	result := replaceTemplates(runString, templates)
+
+	if len(result.files) == 0 && config.HookUsesStagedFiles(r.HookName) {
+		if templates[config.SubStagedFiles] != nil && len(templates[config.SubStagedFiles].files) == 0 {
+			return nil, nil, errors.New("no matching staged files")
+		}
+
 		files, err := r.Repo.StagedFiles()
 		if err == nil {
 			if len(filterFiles(command, files)) == 0 {
@@ -110,7 +148,11 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 		}
 	}
 
-	if len(filesFiltered) == 0 && config.HookUsesPushFiles(r.HookName) {
+	if len(result.files) == 0 && config.HookUsesPushFiles(r.HookName) {
+		if templates[config.PushFiles] != nil && len(templates[config.PushFiles].files) == 0 {
+			return nil, nil, errors.New("no matching push files")
+		}
+
 		files, err := r.Repo.PushFiles()
 		if err == nil {
 			if len(filterFiles(command, files)) == 0 {
@@ -119,22 +161,17 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 		}
 	}
 
-	runString = r.replacePositionalArguments(runString)
+	// log.Debug("[lefthook] executing: ", runString)
 
-	log.Debug("[lefthook] executing: ", runString)
-
-	return &run{
-		commands: [][]string{strings.Split(runString, " ")},
-		files:    filesFiltered,
-	}, nil, nil
+	return result, nil, nil
 }
 
-func (r *Runner) replacePositionalArguments(runString string) string {
-	runString = strings.ReplaceAll(runString, "{0}", strings.Join(r.GitArgs, " "))
+func (r *Runner) replacePositionalArguments(str string) string {
+	str = strings.ReplaceAll(str, "{0}", strings.Join(r.GitArgs, " "))
 	for i, gitArg := range r.GitArgs {
-		runString = strings.ReplaceAll(runString, fmt.Sprintf("{%d}", i+1), gitArg)
+		str = strings.ReplaceAll(str, fmt.Sprintf("{%d}", i+1), gitArg)
 	}
-	return runString
+	return str
 }
 
 func filterFiles(command *config.Command, files []string) []string {
@@ -165,6 +202,83 @@ func escapeFiles(files []string) []string {
 	log.Debug("[lefthook] files after escaping:\n", filesEsc)
 
 	return filesEsc
+}
+
+func replaceTemplates(str string, templates map[string]*template) *run {
+	if len(templates) == 0 {
+		return &run{
+			commands: [][]string{strings.Split(str, " ")},
+		}
+	}
+
+	var cnt int
+
+	allFiles := make([]string, 0)
+	for _, template := range templates {
+		if template.cnt == 0 {
+			continue
+		}
+
+		cnt += template.cnt
+		allFiles = append(allFiles, template.files...)
+	}
+
+	var maxStringLength int
+	switch runtime.GOOS {
+	case "windows":
+		maxStringLength = maxCommandLengthWindows
+	case "darwin":
+		maxStringLength = maxCommandLengthDarwin
+	default:
+		maxStringLength = maxCommandLengthLinux
+	}
+
+	if cnt > 0 {
+		maxStringLength /= cnt
+	}
+
+	commands := make([][]string, 0)
+out:
+	for {
+		command := str
+		for name, template := range templates {
+			added, rest := getNChars(template.files, maxStringLength-len(name))
+			if len(added) == 0 {
+				break out
+			}
+			command = replaceQuoted(command, name, added)
+			template.files = rest
+			if len(rest) == 0 {
+				break
+			}
+		}
+
+		commands = append(commands, strings.Split(command, " "))
+	}
+
+	return &run{
+		commands: commands,
+		files:    allFiles,
+	}
+}
+
+func getNChars(s []string, n int) ([]string, []string) {
+	if len(s) == 0 {
+		return nil, nil
+	}
+
+	var cnt int
+	for i, str := range s {
+		cnt += len(str)
+		if cnt > n {
+			if i == 0 {
+				i = 1
+			}
+			return s[:i], s[i:]
+		}
+	}
+
+	return s, nil
 }
 
 func replaceQuoted(source, substitution string, files []string) string {
