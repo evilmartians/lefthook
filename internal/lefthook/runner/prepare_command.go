@@ -91,7 +91,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 	templates := make(map[string]*template)
 
 	for filesType, fn := range filesFns {
-		cnt := strings.Count(filesType, command.Run)
+		cnt := strings.Count(command.Run, filesType)
 		if cnt == 0 {
 			continue
 		}
@@ -133,6 +133,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 
 	runString := command.Run
 	runString = r.replacePositionalArguments(runString)
+	log.Debugf("[lefthook] found templates: %+v", templates)
 	result := replaceTemplates(runString, templates)
 
 	if len(result.files) == 0 && config.HookUsesStagedFiles(r.HookName) {
@@ -161,7 +162,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 		}
 	}
 
-	// log.Debug("[lefthook] executing: ", runString)
+	log.Debugf("[lefthook] executing: %+v", result)
 
 	return result, nil, nil
 }
@@ -247,6 +248,7 @@ out:
 				break out
 			}
 			command = replaceQuoted(command, name, added)
+			log.Debug("[lefthook] chunk command: ", command)
 			template.files = rest
 			if len(rest) == 0 {
 				break
