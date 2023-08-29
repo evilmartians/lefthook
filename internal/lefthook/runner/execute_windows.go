@@ -41,7 +41,7 @@ func (e CommandExecutor) RawExecute(command []string, out io.Writer) error {
 }
 
 func (e CommandExecutor) executeOne(args []string, root string, envs []string, interactive bool, in io.Reader, out io.Writer) error {
-	command := exec.Command(args)
+	command := exec.Command(args[0])
 	command.SysProcAttr = &syscall.SysProcAttr{
 		CmdLine: strings.Join(args, " "),
 	}
