@@ -207,6 +207,7 @@ func (r *Repository) RestoreUnstaged() error {
 		"--whitespace=nowarn",
 		"--recount",
 		"--unidiff-zero",
+		"--allow-empty",
 		r.unstagedPatchPath,
 	)
 
