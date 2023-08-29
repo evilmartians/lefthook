@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/lefthook/runner"
+	"github.com/evilmartians/lefthook/internal/lefthook/run"
 	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/evilmartians/lefthook/internal/version"
 )
@@ -105,11 +105,10 @@ Run 'lefthook install' manually.`,
 	}
 
 	startTime := time.Now()
-	resultChan := make(chan runner.Result, len(hook.Commands)+len(hook.Scripts))
+	resultChan := make(chan run.Result, len(hook.Commands)+len(hook.Scripts))
 
-	run := runner.NewRunner(
-		runner.Opts{
-			Fs:              l.Fs,
+	runner := run.NewRunner(
+		run.Opts{
 			Repo:            l.repo,
 			Hook:            hook,
 			HookName:        hookName,
@@ -140,11 +139,11 @@ Run 'lefthook install' manually.`,
 	}
 
 	go func() {
-		run.RunAll(sourceDirs)
+		runner.RunAll(sourceDirs)
 		close(resultChan)
 	}()
 
-	var results []runner.Result
+	var results []run.Result
 	for res := range resultChan {
 		results = append(results, res)
 	}
@@ -154,7 +153,7 @@ Run 'lefthook install' manually.`,
 	}
 
 	for _, result := range results {
-		if result.Status == runner.StatusErr {
+		if result.Status == run.StatusErr {
 			return errors.New("") // No error should be printed
 		}
 	}
@@ -164,7 +163,7 @@ Run 'lefthook install' manually.`,
 
 func printSummary(
 	duration time.Duration,
-	results []runner.Result,
+	results []run.Result,
 	logSettings log.SkipSettings,
 ) {
 	if len(results) == 0 {
@@ -180,7 +179,7 @@ func printSummary(
 
 	if !logSettings.SkipSuccess() {
 		for _, result := range results {
-			if result.Status != runner.StatusOk {
+			if result.Status != run.StatusOk {
 				continue
 			}
 
@@ -190,7 +189,7 @@ func printSummary(
 
 	if !logSettings.SkipFailure() {
 		for _, result := range results {
-			if result.Status != runner.StatusErr {
+			if result.Status != run.StatusErr {
 				continue
 			}
 

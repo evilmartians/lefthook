@@ -1,4 +1,4 @@
-package runner
+package run
 
 import (
 	"errors"
@@ -26,7 +26,7 @@ func (r *Runner) prepareScript(script *config.Script, path string, file os.FileI
 
 	// Make sure file is executable
 	if (file.Mode() & executableMask) == 0 {
-		if err := r.Fs.Chmod(path, executableFileMode); err != nil {
+		if err := r.Repo.Fs.Chmod(path, executableFileMode); err != nil {
 			log.Errorf("Couldn't change file mode to make file executable: %s", err)
 			r.fail(file.Name(), nil)
 			return nil, errors.New("system error")

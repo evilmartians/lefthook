@@ -1,7 +1,7 @@
 //go:build !windows
 // +build !windows
 
-package runner
+package exec
 
 import (
 	"fmt"
@@ -19,9 +19,9 @@ import (
 
 type CommandExecutor struct{}
 
-func (e CommandExecutor) Execute(opts ExecuteOptions, out io.Writer) error {
+func (e CommandExecutor) Execute(opts Options, out io.Writer) error {
 	in := os.Stdin
-	if opts.interactive && !isatty.IsTerminal(os.Stdin.Fd()) {
+	if opts.Interactive && !isatty.IsTerminal(os.Stdin.Fd()) {
 		tty, err := os.Open("/dev/tty")
 		if err == nil {
 			defer tty.Close()
@@ -31,9 +31,9 @@ func (e CommandExecutor) Execute(opts ExecuteOptions, out io.Writer) error {
 		}
 	}
 
-	root, _ := filepath.Abs(opts.root)
-	envs := make([]string, len(opts.env))
-	for name, value := range opts.env {
+	root, _ := filepath.Abs(opts.Root)
+	envs := make([]string, len(opts.Env))
+	for name, value := range opts.Env {
 		envs = append(
 			envs,
 			fmt.Sprintf("%s=%s", strings.ToUpper(name), os.ExpandEnv(value)),
@@ -42,8 +42,8 @@ func (e CommandExecutor) Execute(opts ExecuteOptions, out io.Writer) error {
 
 	// We can have one command split into separate to fit into shell command max length.
 	// In this case we execute those commands one by one.
-	for _, args := range opts.commands {
-		if err := e.executeOne(args, root, envs, opts.interactive, in, out); err != nil {
+	for _, args := range opts.Commands {
+		if err := e.executeOne(args, root, envs, opts.Interactive, in, out); err != nil {
 			return err
 		}
 	}

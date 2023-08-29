@@ -1,4 +1,4 @@
-package runner
+package run
 
 import (
 	"errors"
@@ -14,15 +14,16 @@ import (
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
+	"github.com/evilmartians/lefthook/internal/lefthook/run/exec"
 )
 
 type TestExecutor struct{}
 
-func (e TestExecutor) Execute(opts ExecuteOptions, _out io.Writer) (err error) {
-	if opts.commands[0][0] == "success" {
+func (e TestExecutor) Execute(opts exec.Options, _out io.Writer) (err error) {
+	if opts.Commands[0][0] == "success" {
 		err = nil
 	} else {
-		err = errors.New(opts.commands[0][0])
+		err = errors.New(opts.Commands[0][0])
 	}
 
 	return
@@ -728,7 +729,6 @@ func TestRunAll(t *testing.T) {
 		executor := TestExecutor{}
 		runner := &Runner{
 			Opts: Opts{
-				Fs:         fs,
 				Repo:       repo,
 				Hook:       tt.hook,
 				HookName:   tt.hookName,

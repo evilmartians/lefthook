@@ -1,4 +1,4 @@
-package runner
+package exec
 
 import (
 	"fmt"
@@ -12,18 +12,18 @@ import (
 
 type CommandExecutor struct{}
 
-func (e CommandExecutor) Execute(opts ExecuteOptions, out io.Writer) error {
-	root, _ := filepath.Abs(opts.root)
-	envs := make([]string, len(opts.env))
-	for name, value := range opts.env {
+func (e CommandExecutor) Execute(opts Options, out io.Writer) error {
+	root, _ := filepath.Abs(opts.Root)
+	envs := make([]string, len(opts.Env))
+	for name, value := range opts.Env {
 		envs = append(
 			envs,
 			fmt.Sprintf("%s=%s", strings.ToUpper(name), os.ExpandEnv(value)),
 		)
 	}
 
-	for _, args := range opts.commands {
-		if err := e.executeOne(args, root, envs, opts.interactive, os.Stdin, out); err != nil {
+	for _, args := range opts.Commands {
+		if err := e.executeOne(args, root, envs, opts.Interactive, os.Stdin, out); err != nil {
 			return err
 		}
 	}
