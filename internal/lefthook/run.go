@@ -108,7 +108,7 @@ Run 'lefthook install' manually.`,
 	resultChan := make(chan run.Result, len(hook.Commands)+len(hook.Scripts))
 
 	runner := run.NewRunner(
-		run.Opts{
+		run.Options{
 			Repo:            l.repo,
 			Hook:            hook,
 			HookName:        hookName,

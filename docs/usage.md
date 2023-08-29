@@ -219,7 +219,7 @@ When you try to commit `git commit -m "haha bad commit text"` script `commitlint
 ### Parallel execution
 
 You can enable parallel execution if you want to speed up your checks.
-Lets get example from [discourse](https://github.com/discourse/discourse/blob/master/.travis.yml#L77-L83) project.
+Lets imagine we have the following rules to lint the whole project:
 
 ```
 bundle exec rubocop --parallel && \

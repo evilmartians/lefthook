@@ -728,7 +728,7 @@ func TestRunAll(t *testing.T) {
 		resultChan := make(chan Result, len(tt.hook.Commands)+len(tt.hook.Scripts))
 		executor := TestExecutor{}
 		runner := &Runner{
-			Opts: Opts{
+			Options: Options{
 				Repo:       repo,
 				Hook:       tt.hook,
 				HookName:   tt.hookName,

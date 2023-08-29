@@ -67,6 +67,9 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 	if len(command.Files) > 0 {
 		filesCmd = command.Files
 	}
+	if len(filesCmd) > 0 {
+		filesCmd = replacePositionalArguments(filesCmd, r.GitArgs)
+	}
 
 	var stagedFiles func() ([]string, error)
 	switch {
@@ -83,7 +86,6 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 		config.PushFiles:      r.Repo.PushFiles,
 		config.SubAllFiles:    r.Repo.AllFiles,
 		config.SubFiles: func() ([]string, error) {
-			filesCmd = r.replacePositionalArguments(filesCmd)
 			return r.Repo.FilesByCommand(filesCmd)
 		},
 	}
@@ -114,8 +116,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 
 	// Checking substitutions and skipping execution if it is empty.
 	//
-	// Special case - `files` option: return if the result of files
-	// command is empty.
+	// Special case for `files` option: return if the result of files command is empty.
 	if len(filesCmd) > 0 && templates[config.SubFiles] == nil {
 		files, err := filesFns[config.SubFiles]()
 		if err != nil {
@@ -130,8 +131,8 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 	}
 
 	runString := command.Run
-	runString = r.replacePositionalArguments(runString)
-	log.Debugf("[lefthook] found templates: %+v", templates)
+	runString = replacePositionalArguments(runString, r.GitArgs)
+
 	var maxlen int
 	switch runtime.GOOS {
 	case "windows":
@@ -172,10 +173,10 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 	return result, nil, nil
 }
 
-func (r *Runner) replacePositionalArguments(str string) string {
-	str = strings.ReplaceAll(str, "{0}", strings.Join(r.GitArgs, " "))
-	for i, gitArg := range r.GitArgs {
-		str = strings.ReplaceAll(str, fmt.Sprintf("{%d}", i+1), gitArg)
+func replacePositionalArguments(str string, args []string) string {
+	str = strings.ReplaceAll(str, "{0}", strings.Join(args, " "))
+	for i, arg := range args {
+		str = strings.ReplaceAll(str, fmt.Sprintf("{%d}", i+1), arg)
 	}
 	return str
 }

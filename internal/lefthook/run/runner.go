@@ -31,7 +31,7 @@ const (
 
 var surroundingQuotesRegexp = regexp.MustCompile(`^'(.*)'$`)
 
-type Opts struct {
+type Options struct {
 	Repo            *git.Repository
 	Hook            *config.Hook
 	HookName        string
@@ -46,16 +46,16 @@ type Opts struct {
 
 // Runner responds for actual execution and handling the results.
 type Runner struct {
-	Opts
+	Options
 
 	partiallyStagedFiles []string
 	failed               atomic.Bool
 	executor             exec.Executor
 }
 
-func NewRunner(opts Opts) *Runner {
+func NewRunner(opts Options) *Runner {
 	return &Runner{
-		Opts:     opts,
+		Options:  opts,
 		executor: exec.CommandExecutor{},
 	}
 }
