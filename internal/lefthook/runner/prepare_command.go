@@ -105,7 +105,6 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 		}
 
 		files = filterFiles(command, files)
-		files = escapeFiles(files)
 		if len(files) == 0 {
 			return nil, nil, errors.New("no files for inspection")
 		}
@@ -124,7 +123,6 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 		}
 
 		files = filterFiles(command, files)
-		files = escapeFiles(files)
 
 		if len(files) == 0 {
 			return nil, nil, errors.New("no files for inspection")
@@ -134,7 +132,16 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 	runString := command.Run
 	runString = r.replacePositionalArguments(runString)
 	log.Debugf("[lefthook] found templates: %+v", templates)
-	result := replaceTemplates(runString, templates)
+	var maxlen int
+	switch runtime.GOOS {
+	case "windows":
+		maxlen = maxCommandLengthWindows
+	case "darwin":
+		maxlen = maxCommandLengthDarwin
+	default:
+		maxlen = maxCommandLengthLinux
+	}
+	result := replaceInChunks(runString, templates, maxlen)
 
 	if len(result.files) == 0 && config.HookUsesStagedFiles(r.HookName) {
 		if templates[config.SubStagedFiles] != nil && len(templates[config.SubStagedFiles].files) == 0 {
@@ -161,8 +168,6 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 			}
 		}
 	}
-
-	log.Debugf("[lefthook] executing: %+v", result)
 
 	return result, nil, nil
 }
@@ -205,7 +210,7 @@ func escapeFiles(files []string) []string {
 	return filesEsc
 }
 
-func replaceTemplates(str string, templates map[string]*template) *run {
+func replaceInChunks(str string, templates map[string]*template, maxlen int) *run {
 	if len(templates) == 0 {
 		return &run{
 			commands: [][]string{strings.Split(str, " ")},
@@ -215,27 +220,21 @@ func replaceTemplates(str string, templates map[string]*template) *run {
 	var cnt int
 
 	allFiles := make([]string, 0)
-	for _, template := range templates {
+	for name, template := range templates {
 		if template.cnt == 0 {
 			continue
 		}
 
 		cnt += template.cnt
+		maxlen += template.cnt * len(name)
 		allFiles = append(allFiles, template.files...)
+		template.files = escapeFiles(template.files)
 	}
 
-	var maxStringLength int
-	switch runtime.GOOS {
-	case "windows":
-		maxStringLength = maxCommandLengthWindows
-	case "darwin":
-		maxStringLength = maxCommandLengthDarwin
-	default:
-		maxStringLength = maxCommandLengthLinux
-	}
+	maxlen -= len(str)
 
 	if cnt > 0 {
-		maxStringLength /= cnt
+		maxlen /= cnt
 	}
 
 	commands := make([][]string, 0)
@@ -243,18 +242,15 @@ out:
 	for {
 		command := str
 		for name, template := range templates {
-			added, rest := getNChars(template.files, maxStringLength-len(name))
+			added, rest := getNChars(template.files, maxlen)
 			if len(added) == 0 {
 				break out
 			}
 			command = replaceQuoted(command, name, added)
-			log.Debug("[lefthook] chunk command: ", command)
 			template.files = rest
-			if len(rest) == 0 {
-				break
-			}
 		}
 
+		log.Debug("[lefthook] executing: ", command)
 		commands = append(commands, strings.Split(command, " "))
 	}
 
@@ -272,6 +268,9 @@ func getNChars(s []string, n int) ([]string, []string) {
 	var cnt int
 	for i, str := range s {
 		cnt += len(str)
+		if i > 0 {
+			cnt += 1 // a space
+		}
 		if cnt > n {
 			if i == 0 {
 				i = 1
