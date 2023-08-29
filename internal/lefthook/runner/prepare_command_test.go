@@ -76,21 +76,21 @@ func TestReplaceInChunks(t *testing.T) {
 		{
 			str: "echo {staged_files}",
 			templates: map[string]*template{
-				"{staged_files}": &template{
+				"{staged_files}": {
 					files: []string{"file1", "file2", "file3"},
 					cnt:   1,
 				},
 			},
 			maxlen: 300,
 			res: &run{
-				commands: [][]string{[]string{"echo", "file1", "file2", "file3"}},
+				commands: [][]string{{"echo", "file1", "file2", "file3"}},
 				files:    []string{"file1", "file2", "file3"},
 			},
 		},
 		{
 			str: "echo {staged_files}",
 			templates: map[string]*template{
-				"{staged_files}": &template{
+				"{staged_files}": {
 					files: []string{"file1", "file2", "file3"},
 					cnt:   1,
 				},
@@ -98,9 +98,9 @@ func TestReplaceInChunks(t *testing.T) {
 			maxlen: 10,
 			res: &run{
 				commands: [][]string{
-					[]string{"echo", "file1"},
-					[]string{"echo", "file2"},
-					[]string{"echo", "file3"},
+					{"echo", "file1"},
+					{"echo", "file2"},
+					{"echo", "file3"},
 				},
 				files: []string{"file1", "file2", "file3"},
 			},
@@ -108,7 +108,7 @@ func TestReplaceInChunks(t *testing.T) {
 		{
 			str: "echo {files} && git add {files}",
 			templates: map[string]*template{
-				"{files}": &template{
+				"{files}": {
 					files: []string{"file1", "file2", "file3"},
 					cnt:   2,
 				},
@@ -116,8 +116,8 @@ func TestReplaceInChunks(t *testing.T) {
 			maxlen: 49, // (49 - 17(len of command without templates)) / 2 = 16, but we need 17 (3 words + 2 spaces)
 			res: &run{
 				commands: [][]string{
-					[]string{"echo", "file1", "file2", "&&", "git", "add", "file1", "file2"},
-					[]string{"echo", "file3", "&&", "git", "add", "file3"},
+					{"echo", "file1", "file2", "&&", "git", "add", "file1", "file2"},
+					{"echo", "file3", "&&", "git", "add", "file3"},
 				},
 				files: []string{"file1", "file2", "file3"},
 			},
@@ -125,7 +125,7 @@ func TestReplaceInChunks(t *testing.T) {
 		{
 			str: "echo {files} && git add {files}",
 			templates: map[string]*template{
-				"{files}": &template{
+				"{files}": {
 					files: []string{"file1", "file2", "file3"},
 					cnt:   2,
 				},
@@ -133,7 +133,7 @@ func TestReplaceInChunks(t *testing.T) {
 			maxlen: 51,
 			res: &run{
 				commands: [][]string{
-					[]string{"echo", "file1", "file2", "file3", "&&", "git", "add", "file1", "file2", "file3"},
+					{"echo", "file1", "file2", "file3", "&&", "git", "add", "file1", "file2", "file3"},
 				},
 				files: []string{"file1", "file2", "file3"},
 			},
@@ -141,11 +141,11 @@ func TestReplaceInChunks(t *testing.T) {
 		{
 			str: "echo {push_files} && git add {files}",
 			templates: map[string]*template{
-				"{push_files}": &template{
+				"{push_files}": {
 					files: []string{"push-file"},
 					cnt:   1,
 				},
-				"{files}": &template{
+				"{files}": {
 					files: []string{"file1", "file2"},
 					cnt:   1,
 				},
@@ -153,7 +153,7 @@ func TestReplaceInChunks(t *testing.T) {
 			maxlen: 10,
 			res: &run{
 				commands: [][]string{
-					[]string{"echo", "push-file", "&&", "git", "add", "file1"},
+					{"echo", "push-file", "&&", "git", "add", "file1"},
 				},
 				files: []string{"push-file", "file1", "file2"},
 			},
