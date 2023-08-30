@@ -387,7 +387,7 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 				return
 			}
 
-			files = filterFiles(command, files)
+			files = r.filterFiles(command, files)
 		}
 
 		if len(command.Root) > 0 {
