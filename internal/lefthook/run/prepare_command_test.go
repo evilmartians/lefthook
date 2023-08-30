@@ -5,6 +5,26 @@ import (
 	"testing"
 )
 
+func slicesEqual(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	r := make(map[string]struct{})
+
+	for _, item := range a {
+		r[item] = struct{}{}
+	}
+
+	for _, item := range b {
+		if _, ok := r[item]; !ok {
+			return false
+		}
+	}
+
+	return true
+}
+
 func TestGetNChars(t *testing.T) {
 	for i, tt := range [...]struct {
 		source, cut, rest []string

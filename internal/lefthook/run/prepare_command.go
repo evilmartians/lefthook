@@ -9,6 +9,7 @@ import (
 	"gopkg.in/alessio/shellescape.v1"
 
 	"github.com/evilmartians/lefthook/internal/config"
+	"github.com/evilmartians/lefthook/internal/lefthook/run/filter"
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
@@ -106,7 +107,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 			return nil, fmt.Errorf("error replacing %s: %w", filesType, err), nil
 		}
 
-		files = filterFiles(command, files)
+		files = filter.Apply(command, files)
 		if len(files) == 0 {
 			return nil, nil, errors.New("no files for inspection")
 		}
@@ -123,7 +124,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 			return nil, fmt.Errorf("error calling replace command for %s: %w", config.SubFiles, err), nil
 		}
 
-		files = filterFiles(command, files)
+		files = filter.Apply(command, files)
 
 		if len(files) == 0 {
 			return nil, nil, errors.New("no files for inspection")
@@ -151,7 +152,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 
 		files, err := r.Repo.StagedFiles()
 		if err == nil {
-			if len(filterFiles(command, files)) == 0 {
+			if len(filter.Apply(command, files)) == 0 {
 				return nil, nil, errors.New("no matching staged files")
 			}
 		}
@@ -164,7 +165,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 
 		files, err := r.Repo.PushFiles()
 		if err == nil {
-			if len(filterFiles(command, files)) == 0 {
+			if len(filter.Apply(command, files)) == 0 {
 				return nil, nil, errors.New("no matching push files")
 			}
 		}
@@ -179,22 +180,6 @@ func replacePositionalArguments(str string, args []string) string {
 		str = strings.ReplaceAll(str, fmt.Sprintf("{%d}", i+1), arg)
 	}
 	return str
-}
-
-func filterFiles(command *config.Command, files []string) []string {
-	if files == nil {
-		return []string{}
-	}
-
-	log.Debug("[lefthook] files before filters:\n", files)
-
-	files = filterGlob(files, command.Glob)
-	files = filterExclude(files, command.Exclude)
-	files = filterRelative(files, command.Root)
-
-	log.Debug("[lefthook] files after filters:\n", files)
-
-	return files
 }
 
 // Escape file names to prevent unexpected bugs.

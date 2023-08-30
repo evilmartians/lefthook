@@ -19,6 +19,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/lefthook/run/exec"
+	"github.com/evilmartians/lefthook/internal/lefthook/run/filter"
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
@@ -387,7 +388,7 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 				return
 			}
 
-			files = filterFiles(command, files)
+			files = filter.Apply(command, files)
 		}
 
 		if len(command.Root) > 0 {
