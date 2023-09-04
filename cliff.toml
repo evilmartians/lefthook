@@ -49,6 +49,6 @@ ignore_tags = ""
 # sort the tags topologically
 topo_order = false
 # sort the commits inside sections by oldest/newest order
-sort_commits = "oldest"
+sort_commits = "newest"
 # limit the number of commits included in the changelog.
 # limit_commits = 42

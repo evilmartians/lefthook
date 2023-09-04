@@ -2,6 +2,12 @@
 
 ## master (unreleased)
 
+# 1.4.10 (2023-09-04)
+
+- fix: split command with file templates into chunks ([#541](https://github.com/evilmartians/lefthook/pull/541)) by @mrexox
+- chore: add git-cliff config for easier changelog generation by @mrexox
+- fix: allow empty staged files diffs ([#543](https://github.com/evilmartians/lefthook/pull/543)) by @mrexox
+
 # 1.4.9 (2023-08-15)
 
 - chore: fix linter issues ([#537](https://github.com/evilmartians/lefthook/pull/537)) by @mrexox

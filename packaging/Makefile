@@ -1,5 +1,5 @@
 # Packages version to release
-VERSION := 1.4.9
+VERSION := 1.4.10
 
 DIST_DIR := ../dist
 
@@ -38,7 +38,7 @@ put-binaries:
 	install -D $(DARWIN_AMD64_BIN) npm/lefthook-darwin-x64/bin/lefthook
 	install -D $(DARWIN_ARM64_BIN) npm/lefthook-darwin-arm64/bin/lefthook
 	cd npm-bundled; npm version $(VERSION) --allow-same-version; cd -
-	cd $(DIST_DIR); find . -maxdepth 2 -executable -type f -exec cp --parents \{\} ../packaging/rubygems/libexec/ \;
+	cd $(DIST_DIR); find . -maxdepth 2 -type f -exec cp --parents \{\} ../packaging/rubygems/libexec/ \;
 
 put-readme:
 	find npm/ -type d -name 'lefthook*' -exec cp -f ../README.md \{} \;
@@ -47,6 +47,6 @@ put-readme:
 
 clean:
 	find npm/ -name 'README.md' -exec rm \{} \;
-	find npm/ -type f -name 'lefthook*' -executable -exec rm \{} \;
+	find npm/ -type f -name 'lefthook*' -exec rm \{} \;
 	git clean -fdX npm-installer/ npm-bundled/ npm-bundled/bin/
 	git clean -fdX rubygems/libexec/ rubygems/pkg/
