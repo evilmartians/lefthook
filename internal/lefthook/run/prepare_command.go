@@ -13,12 +13,13 @@ import (
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
-// An object that described the single command's run option.
+// An object that describes the single command's run option.
 type run struct {
 	commands [][]string
 	files    []string
 }
 
+// Stats for template replacements in a command string.
 type template struct {
 	files []string
 	cnt   int
