@@ -174,8 +174,31 @@ func TestReplaceInChunks(t *testing.T) {
 			res: &run{
 				commands: [][]string{
 					{"echo", "push-file", "&&", "git", "add", "file1"},
+					{"echo", "push-file", "&&", "git", "add", "file2"},
 				},
 				files: []string{"push-file", "file1", "file2"},
+			},
+		},
+		{
+			str: "echo {push_files} && git add {files}",
+			templates: map[string]*template{
+				"{push_files}": {
+					files: []string{"push1", "push2", "push3"},
+					cnt:   1,
+				},
+				"{files}": {
+					files: []string{"file1", "file2"},
+					cnt:   1,
+				},
+			},
+			maxlen: 27,
+			res: &run{
+				commands: [][]string{
+					{"echo", "push1", "&&", "git", "add", "file1"},
+					{"echo", "push2", "&&", "git", "add", "file2"},
+					{"echo", "push3", "&&", "git", "add", "file2"},
+				},
+				files: []string{"push1", "push2", "push3", "file1", "file2"},
 			},
 		},
 	} {

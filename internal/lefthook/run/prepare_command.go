@@ -223,21 +223,25 @@ func replaceInChunks(str string, templates map[string]*template, maxlen int) *ru
 		maxlen /= cnt
 	}
 
+	var exhausted int
 	commands := make([][]string, 0)
-out:
 	for {
 		command := str
 		for name, template := range templates {
 			added, rest := getNChars(template.files, maxlen)
-			if len(added) == 0 {
-				break out
+			if len(rest) == 0 {
+				exhausted += 1
+			} else {
+				template.files = rest
 			}
 			command = replaceQuoted(command, name, added)
-			template.files = rest
 		}
 
 		log.Debug("[lefthook] executing: ", command)
 		commands = append(commands, strings.Split(command, " "))
+		if exhausted >= len(templates) {
+			break
+		}
 	}
 
 	return &run{
