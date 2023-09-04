@@ -23,7 +23,7 @@ bin/golangci-lint:
 		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH)/bin v1.54.1
 
 lint: bin/golangci-lint
-	$$(go env GOPATH)/bin/golangci-lint run
+	$$(go env GOPATH)/bin/golangci-lint run --fix
 
 .ONESHELL:
 version:

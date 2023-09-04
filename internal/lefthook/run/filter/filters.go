@@ -1,13 +1,32 @@
-package runner
+package filter
 
 import (
 	"regexp"
 	"strings"
 
 	"github.com/gobwas/glob"
+
+	"github.com/evilmartians/lefthook/internal/config"
+	"github.com/evilmartians/lefthook/internal/log"
 )
 
-func filterGlob(vs []string, matcher string) []string {
+func Apply(command *config.Command, files []string) []string {
+	if len(files) == 0 {
+		return nil
+	}
+
+	log.Debug("[lefthook] files before filters:\n", files)
+
+	files = byGlob(files, command.Glob)
+	files = byExclude(files, command.Exclude)
+	files = byRoot(files, command.Root)
+
+	log.Debug("[lefthook] files after filters:\n", files)
+
+	return files
+}
+
+func byGlob(vs []string, matcher string) []string {
 	if matcher == "" {
 		return vs
 	}
@@ -23,7 +42,7 @@ func filterGlob(vs []string, matcher string) []string {
 	return vsf
 }
 
-func filterExclude(vs []string, matcher string) []string {
+func byExclude(vs []string, matcher string) []string {
 	if matcher == "" {
 		return vs
 	}
@@ -37,7 +56,7 @@ func filterExclude(vs []string, matcher string) []string {
 	return vsf
 }
 
-func filterRelative(vs []string, matcher string) []string {
+func byRoot(vs []string, matcher string) []string {
 	if matcher == "" {
 		return vs
 	}

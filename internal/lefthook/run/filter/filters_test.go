@@ -1,4 +1,4 @@
-package runner
+package filter
 
 import (
 	"fmt"
@@ -10,8 +10,14 @@ func slicesEqual(a, b []string) bool {
 		return false
 	}
 
-	for i, item := range a {
-		if item != b[i] {
+	r := make(map[string]struct{})
+
+	for _, item := range a {
+		r[item] = struct{}{}
+	}
+
+	for _, item := range b {
+		if _, ok := r[item]; !ok {
 			return false
 		}
 	}
@@ -19,7 +25,7 @@ func slicesEqual(a, b []string) bool {
 	return true
 }
 
-func TestFilterGlob(t *testing.T) {
+func TestByGlob(t *testing.T) {
 	for i, tt := range [...]struct {
 		source, result []string
 		glob           string
@@ -51,7 +57,7 @@ func TestFilterGlob(t *testing.T) {
 		},
 	} {
 		t.Run(fmt.Sprintf("%d:", i), func(t *testing.T) {
-			res := filterGlob(tt.source, tt.glob)
+			res := byGlob(tt.source, tt.glob)
 			if !slicesEqual(res, tt.result) {
 				t.Errorf("expected %v to be equal to %v", res, tt.result)
 			}
@@ -59,7 +65,7 @@ func TestFilterGlob(t *testing.T) {
 	}
 }
 
-func TestFilterExclude(t *testing.T) {
+func TestByExclude(t *testing.T) {
 	for i, tt := range [...]struct {
 		source, result []string
 		exclude        string
@@ -91,7 +97,7 @@ func TestFilterExclude(t *testing.T) {
 		},
 	} {
 		t.Run(fmt.Sprintf("%d:", i), func(t *testing.T) {
-			res := filterExclude(tt.source, tt.exclude)
+			res := byExclude(tt.source, tt.exclude)
 			if !slicesEqual(res, tt.result) {
 				t.Errorf("expected %v to be equal to %v", res, tt.result)
 			}
@@ -99,7 +105,7 @@ func TestFilterExclude(t *testing.T) {
 	}
 }
 
-func TestFilterRelative(t *testing.T) {
+func TestByRoot(t *testing.T) {
 	for i, tt := range [...]struct {
 		source, result []string
 		path           string
@@ -126,7 +132,7 @@ func TestFilterRelative(t *testing.T) {
 		},
 	} {
 		t.Run(fmt.Sprintf("%d:", i), func(t *testing.T) {
-			res := filterRelative(tt.source, tt.path)
+			res := byRoot(tt.source, tt.path)
 			if !slicesEqual(res, tt.result) {
 				t.Errorf("expected %v to be equal to %v", res, tt.result)
 			}

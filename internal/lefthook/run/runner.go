@@ -1,4 +1,4 @@
-package runner
+package run
 
 import (
 	"bytes"
@@ -18,6 +18,8 @@ import (
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
+	"github.com/evilmartians/lefthook/internal/lefthook/run/exec"
+	"github.com/evilmartians/lefthook/internal/lefthook/run/filter"
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
@@ -30,8 +32,7 @@ const (
 
 var surroundingQuotesRegexp = regexp.MustCompile(`^'(.*)'$`)
 
-type Opts struct {
-	Fs              afero.Fs
+type Options struct {
 	Repo            *git.Repository
 	Hook            *config.Hook
 	HookName        string
@@ -46,17 +47,17 @@ type Opts struct {
 
 // Runner responds for actual execution and handling the results.
 type Runner struct {
-	Opts
+	Options
 
 	partiallyStagedFiles []string
 	failed               atomic.Bool
-	executor             Executor
+	executor             exec.Executor
 }
 
-func NewRunner(opts Opts) *Runner {
+func NewRunner(opts Options) *Runner {
 	return &Runner{
-		Opts:     opts,
-		executor: CommandExecutor{},
+		Options:  opts,
+		executor: exec.CommandExecutor{},
 	}
 }
 
@@ -95,8 +96,8 @@ func (r *Runner) RunAll(sourceDirs []string) {
 	r.postHook()
 }
 
-func (r *Runner) fail(name, text string) {
-	r.ResultChan <- resultFail(name, text)
+func (r *Runner) fail(name string, err error) {
+	r.ResultChan <- resultFail(name, err.Error())
 	r.failed.Store(true)
 }
 
@@ -112,11 +113,11 @@ func (r *Runner) runLFSHook() error {
 	lfsRequiredFile := filepath.Join(r.Repo.RootPath, git.LFSRequiredFile)
 	lfsConfigFile := filepath.Join(r.Repo.RootPath, git.LFSConfigFile)
 
-	requiredExists, err := afero.Exists(r.Fs, lfsRequiredFile)
+	requiredExists, err := afero.Exists(r.Repo.Fs, lfsRequiredFile)
 	if err != nil {
 		return err
 	}
-	configExists, err := afero.Exists(r.Fs, lfsConfigFile)
+	configExists, err := afero.Exists(r.Repo.Fs, lfsConfigFile)
 	if err != nil {
 		return err
 	}
@@ -223,7 +224,7 @@ func (r *Runner) postHook() {
 }
 
 func (r *Runner) runScripts(dir string) {
-	files, err := afero.ReadDir(r.Fs, dir) // ReadDir already sorts files by .Name()
+	files, err := afero.ReadDir(r.Repo.Fs, dir) // ReadDir already sorts files by .Name()
 	if err != nil || len(files) == 0 {
 		return
 	}
@@ -288,13 +289,13 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 		defer log.StartSpinner()
 	}
 
-	finished := r.run(ExecuteOptions{
-		name:        file.Name(),
-		root:        r.Repo.RootPath,
-		args:        args,
-		failText:    script.FailText,
-		interactive: script.Interactive && !r.DisableTTY,
-		env:         script.Env,
+	finished := r.run(exec.Options{
+		Name:        file.Name(),
+		Root:        r.Repo.RootPath,
+		Commands:    [][]string{args},
+		FailText:    script.FailText,
+		Interactive: script.Interactive && !r.DisableTTY,
+		Env:         script.Env,
 	}, r.Hook.Follow)
 
 	if finished && config.HookUsesStagedFiles(r.HookName) && script.StageFixed {
@@ -356,7 +357,7 @@ func (r *Runner) runCommands() {
 }
 
 func (r *Runner) runCommand(name string, command *config.Command) {
-	args, err := r.prepareCommand(name, command)
+	run, err := r.prepareCommand(name, command)
 	if err != nil {
 		r.logSkip(name, err.Error())
 		return
@@ -367,17 +368,17 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 		defer log.StartSpinner()
 	}
 
-	finished := r.run(ExecuteOptions{
-		name:        name,
-		root:        filepath.Join(r.Repo.RootPath, command.Root),
-		args:        args.all,
-		failText:    command.FailText,
-		interactive: command.Interactive && !r.DisableTTY,
-		env:         command.Env,
+	finished := r.run(exec.Options{
+		Name:        name,
+		Root:        filepath.Join(r.Repo.RootPath, command.Root),
+		Commands:    run.commands,
+		FailText:    command.FailText,
+		Interactive: command.Interactive && !r.DisableTTY,
+		Env:         command.Env,
 	}, r.Hook.Follow)
 
 	if finished && config.HookUsesStagedFiles(r.HookName) && command.StageFixed {
-		files := args.files
+		files := run.files
 
 		if len(files) == 0 {
 			var err error
@@ -387,7 +388,7 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 				return
 			}
 
-			files = filterFiles(command, files)
+			files = filter.Apply(command, files)
 		}
 
 		if len(command.Root) > 0 {
@@ -406,12 +407,12 @@ func (r *Runner) addStagedFiles(files []string) {
 	}
 }
 
-func (r *Runner) run(opts ExecuteOptions, follow bool) bool {
-	log.SetName(opts.name)
-	defer log.UnsetName(opts.name)
+func (r *Runner) run(opts exec.Options, follow bool) bool {
+	log.SetName(opts.Name)
+	defer log.UnsetName(opts.Name)
 
-	if (follow || opts.interactive) && !r.SkipSettings.SkipExecution() {
-		r.logExecute(opts.name, nil, nil)
+	if (follow || opts.Interactive) && !r.SkipSettings.SkipExecution() {
+		r.logExecute(opts.Name, nil, nil)
 
 		var out io.Writer
 		if r.SkipSettings.SkipExecutionOutput() {
@@ -422,9 +423,9 @@ func (r *Runner) run(opts ExecuteOptions, follow bool) bool {
 
 		err := r.executor.Execute(opts, out)
 		if err != nil {
-			r.fail(opts.name, opts.failText)
+			r.fail(opts.Name, errors.New(opts.FailText))
 		} else {
-			r.success(opts.name)
+			r.success(opts.Name)
 		}
 
 		return err == nil
@@ -434,12 +435,12 @@ func (r *Runner) run(opts ExecuteOptions, follow bool) bool {
 	err := r.executor.Execute(opts, out)
 
 	if err != nil {
-		r.fail(opts.name, opts.failText)
+		r.fail(opts.Name, errors.New(opts.FailText))
 	} else {
-		r.success(opts.name)
+		r.success(opts.Name)
 	}
 
-	r.logExecute(opts.name, err, out)
+	r.logExecute(opts.Name, err, out)
 
 	return err == nil
 }

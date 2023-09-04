@@ -1,4 +1,4 @@
-package runner
+package run
 
 const (
 	StatusOk status = iota

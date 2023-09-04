@@ -1,0 +1,15 @@
+[pre-commit]
+parallel = true
+
+[pre-commit.commands.lint]
+run = "make lint"
+glob = "*.go"
+stage_fixed = true
+
+[pre-commit.commands.test]
+run = "make test"
+glob = "*.go"
+
+[pre-commit.commands.lychee]
+glob = "*.md"
+run = "lychee {staged_files}"
