@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -97,8 +98,12 @@ Run 'lefthook install' manually.`,
 	// Find the hook
 	hook, ok := cfg.Hooks[hookName]
 	if !ok {
-		log.Debugf("[lefthook] skip: Hook %s doesn't exist in the config", hookName)
-		return nil
+		if slices.Contains(config.AvailableHooks[:], hookName) {
+			log.Debugf("[lefthook] skip: Hook %s doesn't exist in the config", hookName)
+			return nil
+		}
+
+		return fmt.Errorf("Hook %s doesn't exist in the config", hookName)
 	}
 	if err := hook.Validate(); err != nil {
 		return err

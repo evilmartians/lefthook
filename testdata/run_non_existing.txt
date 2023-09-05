@@ -1,0 +1,8 @@
+exec git init
+exec lefthook run pre-commit
+! stdout 'Error.*'
+! exec lefthook run no-a-hook
+stdout 'Error.*'
+
+-- lefthook.yml --
+# empty
