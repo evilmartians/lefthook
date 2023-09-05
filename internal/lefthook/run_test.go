@@ -47,7 +47,7 @@ func TestRun(t *testing.T) {
 	}{
 		{
 			name: "Skip case",
-			hook: "any-hook",
+			hook: "pre-commit",
 			envs: map[string]string{
 				"LEFTHOOK": "0",
 			},
@@ -55,7 +55,7 @@ func TestRun(t *testing.T) {
 		},
 		{
 			name: "Skip case",
-			hook: "any-hook",
+			hook: "pre-commit",
 			envs: map[string]string{
 				"LEFTHOOK": "false",
 			},
@@ -63,7 +63,7 @@ func TestRun(t *testing.T) {
 		},
 		{
 			name: "Invalid version",
-			hook: "any-hook",
+			hook: "pre-commit",
 			config: `
 min_version: 23.0.1
 `,
@@ -71,7 +71,7 @@ min_version: 23.0.1
 		},
 		{
 			name: "Valid version, no hook",
-			hook: "any-hook",
+			hook: "pre-commit",
 			config: `
 min_version: 0.7.9
 `,
