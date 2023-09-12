@@ -19,6 +19,8 @@
   - [Concurrent files overrides](#concurrent-files-overrides)
   - [Capture ARGS from git in the script](#capture-args-from-git-in-the-script)
   - [Git LFS support](#git-lfs-support)
+  - [Pass stdin to a command or script](#pass-stdin-to-a-command-or-script)
+  - [Using an interactive command or script](#using-an-interactive-command-or-script)
 
 ----
 
@@ -304,3 +306,12 @@ Lefthook runs LFS hooks internally for the following hooks:
 - pre-push
 
 Errors are suppressed if git LFS is not required for the project. You can use [`LEFTHOOK_VERBOSE`](#lefthook_verbose) ENV to make lefthook show git LFS output.
+
+
+### Pass stdin to a command or script
+
+When you need to read the data from stdin – specify [`use_stdin: true`](./configuration.md#use_stdin). This option is good when you write a command or script that receives data from git using stdin (for the `pre-push` hook, for example).
+
+### Using an interactive command or script
+
+When you need to interact with user – specify [`interactive: true`](./configuration.md#interactive). Lefthook will connect to the current TTY and forward it to your command's or script's stdin.

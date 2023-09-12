@@ -42,6 +42,7 @@
   - [`fail_text`](#fail_text)
   - [`stage_fixed`](#stage_fixed)
   - [`interactive`](#interactive)
+  - [`use_stdin`](#use_stdin)
 - [Script](#script)
   - [`runner`](#runner)
   - [`skip`](#skip)
@@ -51,6 +52,7 @@
   - [`fail_text`](#fail_text)
   - [`stage_fixed`](#stage_fixed)
   - [`interactive`](#interactive)
+  - [`use_stdin`](#use_stdin)
 - [Examples](#examples)
 - [More info](#more-info)
 
@@ -1045,7 +1047,14 @@ pre-commit:
 
 **Default: `false`**
 
-Whether to use interactive mode and provide a STDIN for a command or script.
+Whether to use interactive mode. This applies the certain behavior:
+- All `interactive` commands/scripts are executed after non-interactive.
+- When executing, lefthook tries to open /dev/tty (Linux/Unix only) and use it as stdin.
+- When [`no_tty`](#no_tty) option is set, `interactive` is ignored.
+
+**Note**
+
+If you want to pass stdin to your command or script but don't need to get the input from CLI, use [`use_stdin`](#use_stdin) option isntead.
 
 ## Script
 
@@ -1092,6 +1101,38 @@ commit-msg:
 ```
 
 When you try to commit `git commit -m "bad commit text"` script `template_checker` will be executed. Since commit text doesn't match the described pattern the commit process will be interrupted.
+
+### `use_stdin`
+
+Pass the stdin from the OS to the command/script.
+
+**Note**
+
+With many commands or scripts having `use_stdin: true`, only one will receive the data. The others will have nothing. If you need to pass the data from stdin to every command or script, please, submit a [feature request](https://github.com/evilmartians/lefthook/issues/new?assignees=&labels=feature+request&projects=&template=feature_request.md).
+
+**Example**
+
+Use this option for the `pre-push` hook when you have a script that does `while read ...`. Without this option lefthook will hang: lefthook uses [pseudo TTY](https://github.com/creack/pty) by default, and it doesn't close stdin when all data is read.
+
+```bash
+# .lefthook/pre-push/do-the-magic.sh
+
+remote="$1"
+url="$2"
+
+while read local_ref local_oid remote_ref remote_oid; do
+  # ...
+done
+```
+
+```yml
+# lefthook.yml
+pre-push:
+  scripts:
+    "do-the-magic.sh":
+      runner: bash
+      use_stdin: true
+```
 
 ### `runner`
 
