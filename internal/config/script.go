@@ -19,6 +19,7 @@ type Script struct {
 
 	FailText    string `mapstructure:"fail_text"   yaml:"fail_text,omitempty"   json:"fail_text,omitempty"   toml:"fail_text,omitempty"`
 	Interactive bool   `mapstructure:"interactive" yaml:",omitempty"            json:"interactive,omitempty" toml:"interactive,omitempty"`
+	UseStdin    bool   `mapstructure:"use_stdin"   yaml:",omitempty"            json:"use_stdin,omitempty"   toml:"use_stdin,omitempty"`
 	StageFixed  bool   `mapstructure:"stage_fixed" yaml:"stage_fixed,omitempty" json:"stage_fixed,omitempty" toml:"stage_fixed,omitempty"`
 }
 

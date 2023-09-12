@@ -6,10 +6,10 @@ import (
 
 // Options contains the data that controls the execution.
 type Options struct {
-	Name, Root, FailText string
-	Commands             []string
-	Env                  map[string]string
-	Interactive          bool
+	Name, Root, FailText  string
+	Commands              []string
+	Env                   map[string]string
+	Interactive, UseStdin bool
 }
 
 // Executor provides an interface for command execution.
