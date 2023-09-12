@@ -22,8 +22,8 @@ func (e CommandExecutor) Execute(opts Options, out io.Writer) error {
 		)
 	}
 
-	for _, args := range opts.Commands {
-		if err := e.executeOne(args, root, envs, opts.Interactive, os.Stdin, out); err != nil {
+	for _, command := range opts.Commands {
+		if err := e.executeOne(command, root, envs, opts.Interactive, os.Stdin, out); err != nil {
 			return err
 		}
 	}
@@ -40,10 +40,11 @@ func (e CommandExecutor) RawExecute(command []string, out io.Writer) error {
 	return cmd.Run()
 }
 
-func (e CommandExecutor) executeOne(args []string, root string, envs []string, interactive bool, in io.Reader, out io.Writer) error {
-	command := exec.Command(args[0])
+func (e CommandExecutor) executeOne(cmdstr string, root string, envs []string, interactive bool, in io.Reader, out io.Writer) error {
+	cmdargs := strings.Split(cmdstr, " ")
+	command := exec.Command(cmdargs[0])
 	command.SysProcAttr = &syscall.SysProcAttr{
-		CmdLine: strings.Join(args, " "),
+		CmdLine: strings.Join(cmdargs, " "),
 	}
 	command.Dir = root
 	command.Env = append(os.Environ(), envs...)
