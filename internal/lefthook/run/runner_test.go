@@ -20,10 +20,10 @@ import (
 type TestExecutor struct{}
 
 func (e TestExecutor) Execute(opts exec.Options, _out io.Writer) (err error) {
-	if opts.Commands[0][0] == "success" {
+	if strings.HasPrefix(opts.Commands[0], "success") {
 		err = nil
 	} else {
-		err = errors.New(opts.Commands[0][0])
+		err = errors.New(opts.Commands[0])
 	}
 
 	return

@@ -278,7 +278,7 @@ func (r *Runner) runScripts(dir string) {
 }
 
 func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo) {
-	args, err := r.prepareScript(script, path, file)
+	command, err := r.prepareScript(script, path, file)
 	if err != nil {
 		r.logSkip(file.Name(), err.Error())
 		return
@@ -292,7 +292,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 	finished := r.run(exec.Options{
 		Name:        file.Name(),
 		Root:        r.Repo.RootPath,
-		Commands:    [][]string{args},
+		Commands:    []string{command},
 		FailText:    script.FailText,
 		Interactive: script.Interactive && !r.DisableTTY,
 		Env:         script.Env,

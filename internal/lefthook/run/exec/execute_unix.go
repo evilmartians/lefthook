@@ -42,8 +42,8 @@ func (e CommandExecutor) Execute(opts Options, out io.Writer) error {
 
 	// We can have one command split into separate to fit into shell command max length.
 	// In this case we execute those commands one by one.
-	for _, args := range opts.Commands {
-		if err := e.executeOne(args, root, envs, opts.Interactive, in, out); err != nil {
+	for _, command := range opts.Commands {
+		if err := e.executeOne(command, root, envs, opts.Interactive, in, out); err != nil {
 			return err
 		}
 	}
@@ -60,8 +60,8 @@ func (e CommandExecutor) RawExecute(command []string, out io.Writer) error {
 	return cmd.Run()
 }
 
-func (e CommandExecutor) executeOne(args []string, root string, envs []string, interactive bool, in io.Reader, out io.Writer) error {
-	command := exec.Command("sh", "-c", strings.Join(args, " "))
+func (e CommandExecutor) executeOne(cmdstr string, root string, envs []string, interactive bool, in io.Reader, out io.Writer) error {
+	command := exec.Command("sh", "-c", cmdstr)
 	command.Dir = root
 	command.Env = append(os.Environ(), envs...)
 

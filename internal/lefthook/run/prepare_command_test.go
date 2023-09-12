@@ -103,7 +103,7 @@ func TestReplaceInChunks(t *testing.T) {
 			},
 			maxlen: 300,
 			res: &run{
-				commands: [][]string{{"echo", "file1", "file2", "file3"}},
+				commands: []string{"echo file1 file2 file3"},
 				files:    []string{"file1", "file2", "file3"},
 			},
 		},
@@ -117,10 +117,10 @@ func TestReplaceInChunks(t *testing.T) {
 			},
 			maxlen: 10,
 			res: &run{
-				commands: [][]string{
-					{"echo", "file1"},
-					{"echo", "file2"},
-					{"echo", "file3"},
+				commands: []string{
+					"echo file1",
+					"echo file2",
+					"echo file3",
 				},
 				files: []string{"file1", "file2", "file3"},
 			},
@@ -135,9 +135,9 @@ func TestReplaceInChunks(t *testing.T) {
 			},
 			maxlen: 49, // (49 - 17(len of command without templates)) / 2 = 16, but we need 17 (3 words + 2 spaces)
 			res: &run{
-				commands: [][]string{
-					{"echo", "file1", "file2", "&&", "git", "add", "file1", "file2"},
-					{"echo", "file3", "&&", "git", "add", "file3"},
+				commands: []string{
+					"echo file1 file2 && git add file1 file2",
+					"echo file3 && git add file3",
 				},
 				files: []string{"file1", "file2", "file3"},
 			},
@@ -152,8 +152,8 @@ func TestReplaceInChunks(t *testing.T) {
 			},
 			maxlen: 51,
 			res: &run{
-				commands: [][]string{
-					{"echo", "file1", "file2", "file3", "&&", "git", "add", "file1", "file2", "file3"},
+				commands: []string{
+					"echo file1 file2 file3 && git add file1 file2 file3",
 				},
 				files: []string{"file1", "file2", "file3"},
 			},
@@ -172,9 +172,9 @@ func TestReplaceInChunks(t *testing.T) {
 			},
 			maxlen: 10,
 			res: &run{
-				commands: [][]string{
-					{"echo", "push-file", "&&", "git", "add", "file1"},
-					{"echo", "push-file", "&&", "git", "add", "file2"},
+				commands: []string{
+					"echo push-file && git add file1",
+					"echo push-file && git add file2",
 				},
 				files: []string{"push-file", "file1", "file2"},
 			},
@@ -193,10 +193,10 @@ func TestReplaceInChunks(t *testing.T) {
 			},
 			maxlen: 27,
 			res: &run{
-				commands: [][]string{
-					{"echo", "push1", "&&", "git", "add", "file1"},
-					{"echo", "push2", "&&", "git", "add", "file2"},
-					{"echo", "push3", "&&", "git", "add", "file2"},
+				commands: []string{
+					"echo push1 && git add file1",
+					"echo push2 && git add file2",
+					"echo push3 && git add file2",
 				},
 				files: []string{"push1", "push2", "push3", "file1", "file2"},
 			},
@@ -212,7 +212,7 @@ func TestReplaceInChunks(t *testing.T) {
 				t.Errorf("expected commands to be %d instead of %d", len(tt.res.commands), len(res.commands))
 			} else {
 				for i, command := range res.commands {
-					if !slicesEqual(command, tt.res.commands[i]) {
+					if command != tt.res.commands[i] {
 						t.Errorf("expected command %v to be equal to %v", command, tt.res.commands[i])
 					}
 				}
