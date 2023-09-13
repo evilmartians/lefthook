@@ -19,6 +19,14 @@ import (
 
 type CommandExecutor struct{}
 
+type executeArgs struct {
+	in                    io.Reader
+	out                   io.Writer
+	envs                  []string
+	root                  string
+	interactive, useStdin bool
+}
+
 func (e CommandExecutor) Execute(opts Options, out io.Writer) error {
 	in := os.Stdin
 	if opts.Interactive && !isatty.IsTerminal(os.Stdin.Fd()) {
@@ -40,10 +48,19 @@ func (e CommandExecutor) Execute(opts Options, out io.Writer) error {
 		)
 	}
 
+	args := &executeArgs{
+		in:          in,
+		out:         out,
+		envs:        envs,
+		root:        root,
+		interactive: opts.Interactive,
+		useStdin:    opts.UseStdin,
+	}
+
 	// We can have one command split into separate to fit into shell command max length.
 	// In this case we execute those commands one by one.
 	for _, command := range opts.Commands {
-		if err := e.executeOne(command, root, envs, opts.Interactive, in, out); err != nil {
+		if err := e.execute(command, args); err != nil {
 			return err
 		}
 	}
@@ -60,14 +77,14 @@ func (e CommandExecutor) RawExecute(command []string, out io.Writer) error {
 	return cmd.Run()
 }
 
-func (e CommandExecutor) executeOne(cmdstr string, root string, envs []string, interactive bool, in io.Reader, out io.Writer) error {
+func (e CommandExecutor) execute(cmdstr string, args *executeArgs) error {
 	command := exec.Command("sh", "-c", cmdstr)
-	command.Dir = root
-	command.Env = append(os.Environ(), envs...)
+	command.Dir = args.root
+	command.Env = append(os.Environ(), args.envs...)
 
-	if interactive {
-		command.Stdout = out
-		command.Stdin = in
+	if args.interactive || args.useStdin {
+		command.Stdout = args.out
+		command.Stdin = args.in
 		command.Stderr = os.Stderr
 		err := command.Start()
 		if err != nil {
@@ -81,9 +98,9 @@ func (e CommandExecutor) executeOne(cmdstr string, root string, envs []string, i
 
 		defer func() { _ = p.Close() }()
 
-		go func() { _, _ = io.Copy(p, in) }()
+		go func() { _, _ = io.Copy(p, args.in) }()
 
-		_, _ = io.Copy(out, p)
+		_, _ = io.Copy(args.out, p)
 	}
 
 	defer func() { _ = command.Process.Kill() }()

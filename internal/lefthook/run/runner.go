@@ -295,6 +295,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 		Commands:    []string{command},
 		FailText:    script.FailText,
 		Interactive: script.Interactive && !r.DisableTTY,
+		UseStdin:    script.UseStdin,
 		Env:         script.Env,
 	}, r.Hook.Follow)
 
@@ -374,6 +375,7 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 		Commands:    run.commands,
 		FailText:    command.FailText,
 		Interactive: command.Interactive && !r.DisableTTY,
+		UseStdin:    command.UseStdin,
 		Env:         command.Env,
 	}, r.Hook.Follow)
 
