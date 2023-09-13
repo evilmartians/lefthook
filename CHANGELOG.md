@@ -2,13 +2,20 @@
 
 ## master (unreleased)
 
-# 1.4.10 (2023-09-04)
+## 1.4.11 (2023-09-13)
+
+- docs: update docs and readme with tl;dr instructions ([#548](https://github.com/evilmartians/lefthook/pull/548)) by @mrexox
+- fix: add use_stdin option for just reading from stdin ([#547](https://github.com/evilmartians/lefthook/pull/547)) by @mrexox
+- chore: refactor commands passing ([#546](https://github.com/evilmartians/lefthook/pull/546)) by @mrexox
+- fix: fail on non existing hook name ([#545](https://github.com/evilmartians/lefthook/pull/545)) by @mrexox
+
+## 1.4.10 (2023-09-04)
 
 - fix: split command with file templates into chunks ([#541](https://github.com/evilmartians/lefthook/pull/541)) by @mrexox
 - chore: add git-cliff config for easier changelog generation by @mrexox
 - fix: allow empty staged files diffs ([#543](https://github.com/evilmartians/lefthook/pull/543)) by @mrexox
 
-# 1.4.9 (2023-08-15)
+## 1.4.9 (2023-08-15)
 
 - chore: fix linter issues ([#537](https://github.com/evilmartians/lefthook/pull/537)) by @mrexox
 - feat: add files, all-files, and commands flags ([#534](https://github.com/evilmartians/lefthook/pull/534)) by @nihalgonsalves
