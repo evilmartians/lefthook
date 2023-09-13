@@ -45,12 +45,25 @@ gem install lefthook
 
 Lefthook is easy to use. Once you configure and setup you can forget that it even exists and rely on the magic underneath.
 
-See:
+#### TL;DR
 
-- [**Usage**](./docs/usage.md) of **lefthook** CLI utility.
-- [**Configuration**](./docs/configuration.md) details for `lefthook.yml`
-- [**Wiki**](https://github.com/evilmartians/lefthook/wiki) for other information.
-- [**Discussions**](https://github.com/evilmartians/lefthook/discussions) if you want to ask a question, suggest a feature, or report a bug.
+```bash
+# Configure your hooks
+vim lefthook.yml
+
+# Install your hooks
+lefthook install
+
+# Enjoy the magic of lefthook
+git add -A && git commit -m '...'
+```
+
+#### More details
+
+- [**Configuration**](./docs/configuration.md) for `lefthook.yml` config options.
+- [**Usage**](./docs/usage.md) for **lefthook** CLI options, supported ENVs, and usage tips.
+- [**Wiki**](https://github.com/evilmartians/lefthook/wiki) for guides, examples, and benchmarks.
+- [**Discussions**](https://github.com/evilmartians/lefthook/discussions) for questions, ideas, suggestions.
 
 ***
 
