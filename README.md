@@ -8,7 +8,7 @@
 <img align="right" width="147" height="100" title="Lefthook logo"
      src="./logo_sign.svg">
 
-Fast and powerful Git hooks manager for Node.js, Ruby or any other type of projects.
+A Git hooks manager for Node.js, Ruby and many other types of projects.
 
 * **Fast.** It is written in Go. Can run commands in parallel.
 * **Powerful.** It allows to control execution and files you pass to your commands.
@@ -39,18 +39,31 @@ With **Ruby**:
 gem install lefthook
 ```
 
-**[Installation guide](./docs/install.md)** with more different installation instructions.
+**[Installation guide](./docs/install.md)** with more ways to install lefthook: [apt](./docs/install.md#deb), [brew](./docs/install.md#homebrew), [winget](./docs/install.md#winget), and others.
 
 ## Usage
 
-Lefthook is easy to use. Once you configure and setup you can forget that it even exists and rely on the magic underneath.
+Configure your hooks, install them once and forget about it: rely on the magic underneath.
 
-See:
+#### TL;DR
 
-- [**Usage**](./docs/usage.md) of **lefthook** CLI utility.
-- [**Configuration**](./docs/configuration.md) details for `lefthook.yml`
-- [**Wiki**](https://github.com/evilmartians/lefthook/wiki) for other information.
-- [**Discussions**](https://github.com/evilmartians/lefthook/discussions) if you want to ask a question, suggest a feature, or report a bug.
+```bash
+# Configure your hooks
+vim lefthook.yml
+
+# Install them to the git project
+lefthook install
+
+# Enjoy your work with git
+git add -A && git commit -m '...'
+```
+
+#### More details
+
+- [**Configuration**](./docs/configuration.md) for `lefthook.yml` config options.
+- [**Usage**](./docs/usage.md) for **lefthook** CLI options, supported ENVs, and usage tips.
+- [**Wiki**](https://github.com/evilmartians/lefthook/wiki) for guides, examples, and benchmarks.
+- [**Discussions**](https://github.com/evilmartians/lefthook/discussions) for questions, ideas, suggestions.
 
 ***
 

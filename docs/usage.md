@@ -1,5 +1,12 @@
 # Usage
 
+You want to use lefthook in your git project. Here is what you need:
+
+1. Create a `lefthook.yml` (or use any other [supported name](./configuration.md#config-file))
+1. [Install](#lefthook-install) lefthook git hooks
+
+Then use git as usually, you don't need to reinstall lefthook when you change the config.
+
 - [Commands](#commands)
   - [`lefthook install`](#lefthook-install)
   - [`lefthook uninstall`](#lefthook-uninstall)
@@ -32,7 +39,7 @@ Here are the description of common usage of these commands.
 
 ### `lefthook install`
 
-Run `lefthook install` to initialize a `lefthook.yml` config and/or synchronize `.git/hooks/` with your configuration. This is usually the first thing you do after cloning the repo with `lefthook.yml` config. For config options see our [configuration documentation](./configuration.md).
+Run `lefthook install` to initialize a `lefthook.yml` config and/or synchronize `.git/hooks/` with your configuration. This must be the first thing you do after cloning the repo with `lefthook.yml` config. For config options see our [configuration documentation](./configuration.md).
 
 > If you use lefthook with NPM package manager it should have already run `lefthook install` in postinstall scripts.
 
