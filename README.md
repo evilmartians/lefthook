@@ -8,7 +8,7 @@
 <img align="right" width="147" height="100" title="Lefthook logo"
      src="./logo_sign.svg">
 
-Fast and powerful Git hooks manager for Node.js, Ruby or any other type of projects.
+A Git hooks manager for Node.js, Ruby and many other types of projects.
 
 * **Fast.** It is written in Go. Can run commands in parallel.
 * **Powerful.** It allows to control execution and files you pass to your commands.
@@ -39,11 +39,11 @@ With **Ruby**:
 gem install lefthook
 ```
 
-**[Installation guide](./docs/install.md)** with more different installation instructions.
+**[Installation guide](./docs/install.md)** with more ways to install lefthook: [apt](./docs/install.md#deb), [brew](./docs/install.md#homebrew), [winget](./docs/install.md#winget), and others.
 
 ## Usage
 
-Lefthook is easy to use. Once you configure and setup you can forget that it even exists and rely on the magic underneath.
+Configure your hooks, install them once and forget about it: rely on the magic underneath.
 
 #### TL;DR
 
@@ -51,10 +51,10 @@ Lefthook is easy to use. Once you configure and setup you can forget that it eve
 # Configure your hooks
 vim lefthook.yml
 
-# Install your hooks
+# Install them to the git project
 lefthook install
 
-# Enjoy the magic of lefthook
+# Enjoy your work with git
 git add -A && git commit -m '...'
 ```
 
