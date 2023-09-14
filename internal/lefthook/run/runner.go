@@ -479,12 +479,9 @@ func (r *Runner) logSkip(name, reason string) {
 	}
 
 	log.Info(
-		fmt.Sprintf(
-			"%s: %s %s",
-			log.Bold(name),
-			log.Gray("(skip)"),
-			log.Yellow(reason),
-		),
+		log.Cyan(fmt.Sprintf("\n  %s", log.Bold(name))),
+		log.Gray("(skip)"),
+		log.Yellow(reason),
 	)
 }
 
@@ -498,9 +495,9 @@ func (r *Runner) logExecute(name string, err error, out io.Reader) {
 	case r.SkipSettings.SkipExecutionInfo():
 		execLog = ""
 	case err != nil:
-		execLog = fmt.Sprint(log.Red("\n  EXECUTE > "), log.Bold(name))
+		execLog = log.Red(fmt.Sprintf("\n  %s > ", name))
 	default:
-		execLog = fmt.Sprint(log.Cyan("\n  EXECUTE > "), log.Bold(name))
+		execLog = log.Cyan(fmt.Sprintf("\n  %s > ", name))
 	}
 
 	if execLog != "" {
