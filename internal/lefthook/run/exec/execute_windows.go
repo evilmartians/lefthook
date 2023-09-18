@@ -1,6 +1,7 @@
 package exec
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -18,7 +19,7 @@ type executeArgs struct {
 	root string
 }
 
-func (e CommandExecutor) Execute(opts Options, out io.Writer) error {
+func (e CommandExecutor) Execute(ctx context.Context, opts Options, out io.Writer) error {
 	root, _ := filepath.Abs(opts.Root)
 	envs := make([]string, len(opts.Env))
 	for name, value := range opts.Env {
@@ -44,7 +45,7 @@ func (e CommandExecutor) Execute(opts Options, out io.Writer) error {
 	return nil
 }
 
-func (e CommandExecutor) RawExecute(command []string, out io.Writer) error {
+func (e CommandExecutor) RawExecute(ctx context.Context, command []string, out io.Writer) error {
 	cmd := exec.Command(command[0], command[1:]...)
 
 	cmd.Stdout = out

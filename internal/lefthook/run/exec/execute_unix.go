@@ -4,6 +4,7 @@
 package exec
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -27,7 +28,7 @@ type executeArgs struct {
 	interactive, useStdin bool
 }
 
-func (e CommandExecutor) Execute(opts Options, out io.Writer) error {
+func (e CommandExecutor) Execute(ctx context.Context, opts Options, out io.Writer) error {
 	in := os.Stdin
 	if opts.Interactive && !isatty.IsTerminal(os.Stdin.Fd()) {
 		tty, err := os.Open("/dev/tty")
@@ -60,7 +61,7 @@ func (e CommandExecutor) Execute(opts Options, out io.Writer) error {
 	// We can have one command split into separate to fit into shell command max length.
 	// In this case we execute those commands one by one.
 	for _, command := range opts.Commands {
-		if err := e.execute(command, args); err != nil {
+		if err := e.execute(ctx, command, args); err != nil {
 			return err
 		}
 	}
@@ -68,8 +69,8 @@ func (e CommandExecutor) Execute(opts Options, out io.Writer) error {
 	return nil
 }
 
-func (e CommandExecutor) RawExecute(command []string, out io.Writer) error {
-	cmd := exec.Command(command[0], command[1:]...)
+func (e CommandExecutor) RawExecute(ctx context.Context, command []string, out io.Writer) error {
+	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
 
 	cmd.Stdout = out
 	cmd.Stderr = os.Stderr
@@ -77,8 +78,8 @@ func (e CommandExecutor) RawExecute(command []string, out io.Writer) error {
 	return cmd.Run()
 }
 
-func (e CommandExecutor) execute(cmdstr string, args *executeArgs) error {
-	command := exec.Command("sh", "-c", cmdstr)
+func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *executeArgs) error {
+	command := exec.CommandContext(ctx, "sh", "-c", cmdstr)
 	command.Dir = args.root
 	command.Env = append(os.Environ(), args.envs...)
 

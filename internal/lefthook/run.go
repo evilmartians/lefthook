@@ -1,9 +1,11 @@
 package lefthook
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -143,14 +145,21 @@ Run 'lefthook install' manually.`,
 		)
 	}
 
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+
 	go func() {
-		runner.RunAll(sourceDirs)
+		runner.RunAll(ctx, sourceDirs)
 		close(resultChan)
 	}()
 
 	var results []run.Result
 	for res := range resultChan {
 		results = append(results, res)
+	}
+
+	if ctx.Err() != nil {
+		return errors.New("Interrupted")
 	}
 
 	if !logSettings.SkipSummary() {

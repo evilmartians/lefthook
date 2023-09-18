@@ -1,6 +1,7 @@
 package run
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -19,7 +20,7 @@ import (
 
 type TestExecutor struct{}
 
-func (e TestExecutor) Execute(opts exec.Options, _out io.Writer) (err error) {
+func (e TestExecutor) Execute(_ctx context.Context, opts exec.Options, _out io.Writer) (err error) {
 	if strings.HasPrefix(opts.Commands[0], "success") {
 		err = nil
 	} else {
@@ -29,7 +30,7 @@ func (e TestExecutor) Execute(opts exec.Options, _out io.Writer) (err error) {
 	return
 }
 
-func (e TestExecutor) RawExecute(_command []string, _out io.Writer) error {
+func (e TestExecutor) RawExecute(_ctx context.Context, _command []string, _out io.Writer) error {
 	return nil
 }
 
@@ -755,7 +756,7 @@ func TestRunAll(t *testing.T) {
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			runner.RunAll(tt.sourceDirs)
+			runner.RunAll(context.Background(), tt.sourceDirs)
 			close(resultChan)
 
 			var success, fail []Result

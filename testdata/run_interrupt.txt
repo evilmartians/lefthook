@@ -1,0 +1,52 @@
+chmod 0700 hook.sh
+chmod 0700 commit-with-interrupt.sh
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec lefthook install
+exec git add -A
+
+exec git commit -m 'init'
+stderr 'hook-done'
+
+exec ./commit-with-interrupt.sh
+stderr 'script-done'
+! stderr 'hook-done'
+stderr 'signal: killed'
+stderr 'Error: Interrupted'
+grep unstaged newfile.txt
+exec git stash list
+! stdout 'lefthook auto backup'
+
+-- lefthook.yml --
+pre-commit:
+  commands:
+    slow_job:
+      run: ./hook.sh
+
+-- hook.sh --
+#!/usr/bin/env bash
+
+sleep 2
+>&2 echo hook-done
+
+-- newfile.txt --
+staged
+
+-- commit-with-interrupt.sh --
+#!/usr/bin/env bash
+
+echo staged >> newfile.txt
+git add newfile.txt
+echo unstaged >> newfile.txt
+
+# ctrl-c is emulated by sending SIGINT to a process group
+# so we first need to emulate being a terminal and enable
+# job monitoring so that new PGIDs are assigned.
+set -m
+nohup git commit -m test &
+pgid=$!
+sleep 1
+kill -SIGINT -$pgid
+wait
+>&2 echo 'script-done'
