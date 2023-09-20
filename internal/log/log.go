@@ -39,7 +39,12 @@ var (
 		Light: lipgloss.CompleteColor{TrueColor: "#4e4e4e", ANSI256: "239", ANSI: "8"},
 	}
 
+	colorBorder lipgloss.TerminalColor = lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#383838"}
+
 	std = New()
+
+	separatorWidth  = 36
+	separatorMargin = 2
 )
 
 type Level uint32
@@ -136,6 +141,14 @@ func SetColors(colors interface{}) {
 	switch typedColors := colors.(type) {
 	case bool:
 		std.colors = typedColors
+		if !std.colors {
+			setColor(lipgloss.NoColor{}, &colorRed)
+			setColor(lipgloss.NoColor{}, &colorGreen)
+			setColor(lipgloss.NoColor{}, &colorYellow)
+			setColor(lipgloss.NoColor{}, &colorCyan)
+			setColor(lipgloss.NoColor{}, &colorGray)
+			setColor(lipgloss.NoColor{}, &colorBorder)
+		}
 		return
 	case map[string]interface{}:
 		std.colors = true
@@ -144,6 +157,7 @@ func SetColors(colors interface{}) {
 		setColor(typedColors["yellow"], &colorYellow)
 		setColor(typedColors["cyan"], &colorCyan)
 		setColor(typedColors["gray"], &colorGray)
+		setColor(typedColors["gray"], &colorBorder)
 		return
 	default:
 		std.colors = true
@@ -151,16 +165,15 @@ func SetColors(colors interface{}) {
 }
 
 func setColor(colorCode interface{}, adaptiveColor *lipgloss.TerminalColor) {
-	if colorCode == nil {
-		return
-	}
-
 	var code string
 	switch typedCode := colorCode.(type) {
 	case int:
 		code = strconv.Itoa(typedCode)
 	case string:
 		code = typedCode
+	case lipgloss.NoColor:
+		*adaptiveColor = typedCode
+		return
 	default:
 		return
 	}
@@ -200,11 +213,33 @@ func Bold(s string) string {
 	return lipgloss.NewStyle().Bold(true).Render(s)
 }
 
-func color(clr lipgloss.TerminalColor) lipgloss.Style {
-	if !std.colors {
-		return lipgloss.NewStyle()
-	}
+func Box(left, right string) {
+	Info(
+		lipgloss.JoinHorizontal(
+			lipgloss.Top,
+			lipgloss.NewStyle().Border(lipgloss.RoundedBorder(), true, false, true, true).BorderForeground(colorBorder).Padding(0, 1).Render(left),
+			lipgloss.NewStyle().Border(lipgloss.RoundedBorder(), true, true, true, false).BorderForeground(colorBorder).Padding(0, 1).Render(right),
+		),
+	)
+}
 
+func Separate(s string) {
+	Info(
+		lipgloss.JoinVertical(
+			lipgloss.Left,
+			lipgloss.NewStyle().
+				BorderStyle(lipgloss.NormalBorder()).
+				BorderBottom(true).
+				BorderForeground(colorBorder).
+				Width(separatorWidth).
+				MarginLeft(separatorMargin).
+				Render(""),
+			s,
+		),
+	)
+}
+
+func color(clr lipgloss.TerminalColor) lipgloss.Style {
 	return lipgloss.NewStyle().Foreground(clr)
 }
 
@@ -243,7 +278,12 @@ func (l *Logger) Info(args ...interface{}) {
 }
 
 func (l *Logger) Debug(args ...interface{}) {
-	l.Log(DebugLevel, args...)
+	leftBorder := lipgloss.NewStyle().
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderLeft(true).
+		BorderForeground(colorBorder).
+		Render("")
+	l.Log(DebugLevel, append([]interface{}{leftBorder}, args...)...)
 }
 
 func (l *Logger) Error(args ...interface{}) {

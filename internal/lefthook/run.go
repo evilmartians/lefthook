@@ -82,11 +82,20 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	}
 
 	if !logSettings.SkipMeta() {
-		log.Info(
-			log.Cyan("lefthook"),
-			log.Gray(fmt.Sprintf("v%s,", version.Version(false))),
-			log.Gray("hook:"),
-			log.Bold(hookName),
+		log.Box(
+			strings.Join(
+				[]string{
+					log.Cyan("🥊 lefthook"),
+					log.Gray(fmt.Sprintf("v%s", version.Version(false))),
+				},
+				" ",
+			),
+			strings.Join(
+				[]string{
+					log.Gray("hook:"),
+					log.Bold(hookName),
+				}, " ",
+			),
 		)
 	}
 
@@ -183,7 +192,7 @@ func printSummary(
 ) {
 	if len(results) == 0 {
 		if !logSettings.SkipEmptySummary() {
-			log.Info(
+			log.Separate(
 				fmt.Sprintf(
 					"%s %s %s",
 					log.Cyan("summary:"),
@@ -195,9 +204,8 @@ func printSummary(
 		return
 	}
 
-	log.Info(
-		log.Cyan("\nsummary:"),
-		log.Gray(fmt.Sprintf("(done in %.2f seconds)", duration.Seconds())),
+	log.Separate(
+		log.Cyan("summary: ") + log.Gray(fmt.Sprintf("(done in %.2f seconds)", duration.Seconds())),
 	)
 
 	if !logSettings.SkipSuccess() {
