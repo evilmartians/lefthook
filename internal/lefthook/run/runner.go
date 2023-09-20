@@ -15,6 +15,7 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/internal/config"
@@ -29,6 +30,7 @@ type status int8
 const (
 	executableFileMode os.FileMode = 0o751
 	executableMask     os.FileMode = 0o111
+	execLogPadding                 = 2
 )
 
 var surroundingQuotesRegexp = regexp.MustCompile(`^'(.*)'$`)
@@ -478,11 +480,14 @@ func (r *Runner) logSkip(name, reason string) {
 		return
 	}
 
-	log.Info(
-		log.Cyan(fmt.Sprintf("\n  %s", log.Bold(name))),
-		log.Gray("(skip)"),
-		log.Yellow(reason),
-	)
+	log.Styled().
+		WithLeftBorder(lipgloss.NormalBorder()).
+		WithPadding(execLogPadding).
+		Info(
+			log.Cyan(log.Bold(name)) + " " +
+				log.Gray("(skip)") + " " +
+				log.Yellow(reason),
+		)
 }
 
 func (r *Runner) logExecute(name string, err error, out io.Reader) {
@@ -495,13 +500,17 @@ func (r *Runner) logExecute(name string, err error, out io.Reader) {
 	case r.SkipSettings.SkipExecutionInfo():
 		execLog = ""
 	case err != nil:
-		execLog = log.Red(fmt.Sprintf("\n  %s > ", name))
+		execLog = log.Red(fmt.Sprintf("%s > ", name))
 	default:
-		execLog = log.Cyan(fmt.Sprintf("\n  %s > ", name))
+		execLog = log.Cyan(fmt.Sprintf("%s > ", name))
 	}
 
 	if execLog != "" {
-		log.Info(execLog)
+		log.Styled().
+			WithLeftBorder(lipgloss.ThickBorder()).
+			WithPadding(execLogPadding).
+			Info(execLog)
+		log.Info()
 	}
 
 	if err == nil && r.SkipSettings.SkipExecutionOutput() {

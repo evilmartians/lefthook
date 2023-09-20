@@ -83,19 +83,8 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 
 	if !logSettings.SkipMeta() {
 		log.Box(
-			strings.Join(
-				[]string{
-					log.Cyan("🥊 lefthook"),
-					log.Gray(fmt.Sprintf("v%s", version.Version(false))),
-				},
-				" ",
-			),
-			strings.Join(
-				[]string{
-					log.Gray("hook:"),
-					log.Bold(hookName),
-				}, " ",
-			),
+			log.Cyan("🥊 lefthook ")+log.Gray(fmt.Sprintf("v%s", version.Version(false))),
+			log.Gray("hook: ")+log.Bold(hookName),
 		)
 	}
 

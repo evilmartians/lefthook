@@ -60,6 +60,10 @@ const (
 	spinnerText        = " waiting"
 )
 
+type StyleLogger struct {
+	style lipgloss.Style
+}
+
 type Logger struct {
 	level   Level
 	out     io.Writer
@@ -90,6 +94,33 @@ func StopSpinner() {
 	std.spinner.Stop()
 }
 
+func Styled() StyleLogger {
+	return StyleLogger{
+		style: lipgloss.NewStyle(),
+	}
+}
+
+func (s StyleLogger) WithLeftBorder(border lipgloss.Border) StyleLogger {
+	s.style = s.style.BorderStyle(border).BorderLeft(true).BorderForeground(colorCyan)
+
+	return s
+}
+
+func (s StyleLogger) WithPadding(m int) StyleLogger {
+	s.style = s.style.PaddingLeft(m)
+
+	return s
+}
+
+func (s StyleLogger) Info(str string) {
+	Info(
+		lipgloss.JoinVertical(
+			lipgloss.Left,
+			s.style.Render(str),
+		),
+	)
+}
+
 func Debug(args ...interface{}) {
 	res := fmt.Sprint(args...)
 	std.Debug(color(colorGray).Render(res))
@@ -101,6 +132,16 @@ func Debugf(format string, args ...interface{}) {
 
 func Info(args ...interface{}) {
 	std.Info(args...)
+}
+
+func InfoPad(s string) {
+	Info(
+		lipgloss.NewStyle().
+			BorderStyle(lipgloss.NormalBorder()).
+			BorderLeft(true).
+			BorderForeground(colorCyan).
+			Render(s),
+	)
 }
 
 func Infof(format string, args ...interface{}) {
@@ -217,8 +258,16 @@ func Box(left, right string) {
 	Info(
 		lipgloss.JoinHorizontal(
 			lipgloss.Top,
-			lipgloss.NewStyle().Border(lipgloss.RoundedBorder(), true, false, true, true).BorderForeground(colorBorder).Padding(0, 1).Render(left),
-			lipgloss.NewStyle().Border(lipgloss.RoundedBorder(), true, true, true, false).BorderForeground(colorBorder).Padding(0, 1).Render(right),
+			lipgloss.NewStyle().
+				Border(lipgloss.RoundedBorder(), true, false, true, true).
+				BorderForeground(colorBorder).
+				Padding(0, 1).
+				Render(left),
+			lipgloss.NewStyle().
+				Border(lipgloss.RoundedBorder(), true, true, true, false).
+				BorderForeground(colorBorder).
+				Padding(0, 1).
+				Render(right),
 		),
 	)
 }

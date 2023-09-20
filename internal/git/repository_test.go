@@ -11,6 +11,8 @@ type GitMock struct {
 	cases map[string]string
 }
 
+func (g GitMock) SetRootPath(_root string) {}
+
 func (g GitMock) Cmd(cmd string) (string, error) {
 	res, err := g.RawCmd(cmd)
 	if err != nil {
