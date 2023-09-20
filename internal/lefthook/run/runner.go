@@ -2,6 +2,7 @@ package run
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -63,8 +64,8 @@ func NewRunner(opts Options) *Runner {
 
 // RunAll runs scripts and commands.
 // LFS hook is executed at first if needed.
-func (r *Runner) RunAll(sourceDirs []string) {
-	if err := r.runLFSHook(); err != nil {
+func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) {
+	if err := r.runLFSHook(ctx); err != nil {
 		log.Error(err)
 	}
 
@@ -88,10 +89,10 @@ func (r *Runner) RunAll(sourceDirs []string) {
 	r.preHook()
 
 	for _, dir := range scriptDirs {
-		r.runScripts(dir)
+		r.runScripts(ctx, dir)
 	}
 
-	r.runCommands()
+	r.runCommands(ctx)
 
 	r.postHook()
 }
@@ -105,7 +106,7 @@ func (r *Runner) success(name string) {
 	r.ResultChan <- resultSuccess(name)
 }
 
-func (r *Runner) runLFSHook() error {
+func (r *Runner) runLFSHook(ctx context.Context) error {
 	if !git.IsLFSHook(r.HookName) {
 		return nil
 	}
@@ -128,6 +129,7 @@ func (r *Runner) runLFSHook() error {
 		)
 		out := bytes.NewBuffer(make([]byte, 0))
 		err := r.executor.RawExecute(
+			ctx,
 			append(
 				[]string{"git", "lfs", r.HookName},
 				r.GitArgs...,
@@ -223,7 +225,7 @@ func (r *Runner) postHook() {
 	}
 }
 
-func (r *Runner) runScripts(dir string) {
+func (r *Runner) runScripts(ctx context.Context, dir string) {
 	files, err := afero.ReadDir(r.Repo.Fs, dir) // ReadDir already sorts files by .Name()
 	if err != nil || len(files) == 0 {
 		return
@@ -233,6 +235,10 @@ func (r *Runner) runScripts(dir string) {
 	var wg sync.WaitGroup
 
 	for _, file := range files {
+		if ctx.Err() != nil {
+			return
+		}
+
 		script, ok := r.Hook.Scripts[file.Name()]
 		if !ok {
 			r.logSkip(file.Name(), "not specified in config file")
@@ -255,16 +261,20 @@ func (r *Runner) runScripts(dir string) {
 			wg.Add(1)
 			go func(script *config.Script, path string, file os.FileInfo) {
 				defer wg.Done()
-				r.runScript(script, path, file)
+				r.runScript(ctx, script, path, file)
 			}(script, path, file)
 		} else {
-			r.runScript(script, path, file)
+			r.runScript(ctx, script, path, file)
 		}
 	}
 
 	wg.Wait()
 
 	for _, file := range interactiveScripts {
+		if ctx.Err() != nil {
+			return
+		}
+
 		script := r.Hook.Scripts[file.Name()]
 		if r.failed.Load() {
 			r.logSkip(file.Name(), "non-interactive scripts failed")
@@ -272,12 +282,11 @@ func (r *Runner) runScripts(dir string) {
 		}
 
 		path := filepath.Join(dir, file.Name())
-
-		r.runScript(script, path, file)
+		r.runScript(ctx, script, path, file)
 	}
 }
 
-func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo) {
+func (r *Runner) runScript(ctx context.Context, script *config.Script, path string, file os.FileInfo) {
 	command, err := r.prepareScript(script, path, file)
 	if err != nil {
 		r.logSkip(file.Name(), err.Error())
@@ -289,7 +298,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 		defer log.StartSpinner()
 	}
 
-	finished := r.run(exec.Options{
+	finished := r.run(ctx, exec.Options{
 		Name:        file.Name(),
 		Root:        r.Repo.RootPath,
 		Commands:    []string{command},
@@ -310,7 +319,7 @@ func (r *Runner) runScript(script *config.Script, path string, file os.FileInfo)
 	}
 }
 
-func (r *Runner) runCommands() {
+func (r *Runner) runCommands(ctx context.Context) {
 	commands := make([]string, 0, len(r.Hook.Commands))
 	for name := range r.Hook.Commands {
 		if len(r.RunOnlyCommands) == 0 || slices.Contains(r.RunOnlyCommands, name) {
@@ -338,10 +347,10 @@ func (r *Runner) runCommands() {
 			wg.Add(1)
 			go func(name string, command *config.Command) {
 				defer wg.Done()
-				r.runCommand(name, command)
+				r.runCommand(ctx, name, command)
 			}(name, r.Hook.Commands[name])
 		} else {
-			r.runCommand(name, r.Hook.Commands[name])
+			r.runCommand(ctx, name, r.Hook.Commands[name])
 		}
 	}
 
@@ -353,11 +362,11 @@ func (r *Runner) runCommands() {
 			continue
 		}
 
-		r.runCommand(name, r.Hook.Commands[name])
+		r.runCommand(ctx, name, r.Hook.Commands[name])
 	}
 }
 
-func (r *Runner) runCommand(name string, command *config.Command) {
+func (r *Runner) runCommand(ctx context.Context, name string, command *config.Command) {
 	run, err := r.prepareCommand(name, command)
 	if err != nil {
 		r.logSkip(name, err.Error())
@@ -369,7 +378,7 @@ func (r *Runner) runCommand(name string, command *config.Command) {
 		defer log.StartSpinner()
 	}
 
-	finished := r.run(exec.Options{
+	finished := r.run(ctx, exec.Options{
 		Name:        name,
 		Root:        filepath.Join(r.Repo.RootPath, command.Root),
 		Commands:    run.commands,
@@ -409,7 +418,7 @@ func (r *Runner) addStagedFiles(files []string) {
 	}
 }
 
-func (r *Runner) run(opts exec.Options, follow bool) bool {
+func (r *Runner) run(ctx context.Context, opts exec.Options, follow bool) bool {
 	log.SetName(opts.Name)
 	defer log.UnsetName(opts.Name)
 
@@ -423,7 +432,7 @@ func (r *Runner) run(opts exec.Options, follow bool) bool {
 			out = os.Stdout
 		}
 
-		err := r.executor.Execute(opts, out)
+		err := r.executor.Execute(ctx, opts, out)
 		if err != nil {
 			r.fail(opts.Name, errors.New(opts.FailText))
 		} else {
@@ -434,7 +443,7 @@ func (r *Runner) run(opts exec.Options, follow bool) bool {
 	}
 
 	out := bytes.NewBuffer(make([]byte, 0))
-	err := r.executor.Execute(opts, out)
+	err := r.executor.Execute(ctx, opts, out)
 
 	if err != nil {
 		r.fail(opts.Name, errors.New(opts.FailText))
