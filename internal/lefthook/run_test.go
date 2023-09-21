@@ -12,6 +12,8 @@ import (
 
 type GitMock struct{}
 
+func (g GitMock) SetRootPath(_root string) {}
+
 func (g GitMock) Cmd(_cmd string) (string, error) {
 	return "", nil
 }

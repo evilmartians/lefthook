@@ -82,7 +82,10 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	}
 
 	if !logSettings.SkipMeta() {
-		log.Info(log.Cyan("Lefthook v" + version.Version(false)))
+		log.Box(
+			log.Cyan("🥊 lefthook ")+log.Gray(fmt.Sprintf("v%s", version.Version(false))),
+			log.Gray("hook: ")+log.Bold(hookName),
+		)
 	}
 
 	// This line controls updating the git hook if config has changed
@@ -91,10 +94,6 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 			`⚠️  There was a problem with synchronizing git hooks.
 Run 'lefthook install' manually.`,
 		)
-	}
-
-	if !logSettings.SkipMeta() {
-		log.Info(log.Cyan("RUNNING HOOK:"), log.Bold(hookName))
 	}
 
 	// Find the hook
@@ -182,14 +181,21 @@ func printSummary(
 ) {
 	if len(results) == 0 {
 		if !logSettings.SkipEmptySummary() {
-			log.Info(log.Cyan("\nSUMMARY: (SKIP EMPTY)"))
+			log.Separate(
+				fmt.Sprintf(
+					"%s %s %s",
+					log.Cyan("summary:"),
+					log.Gray("(skip)"),
+					log.Yellow("empty"),
+				),
+			)
 		}
 		return
 	}
 
-	log.Info(log.Cyan(
-		fmt.Sprintf("\nSUMMARY: (done in %.2f seconds)", duration.Seconds()),
-	))
+	log.Separate(
+		log.Cyan("summary: ") + log.Gray(fmt.Sprintf("(done in %.2f seconds)", duration.Seconds())),
+	)
 
 	if !logSettings.SkipSuccess() {
 		for _, result := range results {

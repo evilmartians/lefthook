@@ -39,6 +39,8 @@ type GitMock struct {
 	commands []string
 }
 
+func (g *GitMock) SetRootPath(_root string) {}
+
 func (g *GitMock) Cmd(cmd string) (string, error) {
 	g.mux.Lock()
 	g.commands = append(g.commands, cmd)

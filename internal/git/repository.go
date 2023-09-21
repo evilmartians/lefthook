@@ -78,6 +78,8 @@ func NewRepository(fs afero.Fs, git Exec) (*Repository, error) {
 		gitPath = filepath.Join(rootPath, gitPath)
 	}
 
+	git.SetRootPath(rootPath)
+
 	return &Repository{
 		Fs:                fs,
 		Git:               git,
@@ -317,6 +319,9 @@ func (r *Repository) extractFiles(lines []string) ([]string, error) {
 }
 
 func (r *Repository) isFile(path string) (bool, error) {
+	if !strings.HasPrefix(path, r.RootPath) {
+		path = filepath.Join(r.RootPath, path)
+	}
 	stat, err := r.Fs.Stat(path)
 	if err != nil {
 		if os.IsNotExist(err) {

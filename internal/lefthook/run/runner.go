@@ -15,6 +15,7 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/internal/config"
@@ -29,6 +30,7 @@ type status int8
 const (
 	executableFileMode os.FileMode = 0o751
 	executableMask     os.FileMode = 0o111
+	execLogPadding                 = 2
 )
 
 var surroundingQuotesRegexp = regexp.MustCompile(`^'(.*)'$`)
@@ -139,10 +141,10 @@ func (r *Runner) runLFSHook(ctx context.Context) error {
 
 		output := strings.Trim(out.String(), "\n")
 		if output != "" {
-			log.Debug("[git-lfs] output: ", output)
+			log.Debug("[git-lfs] out: ", output)
 		}
 		if err != nil {
-			log.Debug("[git-lfs] error: ", err)
+			log.Debug("[git-lfs] err: ", err)
 		}
 
 		if err == nil && output != "" {
@@ -478,14 +480,14 @@ func (r *Runner) logSkip(name, reason string) {
 		return
 	}
 
-	log.Info(
-		fmt.Sprintf(
-			"%s: %s %s",
-			log.Bold(name),
-			log.Gray("(skip)"),
-			log.Yellow(reason),
-		),
-	)
+	log.Styled().
+		WithLeftBorder(lipgloss.NormalBorder(), log.ColorCyan).
+		WithPadding(execLogPadding).
+		Info(
+			log.Cyan(log.Bold(name)) + " " +
+				log.Gray("(skip)") + " " +
+				log.Yellow(reason),
+		)
 }
 
 func (r *Runner) logExecute(name string, err error, out io.Reader) {
@@ -494,17 +496,24 @@ func (r *Runner) logExecute(name string, err error, out io.Reader) {
 	}
 
 	var execLog string
+	var color lipgloss.TerminalColor
 	switch {
 	case r.SkipSettings.SkipExecutionInfo():
 		execLog = ""
 	case err != nil:
-		execLog = fmt.Sprint(log.Red("\n  EXECUTE > "), log.Bold(name))
+		execLog = log.Red(fmt.Sprintf("%s ❯ ", name))
+		color = log.ColorRed
 	default:
-		execLog = fmt.Sprint(log.Cyan("\n  EXECUTE > "), log.Bold(name))
+		execLog = log.Cyan(fmt.Sprintf("%s ❯ ", name))
+		color = log.ColorCyan
 	}
 
 	if execLog != "" {
-		log.Info(execLog)
+		log.Styled().
+			WithLeftBorder(lipgloss.ThickBorder(), color).
+			WithPadding(execLogPadding).
+			Info(execLog)
+		log.Info()
 	}
 
 	if err == nil && r.SkipSettings.SkipExecutionOutput() {

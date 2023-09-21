@@ -116,7 +116,14 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, force bool) error {
 		return nil
 	}
 
-	log.Info(log.Cyan("SYNCING"))
+	log.Infof(log.Cyan("sync hooks"))
+
+	var success bool
+	defer func() {
+		if !success {
+			log.Info(log.Cyan(": ❌"))
+		}
+	}()
 
 	checksum, err := l.configChecksum()
 	if err != nil {
@@ -148,8 +155,11 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, force bool) error {
 		return err
 	}
 
+	success = true
 	if len(hookNames) > 0 {
-		log.Info(log.Cyan("SERVED HOOKS:"), log.Bold(strings.Join(hookNames, ", ")))
+		log.Info(log.Cyan(": ✔️"), log.Gray("("+strings.Join(hookNames, ", ")+")"))
+	} else {
+		log.Info(log.Cyan(": ✔️ "))
 	}
 
 	return nil
