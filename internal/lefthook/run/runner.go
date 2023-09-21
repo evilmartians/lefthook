@@ -141,10 +141,10 @@ func (r *Runner) runLFSHook(ctx context.Context) error {
 
 		output := strings.Trim(out.String(), "\n")
 		if output != "" {
-			log.Debug("[git-lfs] output: ", output)
+			log.Debug("[git-lfs] out: ", output)
 		}
 		if err != nil {
-			log.Debug("[git-lfs] error: ", err)
+			log.Debug("[git-lfs] err: ", err)
 		}
 
 		if err == nil && output != "" {
@@ -481,7 +481,7 @@ func (r *Runner) logSkip(name, reason string) {
 	}
 
 	log.Styled().
-		WithLeftBorder(lipgloss.NormalBorder()).
+		WithLeftBorder(lipgloss.NormalBorder(), log.ColorCyan).
 		WithPadding(execLogPadding).
 		Info(
 			log.Cyan(log.Bold(name)) + " " +
@@ -496,18 +496,21 @@ func (r *Runner) logExecute(name string, err error, out io.Reader) {
 	}
 
 	var execLog string
+	var color lipgloss.TerminalColor
 	switch {
 	case r.SkipSettings.SkipExecutionInfo():
 		execLog = ""
 	case err != nil:
-		execLog = log.Red(fmt.Sprintf("%s > ", name))
+		execLog = log.Red(fmt.Sprintf("%s ❯ ", name))
+		color = log.ColorRed
 	default:
-		execLog = log.Cyan(fmt.Sprintf("%s > ", name))
+		execLog = log.Cyan(fmt.Sprintf("%s ❯ ", name))
+		color = log.ColorCyan
 	}
 
 	if execLog != "" {
 		log.Styled().
-			WithLeftBorder(lipgloss.ThickBorder()).
+			WithLeftBorder(lipgloss.ThickBorder(), color).
 			WithPadding(execLogPadding).
 			Info(execLog)
 		log.Info()

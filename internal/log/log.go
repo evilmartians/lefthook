@@ -14,27 +14,27 @@ import (
 )
 
 var (
-	colorRed lipgloss.TerminalColor = lipgloss.CompleteAdaptiveColor{
+	ColorRed lipgloss.TerminalColor = lipgloss.CompleteAdaptiveColor{
 		Dark:  lipgloss.CompleteColor{TrueColor: "#ff6347", ANSI256: "196", ANSI: "9"},
 		Light: lipgloss.CompleteColor{TrueColor: "#d70000", ANSI256: "160", ANSI: "1"},
 	}
 
-	colorGreen lipgloss.TerminalColor = lipgloss.CompleteAdaptiveColor{
+	ColorGreen lipgloss.TerminalColor = lipgloss.CompleteAdaptiveColor{
 		Dark:  lipgloss.CompleteColor{TrueColor: "#76ff7a", ANSI256: "155", ANSI: "10"},
 		Light: lipgloss.CompleteColor{TrueColor: "#afd700", ANSI256: "148", ANSI: "2"},
 	}
 
-	colorYellow lipgloss.TerminalColor = lipgloss.CompleteAdaptiveColor{
+	ColorYellow lipgloss.TerminalColor = lipgloss.CompleteAdaptiveColor{
 		Dark:  lipgloss.CompleteColor{TrueColor: "#fada5e", ANSI256: "191", ANSI: "11"},
 		Light: lipgloss.CompleteColor{TrueColor: "#ffaf00", ANSI256: "214", ANSI: "3"},
 	}
 
-	colorCyan lipgloss.TerminalColor = lipgloss.CompleteAdaptiveColor{
+	ColorCyan lipgloss.TerminalColor = lipgloss.CompleteAdaptiveColor{
 		Dark:  lipgloss.CompleteColor{TrueColor: "#70C0BA", ANSI256: "37", ANSI: "14"},
 		Light: lipgloss.CompleteColor{TrueColor: "#00af87", ANSI256: "36", ANSI: "6"},
 	}
 
-	colorGray lipgloss.TerminalColor = lipgloss.CompleteAdaptiveColor{
+	GolorGray lipgloss.TerminalColor = lipgloss.CompleteAdaptiveColor{
 		Dark:  lipgloss.CompleteColor{TrueColor: "#808080", ANSI256: "244", ANSI: "7"},
 		Light: lipgloss.CompleteColor{TrueColor: "#4e4e4e", ANSI256: "239", ANSI: "8"},
 	}
@@ -100,8 +100,8 @@ func Styled() StyleLogger {
 	}
 }
 
-func (s StyleLogger) WithLeftBorder(border lipgloss.Border) StyleLogger {
-	s.style = s.style.BorderStyle(border).BorderLeft(true).BorderForeground(colorCyan)
+func (s StyleLogger) WithLeftBorder(border lipgloss.Border, color lipgloss.TerminalColor) StyleLogger {
+	s.style = s.style.BorderStyle(border).BorderLeft(true).BorderForeground(color)
 
 	return s
 }
@@ -123,7 +123,7 @@ func (s StyleLogger) Info(str string) {
 
 func Debug(args ...interface{}) {
 	res := fmt.Sprint(args...)
-	std.Debug(color(colorGray).Render(res))
+	std.Debug(color(GolorGray).Render(res))
 }
 
 func Debugf(format string, args ...interface{}) {
@@ -139,7 +139,7 @@ func InfoPad(s string) {
 		lipgloss.NewStyle().
 			BorderStyle(lipgloss.NormalBorder()).
 			BorderLeft(true).
-			BorderForeground(colorCyan).
+			BorderForeground(ColorCyan).
 			Render(s),
 	)
 }
@@ -183,21 +183,21 @@ func SetColors(colors interface{}) {
 	case bool:
 		std.colors = typedColors
 		if !std.colors {
-			setColor(lipgloss.NoColor{}, &colorRed)
-			setColor(lipgloss.NoColor{}, &colorGreen)
-			setColor(lipgloss.NoColor{}, &colorYellow)
-			setColor(lipgloss.NoColor{}, &colorCyan)
-			setColor(lipgloss.NoColor{}, &colorGray)
+			setColor(lipgloss.NoColor{}, &ColorRed)
+			setColor(lipgloss.NoColor{}, &ColorGreen)
+			setColor(lipgloss.NoColor{}, &ColorYellow)
+			setColor(lipgloss.NoColor{}, &ColorCyan)
+			setColor(lipgloss.NoColor{}, &GolorGray)
 			setColor(lipgloss.NoColor{}, &colorBorder)
 		}
 		return
 	case map[string]interface{}:
 		std.colors = true
-		setColor(typedColors["red"], &colorRed)
-		setColor(typedColors["green"], &colorGreen)
-		setColor(typedColors["yellow"], &colorYellow)
-		setColor(typedColors["cyan"], &colorCyan)
-		setColor(typedColors["gray"], &colorGray)
+		setColor(typedColors["red"], &ColorRed)
+		setColor(typedColors["green"], &ColorGreen)
+		setColor(typedColors["yellow"], &ColorYellow)
+		setColor(typedColors["cyan"], &ColorCyan)
+		setColor(typedColors["gray"], &GolorGray)
 		setColor(typedColors["gray"], &colorBorder)
 		return
 	default:
@@ -227,23 +227,23 @@ func setColor(colorCode interface{}, adaptiveColor *lipgloss.TerminalColor) {
 }
 
 func Cyan(s string) string {
-	return color(colorCyan).Render(s)
+	return color(ColorCyan).Render(s)
 }
 
 func Green(s string) string {
-	return color(colorGreen).Render(s)
+	return color(ColorGreen).Render(s)
 }
 
 func Red(s string) string {
-	return color(colorRed).Render(s)
+	return color(ColorRed).Render(s)
 }
 
 func Yellow(s string) string {
-	return color(colorYellow).Render(s)
+	return color(ColorYellow).Render(s)
 }
 
 func Gray(s string) string {
-	return color(colorGray).Render(s)
+	return color(GolorGray).Render(s)
 }
 
 func Bold(s string) string {
