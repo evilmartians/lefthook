@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+## 1.5.0 (2023-09-21)
+
+- chore: output enhancements ([#549](https://github.com/evilmartians/lefthook/pull/549)) by @mrexox
+- feat: add interrupt (Ctrl-C) handling ([#550](https://github.com/evilmartians/lefthook/pull/550)) by @mrcljx
+
 ## 1.4.11 (2023-09-13)
 
 - docs: update docs and readme with tl;dr instructions ([#548](https://github.com/evilmartians/lefthook/pull/548)) by @mrexox
