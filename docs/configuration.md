@@ -243,7 +243,7 @@ pre-commit:
       run: npm run eslint {staged_files}
 ```
 
-Provide a tweak to access `npm` executable the same way you do it in your ~/<shell>rc
+Provide a tweak to access `npm` executable the same way you do it in your ~/<shell>rc.
 
 ```yml
 # lefthook-local.yml
@@ -254,16 +254,25 @@ Provide a tweak to access `npm` executable the same way you do it in your ~/<she
 rc: ~/.lefthookrc
 ```
 
+Or
+
+```yml
+# lefthook-local.yml
+
+# If the path contains spaces, you need to quote it.
+rc: '"${XDG_CONFIG_HOME:-$HOME/.config}/lefthookrc"'
+```
+
+In the rc file, export any new environment variables or modify existing ones.
+
 ```bash
 # ~/.lefthookrc
 
 # An nvm way
-
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
 # Or maybe just
-
 PATH=$PATH:$HOME/.nvm/versions/node/v15.14.0/bin
 ```
 
