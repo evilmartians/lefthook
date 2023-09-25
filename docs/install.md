@@ -6,6 +6,7 @@ Choose your fighter:
 - [Node.js](#node)
 - [Go](#go)
 - [Python](#python)
+- [Swift](#swift)
 - [Scoop](#scoop)
 - [Homebrew](#homebrew)
 - [Winget](#winget)
@@ -68,6 +69,14 @@ You can find Python wrapper here [package](https://github.com/life4/lefthook)
 
 ```sh
 python3 -m pip install --user lefthook
+```
+
+## <a id="swift"></a> Swift
+
+You can find the Swift wrapper plugin [here](https://github.com/csjones/lefthook-plugin). To utilize lefthook, include the plugin in the dependencies section of your `Package.swift`:
+
+```swift
+.package(url: "https://github.com/csjones/lefthook-plugin.git", exact: "1.5.0"),
 ```
 
 ## <a id="scoop"></a> Scoop for Windowss
