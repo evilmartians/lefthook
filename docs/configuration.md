@@ -868,7 +868,7 @@ pre-commit:
 
 ### `files`
 
-A custom git command for files to be referenced in `{files}` template for [`run`](#run) setting.
+A custom git command for files or directories to be referenced in `{files}` template for [`run`](#run) setting.
 
 If the result of this command is empty, the execution of commands will be skipped.
 
