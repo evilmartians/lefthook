@@ -48,7 +48,7 @@ call_lefthook()
     npx @evilmartians/lefthook "$@"
   elif swift package plugin lefthook >/dev/null 2>&1
   then
-    swift package --disable-sandbox plugin lefthook $@
+    swift package --disable-sandbox plugin lefthook "$@"
   else
     echo "Can't find lefthook in PATH"
     {{- if .AssertLefthookInstalled}}
