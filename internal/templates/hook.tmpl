@@ -5,8 +5,7 @@ if [ "$LEFTHOOK" = "0" ]; then
 fi
 
 {{- if .Rc}}
-{{/* Load rc file and export all ENV vars defined in it */}}
-set -a
+{{/* Load rc file, which may export ENV variables */}}
 [ -f {{.Rc}} ] && . {{.Rc}}
 {{- end}}
 
