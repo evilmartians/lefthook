@@ -112,6 +112,7 @@ func TestRunAll(t *testing.T) {
 		hook                   *config.Hook
 		success, fail          []Result
 		gitCommands            []string
+		force                  bool
 	}{
 		{
 			name:     "empty hook",
@@ -674,6 +675,37 @@ func TestRunAll(t *testing.T) {
 			},
 		},
 		{
+			name:     "skippable pre-commit hook with force",
+			hookName: "pre-commit",
+			existingFiles: []string{
+				filepath.Join(root, "README.md"),
+			},
+			hook: &config.Hook{
+				Commands: map[string]*config.Command{
+					"ok": {
+						Run:        "success",
+						StageFixed: true,
+						Glob:       "*.md",
+					},
+					"fail": {
+						Run:        "fail",
+						StageFixed: true,
+						Glob:       "*.sh",
+					},
+				},
+			},
+			force:   true,
+			success: []Result{{Name: "ok", Status: StatusOk}},
+			fail:    []Result{{Name: "fail", Status: StatusErr}},
+			gitCommands: []string{
+				"git status --short",
+				"git diff --name-only --cached --diff-filter=ACMR",
+				"git add .*README.md",
+				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
+				"git stash list",
+			},
+		},
+		{
 			name:     "pre-commit hook with stage_fixed under root",
 			hookName: "pre-commit",
 			existingFiles: []string{
@@ -737,6 +769,7 @@ func TestRunAll(t *testing.T) {
 				HookName:   tt.hookName,
 				GitArgs:    tt.args,
 				ResultChan: resultChan,
+				Force:      tt.force,
 			},
 			executor: executor,
 		}
