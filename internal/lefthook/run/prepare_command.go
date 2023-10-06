@@ -109,7 +109,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 		}
 
 		files = filter.Apply(command, files)
-		if len(files) == 0 {
+		if !r.Force && len(files) == 0 {
 			return nil, nil, errors.New("no files for inspection")
 		}
 
@@ -119,7 +119,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 	// Checking substitutions and skipping execution if it is empty.
 	//
 	// Special case for `files` option: return if the result of files command is empty.
-	if len(filesCmd) > 0 && templates[config.SubFiles] == nil {
+	if !r.Force && len(filesCmd) > 0 && templates[config.SubFiles] == nil {
 		files, err := filesFns[config.SubFiles]()
 		if err != nil {
 			return nil, fmt.Errorf("error calling replace command for %s: %w", config.SubFiles, err), nil
@@ -146,33 +146,47 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 	}
 	result := replaceInChunks(runString, templates, maxlen)
 
-	if len(result.files) == 0 && config.HookUsesStagedFiles(r.HookName) {
-		if templates[config.SubStagedFiles] != nil && len(templates[config.SubStagedFiles].files) == 0 {
-			return nil, nil, errors.New("no matching staged files")
-		}
+	if r.Force || len(result.files) != 0 {
+		return result, nil, nil
+	}
 
-		files, err := r.Repo.StagedFiles()
-		if err == nil {
-			if len(filter.Apply(command, files)) == 0 {
-				return nil, nil, errors.New("no matching staged files")
-			}
+	if config.HookUsesStagedFiles(r.HookName) {
+		ok, err := canSkipCommand(command, templates[config.SubStagedFiles], r.Repo.StagedFiles)
+		if err != nil {
+			return nil, err, nil
+		}
+		if ok {
+			return nil, nil, errors.New("no matching staged files")
 		}
 	}
 
-	if len(result.files) == 0 && config.HookUsesPushFiles(r.HookName) {
-		if templates[config.PushFiles] != nil && len(templates[config.PushFiles].files) == 0 {
-			return nil, nil, errors.New("no matching push files")
+	if config.HookUsesPushFiles(r.HookName) {
+		ok, err := canSkipCommand(command, templates[config.PushFiles], r.Repo.PushFiles)
+		if err != nil {
+			return nil, err, nil
 		}
-
-		files, err := r.Repo.PushFiles()
-		if err == nil {
-			if len(filter.Apply(command, files)) == 0 {
-				return nil, nil, errors.New("no matching push files")
-			}
+		if ok {
+			return nil, nil, errors.New("no matching push files")
 		}
 	}
 
 	return result, nil, nil
+}
+
+func canSkipCommand(command *config.Command, template *template, filesFn func() ([]string, error)) (bool, error) {
+	if template != nil {
+		return len(template.files) == 0, nil
+	}
+
+	files, err := filesFn()
+	if err != nil {
+		return false, fmt.Errorf("error getting files: %w", err)
+	}
+	if len(filter.Apply(command, files)) == 0 {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 func replacePositionalArguments(str string, args []string) string {

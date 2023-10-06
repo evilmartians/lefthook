@@ -22,6 +22,11 @@ func newRunCmd(opts *lefthook.Options) *cobra.Command {
 	}
 
 	runCmd.Flags().BoolVarP(
+		&runArgs.Force, "force", "f", false,
+		"force execution of commands that can be skipped",
+	)
+
+	runCmd.Flags().BoolVarP(
 		&runArgs.NoTTY, "no-tty", "n", false,
 		"run hook non-interactively, disable spinner",
 	)

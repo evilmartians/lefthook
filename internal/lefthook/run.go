@@ -25,6 +25,7 @@ const (
 type RunArgs struct {
 	NoTTY           bool
 	AllFiles        bool
+	Force           bool
 	Files           []string
 	RunOnlyCommands []string
 }
@@ -124,6 +125,7 @@ Run 'lefthook install' manually.`,
 			DisableTTY:      cfg.NoTTY || args.NoTTY,
 			AllFiles:        args.AllFiles,
 			Files:           args.Files,
+			Force:           args.Force,
 			RunOnlyCommands: args.RunOnlyCommands,
 		},
 	)
