@@ -2,6 +2,14 @@
 
 ## master (unreleased)
 
+## 1.5.1 (2023-10-6)
+
+- feat: add force flag to run command ([#561](https://github.com/evilmartians/lefthook/pull/561)) by @mrexox
+- fix: do not enable export when sourcing rc file ([#553](https://github.com/evilmartians/lefthook/pull/553)) by @hyperupcall
+- chore: wrap shell args in quotes for consistency by @mrexox
+- docs: add a note that files template supports directories by @mrexox
+- feat: initial support for Swift Plugins ([#556](https://github.com/evilmartians/lefthook/pull/556)) by @csjones
+
 ## 1.5.0 (2023-09-21)
 
 - chore: output enhancements ([#549](https://github.com/evilmartians/lefthook/pull/549)) by @mrexox
