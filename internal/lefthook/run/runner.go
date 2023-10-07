@@ -11,9 +11,11 @@ import (
 	"regexp"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
+	"unicode"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/afero"
@@ -330,7 +332,7 @@ func (r *Runner) runCommands(ctx context.Context) {
 		}
 	}
 
-	sort.Strings(commands)
+	sortAlnum(commands)
 
 	interactiveCommands := make([]string, 0)
 	var wg sync.WaitGroup
@@ -528,4 +530,42 @@ func (r *Runner) logExecute(name string, err error, out io.Reader) {
 	if err != nil {
 		log.Infof("%s", err)
 	}
+}
+
+func sortAlnum(strs []string) {
+	sort.SliceStable(strs, func(i, j int) bool {
+		var numEnds int = -1
+		for idx, ch := range strs[i] {
+			if unicode.IsDigit(ch) {
+				numEnds = idx
+			} else {
+				break
+			}
+		}
+		if numEnds == -1 {
+			return strs[i] < strs[j]
+		}
+		numI, err := strconv.Atoi(strs[i][:numEnds+1])
+		if err != nil {
+			return strs[i] < strs[j]
+		}
+
+		numEnds = -1
+		for idx, ch := range strs[j] {
+			if unicode.IsDigit(ch) {
+				numEnds = idx
+			} else {
+				break
+			}
+		}
+		if numEnds == -1 {
+			return true
+		}
+		numJ, err := strconv.Atoi(strs[j][:numEnds+1])
+		if err != nil {
+			return true
+		}
+
+		return numI < numJ
+	})
 }
