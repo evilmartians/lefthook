@@ -532,9 +532,13 @@ func (r *Runner) logExecute(name string, err error, out io.Reader) {
 	}
 }
 
+// sortAlnum sorts the command names by preceding numbers if they occur.
+// If the command names starts with letter the command name will be sorted alphabetically.
+//
+//	[]string{"1_command", "10command", "3 command", "command5"} // -> 1_command, 3 command, 10command, command5
 func sortAlnum(strs []string) {
 	sort.SliceStable(strs, func(i, j int) bool {
-		var numEnds int = -1
+		numEnds := -1
 		for idx, ch := range strs[i] {
 			if unicode.IsDigit(ch) {
 				numEnds = idx
