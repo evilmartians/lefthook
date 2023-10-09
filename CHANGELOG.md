@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.5.2 (2023-10-9)
+
+- fix: correctly sort alphanumeric commands ([#562](https://github.com/evilmartians/lefthook/pull/562)) by @mrexox
+
 ## 1.5.1 (2023-10-6)
 
 - feat: add force flag to run command ([#561](https://github.com/evilmartians/lefthook/pull/561)) by @mrexox
