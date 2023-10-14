@@ -9,45 +9,33 @@ fi
 [ -f {{.Rc}} ] && . {{.Rc}}
 {{- end}}
 
-call_lefthook()
-{
-  dir="$(git rev-parse --show-toplevel)"
+call_lefthook() {
   osArch=$(uname | tr '[:upper:]' '[:lower:]')
   cpuArch=$(uname -m | sed 's/aarch64/arm64/')
 
-  if lefthook{{.Extension}} -h >/dev/null 2>&1
-  then
-    lefthook{{.Extension}} "$@"
+  if command -v lefthook{{.Extension}} >/dev/null 2>&1; then
+    exec lefthook{{.Extension}} "$@"
   {{if .Extension -}}
   {{/* Check if lefthook.bat exists. Ruby bundler creates such a wrapper */ -}}
-  elif lefthook.bat -h >/dev/null 2>&1
-  then
-    lefthook.bat "$@"
+  elif command -v lefthook.bat >/dev/null 2>&1; then
+    exec lefthook.bat "$@"
   {{end -}}
-  elif test -f "$dir/node_modules/lefthook/bin/index.js"
-  then
-    "$dir/node_modules/lefthook/bin/index.js" "$@"
-  elif test -f "$dir/node_modules/@evilmartians/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}"
-  then
-    "$dir/node_modules/@evilmartians/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}" "$@"
-  elif test -f "$dir/node_modules/@evilmartians/lefthook-installer/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}"
-  then
-    "$dir/node_modules/@evilmartians/lefthook-installer/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}" "$@"
-  elif bundle exec lefthook -h >/dev/null 2>&1
-  then
-    bundle exec lefthook "$@"
-  elif yarn lefthook -h >/dev/null 2>&1
-  then
-    yarn lefthook "$@"
-  elif pnpm lefthook -h >/dev/null 2>&1
-  then
-    pnpm lefthook "$@"
-  elif command -v npx >/dev/null 2>&1
-  then
-    npx @evilmartians/lefthook "$@"
-  elif swift package plugin lefthook >/dev/null 2>&1
-  then
-    swift package --disable-sandbox plugin lefthook "$@"
+  fi
+
+  try_exec "./node_modules/lefthook/bin/index.js" "$@"
+  try_exec "./node_modules/@evilmartians/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}" "$@"
+  try_exec "./node_modules/@evilmartians/lefthook-installer/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}" "$@"
+
+  if bundle exec lefthook -h >/dev/null 2>&1; then
+    exec bundle exec lefthook "$@"
+  elif yarn lefthook -h >/dev/null 2>&1; then
+    exec yarn lefthook "$@"
+  elif pnpm lefthook -h >/dev/null 2>&1; then
+    exec pnpm lefthook "$@"
+  elif command -v npx >/dev/null 2>&1; then
+    exec npx @evilmartians/lefthook "$@"
+  elif swift package plugin lefthook >/dev/null 2>&1; then
+    exec swift package --disable-sandbox plugin lefthook "$@"
   else
     echo "Can't find lefthook in PATH"
     {{- if .AssertLefthookInstalled}}
@@ -56,6 +44,14 @@ call_lefthook()
     echo "To skip these checks use --no-verify git argument or set LEFTHOOK=0 env variable."
     exit 1
     {{- end}}
+  fi
+}
+
+try_exec() {
+  _path=$1; shift
+
+  if [ -x "$_path" ]; then
+    exec "$_path" "$@"
   fi
 }
 
