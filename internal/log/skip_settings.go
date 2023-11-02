@@ -10,6 +10,7 @@ const (
 	skipExecutionOutput
 	skipExecutionInfo
 	skipEmptySummary
+	skipSummarySeparator
 )
 
 type SkipSettings int16
@@ -34,6 +35,8 @@ func (s *SkipSettings) ApplySetting(setting string) {
 		*s |= skipExecutionInfo
 	case "empty_summary":
 		*s |= skipEmptySummary
+	case "summary_separator":
+		*s |= skipSummarySeparator
 	}
 }
 
@@ -71,6 +74,10 @@ func (s SkipSettings) SkipSkips() bool {
 
 func (s SkipSettings) SkipEmptySummary() bool {
 	return s.doSkip(skipEmptySummary)
+}
+
+func (s SkipSettings) SkipSummarySeparator() bool {
+	return s.doSkip(skipSummarySeparator)
 }
 
 func (s SkipSettings) doSkip(option int16) bool {

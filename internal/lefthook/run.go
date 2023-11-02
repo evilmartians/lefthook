@@ -195,9 +195,13 @@ func printSummary(
 		return
 	}
 
-	log.Separate(
-		log.Cyan("summary: ") + log.Gray(fmt.Sprintf("(done in %.2f seconds)", duration.Seconds())),
-	)
+	if logSettings.SkipSummarySeparator() {
+		log.Info(log.Cyan("summary: ") + log.Gray(fmt.Sprintf("(done in %.2f seconds)", duration.Seconds())))
+	} else {
+		log.Separate(
+			log.Cyan("summary: ") + log.Gray(fmt.Sprintf("(done in %.2f seconds)", duration.Seconds())),
+		)
+	}
 
 	if !logSettings.SkipSuccess() {
 		for _, result := range results {
