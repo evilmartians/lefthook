@@ -225,7 +225,7 @@ Use cases:
 
 - You have a GUI program that runs git hooks (e.g., VSCode)
 - You reference executables that are accessible only from a tweaked $PATH environment variable (e.g., when using rbenv or nvm)
-- Or even if your GUI programm cannot locate the `lefthook` executable :scream:
+- Or even if your GUI program cannot locate the `lefthook` executable :scream:
 - Or if you want to use ENV variables that control the executables behavior in `lefthook.yml`
 
 ```bash
@@ -305,7 +305,7 @@ This can be changed in the future. For convenience, please use `remote` configur
 
 ### `git_url`
 
-A URL to Git repository. It will be accessed with priveleges of the machine lefthook runs on.
+A URL to Git repository. It will be accessed with privileges of the machine lefthook runs on.
 
 **Example**
 
@@ -1085,7 +1085,7 @@ Whether to use interactive mode. This applies the certain behavior:
 
 **Note**
 
-If you want to pass stdin to your command or script but don't need to get the input from CLI, use [`use_stdin`](#use_stdin) option isntead.
+If you want to pass stdin to your command or script but don't need to get the input from CLI, use [`use_stdin`](#use_stdin) option instead.
 
 ## Script
 

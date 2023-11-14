@@ -47,7 +47,7 @@ func (o *OsExec) CmdLines(cmd string) ([]string, error) {
 	return strings.Split(out, "\n"), nil
 }
 
-// CmdArgs runs a command provided with separted words. Trims spaces around output.
+// CmdArgs runs a command provided with separated words. Trims spaces around output.
 func (o *OsExec) CmdArgs(args ...string) (string, error) {
 	out, err := o.rawExecArgs(args...)
 	if err != nil {

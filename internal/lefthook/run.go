@@ -65,8 +65,8 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		return err
 	}
 
-	// Suppress prepare-commit-msg output if the hook doesn't exists in config.
-	// prepare-commit-msg hook is used for seemless synchronization of hooks with config.
+	// Suppress prepare-commit-msg output if the hook doesn't exist in config.
+	// prepare-commit-msg hook is used for seamless synchronization of hooks with config.
 	// See: internal/lefthook/install.go
 	_, ok := cfg.Hooks[hookName]
 	if hookName == config.GhostHookName && !ok && !verbose {
@@ -136,7 +136,7 @@ Run 'lefthook install' manually.`,
 	}
 
 	if cfg.Remote.Configured() {
-		// Apend only source_dir, because source_dir_local doesn't make sense
+		// Append only source_dir, because source_dir_local doesn't make sense
 		sourceDirs = append(
 			sourceDirs,
 			filepath.Join(
