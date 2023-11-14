@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+- fix: don't check checksum file when explicitly calling lefthook install ([#572](https://github.com/evilmartians/lefthook/pull/572)) by @mrexox
+- chore: skip summary separator if nothing is printed ([#575](https://github.com/evilmartians/lefthook/pull/575)) by @mrexox
+- docs: update info about root option by @mrexox
+
 ## 1.5.2 (2023-10-9)
 
 - fix: correctly sort alphanumeric commands ([#562](https://github.com/evilmartians/lefthook/pull/562)) by @mrexox
