@@ -181,9 +181,15 @@ func printSummary(
 	results []run.Result,
 	logSettings log.SkipSettings,
 ) {
+	summaryPrint := log.Separate
+
+	if logSettings.SkipExecution() || (logSettings.SkipExecutionInfo() && logSettings.SkipExecutionOutput()) {
+		summaryPrint = func(s string) { log.Info(s) }
+	}
+
 	if len(results) == 0 {
 		if !logSettings.SkipEmptySummary() {
-			log.Separate(
+			summaryPrint(
 				fmt.Sprintf(
 					"%s %s %s",
 					log.Cyan("summary:"),
@@ -195,7 +201,7 @@ func printSummary(
 		return
 	}
 
-	log.Separate(
+	summaryPrint(
 		log.Cyan("summary: ") + log.Gray(fmt.Sprintf("(done in %.2f seconds)", duration.Seconds())),
 	)
 

@@ -15,8 +15,9 @@ import (
 )
 
 const (
-	hookFileMode = 0o755
-	envVerbose   = "LEFTHOOK_VERBOSE" // keep all output
+	hookFileMode   = 0o755
+	envVerbose     = "LEFTHOOK_VERBOSE" // keep all output
+	oldHookPostfix = ".old"
 )
 
 var lefthookContentRegexp = regexp.MustCompile("LEFTHOOK")
@@ -94,7 +95,7 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 	}
 
 	// Check if .old file already exists before renaming.
-	exists, err = afero.Exists(l.Fs, hookPath+".old")
+	exists, err = afero.Exists(l.Fs, hookPath+oldHookPostfix)
 	if err != nil {
 		return err
 	}
@@ -107,7 +108,7 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 		}
 	}
 
-	err = l.Fs.Rename(hookPath, hookPath+".old")
+	err = l.Fs.Rename(hookPath, hookPath+oldHookPostfix)
 	if err != nil {
 		return err
 	}
