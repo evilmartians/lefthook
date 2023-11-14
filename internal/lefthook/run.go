@@ -230,3 +230,53 @@ func printSummary(
 		}
 	}
 }
+
+func ConfigHookCompletions(opts *Options) []string {
+	lefthook, err := initialize(opts)
+	if err != nil {
+		return nil
+	}
+	return lefthook.configHookCompletions()
+}
+
+func (l *Lefthook) configHookCompletions() []string {
+	cfg, err := config.Load(l.Fs, l.repo)
+	if err != nil {
+		return nil
+	}
+	if err = cfg.Validate(); err != nil {
+		return nil
+	}
+	hooks := make([]string, 0, len(cfg.Hooks))
+	for hook := range cfg.Hooks {
+		hooks = append(hooks, hook)
+	}
+	return hooks
+}
+
+func ConfigHookCommandCompletions(opts *Options, hookName string) []string {
+	lefthook, err := initialize(opts)
+	if err != nil {
+		return nil
+	}
+	return lefthook.configHookCommandCompletions(hookName)
+}
+
+func (l *Lefthook) configHookCommandCompletions(hookName string) []string {
+	cfg, err := config.Load(l.Fs, l.repo)
+	if err != nil {
+		return nil
+	}
+	if err = cfg.Validate(); err != nil {
+		return nil
+	}
+	if hook, found := cfg.Hooks[hookName]; !found {
+		return nil
+	} else {
+		commands := make([]string, 0, len(hook.Commands))
+		for command := range hook.Commands {
+			commands = append(commands, command)
+		}
+		return commands
+	}
+}

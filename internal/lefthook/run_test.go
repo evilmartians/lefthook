@@ -3,6 +3,7 @@ package lefthook
 import (
 	"fmt"
 	"path/filepath"
+	"slices"
 	"testing"
 
 	"github.com/spf13/afero"
@@ -41,11 +42,13 @@ func TestRun(t *testing.T) {
 	gitPath := filepath.Join(root, ".git")
 
 	for i, tt := range [...]struct {
-		name, hook, config string
-		gitArgs            []string
-		envs               map[string]string
-		existingDirs       []string
-		error              bool
+		name, hook, config     string
+		gitArgs                []string
+		envs                   map[string]string
+		existingDirs           []string
+		hookNameCompletions    []string
+		hookCommandCompletions []string
+		error                  bool
 	}{
 		{
 			name: "Skip case",
@@ -87,7 +90,8 @@ pre-commit:
   parallel: true
   piped: true
 `,
-			error: true,
+			hookNameCompletions: []string{"pre-commit"},
+			error:               true,
 		},
 		{
 			name: "Valid hook",
@@ -97,7 +101,8 @@ pre-commit:
   parallel: false
   piped: true
 `,
-			error: false,
+			hookNameCompletions: []string{"pre-commit"},
+			error:               false,
 		},
 		{
 			name: "When in git rebase-merge flow",
@@ -116,7 +121,9 @@ pre-commit:
 			existingDirs: []string{
 				filepath.Join(gitPath, "rebase-merge"),
 			},
-			error: false,
+			hookNameCompletions:    []string{"pre-commit"},
+			hookCommandCompletions: []string{"echo"},
+			error:                  false,
 		},
 		{
 			name: "When in git rebase-apply flow",
@@ -135,7 +142,9 @@ pre-commit:
 			existingDirs: []string{
 				filepath.Join(gitPath, "rebase-apply"),
 			},
-			error: false,
+			hookNameCompletions:    []string{"pre-commit"},
+			hookCommandCompletions: []string{"echo"},
+			error:                  false,
 		},
 		{
 			name: "When not in rebase flow",
@@ -151,7 +160,9 @@ post-commit:
         - merge
       run: echo 'SHOULD RUN'
 `,
-			error: true,
+			hookNameCompletions:    []string{"post-commit"},
+			hookCommandCompletions: []string{"echo"},
+			error:                  true,
 		},
 	} {
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
@@ -192,6 +203,24 @@ post-commit:
 				if tt.error {
 					t.Errorf("expected an error")
 				}
+			}
+
+			hookNameCompletions := lefthook.configHookCompletions()
+			if tt.hookNameCompletions != nil {
+				if !slices.Equal(tt.hookNameCompletions, hookNameCompletions) {
+					t.Errorf("expected hook name completions %v, got %v", tt.hookNameCompletions, hookNameCompletions)
+				}
+			} else if len(hookNameCompletions) != 0 {
+				t.Errorf("expected no hook name completions, got %v", lefthook.configHookCompletions())
+			}
+
+			hookCommandCompletions := lefthook.configHookCommandCompletions(tt.hook)
+			if tt.hookCommandCompletions != nil {
+				if !slices.Equal(tt.hookCommandCompletions, hookCommandCompletions) {
+					t.Errorf("expected hook command completions %v, got %v", tt.hookCommandCompletions, hookCommandCompletions)
+				}
+			} else if len(hookCommandCompletions) != 0 {
+				t.Errorf("expected no hook command completions, got %v", hookCommandCompletions)
 			}
 		})
 	}
