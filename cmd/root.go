@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/evilmartians/lefthook/internal/lefthook"
+	"github.com/evilmartians/lefthook/internal/log"
 )
 
 var commands = [...]func(*lefthook.Options) *cobra.Command{
@@ -41,14 +42,23 @@ func newRootCmd() *cobra.Command {
 		&options.NoColors, "no-colors", false, "disable colored output",
 	)
 
+	// To be dropped in next releases.
 	rootCmd.Flags().BoolVarP(
 		&options.Force, "force", "f", false,
-		"DEPRECATED: reinstall hooks without checking config version",
+		"use command-specific --force option",
 	)
 	rootCmd.Flags().BoolVarP(
 		&options.Aggressive, "aggressive", "a", false,
-		"DEPRECATED: remove all hooks from .git/hooks dir and install lefthook hooks",
+		"use --force flag instead",
 	)
+	err := rootCmd.Flags().MarkDeprecated("aggressive", "use command-specific --force option")
+	if err != nil {
+		log.Warn("Unexpected error:", err)
+	}
+	err = rootCmd.Flags().MarkDeprecated("force", "use command-specific --force option")
+	if err != nil {
+		log.Warn("Unexpected error:", err)
+	}
 
 	for _, subcommand := range commands {
 		rootCmd.AddCommand(subcommand(&options))

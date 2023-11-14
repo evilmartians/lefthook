@@ -34,21 +34,17 @@ var (
 	errNoConfig            = fmt.Errorf("no lefthook config found")
 )
 
-type InstallArgs struct {
-	Force, Aggressive bool
-}
-
 // Install installs the hooks from config file to the .git/hooks.
-func Install(opts *Options, args *InstallArgs) error {
+func Install(opts *Options, force bool) error {
 	lefthook, err := initialize(opts)
 	if err != nil {
 		return err
 	}
 
-	return lefthook.Install(args)
+	return lefthook.Install(force)
 }
 
-func (l *Lefthook) Install(args *InstallArgs) error {
+func (l *Lefthook) Install(force bool) error {
 	cfg, err := l.readOrCreateConfig()
 	if err != nil {
 		return err
@@ -66,8 +62,7 @@ func (l *Lefthook) Install(args *InstallArgs) error {
 		}
 	}
 
-	return l.createHooksIfNeeded(cfg,
-		args.Force || args.Aggressive || l.Options.Force || l.Options.Aggressive)
+	return l.createHooksIfNeeded(cfg, false, force)
 }
 
 func (l *Lefthook) readOrCreateConfig() (*config.Config, error) {
@@ -111,8 +106,8 @@ func (l *Lefthook) createConfig(path string) error {
 	return nil
 }
 
-func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, force bool) error {
-	if !force && l.hooksSynchronized() {
+func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force bool) error {
+	if checkHashSum && l.hooksSynchronized() {
 		return nil
 	}
 
