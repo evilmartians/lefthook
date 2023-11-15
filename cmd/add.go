@@ -16,7 +16,7 @@ func newAddCmd(opts *lefthook.Options) *cobra.Command {
 
 	addCmd := cobra.Command{
 		Use:     "add hook-name",
-		Short:   "This command add a hook directory to a repository",
+		Short:   "This command adds a hook directory to a repository",
 		Long:    addDoc,
 		Example: "lefthook add pre-commit",
 		Args:    cobra.MinimumNArgs(1),
