@@ -997,6 +997,10 @@ pre-commit:
 
 You can provide a regular expression to exclude some files from being passed to [`run`](#run) command.
 
+The regular expression is matched against full paths to files in the repo,
+relative to the repo root, using `/` as the directory separator on all platforms.
+File paths do not begin with the separator or any other prefix.
+
 **Example**
 
 Run Rubocop on staged files with `.rb` extension except for `application.rb`, `routes.rb`, and `rails_helper.rb` (wherever they are).
