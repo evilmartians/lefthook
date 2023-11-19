@@ -871,7 +871,7 @@ If you've specified `glob` but don't have a files template in [`run`](#run) opti
 pre-commit:
   commands:
     lint:
-      glob: ".js"
+      glob: "*.js"
       run: npm run lint # skipped if no .js files staged
 ```
 
@@ -1007,7 +1007,7 @@ Run Rubocop on staged files with `.rb` extension except for `application.rb`, `r
 pre-commit:
   commands:
     lint:
-      glob: ".rb"
+      glob: "*.rb"
       exclude: "application.rb|routes.rb|rails_helper.rb"
       run: bundle exec rubocop --force-exclusion {staged_files}
 ```
