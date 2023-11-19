@@ -21,7 +21,7 @@
 #     rubocop:
 #       tags: backend style
 #       glob: "*.rb"
-#       exclude: "application.rb|routes.rb"
+#       exclude: '(^|/)(application|routes)\.rb$'
 #       run: bundle exec rubocop --force-exclusion {all_files}
 #     govet:
 #       tags: backend style

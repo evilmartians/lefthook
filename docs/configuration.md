@@ -609,7 +609,7 @@ pre-commit:
     rubocop:
       tags: backend style
       glob: "*.rb"
-      exclude: "application.rb|routes.rb"
+      exclude: '(^|/)(application|routes)\.rb$'
       run: bundle exec rubocop --force-exclusion {all_files}
 ```
 
@@ -1008,7 +1008,7 @@ pre-commit:
   commands:
     lint:
       glob: "*.rb"
-      exclude: "application.rb|routes.rb|rails_helper.rb"
+      exclude: '(^|/)(application|routes|rails_helper)\.rb$'
       run: bundle exec rubocop --force-exclusion {staged_files}
 ```
 
@@ -1022,7 +1022,7 @@ If you've specified `exclude` but don't have a files template in [`run`](#run) o
 pre-commit:
   commands:
     lint:
-      exclude: "application.rb"
+      exclude: '(^|/)application\.rb$'
       run: bundle exec rubocop # skipped if only application.rb was staged
 ```
 
