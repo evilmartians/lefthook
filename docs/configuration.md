@@ -609,7 +609,7 @@ pre-commit:
     rubocop:
       tags: backend style
       glob: "*.rb"
-      exclude: "application.rb|routes.rb"
+      exclude: '(^|/)(application|routes)\.rb$'
       run: bundle exec rubocop --force-exclusion {all_files}
 ```
 
@@ -871,7 +871,7 @@ If you've specified `glob` but don't have a files template in [`run`](#run) opti
 pre-commit:
   commands:
     lint:
-      glob: ".js"
+      glob: "*.js"
       run: npm run lint # skipped if no .js files staged
 ```
 
@@ -997,6 +997,10 @@ pre-commit:
 
 You can provide a regular expression to exclude some files from being passed to [`run`](#run) command.
 
+The regular expression is matched against full paths to files in the repo,
+relative to the repo root, using `/` as the directory separator on all platforms.
+File paths do not begin with the separator or any other prefix.
+
 **Example**
 
 Run Rubocop on staged files with `.rb` extension except for `application.rb`, `routes.rb`, and `rails_helper.rb` (wherever they are).
@@ -1007,12 +1011,14 @@ Run Rubocop on staged files with `.rb` extension except for `application.rb`, `r
 pre-commit:
   commands:
     lint:
-      glob: ".rb"
-      exclude: "application.rb|routes.rb|rails_helper.rb"
+      glob: "*.rb"
+      exclude: '(^|/)(application|routes|rails_helper)\.rb$'
       run: bundle exec rubocop --force-exclusion {staged_files}
 ```
 
 **Notes**
+
+Be careful with the config file format's string quoting and escaping rules when writing regexps in it. For YAML, single quotes are often the simplest choice.
 
 If you've specified `exclude` but don't have a files template in [`run`](#run) option, lefthook will check `{staged_files}` for `pre-commit` hook and `{push_files}` for `pre-push` hook and apply filtering. If no files left, the command will be skipped.
 
@@ -1022,7 +1028,7 @@ If you've specified `exclude` but don't have a files template in [`run`](#run) o
 pre-commit:
   commands:
     lint:
-      exclude: "application.rb"
+      exclude: '(^|/)application\.rb$'
       run: bundle exec rubocop # skipped if only application.rb was staged
 ```
 

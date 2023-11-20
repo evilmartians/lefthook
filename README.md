@@ -100,7 +100,7 @@ pre-commit:
   commands:
     backend-linter:
       glob: "*.rb" # glob filter
-      exclude: "application.rb|routes.rb" # regexp filter
+      exclude: '(^|/)(application|routes)\.rb$' # regexp filter
       run: bundle exec rubocop --force-exclusion {all_files}
 ```
 
