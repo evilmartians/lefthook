@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.5.3 (2023-11-22)
+
 - fix: don't check checksum file when explicitly calling lefthook install ([#572](https://github.com/evilmartians/lefthook/pull/572)) by @mrexox
 - chore: skip summary separator if nothing is printed ([#575](https://github.com/evilmartians/lefthook/pull/575)) by @mrexox
 - docs: update info about root option by @mrexox
