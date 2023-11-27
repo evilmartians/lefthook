@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+## 1.5.4 (2023-11-27)
+
+- chore: add typos fixer by @mrexox
+- fix: drop new argument for git diff compatibility ([#586](https://github.com/evilmartians/lefthook/pull/586)) by @mrexox
+
 ## 1.5.3 (2023-11-22)
 
 - fix: don't check checksum file when explicitly calling lefthook install ([#572](https://github.com/evilmartians/lefthook/pull/572)) by @mrexox
