@@ -13,3 +13,7 @@ glob = "*.go"
 [pre-commit.commands.lychee]
 glob = "*.md"
 run = "lychee {staged_files}"
+
+[pre-commit.commands.typos]
+run = "typos --write-changes {staged_files}"
+stage_fixed = true

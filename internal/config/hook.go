@@ -17,12 +17,12 @@ var errPipedAndParallelSet = errors.New("conflicting options 'piped' and 'parall
 type Hook struct {
 	// Should be unmarshalled with `mapstructure:"commands"`
 	// But replacing '{cmd}' is still an issue
-	// Unmarshaling it manually, so omit auto unmarshaling
+	// Unmarshalling it manually, so omit auto unmarshalling
 	Commands map[string]*Command `mapstructure:"-" yaml:",omitempty" json:"commands,omitempty" toml:"commands,omitempty"`
 
 	// Should be unmarshalled with `mapstructure:"scripts"`
 	// But parsing keys with dots in it is still an issue: https://github.com/spf13/viper/issues/324
-	// Unmarshaling it manually, so omit auto unmarshaling
+	// Unmarshalling it manually, so omit auto unmarshalling
 	Scripts map[string]*Script `mapstructure:"-" yaml:",omitempty" json:"scripts,omitempty" toml:"scripts,omitempty"`
 
 	Files       string      `mapstructure:"files"        yaml:",omitempty"             json:"files,omitempty"        toml:"files,omitempty"`
