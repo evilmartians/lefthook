@@ -46,6 +46,7 @@ Lefthook [supports](#config-file) YAML, JSON, and TOML configuration. In this do
   - [`stage_fixed`](#stage_fixed)
   - [`interactive`](#interactive)
   - [`use_stdin`](#use_stdin)
+  - [`priority`](#priority)
 - [Script](#script)
   - [`runner`](#runner)
   - [`skip`](#skip)
@@ -1092,6 +1093,35 @@ Whether to use interactive mode. This applies the certain behavior:
 **Note**
 
 If you want to pass stdin to your command or script but don't need to get the input from CLI, use [`use_stdin`](#use_stdin) option instead.
+
+### `priority`
+
+**Default: 0**
+
+> This option makes sense only when `parallel: false` or `piped: true` is set.
+
+> Value `0` is considered an `+Infinity`, so commands with `priority: 0` or without this setting will be run at the very end.
+
+Set command priority from 1 to +Infinity. This option can be used to configure the order of the sequential commands.
+
+**Example**
+
+```yml
+# lefthook.yml
+
+post-checkout:
+  piped: true
+  commands:
+    db-create:
+      priority: 1
+      run: rails db:create
+    db-migrate:
+      priority: 2
+      run: rails db:migrate
+    db-seed
+      priority: 3
+      run: rails db:seed
+```
 
 ## Script
 
