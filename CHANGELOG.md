@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+- feat: add priorities to commands ([#589](https://github.com/evilmartians/lefthook/pull/589)) by @mrexox
+
 ## 1.5.4 (2023-11-27)
 
 - chore: add typos fixer by @mrexox
