@@ -332,7 +332,7 @@ func (r *Runner) runCommands(ctx context.Context) {
 		}
 	}
 
-	sortAlnum(commands, r.Hook.Commands)
+	sortCommands(commands, r.Hook.Commands)
 
 	interactiveCommands := make([]string, 0)
 	var wg sync.WaitGroup
@@ -532,20 +532,20 @@ func (r *Runner) logExecute(name string, err error, out io.Reader) {
 	}
 }
 
-// sortAlnum sorts the command names by preceding numbers if they occur.
+// sortCommands sorts the command names by preceding numbers if they occur and special priority if it is set.
 // If the command names starts with letter the command name will be sorted alphabetically.
 //
 //	[]string{"1_command", "10command", "3 command", "command5"} // -> 1_command, 3 command, 10command, command5
-func sortAlnum(strs []string, commands map[string]*config.Command) {
+func sortCommands(strs []string, commands map[string]*config.Command) {
 	sort.SliceStable(strs, func(i, j int) bool {
-		commandI, iok := commands[strs[i]]
-		commandJ, jok := commands[strs[j]]
+		commandI, iOk := commands[strs[i]]
+		commandJ, jOk := commands[strs[j]]
 
-		if iok && jok && (commandI.Priority != 0 || commandJ.Priority != 0) {
-			if commandI.Priority == 0 {
+		if iOk && commandI.Priority != 0 || jOk && commandJ.Priority != 0 {
+			if !iOk || commandI.Priority == 0 {
 				return false
 			}
-			if commandJ.Priority == 0 {
+			if !jOk || commandJ.Priority == 0 {
 				return true
 			}
 
