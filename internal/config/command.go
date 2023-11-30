@@ -21,8 +21,9 @@ type Command struct {
 	Files string            `mapstructure:"files" yaml:",omitempty"  json:"files,omitempty" toml:"files,omitempty"`
 	Env   map[string]string `mapstructure:"env"   yaml:",omitempty"  json:"env,omitempty"   toml:"env,omitempty"`
 
-	Root    string `mapstructure:"root"    yaml:",omitempty" json:"root,omitempty"    toml:"root,omitempty"`
-	Exclude string `mapstructure:"exclude" yaml:",omitempty" json:"exclude,omitempty" toml:"exclude,omitempty"`
+	Root     string `mapstructure:"root"     yaml:",omitempty" json:"root,omitempty"     toml:"root,omitempty"`
+	Exclude  string `mapstructure:"exclude"  yaml:",omitempty" json:"exclude,omitempty"  toml:"exclude,omitempty"`
+	Priority int    `mapstructure:"priority" yaml:",omitempty" json:"priority,omitempty" toml:"priority,omitempty"`
 
 	FailText    string `mapstructure:"fail_text"   yaml:"fail_text,omitempty"   json:"fail_text,omitempty"   toml:"fail_text,omitempty"`
 	Interactive bool   `mapstructure:"interactive" yaml:",omitempty"            json:"interactive,omitempty" toml:"interactive,omitempty"`
