@@ -918,3 +918,38 @@ func TestReplaceQuoted(t *testing.T) {
 		})
 	}
 }
+
+func TestSortCommands(t *testing.T) {
+	for i, tt := range [...]struct {
+		name     string
+		names    []string
+		commands map[string]*config.Command
+		result   []string
+	}{
+		{
+			name:     "alphanumeric sort",
+			names:    []string{"10_a", "1_a", "2_a", "5_a"},
+			commands: map[string]*config.Command{},
+			result:   []string{"1_a", "2_a", "5_a", "10_a"},
+		},
+		{
+			name:  "partial priority",
+			names: []string{"10_a", "1_a", "2_a", "5_a"},
+			commands: map[string]*config.Command{
+				"5_a":  {Priority: 10},
+				"2_a":  {Priority: 1},
+				"10_a": {},
+			},
+			result: []string{"2_a", "5_a", "1_a", "10_a"},
+		},
+	} {
+		t.Run(fmt.Sprintf("%d: %s", i+1, tt.name), func(t *testing.T) {
+			sortCommands(tt.names, tt.commands)
+			for i, name := range tt.result {
+				if tt.names[i] != name {
+					t.Errorf("Not matching on index %d: %s != %s", i, name, tt.names[i])
+				}
+			}
+		})
+	}
+}

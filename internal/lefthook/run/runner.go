@@ -255,7 +255,7 @@ func (r *Runner) runScripts(ctx context.Context, dir string) {
 			continue
 		}
 
-		if script.Interactive {
+		if script.Interactive && !r.Hook.Piped {
 			interactiveScripts = append(interactiveScripts, file)
 			continue
 		}
@@ -332,7 +332,7 @@ func (r *Runner) runCommands(ctx context.Context) {
 		}
 	}
 
-	sortAlnum(commands)
+	sortCommands(commands, r.Hook.Commands)
 
 	interactiveCommands := make([]string, 0)
 	var wg sync.WaitGroup
@@ -343,7 +343,7 @@ func (r *Runner) runCommands(ctx context.Context) {
 			continue
 		}
 
-		if r.Hook.Commands[name].Interactive {
+		if r.Hook.Commands[name].Interactive && !r.Hook.Piped {
 			interactiveCommands = append(interactiveCommands, name)
 			continue
 		}
@@ -532,12 +532,26 @@ func (r *Runner) logExecute(name string, err error, out io.Reader) {
 	}
 }
 
-// sortAlnum sorts the command names by preceding numbers if they occur.
+// sortCommands sorts the command names by preceding numbers if they occur and special priority if it is set.
 // If the command names starts with letter the command name will be sorted alphabetically.
 //
 //	[]string{"1_command", "10command", "3 command", "command5"} // -> 1_command, 3 command, 10command, command5
-func sortAlnum(strs []string) {
+func sortCommands(strs []string, commands map[string]*config.Command) {
 	sort.SliceStable(strs, func(i, j int) bool {
+		commandI, iOk := commands[strs[i]]
+		commandJ, jOk := commands[strs[j]]
+
+		if iOk && commandI.Priority != 0 || jOk && commandJ.Priority != 0 {
+			if !iOk || commandI.Priority == 0 {
+				return false
+			}
+			if !jOk || commandJ.Priority == 0 {
+				return true
+			}
+
+			return commandI.Priority < commandJ.Priority
+		}
+
 		numEnds := -1
 		for idx, ch := range strs[i] {
 			if unicode.IsDigit(ch) {
