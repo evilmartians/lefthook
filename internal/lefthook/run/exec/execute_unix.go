@@ -28,8 +28,18 @@ type executeArgs struct {
 	interactive, useStdin bool
 }
 
+type nullReader struct{}
+
+func (nullReader) Read(b []byte) (int, error) {
+	if len(b) == 0 {
+		return 0, nil
+	}
+
+	return 0, io.EOF
+}
+
 func (e CommandExecutor) Execute(ctx context.Context, opts Options, out io.Writer) error {
-	in := os.Stdin
+	var in io.Reader = nullReader{}
 	if opts.Interactive && !isatty.IsTerminal(os.Stdin.Fd()) {
 		tty, err := os.Open("/dev/tty")
 		if err == nil {
