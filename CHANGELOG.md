@@ -2,6 +2,7 @@
 
 ## master (unreleased)
 
+- fix: use empty stdin by default ([#590](https://github.com/evilmartians/lefthook/pull/590)) by @mrexox
 - feat: add priorities to commands ([#589](https://github.com/evilmartians/lefthook/pull/589)) by @mrexox
 
 ## 1.5.4 (2023-11-27)

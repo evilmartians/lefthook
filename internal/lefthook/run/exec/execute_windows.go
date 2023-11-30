@@ -29,8 +29,13 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, out io.Write
 		)
 	}
 
+	var in io.Reader = nullReader{}
+	if opts.Interactive || opts.UseStdin {
+		in = os.Stdin
+	}
+
 	args := &executeArgs{
-		in:   os.Stdin,
+		in:   in,
 		out:  out,
 		envs: envs,
 		root: root,

@@ -29,7 +29,10 @@ type executeArgs struct {
 }
 
 func (e CommandExecutor) Execute(ctx context.Context, opts Options, out io.Writer) error {
-	in := os.Stdin
+	var in io.Reader = nullReader{}
+	if opts.UseStdin {
+		in = os.Stdin
+	}
 	if opts.Interactive && !isatty.IsTerminal(os.Stdin.Fd()) {
 		tty, err := os.Open("/dev/tty")
 		if err == nil {
