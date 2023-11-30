@@ -340,7 +340,9 @@ remote:
   ref: v1.0.0
 ```
 
-> :warning: Please, note that if you initially had `ref` option, ran `lefthook install`, and then removed it, lefthook won't decide which branch/tag to use as a ref. So, if you added it once, please, use it always to avoid issues in local setups.
+> **Note**
+>
+> :warning: If you initially had `ref` option, ran `lefthook install`, and then removed it, lefthook won't decide which branch/tag to use as a ref. So, if you added it once, please, use it always to avoid issues in local setups.
 
 ### `config`
 
@@ -428,9 +430,9 @@ pre-push:
       run: yarn test
 ```
 
-**Notes**
-
-If used with [`parallel`](#parallel) the output can be a mess, so please avoid setting both options to `true`.
+> **Note**
+>
+> If used with [`parallel`](#parallel) the output can be a mess, so please avoid setting both options to `true`.
 
 ### `exclude_tags`
 
@@ -600,7 +602,9 @@ pre-push:
 
 Simply run `bundle exec rubocop` on all files with `.rb` extension excluding `application.rb` and `routes.rb` files.
 
-**Note:** `--force-exclusion` will apply `Exclude` configuration setting of Rubocop.
+> **Note**
+>
+> `--force-exclusion` will apply `Exclude` configuration setting of Rubocop.
 
 ```yml
 # lefthook.yml
@@ -786,9 +790,9 @@ pre-commit:
 
 You can force a command, script, or the whole hook to execute only in certain conditions. This option acts like the opposite of [`skip`](#skip). It accepts the same values but skips execution only if the condition is not satisfied.
 
-**Note**
-
-`skip` option takes precedence over `only` option, so if you have conflicting conditions the execution will be skipped.
+> **Note**
+>
+> `skip` option takes precedence over `only` option, so if you have conflicting conditions the execution will be skipped.
 
 **Example**
 
@@ -1085,21 +1089,24 @@ pre-commit:
 
 **Default: `false`**
 
+> **Note**
+>
+> If you want to pass stdin to your command or script but don't need to get the input from CLI, use [`use_stdin`](#use_stdin) option instead.
+
+
 Whether to use interactive mode. This applies the certain behavior:
 - All `interactive` commands/scripts are executed after non-interactive.
 - When executing, lefthook tries to open /dev/tty (Linux/Unix only) and use it as stdin.
 - When [`no_tty`](#no_tty) option is set, `interactive` is ignored.
 
-**Note**
-
-If you want to pass stdin to your command or script but don't need to get the input from CLI, use [`use_stdin`](#use_stdin) option instead.
-
 ### `priority`
 
-**Default: 0**
+**Default: `0`**
 
+> **Note**
+>
 > This option makes sense only when `parallel: false` or `piped: true` is set.
-
+>
 > Value `0` is considered an `+Infinity`, so commands with `priority: 0` or without this setting will be run at the very end.
 
 Set command priority from 1 to +Infinity. This option can be used to configure the order of the sequential commands.
@@ -1118,7 +1125,7 @@ post-checkout:
     db-migrate:
       priority: 2
       run: rails db:migrate
-    db-seed
+    db-seed:
       priority: 3
       run: rails db:seed
 ```
@@ -1171,11 +1178,11 @@ When you try to commit `git commit -m "bad commit text"` script `template_checke
 
 ### `use_stdin`
 
+> **Note**
+>
+> With many commands or scripts having `use_stdin: true`, only one will receive the data. The others will have nothing. If you need to pass the data from stdin to every command or script, please, submit a [feature request](https://github.com/evilmartians/lefthook/issues/new?assignees=&labels=feature+request&projects=&template=feature_request.md).
+
 Pass the stdin from the OS to the command/script.
-
-**Note**
-
-With many commands or scripts having `use_stdin: true`, only one will receive the data. The others will have nothing. If you need to pass the data from stdin to every command or script, please, submit a [feature request](https://github.com/evilmartians/lefthook/issues/new?assignees=&labels=feature+request&projects=&template=feature_request.md).
 
 **Example**
 
