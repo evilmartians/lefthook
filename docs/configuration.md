@@ -1095,7 +1095,7 @@ pre-commit:
 
 
 Whether to use interactive mode. This applies the certain behavior:
-- All `interactive` commands/scripts are executed after non-interactive.
+- All `interactive` commands/scripts are executed after non-interactive. Exception: [`piped`](#piped) option is set to `true`.
 - When executing, lefthook tries to open /dev/tty (Linux/Unix only) and use it as stdin.
 - When [`no_tty`](#no_tty) option is set, `interactive` is ignored.
 
