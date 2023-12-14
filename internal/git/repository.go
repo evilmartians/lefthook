@@ -11,17 +11,18 @@ import (
 )
 
 const (
-	cmdRootPath      = "git rev-parse --show-toplevel"
-	cmdHooksPath     = "git rev-parse --git-path hooks"
-	cmdInfoPath      = "git rev-parse --git-path info"
-	cmdGitPath       = "git rev-parse --git-dir"
-	cmdStagedFiles   = "git diff --name-only --cached --diff-filter=ACMR"
-	cmdAllFiles      = "git ls-files --cached"
-	cmdPushFilesBase = "git diff --name-only HEAD @{push}"
-	cmdPushFilesHead = "git diff --name-only HEAD %s"
-	cmdStatusShort   = "git status --short"
-	cmdCreateStash   = "git stash create"
-	cmdListStash     = "git stash list"
+	cmdRootPath                   = "git rev-parse --show-toplevel"
+	cmdHooksPath                  = "git rev-parse --git-path hooks"
+	cmdInfoPath                   = "git rev-parse --git-path info"
+	cmdGitPath                    = "git rev-parse --git-dir"
+	cmdStagedFiles                = "git diff --name-only --cached --diff-filter=ACMR"
+	cmdAllFiles                   = "git ls-files --cached"
+	cmdAllFilesIncludingUntracked = "git ls-files --cached --others --exclude-standard"
+	cmdPushFilesBase              = "git diff --name-only HEAD @{push}"
+	cmdPushFilesHead              = "git diff --name-only HEAD %s"
+	cmdStatusShort                = "git status --short"
+	cmdCreateStash                = "git stash create"
+	cmdListStash                  = "git stash list"
 
 	stashMessage      = "lefthook auto backup"
 	unstagedPatchName = "lefthook-unstaged.patch"
@@ -101,6 +102,12 @@ func (r *Repository) StagedFiles() ([]string, error) {
 // or an error if git command fails.
 func (r *Repository) AllFiles() ([]string, error) {
 	return r.FilesByCommand(cmdAllFiles)
+}
+
+// StagedFiles returns a list of all files in repository
+// or an error if git command fails.
+func (r *Repository) AllFilesIncludingUntracked() ([]string, error) {
+	return r.FilesByCommand(cmdAllFilesIncludingUntracked)
 }
 
 // PushFiles returns a list of files that are ready to be pushed
