@@ -23,11 +23,12 @@ const (
 )
 
 type RunArgs struct {
-	NoTTY           bool
-	AllFiles        bool
-	Force           bool
-	Files           []string
-	RunOnlyCommands []string
+	NoTTY                      bool
+	AllFiles                   bool
+	AllFilesIncludingUntracked bool
+	Force                      bool
+	Files                      []string
+	RunOnlyCommands            []string
 }
 
 func Run(opts *Options, args RunArgs, hookName string, gitArgs []string) error {
@@ -116,17 +117,18 @@ Run 'lefthook install' manually.`,
 
 	runner := run.NewRunner(
 		run.Options{
-			Repo:            l.repo,
-			Hook:            hook,
-			HookName:        hookName,
-			GitArgs:         gitArgs,
-			ResultChan:      resultChan,
-			SkipSettings:    logSettings,
-			DisableTTY:      cfg.NoTTY || args.NoTTY,
-			AllFiles:        args.AllFiles,
-			Files:           args.Files,
-			Force:           args.Force,
-			RunOnlyCommands: args.RunOnlyCommands,
+			Repo:                       l.repo,
+			Hook:                       hook,
+			HookName:                   hookName,
+			GitArgs:                    gitArgs,
+			ResultChan:                 resultChan,
+			SkipSettings:               logSettings,
+			DisableTTY:                 cfg.NoTTY || args.NoTTY,
+			Files:                      args.Files,
+			AllFiles:                   args.AllFiles,
+			AllFilesIncludingUntracked: args.AllFilesIncludingUntracked,
+			Force:                      args.Force,
+			RunOnlyCommands:            args.RunOnlyCommands,
 		},
 	)
 
