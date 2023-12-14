@@ -97,7 +97,12 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 	for filesType, fn := range filesFns {
 		cnt := strings.Count(command.Run, filesType)
 		if cnt == 0 {
-			continue
+			if (r.AllFilesIncludingUntracked && filesType == config.SubAllFilesIncludingUntracked) ||
+				(r.AllFiles && filesType == config.SubAllFiles) {
+				cnt++
+			} else {
+				continue
+			}
 		}
 
 		templ := &template{cnt: cnt}
@@ -146,8 +151,10 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 	}
 	result := replaceInChunks(runString, templates, maxlen)
 
-	if r.Force || len(result.files) != 0 {
+	if r.Force || len(result.files) > 0 {
 		return result, nil, nil
+	} else if len(result.files) == 0 {
+		return nil, nil, errors.New("no matching files")
 	}
 
 	if config.HookUsesStagedFiles(r.HookName) {
@@ -169,7 +176,6 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 			return nil, nil, errors.New("no matching push files")
 		}
 	}
-
 	return result, nil, nil
 }
 
@@ -230,6 +236,12 @@ func replaceInChunks(str string, templates map[string]*template, maxlen int) *ru
 		maxlen += template.cnt * len(name)
 		allFiles = append(allFiles, template.files...)
 		template.files = escapeFiles(template.files)
+	}
+
+	if len(allFiles) == 0 {
+		return &run{
+			commands: []string{str},
+		}
 	}
 
 	maxlen -= len(str)
