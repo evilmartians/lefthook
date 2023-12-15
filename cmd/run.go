@@ -36,7 +36,9 @@ func newRunCmd(opts *lefthook.Options) *cobra.Command {
 		"run hooks on all files",
 	)
 
-	runCmd.Flags().StringSliceVar(&runArgs.Files, "files", nil, "run on specified files. takes precedence over --all-files")
+	runCmd.Flags().StringSliceVar(&runArgs.Files, "files", nil, "[DEPRECATED] run on specified files, comma-separated. takes precedence over --all-files")
+
+	runCmd.Flags().StringArrayVar(&runArgs.Files, "file", nil, "run on specified file (repeat for multiple files). takes precedence over --all-files")
 
 	runCmd.Flags().StringSliceVar(&runArgs.RunOnlyCommands, "commands", nil, "run only specified commands")
 
