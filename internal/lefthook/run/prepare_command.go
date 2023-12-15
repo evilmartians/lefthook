@@ -64,15 +64,7 @@ func (r *Runner) prepareCommand(name string, command *config.Command) (*run, err
 	return args, nil
 }
 
-func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
-	filesCmd := r.Hook.Files
-	if len(command.Files) > 0 {
-		filesCmd = command.Files
-	}
-	if len(filesCmd) > 0 {
-		filesCmd = replacePositionalArguments(filesCmd, r.GitArgs)
-	}
-
+func (r *Runner) replaceTemplates(command *config.Command, filesCmd string) (map[string]*template, error, error) {
 	var stagedFiles func() ([]string, error)
 	switch {
 	case len(r.Files) > 0:
@@ -86,9 +78,9 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 	}
 
 	filesFns := map[string]func() ([]string, error){
-		config.SubStagedFiles:               stagedFiles,
-		config.PushFiles:                    r.Repo.PushFiles,
-		config.SubAllFiles:                  r.Repo.AllFiles,
+		config.SubStagedFiles:                stagedFiles,
+		config.PushFiles:                     r.Repo.PushFiles,
+		config.SubAllFiles:                   r.Repo.AllFiles,
 		config.SubAllFilesIncludingUntracked: r.Repo.AllFilesIncludingUntracked,
 		config.SubFiles: func() ([]string, error) {
 			return r.Repo.FilesByCommand(filesCmd)
@@ -99,13 +91,10 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 
 	for filesType, fn := range filesFns {
 		cnt := strings.Count(command.Run, filesType)
-		if cnt == 0 {
-			if (r.AllFilesIncludingUntracked && filesType == config.SubAllFilesIncludingUntracked) ||
-				(r.AllFiles && filesType == config.SubAllFiles) {
-				cnt++
-			} else {
-				continue
-			}
+		if cnt == 0 &&
+			(r.AllFilesIncludingUntracked && filesType == config.SubAllFilesIncludingUntracked) ||
+			(r.AllFiles && filesType == config.SubAllFiles) {
+			cnt++
 		}
 
 		templ := &template{cnt: cnt}
@@ -140,6 +129,25 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 		}
 	}
 
+	return templates, nil, nil
+}
+
+func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
+	filesCmd := r.Hook.Files
+	if len(command.Files) > 0 {
+		filesCmd = command.Files
+	}
+	if len(filesCmd) > 0 {
+		filesCmd = replacePositionalArguments(filesCmd, r.GitArgs)
+	}
+
+	templates, err1, err2 := r.replaceTemplates(command, filesCmd)
+	if err1 != nil {
+		return nil, err1, nil
+	} else if err2 != nil {
+		return nil, nil, err2
+	}
+
 	runString := command.Run
 	runString = replacePositionalArguments(runString, r.GitArgs)
 
@@ -154,28 +162,26 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 	}
 	result := replaceInChunks(runString, templates, maxlen)
 
-	if r.Force || len(result.files) > 0 {
+	switch {
+	case r.Force || len(result.files) > 0:
 		return result, nil, nil
-	} else if len(result.files) == 0 {
-		return nil, nil, errors.New("no matching files")
-	}
 
-	if config.HookUsesStagedFiles(r.HookName) {
+	case len(result.files) == 0:
+		return nil, nil, errors.New("no matching files")
+
+	case config.HookUsesStagedFiles(r.HookName):
 		ok, err := canSkipCommand(command, templates[config.SubStagedFiles], r.Repo.StagedFiles)
 		if err != nil {
 			return nil, err, nil
-		}
-		if ok {
+		} else if ok {
 			return nil, nil, errors.New("no matching staged files")
 		}
-	}
 
-	if config.HookUsesPushFiles(r.HookName) {
+	case config.HookUsesPushFiles(r.HookName):
 		ok, err := canSkipCommand(command, templates[config.PushFiles], r.Repo.PushFiles)
 		if err != nil {
 			return nil, err, nil
-		}
-		if ok {
+		} else if ok {
 			return nil, nil, errors.New("no matching push files")
 		}
 	}
