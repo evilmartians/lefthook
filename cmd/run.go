@@ -36,6 +36,11 @@ func newRunCmd(opts *lefthook.Options) *cobra.Command {
 		"run hooks on all files",
 	)
 
+	runCmd.Flags().BoolVar(
+		&runArgs.FilesFromStdin, "files-from-stdin", false,
+		"get files from standard input, null-separated, instead of from CLI parameters --file(s)",
+	)
+
 	runCmd.Flags().StringSliceVar(&runArgs.Files, "files", nil, "[DEPRECATED] run on specified files, comma-separated. takes precedence over --all-files")
 
 	runCmd.Flags().StringArrayVar(&runArgs.Files, "file", nil, "run on specified file (repeat for multiple files). takes precedence over --all-files")

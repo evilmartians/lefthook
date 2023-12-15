@@ -46,6 +46,7 @@ type Options struct {
 	SkipSettings    log.SkipSettings
 	DisableTTY      bool
 	AllFiles        bool
+	FilesFromStdin  bool
 	Force           bool
 	Files           []string
 	RunOnlyCommands []string
