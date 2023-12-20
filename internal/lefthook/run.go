@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -29,6 +30,19 @@ type RunArgs struct {
 	Force           bool
 	Files           []string
 	RunOnlyCommands []string
+}
+
+func splitNullTerminatedPaths(paths string) []string {
+	var result []string
+	start := 0
+	for i, c := range paths {
+		if c == 0 {
+			result = append(result, paths[start:i])
+			start = i + 1
+		}
+	}
+	result = append(result, paths[start:])
+	return result
 }
 
 func Run(opts *Options, args RunArgs, hookName string, gitArgs []string) error {
@@ -131,6 +145,14 @@ Run 'lefthook install' manually.`,
 			RunOnlyCommands: args.RunOnlyCommands,
 		},
 	)
+
+	if args.FilesFromStdin {
+		paths, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			return fmt.Errorf("error reading standard input: %w", err)
+		}
+		runner.Files = append(runner.Files, splitNullTerminatedPaths(string(paths))...)
+	}
 
 	sourceDirs := []string{
 		filepath.Join(l.repo.RootPath, cfg.SourceDir),

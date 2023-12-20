@@ -1,10 +1,8 @@
 package run
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
-	"os"
 	"runtime"
 	"strings"
 
@@ -66,35 +64,8 @@ func (r *Runner) prepareCommand(name string, command *config.Command) (*run, err
 	return args, nil
 }
 
-func splitNullTerminatedPaths(s string) []string {
-	var result []string
-	start := 0
-	for i, c := range s {
-		if c == 0 {
-			result = append(result, s[start:i])
-			start = i + 1
-		}
-	}
-	result = append(result, s[start:])
-	return result
-}
-
 func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 	filesCmd := r.Hook.Files
-	if command.FilesFromStdin || r.FilesFromStdin {
-		scanner := bufio.NewScanner(os.Stdin)
-		scanner.Split(bufio.ScanLines)
-
-		for scanner.Scan() {
-			line := scanner.Text()
-			r.Files = splitNullTerminatedPaths(line)
-		}
-
-		if err := scanner.Err(); err != nil {
-			return nil, fmt.Errorf("error reading standard input: %w", err), nil
-		}
-	}
-
 	if len(command.Files) > 0 {
 		filesCmd = command.Files
 	}
