@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/evilmartians/lefthook/internal/lefthook"
+	"github.com/evilmartians/lefthook/internal/log"
 )
 
 func newRunCmd(opts *lefthook.Options) *cobra.Command {
@@ -41,7 +42,12 @@ func newRunCmd(opts *lefthook.Options) *cobra.Command {
 		"get files from standard input, null-separated, instead of from CLI parameters --file(s)",
 	)
 
-	runCmd.Flags().StringSliceVar(&runArgs.Files, "files", nil, "[DEPRECATED] run on specified files, comma-separated. takes precedence over --all-files")
+	runCmd.Flags().StringSliceVar(&runArgs.Files, "files", nil, "run on specified files, comma-separated. takes precedence over --all-files")
+
+	err := runCmd.Flags().MarkDeprecated("files", "use --file flag instead")
+	if err != nil {
+		log.Warn("Unexpected error:", err)
+	}
 
 	runCmd.Flags().StringArrayVar(&runArgs.Files, "file", nil, "run on specified file (repeat for multiple files). takes precedence over --all-files")
 
