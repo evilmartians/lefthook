@@ -1,5 +1,7 @@
 package log
 
+import "strings"
+
 const (
 	skipMeta = 1 << iota
 	skipSuccess
@@ -10,6 +12,7 @@ const (
 	skipExecutionOutput
 	skipExecutionInfo
 	skipEmptySummary
+	skipAll = (1 << iota) - 1
 )
 
 type SkipSettings int16
@@ -34,6 +37,28 @@ func (s *SkipSettings) ApplySetting(setting string) {
 		*s |= skipExecutionInfo
 	case "empty_summary":
 		*s |= skipEmptySummary
+	}
+}
+
+func (s *SkipSettings) ApplySkipSettings(tags string, skipOutput interface{}) {
+	switch typedSkipOutput := skipOutput.(type) {
+	case bool:
+		s.SkipAll(typedSkipOutput)
+	case []string:
+		if tags != "" {
+			typedSkipOutput = append(typedSkipOutput, strings.Split(tags, ",")...)
+		}
+		for _, skipOption := range typedSkipOutput {
+			s.ApplySetting(skipOption)
+		}
+	}
+}
+
+func (s *SkipSettings) SkipAll(val bool) {
+	if val {
+		*s = skipAll &^ skipFailure
+	} else {
+		*s = 0
 	}
 }
 
