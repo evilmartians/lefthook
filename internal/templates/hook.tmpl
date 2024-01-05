@@ -42,9 +42,9 @@ call_lefthook()
   elif pnpm lefthook -h >/dev/null 2>&1
   then
     pnpm lefthook "$@"
-  elif command -v npx >/dev/null 2>&1
+  elif command -v npx --no-install >/dev/null 2>&1
   then
-    npx @evilmartians/lefthook "$@"
+    npx --no-install @evilmartians/lefthook "$@"
   elif swift package plugin lefthook >/dev/null 2>&1
   then
     swift package --disable-sandbox plugin lefthook "$@"
