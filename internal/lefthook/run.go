@@ -8,7 +8,6 @@ import (
 	"os/signal"
 	"path/filepath"
 	"slices"
-	"strings"
 	"time"
 
 	"github.com/evilmartians/lefthook/internal/config"
@@ -61,6 +60,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 
 		return err
 	}
+
 	if err = cfg.Validate(); err != nil {
 		return err
 	}
@@ -73,14 +73,10 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		log.SetLevel(log.WarnLevel)
 	}
 
-	if tags := os.Getenv(envSkipOutput); tags != "" {
-		cfg.SkipOutput = append(cfg.SkipOutput, strings.Split(tags, ",")...)
-	}
+	tags := os.Getenv(envSkipOutput)
 
 	var logSettings log.SkipSettings
-	for _, skipOption := range cfg.SkipOutput {
-		(&logSettings).ApplySetting(skipOption)
-	}
+	(&logSettings).ApplySettings(tags, cfg.SkipOutput)
 
 	if !logSettings.SkipMeta() {
 		log.Box(
