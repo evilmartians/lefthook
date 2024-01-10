@@ -79,14 +79,17 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 		stagedFiles = func() ([]string, error) { return r.Files, nil }
 	case r.AllFiles:
 		stagedFiles = r.Repo.AllFiles
+	case r.AllFilesIncludingUntracked:
+		stagedFiles = r.Repo.AllFilesIncludingUntracked
 	default:
 		stagedFiles = r.Repo.StagedFiles
 	}
 
 	filesFns := map[string]func() ([]string, error){
-		config.SubStagedFiles: stagedFiles,
-		config.PushFiles:      r.Repo.PushFiles,
-		config.SubAllFiles:    r.Repo.AllFiles,
+		config.SubStagedFiles:               stagedFiles,
+		config.PushFiles:                    r.Repo.PushFiles,
+		config.SubAllFiles:                  r.Repo.AllFiles,
+		config.SubAllFilesIncludingUntracked: r.Repo.AllFilesIncludingUntracked,
 		config.SubFiles: func() ([]string, error) {
 			return r.Repo.FilesByCommand(filesCmd)
 		},

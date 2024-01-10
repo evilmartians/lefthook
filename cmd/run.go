@@ -33,10 +33,15 @@ func newRunCmd(opts *lefthook.Options) *cobra.Command {
 
 	runCmd.Flags().BoolVar(
 		&runArgs.AllFiles, "all-files", false,
-		"run hooks on all files",
+		"run hooks on all files in the Git index",
 	)
 
-	runCmd.Flags().StringSliceVar(&runArgs.Files, "files", nil, "run on specified files. takes precedence over --all-files")
+	runCmd.Flags().BoolVar(
+		&runArgs.AllFilesIncludingUntracked, "all-including-untracked-files", false,
+		"run hooks on all files, including untracked ones",
+	)
+
+	runCmd.Flags().StringSliceVar(&runArgs.Files, "files", nil, "run on specified files. takes precedence over --all-files and --all-including-untracked-filesß")
 
 	runCmd.Flags().StringSliceVar(&runArgs.RunOnlyCommands, "commands", nil, "run only specified commands")
 

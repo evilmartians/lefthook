@@ -38,17 +38,18 @@ const (
 var surroundingQuotesRegexp = regexp.MustCompile(`^'(.*)'$`)
 
 type Options struct {
-	Repo            *git.Repository
-	Hook            *config.Hook
-	HookName        string
-	GitArgs         []string
-	ResultChan      chan Result
-	SkipSettings    log.SkipSettings
-	DisableTTY      bool
-	AllFiles        bool
-	Force           bool
-	Files           []string
-	RunOnlyCommands []string
+	Repo                       *git.Repository
+	Hook                       *config.Hook
+	HookName                   string
+	GitArgs                    []string
+	ResultChan                 chan Result
+	SkipSettings               log.SkipSettings
+	DisableTTY                 bool
+	AllFiles                   bool
+	AllFilesIncludingUntracked bool
+	Force                      bool
+	Files                      []string
+	RunOnlyCommands            []string
 }
 
 // Runner responds for actual execution and handling the results.
