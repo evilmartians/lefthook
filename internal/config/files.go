@@ -3,10 +3,11 @@ package config
 import "strings"
 
 const (
-	SubFiles       string = "{files}"
-	SubAllFiles    string = "{all_files}"
-	SubStagedFiles string = "{staged_files}"
-	PushFiles      string = "{push_files}"
+	SubFiles                      string = "{files}"
+	SubAllFiles                   string = "{all_files}"
+	SubAllFilesIncludingUntracked string = "{all_including_untracked_files}"
+	SubStagedFiles                string = "{staged_files}"
+	PushFiles                     string = "{push_files}"
 )
 
 func isRunnerFilesCompatible(runner string) bool {
