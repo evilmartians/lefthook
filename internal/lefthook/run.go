@@ -76,7 +76,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	tags := os.Getenv(envSkipOutput)
 
 	var logSettings log.SkipSettings
-	(&logSettings).ApplySkipSettings(tags, cfg.SkipOutput)
+	(&logSettings).ApplySettings(tags, cfg.SkipOutput)
 
 	if !logSettings.SkipMeta() {
 		log.Box(
