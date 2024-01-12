@@ -166,6 +166,8 @@ You can manage the verbosity using the `skip_output` config. You can set whether
 
 Possible values are `meta,summary,success,failure,execution,execution_out,execution_info,skips`.
 
+You can also disable all output with setting `skip_output: true`. In this case only errors will be printed.
+
 This config quiets all outputs except for errors.
 
 **Example**
