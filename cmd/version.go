@@ -12,8 +12,9 @@ func newVersionCmd(_opts *lefthook.Options) *cobra.Command {
 	var verbose bool
 
 	versionCmd := cobra.Command{
-		Use:   "version",
-		Short: "Show lefthook version",
+		Use:               "version",
+		Short:             "Show lefthook version",
+		ValidArgsFunction: cobra.NoFileCompletions,
 		Run: func(cmd *cobra.Command, args []string) {
 			log.Println(version.Version(verbose))
 		},
