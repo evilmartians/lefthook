@@ -41,23 +41,16 @@ type GitMock struct {
 
 func (g *GitMock) SetRootPath(_root string) {}
 
-func (g *GitMock) Cmd(cmd string) (string, error) {
+func (g *GitMock) Cmd(cmd []string) (string, error) {
 	g.mux.Lock()
-	g.commands = append(g.commands, cmd)
+	g.commands = append(g.commands, strings.Join(cmd, " "))
 	g.mux.Unlock()
 
 	return "", nil
 }
 
-func (g *GitMock) CmdArgs(args ...string) (string, error) {
-	g.mux.Lock()
-	g.commands = append(g.commands, strings.Join(args, " "))
-	g.mux.Unlock()
-
-	return "", nil
-}
-
-func (g *GitMock) CmdLines(cmd string) ([]string, error) {
+func (g *GitMock) CmdLines(args []string) ([]string, error) {
+	cmd := strings.Join(args, " ")
 	g.mux.Lock()
 	g.commands = append(g.commands, cmd)
 	g.mux.Unlock()
@@ -72,14 +65,6 @@ func (g *GitMock) CmdLines(cmd string) ([]string, error) {
 	}
 
 	return nil, nil
-}
-
-func (g *GitMock) RawCmd(cmd string) (string, error) {
-	g.mux.Lock()
-	g.commands = append(g.commands, cmd)
-	g.mux.Unlock()
-
-	return "", nil
 }
 
 func (g *GitMock) reset() {

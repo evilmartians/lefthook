@@ -13,35 +13,22 @@ type GitMock struct {
 
 func (g GitMock) SetRootPath(_root string) {}
 
-func (g GitMock) Cmd(cmd string) (string, error) {
-	res, err := g.RawCmd(cmd)
-	if err != nil {
-		return "", err
+func (g GitMock) Cmd(cmd []string) (string, error) {
+	res, ok := g.cases[(strings.Join(cmd, " "))]
+	if !ok {
+		return "", errors.New("doesn't exist")
 	}
 
 	return strings.TrimSpace(res), nil
 }
 
-func (g GitMock) CmdArgs(args ...string) (string, error) {
-	return g.Cmd(strings.Join(args, " "))
-}
-
-func (g GitMock) CmdLines(cmd string) ([]string, error) {
+func (g GitMock) CmdLines(cmd []string) ([]string, error) {
 	res, err := g.Cmd(cmd)
 	if err != nil {
 		return nil, err
 	}
 
 	return strings.Split(res, "\n"), nil
-}
-
-func (g GitMock) RawCmd(cmd string) (string, error) {
-	res, ok := g.cases[cmd]
-	if !ok {
-		return "", errors.New("doesn't exist")
-	}
-
-	return res, nil
 }
 
 func TestPartiallyStagedFiles(t *testing.T) {

@@ -11,7 +11,7 @@ func TestSkipSetting(t *testing.T) {
 		results  map[string]bool
 	}{
 		{
-			settings: []string{},
+			settings: []interface{}{},
 			results:  map[string]bool{},
 		},
 		{
@@ -19,14 +19,14 @@ func TestSkipSetting(t *testing.T) {
 			results:  map[string]bool{},
 		},
 		{
-			settings: []string{"failure", "execution"},
+			settings: []interface{}{"failure", "execution"},
 			results: map[string]bool{
 				"failure":   true,
 				"execution": true,
 			},
 		},
 		{
-			settings: []string{
+			settings: []interface{}{
 				"meta",
 				"summary",
 				"success",

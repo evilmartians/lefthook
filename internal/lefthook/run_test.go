@@ -14,20 +14,12 @@ type GitMock struct{}
 
 func (g GitMock) SetRootPath(_root string) {}
 
-func (g GitMock) Cmd(_cmd string) (string, error) {
+func (g GitMock) Cmd(_cmd []string) (string, error) {
 	return "", nil
 }
 
-func (g GitMock) CmdArgs(_args ...string) (string, error) {
-	return "", nil
-}
-
-func (g GitMock) CmdLines(_cmd string) ([]string, error) {
+func (g GitMock) CmdLines(_cmd []string) ([]string, error) {
 	return nil, nil
-}
-
-func (g GitMock) RawCmd(_cmd string) (string, error) {
-	return "", nil
 }
 
 func TestRun(t *testing.T) {
