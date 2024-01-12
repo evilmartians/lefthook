@@ -1,7 +1,6 @@
 package git
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -11,25 +10,26 @@ import (
 )
 
 const (
-	cmdRootPath      = "git rev-parse --show-toplevel"
-	cmdHooksPath     = "git rev-parse --git-path hooks"
-	cmdInfoPath      = "git rev-parse --git-path info"
-	cmdGitPath       = "git rev-parse --git-dir"
-	cmdStagedFiles   = "git diff --name-only --cached --diff-filter=ACMR"
-	cmdAllFiles      = "git ls-files --cached"
-	cmdPushFilesBase = "git diff --name-only HEAD @{push}"
-	cmdPushFilesHead = "git diff --name-only HEAD %s"
-	cmdStatusShort   = "git status --short"
-	cmdCreateStash   = "git stash create"
-	cmdListStash     = "git stash list"
-
 	stashMessage      = "lefthook auto backup"
 	unstagedPatchName = "lefthook-unstaged.patch"
 	infoDirMode       = 0o775
 	minStatusLen      = 3
 )
 
-var headBranchRegexp = regexp.MustCompile(`HEAD -> (?P<name>.*)$`)
+var (
+	headBranchRegexp = regexp.MustCompile(`HEAD -> (?P<name>.*)$`)
+	cmdPushFilesBase = []string{"git", "diff", "--name-only", "HEAD", "@{push}"}
+	cmdPushFilesHead = []string{"git", "diff", "--name-only", "HEAD"}
+	cmdStagedFiles   = []string{"git", "diff", "--name-only", "--cached", "--diff-filter=ACMR"}
+	cmdStatusShort   = []string{"git", "status", "--short"}
+	cmdListStash     = []string{"git", "stash", "list"}
+	cmdRootPath      = []string{"git", "rev-parse", "--show-toplevel"}
+	cmdHooksPath     = []string{"git", "rev-parse", "--git-path", "hooks"}
+	cmdInfoPath      = []string{"git", "rev-parse", "--git-path", "info"}
+	cmdGitPath       = []string{"git", "rev-parse", "--git-dir"}
+	cmdAllFiles      = []string{"git", "ls-files", "--cached"}
+	cmdCreateStash   = []string{"git", "stash", "create"}
+)
 
 // Repository represents a git repository.
 type Repository struct {
@@ -112,7 +112,7 @@ func (r *Repository) PushFiles() ([]string, error) {
 	}
 
 	if len(r.headBranch) == 0 {
-		branches, err := r.Git.CmdLines("git branch --remotes")
+		branches, err := r.Git.CmdLines([]string{"git", "branch", " --remotes"})
 		if err != nil {
 			return nil, err
 		}
@@ -126,7 +126,7 @@ func (r *Repository) PushFiles() ([]string, error) {
 			break
 		}
 	}
-	return r.FilesByCommand(fmt.Sprintf(cmdPushFilesHead, r.headBranch))
+	return r.FilesByCommand(append(cmdPushFilesHead, r.headBranch))
 }
 
 // PartiallyStagedFiles returns the list of files that have both staged and
@@ -163,7 +163,7 @@ func (r *Repository) PartiallyStagedFiles() ([]string, error) {
 }
 
 func (r *Repository) SaveUnstaged(files []string) error {
-	_, err := r.Git.CmdArgs(
+	_, err := r.Git.Cmd(
 		append([]string{
 			"git",
 			"diff",
@@ -178,20 +178,20 @@ func (r *Repository) SaveUnstaged(files []string) error {
 			"--output",
 			r.unstagedPatchPath,
 			"--",
-		}, files...)...,
+		}, files...),
 	)
 
 	return err
 }
 
 func (r *Repository) HideUnstaged(files []string) error {
-	_, err := r.Git.CmdArgs(
+	_, err := r.Git.Cmd(
 		append([]string{
 			"git",
 			"checkout",
 			"--force",
 			"--",
-		}, files...)...,
+		}, files...),
 	)
 
 	return err
@@ -202,7 +202,7 @@ func (r *Repository) RestoreUnstaged() error {
 		return nil
 	}
 
-	_, err := r.Git.CmdArgs(
+	_, err := r.Git.Cmd([]string{
 		"git",
 		"apply",
 		"-v",
@@ -210,7 +210,7 @@ func (r *Repository) RestoreUnstaged() error {
 		"--recount",
 		"--unidiff-zero",
 		r.unstagedPatchPath,
-	)
+	})
 
 	if err == nil {
 		err = r.Fs.Remove(r.unstagedPatchPath)
@@ -225,7 +225,7 @@ func (r *Repository) StashUnstaged() error {
 		return err
 	}
 
-	_, err = r.Git.CmdArgs(
+	_, err = r.Git.Cmd([]string{
 		"git",
 		"stash",
 		"store",
@@ -233,7 +233,7 @@ func (r *Repository) StashUnstaged() error {
 		"--message",
 		stashMessage,
 		stashHash,
-	)
+	})
 	if err != nil {
 		return err
 	}
@@ -258,13 +258,13 @@ func (r *Repository) DropUnstagedStash() error {
 		stashID := stashRegexp.SubexpIndex("stash")
 
 		if len(matches[stashID]) > 0 {
-			_, err := r.Git.CmdArgs(
+			_, err := r.Git.Cmd([]string{
 				"git",
 				"stash",
 				"drop",
 				"--quiet",
 				matches[stashID],
-			)
+			})
 			if err != nil {
 				return err
 			}
@@ -279,15 +279,15 @@ func (r *Repository) AddFiles(files []string) error {
 		return nil
 	}
 
-	_, err := r.Git.CmdArgs(
-		append([]string{"git", "add"}, files...)...,
+	_, err := r.Git.Cmd(
+		append([]string{"git", "add"}, files...),
 	)
 
 	return err
 }
 
 // FilesByCommand accepts git command and returns its result as a list of filepaths.
-func (r *Repository) FilesByCommand(command string) ([]string, error) {
+func (r *Repository) FilesByCommand(command []string) ([]string, error) {
 	lines, err := r.Git.CmdLines(command)
 	if err != nil {
 		return nil, err
