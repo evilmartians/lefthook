@@ -1,10 +1,11 @@
-# Test `remote` config of lefthook.
+# Test `remotes` config of lefthook.
 #
 # # lefthook.yml
 #
-# remote:
-#   git_url: git@github.com:evilmartians/lefthook
-#   config: examples/remote/ping.yml
+# remotes:
+#   - git_url: git@github.com:evilmartians/lefthook
+#     configs:
+#       - examples/remote/ping.yml
 #
 # $ lefthook run pre-commit
 

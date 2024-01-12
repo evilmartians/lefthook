@@ -94,7 +94,7 @@ func readOne(fs afero.Fs, path string, names []string) (*viper.Viper, error) {
 	return nil, NotFoundError{fmt.Sprintf("No config files with names %q could not be found in \"%s\"", names, path)}
 }
 
-// mergeAll merges (.lefthook or lefthook) and (extended config) and (remote)
+// mergeAll merges (.lefthook or lefthook) and (extended config) and (remotes)
 // and (.lefthook-local or .lefthook-local) configs.
 func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
 	extends, err := readOne(fs, repo.RootPath, []string{"lefthook", ".lefthook"})
@@ -106,7 +106,7 @@ func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
 		return nil, err
 	}
 
-	if err := mergeRemote(fs, repo, extends); err != nil {
+	if err := mergeRemotes(fs, repo, extends); err != nil {
 		return nil, err
 	}
 
@@ -124,42 +124,75 @@ func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
 	return extends, nil
 }
 
-// mergeRemote merges remote config to the current one.
-func mergeRemote(fs afero.Fs, repo *git.Repository, v *viper.Viper) error {
-	var remote Remote
-	err := v.UnmarshalKey("remote", &remote)
+// mergeRemotes merges remotes config to the current one.
+func mergeRemotes(fs afero.Fs, repo *git.Repository, v *viper.Viper) error {
+	var remotes []*Remote
+	var remote *Remote // Use for backward compatibility
+
+	err := v.UnmarshalKey("remotes", &remotes)
 	if err != nil {
 		return err
 	}
 
-	if !remote.Configured() {
-		return nil
-	}
-
-	remotePath := repo.RemoteFolder(remote.GitURL)
-	configFile := DefaultConfigName
-	if len(remote.Config) > 0 {
-		configFile = remote.Config
-	}
-	configPath := filepath.Join(remotePath, configFile)
-
-	log.Debugf("Merging remote config: %s", configPath)
-
-	_, err = fs.Stat(configPath)
+	// Use for backward compatibility
+	err = v.UnmarshalKey("remote", &remote)
 	if err != nil {
-		return nil
-	}
-
-	if err := merge("remote", configPath, v); err != nil {
 		return err
 	}
 
-	if err := extend(v, filepath.Dir(configPath)); err != nil {
-		return err
+	// Use for backward compatibility
+	// If "remote" key exists, append it to "remotes"
+	if remote != nil {
+		// Not logged because it's breaking tests
+		// log.Warn("DEPRECATED: \"remote\" key is deprecated, use \"remotes\" instead")
+		remotes = append(remotes, remote)
 	}
 
-	// Reset extends to omit issues when extending with remote extends.
-	return v.MergeConfigMap(map[string]interface{}{"extends": nil})
+	for _, remote := range remotes {
+		if !remote.Configured() {
+			continue
+		}
+
+		// Use for backward compatibility with "remote(s).config" instead of "remote(s).configs"
+		if remote.Config != "" {
+			// Not logged because it's breaking tests
+			// log.Warn("DEPRECATED: \"config\" key is deprecated, use \"configs\" instead for remotes")
+			remote.Configs = append(remote.Configs, remote.Config)
+		}
+
+		if len(remote.Configs) == 0 {
+			remote.Configs = append(remote.Configs, DefaultConfigName)
+		}
+
+		for _, config := range remote.Configs {
+			remotePath := repo.RemoteFolder(remote.GitURL, remote.Ref)
+			configFile := config
+			configPath := filepath.Join(remotePath, configFile)
+
+			log.Debugf("Merging remote config: %s", configPath)
+
+			_, err = fs.Stat(configPath)
+			if err != nil {
+				continue
+			}
+
+			if err = merge("remotes", configPath, v); err != nil {
+				return err
+			}
+
+			if err = extend(v, filepath.Dir(configPath)); err != nil {
+				return err
+			}
+		}
+
+		// Reset extends to omit issues when extending with remote extends.
+		err = v.MergeConfigMap(map[string]interface{}{"extends": nil})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // extend merges all files listed in 'extends' option into the config.

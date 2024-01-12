@@ -1,0 +1,52 @@
+exec git init
+exec lefthook install
+
+exec lefthook dump
+cmp stdout lefthook-dump.yml
+
+-- lefthook.yml --
+remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    config: examples/with_scripts/lefthook.yml
+    ref: v1.4.0
+  - git_url: https://github.com/evilmartians/lefthook
+    configs:
+      - examples/verbose/lefthook.yml
+      - examples/remote/ping.yml
+
+-- lefthook-dump.yml --
+pre-commit:
+  commands:
+    js-lint:
+      run: npx eslint --fix {staged_files} && git add {staged_files}
+      glob: '*.{js,ts}'
+    ping:
+      run: echo pong
+    ruby-lint:
+      run: bundle exec rubocop --force-exclusion --parallel '{files}'
+      glob: '*.rb'
+      files: git diff-tree -r --name-only --diff-filter=CDMR HEAD origin/master
+    ruby-test:
+      run: bundle exec rspec
+      skip:
+        - merge
+        - rebase
+      fail_text: Run bundle install
+  scripts:
+    good_job.js:
+      runner: node
+  parallel: true
+pre-push:
+  commands:
+    spelling:
+      run: npx yaspeller {files}
+      glob: '*.md'
+      files: git diff --name-only HEAD @{push}
+remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    ref: v1.4.0
+    config: examples/with_scripts/lefthook.yml
+  - git_url: https://github.com/evilmartians/lefthook
+    configs:
+      - examples/verbose/lefthook.yml
+      - examples/remote/ping.yml

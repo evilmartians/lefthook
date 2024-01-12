@@ -131,15 +131,22 @@ Run 'lefthook install' manually.`,
 		filepath.Join(l.repo.RootPath, cfg.SourceDirLocal),
 	}
 
-	if cfg.Remote.Configured() {
-		// Append only source_dir, because source_dir_local doesn't make sense
-		sourceDirs = append(
-			sourceDirs,
-			filepath.Join(
-				l.repo.RemoteFolder(cfg.Remote.GitURL),
-				cfg.SourceDir,
-			),
-		)
+	// For backward compatibility with single remote config
+	if cfg.Remote != nil {
+		cfg.Remotes = append(cfg.Remotes, cfg.Remote)
+	}
+
+	for _, remote := range cfg.Remotes {
+		if remote.Configured() {
+			// Append only source_dir, because source_dir_local doesn't make sense
+			sourceDirs = append(
+				sourceDirs,
+				filepath.Join(
+					l.repo.RemoteFolder(remote.GitURL, remote.Ref),
+					cfg.SourceDir,
+				),
+			)
+		}
 	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)

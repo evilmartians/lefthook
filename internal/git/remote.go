@@ -16,12 +16,18 @@ const (
 
 // RemoteFolder returns the path to the folder where the remote
 // repository is located.
-func (r *Repository) RemoteFolder(url string) string {
+func (r *Repository) RemoteFolder(url string, ref string) string {
+	directoryName := filepath.Base(
+		strings.TrimSuffix(url, filepath.Ext(url)),
+	)
+
+	if ref != "" {
+		directoryName = directoryName + "-" + ref
+	}
+
 	return filepath.Join(
 		r.RemotesFolder(),
-		filepath.Base(
-			strings.TrimSuffix(url, filepath.Ext(url)),
-		),
+		directoryName,
 	)
 }
 
@@ -41,11 +47,17 @@ func (r *Repository) SyncRemote(url, ref string) error {
 		return err
 	}
 
+	directoryName := filepath.Base(
+		strings.TrimSuffix(url, filepath.Ext(url)),
+	)
+
+	if ref != "" {
+		directoryName = directoryName + "-" + ref
+	}
+
 	remotePath := filepath.Join(
 		remotesPath,
-		filepath.Base(
-			strings.TrimSuffix(url, filepath.Ext(url)),
-		),
+		directoryName,
 	)
 
 	_, err = r.Fs.Stat(remotePath)
@@ -53,7 +65,7 @@ func (r *Repository) SyncRemote(url, ref string) error {
 		return r.updateRemote(remotePath, ref)
 	}
 
-	return r.cloneRemote(remotesPath, url, ref)
+	return r.cloneRemote(remotesPath, directoryName, url, ref)
 }
 
 func (r *Repository) updateRemote(path, ref string) error {
@@ -84,14 +96,14 @@ func (r *Repository) updateRemote(path, ref string) error {
 	return nil
 }
 
-func (r *Repository) cloneRemote(path, url, ref string) error {
-	log.Debugf("Cloning remote config repository: %v", path)
+func (r *Repository) cloneRemote(cwd, directoryName, url, ref string) error {
+	log.Debugf("Cloning remote config repository: %v/%v", cwd, directoryName)
 
-	cmdClone := []string{"git", "-C", path, "clone", "--quiet", "--depth", "1"}
+	cmdClone := []string{"git", "-C", cwd, "clone", "--quiet", "--depth", "1"}
 	if len(ref) > 0 {
 		cmdClone = append(cmdClone, "--branch", ref)
 	}
-	cmdClone = append(cmdClone, url)
+	cmdClone = append(cmdClone, url, directoryName)
 
 	_, err := r.Git.Cmd(cmdClone)
 	if err != nil {
