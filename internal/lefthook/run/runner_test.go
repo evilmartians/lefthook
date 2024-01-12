@@ -67,6 +67,10 @@ func (g *GitMock) CmdLines(args []string) ([]string, error) {
 	return nil, nil
 }
 
+func (g *GitMock) CmdLinesWithinFolder(args []string, _folder string) ([]string, error) {
+	return g.CmdLines(args)
+}
+
 func (g *GitMock) reset() {
 	g.mux.Lock()
 	g.commands = []string{}
