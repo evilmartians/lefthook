@@ -1,6 +1,8 @@
 package log
 
-import "strings"
+import (
+	"strings"
+)
 
 const (
 	skipMeta = 1 << iota
@@ -21,12 +23,14 @@ func (s *SkipSettings) ApplySettings(tags string, skipOutput interface{}) {
 	switch typedSkipOutput := skipOutput.(type) {
 	case bool:
 		s.SkipAll(typedSkipOutput)
-	case []string:
-		if tags != "" {
-			typedSkipOutput = append(typedSkipOutput, strings.Split(tags, ",")...)
-		}
+	case []interface{}:
 		for _, skipOption := range typedSkipOutput {
-			s.applySetting(skipOption)
+			s.applySetting(skipOption.(string))
+		}
+		if tags != "" {
+			for _, skipOption := range strings.Split(tags, ",") {
+				s.applySetting(skipOption)
+			}
 		}
 	}
 }

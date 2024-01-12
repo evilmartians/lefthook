@@ -29,6 +29,9 @@ var (
 	cmdGitPath       = []string{"git", "rev-parse", "--git-dir"}
 	cmdAllFiles      = []string{"git", "ls-files", "--cached"}
 	cmdCreateStash   = []string{"git", "stash", "create"}
+	cmdStageFiles    = []string{"git", "add"}
+	cmdRemotes       = []string{"git", "branch", " --remotes"}
+	cmdHideUnstaged  = []string{"git", "checkout", "--force", "--"}
 )
 
 // Repository represents a git repository.
@@ -112,7 +115,7 @@ func (r *Repository) PushFiles() ([]string, error) {
 	}
 
 	if len(r.headBranch) == 0 {
-		branches, err := r.Git.CmdLines([]string{"git", "branch", " --remotes"})
+		branches, err := r.Git.CmdLines(cmdRemotes)
 		if err != nil {
 			return nil, err
 		}
@@ -185,14 +188,7 @@ func (r *Repository) SaveUnstaged(files []string) error {
 }
 
 func (r *Repository) HideUnstaged(files []string) error {
-	_, err := r.Git.Cmd(
-		append([]string{
-			"git",
-			"checkout",
-			"--force",
-			"--",
-		}, files...),
-	)
+	_, err := r.Git.Cmd(append(cmdHideUnstaged, files...))
 
 	return err
 }
@@ -280,7 +276,7 @@ func (r *Repository) AddFiles(files []string) error {
 	}
 
 	_, err := r.Git.Cmd(
-		append([]string{"git", "add"}, files...),
+		append(cmdStageFiles, files...),
 	)
 
 	return err
