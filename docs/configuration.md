@@ -2,63 +2,66 @@
 
 Lefthook [supports](#config-file) YAML, JSON, and TOML configuration. In this document `lefthook.yml` is used for simplicity.
 
-- [Configure lefthook](#configure-lefthook)
-  - [Config file](#config-file)
-  - [Top level options](#top-level-options)
-    - [`assert_lefthook_installed`](#assert_lefthook_installed)
-    - [`colors`](#colors)
-    - [`no_tty`](#no_tty)
-    - [`extends`](#extends)
-    - [`min_version`](#min_version)
-    - [`skip_output`](#skip_output)
-    - [`source_dir`](#source_dir)
-    - [`source_dir_local`](#source_dir_local)
-    - [`rc`](#rc)
-  - [`remote` // DEPRECATED show remotes instead](#remote--deprecated-show-remotes-instead)
-    - [`git_url`](#git_url)
-    - [`ref`](#ref)
-    - [`config` // DEPRECATED use configs like specified in `remotes`](#config--deprecated-use-configs-like-specified-in-remotes)
-  - [`remotes` (Replace `remote`)](#remotes-replace-remote)
-    - [`git_url`](#git_url-1)
-    - [`ref`](#ref-1)
-    - [`configs`](#configs)
-    - [Remotes full example :](#remotes-full-example-)
-  - [Git hook](#git-hook)
-    - [`files` (global)](#files-global)
-    - [`parallel`](#parallel)
-    - [`piped`](#piped)
-    - [`follow`](#follow)
-    - [`exclude_tags`](#exclude_tags)
-    - [`commands`](#commands)
-    - [`scripts`](#scripts)
-  - [Command](#command)
-    - [`run`](#run)
-      - [`{files}` template](#files-template)
-      - [`{staged_files}` template](#staged_files-template)
-      - [`{push_files}` template](#push_files-template)
-      - [`{all_files}` template](#all_files-template)
-      - [`{cmd}` template](#cmd-template)
-      - [Git arguments](#git-arguments)
-      - [Rubocop](#rubocop)
-      - [Quotes](#quotes)
-    - [`skip`](#skip)
-    - [`only`](#only)
-    - [`tags`](#tags)
-    - [`glob`](#glob)
-    - [`files`](#files)
-    - [`env`](#env)
-      - [Extending PATH](#extending-path)
-    - [`root`](#root)
-    - [`exclude`](#exclude)
-    - [`fail_text`](#fail_text)
-    - [`stage_fixed`](#stage_fixed)
-    - [`interactive`](#interactive)
-    - [`priority`](#priority)
-  - [Script](#script)
-    - [`use_stdin`](#use_stdin)
-    - [`runner`](#runner)
-  - [Examples](#examples)
-  - [More info](#more-info)
+- [Config file](#config-file)
+- [Top level options](#top-level-options)
+  - [`assert_lefthook_installed`](#assert_lefthook_installed)
+  - [`colors`](#colors)
+  - [`no_tty`](#no_tty)
+  - [`extends`](#extends)
+  - [`min_version`](#min_version)
+  - [`skip_output`](#skip_output)
+  - [`source_dir`](#source_dir)
+  - [`source_dir_local`](#source_dir_local)
+  - [`rc`](#rc)
+- [`remote`](#remote--deprecated-show-remotes-instead) :warning: DEPRECATED use [`remotes`](#remotes)
+  - [`git_url`](#git_url)
+  - [`ref`](#ref)
+  - [`config`](#config--deprecated-use-configs-like-specified-in-remotes)
+- [`remotes`](#remotes)
+  - [`git_url`](#git_url-1)
+  - [`ref`](#ref-1)
+  - [`configs`](#configs)
+- [Git hook](#git-hook)
+  - [`files` (global)](#files-global)
+  - [`parallel`](#parallel)
+  - [`piped`](#piped)
+  - [`follow`](#follow)
+  - [`exclude_tags`](#exclude_tags)
+  - [`commands`](#commands)
+  - [`scripts`](#scripts)
+- [Command](#command)
+  - [`run`](#run)
+    - [`{files}` template](#files-template)
+    - [`{staged_files}` template](#staged_files-template)
+    - [`{push_files}` template](#push_files-template)
+    - [`{all_files}` template](#all_files-template)
+    - [`{cmd}` template](#cmd-template)
+  - [`skip`](#skip)
+  - [`only`](#only)
+  - [`tags`](#tags)
+  - [`glob`](#glob)
+  - [`files`](#files)
+  - [`env`](#env)
+  - [`root`](#root)
+  - [`exclude`](#exclude)
+  - [`fail_text`](#fail_text)
+  - [`stage_fixed`](#stage_fixed)
+  - [`interactive`](#interactive)
+  - [`use_stdin`](#use_stdin)
+  - [`priority`](#priority)
+- [Script](#script)
+  - [`use_stdin`](#use_stdin)
+  - [`runner`](#runner)
+  - [`skip`](#skip)
+  - [`only`](#only)
+  - [`tags`](#tags)
+  - [`env`](#env)
+  - [`fail_text`](#fail_text)
+  - [`stage_fixed`](#stage_fixed)
+  - [`interactive`](#interactive)
+  - [`use_stdin`](#use_stdin)
+- [Examples](#examples)
+- [More info](#more-info)
 
 ----
 
@@ -286,9 +289,9 @@ $ lefthook install -f
 
 Now any program that runs your hooks will have a tweaked PATH environment variable and will be able to get `nvm` :wink:
 
-## `remote` // DEPRECATED show remotes instead
+## `remote`
 
-> :test_tube: This feature is in **Beta** version
+> :warning: DEPRECATED use [`remotes`](#remotes) setting
 
 You can provide a remote config if you want to share your lefthook configuration across many projects. Lefthook will automatically download and merge the configuration into your local `lefthook.yml`.
 
@@ -307,6 +310,8 @@ Configuration in `remote` will be merged to configuration in `lefthook.yml`, so 
 This can be changed in the future. For convenience, please use `remote` configuration without any hooks configuration in `lefthook.yml`.
 
 ### `git_url`
+
+> :warning: DEPRECATED use [`remotes`](#remotes) setting
 
 A URL to Git repository. It will be accessed with privileges of the machine lefthook runs on.
 
@@ -330,6 +335,8 @@ remote:
 
 ### `ref`
 
+> :warning: DEPRECATED use [`remotes`](#remotes) setting
+
 An optional *branch* or *tag* name.
 
 **Example**
@@ -346,7 +353,9 @@ remote:
 >
 > :warning: If you initially had `ref` option, ran `lefthook install`, and then removed it, lefthook won't decide which branch/tag to use as a ref. So, if you added it once, please, use it always to avoid issues in local setups.
 
-### `config` // DEPRECATED use configs like specified in `remotes`
+### `config`
+
+> :warning: DEPRECATED use [`remotes`](#remotes) setting
 
 **Default:** `lefthook.yml`
 
@@ -363,7 +372,7 @@ remote:
   config: examples/ruby-linter.yml
 ```
 
-## `remotes` (Replace `remote`)
+## `remotes`
 
 > :test_tube: This feature is in **Beta** version
 
@@ -442,9 +451,8 @@ remotes:
       - examples/test.yml
 ```
 
-### Remotes full example :
+More complicated example.
 
-A more complete example here :
 ```yml
 # lefthook.yml
 
