@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+## 1.5.7 (2024-01-17)
+
+- fix: pre push hook handling ([#613](https://github.com/evilmartians/lefthook/pull/613)) by @mrexox
+- chore: hide wiki links ([#608](https://github.com/evilmartians/lefthook/pull/608)) by @mrexox
+
 ## 1.5.6 (2024-01-12)
 
 - feat: shell completion improvements ([#577](https://github.com/evilmartians/lefthook/pull/577)) by @scop
