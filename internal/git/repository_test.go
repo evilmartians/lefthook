@@ -31,6 +31,10 @@ func (g GitMock) CmdLines(cmd []string) ([]string, error) {
 	return strings.Split(res, "\n"), nil
 }
 
+func (g GitMock) CmdLinesWithinFolder(cmd []string, _folder string) ([]string, error) {
+	return g.CmdLines(cmd)
+}
+
 func TestPartiallyStagedFiles(t *testing.T) {
 	for i, tt := range [...]struct {
 		name, gitOut string

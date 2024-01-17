@@ -94,7 +94,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 			} else {
 				cmd = []string{"sh", "-c", filesCmd}
 			}
-			return r.Repo.FilesByCommand(cmd)
+			return r.Repo.FilesByCommand(cmd, command.Root)
 		},
 	}
 

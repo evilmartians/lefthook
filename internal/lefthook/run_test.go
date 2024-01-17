@@ -23,6 +23,10 @@ func (g GitMock) CmdLines(_cmd []string) ([]string, error) {
 	return nil, nil
 }
 
+func (g GitMock) CmdLinesWithinFolder(_cmd []string, _folder string) ([]string, error) {
+	return nil, nil
+}
+
 func TestRun(t *testing.T) {
 	root, err := filepath.Abs("src")
 	if err != nil {
