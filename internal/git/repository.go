@@ -30,7 +30,7 @@ var (
 	cmdAllFiles      = []string{"git", "ls-files", "--cached"}
 	cmdCreateStash   = []string{"git", "stash", "create"}
 	cmdStageFiles    = []string{"git", "add"}
-	cmdRemotes       = []string{"git", "branch", " --remotes"}
+	cmdRemotes       = []string{"git", "branch", "--remotes"}
 	cmdHideUnstaged  = []string{"git", "checkout", "--force", "--"}
 )
 
