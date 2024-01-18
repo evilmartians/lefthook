@@ -433,8 +433,10 @@ pre-commit:
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
 				Colors:         nil,
-				Remote: &Remote{
-					GitURL: "git@github.com:evilmartians/lefthook",
+				Remotes: []*Remote{
+					{
+						GitURL: "git@github.com:evilmartians/lefthook",
+					},
 				},
 				Hooks: map[string]*Hook{
 					"pre-commit": {
@@ -488,10 +490,12 @@ pre-commit:
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
 				Colors:         nil,
-				Remote: &Remote{
-					GitURL: "git@github.com:evilmartians/lefthook",
-					Ref:    "v1.0.0",
-					Config: "examples/custom.yml",
+				Remotes: []*Remote{
+					{
+						GitURL:  "git@github.com:evilmartians/lefthook",
+						Ref:     "v1.0.0",
+						Configs: []string{"examples/custom.yml"},
+					},
 				},
 				Hooks: map[string]*Hook{
 					"pre-commit": {
@@ -573,9 +577,11 @@ pre-push:
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
 				Colors:         nil,
-				Remote: &Remote{
-					GitURL: "https://github.com/evilmartians/lefthook",
-					Config: "examples/config.yml",
+				Remotes: []*Remote{
+					{
+						GitURL:  "https://github.com/evilmartians/lefthook",
+						Configs: []string{"examples/config.yml"},
+					},
 				},
 				Extends: []string{"local-extend.yml"},
 				Hooks: map[string]*Hook{
@@ -830,9 +836,9 @@ pre-commit:
 				Colors:         nil,
 				Remotes: []*Remote{
 					{
-						GitURL: "https://github.com/evilmartians/lefthook",
-						Ref:    "v1.0.0",
-						Config: "examples/custom.yml",
+						GitURL:  "https://github.com/evilmartians/lefthook",
+						Ref:     "v1.0.0",
+						Configs: []string{"examples/custom.yml"},
 					},
 					{
 						GitURL: "https://github.com/evilmartians/lefthook",

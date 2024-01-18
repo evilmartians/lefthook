@@ -50,11 +50,6 @@ func (l *Lefthook) Install(force bool) error {
 		return err
 	}
 
-	// For backward compatibility with single remote config
-	if cfg.Remote != nil {
-		cfg.Remotes = append(cfg.Remotes, cfg.Remote)
-	}
-
 	for _, remote := range cfg.Remotes {
 		if remote.Configured() {
 			if err := l.repo.SyncRemote(remote.GitURL, remote.Ref); err != nil {

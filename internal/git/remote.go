@@ -17,17 +17,9 @@ const (
 // RemoteFolder returns the path to the folder where the remote
 // repository is located.
 func (r *Repository) RemoteFolder(url string, ref string) string {
-	directoryName := filepath.Base(
-		strings.TrimSuffix(url, filepath.Ext(url)),
-	)
-
-	if ref != "" {
-		directoryName = directoryName + "-" + ref
-	}
-
 	return filepath.Join(
 		r.RemotesFolder(),
-		directoryName,
+		remoteDirectoryName(url, ref),
 	)
 }
 
@@ -40,25 +32,15 @@ func (r *Repository) RemotesFolder() string {
 // specified as a remote config repository. If successful, the path to the root
 // of the repository will be returned.
 func (r *Repository) SyncRemote(url, ref string) error {
-	remotesPath := filepath.Join(r.InfoPath, remotesFolder)
+	remotesPath := r.RemotesFolder()
 
 	err := r.Fs.MkdirAll(remotesPath, remotesFolderMode)
 	if err != nil && !errors.Is(err, os.ErrExist) {
 		return err
 	}
 
-	directoryName := filepath.Base(
-		strings.TrimSuffix(url, filepath.Ext(url)),
-	)
-
-	if ref != "" {
-		directoryName = directoryName + "-" + ref
-	}
-
-	remotePath := filepath.Join(
-		remotesPath,
-		directoryName,
-	)
+	directoryName := remoteDirectoryName(url, ref)
+	remotePath := filepath.Join(remotesPath, directoryName)
 
 	_, err = r.Fs.Stat(remotePath)
 	if err == nil {
@@ -96,10 +78,10 @@ func (r *Repository) updateRemote(path, ref string) error {
 	return nil
 }
 
-func (r *Repository) cloneRemote(cwd, directoryName, url, ref string) error {
-	log.Debugf("Cloning remote config repository: %v/%v", cwd, directoryName)
+func (r *Repository) cloneRemote(dest, directoryName, url, ref string) error {
+	log.Debugf("Cloning remote config repository: %v/%v", dest, directoryName)
 
-	cmdClone := []string{"git", "-C", cwd, "clone", "--quiet", "--depth", "1"}
+	cmdClone := []string{"git", "-C", dest, "clone", "--quiet", "--depth", "1"}
 	if len(ref) > 0 {
 		cmdClone = append(cmdClone, "--branch", ref)
 	}
@@ -111,4 +93,16 @@ func (r *Repository) cloneRemote(cwd, directoryName, url, ref string) error {
 	}
 
 	return nil
+}
+
+func remoteDirectoryName(url, ref string) string {
+	name := filepath.Base(
+		strings.TrimSuffix(url, filepath.Ext(url)),
+	)
+
+	if ref != "" {
+		name = name + "-" + ref
+	}
+
+	return name
 }

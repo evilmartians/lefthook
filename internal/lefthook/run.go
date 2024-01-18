@@ -131,11 +131,6 @@ Run 'lefthook install' manually.`,
 		filepath.Join(l.repo.RootPath, cfg.SourceDirLocal),
 	}
 
-	// For backward compatibility with single remote config
-	if cfg.Remote != nil {
-		cfg.Remotes = append(cfg.Remotes, cfg.Remote)
-	}
-
 	for _, remote := range cfg.Remotes {
 		if remote.Configured() {
 			// Append only source_dir, because source_dir_local doesn't make sense

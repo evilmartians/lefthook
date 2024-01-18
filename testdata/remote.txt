@@ -11,11 +11,14 @@ remote:
   ref: v1.4.0
 
 -- lefthook-dump.yml --
+DEPRECATED: "remote" option is deprecated and will be omitted in the next major release, use "remotes" option instead
+DEPRECATED: "remotes"."config" option is deprecated and will be omitted in the next major release, use "configs" option instead
 pre-commit:
   scripts:
     good_job.js:
       runner: node
-remote:
-  config: examples/with_scripts/lefthook.yml
-  git_url: https://github.com/evilmartians/lefthook
-  ref: v1.4.0
+remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    ref: v1.4.0
+    configs:
+      - examples/with_scripts/lefthook.yml

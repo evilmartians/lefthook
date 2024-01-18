@@ -376,21 +376,21 @@ remote:
 
 > :test_tube: This feature is in **Beta** version
 
-You can provide multiple remotes configs if you want to share yours lefthook configurations across many projects. Lefthook will automatically download and merge configurations into your local `lefthook.yml`.
+You can provide multiple remote configs if you want to share yours lefthook configurations across many projects. Lefthook will automatically download and merge configurations into your local `lefthook.yml`.
 
-You can use [`extends`](#extends) related to the config file (not absolute paths).
+You can use [`extends`](#extends) but the paths must be relative to the remote repository root.
 
-If you provide [`scripts`](#scripts) in a remote file, the [scripts](#source_dir) folder must be in the **root of the repository**.
+If you provide [`scripts`](#scripts) in a remote config file, the [scripts](#source_dir) folder must also be in the **root of the repository**.
 
 **Note**
 
-Configuration in `remotes` will be merged to configuration in `lefthook.yml`, so the priority will be the following:
+The configuration from `remotes` will be merged to the local config using the following priority:
 
-- `lefthook.yml`
-- `remotes`
-- `lefthook-local.yml`
+1. Local main config (`lefthook.yml`)
+1. Remote configs (`remotes`)
+1. Local overrides (`lefthook-local.yml`)
 
-This can be changed in the future. For convenience, please use `remotes` configuration without any hooks configuration in `lefthook.yml`.
+This priority may be changed in the future. For convenience, if you use `remotes`, please don't configure any hooks.
 
 ### `git_url`
 
@@ -428,13 +428,13 @@ remotes:
     ref: v1.0.0
 ```
 
-> **Note**
+> :warning: **Note**
 >
-> :warning: If you initially had `ref` option, ran `lefthook install`, and then removed it, lefthook won't decide which branch/tag to use as a ref. So, if you added it once, please, use it always to avoid issues in local setups.
+> If you initially had `ref` option, ran `lefthook install`, and then removed it, lefthook won't decide which branch/tag to use as a ref. So, if you added it once, please, use it always to avoid issues in local setups.
 
 ### `configs`
 
-**Default:** `- lefthook.yml`
+**Default:** `[lefthook.yml]`
 
 An optional array of config paths from remote's root.
 
@@ -444,32 +444,32 @@ An optional array of config paths from remote's root.
 # lefthook.yml
 
 remotes:
-  - git_url: git@github.com:evilmartians/remote
+  - git_url: git@github.com:evilmartians/lefthook
     ref: v1.0.0
     configs:
       - examples/ruby-linter.yml
       - examples/test.yml
 ```
 
-More complicated example.
+Example with multiple remotes merging multiple configurations.
 
 ```yml
 # lefthook.yml
 
 remotes:
-  - git_url: git@github.com:evilmartians/remote
+  - git_url: git@github.com:org/lefthook-configs
     ref: v1.0.0
     configs:
       - examples/ruby-linter.yml
       - examples/test.yml
-  - git_url : https://github.com:example/repository
+  - git_url: https://github.com/org2/lefthook-configs
     configs:
       - lefthooks/pre_commit.yml
       - lefthooks/post_merge.yml
-  - git_url : https://github.com:example2/repository2
-    ref: specific_branch
+  - git_url: https://github.com/org3/lefthook-configs
+    ref: feature/new
     configs:
-      - example/pre-push.yml
+      - configs/pre-push.yml
 
 ```
 

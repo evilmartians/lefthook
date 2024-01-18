@@ -94,8 +94,11 @@ func readOne(fs afero.Fs, path string, names []string) (*viper.Viper, error) {
 	return nil, NotFoundError{fmt.Sprintf("No config files with names %q could not be found in \"%s\"", names, path)}
 }
 
-// mergeAll merges (.lefthook or lefthook) and (extended config) and (remotes)
-// and (.lefthook-local or .lefthook-local) configs.
+// mergeAll merges configs using the following order.
+// - lefthook/.lefthook
+// - files from `extends`
+// - files from `remotes`
+// - lefthook-local/.lefthook-local.
 func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
 	extends, err := readOne(fs, repo.RootPath, []string{"lefthook", ".lefthook"})
 	if err != nil {
@@ -124,27 +127,24 @@ func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
 	return extends, nil
 }
 
-// mergeRemotes merges remotes config to the current one.
+// mergeRemotes merges remote configs to the current one.
 func mergeRemotes(fs afero.Fs, repo *git.Repository, v *viper.Viper) error {
+	var remote *Remote // Deprecated
 	var remotes []*Remote
-	var remote *Remote // Use for backward compatibility
 
 	err := v.UnmarshalKey("remotes", &remotes)
 	if err != nil {
 		return err
 	}
 
-	// Use for backward compatibility
+	// Deprecated
 	err = v.UnmarshalKey("remote", &remote)
 	if err != nil {
 		return err
 	}
 
-	// Use for backward compatibility
-	// If "remote" key exists, append it to "remotes"
+	// Backward compatibility
 	if remote != nil {
-		// Not logged because it's breaking tests
-		// log.Warn("DEPRECATED: \"remote\" key is deprecated, use \"remotes\" instead")
 		remotes = append(remotes, remote)
 	}
 
@@ -153,10 +153,8 @@ func mergeRemotes(fs afero.Fs, repo *git.Repository, v *viper.Viper) error {
 			continue
 		}
 
-		// Use for backward compatibility with "remote(s).config" instead of "remote(s).configs"
+		// Use for backward compatibility with "remote(s).config"
 		if remote.Config != "" {
-			// Not logged because it's breaking tests
-			// log.Warn("DEPRECATED: \"config\" key is deprecated, use \"configs\" instead for remotes")
 			remote.Configs = append(remote.Configs, remote.Config)
 		}
 
@@ -169,7 +167,7 @@ func mergeRemotes(fs afero.Fs, repo *git.Repository, v *viper.Viper) error {
 			configFile := config
 			configPath := filepath.Join(remotePath, configFile)
 
-			log.Debugf("Merging remote config: %s", configPath)
+			log.Debugf("Merging remote config: %s: %s", remote.GitURL, configPath)
 
 			_, err = fs.Stat(configPath)
 			if err != nil {
@@ -267,7 +265,28 @@ func unmarshalConfigs(base, extra *viper.Viper, c *Config) error {
 		return err
 	}
 
-	return base.Unmarshal(c)
+	if err := base.Unmarshal(c); err != nil {
+		return err
+	}
+
+	// Deprecation handling
+
+	if c.Remote != nil {
+		log.Warn("DEPRECATED: \"remote\" option is deprecated and will be omitted in the next major release, use \"remotes\" option instead")
+		c.Remotes = append(c.Remotes, c.Remote)
+	}
+	c.Remote = nil
+
+	for _, remote := range c.Remotes {
+		if remote.Config != "" {
+			log.Warn("DEPRECATED: \"remotes\".\"config\" option is deprecated and will be omitted in the next major release, use \"configs\" option instead")
+			remote.Configs = append(remote.Configs, remote.Config)
+		}
+
+		remote.Config = ""
+	}
+
+	return nil
 }
 
 func addHook(hookName string, base, extra *viper.Viper, c *Config) error {
