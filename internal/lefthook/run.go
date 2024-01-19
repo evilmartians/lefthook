@@ -246,6 +246,7 @@ func printSummary(
 	}
 }
 
+// parseFilesFromString parses both `\0`- and `\n`-separated files.
 func parseFilesFromString(paths string) []string {
 	var result []string
 	start := 0
