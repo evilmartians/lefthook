@@ -62,8 +62,8 @@ git add -A && git commit -m '...'
 
 - [**Configuration**](./docs/configuration.md) for `lefthook.yml` config options.
 - [**Usage**](./docs/usage.md) for **lefthook** CLI options, supported ENVs, and usage tips.
-- [**Wiki**](https://github.com/evilmartians/lefthook/wiki) for guides, examples, and benchmarks.
 - [**Discussions**](https://github.com/evilmartians/lefthook/discussions) for questions, ideas, suggestions.
+<!-- - [**Wiki**](https://github.com/evilmartians/lefthook/wiki) for guides, examples, and benchmarks. -->
 
 ***
 
@@ -215,23 +215,23 @@ skip_output:
 * [Install for Arch Linux](./docs/install.md#arch)
 * [Usage](./docs/usage.md)
 * [Configuration](./docs/configuration.md)
-* [Troubleshooting](https://github.com/evilmartians/lefthook/wiki/Troubleshooting)
+<!-- * [Troubleshooting](https://github.com/evilmartians/lefthook/wiki/Troubleshooting) -->
 
-### Migrate from
-* [Husky](https://github.com/evilmartians/lefthook/wiki/Migration-from-husky)
-* [Husky and lint-staged](https://github.com/evilmartians/lefthook/wiki/Migration-from-husky-with-lint-staged)
-* [Overcommit](https://github.com/evilmartians/lefthook/wiki/Migration-from-overcommit)
+<!-- ### Migrate from -->
+<!-- * [Husky](https://github.com/evilmartians/lefthook/wiki/Migration-from-husky) -->
+<!-- * [Husky and lint-staged](https://github.com/evilmartians/lefthook/wiki/Migration-from-husky-with-lint-staged) -->
+<!-- * [Overcommit](https://github.com/evilmartians/lefthook/wiki/Migration-from-overcommit) -->
 
 ### Examples
 * [Simple script](https://github.com/evilmartians/lefthook/tree/master/examples/with_scripts)
 * [Full features](https://github.com/evilmartians/lefthook/tree/master/examples/complete)
 
-### Benchmarks
-* [vs Overcommit](https://github.com/evilmartians/lefthook/wiki/Benchmark-lefthook-vs-overcommit)
-* [vs pre-commit](https://github.com/evilmartians/lefthook/wiki/Benchmark-lefthook-vs-pre-commit)
+<!-- ### Benchmarks -->
+<!-- * [vs Overcommit](https://github.com/evilmartians/lefthook/wiki/Benchmark-lefthook-vs-overcommit) -->
+<!-- * [vs pre-commit](https://github.com/evilmartians/lefthook/wiki/Benchmark-lefthook-vs-pre-commit) -->
 
-### Comparison list
-* [vs Overcommit, Husky, pre-commit](https://github.com/evilmartians/lefthook/wiki/Comparison-with-other-solutions)
+<!-- ### Comparison list -->
+<!-- * [vs Overcommit, Husky, pre-commit](https://github.com/evilmartians/lefthook/wiki/Comparison-with-other-solutions) -->
 
 ### Articles
 * [Lefthook: Knock your team’s code back into shape](https://evilmartians.com/chronicles/lefthook-knock-your-teams-code-back-into-shape?utm_source=lefthook)

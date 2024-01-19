@@ -3,7 +3,6 @@ package git
 import (
 	"os"
 	"os/exec"
-	"runtime"
 	"strings"
 
 	"github.com/evilmartians/lefthook/internal/log"
@@ -11,10 +10,8 @@ import (
 
 type Exec interface {
 	SetRootPath(root string)
-	Cmd(cmd string) (string, error)
-	CmdArgs(args ...string) (string, error)
-	CmdLines(cmd string) ([]string, error)
-	RawCmd(cmd string) (string, error)
+	Cmd(cmd []string) (string, error)
+	CmdLines(cmd []string) ([]string, error)
 }
 
 type OsExec struct {
@@ -32,24 +29,8 @@ func (o *OsExec) SetRootPath(root string) {
 }
 
 // Cmd runs plain string command. Trims spaces around output.
-func (o *OsExec) Cmd(cmd string) (string, error) {
-	args := strings.Split(cmd, " ")
-	return o.CmdArgs(args...)
-}
-
-// CmdLines runs plain string command, returns its output split by newline.
-func (o *OsExec) CmdLines(cmd string) ([]string, error) {
-	out, err := o.RawCmd(cmd)
-	if err != nil {
-		return nil, err
-	}
-
-	return strings.Split(out, "\n"), nil
-}
-
-// CmdArgs runs a command provided with separated words. Trims spaces around output.
-func (o *OsExec) CmdArgs(args ...string) (string, error) {
-	out, err := o.rawExecArgs(args...)
+func (o *OsExec) Cmd(cmd []string) (string, error) {
+	out, err := o.rawExecArgs(cmd)
 	if err != nil {
 		return "", err
 	}
@@ -57,21 +38,19 @@ func (o *OsExec) CmdArgs(args ...string) (string, error) {
 	return strings.TrimSpace(out), nil
 }
 
-// RawCmd runs a plain string command returning unprocessed output as string.
-func (o *OsExec) RawCmd(cmd string) (string, error) {
-	var args []string
-	if runtime.GOOS == "windows" {
-		args = strings.Split(cmd, " ")
-	} else {
-		args = []string{"sh", "-c", cmd}
+// CmdLines runs plain string command, returns its output split by newline.
+func (o *OsExec) CmdLines(cmd []string) ([]string, error) {
+	out, err := o.rawExecArgs(cmd)
+	if err != nil {
+		return nil, err
 	}
 
-	return o.rawExecArgs(args...)
+	return strings.Split(strings.TrimSpace(out), "\n"), nil
 }
 
 // rawExecArgs executes git command with LEFTHOOK=0 in order
 // to prevent calling subsequent lefthook hooks.
-func (o *OsExec) rawExecArgs(args ...string) (string, error) {
+func (o *OsExec) rawExecArgs(args []string) (string, error) {
 	log.Debug("[lefthook] cmd: ", args)
 
 	cmd := exec.Command(args[0], args[1:]...)

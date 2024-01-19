@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/lefthook"
 	"github.com/evilmartians/lefthook/internal/log"
 )
@@ -10,11 +11,31 @@ import (
 func newRunCmd(opts *lefthook.Options) *cobra.Command {
 	runArgs := lefthook.RunArgs{}
 
+	runHookCompletions := func(cmd *cobra.Command, args []string, toComplete string) (ret []string, compDir cobra.ShellCompDirective) {
+		compDir = cobra.ShellCompDirectiveNoFileComp
+		if len(args) != 0 {
+			return
+		}
+		ret = lefthook.ConfigHookCompletions(opts)
+		ret = append(ret, config.AvailableHooks[:]...)
+		return
+	}
+
+	runHookCommandCompletions := func(cmd *cobra.Command, args []string, toComplete string) (ret []string, compDir cobra.ShellCompDirective) {
+		compDir = cobra.ShellCompDirectiveNoFileComp
+		if len(args) == 0 {
+			return
+		}
+		ret = lefthook.ConfigHookCommandCompletions(opts, args[0])
+		return
+	}
+
 	runCmd := cobra.Command{
-		Use:     "run hook-name [git args...]",
-		Short:   "Execute group of hooks",
-		Example: "lefthook run pre-commit",
-		Args:    cobra.MinimumNArgs(1),
+		Use:               "run hook-name [git args...]",
+		Short:             "Execute group of hooks",
+		Example:           "lefthook run pre-commit",
+		ValidArgsFunction: runHookCompletions,
+		Args:              cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// args[0] - hook name
 			// args[1:] - git hook arguments, number and value depends on the hook
@@ -61,6 +82,8 @@ func newRunCmd(opts *lefthook.Options) *cobra.Command {
 	if err != nil {
 		log.Warn("Unexpected error:", err)
 	}
+
+	_ = runCmd.RegisterFlagCompletionFunc("commands", runHookCommandCompletions)
 
 	return &runCmd
 }

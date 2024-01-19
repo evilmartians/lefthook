@@ -88,7 +88,13 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 		pushFiles = r.Repo.PushFiles
 		allFiles = r.Repo.AllFiles
 		cmdFiles = func() ([]string, error) {
-			return r.Repo.FilesByCommand(filesCmd)
+			var cmd []string
+			if runtime.GOOS == "windows" {
+				cmd = strings.Split(filesCmd, " ")
+			} else {
+				cmd = []string{"sh", "-c", filesCmd}
+			}
+			return r.Repo.FilesByCommand(cmd)
 		}
 	}
 

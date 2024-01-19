@@ -9,7 +9,6 @@ import (
 	"os/signal"
 	"path/filepath"
 	"slices"
-	"strings"
 	"time"
 
 	"github.com/evilmartians/lefthook/internal/config"
@@ -63,6 +62,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 
 		return err
 	}
+
 	if err = cfg.Validate(); err != nil {
 		return err
 	}
@@ -75,14 +75,10 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		log.SetLevel(log.WarnLevel)
 	}
 
-	if tags := os.Getenv(envSkipOutput); tags != "" {
-		cfg.SkipOutput = append(cfg.SkipOutput, strings.Split(tags, ",")...)
-	}
+	tags := os.Getenv(envSkipOutput)
 
 	var logSettings log.SkipSettings
-	for _, skipOption := range cfg.SkipOutput {
-		(&logSettings).ApplySetting(skipOption)
-	}
+	(&logSettings).ApplySettings(tags, cfg.SkipOutput)
 
 	if !logSettings.SkipMeta() {
 		log.Box(
@@ -243,6 +239,56 @@ func printSummary(
 
 			log.Infof("🥊  %s%s\n", log.Red(result.Name), log.Red(failText))
 		}
+	}
+}
+
+func ConfigHookCompletions(opts *Options) []string {
+	lefthook, err := initialize(opts)
+	if err != nil {
+		return nil
+	}
+	return lefthook.configHookCompletions()
+}
+
+func (l *Lefthook) configHookCompletions() []string {
+	cfg, err := config.Load(l.Fs, l.repo)
+	if err != nil {
+		return nil
+	}
+	if err = cfg.Validate(); err != nil {
+		return nil
+	}
+	hooks := make([]string, 0, len(cfg.Hooks))
+	for hook := range cfg.Hooks {
+		hooks = append(hooks, hook)
+	}
+	return hooks
+}
+
+func ConfigHookCommandCompletions(opts *Options, hookName string) []string {
+	lefthook, err := initialize(opts)
+	if err != nil {
+		return nil
+	}
+	return lefthook.configHookCommandCompletions(hookName)
+}
+
+func (l *Lefthook) configHookCommandCompletions(hookName string) []string {
+	cfg, err := config.Load(l.Fs, l.repo)
+	if err != nil {
+		return nil
+	}
+	if err = cfg.Validate(); err != nil {
+		return nil
+	}
+	if hook, found := cfg.Hooks[hookName]; !found {
+		return nil
+	} else {
+		commands := make([]string, 0, len(hook.Commands))
+		for command := range hook.Commands {
+			commands = append(commands, command)
+		}
+		return commands
 	}
 }
 

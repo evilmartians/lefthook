@@ -7,22 +7,26 @@ import (
 
 func TestSkipSetting(t *testing.T) {
 	for i, tt := range [...]struct {
-		settings []string
+		settings interface{}
 		results  map[string]bool
 	}{
 		{
-			settings: []string{},
+			settings: []interface{}{},
 			results:  map[string]bool{},
 		},
 		{
-			settings: []string{"failure", "execution"},
+			settings: false,
+			results:  map[string]bool{},
+		},
+		{
+			settings: []interface{}{"failure", "execution"},
 			results: map[string]bool{
 				"failure":   true,
 				"execution": true,
 			},
 		},
 		{
-			settings: []string{
+			settings: []interface{}{
 				"meta",
 				"summary",
 				"success",
@@ -45,13 +49,25 @@ func TestSkipSetting(t *testing.T) {
 				"empty_summary":  true,
 			},
 		},
+		{
+			settings: true,
+			results: map[string]bool{
+				"meta":           true,
+				"summary":        true,
+				"success":        true,
+				"failure":        false,
+				"skips":          true,
+				"execution":      true,
+				"execution_out":  true,
+				"execution_info": true,
+				"empty_summary":  true,
+			},
+		},
 	} {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
 			var settings SkipSettings
 
-			for _, option := range tt.settings {
-				(&settings).ApplySetting(option)
-			}
+			(&settings).ApplySettings("", tt.settings)
 
 			if settings.SkipMeta() != tt.results["meta"] {
 				t.Errorf("expected SkipMeta to be %v", tt.results["meta"])
