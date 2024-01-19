@@ -115,13 +115,13 @@ Run 'lefthook install' manually.`,
 	if args.FilesFromStdin {
 		paths, err := io.ReadAll(os.Stdin)
 		if err != nil {
-			return fmt.Errorf("error reading standard input: %w", err)
+			return fmt.Errorf("failed to read the files from standard input: %w", err)
 		}
 		args.Files = append(args.Files, parseFilesFromString(string(paths))...)
 	} else if args.AllFiles {
 		files, err := l.repo.AllFiles()
 		if err != nil {
-			return fmt.Errorf("Couldn't get all files: %w", err)
+			return fmt.Errorf("failed to get all files: %w", err)
 		}
 		args.Files = append(args.Files, files...)
 	}

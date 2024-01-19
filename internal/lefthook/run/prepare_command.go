@@ -118,7 +118,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 
 		files, err := fn()
 		if err != nil {
-			return nil, fmt.Errorf("failed to read file paths from standard input: %w", err), nil
+			return nil, fmt.Errorf("error replacing %s: %w", filesType, err), nil
 		}
 
 		files = filter.Apply(command, files)
