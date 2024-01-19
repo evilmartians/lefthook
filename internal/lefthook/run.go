@@ -32,19 +32,6 @@ type RunArgs struct {
 	RunOnlyCommands []string
 }
 
-func splitNullTerminatedPaths(paths string) []string {
-	var result []string
-	start := 0
-	for i, c := range paths {
-		if c == 0 {
-			result = append(result, paths[start:i])
-			start = i + 1
-		}
-	}
-	result = append(result, paths[start:])
-	return result
-}
-
 func Run(opts *Options, args RunArgs, hookName string, gitArgs []string) error {
 	lefthook, err := initialize(opts)
 	if err != nil {
@@ -129,6 +116,20 @@ Run 'lefthook install' manually.`,
 	startTime := time.Now()
 	resultChan := make(chan run.Result, len(hook.Commands)+len(hook.Scripts))
 
+	if args.FilesFromStdin {
+		paths, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			return fmt.Errorf("error reading standard input: %w", err)
+		}
+		args.Files = append(args.Files, parseFilesFromString(string(paths))...)
+	} else if args.AllFiles {
+		files, err := l.repo.AllFiles()
+		if err != nil {
+			return fmt.Errorf("Couldn't get all files: %w", err)
+		}
+		args.Files = append(args.Files, files...)
+	}
+
 	runner := run.NewRunner(
 		run.Options{
 			Repo:            l.repo,
@@ -138,21 +139,11 @@ Run 'lefthook install' manually.`,
 			ResultChan:      resultChan,
 			SkipSettings:    logSettings,
 			DisableTTY:      cfg.NoTTY || args.NoTTY,
-			AllFiles:        args.AllFiles,
-			FilesFromStdin:  args.FilesFromStdin,
 			Files:           args.Files,
 			Force:           args.Force,
 			RunOnlyCommands: args.RunOnlyCommands,
 		},
 	)
-
-	if args.FilesFromStdin {
-		paths, err := io.ReadAll(os.Stdin)
-		if err != nil {
-			return fmt.Errorf("error reading standard input: %w", err)
-		}
-		runner.Files = append(runner.Files, splitNullTerminatedPaths(string(paths))...)
-	}
 
 	sourceDirs := []string{
 		filepath.Join(l.repo.RootPath, cfg.SourceDir),
@@ -253,4 +244,17 @@ func printSummary(
 			log.Infof("🥊  %s%s\n", log.Red(result.Name), log.Red(failText))
 		}
 	}
+}
+
+func parseFilesFromString(paths string) []string {
+	var result []string
+	start := 0
+	for i, c := range paths {
+		if c == 0 || c == '\n' {
+			result = append(result, paths[start:i])
+			start = i + 1
+		}
+	}
+	result = append(result, paths[start:])
+	return result
 }
