@@ -45,7 +45,6 @@ type Options struct {
 	ResultChan      chan Result
 	SkipSettings    log.SkipSettings
 	DisableTTY      bool
-	AllFiles        bool
 	Force           bool
 	Files           []string
 	RunOnlyCommands []string

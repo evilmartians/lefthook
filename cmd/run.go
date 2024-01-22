@@ -5,6 +5,7 @@ import (
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/lefthook"
+	"github.com/evilmartians/lefthook/internal/log"
 )
 
 func newRunCmd(opts *lefthook.Options) *cobra.Command {
@@ -57,9 +58,31 @@ func newRunCmd(opts *lefthook.Options) *cobra.Command {
 		"run hooks on all files",
 	)
 
-	runCmd.Flags().StringSliceVar(&runArgs.Files, "files", nil, "run on specified files. takes precedence over --all-files")
+	runCmd.Flags().BoolVar(
+		&runArgs.FilesFromStdin, "files-from-stdin", false,
+		"get files from standard input, null- or \\n-separated",
+	)
 
-	runCmd.Flags().StringSliceVar(&runArgs.RunOnlyCommands, "commands", nil, "run only specified commands")
+	runCmd.Flags().StringSliceVar(
+		&runArgs.Files, "files", nil,
+		"run on specified files, comma-separated",
+	)
+
+	runCmd.Flags().StringArrayVar(
+		&runArgs.Files, "file", nil,
+		"run on specified file (repeat for multiple files). takes precedence over --all-files",
+	)
+
+	runCmd.Flags().StringSliceVar(
+		&runArgs.RunOnlyCommands, "commands", nil,
+		"run only specified commands",
+	)
+
+	err := runCmd.Flags().MarkDeprecated("files", "use --file flag instead")
+	if err != nil {
+		log.Warn("Unexpected error:", err)
+	}
+
 	_ = runCmd.RegisterFlagCompletionFunc("commands", runHookCommandCompletions)
 
 	return &runCmd

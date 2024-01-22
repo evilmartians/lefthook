@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -24,6 +25,7 @@ const (
 type RunArgs struct {
 	NoTTY           bool
 	AllFiles        bool
+	FilesFromStdin  bool
 	Force           bool
 	Files           []string
 	RunOnlyCommands []string
@@ -110,6 +112,20 @@ Run 'lefthook install' manually.`,
 	startTime := time.Now()
 	resultChan := make(chan run.Result, len(hook.Commands)+len(hook.Scripts))
 
+	if args.FilesFromStdin {
+		paths, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			return fmt.Errorf("failed to read the files from standard input: %w", err)
+		}
+		args.Files = append(args.Files, parseFilesFromString(string(paths))...)
+	} else if args.AllFiles {
+		files, err := l.repo.AllFiles()
+		if err != nil {
+			return fmt.Errorf("failed to get all files: %w", err)
+		}
+		args.Files = append(args.Files, files...)
+	}
+
 	runner := run.NewRunner(
 		run.Options{
 			Repo:            l.repo,
@@ -119,7 +135,6 @@ Run 'lefthook install' manually.`,
 			ResultChan:      resultChan,
 			SkipSettings:    logSettings,
 			DisableTTY:      cfg.NoTTY || args.NoTTY,
-			AllFiles:        args.AllFiles,
 			Files:           args.Files,
 			Force:           args.Force,
 			RunOnlyCommands: args.RunOnlyCommands,
@@ -275,4 +290,18 @@ func (l *Lefthook) configHookCommandCompletions(hookName string) []string {
 		}
 		return commands
 	}
+}
+
+// parseFilesFromString parses both `\0`- and `\n`-separated files.
+func parseFilesFromString(paths string) []string {
+	var result []string
+	start := 0
+	for i, c := range paths {
+		if c == 0 || c == '\n' {
+			result = append(result, paths[start:i])
+			start = i + 1
+		}
+	}
+	result = append(result, paths[start:])
+	return result
 }

@@ -74,20 +74,20 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 	}
 
 	var stagedFiles func() ([]string, error)
-	switch {
-	case len(r.Files) > 0:
-		stagedFiles = func() ([]string, error) { return r.Files, nil }
-	case r.AllFiles:
-		stagedFiles = r.Repo.AllFiles
-	default:
-		stagedFiles = r.Repo.StagedFiles
-	}
+	var pushFiles func() ([]string, error)
+	var allFiles func() ([]string, error)
+	var cmdFiles func() ([]string, error)
 
-	filesFns := map[string]func() ([]string, error){
-		config.SubStagedFiles: stagedFiles,
-		config.PushFiles:      r.Repo.PushFiles,
-		config.SubAllFiles:    r.Repo.AllFiles,
-		config.SubFiles: func() ([]string, error) {
+	if len(r.Files) > 0 {
+		stagedFiles = func() ([]string, error) { return r.Files, nil }
+		pushFiles = stagedFiles
+		allFiles = stagedFiles
+		cmdFiles = stagedFiles
+	} else {
+		stagedFiles = r.Repo.StagedFiles
+		pushFiles = r.Repo.PushFiles
+		allFiles = r.Repo.AllFiles
+		cmdFiles = func() ([]string, error) {
 			var cmd []string
 			if runtime.GOOS == "windows" {
 				cmd = strings.Split(filesCmd, " ")
@@ -95,7 +95,14 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 				cmd = []string{"sh", "-c", filesCmd}
 			}
 			return r.Repo.FilesByCommand(cmd)
-		},
+		}
+	}
+
+	filesFns := map[string]func() ([]string, error){
+		config.SubStagedFiles: stagedFiles,
+		config.SubPushFiles:   pushFiles,
+		config.SubAllFiles:    allFiles,
+		config.SubFiles:       cmdFiles,
 	}
 
 	templates := make(map[string]*template)
@@ -167,7 +174,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 	}
 
 	if config.HookUsesPushFiles(r.HookName) {
-		ok, err := canSkipCommand(command, templates[config.PushFiles], r.Repo.PushFiles)
+		ok, err := canSkipCommand(command, templates[config.SubPushFiles], r.Repo.PushFiles)
 		if err != nil {
 			return nil, err, nil
 		}

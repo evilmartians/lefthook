@@ -134,7 +134,7 @@ and optionally run either on all files (any `{staged_files}` placeholder acts as
 
 ```bash
 $ lefthook run pre-commit --all-files
-$ lefthook run pre-commit --files file1.js,file2.js
+$ lefthook run pre-commit --file file1.js --file file2.js
 ```
 
 (if both are specified, `--all-files` is ignored)

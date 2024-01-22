@@ -1,0 +1,42 @@
+exec git init
+exec lefthook install
+exec git add -A
+
+exec lefthook run echo
+stdout 'a-file\.js'
+
+exec lefthook run echo --all-files
+stdout 'a-file\.js b_file\.go c,file\.rb'
+
+exec lefthook run echo --file a-file.js --file ghost.file
+stdout 'a-file\.js ghost\.file'
+
+stdin b_file.go
+exec lefthook run echo --files-from-stdin
+stdout 'b_file\.go c,file\.rb'
+
+stdin b_file.go
+exec lefthook run echo --files-from-stdin --file ghost.file
+stdout 'ghost\.file b_file\.go c,file\.rb'
+
+-- lefthook.yml --
+skip_output:
+  - meta
+  - execution_info
+  - summary
+
+echo:
+  commands:
+    echo:
+      files: echo a-file.js
+      run: echo "{files}"
+
+-- a-file.js --
+a-file.js
+
+-- b_file.go --
+b_file.go
+c,file.rb
+
+-- c,file.rb --
+c,file.rb
