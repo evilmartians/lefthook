@@ -24,7 +24,10 @@ type Config struct {
 	NoTTY                   bool        `mapstructure:"no_tty,omitempty"`
 	AssertLefthookInstalled bool        `mapstructure:"assert_lefthook_installed,omitempty"`
 	Colors                  interface{} `mapstructure:"colors,omitempty"`
-	Remote                  *Remote     `mapstructure:"remote,omitempty"`
+
+	// Deprecated: use Remotes
+	Remote  *Remote   `mapstructure:"remote,omitempty"`
+	Remotes []*Remote `mapstructure:"remotes,omitempty"`
 
 	Hooks map[string]*Hook `mapstructure:"-"`
 }

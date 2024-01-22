@@ -6,26 +6,23 @@ Lefthook [supports](#config-file) YAML, JSON, and TOML configuration. In this do
 - [Top level options](#top-level-options)
   - [`assert_lefthook_installed`](#assert_lefthook_installed)
   - [`colors`](#colors)
-    - [`yellow`](#colors)
-    - [`green`](#colors)
-    - [`cyan`](#colors)
-    - [`gray`](#colors)
-    - [`red`](#colors)
+  - [`no_tty`](#no_tty)
   - [`extends`](#extends)
   - [`min_version`](#min_version)
-  - [`no_tty`](#no_tty)
-  - [`rc`](#rc)
   - [`skip_output`](#skip_output)
   - [`source_dir`](#source_dir)
   - [`source_dir_local`](#source_dir_local)
-- [`remote` (Beta :test_tube:)](#remote)
+  - [`rc`](#rc)
+- [`remote`](#remote--deprecated-show-remotes-instead) :warning: DEPRECATED use [`remotes`](#remotes)
   - [`git_url`](#git_url)
   - [`ref`](#ref)
-  - [`config`](#config)
-- [Hook](#git-hook)
-  - [`skip`](#skip)
-  - [`only`](#only)
-  - [`files`](#files-global)
+  - [`config`](#config--deprecated-use-configs-like-specified-in-remotes)
+- [`remotes`](#remotes)
+  - [`git_url`](#git_url-1)
+  - [`ref`](#ref-1)
+  - [`configs`](#configs)
+- [Git hook](#git-hook)
+  - [`files` (global)](#files-global)
   - [`parallel`](#parallel)
   - [`piped`](#piped)
   - [`follow`](#follow)
@@ -34,6 +31,11 @@ Lefthook [supports](#config-file) YAML, JSON, and TOML configuration. In this do
   - [`scripts`](#scripts)
 - [Command](#command)
   - [`run`](#run)
+    - [`{files}` template](#files-template)
+    - [`{staged_files}` template](#staged_files-template)
+    - [`{push_files}` template](#push_files-template)
+    - [`{all_files}` template](#all_files-template)
+    - [`{cmd}` template](#cmd-template)
   - [`skip`](#skip)
   - [`only`](#only)
   - [`tags`](#tags)
@@ -48,6 +50,7 @@ Lefthook [supports](#config-file) YAML, JSON, and TOML configuration. In this do
   - [`use_stdin`](#use_stdin)
   - [`priority`](#priority)
 - [Script](#script)
+  - [`use_stdin`](#use_stdin)
   - [`runner`](#runner)
   - [`skip`](#skip)
   - [`only`](#only)
@@ -288,7 +291,7 @@ Now any program that runs your hooks will have a tweaked PATH environment variab
 
 ## `remote`
 
-> :test_tube: This feature is in **Beta** version
+> :warning: DEPRECATED use [`remotes`](#remotes) setting
 
 You can provide a remote config if you want to share your lefthook configuration across many projects. Lefthook will automatically download and merge the configuration into your local `lefthook.yml`.
 
@@ -307,6 +310,8 @@ Configuration in `remote` will be merged to configuration in `lefthook.yml`, so 
 This can be changed in the future. For convenience, please use `remote` configuration without any hooks configuration in `lefthook.yml`.
 
 ### `git_url`
+
+> :warning: DEPRECATED use [`remotes`](#remotes) setting
 
 A URL to Git repository. It will be accessed with privileges of the machine lefthook runs on.
 
@@ -330,6 +335,8 @@ remote:
 
 ### `ref`
 
+> :warning: DEPRECATED use [`remotes`](#remotes) setting
+
 An optional *branch* or *tag* name.
 
 **Example**
@@ -348,6 +355,8 @@ remote:
 
 ### `config`
 
+> :warning: DEPRECATED use [`remotes`](#remotes) setting
+
 **Default:** `lefthook.yml`
 
 An optional config path from remote's root.
@@ -361,6 +370,107 @@ remote:
   git_url: git@github.com:evilmartians/remote
   ref: v1.0.0
   config: examples/ruby-linter.yml
+```
+
+## `remotes`
+
+> :test_tube: This feature is in **Beta** version
+
+You can provide multiple remote configs if you want to share yours lefthook configurations across many projects. Lefthook will automatically download and merge configurations into your local `lefthook.yml`.
+
+You can use [`extends`](#extends) but the paths must be relative to the remote repository root.
+
+If you provide [`scripts`](#scripts) in a remote config file, the [scripts](#source_dir) folder must also be in the **root of the repository**.
+
+**Note**
+
+The configuration from `remotes` will be merged to the local config using the following priority:
+
+1. Local main config (`lefthook.yml`)
+1. Remote configs (`remotes`)
+1. Local overrides (`lefthook-local.yml`)
+
+This priority may be changed in the future. For convenience, if you use `remotes`, please don't configure any hooks.
+
+### `git_url`
+
+A URL to Git repository. It will be accessed with privileges of the machine lefthook runs on.
+
+**Example**
+
+```yml
+# lefthook.yml
+
+remotes:
+  - git_url: git@github.com:evilmartians/lefthook
+```
+
+Or
+
+```yml
+# lefthook.yml
+
+remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+```
+
+### `ref`
+
+An optional *branch* or *tag* name.
+
+**Example**
+
+```yml
+# lefthook.yml
+
+remotes:
+  - git_url: git@github.com:evilmartians/lefthook
+    ref: v1.0.0
+```
+
+> :warning: **Note**
+>
+> If you initially had `ref` option, ran `lefthook install`, and then removed it, lefthook won't decide which branch/tag to use as a ref. So, if you added it once, please, use it always to avoid issues in local setups.
+
+### `configs`
+
+**Default:** `[lefthook.yml]`
+
+An optional array of config paths from remote's root.
+
+**Example**
+
+```yml
+# lefthook.yml
+
+remotes:
+  - git_url: git@github.com:evilmartians/lefthook
+    ref: v1.0.0
+    configs:
+      - examples/ruby-linter.yml
+      - examples/test.yml
+```
+
+Example with multiple remotes merging multiple configurations.
+
+```yml
+# lefthook.yml
+
+remotes:
+  - git_url: git@github.com:org/lefthook-configs
+    ref: v1.0.0
+    configs:
+      - examples/ruby-linter.yml
+      - examples/test.yml
+  - git_url: https://github.com/org2/lefthook-configs
+    configs:
+      - lefthooks/pre_commit.yml
+      - lefthooks/post_merge.yml
+  - git_url: https://github.com/org3/lefthook-configs
+    ref: feature/new
+    configs:
+      - configs/pre-push.yml
+
 ```
 
 ## Git hook

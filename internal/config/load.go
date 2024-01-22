@@ -94,8 +94,11 @@ func readOne(fs afero.Fs, path string, names []string) (*viper.Viper, error) {
 	return nil, NotFoundError{fmt.Sprintf("No config files with names %q could not be found in \"%s\"", names, path)}
 }
 
-// mergeAll merges (.lefthook or lefthook) and (extended config) and (remote)
-// and (.lefthook-local or .lefthook-local) configs.
+// mergeAll merges configs using the following order.
+// - lefthook/.lefthook
+// - files from `extends`
+// - files from `remotes`
+// - lefthook-local/.lefthook-local.
 func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
 	extends, err := readOne(fs, repo.RootPath, []string{"lefthook", ".lefthook"})
 	if err != nil {
@@ -106,7 +109,7 @@ func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
 		return nil, err
 	}
 
-	if err := mergeRemote(fs, repo, extends); err != nil {
+	if err := mergeRemotes(fs, repo, extends); err != nil {
 		return nil, err
 	}
 
@@ -124,42 +127,70 @@ func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
 	return extends, nil
 }
 
-// mergeRemote merges remote config to the current one.
-func mergeRemote(fs afero.Fs, repo *git.Repository, v *viper.Viper) error {
-	var remote Remote
-	err := v.UnmarshalKey("remote", &remote)
+// mergeRemotes merges remote configs to the current one.
+func mergeRemotes(fs afero.Fs, repo *git.Repository, v *viper.Viper) error {
+	var remote *Remote // Deprecated
+	var remotes []*Remote
+
+	err := v.UnmarshalKey("remotes", &remotes)
 	if err != nil {
 		return err
 	}
 
-	if !remote.Configured() {
-		return nil
-	}
-
-	remotePath := repo.RemoteFolder(remote.GitURL)
-	configFile := DefaultConfigName
-	if len(remote.Config) > 0 {
-		configFile = remote.Config
-	}
-	configPath := filepath.Join(remotePath, configFile)
-
-	log.Debugf("Merging remote config: %s", configPath)
-
-	_, err = fs.Stat(configPath)
+	// Deprecated
+	err = v.UnmarshalKey("remote", &remote)
 	if err != nil {
-		return nil
-	}
-
-	if err := merge("remote", configPath, v); err != nil {
 		return err
 	}
 
-	if err := extend(v, filepath.Dir(configPath)); err != nil {
-		return err
+	// Backward compatibility
+	if remote != nil {
+		remotes = append(remotes, remote)
 	}
 
-	// Reset extends to omit issues when extending with remote extends.
-	return v.MergeConfigMap(map[string]interface{}{"extends": nil})
+	for _, remote := range remotes {
+		if !remote.Configured() {
+			continue
+		}
+
+		// Use for backward compatibility with "remote(s).config"
+		if remote.Config != "" {
+			remote.Configs = append(remote.Configs, remote.Config)
+		}
+
+		if len(remote.Configs) == 0 {
+			remote.Configs = append(remote.Configs, DefaultConfigName)
+		}
+
+		for _, config := range remote.Configs {
+			remotePath := repo.RemoteFolder(remote.GitURL, remote.Ref)
+			configFile := config
+			configPath := filepath.Join(remotePath, configFile)
+
+			log.Debugf("Merging remote config: %s: %s", remote.GitURL, configPath)
+
+			_, err = fs.Stat(configPath)
+			if err != nil {
+				continue
+			}
+
+			if err = merge("remotes", configPath, v); err != nil {
+				return err
+			}
+
+			if err = extend(v, filepath.Dir(configPath)); err != nil {
+				return err
+			}
+		}
+
+		// Reset extends to omit issues when extending with remote extends.
+		err = v.MergeConfigMap(map[string]interface{}{"extends": nil})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // extend merges all files listed in 'extends' option into the config.
@@ -234,7 +265,28 @@ func unmarshalConfigs(base, extra *viper.Viper, c *Config) error {
 		return err
 	}
 
-	return base.Unmarshal(c)
+	if err := base.Unmarshal(c); err != nil {
+		return err
+	}
+
+	// Deprecation handling
+
+	if c.Remote != nil {
+		log.Warn("DEPRECATED: \"remote\" option is deprecated and will be omitted in the next major release, use \"remotes\" option instead")
+		c.Remotes = append(c.Remotes, c.Remote)
+	}
+	c.Remote = nil
+
+	for _, remote := range c.Remotes {
+		if remote.Config != "" {
+			log.Warn("DEPRECATED: \"remotes\".\"config\" option is deprecated and will be omitted in the next major release, use \"configs\" option instead")
+			remote.Configs = append(remote.Configs, remote.Config)
+		}
+
+		remote.Config = ""
+	}
+
+	return nil
 }
 
 func addHook(hookName string, base, extra *viper.Viper, c *Config) error {

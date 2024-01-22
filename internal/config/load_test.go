@@ -13,6 +13,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/git"
 )
 
+//gocyclo:ignore
 func TestLoad(t *testing.T) {
 	root, err := filepath.Abs("")
 	if err != nil {
@@ -432,8 +433,10 @@ pre-commit:
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
 				Colors:         nil,
-				Remote: &Remote{
-					GitURL: "git@github.com:evilmartians/lefthook",
+				Remotes: []*Remote{
+					{
+						GitURL: "git@github.com:evilmartians/lefthook",
+					},
 				},
 				Hooks: map[string]*Hook{
 					"pre-commit": {
@@ -482,15 +485,17 @@ pre-commit:
         - merge
       runner: bash
 `,
-			remoteConfigPath: filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook", "examples", "custom.yml"),
+			remoteConfigPath: filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v1.0.0", "examples", "custom.yml"),
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
 				Colors:         nil,
-				Remote: &Remote{
-					GitURL: "git@github.com:evilmartians/lefthook",
-					Ref:    "v1.0.0",
-					Config: "examples/custom.yml",
+				Remotes: []*Remote{
+					{
+						GitURL:  "git@github.com:evilmartians/lefthook",
+						Ref:     "v1.0.0",
+						Configs: []string{"examples/custom.yml"},
+					},
 				},
 				Hooks: map[string]*Hook{
 					"pre-commit": {
@@ -572,9 +577,11 @@ pre-push:
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
 				Colors:         nil,
-				Remote: &Remote{
-					GitURL: "https://github.com/evilmartians/lefthook",
-					Config: "examples/config.yml",
+				Remotes: []*Remote{
+					{
+						GitURL:  "https://github.com/evilmartians/lefthook",
+						Configs: []string{"examples/config.yml"},
+					},
 				},
 				Extends: []string{"local-extend.yml"},
 				Hooks: map[string]*Hook{
@@ -760,6 +767,166 @@ run = "echo 1"
 
 			if err = fs.Remove(tomlConfig); err != nil {
 				t.Errorf("unexpected error: %s", err)
+			}
+		})
+	}
+
+	type remote struct {
+		RemoteConfigPath string
+		Content          string
+	}
+	for i, tt := range [...]struct {
+		name          string
+		global, local string
+		remotes       []remote
+		otherFiles    map[string]string
+		result        *Config
+	}{
+		{
+			name: "with remotes, config and configs",
+			global: `
+pre-commit:
+  only:
+    - ref: main
+  commands:
+    global:
+      run: echo 'Global!'
+    lint:
+      run: this will be overwritten
+remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    ref: v1.0.0
+    config: examples/custom.yml
+  - git_url: https://github.com/evilmartians/lefthook
+    configs:
+      - examples/remote/ping.yml
+    ref: v1.5.5
+`,
+			remotes: []remote{
+				{
+					RemoteConfigPath: filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v1.0.0", "examples", "custom.yml"),
+					Content: `
+pre-commit:
+  commands:
+    lint:
+      only:
+        - merge
+        - rebase
+      run: yarn lint
+  scripts:
+    "test.sh":
+      skip:
+        - merge
+      runner: bash
+`,
+				},
+				{
+					RemoteConfigPath: filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v1.5.5", "examples", "remote", "ping.yml"),
+					Content: `
+pre-commit:
+  commands:
+    ping:
+      run: echo pong
+`,
+				},
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         nil,
+				Remotes: []*Remote{
+					{
+						GitURL:  "https://github.com/evilmartians/lefthook",
+						Ref:     "v1.0.0",
+						Configs: []string{"examples/custom.yml"},
+					},
+					{
+						GitURL: "https://github.com/evilmartians/lefthook",
+						Ref:    "v1.5.5",
+						Configs: []string{
+							"examples/remote/ping.yml",
+						},
+					},
+				},
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Only: []interface{}{map[string]interface{}{"ref": "main"}},
+						Commands: map[string]*Command{
+							"lint": {
+								Run:  "yarn lint",
+								Only: []interface{}{"merge", "rebase"},
+							},
+							"ping": {
+								Run: "echo pong",
+							},
+							"global": {
+								Run: "echo 'Global!'",
+							},
+						},
+						Scripts: map[string]*Script{
+							"test.sh": {
+								Runner: "bash",
+								Skip:   []interface{}{"merge"},
+							},
+						},
+					},
+				},
+			},
+		},
+	} {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		repo := &git.Repository{
+			Fs:       fs,
+			RootPath: root,
+			InfoPath: filepath.Join(root, ".git", "info"),
+		}
+
+		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
+			if tt.global != "" {
+				if err := fs.WriteFile(filepath.Join(root, "lefthook.yml"), []byte(tt.global), 0o644); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
+			}
+
+			if tt.local != "" {
+				if err := fs.WriteFile(filepath.Join(root, "lefthook-local.yml"), []byte(tt.local), 0o644); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
+			}
+
+			for _, remote := range tt.remotes {
+				if err := fs.MkdirAll(filepath.Base(remote.RemoteConfigPath), 0o755); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
+
+				if err := fs.WriteFile(remote.RemoteConfigPath, []byte(remote.Content), 0o644); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
+			}
+
+			for name, content := range tt.otherFiles {
+				path := filepath.Join(
+					root,
+					filepath.Join(strings.Split(name, "/")...),
+				)
+				dir := filepath.Dir(path)
+
+				if err := fs.MkdirAll(dir, 0o775); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
+
+				if err := fs.WriteFile(path, []byte(content), 0o644); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
+			}
+
+			checkConfig, err := Load(fs.Fs, repo)
+
+			if err != nil {
+				t.Errorf("should parse configs without errors: %s", err)
+			} else if !cmp.Equal(checkConfig, tt.result, cmpopts.IgnoreUnexported(Hook{})) {
+				t.Errorf("configs should be equal")
+				t.Errorf("(-want +got):\n%s", cmp.Diff(tt.result, checkConfig))
 			}
 		})
 	}

@@ -50,14 +50,16 @@ func (l *Lefthook) Install(force bool) error {
 		return err
 	}
 
-	if cfg.Remote.Configured() {
-		if err := l.repo.SyncRemote(cfg.Remote.GitURL, cfg.Remote.Ref); err != nil {
-			log.Warnf("Couldn't sync remotes. Will continue without them: %s", err)
-		} else {
-			// Reread the config file with synced remotes
-			cfg, err = l.readOrCreateConfig()
-			if err != nil {
-				return err
+	for _, remote := range cfg.Remotes {
+		if remote.Configured() {
+			if err := l.repo.SyncRemote(remote.GitURL, remote.Ref); err != nil {
+				log.Warnf("Couldn't sync remotes. Will continue without them: %s", err)
+			} else {
+				// Reread the config file with synced remotes
+				cfg, err = l.readOrCreateConfig()
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}

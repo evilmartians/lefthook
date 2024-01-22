@@ -16,12 +16,10 @@ const (
 
 // RemoteFolder returns the path to the folder where the remote
 // repository is located.
-func (r *Repository) RemoteFolder(url string) string {
+func (r *Repository) RemoteFolder(url string, ref string) string {
 	return filepath.Join(
 		r.RemotesFolder(),
-		filepath.Base(
-			strings.TrimSuffix(url, filepath.Ext(url)),
-		),
+		remoteDirectoryName(url, ref),
 	)
 }
 
@@ -34,26 +32,22 @@ func (r *Repository) RemotesFolder() string {
 // specified as a remote config repository. If successful, the path to the root
 // of the repository will be returned.
 func (r *Repository) SyncRemote(url, ref string) error {
-	remotesPath := filepath.Join(r.InfoPath, remotesFolder)
+	remotesPath := r.RemotesFolder()
 
 	err := r.Fs.MkdirAll(remotesPath, remotesFolderMode)
 	if err != nil && !errors.Is(err, os.ErrExist) {
 		return err
 	}
 
-	remotePath := filepath.Join(
-		remotesPath,
-		filepath.Base(
-			strings.TrimSuffix(url, filepath.Ext(url)),
-		),
-	)
+	directoryName := remoteDirectoryName(url, ref)
+	remotePath := filepath.Join(remotesPath, directoryName)
 
 	_, err = r.Fs.Stat(remotePath)
 	if err == nil {
 		return r.updateRemote(remotePath, ref)
 	}
 
-	return r.cloneRemote(remotesPath, url, ref)
+	return r.cloneRemote(remotesPath, directoryName, url, ref)
 }
 
 func (r *Repository) updateRemote(path, ref string) error {
@@ -84,14 +78,14 @@ func (r *Repository) updateRemote(path, ref string) error {
 	return nil
 }
 
-func (r *Repository) cloneRemote(path, url, ref string) error {
-	log.Debugf("Cloning remote config repository: %v", path)
+func (r *Repository) cloneRemote(dest, directoryName, url, ref string) error {
+	log.Debugf("Cloning remote config repository: %v/%v", dest, directoryName)
 
-	cmdClone := []string{"git", "-C", path, "clone", "--quiet", "--depth", "1"}
+	cmdClone := []string{"git", "-C", dest, "clone", "--quiet", "--depth", "1"}
 	if len(ref) > 0 {
 		cmdClone = append(cmdClone, "--branch", ref)
 	}
-	cmdClone = append(cmdClone, url)
+	cmdClone = append(cmdClone, url, directoryName)
 
 	_, err := r.Git.Cmd(cmdClone)
 	if err != nil {
@@ -99,4 +93,16 @@ func (r *Repository) cloneRemote(path, url, ref string) error {
 	}
 
 	return nil
+}
+
+func remoteDirectoryName(url, ref string) string {
+	name := filepath.Base(
+		strings.TrimSuffix(url, filepath.Ext(url)),
+	)
+
+	if ref != "" {
+		name = name + "-" + ref
+	}
+
+	return name
 }
