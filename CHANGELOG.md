@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+## 1.6.0 (2024-01-22)
+
+- feat: add remotes and configs options ([#609](https://github.com/evilmartians/lefthook/pull/609)) by @NikitaCOEUR
+- feat: add replaces to all template and parse files from stdin ([#596](https://github.com/evilmartians/lefthook/pull/596)) by @sanmai-NL
+
 ## 1.5.7 (2024-01-17)
 
 - fix: pre push hook handling ([#613](https://github.com/evilmartians/lefthook/pull/613)) by @mrexox
