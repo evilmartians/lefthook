@@ -60,7 +60,7 @@ func newRunCmd(opts *lefthook.Options) *cobra.Command {
 
 	runCmd.Flags().BoolVar(
 		&runArgs.FilesFromStdin, "files-from-stdin", false,
-		"get files from standard input, null- or \\n-separated",
+		"get files from standard input, null-separated",
 	)
 
 	runCmd.Flags().StringSliceVar(
