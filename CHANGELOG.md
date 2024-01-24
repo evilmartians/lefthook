@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+## 1.6.1 (2024-01-24)
+
+- fix: files from stdin only null separated ([#615](https://github.com/evilmartians/lefthook/pull/615)) by @mrexox
+- docs: add a new article link by @mrexox
+
 ## 1.6.0 (2024-01-22)
 
 - feat: add remotes and configs options ([#609](https://github.com/evilmartians/lefthook/pull/609)) by @NikitaCOEUR
