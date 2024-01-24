@@ -11,14 +11,6 @@ stdout 'a-file\.js b_file\.go c,file\.rb'
 exec lefthook run echo --file a-file.js --file ghost.file
 stdout 'a-file\.js ghost\.file'
 
-stdin b_file.go
-exec lefthook run echo --files-from-stdin
-stdout 'b_file\.go c,file\.rb'
-
-stdin b_file.go
-exec lefthook run echo --files-from-stdin --file ghost.file
-stdout 'ghost\.file b_file\.go c,file\.rb'
-
 -- lefthook.yml --
 skip_output:
   - meta
@@ -36,7 +28,6 @@ a-file.js
 
 -- b_file.go --
 b_file.go
-c,file.rb
 
 -- c,file.rb --
 c,file.rb

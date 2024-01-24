@@ -294,12 +294,12 @@ func (l *Lefthook) configHookCommandCompletions(hookName string) []string {
 	}
 }
 
-// parseFilesFromString parses both `\0`- and `\n`-separated files.
+// parseFilesFromString parses both `\0`-separated files.
 func parseFilesFromString(paths string) []string {
 	var result []string
 	start := 0
 	for i, c := range paths {
-		if c == 0 || c == '\n' {
+		if c == 0 {
 			result = append(result, paths[start:i])
 			start = i + 1
 		}
