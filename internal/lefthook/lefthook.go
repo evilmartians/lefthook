@@ -117,9 +117,9 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 }
 
 // Creates a hook file using hook template.
-func (l *Lefthook) addHook(hook, rc string, assertLefthookInstalled bool) error {
+func (l *Lefthook) addHook(hook string, args templates.Args) error {
 	hookPath := filepath.Join(l.repo.HooksPath, hook)
 	return afero.WriteFile(
-		l.Fs, hookPath, templates.Hook(hook, rc, assertLefthookInstalled), hookFileMode,
+		l.Fs, hookPath, templates.Hook(hook, args), hookFileMode,
 	)
 }

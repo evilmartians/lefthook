@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/evilmartians/lefthook/internal/config"
+	"github.com/evilmartians/lefthook/internal/templates"
 )
 
 const defaultDirMode = 0o755
@@ -39,7 +40,7 @@ func (l *Lefthook) Add(args *AddArgs) error {
 		return err
 	}
 
-	err = l.addHook(args.Hook, "", false)
+	err = l.addHook(args.Hook, templates.Args{})
 	if err != nil {
 		return err
 	}

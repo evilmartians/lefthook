@@ -13,21 +13,29 @@ const checksumFormat = "%s %d\n"
 //go:embed *
 var templatesFS embed.FS
 
+type Args struct {
+	Rc                      string
+	AssertLefthookInstalled bool
+	Roots                   []string
+}
+
 type hookTmplData struct {
 	HookName                string
 	Extension               string
 	Rc                      string
+	Roots                   []string
 	AssertLefthookInstalled bool
 }
 
-func Hook(hookName, rc string, assertLefthookInstalled bool) []byte {
+func Hook(hookName string, args Args) []byte {
 	buf := &bytes.Buffer{}
 	t := template.Must(template.ParseFS(templatesFS, "hook.tmpl"))
 	err := t.Execute(buf, hookTmplData{
 		HookName:                hookName,
 		Extension:               getExtension(),
-		Rc:                      rc,
-		AssertLefthookInstalled: assertLefthookInstalled,
+		Rc:                      args.Rc,
+		AssertLefthookInstalled: args.AssertLefthookInstalled,
+		Roots:                   args.Roots,
 	})
 	if err != nil {
 		panic(err)

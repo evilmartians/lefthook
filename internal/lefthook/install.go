@@ -131,6 +131,22 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force b
 		return err
 	}
 
+	rootsMap := make(map[string]struct{})
+	for _, hook := range cfg.Hooks {
+		for _, command := range hook.Commands {
+			if len(command.Root) > 0 {
+				root := strings.Trim(command.Root, "/")
+				if _, ok := rootsMap[root]; !ok {
+					rootsMap[root] = struct{}{}
+				}
+			}
+		}
+	}
+	roots := make([]string, 0, len(rootsMap))
+	for root := range rootsMap {
+		roots = append(roots, root)
+	}
+
 	hookNames := make([]string, 0, len(cfg.Hooks)+1)
 	for hook := range cfg.Hooks {
 		hookNames = append(hookNames, hook)
@@ -139,12 +155,22 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force b
 			return err
 		}
 
-		if err = l.addHook(hook, cfg.Rc, cfg.AssertLefthookInstalled); err != nil {
+		templateArgs := templates.Args{
+			Rc:                      cfg.Rc,
+			AssertLefthookInstalled: cfg.AssertLefthookInstalled,
+			Roots:                   roots,
+		}
+		if err = l.addHook(hook, templateArgs); err != nil {
 			return err
 		}
 	}
 
-	if err = l.addHook(config.GhostHookName, cfg.Rc, cfg.AssertLefthookInstalled); err != nil {
+	templateArgs := templates.Args{
+		Rc:                      cfg.Rc,
+		AssertLefthookInstalled: cfg.AssertLefthookInstalled,
+		Roots:                   roots,
+	}
+	if err = l.addHook(config.GhostHookName, templateArgs); err != nil {
 		return nil
 	}
 
