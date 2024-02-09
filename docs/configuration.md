@@ -498,13 +498,21 @@ pre-commit:
 
 **Default: `false`**
 
-Whether run commands and scripts concurrently.
+> **Note**
+>
+> Lefthook runs commands and scripts **sequentially** by default.
+
+Run commands and scripts concurrently.
 
 ### `piped`
 
 **Default: `false`**
 
-Whether run commands and scripts sequentially. Will stop execution if one of the commands/scripts fail.
+> **Note**
+>
+> Lefthook will return an error if both `piped: true` and `parallel: true` are set.
+
+Stop running commands and scripts if one of them fail.
 
 **Example**
 
