@@ -9,11 +9,13 @@ pre-commit:
       tags: frontend style
       glob: "*.js"
       run: yarn stylelint {staged_files}
+      stage_fixed: true
     rubocop:
       tags: backend style
       glob: "*.rb"
       exclude: '(^|/)(application|routes)\.rb$'
       run: bundle exec rubocop --force-exclusion {all_files}
+      stage_fixed: true
   scripts:
     "good_job.js":
       runner: node
