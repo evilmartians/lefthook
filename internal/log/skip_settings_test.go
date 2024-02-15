@@ -106,4 +106,21 @@ func TestSkipSetting(t *testing.T) {
 			}
 		})
 	}
+
+	t.Run("ApplySettings with non-empty tags and nil skipOutput", func(t *testing.T) {
+		var settings SkipSettings
+		(&settings).ApplySettings("meta,success", nil)
+
+		if !settings.SkipMeta() {
+			t.Errorf("expected SkipMeta to be true")
+		}
+
+		if !settings.SkipSuccess() {
+			t.Errorf("expected SkipSuccess to be true")
+		}
+
+		if settings.SkipFailure() {
+			t.Errorf("expected SkipFailure to be false")
+		}
+	})
 }
