@@ -7,18 +7,22 @@ import (
 
 func TestSkipSetting(t *testing.T) {
 	for i, tt := range [...]struct {
+		tags     string
 		settings interface{}
 		results  map[string]bool
 	}{
 		{
+			tags:     "",
 			settings: []interface{}{},
 			results:  map[string]bool{},
 		},
 		{
+			tags:     "",
 			settings: false,
 			results:  map[string]bool{},
 		},
 		{
+			tags:     "",
 			settings: []interface{}{"failure", "execution"},
 			results: map[string]bool{
 				"failure":   true,
@@ -26,6 +30,7 @@ func TestSkipSetting(t *testing.T) {
 			},
 		},
 		{
+			tags: "",
 			settings: []interface{}{
 				"meta",
 				"summary",
@@ -50,6 +55,7 @@ func TestSkipSetting(t *testing.T) {
 			},
 		},
 		{
+			tags:     "",
 			settings: true,
 			results: map[string]bool{
 				"meta":           true,
@@ -63,11 +69,26 @@ func TestSkipSetting(t *testing.T) {
 				"empty_summary":  true,
 			},
 		},
+		{
+			tags:     "meta,summary,success,skips,empty_summary",
+			settings: nil,
+			results: map[string]bool{
+				"meta":           true,
+				"summary":        true,
+				"success":        true,
+				"failure":        false,
+				"skips":          true,
+				"execution":      false,
+				"execution_out":  false,
+				"execution_info": false,
+				"empty_summary":  true,
+			},
+		},
 	} {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
 			var settings SkipSettings
 
-			(&settings).ApplySettings("", tt.settings)
+			(&settings).ApplySettings(tt.tags, tt.settings)
 
 			if settings.SkipMeta() != tt.results["meta"] {
 				t.Errorf("expected SkipMeta to be %v", tt.results["meta"])
@@ -106,21 +127,4 @@ func TestSkipSetting(t *testing.T) {
 			}
 		})
 	}
-
-	t.Run("ApplySettings with non-empty tags and nil skipOutput", func(t *testing.T) {
-		var settings SkipSettings
-		(&settings).ApplySettings("meta,success", nil)
-
-		if !settings.SkipMeta() {
-			t.Errorf("expected SkipMeta to be true")
-		}
-
-		if !settings.SkipSuccess() {
-			t.Errorf("expected SkipSuccess to be true")
-		}
-
-		if settings.SkipFailure() {
-			t.Errorf("expected SkipFailure to be false")
-		}
-	})
 }
