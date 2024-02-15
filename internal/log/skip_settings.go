@@ -27,10 +27,11 @@ func (s *SkipSettings) ApplySettings(tags string, skipOutput interface{}) {
 		for _, skipOption := range typedSkipOutput {
 			s.applySetting(skipOption.(string))
 		}
-		if tags != "" {
-			for _, skipOption := range strings.Split(tags, ",") {
-				s.applySetting(skipOption)
-			}
+	}
+
+	if tags != "" {
+		for _, skipOption := range strings.Split(tags, ",") {
+			s.applySetting(skipOption)
 		}
 	}
 }
