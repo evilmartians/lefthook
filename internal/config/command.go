@@ -40,7 +40,8 @@ func (c Command) Validate() error {
 }
 
 func (c Command) DoSkip(gitState git.State) bool {
-	return doSkip(gitState, c.Skip, c.Only)
+	skipChecker := NewSkipChecker(nil)
+	return skipChecker.DoSkip(gitState, c.Skip, c.Only)
 }
 
 type commandRunReplace struct {
