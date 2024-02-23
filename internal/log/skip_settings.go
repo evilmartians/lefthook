@@ -17,12 +17,19 @@ const (
 	skipAll = (1 << iota) - 1
 )
 
+// Deprecated: Use Settings instead.
 type SkipSettings int16
+
+// Deprecated: Use NewSettings instead.
+func NewSkipSettings() SettingsInterface {
+	var s SkipSettings
+	return &s
+}
 
 func (s *SkipSettings) ApplySettings(tags string, skipOutput interface{}) {
 	switch typedSkipOutput := skipOutput.(type) {
 	case bool:
-		s.SkipAll(typedSkipOutput)
+		s.skipAll(typedSkipOutput)
 	case []interface{}:
 		for _, skipOption := range typedSkipOutput {
 			s.applySetting(skipOption.(string))
@@ -59,7 +66,7 @@ func (s *SkipSettings) applySetting(setting string) {
 	}
 }
 
-func (s *SkipSettings) SkipAll(val bool) {
+func (s *SkipSettings) skipAll(val bool) {
 	if val {
 		*s = skipAll &^ skipFailure
 	} else {

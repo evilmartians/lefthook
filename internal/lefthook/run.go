@@ -18,8 +18,9 @@ import (
 )
 
 const (
-	envEnabled    = "LEFTHOOK"       // "0", "false"
-	envSkipOutput = "LEFTHOOK_QUIET" // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
+	envEnabled    = "LEFTHOOK"        // "0", "false"
+	envSkipOutput = "LEFTHOOK_QUIET"  // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
+	envOutput     = "LEFTHOOK_OUTPUT" // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
 )
 
 type RunArgs struct {
@@ -75,10 +76,18 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		log.SetLevel(log.WarnLevel)
 	}
 
+	newTags := os.Getenv(envOutput)
 	tags := os.Getenv(envSkipOutput)
 
-	var logSettings log.SkipSettings
-	(&logSettings).ApplySettings(tags, cfg.SkipOutput)
+	var logSettings log.SettingsInterface
+
+	if tags == "" && cfg.SkipOutput == nil {
+		logSettings = log.NewSettings()
+		logSettings.ApplySettings(newTags, cfg.Output)
+	} else {
+		logSettings = log.NewSkipSettings() //nolint:staticcheck //SA1019: for temporary backward compatibility
+		logSettings.ApplySettings(tags, cfg.SkipOutput)
+	}
 
 	if !logSettings.SkipMeta() {
 		log.Box(
@@ -192,7 +201,7 @@ Run 'lefthook install' manually.`,
 func printSummary(
 	duration time.Duration,
 	results []run.Result,
-	logSettings log.SkipSettings,
+	logSettings log.SettingsInterface,
 ) {
 	summaryPrint := log.Separate
 

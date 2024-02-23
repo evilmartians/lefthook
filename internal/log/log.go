@@ -60,6 +60,19 @@ const (
 	spinnerText        = " waiting"
 )
 
+type SettingsInterface interface {
+	ApplySettings(tags string, skipOutput interface{})
+	SkipSuccess() bool
+	SkipFailure() bool
+	SkipSummary() bool
+	SkipMeta() bool
+	SkipExecution() bool
+	SkipExecutionOutput() bool
+	SkipExecutionInfo() bool
+	SkipSkips() bool
+	SkipEmptySummary() bool
+}
+
 type StyleLogger struct {
 	style lipgloss.Style
 }
