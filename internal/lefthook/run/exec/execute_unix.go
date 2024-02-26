@@ -102,8 +102,6 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 
 		defer func() { _ = p.Close() }()
 
-		go func() { _, _ = io.Copy(p, args.in) }()
-
 		_, _ = io.Copy(args.out, p)
 	}
 
