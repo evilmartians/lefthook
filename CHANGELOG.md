@@ -2,6 +2,14 @@
 
 ## master (unreleased)
 
+## 1.6.2 (2024-02-26)
+
+- fix: respect roots in commands for npm packages ([#616](https://github.com/evilmartians/lefthook/pull/616)) by @mrexox
+- fix: don't capture STDIN without interactive or use_stdin options ([#638](https://github.com/evilmartians/lefthook/pull/638)) by @technicalpickles
+- fix: handle LEFTHOOK_QUIET when there is no skip_output in config by @prog-supdex
+- docs: add stage_fixed to the examples by @mrexxo
+- docs: clarify the difference between piped and parallel options by @mrexox
+
 ## 1.6.1 (2024-01-24)
 
 - fix: files from stdin only null separated ([#615](https://github.com/evilmartians/lefthook/pull/615)) by @mrexox
