@@ -15,7 +15,7 @@ import (
 
 var (
 	ColorRed    lipgloss.TerminalColor = lipgloss.CompleteColor{TrueColor: "#ff6347", ANSI256: "196", ANSI: "9"}
-	ColorGreen  lipgloss.TerminalColor = lipgloss.CompleteColor{TrueColor: "#afe000", ANSI256: "148", ANSI: "2"}
+	ColorGreen  lipgloss.TerminalColor = lipgloss.CompleteColor{TrueColor: "#32cd32", ANSI256: "148", ANSI: "2"}
 	ColorYellow lipgloss.TerminalColor = lipgloss.CompleteColor{TrueColor: "#fada5e", ANSI256: "191", ANSI: "11"}
 	ColorCyan   lipgloss.TerminalColor = lipgloss.CompleteColor{TrueColor: "#70C0BA", ANSI256: "37", ANSI: "14"}
 	GolorGray   lipgloss.TerminalColor = lipgloss.CompleteColor{TrueColor: "#808080", ANSI256: "244", ANSI: "7"}
