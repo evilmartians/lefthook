@@ -14,32 +14,12 @@ import (
 )
 
 var (
-	ColorRed lipgloss.TerminalColor = lipgloss.CompleteAdaptiveColor{
-		Dark:  lipgloss.CompleteColor{TrueColor: "#ff6347", ANSI256: "196", ANSI: "9"},
-		Light: lipgloss.CompleteColor{TrueColor: "#d70000", ANSI256: "160", ANSI: "1"},
-	}
-
-	ColorGreen lipgloss.TerminalColor = lipgloss.CompleteAdaptiveColor{
-		Dark:  lipgloss.CompleteColor{TrueColor: "#76ff7a", ANSI256: "155", ANSI: "10"},
-		Light: lipgloss.CompleteColor{TrueColor: "#afd700", ANSI256: "148", ANSI: "2"},
-	}
-
-	ColorYellow lipgloss.TerminalColor = lipgloss.CompleteAdaptiveColor{
-		Dark:  lipgloss.CompleteColor{TrueColor: "#fada5e", ANSI256: "191", ANSI: "11"},
-		Light: lipgloss.CompleteColor{TrueColor: "#ffaf00", ANSI256: "214", ANSI: "3"},
-	}
-
-	ColorCyan lipgloss.TerminalColor = lipgloss.CompleteAdaptiveColor{
-		Dark:  lipgloss.CompleteColor{TrueColor: "#70C0BA", ANSI256: "37", ANSI: "14"},
-		Light: lipgloss.CompleteColor{TrueColor: "#00af87", ANSI256: "36", ANSI: "6"},
-	}
-
-	GolorGray lipgloss.TerminalColor = lipgloss.CompleteAdaptiveColor{
-		Dark:  lipgloss.CompleteColor{TrueColor: "#808080", ANSI256: "244", ANSI: "7"},
-		Light: lipgloss.CompleteColor{TrueColor: "#4e4e4e", ANSI256: "239", ANSI: "8"},
-	}
-
-	colorBorder lipgloss.TerminalColor = lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#383838"}
+	ColorRed    lipgloss.TerminalColor = lipgloss.CompleteColor{TrueColor: "#ff6347", ANSI256: "196", ANSI: "9"}
+	ColorGreen  lipgloss.TerminalColor = lipgloss.CompleteColor{TrueColor: "#32cd32", ANSI256: "148", ANSI: "2"}
+	ColorYellow lipgloss.TerminalColor = lipgloss.CompleteColor{TrueColor: "#fada5e", ANSI256: "191", ANSI: "11"}
+	ColorCyan   lipgloss.TerminalColor = lipgloss.CompleteColor{TrueColor: "#70C0BA", ANSI256: "37", ANSI: "14"}
+	GolorGray   lipgloss.TerminalColor = lipgloss.CompleteColor{TrueColor: "#808080", ANSI256: "244", ANSI: "7"}
+	colorBorder lipgloss.TerminalColor = lipgloss.Color("#383838")
 
 	std = New()
 
