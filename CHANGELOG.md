@@ -2,6 +2,12 @@
 
 ## master (unreleased)
 
+## 1.6.3 (2024-02-27)
+
+- deps: Dependencies (27.02.2024) ([#648](https://github.com/evilmartians/lefthook/pull/648)) by @mrexox
+- chore: remove adaptive colors ([#647](https://github.com/evilmartians/lefthook/pull/647)) by @mrexox
+- docs: update request help url ([#641](https://github.com/evilmartians/lefthook/pull/641)) by @sbsrnt
+
 ## 1.6.2 (2024-02-26)
 
 - fix: respect roots in commands for npm packages ([#616](https://github.com/evilmartians/lefthook/pull/616)) by @mrexox

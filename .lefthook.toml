@@ -12,7 +12,8 @@ glob = "*.go"
 
 [pre-commit.commands.lychee]
 glob = "*.md"
-run = "lychee {staged_files}"
+exclude = "CHANGELOG\\.md"
+run = "lychee --max-concurrency 3 {staged_files}"
 
 [pre-commit.commands.typos]
 run = "typos --write-changes {staged_files}"
