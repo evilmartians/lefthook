@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ "$LEFTHOOK_VERBOSE" = "1" -o "$LEFTHOOK_VERBOSE" = "true" ]; then
+  set -x
+fi
+
 if [ "$LEFTHOOK" = "0" ]; then
   exit 0
 fi
