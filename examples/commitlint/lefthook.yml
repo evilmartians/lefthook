@@ -3,7 +3,10 @@ prepare-commit-msg:
   commands:
     commitzen:
       interactive: true
-      run: LEFTHOOK=0 yarn run cz
+      use_stdin: true
+      run: yarn run cz
+      env:
+        LEFTHOOK: 0
 
 # Use this to validate commit messages
 commit-msg:

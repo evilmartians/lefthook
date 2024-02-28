@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.6.4 (2024-02-28)
+
+- deps: update uniseg ([#650](https://github.com/evilmartians/lefthook/pull/650)) by @technicalpickles
+
 ## 1.6.3 (2024-02-27)
 
 - deps: Dependencies (27.02.2024) ([#648](https://github.com/evilmartians/lefthook/pull/648)) by @mrexox
