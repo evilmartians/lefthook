@@ -18,6 +18,7 @@ Then use git as usually, you don't need to reinstall lefthook when you change th
   - [`LEFTHOOK_EXCLUDE`](#lefthook_exclude)
   - [`LEFTHOOK_QUIET`](#lefthook_quiet)
   - [`LEFTHOOK_VERBOSE`](#lefthook_verbose)
+  - [`LEFTHOOK_PATH`](#lefthook_path)
 - [Features and tips](#features-and-tips)
   - [Disable lefthook in CI](#disable-lefthook-in-ci)
   - [Local config](#local-config)
@@ -191,6 +192,15 @@ SUMMARY: (done in 0.01 seconds)
 ### `LEFTHOOK_VERBOSE`
 
 Set `LEFTHOOK_VERBOSE=1` or `LEFTHOOK_VERBOSE=true` to enable verbose printing.
+
+### `LEFTHOOK_PATH`
+
+Set `LEFTHOOK_PATH` to a location where lefthook is installed to use that instead of trying to detect it on the path or your package manager.
+
+Useful for cases when:
+
+- lefthook is installed multiple ways, and you want to be explicit about which one is used (example: installed through homebrew, but also is in Gemfile but you are using a ruby version manager like rbenv that prepends it to the path)
+- debugging and/or developing lefthook
 
 ## Features and tips
 
