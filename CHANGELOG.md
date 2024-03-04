@@ -2,6 +2,13 @@
 
 ## master (unreleased)
 
+## 1.6.5 (2024-03-04)
+
+- fix: decrease max cmd length for windows ([#666](https://github.com/evilmartians/lefthook/pull/666)) by @mrexox
+- deps: Dependencies 04.03.2024 ([#664](https://github.com/evilmartians/lefthook/pull/664)) by @mrexox
+- chore: fix Makefile by @mrexox
+- docs: fix redundant option by @mrexox
+
 ## 1.6.4 (2024-02-28)
 
 - deps: update uniseg ([#650](https://github.com/evilmartians/lefthook/pull/650)) by @technicalpickles
