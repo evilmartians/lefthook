@@ -8,7 +8,7 @@ require (
 	github.com/charmbracelet/lipgloss v0.9.1
 	github.com/creack/pty v1.1.18
 	github.com/gobwas/glob v0.2.3
-	github.com/google/go-cmp v0.5.9
+	github.com/google/go-cmp v0.6.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rogpeppe/go-internal v1.11.0
 	github.com/spf13/afero v1.11.0
