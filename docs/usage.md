@@ -18,7 +18,7 @@ Then use git as usually, you don't need to reinstall lefthook when you change th
   - [`LEFTHOOK_EXCLUDE`](#lefthook_exclude)
   - [`LEFTHOOK_QUIET`](#lefthook_quiet)
   - [`LEFTHOOK_VERBOSE`](#lefthook_verbose)
-  - [`LEFTHOOK_PATH`](#lefthook_path)
+  - [`LEFTHOOK_BIN`](#lefthook_bin)
 - [Features and tips](#features-and-tips)
   - [Disable lefthook in CI](#disable-lefthook-in-ci)
   - [Local config](#local-config)
@@ -193,9 +193,9 @@ SUMMARY: (done in 0.01 seconds)
 
 Set `LEFTHOOK_VERBOSE=1` or `LEFTHOOK_VERBOSE=true` to enable verbose printing.
 
-### `LEFTHOOK_PATH`
+### `LEFTHOOK_BIN`
 
-Set `LEFTHOOK_PATH` to a location where lefthook is installed to use that instead of trying to detect it on the path or your package manager.
+Set `LEFTHOOK_BIN` to a location where lefthook is installed to use that instead of trying to detect from the it the PATH or from a package manager.
 
 Useful for cases when:
 

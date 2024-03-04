@@ -19,9 +19,9 @@ call_lefthook()
   osArch=$(uname | tr '[:upper:]' '[:lower:]')
   cpuArch=$(uname -m | sed 's/aarch64/arm64/')
 
-  if test -n "$LEFTHOOK_PATH"
+  if test -n "$LEFTHOOK_BIN"
   then
-    "$LEFTHOOK_PATH" "$@"
+    "$LEFTHOOK_BIN" "$@"
   elif lefthook{{.Extension}} -h >/dev/null 2>&1
   then
     lefthook{{.Extension}} "$@"
