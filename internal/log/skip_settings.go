@@ -21,7 +21,7 @@ const (
 type SkipSettings int16
 
 // Deprecated: Use NewSettings instead.
-func NewSkipSettings() SettingsInterface {
+func NewSkipSettings() Settings {
 	var s SkipSettings
 	return &s
 }

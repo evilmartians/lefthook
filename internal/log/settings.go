@@ -17,14 +17,27 @@ const (
 	enableAll = ^0 // Set all bits as 1
 )
 
-type Settings int16
+type Settings interface {
+	ApplySettings(tags string, skipOutput interface{})
+	SkipSuccess() bool
+	SkipFailure() bool
+	SkipSummary() bool
+	SkipMeta() bool
+	SkipExecution() bool
+	SkipExecutionOutput() bool
+	SkipExecutionInfo() bool
+	SkipSkips() bool
+	SkipEmptySummary() bool
+}
 
-func NewSettings() SettingsInterface {
-	var s Settings
+type OutputSettings int16
+
+func NewSettings() Settings {
+	var s OutputSettings
 	return &s
 }
 
-func (s *Settings) ApplySettings(tags string, output interface{}) {
+func (s *OutputSettings) ApplySettings(tags string, output interface{}) {
 	if tags == "" && (output == nil || output == "") {
 		s.enableAll(true)
 		return
@@ -50,7 +63,7 @@ func (s *Settings) ApplySettings(tags string, output interface{}) {
 	}
 }
 
-func (s *Settings) applySetting(setting string) {
+func (s *OutputSettings) applySetting(setting string) {
 	switch setting {
 	case "meta":
 		*s |= meta
@@ -73,7 +86,7 @@ func (s *Settings) applySetting(setting string) {
 	}
 }
 
-func (s *Settings) enableAll(val bool) {
+func (s *OutputSettings) enableAll(val bool) {
 	if val {
 		*s = enableAll // Enable all params
 	} else {
@@ -82,43 +95,43 @@ func (s *Settings) enableAll(val bool) {
 }
 
 // Checks the state of params.
-func (s Settings) isEnable(option int16) bool {
+func (s OutputSettings) isEnable(option int16) bool {
 	return int16(s)&option != 0
 }
 
 // Using `SkipX` to maintain backward compatibility.
-func (s Settings) SkipSuccess() bool {
+func (s OutputSettings) SkipSuccess() bool {
 	return !s.isEnable(success)
 }
 
-func (s Settings) SkipFailure() bool {
+func (s OutputSettings) SkipFailure() bool {
 	return !s.isEnable(failure)
 }
 
-func (s Settings) SkipSummary() bool {
+func (s OutputSettings) SkipSummary() bool {
 	return !s.isEnable(summary)
 }
 
-func (s Settings) SkipMeta() bool {
+func (s OutputSettings) SkipMeta() bool {
 	return !s.isEnable(meta)
 }
 
-func (s Settings) SkipExecution() bool {
+func (s OutputSettings) SkipExecution() bool {
 	return !s.isEnable(execution)
 }
 
-func (s Settings) SkipExecutionOutput() bool {
+func (s OutputSettings) SkipExecutionOutput() bool {
 	return !s.isEnable(executionOutput)
 }
 
-func (s Settings) SkipExecutionInfo() bool {
+func (s OutputSettings) SkipExecutionInfo() bool {
 	return !s.isEnable(executionInfo)
 }
 
-func (s Settings) SkipSkips() bool {
+func (s OutputSettings) SkipSkips() bool {
 	return !s.isEnable(skips)
 }
 
-func (s Settings) SkipEmptySummary() bool {
+func (s OutputSettings) SkipEmptySummary() bool {
 	return !s.isEnable(emptySummary)
 }

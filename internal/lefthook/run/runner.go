@@ -43,7 +43,7 @@ type Options struct {
 	HookName        string
 	GitArgs         []string
 	ResultChan      chan Result
-	SkipSettings    log.SettingsInterface
+	SkipSettings    log.Settings
 	DisableTTY      bool
 	Force           bool
 	Files           []string

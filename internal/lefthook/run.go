@@ -76,17 +76,19 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		log.SetLevel(log.WarnLevel)
 	}
 
-	newTags := os.Getenv(envOutput)
-	tags := os.Getenv(envSkipOutput)
+	outputLogTags := os.Getenv(envOutput)
+	outputSkipTags := os.Getenv(envSkipOutput)
 
-	var logSettings log.SettingsInterface
+	var logSettings log.Settings
 
-	if tags == "" && cfg.SkipOutput == nil {
+	if outputSkipTags == "" && cfg.SkipOutput == nil {
 		logSettings = log.NewSettings()
-		logSettings.ApplySettings(newTags, cfg.Output)
+		logSettings.ApplySettings(outputLogTags, cfg.Output)
 	} else {
+		log.Warn("skip_output is deprecated, please use output option")
+
 		logSettings = log.NewSkipSettings() //nolint:staticcheck //SA1019: for temporary backward compatibility
-		logSettings.ApplySettings(tags, cfg.SkipOutput)
+		logSettings.ApplySettings(outputSkipTags, cfg.SkipOutput)
 	}
 
 	if !logSettings.SkipMeta() {
@@ -201,7 +203,7 @@ Run 'lefthook install' manually.`,
 func printSummary(
 	duration time.Duration,
 	results []run.Result,
-	logSettings log.SettingsInterface,
+	logSettings log.Settings,
 ) {
 	summaryPrint := log.Separate
 

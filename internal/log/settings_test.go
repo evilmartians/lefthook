@@ -113,7 +113,7 @@ func TestSetting(t *testing.T) {
 		},
 	} { //nolint:dupl // In next versions the `skip_settings_test` will be removed
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			var settings Settings
+			var settings OutputSettings
 
 			(&settings).ApplySettings(tt.tags, tt.settings)
 
