@@ -54,12 +54,12 @@ call_lefthook()
   elif pnpm lefthook -h >/dev/null 2>&1
   then
     pnpm lefthook "$@"
-  elif command -v npx >/dev/null 2>&1
-  then
-    npx lefthook "$@"
   elif swift package plugin lefthook >/dev/null 2>&1
   then
     swift package --disable-sandbox plugin lefthook "$@"
+  elif command -v npx >/dev/null 2>&1
+  then
+    npx lefthook "$@"
   else
     echo "Can't find lefthook in PATH"
     {{- if .AssertLefthookInstalled}}
