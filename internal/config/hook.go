@@ -44,7 +44,7 @@ func (h *Hook) Validate() error {
 
 func (h *Hook) DoSkip(gitState git.State) bool {
 	skipChecker := NewSkipChecker(nil)
-	return skipChecker.DoSkip(gitState, h.Skip, h.Only)
+	return skipChecker.Check(gitState, h.Skip, h.Only)
 }
 
 func unmarshalHooks(base, extra *viper.Viper) (*Hook, error) {

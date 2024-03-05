@@ -139,7 +139,7 @@ func TestDoSkip(t *testing.T) {
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			if skipChecker.DoSkip(tt.state, tt.skip, tt.only) != tt.skipped {
+			if skipChecker.Check(tt.state, tt.skip, tt.only) != tt.skipped {
 				t.Errorf("Expected: %v, Was %v", tt.skipped, !tt.skipped)
 			}
 		})

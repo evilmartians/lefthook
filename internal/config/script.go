@@ -24,8 +24,8 @@ type Script struct {
 }
 
 func (s Script) DoSkip(gitState git.State) bool {
-	skipChecker := NewSkipChecker(nil)
-	return skipChecker.DoSkip(gitState, s.Skip, s.Only)
+	skipChecker := NewSkipChecker(NewOsExec())
+	return skipChecker.Check(gitState, s.Skip, s.Only)
 }
 
 type scriptRunnerReplace struct {

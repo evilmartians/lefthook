@@ -19,7 +19,7 @@ func NewSkipChecker(executor Exec) *SkipChecker {
 	return &SkipChecker{Executor: executor}
 }
 
-func (sc *SkipChecker) DoSkip(gitState git.State, skip interface{}, only interface{}) bool {
+func (sc *SkipChecker) Check(gitState git.State, skip interface{}, only interface{}) bool {
 	if skip != nil {
 		if sc.matches(gitState, skip) {
 			return true
@@ -87,7 +87,9 @@ func (sc *SkipChecker) matchesCommands(typedState map[string]interface{}) bool {
 		return false
 	}
 
-	log.Debug("[lefthook] skip/only cmd: ", commandLine)
+	result := sc.Executor.Cmd(commandLine)
 
-	return sc.Executor.Cmd(commandLine)
+	log.Debugf("[lefthook] skip/only cmd: %s, result: %t", commandLine, result)
+
+	return result
 }
