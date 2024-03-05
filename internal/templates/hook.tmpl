@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ "$LEFTHOOK_VERBOSE" = "1" -o "$LEFTHOOK_VERBOSE" = "true" ]; then
+  set -x
+fi
+
 if [ "$LEFTHOOK" = "0" ]; then
   exit 0
 fi
@@ -15,7 +19,10 @@ call_lefthook()
   osArch=$(uname | tr '[:upper:]' '[:lower:]')
   cpuArch=$(uname -m | sed 's/aarch64/arm64/')
 
-  if lefthook{{.Extension}} -h >/dev/null 2>&1
+  if test -n "$LEFTHOOK_BIN"
+  then
+    "$LEFTHOOK_BIN" "$@"
+  elif lefthook{{.Extension}} -h >/dev/null 2>&1
   then
     lefthook{{.Extension}} "$@"
   {{if .Extension -}}
