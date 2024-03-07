@@ -1,0 +1,26 @@
+exec git init
+exec git add -A
+exec lefthook run skip
+! stdout 'Ha-ha!'
+exec lefthook run no-skip
+stdout 'Ha-ha!'
+
+-- lefthook.yml --
+skip_output:
+  - skips
+  - meta
+  - summary
+  - execution_info
+skip:
+  skip:
+    - run: test 1 -eq 1
+  commands:
+    echo:
+      run: echo 'Ha-ha!'
+
+no-skip:
+  skip:
+    - run: "[ 1 -eq 0 ]"
+  commands:
+    echo:
+      run: echo 'Ha-ha!'
