@@ -91,7 +91,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		logSettings.ApplySettings(outputSkipTags, cfg.SkipOutput)
 	}
 
-	if !logSettings.SkipMeta() {
+	if logSettings.LogMeta() {
 		log.Box(
 			log.Cyan("🥊 lefthook ")+log.Gray(fmt.Sprintf("v%s", version.Version(false))),
 			log.Gray("hook: ")+log.Bold(hookName),
@@ -187,7 +187,7 @@ Run 'lefthook install' manually.`,
 		return errors.New("Interrupted")
 	}
 
-	if !logSettings.SkipSummary() {
+	if logSettings.LogSummary() {
 		printSummary(time.Since(startTime), results, logSettings)
 	}
 
@@ -207,12 +207,12 @@ func printSummary(
 ) {
 	summaryPrint := log.Separate
 
-	if logSettings.SkipExecution() || (logSettings.SkipExecutionInfo() && logSettings.SkipExecutionOutput()) {
+	if !logSettings.LogExecution() || !(logSettings.LogExecutionInfo() && logSettings.LogExecutionOutput()) {
 		summaryPrint = func(s string) { log.Info(s) }
 	}
 
 	if len(results) == 0 {
-		if !logSettings.SkipEmptySummary() {
+		if logSettings.LogEmptySummary() {
 			summaryPrint(
 				fmt.Sprintf(
 					"%s %s %s",
@@ -229,7 +229,7 @@ func printSummary(
 		log.Cyan("summary: ") + log.Gray(fmt.Sprintf("(done in %.2f seconds)", duration.Seconds())),
 	)
 
-	if !logSettings.SkipSuccess() {
+	if logSettings.LogSuccess() {
 		for _, result := range results {
 			if result.Status != run.StatusOk {
 				continue
@@ -239,7 +239,7 @@ func printSummary(
 		}
 	}
 
-	if !logSettings.SkipFailure() {
+	if logSettings.LogFailure() {
 		for _, result := range results {
 			if result.Status != run.StatusErr {
 				continue

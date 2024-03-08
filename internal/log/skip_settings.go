@@ -74,40 +74,40 @@ func (s *SkipSettings) skipAll(val bool) {
 	}
 }
 
-func (s SkipSettings) SkipSuccess() bool {
-	return s.doSkip(skipSuccess)
+func (s SkipSettings) LogSuccess() bool {
+	return !s.doSkip(skipSuccess)
 }
 
-func (s SkipSettings) SkipFailure() bool {
-	return s.doSkip(skipFailure)
+func (s SkipSettings) LogFailure() bool {
+	return !s.doSkip(skipFailure)
 }
 
-func (s SkipSettings) SkipSummary() bool {
-	return s.doSkip(skipSummary)
+func (s SkipSettings) LogSummary() bool {
+	return !s.doSkip(skipSummary)
 }
 
-func (s SkipSettings) SkipMeta() bool {
-	return s.doSkip(skipMeta)
+func (s SkipSettings) LogMeta() bool {
+	return !s.doSkip(skipMeta)
 }
 
-func (s SkipSettings) SkipExecution() bool {
-	return s.doSkip(skipExecution)
+func (s SkipSettings) LogExecution() bool {
+	return !s.doSkip(skipExecution)
 }
 
-func (s SkipSettings) SkipExecutionOutput() bool {
-	return s.doSkip(skipExecutionOutput)
+func (s SkipSettings) LogExecutionOutput() bool {
+	return !s.doSkip(skipExecutionOutput)
 }
 
-func (s SkipSettings) SkipExecutionInfo() bool {
-	return s.doSkip(skipExecutionInfo)
+func (s SkipSettings) LogExecutionInfo() bool {
+	return !s.doSkip(skipExecutionInfo)
 }
 
-func (s SkipSettings) SkipSkips() bool {
-	return s.doSkip(skipSkips)
+func (s SkipSettings) LogSkips() bool {
+	return !s.doSkip(skipSkips)
 }
 
-func (s SkipSettings) SkipEmptySummary() bool {
-	return s.doSkip(skipEmptySummary)
+func (s SkipSettings) LogEmptySummary() bool {
+	return !s.doSkip(skipEmptySummary)
 }
 
 func (s SkipSettings) doSkip(option int16) bool {

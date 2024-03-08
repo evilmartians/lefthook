@@ -19,15 +19,15 @@ const (
 
 type Settings interface {
 	ApplySettings(tags string, skipOutput interface{})
-	SkipSuccess() bool
-	SkipFailure() bool
-	SkipSummary() bool
-	SkipMeta() bool
-	SkipExecution() bool
-	SkipExecutionOutput() bool
-	SkipExecutionInfo() bool
-	SkipSkips() bool
-	SkipEmptySummary() bool
+	LogSuccess() bool
+	LogFailure() bool
+	LogSummary() bool
+	LogMeta() bool
+	LogExecution() bool
+	LogExecutionOutput() bool
+	LogExecutionInfo() bool
+	LogSkips() bool
+	LogEmptySummary() bool
 }
 
 type OutputSettings int16
@@ -49,6 +49,10 @@ func (s *OutputSettings) ApplySettings(tags string, output interface{}) {
 	}
 
 	if options, ok := output.([]interface{}); ok {
+		if len(options) == 0 {
+			s.enableAll(true)
+			return
+		}
 		for _, option := range options {
 			if optStr, ok := option.(string); ok {
 				s.applySetting(optStr)
@@ -90,7 +94,7 @@ func (s *OutputSettings) enableAll(val bool) {
 	if val {
 		*s = enableAll // Enable all params
 	} else {
-		*s |= skipFailure // Disable all params
+		*s |= failure // Disable all params
 	}
 }
 
@@ -99,39 +103,38 @@ func (s OutputSettings) isEnable(option int16) bool {
 	return int16(s)&option != 0
 }
 
-// Using `SkipX` to maintain backward compatibility.
-func (s OutputSettings) SkipSuccess() bool {
-	return !s.isEnable(success)
+func (s OutputSettings) LogSuccess() bool {
+	return s.isEnable(success)
 }
 
-func (s OutputSettings) SkipFailure() bool {
-	return !s.isEnable(failure)
+func (s OutputSettings) LogFailure() bool {
+	return s.isEnable(failure)
 }
 
-func (s OutputSettings) SkipSummary() bool {
-	return !s.isEnable(summary)
+func (s OutputSettings) LogSummary() bool {
+	return s.isEnable(summary)
 }
 
-func (s OutputSettings) SkipMeta() bool {
-	return !s.isEnable(meta)
+func (s OutputSettings) LogMeta() bool {
+	return s.isEnable(meta)
 }
 
-func (s OutputSettings) SkipExecution() bool {
-	return !s.isEnable(execution)
+func (s OutputSettings) LogExecution() bool {
+	return s.isEnable(execution)
 }
 
-func (s OutputSettings) SkipExecutionOutput() bool {
-	return !s.isEnable(executionOutput)
+func (s OutputSettings) LogExecutionOutput() bool {
+	return s.isEnable(executionOutput)
 }
 
-func (s OutputSettings) SkipExecutionInfo() bool {
-	return !s.isEnable(executionInfo)
+func (s OutputSettings) LogExecutionInfo() bool {
+	return s.isEnable(executionInfo)
 }
 
-func (s OutputSettings) SkipSkips() bool {
-	return !s.isEnable(skips)
+func (s OutputSettings) LogSkips() bool {
+	return s.isEnable(skips)
 }
 
-func (s OutputSettings) SkipEmptySummary() bool {
-	return !s.isEnable(emptySummary)
+func (s OutputSettings) LogEmptySummary() bool {
+	return s.isEnable(emptySummary)
 }
