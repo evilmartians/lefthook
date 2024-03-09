@@ -1,4 +1,9 @@
 linters-settings:
+  gocritic:
+    disabled-checks:
+      - hugeParam
+    enabled-tags:
+      - performance
   govet:
     check-shadowing: true
   misspell:
