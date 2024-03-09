@@ -1,7 +1,7 @@
 package log
 
 import (
-	"fmt"
+	"strconv"
 	"testing"
 )
 
@@ -85,7 +85,7 @@ func TestSkipSetting(t *testing.T) {
 			},
 		},
 	} {
-		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var settings SkipSettings
 
 			(&settings).ApplySettings(tt.tags, tt.settings)

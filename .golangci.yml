@@ -15,6 +15,12 @@ linters-settings:
       - name: unused-parameter
         disabled: true
 
+issues:
+  exclude:
+    # https://github.com/catenacyber/perfsprint/issues/21
+    # https://github.com/catenacyber/perfsprint/issues/23
+    - "^fmt\\.Sprintf can be replaced with string (addi|concatena)tion$"
+
 linters:
   disable-all: true
   enable:
@@ -57,6 +63,7 @@ linters:
     - nestif
     - noctx
     - nolintlint
+    - perfsprint
     - predeclared
     - reassign
     - revive
