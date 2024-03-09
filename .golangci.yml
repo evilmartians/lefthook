@@ -52,14 +52,19 @@ linters:
     - govet
     - ineffassign
     - makezero
+    - mirror
     - misspell
     - nestif
     - noctx
     - nolintlint
+    - predeclared
+    - reassign
     - revive
     - staticcheck
+    - tenv
     - typecheck
     - unconvert
     - unparam
     - unused
+    - usestdlibvars
     - whitespace
