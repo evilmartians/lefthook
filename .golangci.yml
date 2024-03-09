@@ -51,6 +51,7 @@ linters:
     - gosimple
     - govet
     - ineffassign
+    - makezero
     - misspell
     - nestif
     - noctx

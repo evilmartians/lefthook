@@ -83,7 +83,7 @@ func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) {
 		defer log.StopSpinner()
 	}
 
-	scriptDirs := make([]string, len(sourceDirs))
+	scriptDirs := make([]string, 0, len(sourceDirs))
 	for _, sourceDir := range sourceDirs {
 		scriptDirs = append(scriptDirs, filepath.Join(
 			sourceDir, r.HookName,
