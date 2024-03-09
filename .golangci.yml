@@ -38,7 +38,6 @@ linters:
     - gocyclo
     - godot
     - godox
-    - gofmt
     - gofumpt
     - goheader
     - goimports
