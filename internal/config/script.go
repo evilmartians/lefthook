@@ -10,17 +10,17 @@ import (
 )
 
 type Script struct {
-	Runner string `mapstructure:"runner" yaml:"runner" json:"runner" toml:"runner"`
+	Runner string `json:"runner" mapstructure:"runner" toml:"runner" yaml:"runner"`
 
-	Skip interface{}       `mapstructure:"skip" yaml:",omitempty" json:"skip,omitempty" toml:"skip,omitempty,inline"`
-	Only interface{}       `mapstructure:"only" yaml:",omitempty" json:"only,omitempty" toml:"only,omitempty,inline"`
-	Tags []string          `mapstructure:"tags" yaml:",omitempty" json:"tags,omitempty" toml:"tags,omitempty"`
-	Env  map[string]string `mapstructure:"env"  yaml:",omitempty" json:"env,omitempty"  toml:"env,omitempty"`
+	Skip interface{}       `json:"skip,omitempty" mapstructure:"skip" toml:"skip,omitempty,inline" yaml:",omitempty"`
+	Only interface{}       `json:"only,omitempty" mapstructure:"only" toml:"only,omitempty,inline" yaml:",omitempty"`
+	Tags []string          `json:"tags,omitempty" mapstructure:"tags" toml:"tags,omitempty"        yaml:",omitempty"`
+	Env  map[string]string `json:"env,omitempty"  mapstructure:"env"  toml:"env,omitempty"         yaml:",omitempty"`
 
-	FailText    string `mapstructure:"fail_text"   yaml:"fail_text,omitempty"   json:"fail_text,omitempty"   toml:"fail_text,omitempty"`
-	Interactive bool   `mapstructure:"interactive" yaml:",omitempty"            json:"interactive,omitempty" toml:"interactive,omitempty"`
-	UseStdin    bool   `mapstructure:"use_stdin"   yaml:",omitempty"            json:"use_stdin,omitempty"   toml:"use_stdin,omitempty"`
-	StageFixed  bool   `mapstructure:"stage_fixed" yaml:"stage_fixed,omitempty" json:"stage_fixed,omitempty" toml:"stage_fixed,omitempty"`
+	FailText    string `json:"fail_text,omitempty"   mapstructure:"fail_text"   toml:"fail_text,omitempty"   yaml:"fail_text,omitempty"`
+	Interactive bool   `json:"interactive,omitempty" mapstructure:"interactive" toml:"interactive,omitempty" yaml:",omitempty"`
+	UseStdin    bool   `json:"use_stdin,omitempty"   mapstructure:"use_stdin"   toml:"use_stdin,omitempty"   yaml:",omitempty"`
+	StageFixed  bool   `json:"stage_fixed,omitempty" mapstructure:"stage_fixed" toml:"stage_fixed,omitempty" yaml:"stage_fixed,omitempty"`
 }
 
 func (s Script) DoSkip(gitState git.State) bool {

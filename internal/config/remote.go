@@ -1,11 +1,11 @@
 package config
 
 type Remote struct {
-	GitURL string `mapstructure:"git_url"           yaml:"git_url"    json:"git_url,omitempty" toml:"git_url"`
-	Ref    string `mapstructure:"ref,omitempty"     yaml:",omitempty" json:"ref,omitempty"     toml:"ref,omitempty"`
+	GitURL string `json:"git_url,omitempty" mapstructure:"git_url"       toml:"git_url"       yaml:"git_url"`
+	Ref    string `json:"ref,omitempty"     mapstructure:"ref,omitempty" toml:"ref,omitempty" yaml:",omitempty"`
 	// Deprecated
-	Config  string   `mapstructure:"config,omitempty"  yaml:",omitempty" json:"config,omitempty"  toml:"config,omitempty"`
-	Configs []string `mapstructure:"configs,omitempty" yaml:",omitempty" json:"configs,omitempty" toml:"configs,omitempty"`
+	Config  string   `json:"config,omitempty"  mapstructure:"config,omitempty"  toml:"config,omitempty"  yaml:",omitempty"`
+	Configs []string `json:"configs,omitempty" mapstructure:"configs,omitempty" toml:"configs,omitempty" yaml:",omitempty"`
 }
 
 func (r *Remote) Configured() bool {
