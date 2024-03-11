@@ -2,7 +2,6 @@ package config
 
 import (
 	"os/exec"
-	"strings"
 )
 
 type Exec interface {
@@ -18,16 +17,11 @@ func NewOsExec() Exec {
 
 // Cmd runs plain string command. It checks only exit code and returns bool value.
 func (o *osExec) Cmd(commandLine string) bool {
-	parts := strings.Fields(commandLine)
-
-	if len(parts) == 0 {
+	if commandLine == "" {
 		return false
 	}
 
-	cmdName := parts[0]
-	cmdArgs := parts[1:]
-
-	cmd := exec.Command(cmdName, cmdArgs...)
+	cmd := exec.Command("sh", "-c", commandLine)
 	err := cmd.Run()
 
 	return err == nil

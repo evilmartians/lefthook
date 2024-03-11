@@ -40,7 +40,7 @@ func (c Command) Validate() error {
 }
 
 func (c Command) DoSkip(gitState git.State) bool {
-	skipChecker := NewSkipChecker(nil)
+	skipChecker := NewSkipChecker(NewOsExec())
 	return skipChecker.Check(gitState, c.Skip, c.Only)
 }
 
