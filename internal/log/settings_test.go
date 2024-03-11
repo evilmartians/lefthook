@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestSkipSetting(t *testing.T) {
+func TestSetting(t *testing.T) {
 	for i, tt := range [...]struct {
 		tags     string
 		settings interface{}
@@ -30,30 +30,15 @@ func TestSkipSetting(t *testing.T) {
 			tags:     "",
 			settings: false,
 			results: map[string]bool{
-				"meta":           true,
-				"summary":        true,
-				"success":        true,
-				"failure":        true,
-				"skips":          true,
-				"execution":      true,
-				"execution_out":  true,
-				"execution_info": true,
-				"empty_summary":  true,
+				"failure": true,
 			},
 		},
 		{
 			tags:     "",
 			settings: []interface{}{"failure", "execution"},
 			results: map[string]bool{
-				"meta":           true,
-				"summary":        true,
-				"success":        true,
-				"failure":        false,
-				"skips":          true,
-				"execution":      false,
-				"execution_out":  true,
-				"execution_info": true,
-				"empty_summary":  true,
+				"failure":   true,
+				"execution": true,
 			},
 		},
 		{
@@ -69,28 +54,47 @@ func TestSkipSetting(t *testing.T) {
 				"execution_info",
 				"empty_summary",
 			},
-			results: map[string]bool{},
+			results: map[string]bool{
+				"meta":           true,
+				"summary":        true,
+				"success":        true,
+				"failure":        true,
+				"skips":          true,
+				"execution":      true,
+				"execution_out":  true,
+				"execution_info": true,
+				"empty_summary":  true,
+			},
 		},
 		{
 			tags:     "",
 			settings: true,
 			results: map[string]bool{
-				"failure": true,
+				"meta":           true,
+				"summary":        true,
+				"success":        true,
+				"failure":        true,
+				"skips":          true,
+				"execution":      true,
+				"execution_out":  true,
+				"execution_info": true,
+				"empty_summary":  true,
 			},
 		},
 		{
 			tags:     "meta,summary,success,skips,empty_summary",
 			settings: nil,
 			results: map[string]bool{
-				"failure":        true,
-				"execution":      true,
-				"execution_out":  true,
-				"execution_info": true,
+				"meta":          true,
+				"summary":       true,
+				"success":       true,
+				"skips":         true,
+				"empty_summary": true,
 			},
 		},
 	} { //nolint:dupl // In next versions the `skip_settings_test` will be removed
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			var settings SkipSettings
+			var settings OutputSettings
 
 			(&settings).ApplySettings(tt.tags, tt.settings)
 
