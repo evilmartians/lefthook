@@ -43,7 +43,7 @@ type Options struct {
 	HookName        string
 	GitArgs         []string
 	ResultChan      chan Result
-	SkipSettings    log.SkipSettings
+	SkipSettings    log.Settings
 	DisableTTY      bool
 	Force           bool
 	Files           []string
@@ -426,14 +426,14 @@ func (r *Runner) run(ctx context.Context, opts exec.Options, follow bool) bool {
 	log.SetName(opts.Name)
 	defer log.UnsetName(opts.Name)
 
-	if (follow || opts.Interactive) && !r.SkipSettings.SkipExecution() {
+	if (follow || opts.Interactive) && r.SkipSettings.LogExecution() {
 		r.logExecute(opts.Name, nil, nil)
 
 		var out io.Writer
-		if r.SkipSettings.SkipExecutionOutput() {
-			out = io.Discard
-		} else {
+		if r.SkipSettings.LogExecutionOutput() {
 			out = os.Stdout
+		} else {
+			out = io.Discard
 		}
 
 		err := r.executor.Execute(ctx, opts, out)
@@ -478,7 +478,7 @@ func intersect(a, b []string) bool {
 }
 
 func (r *Runner) logSkip(name, reason string) {
-	if r.SkipSettings.SkipSkips() {
+	if !r.SkipSettings.LogSkips() {
 		return
 	}
 
@@ -493,14 +493,14 @@ func (r *Runner) logSkip(name, reason string) {
 }
 
 func (r *Runner) logExecute(name string, err error, out io.Reader) {
-	if err == nil && r.SkipSettings.SkipExecution() {
+	if err == nil && !r.SkipSettings.LogExecution() {
 		return
 	}
 
 	var execLog string
 	var color lipgloss.TerminalColor
 	switch {
-	case r.SkipSettings.SkipExecutionInfo():
+	case !r.SkipSettings.LogExecutionInfo():
 		execLog = ""
 	case err != nil:
 		execLog = log.Red(fmt.Sprintf("%s ❯ ", name))
@@ -518,7 +518,7 @@ func (r *Runner) logExecute(name string, err error, out io.Reader) {
 		log.Info()
 	}
 
-	if err == nil && r.SkipSettings.SkipExecutionOutput() {
+	if err == nil && !r.SkipSettings.LogExecutionOutput() {
 		return
 	}
 

@@ -11,5 +11,5 @@ contact_links:
     about: Ask questions and discuss with other `lefthook` users or maintainers.
 
   - name: 🙏 Request help
-    url: https://github.com/remirror/remirror/discussions/new
+    url: https://github.com/evilmartians/lefthook/discussions/new
     about: Ask the `lefthook` community for help.

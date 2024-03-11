@@ -20,6 +20,7 @@ type Config struct {
 	SourceDirLocal          string      `mapstructure:"source_dir_local"`
 	Rc                      string      `mapstructure:"rc,omitempty"`
 	SkipOutput              interface{} `mapstructure:"skip_output,omitempty"`
+	Output                  interface{} `mapstructure:"output,omitempty"`
 	Extends                 []string    `mapstructure:"extends,omitempty"`
 	NoTTY                   bool        `mapstructure:"no_tty,omitempty"`
 	AssertLefthookInstalled bool        `mapstructure:"assert_lefthook_installed,omitempty"`

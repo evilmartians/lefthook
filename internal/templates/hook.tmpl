@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ "$LEFTHOOK_VERBOSE" = "1" -o "$LEFTHOOK_VERBOSE" = "true" ]; then
+  set -x
+fi
+
 if [ "$LEFTHOOK" = "0" ]; then
   exit 0
 fi
@@ -15,7 +19,10 @@ call_lefthook()
   osArch=$(uname | tr '[:upper:]' '[:lower:]')
   cpuArch=$(uname -m | sed 's/aarch64/arm64/')
 
-  if lefthook{{.Extension}} -h >/dev/null 2>&1
+  if test -n "$LEFTHOOK_BIN"
+  then
+    "$LEFTHOOK_BIN" "$@"
+  elif lefthook{{.Extension}} -h >/dev/null 2>&1
   then
     lefthook{{.Extension}} "$@"
   {{if .Extension -}}
@@ -33,6 +40,18 @@ call_lefthook()
   elif test -f "$dir/node_modules/@evilmartians/lefthook-installer/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}"
   then
     "$dir/node_modules/@evilmartians/lefthook-installer/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}" "$@"
+  {{ $extension := .Extension }}
+  {{- range .Roots -}}
+  elif test -f "$dir/{{.}}/node_modules/lefthook/bin/index.js"
+  then
+    "$dir/{{.}}/node_modules/lefthook/bin/index.js" "$@"
+  elif test -f "$dir/{{.}}/node_modules/@evilmartians/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{$extension}}"
+  then
+    "$dir/{{.}}/node_modules/@evilmartians/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{$extension}}" "$@"
+  elif test -f "$dir/{{.}}/node_modules/@evilmartians/lefthook-installer/bin/lefthook_${osArch}_${cpuArch}/lefthook{{$extension}}"
+  then
+    "$dir/{{.}}/node_modules/@evilmartians/lefthook-installer/bin/lefthook_${osArch}_${cpuArch}/lefthook{{$extension}}" "$@"
+  {{end}}
   elif bundle exec lefthook -h >/dev/null 2>&1
   then
     bundle exec lefthook "$@"
@@ -42,12 +61,12 @@ call_lefthook()
   elif pnpm lefthook -h >/dev/null 2>&1
   then
     pnpm lefthook "$@"
-  elif command -v npx >/dev/null 2>&1
-  then
-    npx lefthook "$@"
   elif swift package plugin lefthook >/dev/null 2>&1
   then
     swift package --disable-sandbox plugin lefthook "$@"
+  elif command -v npx >/dev/null 2>&1
+  then
+    npx lefthook "$@"
   else
     echo "Can't find lefthook in PATH"
     {{- if .AssertLefthookInstalled}}

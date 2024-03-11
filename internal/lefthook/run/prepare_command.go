@@ -30,7 +30,7 @@ const (
 	// https://support.microsoft.com/en-us/help/830473/command-prompt-cmd-exe-command-line-string-limitation
 	// https://unix.stackexchange.com/a/120652
 	maxCommandLengthDarwin  = 260000 // 262144
-	maxCommandLengthWindows = 8000   // 8191
+	maxCommandLengthWindows = 7000   // 8191, but see issues#655
 	maxCommandLengthLinux   = 130000 // 131072
 )
 

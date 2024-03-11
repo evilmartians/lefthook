@@ -16,6 +16,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/lefthook/run/exec"
+	"github.com/evilmartians/lefthook/internal/log"
 )
 
 type TestExecutor struct{}
@@ -749,12 +750,13 @@ func TestRunAll(t *testing.T) {
 		executor := TestExecutor{}
 		runner := &Runner{
 			Options: Options{
-				Repo:       repo,
-				Hook:       tt.hook,
-				HookName:   tt.hookName,
-				GitArgs:    tt.args,
-				ResultChan: resultChan,
-				Force:      tt.force,
+				Repo:         repo,
+				Hook:         tt.hook,
+				HookName:     tt.hookName,
+				SkipSettings: log.NewSettings(),
+				GitArgs:      tt.args,
+				ResultChan:   resultChan,
+				Force:        tt.force,
 			},
 			executor: executor,
 		}

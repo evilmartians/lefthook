@@ -2,6 +2,31 @@
 
 ## master (unreleased)
 
+## 1.6.5 (2024-03-04)
+
+- fix: decrease max cmd length for windows ([#666](https://github.com/evilmartians/lefthook/pull/666)) by @mrexox
+- deps: Dependencies 04.03.2024 ([#664](https://github.com/evilmartians/lefthook/pull/664)) by @mrexox
+- chore: fix Makefile by @mrexox
+- docs: fix redundant option by @mrexox
+
+## 1.6.4 (2024-02-28)
+
+- deps: update uniseg ([#650](https://github.com/evilmartians/lefthook/pull/650)) by @technicalpickles
+
+## 1.6.3 (2024-02-27)
+
+- deps: Dependencies (27.02.2024) ([#648](https://github.com/evilmartians/lefthook/pull/648)) by @mrexox
+- chore: remove adaptive colors ([#647](https://github.com/evilmartians/lefthook/pull/647)) by @mrexox
+- docs: update request help url ([#641](https://github.com/evilmartians/lefthook/pull/641)) by @sbsrnt
+
+## 1.6.2 (2024-02-26)
+
+- fix: respect roots in commands for npm packages ([#616](https://github.com/evilmartians/lefthook/pull/616)) by @mrexox
+- fix: don't capture STDIN without interactive or use_stdin options ([#638](https://github.com/evilmartians/lefthook/pull/638)) by @technicalpickles
+- fix: handle LEFTHOOK_QUIET when there is no skip_output in config by @prog-supdex
+- docs: add stage_fixed to the examples by @mrexxo
+- docs: clarify the difference between piped and parallel options by @mrexox
+
 ## 1.6.1 (2024-01-24)
 
 - fix: files from stdin only null separated ([#615](https://github.com/evilmartians/lefthook/pull/615)) by @mrexox
