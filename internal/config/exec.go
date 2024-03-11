@@ -2,6 +2,7 @@ package config
 
 import (
 	"os/exec"
+	"runtime"
 )
 
 type Exec interface {
@@ -21,7 +22,13 @@ func (o *osExec) Cmd(commandLine string) bool {
 		return false
 	}
 
-	cmd := exec.Command("sh", "-c", commandLine)
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command("cmd", "/C", commandLine)
+	} else {
+		cmd = exec.Command("sh", "-c", commandLine)
+	}
+
 	err := cmd.Run()
 
 	return err == nil
