@@ -750,13 +750,13 @@ func TestRunAll(t *testing.T) {
 		executor := TestExecutor{}
 		runner := &Runner{
 			Options: Options{
-				Repo:         repo,
-				Hook:         tt.hook,
-				HookName:     tt.hookName,
-				SkipSettings: log.NewSettings(),
-				GitArgs:      tt.args,
-				ResultChan:   resultChan,
-				Force:        tt.force,
+				Repo:        repo,
+				Hook:        tt.hook,
+				HookName:    tt.hookName,
+				LogSettings: log.NewSettings(),
+				GitArgs:     tt.args,
+				ResultChan:  resultChan,
+				Force:       tt.force,
 			},
 			executor: executor,
 		}
