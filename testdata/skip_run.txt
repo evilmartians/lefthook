@@ -6,13 +6,11 @@ exec lefthook run no-skip
 stdout 'Ha-ha!'
 
 [unix] exec lefthook run skip-var
-  ! stdout 'Ha-ha!'
 [windows] exec lefthook run skip-var-windows
-  ! stdout 'Ha-ha!'
+! stdout 'Ha-ha!'
 
 env VAR=1
 [unix] exec lefthook run skip-var
-  stdout 'Ha-ha!'
 [windows] exec lefthook run skip-var-windows
   stdout 'Ha-ha!'
 
