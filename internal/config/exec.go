@@ -24,7 +24,7 @@ func (o *osExec) Cmd(commandLine string) bool {
 
 	var cmd *exec.Cmd
 	if runtime.GOOS == "windows" {
-		cmd = exec.Command("cmd", "/C", commandLine)
+		cmd = exec.Command("powershell", "-Command", commandLine)
 	} else {
 		cmd = exec.Command("sh", "-c", commandLine)
 	}

@@ -1,4 +1,4 @@
-[windows] skip
+[!windows] skip
 
 exec git init
 exec git add -A
@@ -22,21 +22,21 @@ skip_output:
   - execution_info
 skip:
   skip:
-    - run: test 1 -eq 1
+    - run: if (1 -eq 1) { exit 0 } else { exit 1 }
   commands:
     echo:
       run: echo 'Ha-ha!'
 
 no-skip:
   skip:
-    - run: "[ 1 -eq 0 ]"
+    - run: if (1 -eq 0) { exit 0 } else { exit 1 }
   commands:
     echo:
       run: echo 'Ha-ha!'
 
 skip-var:
   skip:
-    - run: test -z $VAR
+    - run: if ([string]::IsNullOrEmpty($env:VAR)) { exit 0 } else { exit 1 }
   commands:
     echo:
       run: echo 'Ha-ha!'

@@ -1,3 +1,5 @@
+[windows] skip
+
 exec git init
 exec lefthook install
 
