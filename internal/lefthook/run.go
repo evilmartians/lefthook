@@ -144,7 +144,7 @@ Run 'lefthook install' manually.`,
 			HookName:        hookName,
 			GitArgs:         gitArgs,
 			ResultChan:      resultChan,
-			SkipSettings:    logSettings,
+			LogSettings:     logSettings,
 			DisableTTY:      cfg.NoTTY || args.NoTTY,
 			Files:           args.Files,
 			Force:           args.Force,
@@ -187,9 +187,7 @@ Run 'lefthook install' manually.`,
 		return errors.New("Interrupted")
 	}
 
-	if logSettings.LogSummary() {
-		printSummary(time.Since(startTime), results, logSettings)
-	}
+	printSummary(time.Since(startTime), results, logSettings)
 
 	for _, result := range results {
 		if result.Status == run.StatusErr {
@@ -205,29 +203,31 @@ func printSummary(
 	results []run.Result,
 	logSettings log.Settings,
 ) {
-	summaryPrint := log.Separate
+	if logSettings.LogSummary() {
+		summaryPrint := log.Separate
 
-	if !logSettings.LogExecution() || !(logSettings.LogExecutionInfo() && logSettings.LogExecutionOutput()) {
-		summaryPrint = func(s string) { log.Info(s) }
-	}
-
-	if len(results) == 0 {
-		if logSettings.LogEmptySummary() {
-			summaryPrint(
-				fmt.Sprintf(
-					"%s %s %s",
-					log.Cyan("summary:"),
-					log.Gray("(skip)"),
-					log.Yellow("empty"),
-				),
-			)
+		if !logSettings.LogExecution() {
+			summaryPrint = func(s string) { log.Info(s) }
 		}
-		return
-	}
 
-	summaryPrint(
-		log.Cyan("summary: ") + log.Gray(fmt.Sprintf("(done in %.2f seconds)", duration.Seconds())),
-	)
+		if len(results) == 0 {
+			if logSettings.LogEmptySummary() {
+				summaryPrint(
+					fmt.Sprintf(
+						"%s %s %s",
+						log.Cyan("summary:"),
+						log.Gray("(skip)"),
+						log.Yellow("empty"),
+					),
+				)
+			}
+			return
+		}
+
+		summaryPrint(
+			log.Cyan("summary: ") + log.Gray(fmt.Sprintf("(done in %.2f seconds)", duration.Seconds())),
+		)
+	}
 
 	if logSettings.LogSuccess() {
 		for _, result := range results {

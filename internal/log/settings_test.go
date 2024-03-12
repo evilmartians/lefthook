@@ -35,10 +35,46 @@ func TestSetting(t *testing.T) {
 		},
 		{
 			tags:     "",
+			settings: []interface{}{"success"},
+			results: map[string]bool{
+				"success": true,
+			},
+		},
+		{
+			tags:     "",
+			settings: []interface{}{"summary"},
+			results: map[string]bool{
+				"summary": true,
+				"success": true,
+				"failure": true,
+			},
+		},
+		{
+			tags:     "",
 			settings: []interface{}{"failure", "execution"},
 			results: map[string]bool{
-				"failure":   true,
-				"execution": true,
+				"failure":        true,
+				"execution":      true,
+				"execution_info": true,
+				"execution_out":  true,
+			},
+		},
+		{
+			tags:     "",
+			settings: []interface{}{"failure", "execution_out"},
+			results: map[string]bool{
+				"failure":       true,
+				"execution":     true,
+				"execution_out": true,
+			},
+		},
+		{
+			tags:     "",
+			settings: []interface{}{"failure", "execution_info"},
+			results: map[string]bool{
+				"failure":        true,
+				"execution":      true,
+				"execution_info": true,
 			},
 		},
 		{
@@ -82,12 +118,13 @@ func TestSetting(t *testing.T) {
 			},
 		},
 		{
-			tags:     "meta,summary,success,skips,empty_summary",
+			tags:     "meta,summary,skips,empty_summary",
 			settings: nil,
 			results: map[string]bool{
 				"meta":          true,
 				"summary":       true,
 				"success":       true,
+				"failure":       true,
 				"skips":         true,
 				"empty_summary": true,
 			},

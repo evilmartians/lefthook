@@ -104,11 +104,11 @@ func (s OutputSettings) isEnable(option int16) bool {
 }
 
 func (s OutputSettings) LogSuccess() bool {
-	return s.isEnable(success)
+	return s.isEnable(success) || s.isEnable(summary)
 }
 
 func (s OutputSettings) LogFailure() bool {
-	return s.isEnable(failure)
+	return s.isEnable(failure) || s.isEnable(summary)
 }
 
 func (s OutputSettings) LogSummary() bool {
@@ -120,15 +120,15 @@ func (s OutputSettings) LogMeta() bool {
 }
 
 func (s OutputSettings) LogExecution() bool {
-	return s.isEnable(execution)
+	return s.isEnable(execution) || s.isEnable(executionOutput) || s.isEnable(executionInfo)
 }
 
 func (s OutputSettings) LogExecutionOutput() bool {
-	return s.isEnable(executionOutput)
+	return s.isEnable(execution) || s.isEnable(executionOutput)
 }
 
 func (s OutputSettings) LogExecutionInfo() bool {
-	return s.isEnable(executionInfo)
+	return s.isEnable(execution) || s.isEnable(executionInfo)
 }
 
 func (s OutputSettings) LogSkips() bool {
