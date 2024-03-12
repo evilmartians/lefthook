@@ -4,11 +4,17 @@ exec lefthook run skip
 ! stdout 'Ha-ha!'
 exec lefthook run no-skip
 stdout 'Ha-ha!'
-exec lefthook run skip-var
-! stdout 'Ha-ha!'
+
+[unix] exec lefthook run skip-var
+  ! stdout 'Ha-ha!'
+[windows] exec lefthook run skip-var-windows
+  ! stdout 'Ha-ha!'
+
 env VAR=1
-exec lefthook run skip-var
-stdout 'Ha-ha!'
+[unix] exec lefthook run skip-var
+  stdout 'Ha-ha!'
+[windows] exec lefthook run skip-var-windows
+  stdout 'Ha-ha!'
 
 -- lefthook.yml --
 skip_output:
@@ -33,6 +39,13 @@ no-skip:
 skip-var:
   skip:
     - run: test -z $VAR
+  commands:
+    echo:
+      run: echo 'Ha-ha!'
+
+skip-var-windows:
+  skip:
+    - run: if (-not $env:VAR) { exit 1 } else { exit 0 }
   commands:
     echo:
       run: echo 'Ha-ha!'
