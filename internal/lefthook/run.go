@@ -85,7 +85,8 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		logSettings = log.NewSettings()
 		logSettings.ApplySettings(outputLogTags, cfg.Output)
 	} else {
-		log.Warn("skip_output is deprecated, please use output option")
+		// Deprecate skip_output in the future. Leaving as is to reduce noise in output.
+		// log.Warn("skip_output is deprecated, please use output option")
 
 		logSettings = log.NewSkipSettings() //nolint:staticcheck //SA1019: for temporary backward compatibility
 		logSettings.ApplySettings(outputSkipTags, cfg.SkipOutput)
