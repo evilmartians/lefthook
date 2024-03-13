@@ -76,21 +76,16 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		log.SetLevel(log.WarnLevel)
 	}
 
-	outputLogTags := os.Getenv(envOutput)
-	outputSkipTags := os.Getenv(envSkipOutput)
+	enableLogTags := os.Getenv(envOutput)
+	disableLogTags := os.Getenv(envSkipOutput)
 
-	var logSettings log.Settings
+	logSettings := log.NewSettings()
+	logSettings.Apply(enableLogTags, disableLogTags, cfg.Output, cfg.SkipOutput)
 
-	if outputSkipTags == "" && cfg.SkipOutput == nil {
-		logSettings = log.NewSettings()
-		logSettings.ApplySettings(outputLogTags, cfg.Output)
-	} else {
-		// Deprecate skip_output in the future. Leaving as is to reduce noise in output.
-		// log.Warn("skip_output is deprecated, please use output option")
-
-		logSettings = log.NewSkipSettings() //nolint:staticcheck //SA1019: for temporary backward compatibility
-		logSettings.ApplySettings(outputSkipTags, cfg.SkipOutput)
-	}
+	// Deprecate skip_output in the future. Leaving as is to reduce noise in output.
+	// if outputSkipTags != "" || cfg.SkipOutput != nil {
+	// 	 log.Warn("skip_output is deprecated, please use output option")
+	// }
 
 	if logSettings.LogMeta() {
 		log.Box(

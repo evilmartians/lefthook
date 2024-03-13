@@ -44,7 +44,7 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, out io.Write
 	}
 
 	root, _ := filepath.Abs(opts.Root)
-	envs := make([]string, len(opts.Env))
+	envs := make([]string, 0, len(opts.Env))
 	for name, value := range opts.Env {
 		envs = append(
 			envs,

@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"crypto/md5"
 	"encoding/hex"
-	"fmt"
+	"errors"
 	"io"
 	"os"
 	"path/filepath"
@@ -31,7 +31,7 @@ const (
 var (
 	lefthookChecksumRegexp = regexp.MustCompile(`(\w+)\s+(\d+)`)
 	configGlob             = glob.MustCompile("{.,}lefthook.{yml,yaml,json,toml}")
-	errNoConfig            = fmt.Errorf("no lefthook config found")
+	errNoConfig            = errors.New("no lefthook config found")
 )
 
 // Install installs the hooks from config file to the .git/hooks.

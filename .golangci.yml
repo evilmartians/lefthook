@@ -1,4 +1,9 @@
 linters-settings:
+  gocritic:
+    disabled-checks:
+      - hugeParam
+    enabled-tags:
+      - performance
   govet:
     check-shadowing: true
   misspell:
@@ -9,6 +14,12 @@ linters-settings:
     rules:
       - name: unused-parameter
         disabled: true
+
+issues:
+  exclude:
+    # https://github.com/catenacyber/perfsprint/issues/21
+    # https://github.com/catenacyber/perfsprint/issues/23
+    - "^fmt\\.Sprintf can be replaced with string (addi|concatena)tion$"
 
 linters:
   disable-all: true
@@ -38,7 +49,6 @@ linters:
     - gocyclo
     - godot
     - godox
-    - gofmt
     - gofumpt
     - goheader
     - goimports
@@ -47,14 +57,22 @@ linters:
     - gosimple
     - govet
     - ineffassign
+    - makezero
+    - mirror
     - misspell
     - nestif
     - noctx
     - nolintlint
+    - perfsprint
+    - predeclared
+    - reassign
     - revive
     - staticcheck
+    - tagalign
+    - tenv
     - typecheck
     - unconvert
     - unparam
     - unused
+    - usestdlibvars
     - whitespace

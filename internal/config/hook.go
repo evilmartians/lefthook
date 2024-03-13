@@ -18,20 +18,20 @@ type Hook struct {
 	// Should be unmarshalled with `mapstructure:"commands"`
 	// But replacing '{cmd}' is still an issue
 	// Unmarshalling it manually, so omit auto unmarshalling
-	Commands map[string]*Command `mapstructure:"-" yaml:",omitempty" json:"commands,omitempty" toml:"commands,omitempty"`
+	Commands map[string]*Command `json:"commands,omitempty" mapstructure:"-" toml:"commands,omitempty" yaml:",omitempty"`
 
 	// Should be unmarshalled with `mapstructure:"scripts"`
 	// But parsing keys with dots in it is still an issue: https://github.com/spf13/viper/issues/324
 	// Unmarshalling it manually, so omit auto unmarshalling
-	Scripts map[string]*Script `mapstructure:"-" yaml:",omitempty" json:"scripts,omitempty" toml:"scripts,omitempty"`
+	Scripts map[string]*Script `json:"scripts,omitempty" mapstructure:"-" toml:"scripts,omitempty" yaml:",omitempty"`
 
-	Files       string      `mapstructure:"files"        yaml:",omitempty"             json:"files,omitempty"        toml:"files,omitempty"`
-	Parallel    bool        `mapstructure:"parallel"     yaml:",omitempty"             json:"parallel,omitempty"     toml:"parallel,omitempty"`
-	Piped       bool        `mapstructure:"piped"        yaml:",omitempty"             json:"piped,omitempty"        toml:"piped,omitempty"`
-	Follow      bool        `mapstructure:"follow"       yaml:",omitempty"             json:"follow,omitempty"       toml:"follow,omitempty"`
-	ExcludeTags []string    `mapstructure:"exclude_tags" yaml:"exclude_tags,omitempty" json:"exclude_tags,omitempty" toml:"exclude_tags,omitempty"`
-	Skip        interface{} `mapstructure:"skip"         yaml:",omitempty"             json:"skip,omitempty"         toml:"skip,omitempty,inline"`
-	Only        interface{} `mapstructure:"only"         yaml:",omitempty"             json:"only,omitempty"         toml:"only,omitempty,inline"`
+	Files       string      `json:"files,omitempty"        mapstructure:"files"        toml:"files,omitempty"        yaml:",omitempty"`
+	Parallel    bool        `json:"parallel,omitempty"     mapstructure:"parallel"     toml:"parallel,omitempty"     yaml:",omitempty"`
+	Piped       bool        `json:"piped,omitempty"        mapstructure:"piped"        toml:"piped,omitempty"        yaml:",omitempty"`
+	Follow      bool        `json:"follow,omitempty"       mapstructure:"follow"       toml:"follow,omitempty"       yaml:",omitempty"`
+	ExcludeTags []string    `json:"exclude_tags,omitempty" mapstructure:"exclude_tags" toml:"exclude_tags,omitempty" yaml:"exclude_tags,omitempty"`
+	Skip        interface{} `json:"skip,omitempty"         mapstructure:"skip"         toml:"skip,omitempty,inline"  yaml:",omitempty"`
+	Only        interface{} `json:"only,omitempty"         mapstructure:"only"         toml:"only,omitempty,inline"  yaml:",omitempty"`
 }
 
 func (h *Hook) Validate() error {

@@ -1,19 +1,19 @@
 package log
 
 import (
-	"fmt"
+	"strconv"
 	"testing"
 )
 
 func TestSetting(t *testing.T) {
 	for i, tt := range [...]struct {
-		tags     string
-		settings interface{}
-		results  map[string]bool
+		enableTags, disableTags         string
+		enableSettings, disableSettings interface{}
+		results                         map[string]bool
 	}{
 		{
-			tags:     "",
-			settings: []interface{}{},
+			enableTags:     "",
+			enableSettings: []interface{}{},
 			results: map[string]bool{
 				"meta":           true,
 				"summary":        true,
@@ -27,22 +27,22 @@ func TestSetting(t *testing.T) {
 			},
 		},
 		{
-			tags:     "",
-			settings: false,
+			enableTags:     "",
+			enableSettings: false,
 			results: map[string]bool{
 				"failure": true,
 			},
 		},
 		{
-			tags:     "",
-			settings: []interface{}{"success"},
+			enableTags:     "",
+			enableSettings: []interface{}{"success"},
 			results: map[string]bool{
 				"success": true,
 			},
 		},
 		{
-			tags:     "",
-			settings: []interface{}{"summary"},
+			enableTags:     "",
+			enableSettings: []interface{}{"summary"},
 			results: map[string]bool{
 				"summary": true,
 				"success": true,
@@ -50,8 +50,8 @@ func TestSetting(t *testing.T) {
 			},
 		},
 		{
-			tags:     "",
-			settings: []interface{}{"failure", "execution"},
+			enableTags:     "",
+			enableSettings: []interface{}{"failure", "execution"},
 			results: map[string]bool{
 				"failure":        true,
 				"execution":      true,
@@ -60,8 +60,8 @@ func TestSetting(t *testing.T) {
 			},
 		},
 		{
-			tags:     "",
-			settings: []interface{}{"failure", "execution_out"},
+			enableTags:     "",
+			enableSettings: []interface{}{"failure", "execution_out"},
 			results: map[string]bool{
 				"failure":       true,
 				"execution":     true,
@@ -69,8 +69,8 @@ func TestSetting(t *testing.T) {
 			},
 		},
 		{
-			tags:     "",
-			settings: []interface{}{"failure", "execution_info"},
+			enableTags:     "",
+			enableSettings: []interface{}{"failure", "execution_info"},
 			results: map[string]bool{
 				"failure":        true,
 				"execution":      true,
@@ -78,8 +78,8 @@ func TestSetting(t *testing.T) {
 			},
 		},
 		{
-			tags: "",
-			settings: []interface{}{
+			enableTags: "",
+			enableSettings: []interface{}{
 				"meta",
 				"summary",
 				"success",
@@ -103,8 +103,8 @@ func TestSetting(t *testing.T) {
 			},
 		},
 		{
-			tags:     "",
-			settings: true,
+			enableTags:     "",
+			enableSettings: true,
 			results: map[string]bool{
 				"meta":           true,
 				"summary":        true,
@@ -118,8 +118,8 @@ func TestSetting(t *testing.T) {
 			},
 		},
 		{
-			tags:     "meta,summary,skips,empty_summary",
-			settings: nil,
+			enableTags:     "meta,summary,skips,empty_summary",
+			enableSettings: nil,
 			results: map[string]bool{
 				"meta":          true,
 				"summary":       true,
@@ -129,11 +129,95 @@ func TestSetting(t *testing.T) {
 				"empty_summary": true,
 			},
 		},
-	} { //nolint:dupl // In next versions the `skip_settings_test` will be removed
-		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			var settings OutputSettings
-
-			(&settings).ApplySettings(tt.tags, tt.settings)
+		{
+			disableTags:     "",
+			disableSettings: []interface{}{},
+			results: map[string]bool{
+				"meta":           true,
+				"summary":        true,
+				"success":        true,
+				"failure":        true,
+				"skips":          true,
+				"execution":      true,
+				"execution_out":  true,
+				"execution_info": true,
+				"empty_summary":  true,
+			},
+		},
+		{
+			disableTags:     "",
+			disableSettings: false,
+			results: map[string]bool{
+				"meta":           true,
+				"summary":        true,
+				"success":        true,
+				"failure":        true,
+				"skips":          true,
+				"execution":      true,
+				"execution_out":  true,
+				"execution_info": true,
+				"empty_summary":  true,
+			},
+		},
+		{
+			disableTags:     "",
+			disableSettings: []interface{}{"failure", "execution"},
+			results: map[string]bool{
+				"meta":           true,
+				"summary":        true,
+				"success":        true,
+				"failure":        false,
+				"skips":          true,
+				"execution":      false,
+				"execution_out":  false,
+				"execution_info": false,
+				"empty_summary":  true,
+			},
+		},
+		{
+			disableTags: "",
+			disableSettings: []interface{}{
+				"meta",
+				"summary",
+				"skips",
+				"execution",
+				"execution_out",
+				"execution_info",
+				"empty_summary",
+			},
+			results: map[string]bool{},
+		},
+		{
+			disableTags:     "",
+			disableSettings: true,
+			results: map[string]bool{
+				"failure": true,
+			},
+		},
+		{
+			disableTags:     "meta,summary,success,skips,empty_summary",
+			disableSettings: nil,
+			results: map[string]bool{
+				"execution":      true,
+				"execution_out":  true,
+				"execution_info": true,
+			},
+		},
+		{
+			disableTags:     "meta,success,skips,empty_summary",
+			disableSettings: nil,
+			results: map[string]bool{
+				"summary":        true,
+				"failure":        true,
+				"execution":      true,
+				"execution_out":  true,
+				"execution_info": true,
+			},
+		},
+	} {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			settings := NewSettings()
+			settings.Apply(tt.enableTags, tt.disableTags, tt.enableSettings, tt.disableSettings)
 
 			if settings.LogMeta() != tt.results["meta"] {
 				t.Errorf("expected LogMeta to be %v", tt.results["meta"])

@@ -14,11 +14,23 @@ const (
 	executionOutput
 	executionInfo
 	emptySummary
-	enableAll = ^0 // Set all bits as 1
+)
+
+const (
+	disableAll = 0
+	skipMeta   = (1 << iota)
+	skipSuccess
+	skipFailure
+	skipSummary
+	skipSkips
+	skipExecution
+	skipExecutionOutput
+	skipExecutionInfo
+	skipEmptySummary
 )
 
 type Settings interface {
-	ApplySettings(tags string, skipOutput interface{})
+	Apply(enableTags, disableTags string, enable, disable interface{})
 	LogSuccess() bool
 	LogFailure() bool
 	LogSummary() bool
@@ -30,111 +42,163 @@ type Settings interface {
 	LogEmptySummary() bool
 }
 
-type OutputSettings int16
+type LogSettings struct {
+	bitmap int16
+}
 
 func NewSettings() Settings {
-	var s OutputSettings
+	s := LogSettings{^disableAll}
 	return &s
 }
 
-func (s *OutputSettings) ApplySettings(tags string, output interface{}) {
-	if tags == "" && (output == nil || output == "") {
-		s.enableAll(true)
+func (s *LogSettings) Apply(enableTags, disableTags string, enable, disable interface{}) {
+	if enableTags == "" && disableTags == "" && (enable == nil || enable == "") && (disable == nil || disable == "") {
+		s.enableAll()
 		return
 	}
 
-	if val, ok := output.(bool); ok {
-		s.enableAll(val)
+	if enableOutput, ok := enable.(bool); ok && enableTags == "" && disableTags == "" {
+		if enableOutput {
+			s.enableAll()
+		} else {
+			s.disableAll()
+		}
 		return
 	}
 
-	if options, ok := output.([]interface{}); ok {
-		if len(options) == 0 {
-			s.enableAll(true)
+	if disableOutput, ok := disable.(bool); ok && enableTags == "" && disableTags == "" {
+		if disableOutput {
+			s.disableAll()
 			return
 		}
-		for _, option := range options {
-			if optStr, ok := option.(string); ok {
-				s.applySetting(optStr)
+	}
+
+	if enableOptions, ok := enable.([]interface{}); ok {
+		if len(enableOptions) != 0 {
+			s.bitmap = disableAll
+		}
+
+		for _, option := range enableOptions {
+			if value, ok := option.(string); ok {
+				s.enable(value)
 			}
 		}
 	}
 
-	if tags != "" {
-		for _, tag := range strings.Split(tags, ",") {
-			s.applySetting(tag)
+	if disableOptions, ok := disable.([]interface{}); ok {
+		for _, option := range disableOptions {
+			if value, ok := option.(string); ok {
+				s.disable(value)
+			}
+		}
+	}
+
+	if enableTags != "" {
+		s.bitmap = disableAll
+
+		for _, tag := range strings.Split(enableTags, ",") {
+			s.enable(tag)
+		}
+	}
+
+	if disableTags != "" {
+		for _, tag := range strings.Split(disableTags, ",") {
+			s.disable(tag)
 		}
 	}
 }
 
-func (s *OutputSettings) applySetting(setting string) {
+func (s *LogSettings) enable(setting string) {
 	switch setting {
 	case "meta":
-		*s |= meta
+		s.bitmap |= meta
 	case "success":
-		*s |= success
+		s.bitmap |= success
 	case "failure":
-		*s |= failure
+		s.bitmap |= failure
 	case "summary":
-		*s |= summary
+		s.bitmap |= summary | success | failure
 	case "skips":
-		*s |= skips
+		s.bitmap |= skips
 	case "execution":
-		*s |= execution
+		s.bitmap |= execution | executionOutput | executionInfo
 	case "execution_out":
-		*s |= executionOutput
+		s.bitmap |= executionOutput | execution
 	case "execution_info":
-		*s |= executionInfo
+		s.bitmap |= executionInfo | execution
 	case "empty_summary":
-		*s |= emptySummary
+		s.bitmap |= emptySummary
 	}
 }
 
-func (s *OutputSettings) enableAll(val bool) {
-	if val {
-		*s = enableAll // Enable all params
-	} else {
-		*s |= failure // Disable all params
+func (s *LogSettings) disable(setting string) {
+	switch setting {
+	case "meta":
+		s.bitmap &= ^meta
+	case "success":
+		s.bitmap &= ^success
+	case "failure":
+		s.bitmap &= ^failure
+	case "summary":
+		s.bitmap &= ^summary & ^success & ^failure
+	case "skips":
+		s.bitmap &= ^skips
+	case "execution":
+		s.bitmap &= ^execution & ^executionOutput & ^executionInfo
+	case "execution_out":
+		s.bitmap &= ^executionOutput
+	case "execution_info":
+		s.bitmap &= ^executionInfo
+	case "empty_summary":
+		s.bitmap &= ^emptySummary
 	}
+}
+
+func (s *LogSettings) enableAll() {
+	s.bitmap = ^disableAll
+}
+
+func (s *LogSettings) disableAll() {
+	s.bitmap = failure
 }
 
 // Checks the state of params.
-func (s OutputSettings) isEnable(option int16) bool {
-	return int16(s)&option != 0
+func (s LogSettings) isEnable(option int16) bool {
+	return s.bitmap&option != 0
 }
 
-func (s OutputSettings) LogSuccess() bool {
-	return s.isEnable(success) || s.isEnable(summary)
+func (s LogSettings) LogSuccess() bool {
+	return s.isEnable(success)
 }
 
-func (s OutputSettings) LogFailure() bool {
-	return s.isEnable(failure) || s.isEnable(summary)
+func (s LogSettings) LogFailure() bool {
+	return s.isEnable(failure)
 }
 
-func (s OutputSettings) LogSummary() bool {
+func (s LogSettings) LogSummary() bool {
 	return s.isEnable(summary)
 }
 
-func (s OutputSettings) LogMeta() bool {
+func (s LogSettings) LogMeta() bool {
 	return s.isEnable(meta)
 }
 
-func (s OutputSettings) LogExecution() bool {
-	return s.isEnable(execution) || s.isEnable(executionOutput) || s.isEnable(executionInfo)
+func (s LogSettings) LogExecution() bool {
+	return s.isEnable(execution)
 }
 
-func (s OutputSettings) LogExecutionOutput() bool {
-	return s.isEnable(execution) || s.isEnable(executionOutput)
+func (s LogSettings) LogExecutionOutput() bool {
+	return s.isEnable(executionOutput)
 }
 
-func (s OutputSettings) LogExecutionInfo() bool {
-	return s.isEnable(execution) || s.isEnable(executionInfo)
+func (s LogSettings) LogExecutionInfo() bool {
+	return s.isEnable(executionInfo)
 }
 
-func (s OutputSettings) LogSkips() bool {
+func (s LogSettings) LogSkips() bool {
 	return s.isEnable(skips)
 }
 
-func (s OutputSettings) LogEmptySummary() bool {
+func (s LogSettings) LogEmptySummary() bool {
 	return s.isEnable(emptySummary)
 }
