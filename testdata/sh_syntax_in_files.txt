@@ -1,9 +1,12 @@
+[windows] skip
+
 exec git init
 exec lefthook install
 exec git config user.email "you@example.com"
 exec git config user.name "Your Name"
 
 exec lefthook run echo_files
+
 stdout '1.txt 10.txt'
 
 -- lefthook.yml --

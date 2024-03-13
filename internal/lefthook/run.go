@@ -18,8 +18,9 @@ import (
 )
 
 const (
-	envEnabled    = "LEFTHOOK"       // "0", "false"
-	envSkipOutput = "LEFTHOOK_QUIET" // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
+	envEnabled    = "LEFTHOOK"        // "0", "false"
+	envSkipOutput = "LEFTHOOK_QUIET"  // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
+	envOutput     = "LEFTHOOK_OUTPUT" // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
 )
 
 type RunArgs struct {
@@ -75,12 +76,23 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		log.SetLevel(log.WarnLevel)
 	}
 
-	tags := os.Getenv(envSkipOutput)
+	outputLogTags := os.Getenv(envOutput)
+	outputSkipTags := os.Getenv(envSkipOutput)
 
-	var logSettings log.SkipSettings
-	(&logSettings).ApplySettings(tags, cfg.SkipOutput)
+	var logSettings log.Settings
 
-	if !logSettings.SkipMeta() {
+	if outputSkipTags == "" && cfg.SkipOutput == nil {
+		logSettings = log.NewSettings()
+		logSettings.ApplySettings(outputLogTags, cfg.Output)
+	} else {
+		// Deprecate skip_output in the future. Leaving as is to reduce noise in output.
+		// log.Warn("skip_output is deprecated, please use output option")
+
+		logSettings = log.NewSkipSettings() //nolint:staticcheck //SA1019: for temporary backward compatibility
+		logSettings.ApplySettings(outputSkipTags, cfg.SkipOutput)
+	}
+
+	if logSettings.LogMeta() {
 		log.Box(
 			log.Cyan("🥊 lefthook ")+log.Gray(fmt.Sprintf("v%s", version.Version(false))),
 			log.Gray("hook: ")+log.Bold(hookName),
@@ -133,7 +145,7 @@ Run 'lefthook install' manually.`,
 			HookName:        hookName,
 			GitArgs:         gitArgs,
 			ResultChan:      resultChan,
-			SkipSettings:    logSettings,
+			LogSettings:     logSettings,
 			DisableTTY:      cfg.NoTTY || args.NoTTY,
 			Files:           args.Files,
 			Force:           args.Force,
@@ -176,9 +188,7 @@ Run 'lefthook install' manually.`,
 		return errors.New("Interrupted")
 	}
 
-	if !logSettings.SkipSummary() {
-		printSummary(time.Since(startTime), results, logSettings)
-	}
+	printSummary(time.Since(startTime), results, logSettings)
 
 	for _, result := range results {
 		if result.Status == run.StatusErr {
@@ -192,33 +202,35 @@ Run 'lefthook install' manually.`,
 func printSummary(
 	duration time.Duration,
 	results []run.Result,
-	logSettings log.SkipSettings,
+	logSettings log.Settings,
 ) {
-	summaryPrint := log.Separate
+	if logSettings.LogSummary() {
+		summaryPrint := log.Separate
 
-	if logSettings.SkipExecution() || (logSettings.SkipExecutionInfo() && logSettings.SkipExecutionOutput()) {
-		summaryPrint = func(s string) { log.Info(s) }
-	}
-
-	if len(results) == 0 {
-		if !logSettings.SkipEmptySummary() {
-			summaryPrint(
-				fmt.Sprintf(
-					"%s %s %s",
-					log.Cyan("summary:"),
-					log.Gray("(skip)"),
-					log.Yellow("empty"),
-				),
-			)
+		if !logSettings.LogExecution() {
+			summaryPrint = func(s string) { log.Info(s) }
 		}
-		return
+
+		if len(results) == 0 {
+			if logSettings.LogEmptySummary() {
+				summaryPrint(
+					fmt.Sprintf(
+						"%s %s %s",
+						log.Cyan("summary:"),
+						log.Gray("(skip)"),
+						log.Yellow("empty"),
+					),
+				)
+			}
+			return
+		}
+
+		summaryPrint(
+			log.Cyan("summary: ") + log.Gray(fmt.Sprintf("(done in %.2f seconds)", duration.Seconds())),
+		)
 	}
 
-	summaryPrint(
-		log.Cyan("summary: ") + log.Gray(fmt.Sprintf("(done in %.2f seconds)", duration.Seconds())),
-	)
-
-	if !logSettings.SkipSuccess() {
+	if logSettings.LogSuccess() {
 		for _, result := range results {
 			if result.Status != run.StatusOk {
 				continue
@@ -228,7 +240,7 @@ func printSummary(
 		}
 	}
 
-	if !logSettings.SkipFailure() {
+	if logSettings.LogFailure() {
 		for _, result := range results {
 			if result.Status != run.StatusErr {
 				continue

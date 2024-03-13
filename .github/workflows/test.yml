@@ -32,7 +32,7 @@ jobs:
     strategy:
       matrix:
         go-version: [1.21.x]
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     env:
       GOCOVERDIR: ${{ github.workspace }}/_icoverdir_
@@ -91,5 +91,5 @@ jobs:
     steps:
       - uses: coverallsapp/github-action@v2
         with:
-          carryforward: "integration-1.21.x ubuntu-latest,integration-1.21.x macos-latest,1.21.x ubuntu-latest,1.21.x macos-latest,1.21.x windows-latest"
+          carryforward: "integration-1.21.x ubuntu-latest,integration-1.21.x macos-latest,integration-1.21.x windows-latest,1.21.x ubuntu-latest,1.21.x macos-latest,1.21.x windows-latest"
           parallel-finished: true
