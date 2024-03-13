@@ -6,7 +6,15 @@ import (
 	"github.com/evilmartians/lefthook/internal/git"
 )
 
+type mockExecutor struct{}
+
+func (mc mockExecutor) Cmd(cmd string) bool {
+	return cmd == "success"
+}
+
 func TestDoSkip(t *testing.T) {
+	skipChecker := NewSkipChecker(mockExecutor{})
+
 	for _, tt := range [...]struct {
 		name       string
 		state      git.State
@@ -111,9 +119,27 @@ func TestDoSkip(t *testing.T) {
 			only:    "rebase",
 			skipped: true,
 		},
+		{
+			name:    "when skip with run command",
+			state:   git.State{},
+			skip:    []interface{}{map[string]interface{}{"run": "success"}},
+			skipped: true,
+		},
+		{
+			name:    "when skip with multi-run command",
+			state:   git.State{Branch: "feat"},
+			skip:    []interface{}{map[string]interface{}{"run": "success", "ref": "feat"}},
+			skipped: true,
+		},
+		{
+			name:    "when only with run command",
+			state:   git.State{},
+			only:    []interface{}{map[string]interface{}{"run": "fail"}},
+			skipped: true,
+		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			if doSkip(tt.state, tt.skip, tt.only) != tt.skipped {
+			if skipChecker.Check(tt.state, tt.skip, tt.only) != tt.skipped {
 				t.Errorf("Expected: %v, Was %v", tt.skipped, !tt.skipped)
 			}
 		})

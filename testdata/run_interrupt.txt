@@ -1,3 +1,5 @@
+[windows] skip
+
 chmod 0700 hook.sh
 chmod 0700 commit-with-interrupt.sh
 exec git init

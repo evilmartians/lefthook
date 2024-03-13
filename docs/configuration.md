@@ -922,6 +922,21 @@ pre-commit:
       run: yarn test
 ```
 
+Skipping hook by running a command:
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  skip:
+    - run: test "${NO_HOOK}" -eq 1
+  commands:
+    lint:
+      run: yarn lint
+    text:
+      run: yarn test
+```
+
 **Notes**
 
 Always skipping is useful when you have a `lefthook-local.yml` config and you don't want to run some commands locally. So you just overwrite the `skip` option for them to be `true`.
