@@ -68,18 +68,18 @@ func (s *SkipSettings) applySetting(setting string) {
 
 func (s *SkipSettings) skipAll(val bool) {
 	if val {
-		*s = skipAll &^ skipFailure
+		*s = skipAll &^ skipFailure &^ skipSummary
 	} else {
 		*s = 0
 	}
 }
 
 func (s SkipSettings) LogSuccess() bool {
-	return !s.doSkip(skipSuccess)
+	return !s.doSkip(skipSuccess) && !s.doSkip(skipSummary)
 }
 
 func (s SkipSettings) LogFailure() bool {
-	return !s.doSkip(skipFailure)
+	return !s.doSkip(skipFailure) && !s.doSkip(skipSummary)
 }
 
 func (s SkipSettings) LogSummary() bool {

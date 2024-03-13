@@ -61,8 +61,6 @@ func TestSkipSetting(t *testing.T) {
 			settings: []interface{}{
 				"meta",
 				"summary",
-				"success",
-				"failure",
 				"skips",
 				"execution",
 				"execution_out",
@@ -75,6 +73,7 @@ func TestSkipSetting(t *testing.T) {
 			tags:     "",
 			settings: true,
 			results: map[string]bool{
+				"summary": true,
 				"failure": true,
 			},
 		},
@@ -82,6 +81,16 @@ func TestSkipSetting(t *testing.T) {
 			tags:     "meta,summary,success,skips,empty_summary",
 			settings: nil,
 			results: map[string]bool{
+				"execution":      true,
+				"execution_out":  true,
+				"execution_info": true,
+			},
+		},
+		{
+			tags:     "meta,success,skips,empty_summary",
+			settings: nil,
+			results: map[string]bool{
+				"summary":        true,
 				"failure":        true,
 				"execution":      true,
 				"execution_out":  true,
