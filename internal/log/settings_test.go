@@ -214,6 +214,72 @@ func TestSetting(t *testing.T) {
 				"execution_info": true,
 			},
 		},
+		{
+			enableSettings:  true, // this takes precedence
+			disableSettings: true,
+			results: map[string]bool{
+				"meta":           true,
+				"summary":        true,
+				"success":        true,
+				"failure":        true,
+				"skips":          true,
+				"execution":      true,
+				"execution_out":  true,
+				"execution_info": true,
+				"empty_summary":  true,
+			},
+		},
+		{
+			enableSettings:  []interface{}{"meta"},
+			disableSettings: true, // this takes precedence
+			results: map[string]bool{
+				"failure": true,
+			},
+		},
+		{
+			enableSettings:  true,
+			disableSettings: []interface{}{"meta"},
+			results: map[string]bool{
+				"meta":           true,
+				"summary":        true,
+				"success":        true,
+				"failure":        true,
+				"skips":          true,
+				"execution":      true,
+				"execution_out":  true,
+				"execution_info": true,
+				"empty_summary":  true,
+			},
+		},
+		{
+			enableSettings:  []interface{}{"summary", "execution"},
+			disableSettings: []interface{}{"failure", "execution_out"},
+			results: map[string]bool{
+				"summary":        true,
+				"success":        true,
+				"execution":      true,
+				"execution_info": true,
+			},
+		},
+		{
+			enableTags:      "summary,execution", // takes precedence
+			disableSettings: []interface{}{"failure", "execution_out"},
+			results: map[string]bool{
+				"summary":        true,
+				"success":        true,
+				"failure":        true,
+				"execution":      true,
+				"execution_info": true,
+				"execution_out":  true,
+			},
+		},
+		{
+			disableTags:    "summary,execution",
+			enableSettings: []interface{}{"meta", "summary", "execution_info"},
+			results: map[string]bool{
+				"meta": true,
+			},
+		},
 	} {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			settings := NewSettings()
