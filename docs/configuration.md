@@ -1004,7 +1004,7 @@ pre-commit:
 
 ### `tags`
 
-You can specify tags for commands and scripts. This is useful for [excluding](#exclude_tags). You can specify more than one tag using comma or space.
+You can specify tags for commands and scripts. This is useful for [excluding](#exclude_tags). You can specify more than one tag using comma.
 
 **Example**
 
@@ -1017,7 +1017,7 @@ pre-commit:
       tags: frontend,js
       run: yarn lint
     test:
-      tags: backend ruby
+      tags: backend,ruby
       run: bundle exec rspec
 ```
 
