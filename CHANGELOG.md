@@ -2,6 +2,18 @@
 
 ## master (unreleased)
 
+## 1.6.6 (2024-03-14)
+
+- chore: add more tests on skip settings by @mrexox
+- chore: add more linters, address findings ([#670](https://github.com/evilmartians/lefthook/pull/670)) by @scop
+- chore: skip printing deprecation warning ([#674](https://github.com/evilmartians/lefthook/pull/674)) by @mrexox
+- feat: handle `run` command in skip/only settings ([#634](https://github.com/evilmartians/lefthook/pull/634)) by @prog-supdex
+- deps: Dependencies March 2024 ([#673](https://github.com/evilmartians/lefthook/pull/673)) by @mrexox
+- fix: fix printing when using `output` log setting ([#672](https://github.com/evilmartians/lefthook/pull/672)) by @mrexox
+- feat: Add output setting ([#637](https://github.com/evilmartians/lefthook/pull/637)) by @prog-supdex
+- fix: use swift package before npx ([#668](https://github.com/evilmartians/lefthook/pull/668)) by @mrexox
+- feat: use configurable path to lefthook (LEFTHOOK_BIN) ([#653](https://github.com/evilmartians/lefthook/pull/653)) by @technicalpickles
+
 ## 1.6.5 (2024-03-04)
 
 - fix: decrease max cmd length for windows ([#666](https://github.com/evilmartians/lefthook/pull/666)) by @mrexox
