@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+## 1.6.7 (2024-03-15)
+
+- fix: don't apply empty patch files on pre-commit hook ([#676](https://github.com/evilmartians/lefthook/pull/676)) by @mrexox
+- docs: allow only comma divided tags ([#675](https://github.com/evilmartians/lefthook/pull/675)) by @mrexox
+
 ## 1.6.6 (2024-03-14)
 
 - chore: add more tests on skip settings by @mrexox
