@@ -1,6 +1,7 @@
 package git
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -198,7 +199,21 @@ func (r *Repository) RestoreUnstaged() error {
 		return nil
 	}
 
-	_, err := r.Git.Cmd([]string{
+	stat, err := r.Fs.Stat(r.unstagedPatchPath)
+	if err != nil {
+		return err
+	}
+
+	if stat.Size() == 0 {
+		err = r.Fs.Remove(r.unstagedPatchPath)
+		if err != nil {
+			return fmt.Errorf("couldn't remove the patch %s: %w", r.unstagedPatchPath, err)
+		}
+
+		return nil
+	}
+
+	_, err = r.Git.Cmd([]string{
 		"git",
 		"apply",
 		"-v",
@@ -207,12 +222,16 @@ func (r *Repository) RestoreUnstaged() error {
 		"--unidiff-zero",
 		r.unstagedPatchPath,
 	})
-
-	if err == nil {
-		err = r.Fs.Remove(r.unstagedPatchPath)
+	if err != nil {
+		return fmt.Errorf("couldn't apply the patch %s: %w", r.unstagedPatchPath, err)
 	}
 
-	return err
+	err = r.Fs.Remove(r.unstagedPatchPath)
+	if err != nil {
+		return fmt.Errorf("couldn't remove the patch %s: %w", r.unstagedPatchPath, err)
+	}
+
+	return nil
 }
 
 func (r *Repository) StashUnstaged() error {

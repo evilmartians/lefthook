@@ -220,7 +220,7 @@ func (r *Runner) postHook() {
 	}
 
 	if err := r.Repo.RestoreUnstaged(); err != nil {
-		log.Warnf("Couldn't restore hidden unstaged files: %s\n", err)
+		log.Warnf("Couldn't restore unstaged files: %s\n", err)
 		return
 	}
 
