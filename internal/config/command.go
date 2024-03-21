@@ -44,6 +44,10 @@ func (c Command) DoSkip(gitState git.State) bool {
 	return skipChecker.Check(gitState, c.Skip, c.Only)
 }
 
+func (c Command) GetPriority() int {
+	return c.Priority
+}
+
 type commandRunReplace struct {
 	Run string `mapstructure:"run"`
 }
