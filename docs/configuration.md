@@ -60,6 +60,7 @@ Lefthook [supports](#config-file) YAML, JSON, and TOML configuration. In this do
   - [`stage_fixed`](#stage_fixed)
   - [`interactive`](#interactive)
   - [`use_stdin`](#use_stdin)
+  - [`priority`](#priority)
 - [Examples](#examples)
 - [More info](#more-info)
 
@@ -1280,9 +1281,9 @@ Whether to use interactive mode. This applies the certain behavior:
 >
 > This option makes sense only when `parallel: false` or `piped: true` is set.
 >
-> Value `0` is considered an `+Infinity`, so commands with `priority: 0` or without this setting will be run at the very end.
+> Value `0` is considered an `+Infinity`, so commands or scripts with `priority: 0` or without this setting will be run at the very end.
 
-Set command priority from 1 to +Infinity. This option can be used to configure the order of the sequential commands.
+Set priority from 1 to +Infinity. This option can be used to configure the order of the sequential steps.
 
 **Example**
 
@@ -1301,6 +1302,14 @@ post-checkout:
     db-seed:
       priority: 3
       run: rails db:seed
+
+  scripts:
+    "check-spelling.sh":
+      runner: bash
+      priority: 1
+    "check-grammar.rb":
+      runner: ruby
+      priority: 2
 ```
 
 ## Script

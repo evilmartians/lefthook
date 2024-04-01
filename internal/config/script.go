@@ -12,10 +12,11 @@ import (
 type Script struct {
 	Runner string `json:"runner" mapstructure:"runner" toml:"runner" yaml:"runner"`
 
-	Skip interface{}       `json:"skip,omitempty" mapstructure:"skip" toml:"skip,omitempty,inline" yaml:",omitempty"`
-	Only interface{}       `json:"only,omitempty" mapstructure:"only" toml:"only,omitempty,inline" yaml:",omitempty"`
-	Tags []string          `json:"tags,omitempty" mapstructure:"tags" toml:"tags,omitempty"        yaml:",omitempty"`
-	Env  map[string]string `json:"env,omitempty"  mapstructure:"env"  toml:"env,omitempty"         yaml:",omitempty"`
+	Skip     interface{}       `json:"skip,omitempty"     mapstructure:"skip"     toml:"skip,omitempty,inline" yaml:",omitempty"`
+	Only     interface{}       `json:"only,omitempty"     mapstructure:"only"     toml:"only,omitempty,inline" yaml:",omitempty"`
+	Tags     []string          `json:"tags,omitempty"     mapstructure:"tags"     toml:"tags,omitempty"        yaml:",omitempty"`
+	Env      map[string]string `json:"env,omitempty"      mapstructure:"env"      toml:"env,omitempty"         yaml:",omitempty"`
+	Priority int               `json:"priority,omitempty" mapstructure:"priority" toml:"priority,omitempty"    yaml:",omitempty"`
 
 	FailText    string `json:"fail_text,omitempty"   mapstructure:"fail_text"   toml:"fail_text,omitempty"   yaml:"fail_text,omitempty"`
 	Interactive bool   `json:"interactive,omitempty" mapstructure:"interactive" toml:"interactive,omitempty" yaml:",omitempty"`
@@ -23,13 +24,17 @@ type Script struct {
 	StageFixed  bool   `json:"stage_fixed,omitempty" mapstructure:"stage_fixed" toml:"stage_fixed,omitempty" yaml:"stage_fixed,omitempty"`
 }
 
+type scriptRunnerReplace struct {
+	Runner string `mapstructure:"runner"`
+}
+
 func (s Script) DoSkip(gitState git.State) bool {
 	skipChecker := NewSkipChecker(NewOsExec())
 	return skipChecker.Check(gitState, s.Skip, s.Only)
 }
 
-type scriptRunnerReplace struct {
-	Runner string `mapstructure:"runner"`
+func (s Script) ExecutionPriority() int {
+	return s.Priority
 }
 
 func mergeScripts(base, extra *viper.Viper) (map[string]*Script, error) {

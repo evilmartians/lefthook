@@ -906,7 +906,8 @@ func TestReplaceQuoted(t *testing.T) {
 	}
 }
 
-func TestSortCommands(t *testing.T) {
+//nolint:dupl
+func TestSortByPriorityCommands(t *testing.T) {
 	for i, tt := range [...]struct {
 		name     string
 		names    []string
@@ -931,7 +932,43 @@ func TestSortCommands(t *testing.T) {
 		},
 	} {
 		t.Run(fmt.Sprintf("%d: %s", i+1, tt.name), func(t *testing.T) {
-			sortCommands(tt.names, tt.commands)
+			sortByPriority(tt.names, tt.commands)
+			for i, name := range tt.result {
+				if tt.names[i] != name {
+					t.Errorf("Not matching on index %d: %s != %s", i, name, tt.names[i])
+				}
+			}
+		})
+	}
+}
+
+//nolint:dupl
+func TestSortByPriorityScripts(t *testing.T) {
+	for i, tt := range [...]struct {
+		name    string
+		names   []string
+		scripts map[string]*config.Script
+		result  []string
+	}{
+		{
+			name:    "alphanumeric sort",
+			names:   []string{"10_a.sh", "1_a.sh", "2_a.sh", "5_b.sh"},
+			scripts: map[string]*config.Script{},
+			result:  []string{"1_a.sh", "2_a.sh", "5_b.sh", "10_a.sh"},
+		},
+		{
+			name:  "partial priority",
+			names: []string{"10.rb", "file.sh", "script.go", "5_a.sh"},
+			scripts: map[string]*config.Script{
+				"5_a.sh":    {Priority: 10},
+				"script.go": {Priority: 1},
+				"10.rb":     {},
+			},
+			result: []string{"script.go", "5_a.sh", "10.rb", "file.sh"},
+		},
+	} {
+		t.Run(fmt.Sprintf("%d: %s", i+1, tt.name), func(t *testing.T) {
+			sortByPriority(tt.names, tt.scripts)
 			for i, name := range tt.result {
 				if tt.names[i] != name {
 					t.Errorf("Not matching on index %d: %s != %s", i, name, tt.names[i])

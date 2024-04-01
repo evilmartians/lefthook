@@ -31,6 +31,10 @@ type Command struct {
 	StageFixed  bool   `json:"stage_fixed,omitempty" mapstructure:"stage_fixed" toml:"stage_fixed,omitempty" yaml:"stage_fixed,omitempty"`
 }
 
+type commandRunReplace struct {
+	Run string `mapstructure:"run"`
+}
+
 func (c Command) Validate() error {
 	if !isRunnerFilesCompatible(c.Run) {
 		return errFilesIncompatible
@@ -44,8 +48,8 @@ func (c Command) DoSkip(gitState git.State) bool {
 	return skipChecker.Check(gitState, c.Skip, c.Only)
 }
 
-type commandRunReplace struct {
-	Run string `mapstructure:"run"`
+func (c Command) ExecutionPriority() int {
+	return c.Priority
 }
 
 func mergeCommands(base, extra *viper.Viper) (map[string]*Command, error) {

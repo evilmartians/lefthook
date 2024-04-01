@@ -66,6 +66,11 @@ func NewRunner(opts Options) *Runner {
 	}
 }
 
+type executable interface {
+	*config.Command | *config.Script
+	ExecutionPriority() int
+}
+
 // RunAll runs scripts and commands.
 // LFS hook is executed at first if needed.
 func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) {
@@ -235,10 +240,20 @@ func (r *Runner) runScripts(ctx context.Context, dir string) {
 		return
 	}
 
+	scripts := make([]string, 0, len(files))
+	filesMap := make(map[string]os.FileInfo)
+	for _, file := range files {
+		filesMap[file.Name()] = file
+		scripts = append(scripts, file.Name())
+	}
+	sortByPriority(scripts, r.Hook.Scripts)
+
 	interactiveScripts := make([]os.FileInfo, 0)
 	var wg sync.WaitGroup
 
-	for _, file := range files {
+	for _, name := range scripts {
+		file := filesMap[name]
+
 		if ctx.Err() != nil {
 			return
 		}
@@ -331,7 +346,7 @@ func (r *Runner) runCommands(ctx context.Context) {
 		}
 	}
 
-	sortCommands(commands, r.Hook.Commands)
+	sortByPriority(commands, r.Hook.Commands)
 
 	interactiveCommands := make([]string, 0)
 	var wg sync.WaitGroup
@@ -531,28 +546,29 @@ func (r *Runner) logExecute(name string, err error, out io.Reader) {
 	}
 }
 
-// sortCommands sorts the command names by preceding numbers if they occur and special priority if it is set.
-// If the command names starts with letter the command name will be sorted alphabetically.
+// sortByPriority sorts the tags by preceding numbers if they occur and special priority if it is set.
+// If the names starts with letter the command name will be sorted alphabetically.
+// If there's a `priority` field defined for a command or script it will be used instead of alphanumeric sorting.
 //
 //	[]string{"1_command", "10command", "3 command", "command5"} // -> 1_command, 3 command, 10command, command5
-func sortCommands(strs []string, commands map[string]*config.Command) {
-	sort.SliceStable(strs, func(i, j int) bool {
-		commandI, iOk := commands[strs[i]]
-		commandJ, jOk := commands[strs[j]]
+func sortByPriority[E executable](tags []string, executables map[string]E) {
+	sort.SliceStable(tags, func(i, j int) bool {
+		exeI, okI := executables[tags[i]]
+		exeJ, okJ := executables[tags[j]]
 
-		if iOk && commandI.Priority != 0 || jOk && commandJ.Priority != 0 {
-			if !iOk || commandI.Priority == 0 {
+		if okI && exeI.ExecutionPriority() != 0 || okJ && exeJ.ExecutionPriority() != 0 {
+			if !okI || exeI.ExecutionPriority() == 0 {
 				return false
 			}
-			if !jOk || commandJ.Priority == 0 {
+			if !okJ || exeJ.ExecutionPriority() == 0 {
 				return true
 			}
 
-			return commandI.Priority < commandJ.Priority
+			return exeI.ExecutionPriority() < exeJ.ExecutionPriority()
 		}
 
 		numEnds := -1
-		for idx, ch := range strs[i] {
+		for idx, ch := range tags[i] {
 			if unicode.IsDigit(ch) {
 				numEnds = idx
 			} else {
@@ -560,15 +576,15 @@ func sortCommands(strs []string, commands map[string]*config.Command) {
 			}
 		}
 		if numEnds == -1 {
-			return strs[i] < strs[j]
+			return tags[i] < tags[j]
 		}
-		numI, err := strconv.Atoi(strs[i][:numEnds+1])
+		numI, err := strconv.Atoi(tags[i][:numEnds+1])
 		if err != nil {
-			return strs[i] < strs[j]
+			return tags[i] < tags[j]
 		}
 
 		numEnds = -1
-		for idx, ch := range strs[j] {
+		for idx, ch := range tags[j] {
 			if unicode.IsDigit(ch) {
 				numEnds = idx
 			} else {
@@ -578,7 +594,7 @@ func sortCommands(strs []string, commands map[string]*config.Command) {
 		if numEnds == -1 {
 			return true
 		}
-		numJ, err := strconv.Atoi(strs[j][:numEnds+1])
+		numJ, err := strconv.Atoi(tags[j][:numEnds+1])
 		if err != nil {
 			return true
 		}
