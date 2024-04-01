@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/spf13/afero"
+
+	"github.com/evilmartians/lefthook/internal/log"
 )
 
 const (
@@ -33,6 +35,7 @@ var (
 	cmdStageFiles    = []string{"git", "add"}
 	cmdRemotes       = []string{"git", "branch", "--remotes"}
 	cmdHideUnstaged  = []string{"git", "checkout", "--force", "--"}
+	cmdEmptyTreeSHA  = []string{"git", "hash-object", "-t", "tree", "/dev/null"}
 )
 
 // Repository represents a git repository.
@@ -45,6 +48,7 @@ type Repository struct {
 	InfoPath          string
 	unstagedPatchPath string
 	headBranch        string
+	emptyTreeSHA      string
 }
 
 // NewRepository returns a Repository or an error, if git repository it not initialized.
@@ -82,6 +86,11 @@ func NewRepository(fs afero.Fs, git Exec) (*Repository, error) {
 		gitPath = filepath.Join(rootPath, gitPath)
 	}
 
+	emptyTreeSHA, err := git.Cmd(cmdEmptyTreeSHA)
+	if err != nil {
+		log.Debug("Couldn't get empty tree SHA value, not critical")
+	}
+
 	git.SetRootPath(rootPath)
 
 	return &Repository{
@@ -92,6 +101,7 @@ func NewRepository(fs afero.Fs, git Exec) (*Repository, error) {
 		GitPath:           gitPath,
 		InfoPath:          infoPath,
 		unstagedPatchPath: filepath.Join(infoPath, unstagedPatchName),
+		emptyTreeSHA:      emptyTreeSHA,
 	}, nil
 }
 
@@ -120,6 +130,7 @@ func (r *Repository) PushFiles() ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		for _, branch := range branches {
 			if !headBranchRegexp.MatchString(branch) {
 				continue
@@ -130,6 +141,12 @@ func (r *Repository) PushFiles() ([]string, error) {
 			break
 		}
 	}
+
+	// Nothing has been pushed yet or upstream is not set
+	if len(r.headBranch) == 0 {
+		r.headBranch = r.emptyTreeSHA
+	}
+
 	return r.FilesByCommand(append(cmdPushFilesHead, r.headBranch))
 }
 
