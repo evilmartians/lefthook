@@ -24,16 +24,16 @@ type Script struct {
 	StageFixed  bool   `json:"stage_fixed,omitempty" mapstructure:"stage_fixed" toml:"stage_fixed,omitempty" yaml:"stage_fixed,omitempty"`
 }
 
+type scriptRunnerReplace struct {
+	Runner string `mapstructure:"runner"`
+}
+
 func (s Script) DoSkip(gitState git.State) bool {
 	skipChecker := NewSkipChecker(NewOsExec())
 	return skipChecker.Check(gitState, s.Skip, s.Only)
 }
 
-type scriptRunnerReplace struct {
-	Runner string `mapstructure:"runner"`
-}
-
-func (s Script) GetPriority() int {
+func (s Script) ExecutionPriority() int {
 	return s.Priority
 }
 

@@ -68,7 +68,7 @@ func NewRunner(opts Options) *Runner {
 
 type executable interface {
 	*config.Command | *config.Script
-	GetPriority() int
+	ExecutionPriority() int
 }
 
 // RunAll runs scripts and commands.
@@ -546,29 +546,29 @@ func (r *Runner) logExecute(name string, err error, out io.Reader) {
 	}
 }
 
-// sortByPriority sorts the names by preceding numbers if they occur and special priority if it is set.
+// sortByPriority sorts the tags by preceding numbers if they occur and special priority if it is set.
 // If the names starts with letter the command name will be sorted alphabetically.
 // If there's a `priority` field defined for a command or script it will be used instead of alphanumeric sorting.
 //
 //	[]string{"1_command", "10command", "3 command", "command5"} // -> 1_command, 3 command, 10command, command5
-func sortByPriority[E executable](array []string, exe map[string]E) {
-	sort.SliceStable(array, func(i, j int) bool {
-		exeI, iOk := exe[array[i]]
-		exeJ, jOk := exe[array[j]]
+func sortByPriority[E executable](tags []string, executables map[string]E) {
+	sort.SliceStable(tags, func(i, j int) bool {
+		exeI, okI := executables[tags[i]]
+		exeJ, okJ := executables[tags[j]]
 
-		if iOk && exeI.GetPriority() != 0 || jOk && exeJ.GetPriority() != 0 {
-			if !iOk || exeI.GetPriority() == 0 {
+		if okI && exeI.ExecutionPriority() != 0 || okJ && exeJ.ExecutionPriority() != 0 {
+			if !okI || exeI.ExecutionPriority() == 0 {
 				return false
 			}
-			if !jOk || exeJ.GetPriority() == 0 {
+			if !okJ || exeJ.ExecutionPriority() == 0 {
 				return true
 			}
 
-			return exeI.GetPriority() < exeJ.GetPriority()
+			return exeI.ExecutionPriority() < exeJ.ExecutionPriority()
 		}
 
 		numEnds := -1
-		for idx, ch := range array[i] {
+		for idx, ch := range tags[i] {
 			if unicode.IsDigit(ch) {
 				numEnds = idx
 			} else {
@@ -576,15 +576,15 @@ func sortByPriority[E executable](array []string, exe map[string]E) {
 			}
 		}
 		if numEnds == -1 {
-			return array[i] < array[j]
+			return tags[i] < tags[j]
 		}
-		numI, err := strconv.Atoi(array[i][:numEnds+1])
+		numI, err := strconv.Atoi(tags[i][:numEnds+1])
 		if err != nil {
-			return array[i] < array[j]
+			return tags[i] < tags[j]
 		}
 
 		numEnds = -1
-		for idx, ch := range array[j] {
+		for idx, ch := range tags[j] {
 			if unicode.IsDigit(ch) {
 				numEnds = idx
 			} else {
@@ -594,7 +594,7 @@ func sortByPriority[E executable](array []string, exe map[string]E) {
 		if numEnds == -1 {
 			return true
 		}
-		numJ, err := strconv.Atoi(array[j][:numEnds+1])
+		numJ, err := strconv.Atoi(tags[j][:numEnds+1])
 		if err != nil {
 			return true
 		}
