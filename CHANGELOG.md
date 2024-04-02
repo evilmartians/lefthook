@@ -2,6 +2,12 @@
 
 ## master (unreleased)
 
+## 1.6.8 (2024-04-02)
+
+- fix: fallback to empty tree sha when no upstream set ([#687](https://github.com/evilmartians/lefthook/pull/687)) by @mrexox
+- feat: add priorities to scripts ([#684](https://github.com/evilmartians/lefthook/pull/684)) by @mrexox
+- deps: By April, 1 ([#678](https://github.com/evilmartians/lefthook/pull/678)) by @mrexox
+
 ## 1.6.7 (2024-03-15)
 
 - fix: don't apply empty patch files on pre-commit hook ([#676](https://github.com/evilmartians/lefthook/pull/676)) by @mrexox
