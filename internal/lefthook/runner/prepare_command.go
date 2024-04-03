@@ -1,4 +1,4 @@
-package run
+package runner
 
 import (
 	"errors"
@@ -9,7 +9,7 @@ import (
 	"gopkg.in/alessio/shellescape.v1"
 
 	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/lefthook/run/filter"
+	"github.com/evilmartians/lefthook/internal/lefthook/runner/filter"
 	"github.com/evilmartians/lefthook/internal/log"
 )
 

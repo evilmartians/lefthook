@@ -1,4 +1,4 @@
-package run
+package runner
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
-	"github.com/evilmartians/lefthook/internal/lefthook/run/exec"
+	"github.com/evilmartians/lefthook/internal/lefthook/runner/exec"
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
@@ -120,7 +120,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{{Name: "test", Status: StatusOk}},
+			success: []Result{{Name: "test"}},
 		},
 		{
 			name:     "with simple command in follow mode",
@@ -134,7 +134,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{{Name: "test", Status: StatusOk}},
+			success: []Result{{Name: "test"}},
 		},
 		{
 			name:     "with multiple commands ran in parallel",
@@ -155,10 +155,10 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{
-				{Name: "test", Status: StatusOk},
-				{Name: "lint", Status: StatusOk},
+				{Name: "test"},
+				{Name: "lint"},
 			},
-			fail: []Result{{Name: "type-check", Status: StatusErr}},
+			fail: []Result{{Name: "type-check", Err: errors.New("")}},
 		},
 		{
 			name:     "with exclude tags",
@@ -180,7 +180,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{{Name: "lint", Status: StatusOk}},
+			success: []Result{{Name: "lint"}},
 		},
 		{
 			name:     "with skip boolean option",
@@ -197,7 +197,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{{Name: "lint", Status: StatusOk}},
+			success: []Result{{Name: "lint"}},
 		},
 		{
 			name:     "with skip merge",
@@ -217,7 +217,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{{Name: "lint", Status: StatusOk}},
+			success: []Result{{Name: "lint"}},
 		},
 		{
 			name:     "with only on merge",
@@ -238,8 +238,8 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{
-				{Name: "lint", Status: StatusOk},
-				{Name: "test", Status: StatusOk},
+				{Name: "lint"},
+				{Name: "test"},
 			},
 		},
 		{
@@ -257,7 +257,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{{Name: "lint", Status: StatusOk}},
+			success: []Result{{Name: "lint"}},
 		},
 		{
 			name:     "with global skip merge",
@@ -315,8 +315,8 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{
-				{Name: "lint", Status: StatusOk},
-				{Name: "test", Status: StatusOk},
+				{Name: "lint"},
+				{Name: "test"},
 			},
 		},
 		{
@@ -338,7 +338,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{{Name: "lint", Status: StatusOk}},
+			success: []Result{{Name: "lint"}},
 		},
 		{
 			name:   "with global skip on ref",
@@ -381,8 +381,8 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{
-				{Name: "lint", Status: StatusOk},
-				{Name: "test", Status: StatusOk},
+				{Name: "lint"},
+				{Name: "test"},
 			},
 		},
 		{
@@ -426,8 +426,8 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{
-				{Name: "test", Status: StatusOk},
-				{Name: "lint", Status: StatusOk},
+				{Name: "test"},
+				{Name: "lint"},
 			},
 		},
 		{
@@ -442,7 +442,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			fail: []Result{{Name: "test", Status: StatusErr, Text: "try 'success'"}},
+			fail: []Result{{Name: "test", Err: errors.New("try 'success'")}},
 		},
 		{
 			name:       "with simple scripts",
@@ -464,8 +464,8 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{{Name: "script.sh", Status: StatusOk}},
-			fail:    []Result{{Name: "failing.js", Status: StatusErr, Text: "install node"}},
+			success: []Result{{Name: "script.sh"}},
+			fail:    []Result{{Name: "failing.js", Err: errors.New("install node")}},
 		},
 		{
 			name:       "with simple scripts and only option",
@@ -490,8 +490,8 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{{Name: "script.sh", Status: StatusOk}},
-			fail:    []Result{{Name: "failing.js", Status: StatusErr, Text: "install node"}},
+			success: []Result{{Name: "script.sh"}},
+			fail:    []Result{{Name: "failing.js", Err: errors.New("install node")}},
 		},
 		{
 			name:       "with simple scripts and only option",
@@ -548,7 +548,7 @@ func TestRunAll(t *testing.T) {
 				},
 			},
 			success: []Result{}, // script.sh and ok are skipped
-			fail:    []Result{{Name: "failing.js", Status: StatusErr}, {Name: "fail", Status: StatusErr}},
+			fail:    []Result{{Name: "failing.js", Err: errors.New("")}, {Name: "fail", Err: errors.New("")}},
 		},
 		{
 			name:       "with stage_fixed in true",
@@ -580,8 +580,8 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{{Name: "ok", Status: StatusOk}, {Name: "success.sh", Status: StatusOk}},
-			fail:    []Result{{Name: "fail", Status: StatusErr}, {Name: "failing.js", Status: StatusErr}},
+			success: []Result{{Name: "ok"}, {Name: "success.sh"}},
+			fail:    []Result{{Name: "fail", Err: errors.New("")}, {Name: "failing.js", Err: errors.New("")}},
 		},
 		{
 			name:       "pre-commit hook simple",
@@ -615,8 +615,8 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{{Name: "ok", Status: StatusOk}, {Name: "success.sh", Status: StatusOk}},
-			fail:    []Result{{Name: "fail", Status: StatusErr}, {Name: "failing.js", Status: StatusErr}},
+			success: []Result{{Name: "ok"}, {Name: "success.sh"}},
+			fail:    []Result{{Name: "fail", Err: errors.New("")}, {Name: "failing.js", Err: errors.New("")}},
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
@@ -649,7 +649,7 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{{Name: "ok", Status: StatusOk}},
+			success: []Result{{Name: "ok"}},
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
@@ -681,8 +681,8 @@ func TestRunAll(t *testing.T) {
 				},
 			},
 			force:   true,
-			success: []Result{{Name: "ok", Status: StatusOk}},
-			fail:    []Result{{Name: "fail", Status: StatusErr}},
+			success: []Result{{Name: "ok"}},
+			fail:    []Result{{Name: "fail", Err: errors.New("")}},
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
@@ -707,7 +707,7 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{{Name: "ok", Status: StatusOk}},
+			success: []Result{{Name: "ok"}},
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
@@ -737,7 +737,7 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{{Name: "ok", Status: StatusOk}},
+			success: []Result{{Name: "ok"}},
 			gitCommands: []string{
 				"git diff --name-only HEAD @{push}",
 				"git diff --name-only HEAD @{push}",
@@ -783,7 +783,7 @@ func TestRunAll(t *testing.T) {
 
 			var success, fail []Result
 			for res := range resultChan {
-				if res.Status == StatusOk {
+				if res.Err == nil {
 					success = append(success, res)
 				} else {
 					fail = append(fail, res)
@@ -820,12 +820,12 @@ func resultsMatch(a, b []Result) bool {
 	matches := make(map[string]struct{})
 
 	for _, item := range a {
-		str := fmt.Sprintf("%s_%d_%s", item.Name, item.Status, item.Text)
+		str := fmt.Sprintf("%s_%v", item.Name, item.Err)
 		matches[str] = struct{}{}
 	}
 
 	for _, item := range b {
-		str := fmt.Sprintf("%s_%d_%s", item.Name, item.Status, item.Text)
+		str := fmt.Sprintf("%s_%v", item.Name, item.Err)
 		if _, ok := matches[str]; !ok {
 			return false
 		}
