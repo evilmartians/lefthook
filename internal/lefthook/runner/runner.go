@@ -1,4 +1,4 @@
-package run
+package runner
 
 import (
 	"bytes"
@@ -22,12 +22,10 @@ import (
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
-	"github.com/evilmartians/lefthook/internal/lefthook/run/exec"
-	"github.com/evilmartians/lefthook/internal/lefthook/run/filter"
+	"github.com/evilmartians/lefthook/internal/lefthook/runner/exec"
+	"github.com/evilmartians/lefthook/internal/lefthook/runner/filter"
 	"github.com/evilmartians/lefthook/internal/log"
 )
-
-type status int8
 
 const (
 	executableFileMode os.FileMode = 0o751
@@ -59,7 +57,13 @@ type Runner struct {
 	executor             exec.Executor
 }
 
-func NewRunner(opts Options) *Runner {
+// Result contains name of a command/script and an optional fail string.
+type Result struct {
+	Name string
+	Err  error
+}
+
+func New(opts Options) *Runner {
 	return &Runner{
 		Options:  opts,
 		executor: exec.CommandExecutor{},
@@ -107,12 +111,12 @@ func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) {
 }
 
 func (r *Runner) fail(name string, err error) {
-	r.ResultChan <- resultFail(name, err.Error())
+	r.ResultChan <- Result{Name: name, Err: err}
 	r.failed.Store(true)
 }
 
 func (r *Runner) success(name string) {
-	r.ResultChan <- resultSuccess(name)
+	r.ResultChan <- Result{Name: name, Err: nil}
 }
 
 func (r *Runner) runLFSHook(ctx context.Context) error {

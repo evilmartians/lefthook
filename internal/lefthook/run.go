@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/lefthook/run"
+	"github.com/evilmartians/lefthook/internal/lefthook/runner"
 	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/evilmartians/lefthook/internal/version"
 )
@@ -117,7 +117,7 @@ Run 'lefthook install' manually.`,
 	}
 
 	startTime := time.Now()
-	resultChan := make(chan run.Result, len(hook.Commands)+len(hook.Scripts))
+	resultChan := make(chan runner.Result, len(hook.Commands)+len(hook.Scripts))
 
 	if args.FilesFromStdin {
 		paths, err := io.ReadAll(os.Stdin)
@@ -132,21 +132,6 @@ Run 'lefthook install' manually.`,
 		}
 		args.Files = append(args.Files, files...)
 	}
-
-	runner := run.NewRunner(
-		run.Options{
-			Repo:            l.repo,
-			Hook:            hook,
-			HookName:        hookName,
-			GitArgs:         gitArgs,
-			ResultChan:      resultChan,
-			LogSettings:     logSettings,
-			DisableTTY:      cfg.NoTTY || args.NoTTY,
-			Files:           args.Files,
-			Force:           args.Force,
-			RunOnlyCommands: args.RunOnlyCommands,
-		},
-	)
 
 	sourceDirs := []string{
 		filepath.Join(l.repo.RootPath, cfg.SourceDir),
@@ -169,12 +154,27 @@ Run 'lefthook install' manually.`,
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
+	r := runner.New(
+		runner.Options{
+			Repo:            l.repo,
+			Hook:            hook,
+			HookName:        hookName,
+			GitArgs:         gitArgs,
+			ResultChan:      resultChan,
+			LogSettings:     logSettings,
+			DisableTTY:      cfg.NoTTY || args.NoTTY,
+			Files:           args.Files,
+			Force:           args.Force,
+			RunOnlyCommands: args.RunOnlyCommands,
+		},
+	)
+
 	go func() {
-		runner.RunAll(ctx, sourceDirs)
+		r.RunAll(ctx, sourceDirs)
 		close(resultChan)
 	}()
 
-	var results []run.Result
+	var results []runner.Result
 	for res := range resultChan {
 		results = append(results, res)
 	}
@@ -186,7 +186,7 @@ Run 'lefthook install' manually.`,
 	printSummary(time.Since(startTime), results, logSettings)
 
 	for _, result := range results {
-		if result.Status == run.StatusErr {
+		if result.Err != nil {
 			return errors.New("") // No error should be printed
 		}
 	}
@@ -196,7 +196,7 @@ Run 'lefthook install' manually.`,
 
 func printSummary(
 	duration time.Duration,
-	results []run.Result,
+	results []runner.Result,
 	logSettings log.Settings,
 ) {
 	if logSettings.LogSummary() {
@@ -227,7 +227,7 @@ func printSummary(
 
 	if logSettings.LogSuccess() {
 		for _, result := range results {
-			if result.Status != run.StatusOk {
+			if result.Err != nil {
 				continue
 			}
 
@@ -237,13 +237,13 @@ func printSummary(
 
 	if logSettings.LogFailure() {
 		for _, result := range results {
-			if result.Status != run.StatusErr {
+			if result.Err == nil {
 				continue
 			}
 
-			var failText string
-			if len(result.Text) != 0 {
-				failText = fmt.Sprintf(": %s", result.Text)
+			failText := result.Err.Error()
+			if len(failText) != 0 {
+				failText = fmt.Sprintf(": %s", failText)
 			}
 
 			log.Infof("🥊  %s%s\n", log.Red(result.Name), log.Red(failText))
