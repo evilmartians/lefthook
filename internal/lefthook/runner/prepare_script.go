@@ -2,12 +2,21 @@ package runner
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/log"
 )
+
+type osError struct {
+	err error
+}
+
+func (e *osError) Error() string {
+	return fmt.Sprintf("os error: %s", e.err.Error())
+}
 
 func (r *Runner) prepareScript(script *config.Script, path string, file os.FileInfo) (string, error) {
 	if script.DoSkip(r.Repo.State()) {
@@ -28,8 +37,7 @@ func (r *Runner) prepareScript(script *config.Script, path string, file os.FileI
 	if (file.Mode() & executableMask) == 0 {
 		if err := r.Repo.Fs.Chmod(path, executableFileMode); err != nil {
 			log.Errorf("Couldn't change file mode to make file executable: %s", err)
-			r.fail(file.Name(), nil)
-			return "", errors.New("system error")
+			return "", &osError{err}
 		}
 	}
 

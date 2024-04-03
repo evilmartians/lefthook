@@ -13,6 +13,14 @@ import (
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
+type validationError struct {
+	err error
+}
+
+func (e *validationError) Error() string {
+	return fmt.Sprintf("validation error: %s", e.err.Error())
+}
+
 // An object that describes the single command's run option.
 type run struct {
 	commands []string
@@ -48,8 +56,7 @@ func (r *Runner) prepareCommand(name string, command *config.Command) (*run, err
 	}
 
 	if err := command.Validate(); err != nil {
-		r.fail(name, err)
-		return nil, err
+		return nil, &validationError{err}
 	}
 
 	args, err, skipReason := r.buildRun(command)

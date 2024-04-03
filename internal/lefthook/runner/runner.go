@@ -40,7 +40,6 @@ type Options struct {
 	Hook            *config.Hook
 	HookName        string
 	GitArgs         []string
-	ResultChan      chan Result
 	LogSettings     log.Settings
 	DisableTTY      bool
 	Force           bool
@@ -57,12 +56,6 @@ type Runner struct {
 	executor             exec.Executor
 }
 
-// Result contains name of a command/script and an optional fail string.
-type Result struct {
-	Name string
-	Err  error
-}
-
 func New(opts Options) *Runner {
 	return &Runner{
 		Options:  opts,
@@ -77,14 +70,16 @@ type executable interface {
 
 // RunAll runs scripts and commands.
 // LFS hook is executed at first if needed.
-func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) {
+func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) []Result {
+	results := make([]Result, 0, len(r.Hook.Commands)+len(r.Hook.Scripts))
+
 	if err := r.runLFSHook(ctx); err != nil {
 		log.Error(err)
 	}
 
 	if r.Hook.DoSkip(r.Repo.State()) {
 		r.logSkip(r.HookName, "hook setting")
-		return
+		return results
 	}
 
 	if !r.DisableTTY && !r.Hook.Follow {
@@ -102,21 +97,14 @@ func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) {
 	r.preHook()
 
 	for _, dir := range scriptDirs {
-		r.runScripts(ctx, dir)
+		results = append(results, r.runScripts(ctx, dir)...)
 	}
 
-	r.runCommands(ctx)
+	results = append(results, r.runCommands(ctx)...)
 
 	r.postHook()
-}
 
-func (r *Runner) fail(name string, err error) {
-	r.ResultChan <- Result{Name: name, Err: err}
-	r.failed.Store(true)
-}
-
-func (r *Runner) success(name string) {
-	r.ResultChan <- Result{Name: name, Err: nil}
+	return results
 }
 
 func (r *Runner) runLFSHook(ctx context.Context) error {
@@ -238,10 +226,10 @@ func (r *Runner) postHook() {
 	}
 }
 
-func (r *Runner) runScripts(ctx context.Context, dir string) {
+func (r *Runner) runScripts(ctx context.Context, dir string) []Result {
 	files, err := afero.ReadDir(r.Repo.Fs, dir) // ReadDir already sorts files by .Name()
 	if err != nil || len(files) == 0 {
-		return
+		return nil
 	}
 
 	scripts := make([]string, 0, len(files))
@@ -254,12 +242,14 @@ func (r *Runner) runScripts(ctx context.Context, dir string) {
 
 	interactiveScripts := make([]os.FileInfo, 0)
 	var wg sync.WaitGroup
+	resChan := make(chan Result, len(r.Hook.Scripts))
+	results := make([]Result, 0, len(r.Hook.Scripts))
 
 	for _, name := range scripts {
 		file := filesMap[name]
 
 		if ctx.Err() != nil {
-			return
+			return nil
 		}
 
 		script, ok := r.Hook.Scripts[file.Name()]
@@ -282,20 +272,24 @@ func (r *Runner) runScripts(ctx context.Context, dir string) {
 
 		if r.Hook.Parallel {
 			wg.Add(1)
-			go func(script *config.Script, path string, file os.FileInfo) {
+			go func(script *config.Script, path string, file os.FileInfo, resChan chan Result) {
 				defer wg.Done()
-				r.runScript(ctx, script, path, file)
-			}(script, path, file)
+				resChan <- r.runScript(ctx, script, path, file)
+			}(script, path, file, resChan)
 		} else {
-			r.runScript(ctx, script, path, file)
+			results = append(results, r.runScript(ctx, script, path, file))
 		}
 	}
 
 	wg.Wait()
+	close(resChan)
+	for result := range resChan {
+		results = append(results, result)
+	}
 
 	for _, file := range interactiveScripts {
 		if ctx.Err() != nil {
-			return
+			return nil
 		}
 
 		script := r.Hook.Scripts[file.Name()]
@@ -305,15 +299,24 @@ func (r *Runner) runScripts(ctx context.Context, dir string) {
 		}
 
 		path := filepath.Join(dir, file.Name())
-		r.runScript(ctx, script, path, file)
+		results = append(results, r.runScript(ctx, script, path, file))
 	}
+
+	return results
 }
 
-func (r *Runner) runScript(ctx context.Context, script *config.Script, path string, file os.FileInfo) {
+func (r *Runner) runScript(ctx context.Context, script *config.Script, path string, file os.FileInfo) Result {
 	command, err := r.prepareScript(script, path, file)
 	if err != nil {
+		var oserr *osError
+		if errors.As(err, &oserr) {
+			r.logSkip(file.Name(), oserr.Error())
+			r.failed.Store(true)
+			return failed(file.Name(), oserr.Error())
+		}
+
 		r.logSkip(file.Name(), err.Error())
-		return
+		return skipped(file.Name())
 	}
 
 	if script.Interactive && !r.DisableTTY && !r.Hook.Follow {
@@ -321,28 +324,36 @@ func (r *Runner) runScript(ctx context.Context, script *config.Script, path stri
 		defer log.StartSpinner()
 	}
 
-	finished := r.run(ctx, exec.Options{
+	ok := r.run(ctx, exec.Options{
 		Name:        file.Name(),
 		Root:        r.Repo.RootPath,
 		Commands:    []string{command},
-		FailText:    script.FailText,
 		Interactive: script.Interactive && !r.DisableTTY,
 		UseStdin:    script.UseStdin,
 		Env:         script.Env,
 	}, r.Hook.Follow)
 
-	if finished && config.HookUsesStagedFiles(r.HookName) && script.StageFixed {
+	if !ok {
+		r.failed.Store(true)
+		return failed(file.Name(), script.FailText)
+	}
+
+	result := succeeded(file.Name())
+
+	if config.HookUsesStagedFiles(r.HookName) && script.StageFixed {
 		files, err := r.Repo.StagedFiles()
 		if err != nil {
 			log.Warn("Couldn't stage fixed files:", err)
-			return
+			return result
 		}
 
 		r.addStagedFiles(files)
 	}
+
+	return result
 }
 
-func (r *Runner) runCommands(ctx context.Context) {
+func (r *Runner) runCommands(ctx context.Context) []Result {
 	commands := make([]string, 0, len(r.Hook.Commands))
 	for name := range r.Hook.Commands {
 		if len(r.RunOnlyCommands) == 0 || slices.Contains(r.RunOnlyCommands, name) {
@@ -354,6 +365,8 @@ func (r *Runner) runCommands(ctx context.Context) {
 
 	interactiveCommands := make([]string, 0)
 	var wg sync.WaitGroup
+	results := make([]Result, 0, len(r.Hook.Commands))
+	resChan := make(chan Result, len(r.Hook.Commands))
 
 	for _, name := range commands {
 		if r.failed.Load() && r.Hook.Piped {
@@ -368,16 +381,22 @@ func (r *Runner) runCommands(ctx context.Context) {
 
 		if r.Hook.Parallel {
 			wg.Add(1)
-			go func(name string, command *config.Command) {
+			go func(name string, command *config.Command, resChan chan Result) {
 				defer wg.Done()
-				r.runCommand(ctx, name, command)
-			}(name, r.Hook.Commands[name])
+				result := r.runCommand(ctx, name, command)
+				resChan <- result
+			}(name, r.Hook.Commands[name], resChan)
 		} else {
-			r.runCommand(ctx, name, r.Hook.Commands[name])
+			result := r.runCommand(ctx, name, r.Hook.Commands[name])
+			results = append(results, result)
 		}
 	}
 
 	wg.Wait()
+	close(resChan)
+	for result := range resChan {
+		results = append(results, result)
+	}
 
 	for _, name := range interactiveCommands {
 		if r.failed.Load() {
@@ -385,15 +404,24 @@ func (r *Runner) runCommands(ctx context.Context) {
 			continue
 		}
 
-		r.runCommand(ctx, name, r.Hook.Commands[name])
+		results = append(results, r.runCommand(ctx, name, r.Hook.Commands[name]))
 	}
+
+	return results
 }
 
-func (r *Runner) runCommand(ctx context.Context, name string, command *config.Command) {
+func (r *Runner) runCommand(ctx context.Context, name string, command *config.Command) Result {
 	run, err := r.prepareCommand(name, command)
 	if err != nil {
+		var verr *validationError
+		if errors.As(err, &verr) {
+			r.logSkip(name, verr.Error())
+			r.failed.Store(true)
+			return failed(name, verr.Error())
+		}
+
 		r.logSkip(name, err.Error())
-		return
+		return skipped(name)
 	}
 
 	if command.Interactive && !r.DisableTTY && !r.Hook.Follow {
@@ -401,17 +429,23 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 		defer log.StartSpinner()
 	}
 
-	finished := r.run(ctx, exec.Options{
+	ok := r.run(ctx, exec.Options{
 		Name:        name,
 		Root:        filepath.Join(r.Repo.RootPath, command.Root),
 		Commands:    run.commands,
-		FailText:    command.FailText,
 		Interactive: command.Interactive && !r.DisableTTY,
 		UseStdin:    command.UseStdin,
 		Env:         command.Env,
 	}, r.Hook.Follow)
 
-	if finished && config.HookUsesStagedFiles(r.HookName) && command.StageFixed {
+	if !ok {
+		r.failed.Store(true)
+		return failed(name, command.FailText)
+	}
+
+	result := succeeded(name)
+
+	if config.HookUsesStagedFiles(r.HookName) && command.StageFixed {
 		files := run.files
 
 		if len(files) == 0 {
@@ -419,7 +453,7 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 			files, err = r.Repo.StagedFiles()
 			if err != nil {
 				log.Warn("Couldn't stage fixed files:", err)
-				return
+				return result
 			}
 
 			files = filter.Apply(command, files)
@@ -433,6 +467,8 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 
 		r.addStagedFiles(files)
 	}
+
+	return result
 }
 
 func (r *Runner) addStagedFiles(files []string) {
@@ -456,23 +492,11 @@ func (r *Runner) run(ctx context.Context, opts exec.Options, follow bool) bool {
 		}
 
 		err := r.executor.Execute(ctx, opts, out)
-		if err != nil {
-			r.fail(opts.Name, errors.New(opts.FailText))
-		} else {
-			r.success(opts.Name)
-		}
-
 		return err == nil
 	}
 
 	out := bytes.NewBuffer(make([]byte, 0))
 	err := r.executor.Execute(ctx, opts, out)
-
-	if err != nil {
-		r.fail(opts.Name, errors.New(opts.FailText))
-	} else {
-		r.success(opts.Name)
-	}
 
 	r.logExecute(opts.Name, err, out)
 
