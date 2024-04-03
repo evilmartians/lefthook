@@ -57,6 +57,12 @@ type Runner struct {
 	executor             exec.Executor
 }
 
+// Result contains name of a command/script and an optional fail string.
+type Result struct {
+	Name string
+	Err  error
+}
+
 func New(opts Options) *Runner {
 	return &Runner{
 		Options:  opts,
