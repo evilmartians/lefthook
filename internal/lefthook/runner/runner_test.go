@@ -120,7 +120,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{{Name: "test"}},
+			success: []Result{succeeded("test")},
 		},
 		{
 			name:     "with simple command in follow mode",
@@ -134,7 +134,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{{Name: "test"}},
+			success: []Result{succeeded("test")},
 		},
 		{
 			name:     "with multiple commands ran in parallel",
@@ -155,10 +155,10 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{
-				{Name: "test"},
-				{Name: "lint"},
+				succeeded("test"),
+				succeeded("lint"),
 			},
-			fail: []Result{{Name: "type-check", Err: errors.New("")}},
+			fail: []Result{failed("type-check", "")},
 		},
 		{
 			name:     "with exclude tags",
@@ -180,7 +180,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{{Name: "lint"}},
+			success: []Result{succeeded("lint")},
 		},
 		{
 			name:     "with skip boolean option",
@@ -197,7 +197,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{{Name: "lint"}},
+			success: []Result{succeeded("lint")},
 		},
 		{
 			name:     "with skip merge",
@@ -217,7 +217,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{{Name: "lint"}},
+			success: []Result{succeeded("lint")},
 		},
 		{
 			name:     "with only on merge",
@@ -238,8 +238,8 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{
-				{Name: "lint"},
-				{Name: "test"},
+				succeeded("lint"),
+				succeeded("test"),
 			},
 		},
 		{
@@ -257,7 +257,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{{Name: "lint"}},
+			success: []Result{succeeded("lint")},
 		},
 		{
 			name:     "with global skip merge",
@@ -315,8 +315,8 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{
-				{Name: "lint"},
-				{Name: "test"},
+				succeeded("lint"),
+				succeeded("test"),
 			},
 		},
 		{
@@ -338,7 +338,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{{Name: "lint"}},
+			success: []Result{succeeded("lint")},
 		},
 		{
 			name:   "with global skip on ref",
@@ -381,8 +381,8 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{
-				{Name: "lint"},
-				{Name: "test"},
+				succeeded("lint"),
+				succeeded("test"),
 			},
 		},
 		{
@@ -426,8 +426,8 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			success: []Result{
-				{Name: "test"},
-				{Name: "lint"},
+				succeeded("test"),
+				succeeded("lint"),
 			},
 		},
 		{
@@ -442,7 +442,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			fail: []Result{{Name: "test", Err: errors.New("try 'success'")}},
+			fail: []Result{failed("test", "try 'success'")},
 		},
 		{
 			name:       "with simple scripts",
@@ -464,8 +464,8 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{{Name: "script.sh"}},
-			fail:    []Result{{Name: "failing.js", Err: errors.New("install node")}},
+			success: []Result{succeeded("script.sh")},
+			fail:    []Result{failed("failing.js", "install node")},
 		},
 		{
 			name:       "with simple scripts and only option",
@@ -490,8 +490,8 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{{Name: "script.sh"}},
-			fail:    []Result{{Name: "failing.js", Err: errors.New("install node")}},
+			success: []Result{succeeded("script.sh")},
+			fail:    []Result{failed("failing.js", "install node")},
 		},
 		{
 			name:       "with simple scripts and only option",
@@ -547,8 +547,8 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{}, // script.sh and ok are skipped
-			fail:    []Result{{Name: "failing.js", Err: errors.New("")}, {Name: "fail", Err: errors.New("")}},
+			success: []Result{}, // script.sh and ok are skipped because of non-interactive cmd failure
+			fail:    []Result{failed("failing.js", ""), failed("fail", "")},
 		},
 		{
 			name:       "with stage_fixed in true",
@@ -580,8 +580,8 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{{Name: "ok"}, {Name: "success.sh"}},
-			fail:    []Result{{Name: "fail", Err: errors.New("")}, {Name: "failing.js", Err: errors.New("")}},
+			success: []Result{succeeded("ok"), succeeded("success.sh")},
+			fail:    []Result{failed("fail", ""), failed("failing.js", "")},
 		},
 		{
 			name:       "pre-commit hook simple",
@@ -615,8 +615,8 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{{Name: "ok"}, {Name: "success.sh"}},
-			fail:    []Result{{Name: "fail", Err: errors.New("")}, {Name: "failing.js", Err: errors.New("")}},
+			success: []Result{succeeded("ok"), succeeded("success.sh")},
+			fail:    []Result{failed("fail", ""), failed("failing.js", "")},
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
@@ -649,7 +649,7 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{{Name: "ok"}},
+			success: []Result{succeeded("ok")},
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
@@ -681,8 +681,8 @@ func TestRunAll(t *testing.T) {
 				},
 			},
 			force:   true,
-			success: []Result{{Name: "ok"}},
-			fail:    []Result{{Name: "fail", Err: errors.New("")}},
+			success: []Result{succeeded("ok")},
+			fail:    []Result{failed("fail", "")},
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
@@ -707,7 +707,7 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{{Name: "ok"}},
+			success: []Result{succeeded("ok")},
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
@@ -737,7 +737,7 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{{Name: "ok"}},
+			success: []Result{succeeded("ok")},
 			gitCommands: []string{
 				"git diff --name-only HEAD @{push}",
 				"git diff --name-only HEAD @{push}",
@@ -746,7 +746,6 @@ func TestRunAll(t *testing.T) {
 	} {
 		fs := afero.NewMemMapFs()
 		repo.Fs = fs
-		resultChan := make(chan Result, len(tt.hook.Commands)+len(tt.hook.Scripts))
 		executor := TestExecutor{}
 		runner := &Runner{
 			Options: Options{
@@ -755,7 +754,6 @@ func TestRunAll(t *testing.T) {
 				HookName:    tt.hookName,
 				LogSettings: log.NewSettings(),
 				GitArgs:     tt.args,
-				ResultChan:  resultChan,
 				Force:       tt.force,
 			},
 			executor: executor,
@@ -778,15 +776,14 @@ func TestRunAll(t *testing.T) {
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			runner.RunAll(context.Background(), tt.sourceDirs)
-			close(resultChan)
+			results := runner.RunAll(context.Background(), tt.sourceDirs)
 
 			var success, fail []Result
-			for res := range resultChan {
-				if res.Err == nil {
-					success = append(success, res)
-				} else {
-					fail = append(fail, res)
+			for _, result := range results {
+				if result.Success() {
+					success = append(success, result)
+				} else if result.Failure() {
+					fail = append(fail, result)
 				}
 			}
 
@@ -820,12 +817,12 @@ func resultsMatch(a, b []Result) bool {
 	matches := make(map[string]struct{})
 
 	for _, item := range a {
-		str := fmt.Sprintf("%s_%v", item.Name, item.Err)
+		str := fmt.Sprintf("%v", item)
 		matches[str] = struct{}{}
 	}
 
 	for _, item := range b {
-		str := fmt.Sprintf("%s_%v", item.Name, item.Err)
+		str := fmt.Sprintf("%v", item)
 		if _, ok := matches[str]; !ok {
 			return false
 		}

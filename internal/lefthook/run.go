@@ -116,9 +116,6 @@ Run 'lefthook install' manually.`,
 		return err
 	}
 
-	startTime := time.Now()
-	resultChan := make(chan runner.Result, len(hook.Commands)+len(hook.Scripts))
-
 	if args.FilesFromStdin {
 		paths, err := io.ReadAll(os.Stdin)
 		if err != nil {
@@ -160,7 +157,6 @@ Run 'lefthook install' manually.`,
 			Hook:            hook,
 			HookName:        hookName,
 			GitArgs:         gitArgs,
-			ResultChan:      resultChan,
 			LogSettings:     logSettings,
 			DisableTTY:      cfg.NoTTY || args.NoTTY,
 			Files:           args.Files,
@@ -169,15 +165,8 @@ Run 'lefthook install' manually.`,
 		},
 	)
 
-	go func() {
-		r.RunAll(ctx, sourceDirs)
-		close(resultChan)
-	}()
-
-	var results []runner.Result
-	for res := range resultChan {
-		results = append(results, res)
-	}
+	startTime := time.Now()
+	results := r.RunAll(ctx, sourceDirs)
 
 	if ctx.Err() != nil {
 		return errors.New("Interrupted")
@@ -186,7 +175,7 @@ Run 'lefthook install' manually.`,
 	printSummary(time.Since(startTime), results, logSettings)
 
 	for _, result := range results {
-		if result.Err != nil {
+		if result.Failure() {
 			return errors.New("") // No error should be printed
 		}
 	}
@@ -227,7 +216,7 @@ func printSummary(
 
 	if logSettings.LogSuccess() {
 		for _, result := range results {
-			if result.Err != nil {
+			if !result.Success() {
 				continue
 			}
 
@@ -237,11 +226,11 @@ func printSummary(
 
 	if logSettings.LogFailure() {
 		for _, result := range results {
-			if result.Err == nil {
+			if !result.Failure() {
 				continue
 			}
 
-			failText := result.Err.Error()
+			failText := result.Text()
 			if len(failText) != 0 {
 				failText = fmt.Sprintf(": %s", failText)
 			}
