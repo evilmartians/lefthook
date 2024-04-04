@@ -1,7 +1,6 @@
 package runner
 
 import (
-	"errors"
 	"fmt"
 	"runtime"
 	"strings"
@@ -12,14 +11,6 @@ import (
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/filter"
 	"github.com/evilmartians/lefthook/internal/log"
 )
-
-type validationError struct {
-	err error
-}
-
-func (e *validationError) Error() string {
-	return fmt.Sprintf("validation error: %s", e.err.Error())
-}
 
 // An object that describes the single command's run option.
 type run struct {
@@ -44,34 +35,30 @@ const (
 
 func (r *Runner) prepareCommand(name string, command *config.Command) (*run, error) {
 	if command.DoSkip(r.Repo.State()) {
-		return nil, errors.New("settings")
+		return nil, &skipError{"settings"}
 	}
 
 	if intersect(r.Hook.ExcludeTags, command.Tags) {
-		return nil, errors.New("tags")
+		return nil, &skipError{"tags"}
 	}
 
 	if intersect(r.Hook.ExcludeTags, []string{name}) {
-		return nil, errors.New("name")
+		return nil, &skipError{"name"}
 	}
 
 	if err := command.Validate(); err != nil {
-		return nil, &validationError{err}
+		return nil, err
 	}
 
-	args, err, skipReason := r.buildRun(command)
+	args, err := r.buildRun(command)
 	if err != nil {
-		log.Error(err)
-		return nil, errors.New("error")
-	}
-	if skipReason != nil {
-		return nil, skipReason
+		return nil, err
 	}
 
 	return args, nil
 }
 
-func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
+func (r *Runner) buildRun(command *config.Command) (*run, error) {
 	filesCmd := r.Hook.Files
 	if len(command.Files) > 0 {
 		filesCmd = command.Files
@@ -125,12 +112,12 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 
 		files, err := fn()
 		if err != nil {
-			return nil, fmt.Errorf("error replacing %s: %w", filesType, err), nil
+			return nil, fmt.Errorf("error replacing %s: %w", filesType, err)
 		}
 
 		files = filter.Apply(command, files)
 		if !r.Force && len(files) == 0 {
-			return nil, nil, errors.New("no files for inspection")
+			return nil, &skipError{"no files for inspection"}
 		}
 
 		templ.files = files
@@ -142,13 +129,13 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 	if !r.Force && len(filesCmd) > 0 && templates[config.SubFiles] == nil {
 		files, err := filesFns[config.SubFiles]()
 		if err != nil {
-			return nil, fmt.Errorf("error calling replace command for %s: %w", config.SubFiles, err), nil
+			return nil, fmt.Errorf("error calling replace command for %s: %w", config.SubFiles, err)
 		}
 
 		files = filter.Apply(command, files)
 
 		if len(files) == 0 {
-			return nil, nil, errors.New("no files for inspection")
+			return nil, &skipError{"no files for inspection"}
 		}
 	}
 
@@ -167,30 +154,30 @@ func (r *Runner) buildRun(command *config.Command) (*run, error, error) {
 	result := replaceInChunks(runString, templates, maxlen)
 
 	if r.Force || len(result.files) != 0 {
-		return result, nil, nil
+		return result, nil
 	}
 
 	if config.HookUsesStagedFiles(r.HookName) {
 		ok, err := canSkipCommand(command, templates[config.SubStagedFiles], r.Repo.StagedFiles)
 		if err != nil {
-			return nil, err, nil
+			return nil, err
 		}
 		if ok {
-			return nil, nil, errors.New("no matching staged files")
+			return nil, &skipError{"no matching staged files"}
 		}
 	}
 
 	if config.HookUsesPushFiles(r.HookName) {
 		ok, err := canSkipCommand(command, templates[config.SubPushFiles], r.Repo.PushFiles)
 		if err != nil {
-			return nil, err, nil
+			return nil, err
 		}
 		if ok {
-			return nil, nil, errors.New("no matching push files")
+			return nil, &skipError{"no matching push files"}
 		}
 	}
 
-	return result, nil, nil
+	return result, nil
 }
 
 func canSkipCommand(command *config.Command, template *template, filesFn func() ([]string, error)) (bool, error) {

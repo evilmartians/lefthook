@@ -63,6 +63,15 @@ func New(opts Options) *Runner {
 	}
 }
 
+// skipError implements error interface but indicates that the execution needs to be skipped.
+type skipError struct {
+	reason string
+}
+
+func (r *skipError) Error() string {
+	return r.reason
+}
+
 type executable interface {
 	*config.Command | *config.Script
 	ExecutionPriority() int
@@ -308,15 +317,15 @@ func (r *Runner) runScripts(ctx context.Context, dir string) []Result {
 func (r *Runner) runScript(ctx context.Context, script *config.Script, path string, file os.FileInfo) Result {
 	command, err := r.prepareScript(script, path, file)
 	if err != nil {
-		var oserr *osError
-		if errors.As(err, &oserr) {
-			r.logSkip(file.Name(), oserr.Error())
-			r.failed.Store(true)
-			return failed(file.Name(), oserr.Error())
+		r.logSkip(file.Name(), err.Error())
+
+		var skipErr *skipError
+		if errors.As(err, &skipErr) {
+			return skipped(file.Name())
 		}
 
-		r.logSkip(file.Name(), err.Error())
-		return skipped(file.Name())
+		r.failed.Store(true)
+		return failed(file.Name(), err.Error())
 	}
 
 	if script.Interactive && !r.DisableTTY && !r.Hook.Follow {
@@ -413,15 +422,15 @@ func (r *Runner) runCommands(ctx context.Context) []Result {
 func (r *Runner) runCommand(ctx context.Context, name string, command *config.Command) Result {
 	run, err := r.prepareCommand(name, command)
 	if err != nil {
-		var verr *validationError
-		if errors.As(err, &verr) {
-			r.logSkip(name, verr.Error())
-			r.failed.Store(true)
-			return failed(name, verr.Error())
+		r.logSkip(name, err.Error())
+
+		var skipErr *skipError
+		if errors.As(err, &skipErr) {
+			return skipped(name)
 		}
 
-		r.logSkip(name, err.Error())
-		return skipped(name)
+		r.failed.Store(true)
+		return failed(name, err.Error())
 	}
 
 	if command.Interactive && !r.DisableTTY && !r.Hook.Follow {
