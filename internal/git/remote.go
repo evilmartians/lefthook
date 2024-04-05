@@ -31,7 +31,7 @@ func (r *Repository) RemotesFolder() string {
 // SyncRemote clones or pulls the latest changes for a git repository that was
 // specified as a remote config repository. If successful, the path to the root
 // of the repository will be returned.
-func (r *Repository) SyncRemote(url, ref string) error {
+func (r *Repository) SyncRemote(url, ref string, force bool) error {
 	remotesPath := r.RemotesFolder()
 
 	err := r.Fs.MkdirAll(remotesPath, remotesFolderMode)
@@ -42,9 +42,16 @@ func (r *Repository) SyncRemote(url, ref string) error {
 	directoryName := remoteDirectoryName(url, ref)
 	remotePath := filepath.Join(remotesPath, directoryName)
 
-	_, err = r.Fs.Stat(remotePath)
-	if err == nil {
-		return r.updateRemote(remotePath, ref)
+	if force {
+		err = r.Fs.RemoveAll(remotePath)
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err = r.Fs.Stat(remotePath)
+		if err == nil {
+			return r.updateRemote(remotePath, ref)
+		}
 	}
 
 	return r.cloneRemote(remotesPath, directoryName, url, ref)
