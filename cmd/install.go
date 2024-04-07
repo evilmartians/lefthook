@@ -14,6 +14,7 @@ func newInstallCmd(opts *lefthook.Options) *cobra.Command {
 		Use:               "install",
 		Short:             "Write basic configuration file in your project repository. Or initialize existed config",
 		ValidArgsFunction: cobra.NoFileCompletions,
+		Args:              cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _args []string) error {
 			return lefthook.Install(opts, force)
 		},

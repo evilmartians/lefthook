@@ -30,7 +30,7 @@ func newAddCmd(opts *lefthook.Options) *cobra.Command {
 		Long:              addDoc,
 		Example:           "lefthook add pre-commit",
 		ValidArgsFunction: addHookCompletions,
-		Args:              cobra.MinimumNArgs(1),
+		Args:              cobra.ExactArgs(1),
 		RunE: func(_cmd *cobra.Command, hooks []string) error {
 			args.Hook = hooks[0]
 			return lefthook.Add(opts, &args)
