@@ -40,32 +40,22 @@ type GitMock struct {
 	commands []string
 }
 
-func (g *GitMock) SetRootPath(_root string) {}
-
-func (g *GitMock) Cmd(cmd []string) (string, error) {
+func (g *GitMock) Execute(cmd []string, _root string) (string, error) {
 	g.mux.Lock()
 	g.commands = append(g.commands, strings.Join(cmd, " "))
 	g.mux.Unlock()
 
-	return "", nil
-}
-
-func (g *GitMock) CmdLines(args []string) ([]string, error) {
-	cmd := strings.Join(args, " ")
-	g.mux.Lock()
-	g.commands = append(g.commands, cmd)
-	g.mux.Unlock()
-
-	if cmd == "git diff --name-only --cached --diff-filter=ACMR" ||
-		cmd == "git diff --name-only HEAD @{push}" {
+	cmdLine := strings.Join(cmd, " ")
+	if cmdLine == "git diff --name-only --cached --diff-filter=ACMR" ||
+		cmdLine == "git diff --name-only HEAD @{push}" {
 		root, _ := filepath.Abs("src")
-		return []string{
+		return strings.Join([]string{
 			filepath.Join(root, "scripts", "script.sh"),
 			filepath.Join(root, "README.md"),
-		}, nil
+		}, "\n"), nil
 	}
 
-	return nil, nil
+	return "", nil
 }
 
 func (g *GitMock) reset() {
@@ -83,7 +73,7 @@ func TestRunAll(t *testing.T) {
 	gitExec := &GitMock{}
 	gitPath := filepath.Join(root, ".git")
 	repo := &git.Repository{
-		Git:       gitExec,
+		Git:       git.NewExecutor(gitExec),
 		HooksPath: filepath.Join(gitPath, "hooks"),
 		RootPath:  root,
 		GitPath:   gitPath,

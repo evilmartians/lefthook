@@ -10,6 +10,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/filter"
 	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/internal/system"
 )
 
 // An object that describes the single command's run option.
@@ -23,15 +24,6 @@ type template struct {
 	files []string
 	cnt   int
 }
-
-const (
-	// https://serverfault.com/questions/69430/what-is-the-maximum-length-of-a-command-line-in-mac-os-x
-	// https://support.microsoft.com/en-us/help/830473/command-prompt-cmd-exe-command-line-string-limitation
-	// https://unix.stackexchange.com/a/120652
-	maxCommandLengthDarwin  = 260000 // 262144
-	maxCommandLengthWindows = 7000   // 8191, but see issues#655
-	maxCommandLengthLinux   = 130000 // 131072
-)
 
 func (r *Runner) prepareCommand(name string, command *config.Command) (*run, error) {
 	if command.DoSkip(r.Repo.State()) {
@@ -142,15 +134,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error) {
 	runString := command.Run
 	runString = replacePositionalArguments(runString, r.GitArgs)
 
-	var maxlen int
-	switch runtime.GOOS {
-	case "windows":
-		maxlen = maxCommandLengthWindows
-	case "darwin":
-		maxlen = maxCommandLengthDarwin
-	default:
-		maxlen = maxCommandLengthLinux
-	}
+	maxlen := system.MaxCmdLen()
 	result := replaceInChunks(runString, templates, maxlen)
 
 	if r.Force || len(result.files) != 0 {

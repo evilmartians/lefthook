@@ -8,12 +8,12 @@ import (
 )
 
 type SkipChecker struct {
-	Executor Exec
+	Executor CommandExecutor
 }
 
-func NewSkipChecker(executor Exec) *SkipChecker {
+func NewSkipChecker(executor CommandExecutor) *SkipChecker {
 	if executor == nil {
-		executor = NewOsExec()
+		executor = NewExecutor()
 	}
 
 	return &SkipChecker{Executor: executor}

@@ -11,6 +11,7 @@ import (
 
 	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/internal/system"
 	"github.com/evilmartians/lefthook/internal/templates"
 )
 
@@ -50,7 +51,7 @@ func initialize(opts *Options) (*Lefthook, error) {
 
 	log.SetColors(!opts.NoColors)
 
-	repo, err := git.NewRepository(opts.Fs, git.NewOsExec())
+	repo, err := git.NewRepository(opts.Fs, git.NewExecutor(system.Executor{}))
 	if err != nil {
 		return nil, err
 	}
