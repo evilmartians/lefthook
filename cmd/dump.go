@@ -13,6 +13,7 @@ func newDumpCmd(opts *lefthook.Options) *cobra.Command {
 		Short:             "Prints config merged from all extensions (in YAML format by default)",
 		Example:           "lefthook dump",
 		ValidArgsFunction: cobra.NoFileCompletions,
+		Args:              cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			lefthook.Dump(opts, dumpArgs)
 		},

@@ -13,6 +13,7 @@ func newUninstallCmd(opts *lefthook.Options) *cobra.Command {
 		Use:               "uninstall",
 		Short:             "Revert install command",
 		ValidArgsFunction: cobra.NoFileCompletions,
+		Args:              cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _args []string) error {
 			return lefthook.Uninstall(opts, &args)
 		},

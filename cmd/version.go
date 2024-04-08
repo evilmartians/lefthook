@@ -15,6 +15,7 @@ func newVersionCmd(_opts *lefthook.Options) *cobra.Command {
 		Use:               "version",
 		Short:             "Show lefthook version",
 		ValidArgsFunction: cobra.NoFileCompletions,
+		Args:              cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			log.Println(version.Version(verbose))
 		},
