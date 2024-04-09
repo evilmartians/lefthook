@@ -9,6 +9,10 @@ import (
 	"path/filepath"
 	"strings"
 	"syscall"
+
+	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/mattn/go-isatty"
+	"github.com/mattn/go-tty"
 )
 
 type CommandExecutor struct{}
@@ -20,6 +24,20 @@ type executeArgs struct {
 }
 
 func (e CommandExecutor) Execute(ctx context.Context, opts Options, out io.Writer) error {
+	var in io.Reader = nullReader{}
+	if opts.UseStdin {
+		in = os.Stdin
+	}
+	if opts.Interactive && !isatty.IsTerminal(os.Stdin.Fd()) {
+		tty, err := tty.Open()
+		if err == nil {
+			defer tty.Close()
+			in = tty.Input()
+		} else {
+			log.Errorf("Couldn't enable TTY input: %s\n", err)
+		}
+	}
+
 	root, _ := filepath.Abs(opts.Root)
 	envs := make([]string, len(opts.Env))
 	for name, value := range opts.Env {
@@ -27,11 +45,6 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, out io.Write
 			envs,
 			fmt.Sprintf("%s=%s", strings.ToUpper(name), os.ExpandEnv(value)),
 		)
-	}
-
-	var in io.Reader = nullReader{}
-	if opts.Interactive || opts.UseStdin {
-		in = os.Stdin
 	}
 
 	args := &executeArgs{
