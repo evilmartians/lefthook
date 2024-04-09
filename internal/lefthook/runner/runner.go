@@ -465,7 +465,7 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 				return result
 			}
 
-			files = filter.Apply(command, files)
+			files = filter.Apply(r.Repo.Fs, command, files)
 		}
 
 		if len(command.Root) > 0 {

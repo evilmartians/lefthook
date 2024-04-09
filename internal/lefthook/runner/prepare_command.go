@@ -107,7 +107,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error) {
 			return nil, fmt.Errorf("error replacing %s: %w", filesType, err)
 		}
 
-		files = filter.Apply(command, files)
+		files = filter.Apply(r.Repo.Fs, command, files)
 		if !r.Force && len(files) == 0 {
 			return nil, &skipError{"no files for inspection"}
 		}
@@ -124,7 +124,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error) {
 			return nil, fmt.Errorf("error calling replace command for %s: %w", config.SubFiles, err)
 		}
 
-		files = filter.Apply(command, files)
+		files = filter.Apply(r.Repo.Fs, command, files)
 
 		if len(files) == 0 {
 			return nil, &skipError{"no files for inspection"}
@@ -142,7 +142,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error) {
 	}
 
 	if config.HookUsesStagedFiles(r.HookName) {
-		ok, err := canSkipCommand(command, templates[config.SubStagedFiles], r.Repo.StagedFiles)
+		ok, err := r.canSkipCommand(command, templates[config.SubStagedFiles], r.Repo.StagedFiles)
 		if err != nil {
 			return nil, err
 		}
@@ -152,7 +152,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error) {
 	}
 
 	if config.HookUsesPushFiles(r.HookName) {
-		ok, err := canSkipCommand(command, templates[config.SubPushFiles], r.Repo.PushFiles)
+		ok, err := r.canSkipCommand(command, templates[config.SubPushFiles], r.Repo.PushFiles)
 		if err != nil {
 			return nil, err
 		}
@@ -164,7 +164,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error) {
 	return result, nil
 }
 
-func canSkipCommand(command *config.Command, template *template, filesFn func() ([]string, error)) (bool, error) {
+func (r *Runner) canSkipCommand(command *config.Command, template *template, filesFn func() ([]string, error)) (bool, error) {
 	if template != nil {
 		return len(template.files) == 0, nil
 	}
@@ -173,7 +173,7 @@ func canSkipCommand(command *config.Command, template *template, filesFn func() 
 	if err != nil {
 		return false, fmt.Errorf("error getting files: %w", err)
 	}
-	if len(filter.Apply(command, files)) == 0 {
+	if len(filter.Apply(r.Repo.Fs, command, files)) == 0 {
 		return true, nil
 	}
 

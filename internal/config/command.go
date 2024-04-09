@@ -19,6 +19,7 @@ type Command struct {
 	Only  interface{}       `json:"only,omitempty"  mapstructure:"only"  toml:"only,omitempty,inline" yaml:",omitempty"`
 	Tags  []string          `json:"tags,omitempty"  mapstructure:"tags"  toml:"tags,omitempty"        yaml:",omitempty"`
 	Glob  string            `json:"glob,omitempty"  mapstructure:"glob"  toml:"glob,omitempty"        yaml:",omitempty"`
+	Types []string          `json:"types,omitempty" mapstructure:"types" toml:"types,omitempty"       yaml:",omitempty"`
 	Files string            `json:"files,omitempty" mapstructure:"files" toml:"files,omitempty"       yaml:",omitempty"`
 	Env   map[string]string `json:"env,omitempty"   mapstructure:"env"   toml:"env,omitempty"         yaml:",omitempty"`
 
