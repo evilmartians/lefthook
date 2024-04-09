@@ -9,6 +9,7 @@ require (
 	github.com/creack/pty v1.1.21
 	github.com/gobwas/glob v0.2.3
 	github.com/google/go-cmp v0.6.0
+	github.com/mattn/go-tty v0.0.5
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rogpeppe/go-internal v1.12.0
 	github.com/spf13/afero v1.11.0
