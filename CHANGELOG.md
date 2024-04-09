@@ -2,6 +2,14 @@
 
 ## master (unreleased)
 
+## 1.6.9 (2024-04-09)
+
+- fix: add batching to implicit commands ([#695](https://github.com/evilmartians/lefthook/pull/695)) by @mrexox
+- fix: command argument count validations ([#694](https://github.com/evilmartians/lefthook/pull/694)) by @scop
+- fix: re-download remotes when called install with -f ([#692](https://github.com/evilmartians/lefthook/pull/692)) by @mrexox
+- chore: remove redundant parallelisation ([#690](https://github.com/evilmartians/lefthook/pull/690)) by @mrexox
+- chore: refactor Result handling ([#689](https://github.com/evilmartians/lefthook/pull/689)) by @mrexox
+
 ## 1.6.8 (2024-04-02)
 
 - fix: fallback to empty tree sha when no upstream set ([#687](https://github.com/evilmartians/lefthook/pull/687)) by @mrexox
