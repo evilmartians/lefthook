@@ -14,8 +14,10 @@ import (
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
+type typeMask int
+
 const (
-	typeExecutable int = 1 << (32 - 1 - iota)
+	typeExecutable typeMask = 1 << iota
 	typeNotExecutable
 	typeSymlink
 	typeNotSymlink
@@ -24,6 +26,7 @@ const (
 	typeBinary
 	typeNotBinary
 
+	detectTypes   = typeText | typeNotText | typeBinary | typeNotBinary
 	detectBufSize = 1024
 )
 
@@ -115,20 +118,22 @@ func byType(fs afero.Fs, vs []string, types []string) []string {
 			continue
 		}
 
-		text := fileInfo.Mode().IsRegular() && isText(fs, v)
-		binary := fileInfo.Mode().IsRegular() && !text
+		if mask&detectTypes != 0 {
+			text := fileInfo.Mode().IsRegular() && isText(fs, v)
+			binary := fileInfo.Mode().IsRegular() && !text
 
-		if mask&typeText != 0 && binary {
-			continue
-		}
-		if mask&typeNotText != 0 && text {
-			continue
-		}
-		if mask&typeBinary != 0 && text {
-			continue
-		}
-		if mask&typeNotBinary != 0 && binary {
-			continue
+			if mask&typeText != 0 && binary {
+				continue
+			}
+			if mask&typeNotText != 0 && text {
+				continue
+			}
+			if mask&typeBinary != 0 && text {
+				continue
+			}
+			if mask&typeNotBinary != 0 && binary {
+				continue
+			}
 		}
 
 		vsf = append(vsf, v)
@@ -137,8 +142,8 @@ func byType(fs afero.Fs, vs []string, types []string) []string {
 	return vsf
 }
 
-func fillTypeMask(types []string) int {
-	var mask int
+func fillTypeMask(types []string) typeMask {
+	var mask typeMask
 
 	for _, t := range types {
 		switch t {
