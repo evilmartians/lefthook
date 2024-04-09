@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/evilmartians/lefthook/internal/git"
@@ -8,8 +9,12 @@ import (
 
 type mockExecutor struct{}
 
-func (mc mockExecutor) Cmd(cmd string) bool {
-	return cmd == "success"
+func (mc mockExecutor) Execute(args []string, _root string) (string, error) {
+	if len(args) == 3 && args[2] == "success" {
+		return "", nil
+	} else {
+		return "", errors.New("failure")
+	}
 }
 
 func TestDoSkip(t *testing.T) {
@@ -139,7 +144,7 @@ func TestDoSkip(t *testing.T) {
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			if skipChecker.Check(tt.state, tt.skip, tt.only) != tt.skipped {
+			if skipChecker.check(tt.state, tt.skip, tt.only) != tt.skipped {
 				t.Errorf("Expected: %v, Was %v", tt.skipped, !tt.skipped)
 			}
 		})

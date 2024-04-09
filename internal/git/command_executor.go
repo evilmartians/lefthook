@@ -8,8 +8,8 @@ import (
 	"github.com/evilmartians/lefthook/internal/system"
 )
 
-// Executor provides a general interface for executing the commands.
-// Added mostly for mockable tests.
+// Executor is a general execution interface for implicit commands.
+// Added here mostly for mockable tests.
 type Executor interface {
 	Execute(args []string, root string) (string, error)
 }

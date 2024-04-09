@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/evilmartians/lefthook/internal/git"
+	"github.com/evilmartians/lefthook/internal/system"
 )
 
 var errFilesIncompatible = errors.New("One of your runners contains incompatible file types")
@@ -44,8 +45,8 @@ func (c Command) Validate() error {
 }
 
 func (c Command) DoSkip(gitState git.State) bool {
-	skipChecker := NewSkipChecker(NewExecutor())
-	return skipChecker.Check(gitState, c.Skip, c.Only)
+	skipChecker := NewSkipChecker(system.Executor{})
+	return skipChecker.check(gitState, c.Skip, c.Only)
 }
 
 func (c Command) ExecutionPriority() int {

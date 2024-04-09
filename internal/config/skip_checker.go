@@ -7,19 +7,16 @@ import (
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
-type SkipChecker struct {
-	Executor CommandExecutor
+type skipChecker struct {
+	exec *commandExecutor
 }
 
-func NewSkipChecker(executor CommandExecutor) *SkipChecker {
-	if executor == nil {
-		executor = NewExecutor()
-	}
-
-	return &SkipChecker{Executor: executor}
+func NewSkipChecker(executor Executor) *skipChecker {
+	return &skipChecker{&commandExecutor{executor}}
 }
 
-func (sc *SkipChecker) Check(gitState git.State, skip interface{}, only interface{}) bool {
+// check returns the result of applying a skip/only setting which can be a branch, git state, shell command, etc.
+func (sc *skipChecker) check(gitState git.State, skip interface{}, only interface{}) bool {
 	if skip != nil {
 		if sc.matches(gitState, skip) {
 			return true
@@ -33,7 +30,7 @@ func (sc *SkipChecker) Check(gitState git.State, skip interface{}, only interfac
 	return false
 }
 
-func (sc *SkipChecker) matches(gitState git.State, value interface{}) bool {
+func (sc *skipChecker) matches(gitState git.State, value interface{}) bool {
 	switch typedValue := value.(type) {
 	case bool:
 		return typedValue
@@ -45,7 +42,7 @@ func (sc *SkipChecker) matches(gitState git.State, value interface{}) bool {
 	return false
 }
 
-func (sc *SkipChecker) matchesSlices(gitState git.State, slice []interface{}) bool {
+func (sc *skipChecker) matchesSlices(gitState git.State, slice []interface{}) bool {
 	for _, state := range slice {
 		switch typedState := state.(type) {
 		case string:
@@ -66,7 +63,7 @@ func (sc *SkipChecker) matchesSlices(gitState git.State, slice []interface{}) bo
 	return false
 }
 
-func (sc *SkipChecker) matchesRef(gitState git.State, typedState map[string]interface{}) bool {
+func (sc *skipChecker) matchesRef(gitState git.State, typedState map[string]interface{}) bool {
 	ref, ok := typedState["ref"].(string)
 	if !ok {
 		return false
@@ -81,13 +78,13 @@ func (sc *SkipChecker) matchesRef(gitState git.State, typedState map[string]inte
 	return g.Match(gitState.Branch)
 }
 
-func (sc *SkipChecker) matchesCommands(typedState map[string]interface{}) bool {
+func (sc *skipChecker) matchesCommands(typedState map[string]interface{}) bool {
 	commandLine, ok := typedState["run"].(string)
 	if !ok {
 		return false
 	}
 
-	result := sc.Executor.Cmd(commandLine)
+	result := sc.exec.cmd(commandLine)
 
 	log.Debugf("[lefthook] skip/only cmd: %s, result: %t", commandLine, result)
 

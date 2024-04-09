@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/evilmartians/lefthook/internal/git"
+	"github.com/evilmartians/lefthook/internal/system"
 )
 
 type Script struct {
@@ -29,8 +30,8 @@ type scriptRunnerReplace struct {
 }
 
 func (s Script) DoSkip(gitState git.State) bool {
-	skipChecker := NewSkipChecker(NewExecutor())
-	return skipChecker.Check(gitState, s.Skip, s.Only)
+	skipChecker := NewSkipChecker(system.Executor{})
+	return skipChecker.check(gitState, s.Skip, s.Only)
 }
 
 func (s Script) ExecutionPriority() int {

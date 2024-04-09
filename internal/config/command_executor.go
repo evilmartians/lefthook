@@ -2,25 +2,20 @@ package config
 
 import (
 	"runtime"
-
-	"github.com/evilmartians/lefthook/internal/system"
 )
 
-type CommandExecutor interface {
-	Cmd(commandLine string) bool
+// Executor is a general execution interface for implicit commands.
+type Executor interface {
+	Execute(args []string, root string) (string, error)
 }
 
-type executor struct {
-	exec system.Executor
+// commandExecutor implements execution of a skip checks passed in a `run` option.
+type commandExecutor struct {
+	exec Executor
 }
 
-// NewExecutor returns an object that executes given commands in the OS.
-func NewExecutor() CommandExecutor {
-	return &executor{system.Executor{}}
-}
-
-// Cmd runs plain string command. It checks only exit code and returns bool value.
-func (e *executor) Cmd(commandLine string) bool {
+// cmd runs plain string command in a subshell returning the success of it.
+func (c *commandExecutor) cmd(commandLine string) bool {
 	if commandLine == "" {
 		return false
 	}
@@ -32,7 +27,7 @@ func (e *executor) Cmd(commandLine string) bool {
 		args = []string{"sh", "-c", commandLine}
 	}
 
-	_, err := e.exec.Execute(args, "")
+	_, err := c.exec.Execute(args, "")
 
 	return err == nil
 }
