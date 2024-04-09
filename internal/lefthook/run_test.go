@@ -13,14 +13,8 @@ import (
 
 type GitMock struct{}
 
-func (g GitMock) SetRootPath(_root string) {}
-
-func (g GitMock) Cmd(_cmd []string) (string, error) {
+func (g GitMock) Execute(_cmd []string, root string) (string, error) {
 	return "", nil
-}
-
-func (g GitMock) CmdLines(_cmd []string) ([]string, error) {
-	return nil, nil
 }
 
 func TestRun(t *testing.T) {
@@ -163,7 +157,7 @@ post-commit:
 				Options: &Options{Fs: fs},
 				repo: &git.Repository{
 					Fs:        fs,
-					Git:       GitMock{},
+					Git:       git.NewExecutor(GitMock{}),
 					HooksPath: hooksPath,
 					RootPath:  root,
 					GitPath:   gitPath,

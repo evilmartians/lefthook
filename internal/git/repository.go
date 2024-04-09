@@ -41,7 +41,7 @@ var (
 // Repository represents a git repository.
 type Repository struct {
 	Fs                afero.Fs
-	Git               Exec
+	Git               *CommandExecutor
 	HooksPath         string
 	RootPath          string
 	GitPath           string
@@ -52,7 +52,7 @@ type Repository struct {
 }
 
 // NewRepository returns a Repository or an error, if git repository it not initialized.
-func NewRepository(fs afero.Fs, git Exec) (*Repository, error) {
+func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
 	rootPath, err := git.Cmd(cmdRootPath)
 	if err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ func NewRepository(fs afero.Fs, git Exec) (*Repository, error) {
 		log.Debug("Couldn't get empty tree SHA value, not critical")
 	}
 
-	git.SetRootPath(rootPath)
+	git.root = rootPath
 
 	return &Repository{
 		Fs:                fs,
@@ -184,8 +184,8 @@ func (r *Repository) PartiallyStagedFiles() ([]string, error) {
 }
 
 func (r *Repository) SaveUnstaged(files []string) error {
-	_, err := r.Git.Cmd(
-		append([]string{
+	_, err := r.Git.BatchedCmd(
+		[]string{
 			"git",
 			"diff",
 			"--binary",          // support binary files
@@ -199,14 +199,13 @@ func (r *Repository) SaveUnstaged(files []string) error {
 			"--output",
 			r.unstagedPatchPath,
 			"--",
-		}, files...),
-	)
+		}, files)
 
 	return err
 }
 
 func (r *Repository) HideUnstaged(files []string) error {
-	_, err := r.Git.Cmd(append(cmdHideUnstaged, files...))
+	_, err := r.Git.BatchedCmd(cmdHideUnstaged, files)
 
 	return err
 }
@@ -311,9 +310,7 @@ func (r *Repository) AddFiles(files []string) error {
 		return nil
 	}
 
-	_, err := r.Git.Cmd(
-		append(cmdStageFiles, files...),
-	)
+	_, err := r.Git.BatchedCmd(cmdStageFiles, files)
 
 	return err
 }

@@ -11,24 +11,13 @@ type GitMock struct {
 	cases map[string]string
 }
 
-func (g GitMock) SetRootPath(_root string) {}
-
-func (g GitMock) Cmd(cmd []string) (string, error) {
+func (g GitMock) Execute(cmd []string, _root string) (string, error) {
 	res, ok := g.cases[(strings.Join(cmd, " "))]
 	if !ok {
 		return "", errors.New("doesn't exist")
 	}
 
 	return strings.TrimSpace(res), nil
-}
-
-func (g GitMock) CmdLines(cmd []string) ([]string, error) {
-	res, err := g.Cmd(cmd)
-	if err != nil {
-		return nil, err
-	}
-
-	return strings.Split(res, "\n"), nil
 }
 
 func TestPartiallyStagedFiles(t *testing.T) {
@@ -47,9 +36,11 @@ MM staged but changed
 	} {
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
 			repository := &Repository{
-				Git: GitMock{
-					cases: map[string]string{
-						"git status --short": tt.gitOut,
+				Git: &CommandExecutor{
+					exec: GitMock{
+						cases: map[string]string{
+							"git status --short": tt.gitOut,
+						},
 					},
 				},
 			}

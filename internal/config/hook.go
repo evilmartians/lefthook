@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/evilmartians/lefthook/internal/git"
+	"github.com/evilmartians/lefthook/internal/system"
 )
 
 const CMD = "{cmd}"
@@ -43,8 +44,8 @@ func (h *Hook) Validate() error {
 }
 
 func (h *Hook) DoSkip(gitState git.State) bool {
-	skipChecker := NewSkipChecker(NewOsExec())
-	return skipChecker.Check(gitState, h.Skip, h.Only)
+	skipChecker := NewSkipChecker(system.Executor{})
+	return skipChecker.check(gitState, h.Skip, h.Only)
 }
 
 func unmarshalHooks(base, extra *viper.Viper) (*Hook, error) {
