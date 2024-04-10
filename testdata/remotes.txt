@@ -27,8 +27,8 @@ pre-commit:
       run: echo pong
     ruby-lint:
       run: bundle exec rubocop --force-exclusion --parallel '{files}'
-      glob: '*.rb'
       files: git diff-tree -r --name-only --diff-filter=CDMR HEAD origin/master
+      glob: '*.rb'
     ruby-test:
       run: bundle exec rspec
       skip:
@@ -43,8 +43,8 @@ pre-push:
   commands:
     spelling:
       run: npx yaspeller {files}
-      glob: '*.md'
       files: git diff --name-only HEAD @{push}
+      glob: '*.md'
 remotes:
   - git_url: https://github.com/evilmartians/lefthook
     ref: v1.4.0
