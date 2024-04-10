@@ -1,6 +1,7 @@
 package filters
 
 import (
+	"errors"
 	"io"
 	"os"
 	"regexp"
@@ -23,8 +24,9 @@ const (
 	typeText
 	typeBinary
 
-	detectTypes   = typeText | typeBinary
-	detectBufSize = 1024
+	detectTypes    = typeText | typeBinary
+	detectBufSize  = 1024
+	executableMask = 0o111
 )
 
 func Apply(fs afero.Fs, command *config.Command, files []string) []string {
@@ -97,25 +99,39 @@ func byType(fs afero.Fs, vs []string, types []string) []string {
 
 	vsf := make([]string, 0)
 	for _, v := range vs {
-		fileInfo, err := fs.Stat(v)
+		var err error
+		var fileInfo os.FileInfo
+		lfs, ok := fs.(afero.Lstater)
+		if ok {
+			fileInfo, _, err = lfs.LstatIfPossible(v)
+		} else {
+			fileInfo, err = fs.Stat(v)
+		}
 		if err != nil {
+			log.Errorf("Couldn't check file type of %s: %s", v, err)
 			continue
 		}
 
-		if mask&typeSymlink != 0 && fileInfo.Mode()&os.ModeSymlink == 0 {
+		isSymlink := fileInfo.Mode()&os.ModeSymlink != 0
+		isExecutable := fileInfo.Mode().Perm()&executableMask != 0
+		if mask&typeSymlink != 0 && !isSymlink {
 			continue
 		}
-		if mask&typeNotSymlink != 0 && fileInfo.Mode()&os.ModeSymlink != 0 {
+		if mask&typeNotSymlink != 0 && isSymlink {
 			continue
 		}
-		if mask&typeExecutable != 0 && fileInfo.Mode().Perm()&0o111 == 0 {
+		if mask&typeExecutable != 0 && (!isExecutable || isSymlink) {
 			continue
 		}
-		if mask&typeNotExecutable != 0 && fileInfo.Mode().Perm()&0o111 != 0 {
+		if mask&typeNotExecutable != 0 && (isExecutable && !isSymlink) {
 			continue
 		}
 
 		if mask&detectTypes != 0 {
+			if isSymlink {
+				continue
+			}
+
 			text := fileInfo.Mode().IsRegular() && checkIsText(fs, v)
 			binary := fileInfo.Mode().IsRegular() && !text
 
@@ -165,12 +181,12 @@ func checkIsText(fs afero.Fs, filepath string) bool {
 		return false
 	}
 
-	var buf []byte = make([]byte, 0, detectBufSize)
-	_, err = io.ReadFull(file, buf)
-	if err != nil {
+	var buf []byte = make([]byte, detectBufSize)
+	n, err := io.ReadFull(file, buf)
+	if err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, io.ErrUnexpectedEOF) {
 		log.Error("Couldn't read file for content detecting: ", err)
 		return false
 	}
 
-	return detectText(buf)
+	return detectText(buf[:n])
 }

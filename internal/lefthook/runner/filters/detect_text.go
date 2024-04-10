@@ -1,6 +1,8 @@
 package filters
 
-import "bytes"
+import (
+	"bytes"
+)
 
 // See: https://github.com/gabriel-vasile/mimetype/blob/6e3aeb1/internal/charset/charset.go
 
