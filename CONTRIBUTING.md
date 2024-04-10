@@ -4,7 +4,7 @@ First off, thanks for taking the time to contribute! Feel free to make Pull Requ
 
 # Requirements
 
-Go >= 1.21.0
+Go >= 1.22.0
 
 # Process
 
