@@ -14,11 +14,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Test
         run: go test ./... -coverprofile coverage.out
       - name: Report coverage
@@ -38,11 +38,11 @@ jobs:
       GOCOVERDIR: ${{ github.workspace }}/_icoverdir_
     steps:
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Prepare lefthook
         run: |
           mkdir _icoverdir_
@@ -64,13 +64,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
           go-version: 1.21.x
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Build binaries
-        uses: goreleaser/goreleaser-action@v2
+        uses: goreleaser/goreleaser-action@v5
         with:
           distribution: goreleaser
           version: latest
@@ -78,7 +78,7 @@ jobs:
       - name: Tar binaries to preserve executable bit
         run: 'tar -cvf lefthook-binaries.tar --directory dist/ $(find dist/ -executable -type f -printf "%P\0" | xargs --null)'
       - name: Upload binaries as artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Executables
           path: lefthook-binaries.tar
