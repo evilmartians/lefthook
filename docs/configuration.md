@@ -13,10 +13,10 @@ Lefthook [supports](#config-file) YAML, JSON, and TOML configuration. In this do
   - [`source_dir`](#source_dir)
   - [`source_dir_local`](#source_dir_local)
   - [`rc`](#rc)
-- [`remote`](#remote--deprecated-show-remotes-instead) :warning: DEPRECATED use [`remotes`](#remotes)
+- [`remote`](#remote--deprecated-show-remotes-instead) :warning: **DEPRECATED** use [`remotes`](#remotes)
   - [`git_url`](#git_url)
   - [`ref`](#ref)
-  - [`config`](#config--deprecated-use-configs-like-specified-in-remotes)
+  - [`config`](#config)
 - [`remotes`](#remotes)
   - [`git_url`](#git_url-1)
   - [`ref`](#ref-1)
@@ -41,6 +41,7 @@ Lefthook [supports](#config-file) YAML, JSON, and TOML configuration. In this do
   - [`tags`](#tags)
   - [`glob`](#glob)
   - [`files`](#files)
+  - [`file_types`](#file_types)
   - [`env`](#env)
   - [`root`](#root)
   - [`exclude`](#exclude)
@@ -202,7 +203,8 @@ LEFTHOOK_OUTPUT="meta,success,summary" lefthook run pre-commit
 
 ### `skip_output`
 
-> **Deprecated:** This feature is deprecated and might be removed in future versions. Please, use `[output]` instead for managing verbosity.
+> [!IMPORTANT]
+> **DEPRECATED** This feature is deprecated and might be removed in future versions. Please, use `[output]` instead for managing verbosity.
 
 You can manage the verbosity using the `skip_output` config. You can set whether lefthook should print some parts of its output.
 
@@ -330,7 +332,8 @@ Now any program that runs your hooks will have a tweaked PATH environment variab
 
 ## `remote`
 
-> :warning: DEPRECATED use [`remotes`](#remotes) setting
+> [!WARNING]
+> **DEPRECATED** Use [`remotes`](#remotes) setting
 
 You can provide a remote config if you want to share your lefthook configuration across many projects. Lefthook will automatically download and merge the configuration into your local `lefthook.yml`.
 
@@ -350,7 +353,8 @@ This can be changed in the future. For convenience, please use `remote` configur
 
 ### `git_url`
 
-> :warning: DEPRECATED use [`remotes`](#remotes) setting
+> [!WARNING]
+> **DEPRECATED** Use [`remotes`](#remotes) setting
 
 A URL to Git repository. It will be accessed with privileges of the machine lefthook runs on.
 
@@ -374,7 +378,8 @@ remote:
 
 ### `ref`
 
-> :warning: DEPRECATED use [`remotes`](#remotes) setting
+> [!WARNING]
+> **DEPRECATED** Use [`remotes`](#remotes) setting
 
 An optional *branch* or *tag* name.
 
@@ -388,13 +393,14 @@ remote:
   ref: v1.0.0
 ```
 
-> **Note**
+> [!CAUTION]
 >
-> :warning: If you initially had `ref` option, ran `lefthook install`, and then removed it, lefthook won't decide which branch/tag to use as a ref. So, if you added it once, please, use it always to avoid issues in local setups.
+> If you initially had `ref` option, ran `lefthook install`, and then removed it, lefthook won't decide which branch/tag to use as a ref. So, if you added it once, please, use it always to avoid issues in local setups.
 
 ### `config`
 
-> :warning: DEPRECATED use [`remotes`](#remotes) setting
+> [!WARNING]
+> **DEPRECATED**. Use [`remotes`](#remotes) setting
 
 **Default:** `lefthook.yml`
 
@@ -413,6 +419,7 @@ remote:
 
 ## `remotes`
 
+> [!IMPORTANT]
 > :test_tube: This feature is in **Beta** version
 
 You can provide multiple remote configs if you want to share yours lefthook configurations across many projects. Lefthook will automatically download and merge configurations into your local `lefthook.yml`.
@@ -467,7 +474,7 @@ remotes:
     ref: v1.0.0
 ```
 
-> :warning: **Note**
+> [!NOTE]
 >
 > If you initially had `ref` option, ran `lefthook install`, and then removed it, lefthook won't decide which branch/tag to use as a ref. So, if you added it once, please, use it always to avoid issues in local setups.
 
@@ -665,7 +672,8 @@ pre-commit:
 
 Scripts to be executed for the hook. Each script has a name (filename in scripts dir) and associated run [options](#script).
 
-**:warning: Important**: script must exist under `<source_dir>/<git-hook-name>/` folder. See [`source_dir`](#source_dir).
+> [!IMPORTANT]
+> Script must exist under `<source_dir>/<git-hook-name>/` folder. See [`source_dir`](#source_dir).
 
 **Example**
 
@@ -938,27 +946,27 @@ pre-commit:
       run: yarn test
 ```
 
-**Notes**
-
-Always skipping is useful when you have a `lefthook-local.yml` config and you don't want to run some commands locally. So you just overwrite the `skip` option for them to be `true`.
-
-```yml
-# lefthook.yml
-
-pre-commit:
-  commands:
-    lint:
-      run: yarn lint
-```
-
-```yml
-# lefthook-local.yml
-
-pre-commit:
-  commands:
-    lint:
-      skip: true
-```
+> [!TIP]
+>
+> Always skipping is useful when you have a `lefthook-local.yml` config and you don't want to run some commands locally. So you just overwrite the `skip` option for them to be `true`.
+>
+> ```yml
+> # lefthook.yml
+>
+> pre-commit:
+>   commands:
+>     lint:
+>       run: yarn lint
+> ```
+>
+> ```yml
+> # lefthook-local.yml
+>
+> pre-commit:
+>   commands:
+>     lint:
+>       skip: true
+> ```
 
 ### `only`
 
@@ -1090,6 +1098,66 @@ pre-push:
       glob: "**/*.rb"
       files: node ./lefthook-scripts/ls-files.js # you can call your own scripts
       run: bundle exec rubocop --force-exclusion --parallel {files}
+```
+
+### `file_types`
+
+Filter files in a [`run`](#run) templates by their type. Supported types:
+
+|File type| Exlanation|
+|---------|-----------|
+|`text`   | Any file that contains text. Symlinks are not followed. |
+|`binary` | Any file that contains non-text bytes. Symlinks are not followed. |
+|`executable` | Any file that has executable bits set. Symlinks are not followed. |
+|`not executable` | Any file without executable bits in file mode. |
+|`symlink` | A symlink file. |
+|`not symlink` | Any non-symlink file. |
+
+> [!IMPORTANT]
+> When passed multiple file types all constraints will be applied to the resulting list of files.
+
+**Example**
+
+Apply some different linters on text and binary files.
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint-code:
+      run: yarn lint {staged_files}
+      file_types: text
+    check-hex-codes:
+      run: yarn check-hex {staged_files}
+      file_types: binary
+```
+
+Skip symlinks.
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      run: yarn lint --fix {staged_files}
+      file_types:
+        - not symlink
+```
+
+Lint executable scripts.
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      run: yarn lint --fix {staged_files}
+      file_types:
+        - executable
+        - text
 ```
 
 ### `env`
