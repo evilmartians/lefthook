@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+## 1.6.10 (2024-04-10)
+
+- feat: add file type filters ([#698](https://github.com/evilmartians/lefthook/pull/698)) by @mrexox
+- ci: update github actions versions ([#699](https://github.com/evilmartians/lefthook/pull/699)) by @mrexox
+
 ## 1.6.9 (2024-04-09)
 
 - fix: enable interactive inputs for windows ([#696](https://github.com/evilmartians/lefthook/pull/696)) by @mrexox
