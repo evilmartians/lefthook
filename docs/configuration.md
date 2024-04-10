@@ -972,7 +972,7 @@ pre-commit:
 
 You can force a command, script, or the whole hook to execute only in certain conditions. This option acts like the opposite of [`skip`](#skip). It accepts the same values but skips execution only if the condition is not satisfied.
 
-> **Note**
+> [!NOTE]
 >
 > `skip` option takes precedence over `only` option, so if you have conflicting conditions the execution will be skipped.
 
@@ -1109,14 +1109,14 @@ Filter files in a [`run`](#run) templates by their type. Supported types:
 |`text`   | Any file that contains text. Symlinks are not followed. |
 |`binary` | Any file that contains non-text bytes. Symlinks are not followed. |
 |`executable` | Any file that has executable bits set. Symlinks are not followed. |
-|`not executable` | Any file without executable bits in file mode. |
+|`not executable` | Any file without executable bits in file mode. Symlinks included. |
 |`symlink` | A symlink file. |
 |`not symlink` | Any non-symlink file. |
 
 > [!IMPORTANT]
 > When passed multiple file types all constraints will be applied to the resulting list of files.
 
-**Example**
+**Examples**
 
 Apply some different linters on text and binary files.
 

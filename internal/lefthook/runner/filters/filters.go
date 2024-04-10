@@ -128,12 +128,12 @@ func byType(fs afero.Fs, vs []string, types []string) []string {
 		}
 
 		if mask&detectTypes != 0 {
-			if isSymlink {
+			if !fileInfo.Mode().IsRegular() {
 				continue
 			}
 
-			text := fileInfo.Mode().IsRegular() && checkIsText(fs, v)
-			binary := fileInfo.Mode().IsRegular() && !text
+			text := checkIsText(fs, v)
+			binary := !text
 
 			if mask&typeText != 0 && binary {
 				continue
