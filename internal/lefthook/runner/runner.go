@@ -23,7 +23,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/exec"
-	"github.com/evilmartians/lefthook/internal/lefthook/runner/filter"
+	"github.com/evilmartians/lefthook/internal/lefthook/runner/filters"
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
@@ -465,7 +465,7 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 				return result
 			}
 
-			files = filter.Apply(r.Repo.Fs, command, files)
+			files = filters.Apply(r.Repo.Fs, command, files)
 		}
 
 		if len(command.Root) > 0 {

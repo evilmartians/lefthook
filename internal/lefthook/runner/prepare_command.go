@@ -8,7 +8,7 @@ import (
 	"gopkg.in/alessio/shellescape.v1"
 
 	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/lefthook/runner/filter"
+	"github.com/evilmartians/lefthook/internal/lefthook/runner/filters"
 	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/evilmartians/lefthook/internal/system"
 )
@@ -107,7 +107,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error) {
 			return nil, fmt.Errorf("error replacing %s: %w", filesType, err)
 		}
 
-		files = filter.Apply(r.Repo.Fs, command, files)
+		files = filters.Apply(r.Repo.Fs, command, files)
 		if !r.Force && len(files) == 0 {
 			return nil, &skipError{"no files for inspection"}
 		}
@@ -124,7 +124,7 @@ func (r *Runner) buildRun(command *config.Command) (*run, error) {
 			return nil, fmt.Errorf("error calling replace command for %s: %w", config.SubFiles, err)
 		}
 
-		files = filter.Apply(r.Repo.Fs, command, files)
+		files = filters.Apply(r.Repo.Fs, command, files)
 
 		if len(files) == 0 {
 			return nil, &skipError{"no files for inspection"}
@@ -173,7 +173,7 @@ func (r *Runner) canSkipCommand(command *config.Command, template *template, fil
 	if err != nil {
 		return false, fmt.Errorf("error getting files: %w", err)
 	}
-	if len(filter.Apply(r.Repo.Fs, command, files)) == 0 {
+	if len(filters.Apply(r.Repo.Fs, command, files)) == 0 {
 		return true, nil
 	}
 

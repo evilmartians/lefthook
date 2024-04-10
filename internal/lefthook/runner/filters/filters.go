@@ -1,4 +1,4 @@
-package filter
+package filters
 
 import (
 	"io"
@@ -6,7 +6,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/gabriel-vasile/mimetype"
 	"github.com/gobwas/glob"
 	"github.com/spf13/afero"
 
@@ -22,11 +21,9 @@ const (
 	typeSymlink
 	typeNotSymlink
 	typeText
-	typeNotText
 	typeBinary
-	typeNotBinary
 
-	detectTypes   = typeText | typeNotText | typeBinary | typeNotBinary
+	detectTypes   = typeText | typeBinary
 	detectBufSize = 1024
 )
 
@@ -40,7 +37,7 @@ func Apply(fs afero.Fs, command *config.Command, files []string) []string {
 	files = byGlob(files, command.Glob)
 	files = byExclude(files, command.Exclude)
 	files = byRoot(files, command.Root)
-	files = byType(fs, files, command.Types)
+	files = byType(fs, files, command.FileTypes)
 
 	log.Debug("[lefthook] files after filters:\n", files)
 
@@ -119,19 +116,13 @@ func byType(fs afero.Fs, vs []string, types []string) []string {
 		}
 
 		if mask&detectTypes != 0 {
-			text := fileInfo.Mode().IsRegular() && isText(fs, v)
+			text := fileInfo.Mode().IsRegular() && checkIsText(fs, v)
 			binary := fileInfo.Mode().IsRegular() && !text
 
 			if mask&typeText != 0 && binary {
 				continue
 			}
-			if mask&typeNotText != 0 && text {
-				continue
-			}
 			if mask&typeBinary != 0 && text {
-				continue
-			}
-			if mask&typeNotBinary != 0 && binary {
 				continue
 			}
 		}
@@ -157,12 +148,8 @@ func fillTypeMask(types []string) typeMask {
 			mask |= typeNotSymlink
 		case "binary":
 			mask |= typeBinary
-		case "not binary":
-			mask |= typeNotBinary
 		case "text":
 			mask |= typeText
-		case "not text":
-			mask |= typeNotText
 		default:
 			log.Warn("Unknown filter type: ", t)
 		}
@@ -171,7 +158,7 @@ func fillTypeMask(types []string) typeMask {
 	return mask
 }
 
-func isText(fs afero.Fs, filepath string) bool {
+func checkIsText(fs afero.Fs, filepath string) bool {
 	file, err := fs.Open(filepath)
 	if err != nil {
 		panic("Could not open the file")
@@ -183,12 +170,5 @@ func isText(fs afero.Fs, filepath string) bool {
 		panic("Could not read the file")
 	}
 
-	mime := mimetype.Detect(buf)
-	for mtype := mime; mtype != nil; mtype = mtype.Parent() {
-		if mtype.Is("text/plain") {
-			return true
-		}
-	}
-
-	return false
+	return isText(buf)
 }
