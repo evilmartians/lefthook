@@ -22,11 +22,11 @@ func hasBOM(content []byte) bool {
 	return false
 }
 
-// isText checks if a sequence is a plain text.
+// detectText checks if a sequence contains of a plain text bytes.
 //
 // This function does not parse BOM-less UTF16 and UTF32 files. Not really
 // sure it should. Linux file utility also requires a BOM for UTF16 and UTF32.
-func isText(bytes []byte) bool {
+func detectText(bytes []byte) bool {
 	if hasBOM(bytes) {
 		return true
 	}
@@ -40,5 +40,6 @@ func isText(bytes []byte) bool {
 			return false
 		}
 	}
+
 	return true
 }

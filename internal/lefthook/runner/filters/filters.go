@@ -161,14 +161,16 @@ func fillTypeMask(types []string) typeMask {
 func checkIsText(fs afero.Fs, filepath string) bool {
 	file, err := fs.Open(filepath)
 	if err != nil {
-		panic("Could not open the file")
+		log.Error("Couldn't open file for content detecting: ", err)
+		return false
 	}
 
 	var buf []byte = make([]byte, 0, detectBufSize)
 	_, err = io.ReadFull(file, buf)
 	if err != nil {
-		panic("Could not read the file")
+		log.Error("Couldn't read file for content detecting: ", err)
+		return false
 	}
 
-	return isText(buf)
+	return detectText(buf)
 }
