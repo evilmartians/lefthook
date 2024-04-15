@@ -2,7 +2,6 @@
   "name": "@evilmartians/lefthook-installer",
   "version": "1.6.10",
   "description": "Simple git hooks manager",
-  "main": "index.js",
   "repository": "https://github.com/evilmartians/lefthook",
   "keywords": [
     "git",
