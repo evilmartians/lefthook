@@ -1,99 +1,76 @@
-const { spawnSync } = require("child_process");
-const { writeFileSync } = require("fs");
-const path = require("path");
-const pkg = require("./package.json");
+const { spawnSync } = require("child_process")
 
-const iswin = ["win32", "cygwin"].includes(process.platform);
+const iswin = ["win32", "cygwin"].includes(process.platform)
 
 async function install() {
   if (process.env.CI) {
-    return;
+    return
   }
-  const exePath = await downloadBinary();
+  const exePath = await downloadBinary()
   if (!iswin) {
-    const { chmodSync } = require("fs");
-    chmodSync(exePath, "755");
+    const { chmodSync } = require("fs")
+    chmodSync(exePath, "755")
   }
-  // set binary as direct run
-  setBinary();
   // run install
   spawnSync(exePath, ["install", "-f"], {
     cwd: process.env.INIT_CWD || process.cwd(),
     stdio: "inherit",
-  });
-}
-
-function setBinary() {
-  const extension = iswin ? ".exe" : "";
-  const fileName = `lefthook${extension}`;
-
-  writeFileSync(
-    path.resolve(__dirname, "package.json"),
-    JSON.stringify(
-      {
-        ...pkg,
-        bin: {
-          dprint: "bin/" + fileName,
-        },
-      },
-      null,
-      2,
-    ),
-  );
+  })
 }
 
 function getDownloadURL() {
   // Detect OS
   // https://nodejs.org/api/process.html#process_process_platform
-  let goOS = process.platform;
-  let extension = "";
+  let goOS = process.platform
+  let extension = ""
   if (iswin) {
-    goOS = "windows";
-    extension = ".exe";
+    goOS = "windows"
+    extension = ".exe"
   }
 
   // Convert the goOS to the os name in the download URL
-  let downloadOS = goOS === "darwin" ? "macOS" : goOS;
-  downloadOS = `${downloadOS.charAt(0).toUpperCase()}${downloadOS.slice(1)}`;
+  let downloadOS = goOS === "darwin" ? "macOS" : goOS
+  downloadOS = `${downloadOS.charAt(0).toUpperCase()}${downloadOS.slice(1)}`
 
   // Detect architecture
   // https://nodejs.org/api/process.html#process_process_arch
-  let arch = process.arch;
+  let arch = process.arch
   switch (process.arch) {
     case "x64": {
-      arch = "x86_64";
-      break;
+      arch = "x86_64"
+      break
     }
   }
-  const version = require("./package.json").version;
+  const version = require("./package.json").version
 
-  return `https://github.com/evilmartians/lefthook/releases/download/v${version}/lefthook_${version}_${downloadOS}_${arch}${extension}`;
+  return `https://github.com/evilmartians/lefthook/releases/download/v${version}/lefthook_${version}_${downloadOS}_${arch}${extension}`
 }
 
-const { DownloaderHelper } = require("node-downloader-helper");
+const { DownloaderHelper } = require("node-downloader-helper")
+const path = require("path")
 
 async function downloadBinary() {
   // TODO zip the binaries to reduce the download size
-  const downloadURL = getDownloadURL();
-  const extension = iswin ? ".exe" : "";
-  const fileName = `lefthook${extension}`;
-  const binDir = path.join(__dirname, "bin");
+  const downloadURL = getDownloadURL()
+  const extension = iswin ? ".exe" : ""
+  const fileName = `lefthook${extension}`
+  const binDir = path.join(__dirname, "bin")
   const dl = new DownloaderHelper(downloadURL, binDir, {
     fileName,
     retry: { maxRetries: 5, delay: 50 },
-  });
-  dl.on("end", () => console.log("lefthook binary was downloaded"));
+  })
+  dl.on("end", () => console.log("lefthook binary was downloaded"))
   try {
-    await dl.start();
-  } catch (e) {
-    const message = `Failed to download ${fileName}: ${e.message} while fetching ${downloadURL}`;
-    console.error(message);
-    throw new Error(message);
+    await dl.start()
+  } catch(e) {
+    const message = `Failed to download ${fileName}: ${e.message} while fetching ${downloadURL}`
+    console.error(message)
+    throw new Error(message)
   }
-  return path.join(binDir, fileName);
+  return path.join(binDir, fileName)
 }
 
 // start:
 install().catch((e) => {
-  throw e;
-});
+  throw e
+})
