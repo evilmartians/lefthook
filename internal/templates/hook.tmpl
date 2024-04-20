@@ -64,6 +64,9 @@ call_lefthook()
   elif swift package plugin lefthook >/dev/null 2>&1
   then
     swift package --disable-sandbox plugin lefthook "$@"
+  elif command -v mint >/dev/null 2>&1
+  then
+    mint run csjones/lefthook-plugin "$@"
   elif command -v npx >/dev/null 2>&1
   then
     npx lefthook "$@"
