@@ -39,7 +39,7 @@ MM staged but changed
 				Git: &CommandExecutor{
 					exec: GitMock{
 						cases: map[string]string{
-							"git status --short": tt.gitOut,
+							"git status --short --porcelain": tt.gitOut,
 						},
 					},
 				},

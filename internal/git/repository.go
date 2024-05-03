@@ -24,7 +24,7 @@ var (
 	cmdPushFilesBase = []string{"git", "diff", "--name-only", "HEAD", "@{push}"}
 	cmdPushFilesHead = []string{"git", "diff", "--name-only", "HEAD"}
 	cmdStagedFiles   = []string{"git", "diff", "--name-only", "--cached", "--diff-filter=ACMR"}
-	cmdStatusShort   = []string{"git", "status", "--short"}
+	cmdStatusShort   = []string{"git", "status", "--short", "--porcelain"}
 	cmdListStash     = []string{"git", "stash", "list"}
 	cmdRootPath      = []string{"git", "rev-parse", "--show-toplevel"}
 	cmdHooksPath     = []string{"git", "rev-parse", "--git-path", "hooks"}
