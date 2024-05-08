@@ -59,6 +59,11 @@ func newRunCmd(opts *lefthook.Options) *cobra.Command {
 	)
 
 	runCmd.Flags().BoolVar(
+		&runArgs.NoAutoInstall, "no-auto-install", false,
+		"skip updating git hooks",
+	)
+
+	runCmd.Flags().BoolVar(
 		&runArgs.FilesFromStdin, "files-from-stdin", false,
 		"get files from standard input, null-separated",
 	)
