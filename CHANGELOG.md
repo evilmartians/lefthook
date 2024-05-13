@@ -2,6 +2,12 @@
 
 ## master (unreleased)
 
+## 1.6.11 (2024-05-13)
+
+- feat: add run --no-auto-install flag ([#716](https://github.com/evilmartians/lefthook/pull/716)) by @mrexox
+- fix: add `--porcelain` to `git status --short` ([#711](https://github.com/evilmartians/lefthook/pull/711)) by @110y
+- chore: bump go to 1.22 ([#701](https://github.com/evilmartians/lefthook/pull/701)) by @mrexox
+
 ## 1.6.10 (2024-04-10)
 
 - feat: add file type filters ([#698](https://github.com/evilmartians/lefthook/pull/698)) by @mrexox
