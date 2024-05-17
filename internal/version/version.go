@@ -3,6 +3,7 @@ package version
 import (
 	"errors"
 	"fmt"
+	"os"
 	"regexp"
 	"strconv"
 )
@@ -49,7 +50,11 @@ func CheckCovered(targetVersion string) error {
 		return err
 	}
 
-	errUncovered := fmt.Errorf("required lefthook version (%s) is higher than current (%s)", targetVersion, version)
+	execPath, err := os.Executable()
+	if err != nil {
+		execPath = "<unknown>"
+	}
+	errUncovered := fmt.Errorf("required lefthook version (%s) is higher than current (%s) at %s", targetVersion, version, execPath)
 
 	switch {
 	case major > tMajor:
