@@ -14,7 +14,6 @@ import (
 
 	"github.com/creack/pty"
 	"github.com/mattn/go-isatty"
-	"github.com/mattn/go-tty"
 
 	"github.com/evilmartians/lefthook/internal/log"
 )
@@ -35,10 +34,10 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, out io.Write
 		in = os.Stdin
 	}
 	if opts.Interactive && !isatty.IsTerminal(os.Stdin.Fd()) {
-		tty, err := tty.Open()
+		tty, err := os.Open("/dev/tty")
 		if err == nil {
 			defer tty.Close()
-			in = tty.Input()
+			in = tty
 		} else {
 			log.Errorf("Couldn't enable TTY input: %s\n", err)
 		}
