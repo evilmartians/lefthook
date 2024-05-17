@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+# 1.6.12 (2024-05-17)
+
+- fix: more verbose error on versions mismatch ([#721](https://github.com/evilmartians/lefthook/pull/721)) by @mrexox
+- fix: enable interactive scripts ([#720](https://github.com/evilmartians/lefthook/pull/720)) by @mrexox
+
 ## 1.6.11 (2024-05-13)
 
 - feat: add run --no-auto-install flag ([#716](https://github.com/evilmartians/lefthook/pull/716)) by @mrexox
