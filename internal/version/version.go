@@ -2,6 +2,7 @@ package version
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strconv"
 )
@@ -17,7 +18,6 @@ var (
 	)
 
 	errIncorrectVersion = errors.New("format of 'min_version' setting is incorrect")
-	errUncovered        = errors.New("required Lefthook version is higher than current")
 )
 
 func Version(verbose bool) string {
@@ -48,6 +48,8 @@ func CheckCovered(targetVersion string) error {
 	if err != nil {
 		return err
 	}
+
+	errUncovered := fmt.Errorf("required lefthook version (%s) is higher than current (%s)", targetVersion, version)
 
 	switch {
 	case major > tMajor:
