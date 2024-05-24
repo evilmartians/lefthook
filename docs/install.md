@@ -73,10 +73,18 @@ python3 -m pip install --user lefthook
 
 ## <a id="swift"></a> Swift
 
-You can find the Swift wrapper plugin [here](https://github.com/csjones/lefthook-plugin). To utilize lefthook, include the plugin in the dependencies section of your `Package.swift`:
+You can find the Swift wrapper plugin [here](https://github.com/csjones/lefthook-plugin). 
+
+Utilize lefthook in your Swift project using Swift Package Manager:
 
 ```swift
 .package(url: "https://github.com/csjones/lefthook-plugin.git", exact: "1.6.12"),
+```
+
+Or, with [mint](https://github.com/yonaskolb/Mint):
+
+```bash
+mint run csjones/lefthook-plugin
 ```
 
 ## <a id="scoop"></a> Scoop for Windowss
