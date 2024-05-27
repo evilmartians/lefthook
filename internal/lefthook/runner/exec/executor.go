@@ -17,5 +17,5 @@ type Options struct {
 // It is used here for testing purpose mostly.
 type Executor interface {
 	Execute(ctx context.Context, opts Options, out io.Writer) error
-	RawExecute(ctx context.Context, command []string, out io.Writer) error
+	RawExecute(ctx context.Context, command []string, out io.Writer, forwardStdin bool) error
 }

@@ -39,7 +39,7 @@ func IsLFSHook(hookName string) bool {
 }
 
 // DoesLFSHookConsumeStdin returns whether the LFS hookName will consume Stdin
-// meaning it won't be available to following commands
+// meaning it won't be available to following commands.
 func DoesLFSHookConsumeStdin(hookName string) bool {
 	for _, lfsHookName := range lfsHookConsumeStdin {
 		if lfsHookName == hookName {

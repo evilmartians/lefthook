@@ -72,11 +72,15 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, out io.Write
 	return nil
 }
 
-func (e CommandExecutor) RawExecute(ctx context.Context, command []string, out io.Writer) error {
+func (e CommandExecutor) RawExecute(ctx context.Context, command []string, out io.Writer, forwardStdin bool) error {
 	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
 
 	cmd.Stdout = out
 	cmd.Stderr = os.Stderr
+
+	if forwardStdin {
+		cmd.Stdin = os.Stdin
+	}
 
 	return cmd.Run()
 }
