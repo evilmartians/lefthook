@@ -2,6 +2,12 @@
 
 ## master (unreleased)
 
+## 1.6.13 (2024-05-27)
+
+- feat: expand Swift integration with Mint support ([#724](https://github.com/evilmartians/lefthook/pull/724)) by @levibostian
+- deps: May 22 dependencies update ([#706](https://github.com/evilmartians/lefthook/pull/706)) by @mrexox
+- chore: remove go patch version in go.mod ([#726](https://github.com/evilmartians/lefthook/pull/726)) by @mrexox
+
 # 1.6.12 (2024-05-17)
 
 - fix: more verbose error on versions mismatch ([#721](https://github.com/evilmartians/lefthook/pull/721)) by @mrexox
