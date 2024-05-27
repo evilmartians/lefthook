@@ -82,13 +82,42 @@ type executable interface {
 func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) []Result {
 	results := make([]Result, 0, len(r.Hook.Commands)+len(r.Hook.Scripts))
 
-	if err := r.runLFSHook(ctx); err != nil {
+	ranLFS, err := r.runLFSHook(ctx)
+	if err != nil {
 		log.Error(err)
 	}
 
 	if r.Hook.DoSkip(r.Repo.State()) {
 		r.logSkip(r.HookName, "hook setting")
 		return results
+	}
+
+	// Sanity check before running hooks
+	// More than one hook can't use Stdin
+	StdinConsumed := ranLFS && git.DoesLFSHookConsumeStdin(r.HookName)
+	for commandName, command := range r.Hook.Commands {
+		if command.UseStdin {
+			if StdinConsumed {
+				log.Errorf(
+					"command %s wants to use Stdin which was consumed by a previously.",
+					commandName,
+				)
+				return results
+			}
+			StdinConsumed = true
+		}
+	}
+	for scriptName, script := range r.Hook.Scripts {
+		if script.UseStdin {
+			if StdinConsumed {
+				log.Errorf(
+					"script %s wants to use Stdin which was consumed by a previously.",
+					scriptName,
+				)
+				return results
+			}
+			StdinConsumed = true
+		}
 	}
 
 	if !r.DisableTTY && !r.Hook.Follow {
@@ -116,9 +145,10 @@ func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) []Result {
 	return results
 }
 
-func (r *Runner) runLFSHook(ctx context.Context) error {
+// returns whether it ran a LFS hook
+func (r *Runner) runLFSHook(ctx context.Context) (bool, error) {
 	if !git.IsLFSHook(r.HookName) {
-		return nil
+		return false, nil
 	}
 
 	lfsRequiredFile := filepath.Join(r.Repo.RootPath, git.LFSRequiredFile)
@@ -126,11 +156,11 @@ func (r *Runner) runLFSHook(ctx context.Context) error {
 
 	requiredExists, err := afero.Exists(r.Repo.Fs, lfsRequiredFile)
 	if err != nil {
-		return err
+		return false, err
 	}
 	configExists, err := afero.Exists(r.Repo.Fs, lfsConfigFile)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	if git.IsLFSAvailable() {
@@ -161,10 +191,10 @@ func (r *Runner) runLFSHook(ctx context.Context) error {
 
 		if err != nil && (requiredExists || configExists) {
 			log.Warnf("git-lfs command failed: %s\n", output)
-			return err
+			return true, err
 		}
 
-		return nil
+		return true, nil
 	}
 
 	if requiredExists || configExists {
@@ -175,10 +205,10 @@ func (r *Runner) runLFSHook(ctx context.Context) error {
 				"  - %s\n",
 			lfsRequiredFile, lfsConfigFile,
 		)
-		return errors.New("git-lfs is required")
+		return false, errors.New("git-lfs is required")
 	}
 
-	return nil
+	return false, nil
 }
 
 func (r *Runner) preHook() {
