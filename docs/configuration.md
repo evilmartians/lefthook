@@ -1431,6 +1431,10 @@ When you try to commit `git commit -m "bad commit text"` script `template_checke
 > **Note**
 >
 > With many commands or scripts having `use_stdin: true`, only one will receive the data. The others will have nothing. If you need to pass the data from stdin to every command or script, please, submit a [feature request](https://github.com/evilmartians/lefthook/issues/new?assignees=&labels=feature+request&projects=&template=feature_request.md).
+>
+> The LFS `pre-push` hook needs the data provided by Git through Stdin. As such, no other `pre-push` command or script should use this flag when the repository uses LFS.
+>
+> When run, lefthook will error and stop execution if multiple commands or scripts have this flag enabled.
 
 Pass the stdin from the OS to the command/script.
 
