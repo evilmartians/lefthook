@@ -31,7 +31,7 @@ func (e TestExecutor) Execute(_ctx context.Context, opts exec.Options, _out io.W
 	return
 }
 
-func (e TestExecutor) RawExecute(_ctx context.Context, _command []string, _out io.Writer) error {
+func (e TestExecutor) RawExecute(_ctx context.Context, _command []string, _out io.Writer, forwardStdin bool) error {
 	return nil
 }
 

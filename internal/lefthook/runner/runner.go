@@ -123,7 +123,7 @@ func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) ([]Result, err
 	return results, nil
 }
 
-// returns whether it ran a LFS hook
+// returns whether it ran a LFS hook.
 func (r *Runner) runLFSHook(ctx context.Context) (bool, error) {
 	if !git.IsLFSHook(r.HookName) {
 		return false, nil
@@ -153,6 +153,7 @@ func (r *Runner) runLFSHook(ctx context.Context) (bool, error) {
 				r.GitArgs...,
 			),
 			out,
+			git.DoesLFSHookConsumeStdin(r.HookName),
 		)
 
 		output := strings.Trim(out.String(), "\n")
