@@ -87,6 +87,7 @@ func TestRunAll(t *testing.T) {
 		existingFiles          []string
 		hook                   *config.Hook
 		success, fail          []Result
+		err                    error
 		gitCommands            []string
 		force                  bool
 	}{
@@ -766,7 +767,10 @@ func TestRunAll(t *testing.T) {
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			results := runner.RunAll(context.Background(), tt.sourceDirs)
+			results, err := runner.RunAll(context.Background(), tt.sourceDirs)
+			if err != tt.err {
+				t.Errorf("error is not matching\nNeed: %v\n Was: %v", tt.err, err)
+			}
 
 			var success, fail []Result
 			for _, result := range results {

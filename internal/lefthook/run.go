@@ -169,7 +169,11 @@ Run 'lefthook install' manually.`,
 	)
 
 	startTime := time.Now()
-	results := r.RunAll(ctx, sourceDirs)
+	results, err := r.RunAll(ctx, sourceDirs)
+
+	if err != nil {
+		return err
+	}
 
 	if ctx.Err() != nil {
 		return errors.New("Interrupted")
