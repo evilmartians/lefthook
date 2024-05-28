@@ -84,6 +84,7 @@ func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) ([]Result, err
 
 	if err := r.runLFSHook(ctx); err != nil {
 		log.Error(err)
+		return results, err
 	}
 
 	if r.Hook.DoSkip(r.Repo.State()) {
