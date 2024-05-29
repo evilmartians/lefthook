@@ -84,16 +84,16 @@ type executable interface {
 
 // RunAll runs scripts and commands.
 // LFS hook is executed at first if needed.
-func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) []Result {
+func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) ([]Result, error) {
 	results := make([]Result, 0, len(r.Hook.Commands)+len(r.Hook.Scripts))
 
 	if err := r.runLFSHook(ctx); err != nil {
-		log.Error(err)
+		return results, err
 	}
 
 	if r.Hook.DoSkip(r.Repo.State()) {
 		r.logSkip(r.HookName, "hook setting")
-		return results
+		return results, nil
 	}
 
 	if !r.DisableTTY && !r.Hook.Follow {
@@ -118,7 +118,7 @@ func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) []Result {
 
 	r.postHook()
 
-	return results
+	return results, nil
 }
 
 func (r *Runner) runLFSHook(ctx context.Context) error {

@@ -766,7 +766,10 @@ func TestRunAll(t *testing.T) {
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			results := runner.RunAll(context.Background(), tt.sourceDirs)
+			results, err := runner.RunAll(context.Background(), tt.sourceDirs)
+			if err != nil {
+				t.Errorf("unexpected error %s", err)
+			}
 
 			var success, fail []Result
 			for _, result := range results {
