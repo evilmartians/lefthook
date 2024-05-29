@@ -87,8 +87,7 @@ type executable interface {
 func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) []Result {
 	results := make([]Result, 0, len(r.Hook.Commands)+len(r.Hook.Scripts))
 
-	err := r.runLFSHook(ctx)
-	if err != nil {
+	if err := r.runLFSHook(ctx); err != nil {
 		log.Error(err)
 	}
 
@@ -122,7 +121,6 @@ func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) []Result {
 	return results
 }
 
-// returns whether it ran a LFS hook.
 func (r *Runner) runLFSHook(ctx context.Context) error {
 	if !git.IsLFSHook(r.HookName) {
 		return nil
@@ -514,7 +512,7 @@ func (r *Runner) run(ctx context.Context, opts exec.Options, follow bool) bool {
 			out = io.Discard
 		}
 
-		err := r.executor.Execute(ctx, opts, r.stdin, out)
+		err := r.executor.Execute(ctx, opts, in, out)
 
 		return err == nil
 	}
