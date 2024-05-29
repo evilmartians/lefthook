@@ -21,7 +21,7 @@ import (
 
 type TestExecutor struct{}
 
-func (e TestExecutor) Execute(_ctx context.Context, opts exec.Options, _out io.Writer) (err error) {
+func (e TestExecutor) Execute(_ctx context.Context, opts exec.Options, _in io.Reader, _out io.Writer) (err error) {
 	if strings.HasPrefix(opts.Commands[0], "success") {
 		err = nil
 	} else {
@@ -31,7 +31,7 @@ func (e TestExecutor) Execute(_ctx context.Context, opts exec.Options, _out io.W
 	return
 }
 
-func (e TestExecutor) RawExecute(_ctx context.Context, _command []string, _out io.Writer, forwardStdin bool) error {
+func (e TestExecutor) RawExecute(_ctx context.Context, _command []string, _in io.Reader, _out io.Writer) error {
 	return nil
 }
 

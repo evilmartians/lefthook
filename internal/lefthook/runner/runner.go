@@ -51,6 +51,7 @@ type Options struct {
 type Runner struct {
 	Options
 
+	stdin                io.Reader
 	partiallyStagedFiles []string
 	failed               atomic.Bool
 	executor             exec.Executor
@@ -58,7 +59,11 @@ type Runner struct {
 
 func New(opts Options) *Runner {
 	return &Runner{
-		Options:  opts,
+		Options: opts,
+
+		// Some hooks use STDIN for parsing data from Git. To allow multiple commands
+		// and scripts access the same Git data STDIN is cached via cachedReader.
+		stdin:    NewCachedReader(os.Stdin),
 		executor: exec.CommandExecutor{},
 	}
 }
@@ -82,7 +87,7 @@ type executable interface {
 func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) []Result {
 	results := make([]Result, 0, len(r.Hook.Commands)+len(r.Hook.Scripts))
 
-	ranLFS, err := r.runLFSHook(ctx)
+	err := r.runLFSHook(ctx)
 	if err != nil {
 		log.Error(err)
 	}
@@ -90,34 +95,6 @@ func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) []Result {
 	if r.Hook.DoSkip(r.Repo.State()) {
 		r.logSkip(r.HookName, "hook setting")
 		return results
-	}
-
-	// Sanity check before running hooks
-	// More than one hook can't use Stdin
-	StdinConsumed := ranLFS && git.DoesLFSHookConsumeStdin(r.HookName)
-	for commandName, command := range r.Hook.Commands {
-		if command.UseStdin {
-			if StdinConsumed {
-				log.Errorf(
-					"command %s wants to use Stdin which was consumed by a previously.",
-					commandName,
-				)
-				return results
-			}
-			StdinConsumed = true
-		}
-	}
-	for scriptName, script := range r.Hook.Scripts {
-		if script.UseStdin {
-			if StdinConsumed {
-				log.Errorf(
-					"script %s wants to use Stdin which was consumed by a previously.",
-					scriptName,
-				)
-				return results
-			}
-			StdinConsumed = true
-		}
 	}
 
 	if !r.DisableTTY && !r.Hook.Follow {
@@ -146,9 +123,9 @@ func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) []Result {
 }
 
 // returns whether it ran a LFS hook.
-func (r *Runner) runLFSHook(ctx context.Context) (bool, error) {
+func (r *Runner) runLFSHook(ctx context.Context) error {
 	if !git.IsLFSHook(r.HookName) {
-		return false, nil
+		return nil
 	}
 
 	lfsRequiredFile := filepath.Join(r.Repo.RootPath, git.LFSRequiredFile)
@@ -156,11 +133,11 @@ func (r *Runner) runLFSHook(ctx context.Context) (bool, error) {
 
 	requiredExists, err := afero.Exists(r.Repo.Fs, lfsRequiredFile)
 	if err != nil {
-		return false, err
+		return err
 	}
 	configExists, err := afero.Exists(r.Repo.Fs, lfsConfigFile)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	if git.IsLFSAvailable() {
@@ -174,8 +151,8 @@ func (r *Runner) runLFSHook(ctx context.Context) (bool, error) {
 				[]string{"git", "lfs", r.HookName},
 				r.GitArgs...,
 			),
+			r.stdin,
 			out,
-			git.DoesLFSHookConsumeStdin(r.HookName),
 		)
 
 		output := strings.Trim(out.String(), "\n")
@@ -192,10 +169,10 @@ func (r *Runner) runLFSHook(ctx context.Context) (bool, error) {
 
 		if err != nil && (requiredExists || configExists) {
 			log.Warnf("git-lfs command failed: %s\n", output)
-			return true, err
+			return err
 		}
 
-		return true, nil
+		return nil
 	}
 
 	if requiredExists || configExists {
@@ -206,10 +183,10 @@ func (r *Runner) runLFSHook(ctx context.Context) (bool, error) {
 				"  - %s\n",
 			lfsRequiredFile, lfsConfigFile,
 		)
-		return false, errors.New("git-lfs is required")
+		return errors.New("git-lfs is required")
 	}
 
-	return false, nil
+	return nil
 }
 
 func (r *Runner) preHook() {
@@ -521,6 +498,12 @@ func (r *Runner) run(ctx context.Context, opts exec.Options, follow bool) bool {
 	log.SetName(opts.Name)
 	defer log.UnsetName(opts.Name)
 
+	// If the command does not explicitly `use_stdin` no input will be provided.
+	var in io.Reader = NewNullReader()
+	if opts.UseStdin {
+		in = r.stdin
+	}
+
 	if (follow || opts.Interactive) && r.LogSettings.LogExecution() {
 		r.logExecute(opts.Name, nil, nil)
 
@@ -531,12 +514,14 @@ func (r *Runner) run(ctx context.Context, opts exec.Options, follow bool) bool {
 			out = io.Discard
 		}
 
-		err := r.executor.Execute(ctx, opts, out)
+		err := r.executor.Execute(ctx, opts, r.stdin, out)
+
 		return err == nil
 	}
 
 	out := bytes.NewBuffer(make([]byte, 0))
-	err := r.executor.Execute(ctx, opts, out)
+
+	err := r.executor.Execute(ctx, opts, in, out)
 
 	r.logExecute(opts.Name, err, out)
 
