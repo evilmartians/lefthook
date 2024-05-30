@@ -2,7 +2,6 @@ package git
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -73,7 +72,7 @@ func (c CommandExecutor) CmdLinesWithinFolder(cmd []string, folder string) ([]st
 
 func (c CommandExecutor) execute(cmd []string, root string) (string, error) {
 	out := bytes.NewBuffer(make([]byte, 0))
-	err := c.cmd.Run(context.Background(), cmd, root, system.NullReader, out)
+	err := c.cmd.Run(cmd, root, system.NullReader, out)
 	strOut := out.String()
 
 	log.Debug("[lefthook] out: ", strOut)

@@ -1,7 +1,6 @@
 package config
 
 import (
-	"context"
 	"errors"
 	"io"
 	"testing"
@@ -11,7 +10,7 @@ import (
 
 type mockCmd struct{}
 
-func (mc mockCmd) Run(_ctx context.Context, cmd []string, _root string, _in io.Reader, _out io.Writer) error {
+func (mc mockCmd) Run(cmd []string, _root string, _in io.Reader, _out io.Writer) error {
 	if len(cmd) == 3 && cmd[2] == "success" {
 		return nil
 	} else {

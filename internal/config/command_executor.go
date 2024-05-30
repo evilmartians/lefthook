@@ -1,7 +1,6 @@
 package config
 
 import (
-	"context"
 	"io"
 	"runtime"
 
@@ -26,7 +25,7 @@ func (c *commandExecutor) execute(commandLine string) bool {
 		args = []string{"sh", "-c", commandLine}
 	}
 
-	err := c.cmd.Run(context.Background(), args, "", system.NullReader, io.Discard)
+	err := c.cmd.Run(args, "", system.NullReader, io.Discard)
 
 	return err == nil
 }

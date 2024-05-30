@@ -56,7 +56,7 @@ type Runner struct {
 	partiallyStagedFiles []string
 	failed               atomic.Bool
 	executor             exec.Executor
-	cmd                  system.Command
+	cmd                  system.CommandWithContext
 }
 
 func New(opts Options) *Runner {
@@ -146,7 +146,7 @@ func (r *Runner) runLFSHook(ctx context.Context) error {
 			"[git-lfs] executing hook: git lfs %s %s", r.HookName, strings.Join(r.GitArgs, " "),
 		)
 		out := bytes.NewBuffer(make([]byte, 0))
-		err := r.cmd.Run(
+		err := r.cmd.RunWithContext(
 			ctx,
 			append(
 				[]string{"git", "lfs", r.HookName},

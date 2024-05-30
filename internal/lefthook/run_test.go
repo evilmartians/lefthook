@@ -1,7 +1,6 @@
 package lefthook
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -15,7 +14,7 @@ import (
 
 type gitCmd struct{}
 
-func (g gitCmd) Run(context.Context, []string, string, io.Reader, io.Writer) error {
+func (g gitCmd) Run([]string, string, io.Reader, io.Writer) error {
 	return nil
 }
 
