@@ -23,11 +23,7 @@ type executeArgs struct {
 	root string
 }
 
-func (e CommandExecutor) Execute(ctx context.Context, opts Options, out io.Writer) error {
-	var in io.Reader = nullReader{}
-	if opts.UseStdin {
-		in = os.Stdin
-	}
+func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader, out io.Writer) error {
 	if opts.Interactive && !isatty.IsTerminal(os.Stdin.Fd()) {
 		tty, err := tty.Open()
 		if err == nil {
@@ -63,9 +59,10 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, out io.Write
 	return nil
 }
 
-func (e CommandExecutor) RawExecute(ctx context.Context, command []string, out io.Writer) error {
-	cmd := exec.Command(command[0], command[1:]...)
+func (e CommandExecutor) RawExecute(ctx context.Context, command []string, in io.Reader, out io.Writer) error {
+	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
 
+	cmd.Stdin = in
 	cmd.Stdout = out
 	cmd.Stderr = os.Stderr
 

@@ -51,6 +51,7 @@ type Options struct {
 type Runner struct {
 	Options
 
+	stdin                io.Reader
 	partiallyStagedFiles []string
 	failed               atomic.Bool
 	executor             exec.Executor
@@ -58,7 +59,11 @@ type Runner struct {
 
 func New(opts Options) *Runner {
 	return &Runner{
-		Options:  opts,
+		Options: opts,
+
+		// Some hooks use STDIN for parsing data from Git. To allow multiple commands
+		// and scripts access the same Git data STDIN is cached via cachedReader.
+		stdin:    NewCachedReader(os.Stdin),
 		executor: exec.CommandExecutor{},
 	}
 }
@@ -79,16 +84,16 @@ type executable interface {
 
 // RunAll runs scripts and commands.
 // LFS hook is executed at first if needed.
-func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) []Result {
+func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) ([]Result, error) {
 	results := make([]Result, 0, len(r.Hook.Commands)+len(r.Hook.Scripts))
 
 	if err := r.runLFSHook(ctx); err != nil {
-		log.Error(err)
+		return results, err
 	}
 
 	if r.Hook.DoSkip(r.Repo.State()) {
 		r.logSkip(r.HookName, "hook setting")
-		return results
+		return results, nil
 	}
 
 	if !r.DisableTTY && !r.Hook.Follow {
@@ -113,7 +118,7 @@ func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) []Result {
 
 	r.postHook()
 
-	return results
+	return results, nil
 }
 
 func (r *Runner) runLFSHook(ctx context.Context) error {
@@ -144,6 +149,7 @@ func (r *Runner) runLFSHook(ctx context.Context) error {
 				[]string{"git", "lfs", r.HookName},
 				r.GitArgs...,
 			),
+			r.stdin,
 			out,
 		)
 
@@ -490,6 +496,12 @@ func (r *Runner) run(ctx context.Context, opts exec.Options, follow bool) bool {
 	log.SetName(opts.Name)
 	defer log.UnsetName(opts.Name)
 
+	// If the command does not explicitly `use_stdin` no input will be provided.
+	var in io.Reader = NewNullReader()
+	if opts.UseStdin {
+		in = r.stdin
+	}
+
 	if (follow || opts.Interactive) && r.LogSettings.LogExecution() {
 		r.logExecute(opts.Name, nil, nil)
 
@@ -500,12 +512,14 @@ func (r *Runner) run(ctx context.Context, opts exec.Options, follow bool) bool {
 			out = io.Discard
 		}
 
-		err := r.executor.Execute(ctx, opts, out)
+		err := r.executor.Execute(ctx, opts, in, out)
+
 		return err == nil
 	}
 
 	out := bytes.NewBuffer(make([]byte, 0))
-	err := r.executor.Execute(ctx, opts, out)
+
+	err := r.executor.Execute(ctx, opts, in, out)
 
 	r.logExecute(opts.Name, err, out)
 

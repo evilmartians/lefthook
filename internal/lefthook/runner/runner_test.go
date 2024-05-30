@@ -21,7 +21,7 @@ import (
 
 type TestExecutor struct{}
 
-func (e TestExecutor) Execute(_ctx context.Context, opts exec.Options, _out io.Writer) (err error) {
+func (e TestExecutor) Execute(_ctx context.Context, opts exec.Options, _in io.Reader, _out io.Writer) (err error) {
 	if strings.HasPrefix(opts.Commands[0], "success") {
 		err = nil
 	} else {
@@ -31,7 +31,7 @@ func (e TestExecutor) Execute(_ctx context.Context, opts exec.Options, _out io.W
 	return
 }
 
-func (e TestExecutor) RawExecute(_ctx context.Context, _command []string, _out io.Writer) error {
+func (e TestExecutor) RawExecute(_ctx context.Context, _command []string, _in io.Reader, _out io.Writer) error {
 	return nil
 }
 
@@ -766,7 +766,10 @@ func TestRunAll(t *testing.T) {
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			results := runner.RunAll(context.Background(), tt.sourceDirs)
+			results, err := runner.RunAll(context.Background(), tt.sourceDirs)
+			if err != nil {
+				t.Errorf("unexpected error %s", err)
+			}
 
 			var success, fail []Result
 			for _, result := range results {
