@@ -16,5 +16,5 @@ type Options struct {
 // Executor provides an interface for command execution.
 // It is used here for testing purpose mostly.
 type Executor interface {
-	Execute(ctx context.Context, opts Options, in io.Reader, out io.Writer) error
+	Execute(context.Context, Options, io.Reader, io.Writer) error
 }
