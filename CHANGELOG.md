@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.6.14 (2024-05-30)
+
+- fix: share STDIN across different commands on pre-push hook ([#732](https://github.com/evilmartians/lefthook/pull/732)) by @tdesveaux and @mrexox
+
 ## 1.6.13 (2024-05-27)
 
 - feat: expand Swift integration with Mint support ([#724](https://github.com/evilmartians/lefthook/pull/724)) by @levibostian
