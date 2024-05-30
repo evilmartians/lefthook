@@ -8,7 +8,7 @@ import (
 // cachedReader reads from the provided `io.Reader` until `io.EOF` and saves
 // the read content into the inner buffer.
 //
-// After `io.EOF` it will provide the read data again and again.
+// After `io.EOF` it will be providing the read data again and again.
 type cachedReader struct {
 	in        io.Reader
 	useBuffer bool

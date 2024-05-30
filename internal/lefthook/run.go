@@ -171,7 +171,7 @@ Run 'lefthook install' manually.`,
 	startTime := time.Now()
 	results, runErr := r.RunAll(ctx, sourceDirs)
 	if runErr != nil {
-		return runErr
+		return fmt.Errorf("failed to run the hook: %w", runErr)
 	}
 
 	if ctx.Err() != nil {

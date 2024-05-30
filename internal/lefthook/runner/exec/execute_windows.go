@@ -60,7 +60,7 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 }
 
 func (e CommandExecutor) RawExecute(ctx context.Context, command []string, in io.Reader, out io.Writer) error {
-	cmd := exec.Command(command[0], command[1:]...)
+	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
 
 	cmd.Stdin = in
 	cmd.Stdout = out
