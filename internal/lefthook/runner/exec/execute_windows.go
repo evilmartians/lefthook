@@ -59,15 +59,15 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 	return nil
 }
 
-func (e CommandExecutor) RawExecute(ctx context.Context, command []string, in io.Reader, out io.Writer) error {
-	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
+// func (e CommandExecutor) RawExecute(ctx context.Context, command []string, in io.Reader, out io.Writer) error {
+// 	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
 
-	cmd.Stdin = in
-	cmd.Stdout = out
-	cmd.Stderr = os.Stderr
+// 	cmd.Stdin = in
+// 	cmd.Stdout = out
+// 	cmd.Stderr = os.Stderr
 
-	return cmd.Run()
-}
+// 	return cmd.Run()
+// }
 
 func (e CommandExecutor) execute(cmdstr string, args *executeArgs) error {
 	cmdargs := strings.Split(cmdstr, " ")

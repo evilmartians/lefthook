@@ -30,7 +30,7 @@ type scriptRunnerReplace struct {
 }
 
 func (s Script) DoSkip(gitState git.State) bool {
-	skipChecker := NewSkipChecker(system.Executor{})
+	skipChecker := NewSkipChecker(system.Cmd)
 	return skipChecker.check(gitState, s.Skip, s.Only)
 }
 

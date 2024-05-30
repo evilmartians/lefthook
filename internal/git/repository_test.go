@@ -1,23 +1,30 @@
 package git
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 	"testing"
 )
 
-type GitMock struct {
+type gitCmd struct {
 	cases map[string]string
 }
 
-func (g GitMock) Execute(cmd []string, _root string) (string, error) {
+func (g gitCmd) Run(_ctx context.Context, cmd []string, _root string, _in io.Reader, out io.Writer) error {
 	res, ok := g.cases[(strings.Join(cmd, " "))]
 	if !ok {
-		return "", errors.New("doesn't exist")
+		return errors.New("doesn't exist")
 	}
 
-	return strings.TrimSpace(res), nil
+	_, err := out.Write([]byte(strings.TrimSpace(res)))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func TestPartiallyStagedFiles(t *testing.T) {
@@ -37,7 +44,7 @@ MM staged but changed
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
 			repository := &Repository{
 				Git: &CommandExecutor{
-					exec: GitMock{
+					cmd: gitCmd{
 						cases: map[string]string{
 							"git status --short --porcelain": tt.gitOut,
 						},

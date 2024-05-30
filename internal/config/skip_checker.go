@@ -5,14 +5,15 @@ import (
 
 	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/internal/system"
 )
 
 type skipChecker struct {
 	exec *commandExecutor
 }
 
-func NewSkipChecker(executor Executor) *skipChecker {
-	return &skipChecker{&commandExecutor{executor}}
+func NewSkipChecker(cmd system.Command) *skipChecker {
+	return &skipChecker{&commandExecutor{cmd}}
 }
 
 // check returns the result of applying a skip/only setting which can be a branch, git state, shell command, etc.
@@ -84,7 +85,7 @@ func (sc *skipChecker) matchesCommands(typedState map[string]interface{}) bool {
 		return false
 	}
 
-	result := sc.exec.cmd(commandLine)
+	result := sc.exec.execute(commandLine)
 
 	log.Debugf("[lefthook] skip/only cmd: %s, result: %t", commandLine, result)
 

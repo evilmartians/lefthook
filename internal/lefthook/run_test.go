@@ -1,7 +1,9 @@
 package lefthook
 
 import (
+	"context"
 	"fmt"
+	"io"
 	"path/filepath"
 	"slices"
 	"testing"
@@ -11,10 +13,10 @@ import (
 	"github.com/evilmartians/lefthook/internal/git"
 )
 
-type GitMock struct{}
+type gitCmd struct{}
 
-func (g GitMock) Execute(_cmd []string, root string) (string, error) {
-	return "", nil
+func (g gitCmd) Run(context.Context, []string, string, io.Reader, io.Writer) error {
+	return nil
 }
 
 func TestRun(t *testing.T) {
@@ -157,7 +159,7 @@ post-commit:
 				Options: &Options{Fs: fs},
 				repo: &git.Repository{
 					Fs:        fs,
-					Git:       git.NewExecutor(GitMock{}),
+					Git:       git.NewExecutor(gitCmd{}),
 					HooksPath: hooksPath,
 					RootPath:  root,
 					GitPath:   gitPath,
