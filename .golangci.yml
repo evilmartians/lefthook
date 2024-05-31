@@ -5,11 +5,15 @@ linters-settings:
     enabled-tags:
       - performance
   govet:
-    check-shadowing: true
+    enable:
+      - shadow
   misspell:
     locale: US
   gci:
-    local-prefixes: github.com/evilmartians/lefthook
+    sections:
+      - standard
+      - default
+      - prefix(github.com/evilmartians/lefthook)
   revive:
     rules:
       - name: unused-parameter
@@ -18,8 +22,7 @@ linters-settings:
 issues:
   exclude:
     # https://github.com/catenacyber/perfsprint/issues/21
-    # https://github.com/catenacyber/perfsprint/issues/23
-    - "^fmt\\.Sprintf can be replaced with string (addi|concatena)tion$"
+    - "^fmt\\.Sprintf can be replaced with string concatenation$"
 
 linters:
   disable-all: true
@@ -52,7 +55,6 @@ linters:
     - gofumpt
     - goheader
     - goimports
-    - gomnd
     - goprintffuncname
     - gosimple
     - govet
@@ -60,6 +62,7 @@ linters:
     - makezero
     - mirror
     - misspell
+    - mnd
     - nestif
     - noctx
     - nolintlint
