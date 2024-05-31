@@ -39,6 +39,11 @@ func (r *Repository) SyncRemote(url, ref string, force bool) error {
 		return err
 	}
 
+	log.SetName("fetching remotes")
+	log.StartSpinner()
+	defer log.StopSpinner()
+	defer log.UnsetName("fetching remotes")
+
 	directoryName := remoteDirectoryName(url, ref)
 	remotePath := filepath.Join(remotesPath, directoryName)
 

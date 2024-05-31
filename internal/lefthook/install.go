@@ -108,6 +108,25 @@ func (l *Lefthook) createConfig(path string) error {
 	return nil
 }
 
+func (l *Lefthook) syncHooks(cfg *config.Config, checkHashSum, force bool) error {
+	for _, remote := range cfg.Remotes {
+		if remote.Configured() && remote.Refetch {
+			if err := l.repo.SyncRemote(remote.GitURL, remote.Ref, force); err != nil {
+				checkHashSum = false
+				log.Warnf("Couldn't sync remotes. Will continue without them: %s", err)
+			} else {
+				// Reread the config file with synced remotes
+				cfg, err = l.readOrCreateConfig()
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return l.createHooksIfNeeded(cfg, checkHashSum, force)
+}
+
 func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force bool) error {
 	if checkHashSum && l.hooksSynchronized() {
 		return nil
