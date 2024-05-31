@@ -1,21 +1,19 @@
 package config
 
 import (
+	"io"
 	"runtime"
-)
 
-// Executor is a general execution interface for implicit commands.
-type Executor interface {
-	Execute(args []string, root string) (string, error)
-}
+	"github.com/evilmartians/lefthook/internal/system"
+)
 
 // commandExecutor implements execution of a skip checks passed in a `run` option.
 type commandExecutor struct {
-	exec Executor
+	cmd system.Command
 }
 
 // cmd runs plain string command in a subshell returning the success of it.
-func (c *commandExecutor) cmd(commandLine string) bool {
+func (c *commandExecutor) execute(commandLine string) bool {
 	if commandLine == "" {
 		return false
 	}
@@ -27,7 +25,7 @@ func (c *commandExecutor) cmd(commandLine string) bool {
 		args = []string{"sh", "-c", commandLine}
 	}
 
-	_, err := c.exec.Execute(args, "")
+	err := c.cmd.Run(args, "", system.NullReader, io.Discard)
 
 	return err == nil
 }

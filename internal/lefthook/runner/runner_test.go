@@ -19,9 +19,16 @@ import (
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
-type TestExecutor struct{}
+type (
+	executor struct{}
+	cmd      struct{}
+	gitCmd   struct {
+		mux      sync.Mutex
+		commands []string
+	}
+)
 
-func (e TestExecutor) Execute(_ctx context.Context, opts exec.Options, _in io.Reader, _out io.Writer) (err error) {
+func (e executor) Execute(_ctx context.Context, opts exec.Options, _in io.Reader, _out io.Writer) (err error) {
 	if strings.HasPrefix(opts.Commands[0], "success") {
 		err = nil
 	} else {
@@ -31,16 +38,11 @@ func (e TestExecutor) Execute(_ctx context.Context, opts exec.Options, _in io.Re
 	return
 }
 
-func (e TestExecutor) RawExecute(_ctx context.Context, _command []string, _in io.Reader, _out io.Writer) error {
+func (e cmd) RunWithContext(context.Context, []string, string, io.Reader, io.Writer) error {
 	return nil
 }
 
-type GitMock struct {
-	mux      sync.Mutex
-	commands []string
-}
-
-func (g *GitMock) Execute(cmd []string, _root string) (string, error) {
+func (g *gitCmd) Run(cmd []string, _root string, _in io.Reader, out io.Writer) error {
 	g.mux.Lock()
 	g.commands = append(g.commands, strings.Join(cmd, " "))
 	g.mux.Unlock()
@@ -49,16 +51,19 @@ func (g *GitMock) Execute(cmd []string, _root string) (string, error) {
 	if cmdLine == "git diff --name-only --cached --diff-filter=ACMR" ||
 		cmdLine == "git diff --name-only HEAD @{push}" {
 		root, _ := filepath.Abs("src")
-		return strings.Join([]string{
+		_, err := out.Write([]byte(strings.Join([]string{
 			filepath.Join(root, "scripts", "script.sh"),
 			filepath.Join(root, "README.md"),
-		}, "\n"), nil
+		}, "\n")))
+		if err != nil {
+			return err
+		}
 	}
 
-	return "", nil
+	return nil
 }
 
-func (g *GitMock) reset() {
+func (g *gitCmd) reset() {
 	g.mux.Lock()
 	g.commands = []string{}
 	g.mux.Unlock()
@@ -70,7 +75,7 @@ func TestRunAll(t *testing.T) {
 		t.Errorf("unexpected error: %s", err)
 	}
 
-	gitExec := &GitMock{}
+	gitExec := &gitCmd{}
 	gitPath := filepath.Join(root, ".git")
 	repo := &git.Repository{
 		Git:       git.NewExecutor(gitExec),
@@ -736,7 +741,6 @@ func TestRunAll(t *testing.T) {
 	} {
 		fs := afero.NewMemMapFs()
 		repo.Fs = fs
-		executor := TestExecutor{}
 		runner := &Runner{
 			Options: Options{
 				Repo:        repo,
@@ -746,7 +750,8 @@ func TestRunAll(t *testing.T) {
 				GitArgs:     tt.args,
 				Force:       tt.force,
 			},
-			executor: executor,
+			executor: executor{},
+			cmd:      cmd{},
 		}
 		gitExec.reset()
 

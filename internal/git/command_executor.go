@@ -1,33 +1,29 @@
 package git
 
 import (
+	"bytes"
 	"fmt"
 	"path/filepath"
 	"strings"
 
+	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/evilmartians/lefthook/internal/system"
 )
 
-// Executor is a general execution interface for implicit commands.
-// Added here mostly for mockable tests.
-type Executor interface {
-	Execute(args []string, root string) (string, error)
-}
-
 // CommandExecutor provides some methods that take some effect on execution and/or result data.
 type CommandExecutor struct {
-	exec Executor
+	cmd  system.Command
 	root string
 }
 
 // NewExecutor returns an object that executes given commands in the OS.
-func NewExecutor(exec Executor) *CommandExecutor {
-	return &CommandExecutor{exec: exec}
+func NewExecutor(cmd system.Command) *CommandExecutor {
+	return &CommandExecutor{cmd: cmd}
 }
 
 // Cmd runs plain string command. Trims spaces around output.
-func (c CommandExecutor) Cmd(args []string) (string, error) {
-	out, err := c.exec.Execute(args, c.root)
+func (c CommandExecutor) Cmd(cmd []string) (string, error) {
+	out, err := c.execute(cmd, c.root)
 	if err != nil {
 		return "", err
 	}
@@ -55,7 +51,7 @@ func (c CommandExecutor) BatchedCmd(cmd []string, args []string) (string, error)
 
 // CmdLines runs plain string command, returns its output split by newline.
 func (c CommandExecutor) CmdLines(cmd []string) ([]string, error) {
-	out, err := c.exec.Execute(cmd, c.root)
+	out, err := c.execute(cmd, c.root)
 	if err != nil {
 		return nil, err
 	}
@@ -66,12 +62,22 @@ func (c CommandExecutor) CmdLines(cmd []string) ([]string, error) {
 // CmdLines runs plain string command, returns its output split by newline.
 func (c CommandExecutor) CmdLinesWithinFolder(cmd []string, folder string) ([]string, error) {
 	root := filepath.Join(c.root, folder)
-	out, err := c.exec.Execute(cmd, root)
+	out, err := c.execute(cmd, root)
 	if err != nil {
 		return nil, err
 	}
 
 	return strings.Split(strings.TrimSpace(out), "\n"), nil
+}
+
+func (c CommandExecutor) execute(cmd []string, root string) (string, error) {
+	out := bytes.NewBuffer(make([]byte, 0))
+	err := c.cmd.Run(cmd, root, system.NullReader, out)
+	strOut := out.String()
+
+	log.Debug("[lefthook] out: ", strOut)
+
+	return strOut, err
 }
 
 func batchByLength(s []string, length int) [][]string {

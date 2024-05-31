@@ -61,7 +61,7 @@ changelog:
     - '^spec:'
     - '^tmp:'
     - '^context:'
-    - '^\d\.\d\.\d:'
+    - '^\d+\.\d+\.\d+:'
 
 snapcrafts:
   -

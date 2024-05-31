@@ -47,7 +47,7 @@ func (c Command) Validate() error {
 }
 
 func (c Command) DoSkip(gitState git.State) bool {
-	skipChecker := NewSkipChecker(system.Executor{})
+	skipChecker := NewSkipChecker(system.Cmd)
 	return skipChecker.check(gitState, c.Skip, c.Only)
 }
 

@@ -1,13 +1,11 @@
-package runner
+package system
 
 import "io"
 
 // nullReader always returns `io.EOF`.
 type nullReader struct{}
 
-func NewNullReader() io.Reader {
-	return nullReader{}
-}
+var NullReader = nullReader{}
 
 // Implements io.Reader interface.
 func (nullReader) Read(b []byte) (int, error) {

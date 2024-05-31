@@ -44,7 +44,7 @@ func (h *Hook) Validate() error {
 }
 
 func (h *Hook) DoSkip(gitState git.State) bool {
-	skipChecker := NewSkipChecker(system.Executor{})
+	skipChecker := NewSkipChecker(system.Cmd)
 	return skipChecker.check(gitState, h.Skip, h.Only)
 }
 

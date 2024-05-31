@@ -1,4 +1,4 @@
-package runner
+package system
 
 import (
 	"bytes"
@@ -7,9 +7,7 @@ import (
 )
 
 func TestNullReader(t *testing.T) {
-	nullReader := NewNullReader()
-
-	res, err := io.ReadAll(nullReader)
+	res, err := io.ReadAll(NullReader)
 	if err != nil {
 		t.Errorf("unexpected err: %s", err)
 	}

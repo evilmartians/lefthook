@@ -25,6 +25,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/exec"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/filters"
 	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/internal/system"
 )
 
 const (
@@ -55,6 +56,7 @@ type Runner struct {
 	partiallyStagedFiles []string
 	failed               atomic.Bool
 	executor             exec.Executor
+	cmd                  system.CommandWithContext
 }
 
 func New(opts Options) *Runner {
@@ -65,6 +67,7 @@ func New(opts Options) *Runner {
 		// and scripts access the same Git data STDIN is cached via cachedReader.
 		stdin:    NewCachedReader(os.Stdin),
 		executor: exec.CommandExecutor{},
+		cmd:      system.Cmd,
 	}
 }
 
@@ -143,12 +146,13 @@ func (r *Runner) runLFSHook(ctx context.Context) error {
 			"[git-lfs] executing hook: git lfs %s %s", r.HookName, strings.Join(r.GitArgs, " "),
 		)
 		out := bytes.NewBuffer(make([]byte, 0))
-		err := r.executor.RawExecute(
+		err := r.cmd.RunWithContext(
 			ctx,
 			append(
 				[]string{"git", "lfs", r.HookName},
 				r.GitArgs...,
 			),
+			"",
 			r.stdin,
 			out,
 		)
@@ -497,7 +501,7 @@ func (r *Runner) run(ctx context.Context, opts exec.Options, follow bool) bool {
 	defer log.UnsetName(opts.Name)
 
 	// If the command does not explicitly `use_stdin` no input will be provided.
-	var in io.Reader = NewNullReader()
+	var in io.Reader = system.NullReader
 	if opts.UseStdin {
 		in = r.stdin
 	}
