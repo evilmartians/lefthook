@@ -33,6 +33,7 @@ linters:
     - bodyclose
     - containedctx
     - contextcheck
+    - copyloopvar
     - decorder
     - dogsled
     - dupl
@@ -59,6 +60,7 @@ linters:
     - gosimple
     - govet
     - ineffassign
+    - intrange
     - makezero
     - mirror
     - misspell
@@ -67,6 +69,7 @@ linters:
     - noctx
     - nolintlint
     - perfsprint
+    - prealloc
     - predeclared
     - reassign
     - revive
