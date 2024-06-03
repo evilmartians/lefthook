@@ -50,17 +50,23 @@ func (l *Lefthook) Install(force bool) error {
 		return err
 	}
 
+	var remotesSynced bool
 	for _, remote := range cfg.Remotes {
 		if remote.Configured() {
-			if err := l.repo.SyncRemote(remote.GitURL, remote.Ref, force); err != nil {
+			if err = l.repo.SyncRemote(remote.GitURL, remote.Ref, force); err != nil {
 				log.Warnf("Couldn't sync from %s. Will continue anyway: %s", remote.GitURL, err)
-			} else {
-				// Reread the config file with synced remotes
-				cfg, err = l.readOrCreateConfig()
-				if err != nil {
-					return err
-				}
+				continue
 			}
+
+			remotesSynced = true
+		}
+	}
+
+	if remotesSynced {
+		// Reread the config file with synced remotes
+		cfg, err = l.readOrCreateConfig()
+		if err != nil {
+			return err
 		}
 	}
 
@@ -109,8 +115,9 @@ func (l *Lefthook) createConfig(path string) error {
 }
 
 func (l *Lefthook) syncHooks(cfg *config.Config) (*config.Config, error) {
-	checkHashSum := true
+	var remotesSynced bool
 	var err error
+
 	for _, remote := range cfg.Remotes {
 		if remote.Configured() && remote.Refetch {
 			if err = l.repo.SyncRemote(remote.GitURL, remote.Ref, false); err != nil {
@@ -118,18 +125,20 @@ func (l *Lefthook) syncHooks(cfg *config.Config) (*config.Config, error) {
 				continue
 			}
 
-			// Re-install the hooks
-			checkHashSum = false
-
-			// Reread the config file with synced remotes
-			cfg, err = l.readOrCreateConfig()
-			if err != nil {
-				return nil, err
-			}
+			remotesSynced = true
 		}
 	}
 
-	return cfg, l.createHooksIfNeeded(cfg, checkHashSum, false)
+	if remotesSynced {
+		// Reread the config file with synced remotes
+		cfg, err = l.readOrCreateConfig()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Don't rely on config checksum if remotes were refetched
+	return cfg, l.createHooksIfNeeded(cfg, !remotesSynced, false)
 }
 
 func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force bool) error {
