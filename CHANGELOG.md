@@ -2,6 +2,15 @@
 
 ## master (unreleased)
 
+## 1.6.15 (2024-06-03)
+
+- feat: add refetch option to remotes config ([#739](https://github.com/evilmartians/lefthook/pull/739)) by @mrexox
+- deps: June, 3, lipgloss (0.11.0) and viper (1.19.0) ([#742](https://github.com/evilmartians/lefthook/pull/742)) by @mrexox
+- chore: enable copyloopvar, intrange, and prealloc ([#740](https://github.com/evilmartians/lefthook/pull/740)) by @scop
+- perf: delay git and uname commands in hook scripts until needed ([#737](https://github.com/evilmartians/lefthook/pull/737)) by @scop
+- chore: refactor commands interfaces ([#735](https://github.com/evilmartians/lefthook/pull/735)) by @mrexox
+- chore: upgrade to 1.59.0 ([#738](https://github.com/evilmartians/lefthook/pull/738)) by @scop
+
 ## 1.6.14 (2024-05-30)
 
 - fix: share STDIN across different commands on pre-push hook ([#732](https://github.com/evilmartians/lefthook/pull/732)) by @tdesveaux and @mrexox
