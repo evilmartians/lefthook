@@ -20,6 +20,7 @@ Lefthook [supports](#config-file) YAML, JSON, and TOML configuration. In this do
 - [`remotes`](#remotes)
   - [`git_url`](#git_url-1)
   - [`ref`](#ref-1)
+  - [`refetch`](#refetch)
   - [`configs`](#configs)
 - [Git hook](#git-hook)
   - [`files` (global)](#files-global)
@@ -464,6 +465,10 @@ remotes:
 
 An optional *branch* or *tag* name.
 
+> [!NOTE]
+>
+> If you initially had `ref` option, ran `lefthook install`, and then removed it, lefthook won't decide which branch/tag to use as a ref. So, if you added it once, please, use it always to avoid issues in local setups.
+
 **Example**
 
 ```yml
@@ -474,9 +479,21 @@ remotes:
     ref: v1.0.0
 ```
 
-> [!NOTE]
->
-> If you initially had `ref` option, ran `lefthook install`, and then removed it, lefthook won't decide which branch/tag to use as a ref. So, if you added it once, please, use it always to avoid issues in local setups.
+### `refetch`
+
+**Default:** `false`
+
+Force remote config refetching on every run. Lefthook will be refetching the specified remote every time it is called.
+
+**Example**
+
+```yml
+# lefthook.yml
+
+remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    refetch: true
+```
 
 ### `configs`
 
