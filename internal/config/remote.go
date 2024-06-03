@@ -6,6 +6,7 @@ type Remote struct {
 	// Deprecated
 	Config  string   `json:"config,omitempty"  mapstructure:"config,omitempty"  toml:"config,omitempty"  yaml:",omitempty"`
 	Configs []string `json:"configs,omitempty" mapstructure:"configs,omitempty" toml:"configs,omitempty" yaml:",omitempty"`
+	Refetch bool     `json:"refetch,omitempty" mapstructure:"refetch,omitempty" toml:"refetch,omitempty" yaml:",omitempty"`
 }
 
 func (r *Remote) Configured() bool {

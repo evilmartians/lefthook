@@ -50,17 +50,23 @@ func (l *Lefthook) Install(force bool) error {
 		return err
 	}
 
+	var remotesSynced bool
 	for _, remote := range cfg.Remotes {
 		if remote.Configured() {
-			if err := l.repo.SyncRemote(remote.GitURL, remote.Ref, force); err != nil {
-				log.Warnf("Couldn't sync remotes. Will continue without them: %s", err)
-			} else {
-				// Reread the config file with synced remotes
-				cfg, err = l.readOrCreateConfig()
-				if err != nil {
-					return err
-				}
+			if err = l.repo.SyncRemote(remote.GitURL, remote.Ref, force); err != nil {
+				log.Warnf("Couldn't sync from %s. Will continue anyway: %s", remote.GitURL, err)
+				continue
 			}
+
+			remotesSynced = true
+		}
+	}
+
+	if remotesSynced {
+		// Reread the config file with synced remotes
+		cfg, err = l.readOrCreateConfig()
+		if err != nil {
+			return err
 		}
 	}
 
@@ -106,6 +112,33 @@ func (l *Lefthook) createConfig(path string) error {
 	log.Info("Added config:", file)
 
 	return nil
+}
+
+func (l *Lefthook) syncHooks(cfg *config.Config) (*config.Config, error) {
+	var remotesSynced bool
+	var err error
+
+	for _, remote := range cfg.Remotes {
+		if remote.Configured() && remote.Refetch {
+			if err = l.repo.SyncRemote(remote.GitURL, remote.Ref, false); err != nil {
+				log.Warnf("Couldn't sync from %s. Will continue anyway: %s", remote.GitURL, err)
+				continue
+			}
+
+			remotesSynced = true
+		}
+	}
+
+	if remotesSynced {
+		// Reread the config file with synced remotes
+		cfg, err = l.readOrCreateConfig()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Don't rely on config checksum if remotes were refetched
+	return cfg, l.createHooksIfNeeded(cfg, !remotesSynced, false)
 }
 
 func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force bool) error {

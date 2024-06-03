@@ -97,11 +97,14 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 
 	if !args.NoAutoInstall {
 		// This line controls updating the git hook if config has changed
-		if err = l.createHooksIfNeeded(cfg, true, false); err != nil {
+		newCfg, err := l.syncHooks(cfg)
+		if err != nil {
 			log.Warn(
 				`⚠️  There was a problem with synchronizing git hooks.
 Run 'lefthook install' manually.`,
 			)
+		} else {
+			cfg = newCfg
 		}
 	}
 
