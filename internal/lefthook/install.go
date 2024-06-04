@@ -114,18 +114,20 @@ func (l *Lefthook) createConfig(path string) error {
 	return nil
 }
 
-func (l *Lefthook) syncHooks(cfg *config.Config) (*config.Config, error) {
+func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Config, error) {
 	var remotesSynced bool
 	var err error
 
-	for _, remote := range cfg.Remotes {
-		if remote.Configured() && remote.Refetch {
-			if err = l.repo.SyncRemote(remote.GitURL, remote.Ref, false); err != nil {
-				log.Warnf("Couldn't sync from %s. Will continue anyway: %s", remote.GitURL, err)
-				continue
-			}
+	if fetchRemotes {
+		for _, remote := range cfg.Remotes {
+			if remote.Configured() && remote.Refetch {
+				if err = l.repo.SyncRemote(remote.GitURL, remote.Ref, false); err != nil {
+					log.Warnf("Couldn't sync from %s. Will continue anyway: %s", remote.GitURL, err)
+					continue
+				}
 
-			remotesSynced = true
+				remotesSynced = true
+			}
 		}
 	}
 

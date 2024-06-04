@@ -73,7 +73,9 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	// prepare-commit-msg hook is used for seamless synchronization of hooks with config.
 	// See: internal/lefthook/install.go
 	_, ok := cfg.Hooks[hookName]
+	var isGhostHook bool
 	if hookName == config.GhostHookName && !ok && !verbose {
+		isGhostHook = true
 		log.SetLevel(log.WarnLevel)
 	}
 
@@ -97,11 +99,10 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 
 	if !args.NoAutoInstall {
 		// This line controls updating the git hook if config has changed
-		newCfg, err := l.syncHooks(cfg)
+		newCfg, err := l.syncHooks(cfg, !isGhostHook)
 		if err != nil {
-			log.Warn(
-				`⚠️  There was a problem with synchronizing git hooks.
-Run 'lefthook install' manually.`,
+			log.Warnf(
+				`⚠️  There was a problem with synchronizing git hooks. Run 'lefthook install' manually. Error: %s`, err,
 			)
 		} else {
 			cfg = newCfg
