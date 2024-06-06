@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -135,7 +136,7 @@ func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Con
 		// Reread the config file with synced remotes
 		cfg, err = l.readOrCreateConfig()
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to reread the config: %w", err)
 		}
 	}
 
@@ -159,11 +160,11 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force b
 
 	checksum, err := l.configChecksum()
 	if err != nil {
-		return err
+		return fmt.Errorf("could not calculate checksum: %w", err)
 	}
 
 	if err = l.ensureHooksDirExists(); err != nil {
-		return err
+		return fmt.Errorf("could not create hooks dir: %w", err)
 	}
 
 	rootsMap := make(map[string]struct{})
@@ -187,7 +188,7 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force b
 		hookNames = append(hookNames, hook)
 
 		if err = l.cleanHook(hook, force); err != nil {
-			return err
+			return fmt.Errorf("could not replace the hook: %w", err)
 		}
 
 		templateArgs := templates.Args{
@@ -196,7 +197,7 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force b
 			Roots:                   roots,
 		}
 		if err = l.addHook(hook, templateArgs); err != nil {
-			return err
+			return fmt.Errorf("could not add the hook: %w", err)
 		}
 	}
 
@@ -210,7 +211,7 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force b
 	}
 
 	if err = l.addChecksumFile(checksum); err != nil {
-		return err
+		return fmt.Errorf("could not create a checksum file: %w", err)
 	}
 
 	success = true
@@ -330,7 +331,7 @@ func (l *Lefthook) configChecksum() (checksum string, err error) {
 func (l *Lefthook) addChecksumFile(checksum string) error {
 	timestamp, err := l.configLastUpdateTimestamp()
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to get config update timestamp: %w", err)
 	}
 
 	return afero.WriteFile(

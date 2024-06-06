@@ -102,7 +102,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		newCfg, err := l.syncHooks(cfg, !isGhostHook)
 		if err != nil {
 			log.Warnf(
-				`⚠️  There was a problem with synchronizing git hooks. Run 'lefthook install' manually. Error: %s`, err,
+				"⚠️  There was a problem with synchronizing git hooks. Run 'lefthook install' manually.\n   Error: %s", err,
 			)
 		} else {
 			cfg = newCfg
