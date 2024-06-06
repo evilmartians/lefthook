@@ -148,6 +148,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 			sourceDirs = append(
 				sourceDirs,
 				filepath.Join(
+					l.repo.RootPath,
 					l.repo.RemoteFolder(remote.GitURL, remote.Ref),
 					cfg.SourceDir,
 				),
