@@ -141,7 +141,7 @@ func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Con
 	}
 
 	// Don't rely on config checksum if remotes were refetched
-	return cfg, l.createHooksIfNeeded(cfg, !remotesSynced, false)
+	return cfg, l.createHooksIfNeeded(cfg, true, false)
 }
 
 func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force bool) error {
