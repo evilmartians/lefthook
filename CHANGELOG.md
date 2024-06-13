@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+## 1.6.16 (2024-06-13)
+
+- fix: skip overwriting hooks when fetching data from remotes ([#745](https://github.com/evilmartians/lefthook/pull/745)) by @mrexox
+- fix: fetch remotes only for non ghost hooks ([#744](https://github.com/evilmartians/lefthook/pull/744)) by @mrexox
+
 ## 1.6.15 (2024-06-03)
 
 - feat: add refetch option to remotes config ([#739](https://github.com/evilmartians/lefthook/pull/739)) by @mrexox
