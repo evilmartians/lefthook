@@ -91,7 +91,7 @@ func readOne(fs afero.Fs, path string, names []string) (*viper.Viper, error) {
 		return v, nil
 	}
 
-	return nil, NotFoundError{fmt.Sprintf("No config files with names %q could not be found in \"%s\"", names, path)}
+	return nil, NotFoundError{fmt.Sprintf("No config files with names %q have been found in \"%s\"", names, path)}
 }
 
 // mergeAll merges configs using the following order.
