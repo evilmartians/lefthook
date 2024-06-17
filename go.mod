@@ -6,7 +6,7 @@ toolchain go1.22.3
 
 require (
 	github.com/MakeNowJust/heredoc v1.0.0
-	github.com/briandowns/spinner v1.23.0
+	github.com/briandowns/spinner v1.23.1
 	github.com/charmbracelet/lipgloss v0.11.0
 	github.com/creack/pty v1.1.21
 	github.com/gobwas/glob v0.2.3
