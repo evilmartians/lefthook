@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+## 1.6.17 (2024-06-20)
+
+- fix: apply local extends only if they are present ([#754](https://github.com/evilmartians/lefthook/pull/754)) by @mrexox
+- chore: setting proper error message for missing lefthook file ([#748](https://github.com/evilmartians/lefthook/pull/748)) by @Cadienvan
+
 ## 1.6.16 (2024-06-13)
 
 - fix: skip overwriting hooks when fetching data from remotes ([#745](https://github.com/evilmartians/lefthook/pull/745)) by @mrexox
