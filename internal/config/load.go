@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/spf13/afero"
@@ -20,7 +21,10 @@ const (
 	DefaultSourceDirLocal = ".lefthook-local"
 )
 
-var hookKeyRegexp = regexp.MustCompile(`^(?P<hookName>[^.]+)\.(scripts|commands)`)
+var (
+	hookKeyRegexp    = regexp.MustCompile(`^(?P<hookName>[^.]+)\.(scripts|commands)`)
+	localConfigNames = []string{"lefthook-local", ".lefthook-local"}
+)
 
 // NotFoundError wraps viper.ConfigFileNotFoundError for lefthook.
 type NotFoundError struct {
@@ -109,13 +113,21 @@ func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
 		return nil, err
 	}
 
+	// Save global extends to compare them after merging local config
+	globalExtends := extends.GetStringSlice("extends")
+
 	if err := mergeRemotes(fs, repo, extends); err != nil {
 		return nil, err
 	}
 
-	if err := mergeOne([]string{"lefthook-local", ".lefthook-local"}, "", extends); err == nil {
-		if err = extend(extends, repo.RootPath); err != nil {
-			return nil, err
+	//nolint:nestif
+	if err := mergeLocal(extends); err == nil {
+		// Local extends need to be re-applied only if they have different settings
+		localExtends := extends.GetStringSlice("extends")
+		if !slices.Equal(globalExtends, localExtends) {
+			if err = extend(extends, repo.RootPath); err != nil {
+				return nil, err
+			}
 		}
 	} else {
 		var notFoundErr viper.ConfigFileNotFoundError
@@ -216,9 +228,9 @@ func merge(name, path string, v *viper.Viper) error {
 	return v.MergeInConfig()
 }
 
-func mergeOne(names []string, path string, v *viper.Viper) error {
-	for _, name := range names {
-		err := merge(name, path, v)
+func mergeLocal(v *viper.Viper) error {
+	for _, name := range localConfigNames {
+		err := merge(name, "", v)
 		if err == nil {
 			break
 		}
