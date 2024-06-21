@@ -63,21 +63,37 @@ func Load(fs afero.Fs, repo *git.Repository) (*Config, error) {
 }
 
 func read(fs afero.Fs, path string, name string) (*viper.Viper, error) {
-	v := viper.New()
-	v.SetFs(fs)
-	v.AddConfigPath(path)
-	v.SetConfigName(name)
+	// v := viper.New()
+	// v.SetFs(fs)
+	// v.AddConfigPath(path)
+	// v.SetConfigName(name)
 
-	// Allow overwriting settings with ENV variables
-	v.SetEnvPrefix("LEFTHOOK")
-	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	v.AutomaticEnv()
+	// // Allow overwriting settings with ENV variables
+	// v.SetEnvPrefix("LEFTHOOK")
+	// v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	// v.AutomaticEnv()
+
+	v := newViper(fs, path)
+	v.SetConfigName(name)
 
 	if err := v.ReadInConfig(); err != nil {
 		return nil, err
 	}
 
 	return v, nil
+}
+
+func newViper(fs afero.Fs, path string) *viper.Viper {
+	v := viper.New()
+	v.SetFs(fs)
+	v.AddConfigPath(path)
+
+	// Allow overwriting settings with ENV variables
+	v.SetEnvPrefix("LEFTHOOK")
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	v.AutomaticEnv()
+
+	return v
 }
 
 func readOne(fs afero.Fs, path string, names []string) (*viper.Viper, error) {
@@ -109,7 +125,7 @@ func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
 		return nil, err
 	}
 
-	if err := extend(extends, repo.RootPath); err != nil {
+	if err := extend(fs, extends, repo.RootPath); err != nil {
 		return nil, err
 	}
 
@@ -125,7 +141,7 @@ func mergeAll(fs afero.Fs, repo *git.Repository) (*viper.Viper, error) {
 		// Local extends need to be re-applied only if they have different settings
 		localExtends := extends.GetStringSlice("extends")
 		if !slices.Equal(globalExtends, localExtends) {
-			if err = extend(extends, repo.RootPath); err != nil {
+			if err = extend(fs, extends, repo.RootPath); err != nil {
 				return nil, err
 			}
 		}
@@ -190,7 +206,7 @@ func mergeRemotes(fs afero.Fs, repo *git.Repository, v *viper.Viper) error {
 				return err
 			}
 
-			if err = extend(v, filepath.Dir(configPath)); err != nil {
+			if err = extend(fs, v, filepath.Dir(configPath)); err != nil {
 				return err
 			}
 		}
@@ -206,12 +222,23 @@ func mergeRemotes(fs afero.Fs, repo *git.Repository, v *viper.Viper) error {
 }
 
 // extend merges all files listed in 'extends' option into the config.
-func extend(v *viper.Viper, root string) error {
-	for i, path := range v.GetStringSlice("extends") {
+func extend(fs afero.Fs, v *viper.Viper, root string) error {
+	for _, path := range v.GetStringSlice("extends") {
 		if !filepath.IsAbs(path) {
 			path = filepath.Join(root, path)
 		}
-		if err := merge(fmt.Sprintf("extend_%d", i), path, v); err != nil {
+
+		extendV := newViper(fs, root)
+		extendV.SetConfigFile(path)
+		if err := extendV.ReadInConfig(); err != nil {
+			return err
+		}
+
+		if err := extend(fs, extendV, root); err != nil {
+			return err
+		}
+
+		if err := v.MergeConfigMap(extendV.AllSettings()); err != nil {
 			return err
 		}
 	}
@@ -222,9 +249,7 @@ func extend(v *viper.Viper, root string) error {
 // merge merges the configuration using viper builtin MergeInConfig.
 func merge(name, path string, v *viper.Viper) error {
 	v.SetConfigName(name)
-	if len(path) > 0 {
-		v.SetConfigFile(path)
-	}
+	v.SetConfigFile(path)
 	return v.MergeInConfig()
 }
 
