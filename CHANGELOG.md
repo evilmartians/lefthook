@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.6.18 (2024-06-21)
+
+- fix: allow multiple levels of extends ([#755](https://github.com/evilmartians/lefthook/pull/755)) by @mrexox
+
 ## 1.6.17 (2024-06-20)
 
 - fix: apply local extends only if they are present ([#754](https://github.com/evilmartians/lefthook/pull/754)) by @mrexox
