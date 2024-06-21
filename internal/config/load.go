@@ -63,16 +63,6 @@ func Load(fs afero.Fs, repo *git.Repository) (*Config, error) {
 }
 
 func read(fs afero.Fs, path string, name string) (*viper.Viper, error) {
-	// v := viper.New()
-	// v.SetFs(fs)
-	// v.AddConfigPath(path)
-	// v.SetConfigName(name)
-
-	// // Allow overwriting settings with ENV variables
-	// v.SetEnvPrefix("LEFTHOOK")
-	// v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	// v.AutomaticEnv()
-
 	v := newViper(fs, path)
 	v.SetConfigName(name)
 
@@ -223,7 +213,18 @@ func mergeRemotes(fs afero.Fs, repo *git.Repository, v *viper.Viper) error {
 
 // extend merges all files listed in 'extends' option into the config.
 func extend(fs afero.Fs, v *viper.Viper, root string) error {
+	return extendRecursive(fs, v, root, make(map[string]struct{}))
+}
+
+// extendRecursive merges extends.
+// If extends contain other extends they get merged too.
+func extendRecursive(fs afero.Fs, v *viper.Viper, root string, extends map[string]struct{}) error {
 	for _, path := range v.GetStringSlice("extends") {
+		if _, contains := extends[path]; contains {
+			return fmt.Errorf("possible recursion in extends: path %s is specified multiple times", path)
+		}
+		extends[path] = struct{}{}
+
 		if !filepath.IsAbs(path) {
 			path = filepath.Join(root, path)
 		}
@@ -234,7 +235,7 @@ func extend(fs afero.Fs, v *viper.Viper, root string) error {
 			return err
 		}
 
-		if err := extend(fs, extendV, root); err != nil {
+		if err := extendRecursive(fs, extendV, root, extends); err != nil {
 			return err
 		}
 
