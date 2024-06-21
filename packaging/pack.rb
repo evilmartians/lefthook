@@ -1,17 +1,34 @@
-VERSION = 1.6.17
+#!/usr/bin/env ruby
 
-DIST_DIR = File.join(__dir__, "..", "dist")
+require "fileutils"
 
-def clean
-  Dir["**/README.md"]
-  Dir["**/lefthook*"]
-  system("git clean -fdX npm-installer/ npm-bundled/ npm-bundled/bin/ rubygems/libexec/ rubygems/pkg/")
-end
+VERSION = "1.6.17"
 
-def put_readme
-  Dir["npm/*"].each do |npm_dir|
-    FileUtils.cp("../README.md", npm_dir)
+ROOT = File.join(__dir__, "..")
+DIST = File.join(ROOT, "dist")
+
+module Pack
+  module_function
+
+  def clean
+    FileUtils.cd(__dir__)
+    print "Cleaning... "
+    FileUtils.rm(Dir["npm/**/README.md"])
+    FileUtils.rm(Dir["npm/**/lefthook*"].filter(&File.method(:file?)))
+    system("git clean -fdX npm-installer/ npm-bundled/ npm-bundled/bin/ rubygems/libexec/ rubygems/pkg/")
+    puts "done"
   end
-  FileUtils.cp("../README.md", "npm-bundled/")
-  FileUtils.cp("../README.md", "npm-installer/")
+
+  def put_readme
+    FileUtils.cd(__dir__)
+    print "Putting READMEs... "
+    Dir["npm/*"].each do |npm_dir|
+      FileUtils.cp(File.join(ROOT, "README.md"), File.join(npm_dir, "README.md"), verbose: true)
+    end
+    FileUtils.cp(File.join(ROOT, "README.md"), "npm-bundled/", verbose: true)
+    FileUtils.cp(File.join(ROOT, "README.md"), "npm-installer/", verbose: true)
+    puts "done"
+  end
 end
+
+Pack.public_send ARGV[0]
