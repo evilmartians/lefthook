@@ -29,22 +29,14 @@ set-version:
 	sed -E -i "s/(spec\.version\s+= ).*/\1\"$(VERSION)\"/" rubygems/lefthook.gemspec
 
 put-binaries:
-	mkdir -p npm/lefthook-linux-x64/bin/
-	mkdir -p npm/lefthook-linux-arm64/bin/
-	mkdir -p npm/lefthook-freebsd-x64/bin/
-	mkdir -p npm/lefthook-freebsd-arm64/bin/
-	mkdir -p npm/lefthook-windows-x64/bin/
-	mkdir -p npm/lefthook-windows-arm64/bin/
-	mkdir -p npm/lefthook-darwin-x64/bin/
-	mkdir -p npm/lefthook-darwin-arm64/bin/
-	install $(LINUX_AMD64_BIN) npm/lefthook-linux-x64/bin/lefthook
-	install $(LINUX_ARM64_BIN) npm/lefthook-linux-arm64/bin/lefthook
-	install $(FREEBSD_AMD64_BIN) npm/lefthook-freebsd-x64/bin/lefthook
-	install $(FREEBSD_ARM64_BIN) npm/lefthook-freebsd-arm64/bin/lefthook
-	install $(WINDOWS_AMD64_BIN) npm/lefthook-windows-x64/bin/lefthook.exe
-	install $(WINDOWS_ARM64_BIN) npm/lefthook-windows-arm64/bin/lefthook.exe
-	install $(DARWIN_AMD64_BIN) npm/lefthook-darwin-x64/bin/lefthook
-	install $(DARWIN_ARM64_BIN) npm/lefthook-darwin-arm64/bin/lefthook
+	install -D $(LINUX_AMD64_BIN) npm/lefthook-linux-x64/bin/lefthook
+	install -D $(LINUX_ARM64_BIN) npm/lefthook-linux-arm64/bin/lefthook
+	install -D $(FREEBSD_AMD64_BIN) npm/lefthook-freebsd-x64/bin/lefthook
+	install -D $(FREEBSD_ARM64_BIN) npm/lefthook-freebsd-arm64/bin/lefthook
+	install -D $(WINDOWS_AMD64_BIN) npm/lefthook-windows-x64/bin/lefthook.exe
+	install -D $(WINDOWS_ARM64_BIN) npm/lefthook-windows-arm64/bin/lefthook.exe
+	install -D $(DARWIN_AMD64_BIN) npm/lefthook-darwin-x64/bin/lefthook
+	install -D $(DARWIN_ARM64_BIN) npm/lefthook-darwin-arm64/bin/lefthook
 	cd npm-bundled; npm version $(VERSION) --allow-same-version; cd -
 	cd $(DIST_DIR); find . -maxdepth 2 -type f -exec cp --parents \{\} ../packaging/rubygems/libexec/ \;
 
