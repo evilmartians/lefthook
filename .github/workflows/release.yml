@@ -59,8 +59,8 @@ jobs:
           EOF
           chmod 0600 ~/.gem/credentials
           cd packaging/
-          make prepare
-          make publish
+          ruby pack.rb prepare
+          ruby pack.rb publish
 
       - name: Update Homebrew formula
         uses: dawidd6/action-homebrew-bump-formula@v3

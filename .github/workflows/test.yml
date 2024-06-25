@@ -70,11 +70,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Build binaries
-        uses: goreleaser/goreleaser-action@v5
+        uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
           version: latest
-          args: build --snapshot --skip-validate --clean
+          args: build --snapshot --skip=validate --clean
       - name: Tar binaries to preserve executable bit
         run: 'tar -cvf lefthook-binaries.tar --directory dist/ $(find dist/ -executable -type f -printf "%P\0" | xargs --null)'
       - name: Upload binaries as artifacts

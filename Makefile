@@ -29,7 +29,7 @@ lint: bin/golangci-lint
 version:
 	@read -p "New version: " version
 	sed -i "s/const version = .*/const version = \"$$version\"/" internal/version/version.go
-	sed -i "s/VERSION := .*/VERSION := $$version/" packaging/Makefile
+	sed -i "s/VERSION = .*/VERSION = \"$$version\"/" packaging/pack.rb
 	sed -i "s/lefthook-plugin.git\", exact: \".*\"/lefthook-plugin.git\", exact: \"$$version\"/" docs/install.md
-	make -C packaging clean set-version
+	ruby packaging/pack.rb clean set_version
 	git add internal/version/version.go packaging/* docs/install.md

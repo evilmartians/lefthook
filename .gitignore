@@ -1,19 +1,17 @@
 .vscode/
 .idea/
-/lefthook-local.yml
 /lefthook
+/lefthook-local.yml
 
 tmp/
 dist/
+
+# Packages
 packaging/rubygems/pkg/
 packaging/rubygems/libexec/
 packaging/npm-bundled/bin/
 packaging/npm-*/README.md
 packaging/npm/*/bin/
-!packaging/npm/lefthook/bin/index.js
 packaging/npm/*/README.md
-package.json
 !packaging/npm/*/package.json
-node_modules/
-yarn.lock
-package-lock.json
+!packaging/npm/lefthook/bin/index.js
