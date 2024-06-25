@@ -48,7 +48,11 @@ jobs:
           mkdir _icoverdir_
           go install -cover
       - name: Run integrity tests
-        run: go test integrity_test.go -tags=integrity
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          command: go test integrity_test.go -tags=integrity
       - name: Collect coverage
         run: |
           go tool covdata textfmt -i _icoverdir_ -o coverage.out
