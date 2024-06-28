@@ -2,6 +2,9 @@
   "name": "lefthook-linux-arm64",
   "version": "1.6.18",
   "description": "The Linux ARM 64-bit binary for lefthook, git hooks manager.",
+  "bin": {
+    "lefthook": "bin/lefthook"
+  },
   "preferUnplugged": false,
   "repository": "https://github.com/evilmartians/lefthook",
   "license": "MIT",
