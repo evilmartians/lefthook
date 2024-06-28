@@ -57,6 +57,9 @@ Lefthook is available on NPM in the following flavors:
     yarn add -D @evilmartians/lefthook-installer
     ```
 
+> [!NOTE]
+> If you use `pnpm` package manager make sure you set `side-effects-cache = false` in your .npmrc, otherwise the postinstall script of the lefthook package won't be executed and hooks won't be installed.
+
 ## <a id="go"></a> Go
 
 ```bash
@@ -73,7 +76,7 @@ python3 -m pip install --user lefthook
 
 ## <a id="swift"></a> Swift
 
-You can find the Swift wrapper plugin [here](https://github.com/csjones/lefthook-plugin). 
+You can find the Swift wrapper plugin [here](https://github.com/csjones/lefthook-plugin).
 
 Utilize lefthook in your Swift project using Swift Package Manager:
 
