@@ -1,6 +1,6 @@
 {
   "name": "lefthook-linux-arm64",
-  "version": "1.6.21",
+  "version": "1.6.22",
   "description": "The Linux ARM 64-bit binary for lefthook, git hooks manager.",
   "bin": {
     "lefthook": "bin/lefthook"

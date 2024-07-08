@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+## 1.6.22 (2024-07-08)
+
+- fix: publishing ([#765](https://github.com/evilmartians/lefthook/pull/765)) by @mrexox
+
+## 1.6.21 (2024-07-08)
 ## 1.6.20 (2024-07-08)
 
 ## 1.6.19 (2024-07-08)
