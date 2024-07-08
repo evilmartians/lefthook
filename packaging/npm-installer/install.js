@@ -21,7 +21,7 @@ async function install() {
   // run install
   chp.spawnSync(exePath, ['install',  '-f'], {
     cwd: process.env.INIT_CWD || process.cwd(),
-    stdio: 'pipe',
+    stdio: 'inherit',
   })
 }
 
