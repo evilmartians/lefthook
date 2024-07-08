@@ -2,15 +2,9 @@
 
 ## master (unreleased)
 
-## 1.6.22 (2024-07-08)
+## 1.7.0 (2024-07-08)
 
 - fix: publishing ([#765](https://github.com/evilmartians/lefthook/pull/765)) by @mrexox
-
-## 1.6.21 (2024-07-08)
-## 1.6.20 (2024-07-08)
-
-## 1.6.19 (2024-07-08)
-
 - perf: startup time reduce ([#705](https://github.com/evilmartians/lefthook/pull/705)) by @dalisoft
 - docs: add a note about pnpm package installation ([#761](https://github.com/evilmartians/lefthook/pull/761)) by @mrexox
 - ci: retriable integrity tests ([#758](https://github.com/evilmartians/lefthook/pull/758)) by @mrexox
