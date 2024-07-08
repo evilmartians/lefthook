@@ -34,24 +34,27 @@ call_lefthook()
       "$dir/node_modules/lefthook/bin/index.js" "$@"
     else
       osArch=$(uname | tr '[:upper:]' '[:lower:]')
-      cpuArch=$(uname -m | sed 's/aarch64/arm64/')
-      if test -f "$dir/node_modules/@evilmartians/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}"
+      cpuArch=$(uname -m | sed 's/aarch64/arm64/;s/x86_64/x64/' )
+      if test -f "$dir/node_modules/lefthook-${osArch}-${cpuArch}/bin/lefthook{{.Extension}}"
       then
-        "$dir/node_modules/@evilmartians/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}" "$@"
-      elif test -f "$dir/node_modules/@evilmartians/lefthook-installer/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}"
+        "$dir/node_modules/lefthook-${osArch}-${cpuArch}/bin/lefthook{{.Extension}}" "$@"
+      if test -f "$dir/node_modules/@evilmartians/lefthook/bin/lefthook-${osArch}-${cpuArch}/lefthook{{.Extension}}"
       then
-        "$dir/node_modules/@evilmartians/lefthook-installer/bin/lefthook_${osArch}_${cpuArch}/lefthook{{.Extension}}" "$@"
+        "$dir/node_modules/@evilmartians/lefthook/bin/lefthook-${osArch}-${cpuArch}/lefthook{{.Extension}}" "$@"
+      elif test -f "$dir/node_modules/@evilmartians/lefthook-installer/bin/lefthook{{.Extension}}"
+      then
+        "$dir/node_modules/@evilmartians/lefthook-installer/bin/lefthook{{.Extension}}" "$@"
       {{ $extension := .Extension }}
       {{- range .Roots -}}
       elif test -f "$dir/{{.}}/node_modules/lefthook/bin/index.js"
       then
         "$dir/{{.}}/node_modules/lefthook/bin/index.js" "$@"
-      elif test -f "$dir/{{.}}/node_modules/@evilmartians/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{$extension}}"
+      elif test -f "$dir/{{.}}/node_modules/@evilmartians/lefthook/bin/lefthook-${osArch}-${cpuArch}/lefthook{{$extension}}"
       then
-        "$dir/{{.}}/node_modules/@evilmartians/lefthook/bin/lefthook_${osArch}_${cpuArch}/lefthook{{$extension}}" "$@"
-      elif test -f "$dir/{{.}}/node_modules/@evilmartians/lefthook-installer/bin/lefthook_${osArch}_${cpuArch}/lefthook{{$extension}}"
+        "$dir/{{.}}/node_modules/@evilmartians/lefthook/bin/lefthook-${osArch}-${cpuArch}/lefthook{{$extension}}" "$@"
+      elif test -f "$dir/{{.}}/node_modules/@evilmartians/lefthook-installer/bin/lefthook{{$extension}}"
       then
-        "$dir/{{.}}/node_modules/@evilmartians/lefthook-installer/bin/lefthook_${osArch}_${cpuArch}/lefthook{{$extension}}" "$@"
+        "$dir/{{.}}/node_modules/@evilmartians/lefthook-installer/bin/lefthook{{$extension}}" "$@"
       {{end}}
       elif bundle exec lefthook -h >/dev/null 2>&1
       then

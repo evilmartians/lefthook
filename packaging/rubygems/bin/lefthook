@@ -7,8 +7,8 @@ arch =
   case platform.cpu.sub(/\Auniversal\./, '')
   when /\Aarm64/ then "arm64" # Apple reports arm64e on M1 macs
   when /aarch64/ then "arm64"
-  when "x86_64"  then "amd64"
-  when "x64"     then "amd64" # Windows with MINGW64 reports RUBY_PLATFORM as "x64-mingw32"
+  when "x86_64"  then "x64"
+  when "x64"     then "x64" # Windows with MINGW64 reports RUBY_PLATFORM as "x64-mingw32"
   else raise "Unknown architecture: #{platform.cpu}"
   end
 
@@ -18,14 +18,12 @@ os =
   when "darwin"  then "darwin"  # MacOS
   when "windows" then "windows"
   when "mingw32" then "windows" # Windows with MINGW64 reports RUBY_PLATFORM as "x64-mingw32"
-  when "mingw" then "windows"
+  when "mingw"   then "windows"
   when "freebsd" then "freebsd"
   else raise "Unknown OS: #{platform.os}"
   end
 
-suffix = arch == "amd64" ? "_v1" : "" # GOAMD64
-
-binary = "lefthook_#{os}_#{arch}#{suffix}/lefthook"
+binary = "lefthook-#{os}-#{arch}/lefthook"
 binary = "#{binary}.exe" if os == "windows"
 
 args = $*.map { |x| x.include?(' ') ? "'" + x + "'" : x }

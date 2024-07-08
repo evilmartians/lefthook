@@ -29,10 +29,6 @@
     "arm64"
   ],
   "scripts": {
-    "version": "cp -f ../../README.md ./",
     "install": "node install.js"
-  },
-  "dependencies": {
-    "node-downloader-helper": "^1.0.18"
   }
 }

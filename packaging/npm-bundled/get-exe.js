@@ -15,11 +15,6 @@ function getExePath() {
   let goArch = process.arch;
   let suffix = '';
   switch (process.arch) {
-    case 'x64': {
-      goArch = 'amd64';
-      suffix = '_v1'; // GOAMD64
-      break;
-    }
     case 'x32':
     case 'ia32': {
       goArch = '386';
@@ -30,7 +25,7 @@ function getExePath() {
   const dir = path.join(__dirname, 'bin');
   const executable = path.join(
     dir,
-    `lefthook_${goOS}_${goArch}${suffix}`,
+    `lefthook-${goOS}-${goArch}`,
     `lefthook${extension}`
   );
   return executable;
