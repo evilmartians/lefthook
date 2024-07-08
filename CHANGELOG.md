@@ -2,6 +2,13 @@
 
 ## master (unreleased)
 
+## 1.6.19 (2024-07-08)
+
+- perf: startup time reduce ([#705](https://github.com/evilmartians/lefthook/pull/705)) by @dalisoft
+- docs: add a note about pnpm package installation ([#761](https://github.com/evilmartians/lefthook/pull/761)) by @mrexox
+- ci: retriable integrity tests ([#758](https://github.com/evilmartians/lefthook/pull/758)) by @mrexox
+- ci: universal publisher with Ruby script ([#756](https://github.com/evilmartians/lefthook/pull/756)) by @mrexox
+
 ## 1.6.18 (2024-06-21)
 
 - fix: allow multiple levels of extends ([#755](https://github.com/evilmartians/lefthook/pull/755)) by @mrexox
