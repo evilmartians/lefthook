@@ -54,18 +54,47 @@ module Pack
     cd(__dir__)
     puts "Putting binaries to packages..."
     {
-      "#{DIST}/lefthook_linux_amd64_v1/lefthook" => "npm/lefthook-linux-x64/bin/lefthook",
-      "#{DIST}/lefthook_linux_arm64/lefthook" => "npm/lefthook-linux-arm64/bin/lefthook",
-      "#{DIST}/lefthook_freebsd_amd64_v1/lefthook" => "npm/lefthook-freebsd-x64/bin/lefthook",
-      "#{DIST}/lefthook_freebsd_arm64/lefthook" => "npm/lefthook-freebsd-arm64/bin/lefthook",
-      "#{DIST}/lefthook_windows_amd64_v1/lefthook.exe" => "npm/lefthook-windows-x64/bin/lefthook.exe",
-      "#{DIST}/lefthook_windows_arm64/lefthook.exe" => "npm/lefthook-windows-arm64/bin/lefthook.exe",
-      "#{DIST}/lefthook_darwin_amd64_v1/lefthook" => "npm/lefthook-darwin-x64/bin/lefthook",
-      "#{DIST}/lefthook_darwin_arm64/lefthook" => "npm/lefthook-darwin-arm64/bin/lefthook",
+      "#{DIST}/lefthook_linux_amd64_v1/lefthook"        =>  "npm/lefthook-linux-x64/bin/lefthook",
+      "#{DIST}/lefthook_linux_arm64/lefthook"           =>  "npm/lefthook-linux-arm64/bin/lefthook",
+      "#{DIST}/lefthook_freebsd_amd64_v1/lefthook"      =>  "npm/lefthook-freebsd-x64/bin/lefthook",
+      "#{DIST}/lefthook_freebsd_arm64/lefthook"         =>  "npm/lefthook-freebsd-arm64/bin/lefthook",
+      "#{DIST}/lefthook_windows_amd64_v1/lefthook.exe"  =>  "npm/lefthook-windows-x64/bin/lefthook.exe",
+      "#{DIST}/lefthook_windows_arm64/lefthook.exe"     =>  "npm/lefthook-windows-arm64/bin/lefthook.exe",
+      "#{DIST}/lefthook_darwin_amd64_v1/lefthook"       =>  "npm/lefthook-darwin-x64/bin/lefthook",
+      "#{DIST}/lefthook_darwin_arm64/lefthook"          =>  "npm/lefthook-darwin-arm64/bin/lefthook",
     }.each do |(source, dest)|
       mkdir_p(File.dirname(dest))
       cp(source, dest, verbose: true)
     end
+
+    {
+      "#{DIST}/lefthook_linux_amd64_v1/lefthook"        =>  "npm-bundled/bin/lefthook-linux-x64/lefthook",
+      "#{DIST}/lefthook_linux_arm64/lefthook"           =>  "npm-bundled/bin/lefthook-linux-arm64/lefthook",
+      "#{DIST}/lefthook_freebsd_amd64_v1/lefthook"      =>  "npm-bundled/bin/lefthook-freebsd-x64/lefthook",
+      "#{DIST}/lefthook_freebsd_arm64/lefthook"         =>  "npm-bundled/bin/lefthook-freebsd-arm64/lefthook",
+      "#{DIST}/lefthook_windows_amd64_v1/lefthook.exe"  =>  "npm-bundled/bin/lefthook-windows-x64/lefthook.exe",
+      "#{DIST}/lefthook_windows_arm64/lefthook.exe"     =>  "npm-bundled/bin/lefthook-windows-arm64/lefthook.exe",
+      "#{DIST}/lefthook_darwin_amd64_v1/lefthook"       =>  "npm-bundled/bin/lefthook-darwin-x64/lefthook",
+      "#{DIST}/lefthook_darwin_arm64/lefthook"          =>  "npm-bundled/bin/lefthook-darwin-arm64/lefthook",
+    }.each do |(source, dest)|
+      mkdir_p(File.dirname(dest))
+      cp(source, dest, verbose: true)
+    end
+
+    {
+      "#{DIST}/lefthook_linux_amd64_v1/lefthook"        =>  "rubygems/libexec/lefthook-linux-x64/lefthook",
+      "#{DIST}/lefthook_linux_arm64/lefthook"           =>  "rubygems/libexec/lefthook-linux-arm64/lefthook",
+      "#{DIST}/lefthook_freebsd_amd64_v1/lefthook"      =>  "rubygems/libexec/lefthook-freebsd-x64/lefthook",
+      "#{DIST}/lefthook_freebsd_arm64/lefthook"         =>  "rubygems/libexec/lefthook-freebsd-arm64/lefthook",
+      "#{DIST}/lefthook_windows_amd64_v1/lefthook.exe"  =>  "rubygems/libexec/lefthook-windows-x64/lefthook.exe",
+      "#{DIST}/lefthook_windows_arm64/lefthook.exe"     =>  "rubygems/libexec/lefthook-windows-arm64/lefthook.exe",
+      "#{DIST}/lefthook_darwin_amd64_v1/lefthook"       =>  "rubygems/libexec/lefthook-darwin-x64/lefthook",
+      "#{DIST}/lefthook_darwin_arm64/lefthook"          =>  "rubygems/libexec/lefthook-darwin-arm64/lefthook",
+    }.each do |(source, dest)|
+      mkdir_p(File.dirname(dest))
+      cp(source, dest, verbose: true)
+    end
+
     puts "done"
   end
 
