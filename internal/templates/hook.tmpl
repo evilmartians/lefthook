@@ -29,60 +29,61 @@ call_lefthook()
   {{end -}}
   else
     dir="$(git rev-parse --show-toplevel)"
-    if test -f "$dir/node_modules/lefthook/bin/index.js"
+    osArch=$(uname | tr '[:upper:]' '[:lower:]')
+    cpuArch=$(uname -m | sed 's/aarch64/arm64/;s/x86_64/x64/')
+    if test -f "$dir/node_modules/lefthook-${osArch}-${cpuArch}/bin/lefthook{{.Extension}}"
+    then
+      "$dir/node_modules/lefthook-${osArch}-${cpuArch}/bin/lefthook{{.Extension}}" "$@"
+    elif test -f "$dir/node_modules/@evilmartians/lefthook/bin/lefthook-${osArch}-${cpuArch}/lefthook{{.Extension}}"
+    then
+      "$dir/node_modules/@evilmartians/lefthook/bin/lefthook-${osArch}-${cpuArch}/lefthook{{.Extension}}" "$@"
+    elif test -f "$dir/node_modules/@evilmartians/lefthook-installer/bin/lefthook{{.Extension}}"
+    then
+      "$dir/node_modules/@evilmartians/lefthook-installer/bin/lefthook{{.Extension}}" "$@"
+    elif test -f "$dir/node_modules/lefthook/bin/index.js"
     then
       "$dir/node_modules/lefthook/bin/index.js" "$@"
+    {{ $extension := .Extension }}
+    {{- range .Roots -}}
+    elif test -f "$dir/{{.}}/node_modules/lefthook-${osArch}-${cpuArch}/bin/lefthook{{.Extension}}"
+    then
+      "$dir/node_modules/lefthook-${osArch}-${cpuArch}/bin/lefthook{{.Extension}}" "$@"
+    elif test -f "$dir/{{.}}/node_modules/@evilmartians/lefthook/bin/lefthook-${osArch}-${cpuArch}/lefthook{{$extension}}"
+    then
+      "$dir/{{.}}/node_modules/@evilmartians/lefthook/bin/lefthook-${osArch}-${cpuArch}/lefthook{{$extension}}" "$@"
+    elif test -f "$dir/{{.}}/node_modules/@evilmartians/lefthook-installer/bin/lefthook{{$extension}}"
+    then
+      "$dir/{{.}}/node_modules/@evilmartians/lefthook-installer/bin/lefthook{{$extension}}" "$@"
+    elif test -f "$dir/{{.}}/node_modules/lefthook/bin/index.js"
+    then
+      "$dir/{{.}}/node_modules/lefthook/bin/index.js" "$@"
+    {{end}}
+    elif bundle exec lefthook -h >/dev/null 2>&1
+    then
+      bundle exec lefthook "$@"
+    elif yarn lefthook -h >/dev/null 2>&1
+    then
+      yarn lefthook "$@"
+    elif pnpm lefthook -h >/dev/null 2>&1
+    then
+      pnpm lefthook "$@"
+    elif swift package plugin lefthook >/dev/null 2>&1
+    then
+      swift package --disable-sandbox plugin lefthook "$@"
+    elif command -v mint >/dev/null 2>&1
+    then
+      mint run csjones/lefthook-plugin "$@"
+    elif command -v npx >/dev/null 2>&1
+    then
+      npx lefthook "$@"
     else
-      osArch=$(uname | tr '[:upper:]' '[:lower:]')
-      cpuArch=$(uname -m | sed 's/aarch64/arm64/;s/x86_64/x64/' )
-      if test -f "$dir/node_modules/lefthook-${osArch}-${cpuArch}/bin/lefthook{{.Extension}}"
-      then
-        "$dir/node_modules/lefthook-${osArch}-${cpuArch}/bin/lefthook{{.Extension}}" "$@"
-      if test -f "$dir/node_modules/@evilmartians/lefthook/bin/lefthook-${osArch}-${cpuArch}/lefthook{{.Extension}}"
-      then
-        "$dir/node_modules/@evilmartians/lefthook/bin/lefthook-${osArch}-${cpuArch}/lefthook{{.Extension}}" "$@"
-      elif test -f "$dir/node_modules/@evilmartians/lefthook-installer/bin/lefthook{{.Extension}}"
-      then
-        "$dir/node_modules/@evilmartians/lefthook-installer/bin/lefthook{{.Extension}}" "$@"
-      {{ $extension := .Extension }}
-      {{- range .Roots -}}
-      elif test -f "$dir/{{.}}/node_modules/lefthook/bin/index.js"
-      then
-        "$dir/{{.}}/node_modules/lefthook/bin/index.js" "$@"
-      elif test -f "$dir/{{.}}/node_modules/@evilmartians/lefthook/bin/lefthook-${osArch}-${cpuArch}/lefthook{{$extension}}"
-      then
-        "$dir/{{.}}/node_modules/@evilmartians/lefthook/bin/lefthook-${osArch}-${cpuArch}/lefthook{{$extension}}" "$@"
-      elif test -f "$dir/{{.}}/node_modules/@evilmartians/lefthook-installer/bin/lefthook{{$extension}}"
-      then
-        "$dir/{{.}}/node_modules/@evilmartians/lefthook-installer/bin/lefthook{{$extension}}" "$@"
-      {{end}}
-      elif bundle exec lefthook -h >/dev/null 2>&1
-      then
-        bundle exec lefthook "$@"
-      elif yarn lefthook -h >/dev/null 2>&1
-      then
-        yarn lefthook "$@"
-      elif pnpm lefthook -h >/dev/null 2>&1
-      then
-        pnpm lefthook "$@"
-      elif swift package plugin lefthook >/dev/null 2>&1
-      then
-        swift package --disable-sandbox plugin lefthook "$@"
-      elif command -v mint >/dev/null 2>&1
-      then
-        mint run csjones/lefthook-plugin "$@"
-      elif command -v npx >/dev/null 2>&1
-      then
-        npx lefthook "$@"
-      else
-        echo "Can't find lefthook in PATH"
-        {{- if .AssertLefthookInstalled}}
-        echo "ERROR: Operation is aborted due to lefthook settings."
-        echo "Make sure lefthook is available in your environment and re-try."
-        echo "To skip these checks use --no-verify git argument or set LEFTHOOK=0 env variable."
-        exit 1
-        {{- end}}
-      fi
+      echo "Can't find lefthook in PATH"
+      {{- if .AssertLefthookInstalled}}
+      echo "ERROR: Operation is aborted due to lefthook settings."
+      echo "Make sure lefthook is available in your environment and re-try."
+      echo "To skip these checks use --no-verify git argument or set LEFTHOOK=0 env variable."
+      exit 1
+      {{- end}}
     fi
   fi
 }
