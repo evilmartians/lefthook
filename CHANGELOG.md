@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.6.20 (2024-07-08)
+
 ## 1.6.19 (2024-07-08)
 
 - perf: startup time reduce ([#705](https://github.com/evilmartians/lefthook/pull/705)) by @dalisoft

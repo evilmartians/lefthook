@@ -73,7 +73,10 @@ module Pack
     puts "Publishing lefthook npm..."
     cd(File.join(__dir__, "npm"))
     Dir["lefthook*"].each do |package|
-      system("npm publish --access public #{package}", exception: true)
+      puts "publishing #{package}"
+      cd(File.join(__dir__, "npm", package))
+      system("npm publish --access public", exception: true)
+      cd(File.join(__dir__, "npm"))
     end
 
     puts "Publishing @evilmartians/lefthook npm..."
