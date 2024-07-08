@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.7.1 (2024-07-08)
+
+- fix: use correct extension in hook.tmpl ([#767](https://github.com/evilmartians/lefthook/pull/767)) by @apfohl
+
 ## 1.7.0 (2024-07-08)
 
 - fix: publishing ([#765](https://github.com/evilmartians/lefthook/pull/765)) by @mrexox
