@@ -45,9 +45,9 @@ call_lefthook()
       "$dir/node_modules/lefthook/bin/index.js" "$@"
     {{ $extension := .Extension }}
     {{- range .Roots -}}
-    elif test -f "$dir/{{.}}/node_modules/lefthook-${osArch}-${cpuArch}/bin/lefthook{{.Extension}}"
+    elif test -f "$dir/{{.}}/node_modules/lefthook-${osArch}-${cpuArch}/bin/lefthook{{$extension}}"
     then
-      "$dir/node_modules/lefthook-${osArch}-${cpuArch}/bin/lefthook{{.Extension}}" "$@"
+      "$dir/node_modules/lefthook-${osArch}-${cpuArch}/bin/lefthook{{$extension}}" "$@"
     elif test -f "$dir/{{.}}/node_modules/@evilmartians/lefthook/bin/lefthook-${osArch}-${cpuArch}/lefthook{{$extension}}"
     then
       "$dir/{{.}}/node_modules/@evilmartians/lefthook/bin/lefthook-${osArch}-${cpuArch}/lefthook{{$extension}}" "$@"
