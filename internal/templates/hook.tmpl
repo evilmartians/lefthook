@@ -47,7 +47,7 @@ call_lefthook()
     {{- range .Roots -}}
     elif test -f "$dir/{{.}}/node_modules/lefthook-${osArch}-${cpuArch}/bin/lefthook{{$extension}}"
     then
-      "$dir/node_modules/lefthook-${osArch}-${cpuArch}/bin/lefthook{{$extension}}" "$@"
+      "$dir/{{.}}/node_modules/lefthook-${osArch}-${cpuArch}/bin/lefthook{{$extension}}" "$@"
     elif test -f "$dir/{{.}}/node_modules/@evilmartians/lefthook/bin/lefthook-${osArch}-${cpuArch}/lefthook{{$extension}}"
     then
       "$dir/{{.}}/node_modules/@evilmartians/lefthook/bin/lefthook-${osArch}-${cpuArch}/lefthook{{$extension}}" "$@"
