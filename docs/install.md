@@ -81,7 +81,7 @@ You can find the Swift wrapper plugin [here](https://github.com/csjones/lefthook
 Utilize lefthook in your Swift project using Swift Package Manager:
 
 ```swift
-.package(url: "https://github.com/csjones/lefthook-plugin.git", exact: "1.7.1"),
+.package(url: "https://github.com/csjones/lefthook-plugin.git", exact: "1.7.2"),
 ```
 
 Or, with [mint](https://github.com/yonaskolb/Mint):

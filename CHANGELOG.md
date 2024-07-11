@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.7.2 (2024-07-11)
+
+- fix: add missing sub directory in hook template ([#768](https://github.com/evilmartians/lefthook/pull/768)) by @nikeee
+
 ## 1.7.1 (2024-07-08)
 
 - fix: use correct extension in hook.tmpl ([#767](https://github.com/evilmartians/lefthook/pull/767)) by @apfohl

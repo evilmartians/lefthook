@@ -2,7 +2,7 @@
 
 require "fileutils"
 
-VERSION = "1.7.1"
+VERSION = "1.7.2"
 
 ROOT = File.join(__dir__, "..")
 DIST = File.join(ROOT, "dist")
