@@ -1,0 +1,42 @@
+exec git init
+exec lefthook install
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+exec lefthook run -f all
+stdout 'excluded.txt lefthook.yml not-excluded.txt'
+exec lefthook run -f regexp
+stdout 'lefthook.yml not-excluded.txt'
+exec lefthook run -f array
+stdout 'lefthook.yml not-excluded.txt'
+
+-- lefthook.yml --
+skip_output:
+  - skips
+  - meta
+  - summary
+  - execution_info
+all:
+  commands:
+    echo:
+      run: echo {staged_files}
+
+regexp:
+  commands:
+    echo:
+      run: echo {staged_files}
+      exclude: '^excluded.txt'
+
+array:
+  commands:
+    echo:
+      run: echo {staged_files}
+      exclude:
+        - exclude.txt
+
+-- not-excluded.txt --
+sometext
+
+-- excluded.txt --
+somecode
+
