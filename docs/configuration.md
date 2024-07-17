@@ -1259,7 +1259,9 @@ pre-commit:
 
 ### `exclude`
 
-You can provide a regular expression to exclude some files from being passed to [`run`](#run) command.
+You can provide a list of filenames or a regular expression to exclude some files from being passed to [`run`](#run) command.
+
+If you pass a list of filenames, they must contain the full path of the file from the project root.
 
 The regular expression is matched against full paths to files in the repo,
 relative to the repo root, using `/` as the directory separator on all platforms.
@@ -1279,6 +1281,23 @@ pre-commit:
       exclude: '(^|/)(application|routes|rails_helper)\.rb$'
       run: bundle exec rubocop --force-exclusion {staged_files}
 ```
+
+The same example using a list of filenames.
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      glob: "*.rb"
+      exclude:
+        - config/routes.rb
+        - config/application.rb
+        - spec/rails_helper.rb
+      run: bundle exec rubocop --force-exclusion {staged_files}
+```
+
 
 **Notes**
 
