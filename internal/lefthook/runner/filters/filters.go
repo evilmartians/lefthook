@@ -62,18 +62,42 @@ func byGlob(vs []string, matcher string) []string {
 	return vsf
 }
 
-func byExclude(vs []string, matcher string) []string {
-	if matcher == "" {
+func byExclude(vs []string, matcher interface{}) []string {
+	switch exclude := matcher.(type) {
+	case nil:
 		return vs
+	case string:
+		if len(exclude) == 0 {
+			return vs
+		}
+
+		vsf := make([]string, 0)
+		for _, v := range vs {
+			if res, _ := regexp.MatchString(exclude, v); !res {
+				vsf = append(vsf, v)
+			}
+		}
+
+		return vsf
+	case []interface{}:
+		excludeNames := make(map[string]struct{}, len(exclude))
+		for _, name := range exclude {
+			excludeNames[name.(string)] = struct{}{}
+		}
+
+		vsf := make([]string, 0)
+		for _, v := range vs {
+			if _, excluded := excludeNames[v]; !excluded {
+				vsf = append(vsf, v)
+			}
+		}
+
+		return vsf
 	}
 
-	vsf := make([]string, 0)
-	for _, v := range vs {
-		if res, _ := regexp.MatchString(matcher, v); !res {
-			vsf = append(vsf, v)
-		}
-	}
-	return vsf
+	log.Warn("invalid value for exclude option")
+
+	return vs
 }
 
 func byRoot(vs []string, matcher string) []string {

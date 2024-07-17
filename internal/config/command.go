@@ -23,9 +23,9 @@ type Command struct {
 
 	FileTypes []string `json:"file_types,omitempty" mapstructure:"file_types" toml:"file_types,omitempty" yaml:"file_types,omitempty"`
 
-	Glob    string `json:"glob,omitempty"    mapstructure:"glob"    toml:"glob,omitempty"    yaml:",omitempty"`
-	Root    string `json:"root,omitempty"    mapstructure:"root"    toml:"root,omitempty"    yaml:",omitempty"`
-	Exclude string `json:"exclude,omitempty" mapstructure:"exclude" toml:"exclude,omitempty" yaml:",omitempty"`
+	Glob    string      `json:"glob,omitempty"    mapstructure:"glob"    toml:"glob,omitempty"    yaml:",omitempty"`
+	Root    string      `json:"root,omitempty"    mapstructure:"root"    toml:"root,omitempty"    yaml:",omitempty"`
+	Exclude interface{} `json:"exclude,omitempty" mapstructure:"exclude" toml:"exclude,omitempty" yaml:",omitempty"`
 
 	Priority    int    `json:"priority,omitempty"    mapstructure:"priority"    toml:"priority,omitempty"    yaml:",omitempty"`
 	FailText    string `json:"fail_text,omitempty"   mapstructure:"fail_text"   toml:"fail_text,omitempty"   yaml:"fail_text,omitempty"`
