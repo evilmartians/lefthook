@@ -2,6 +2,12 @@
 
 ## master (unreleased)
 
+## 1.7.3 (2024-07-18)
+
+- feat: allow list of files in exclude option ([#772](https://github.com/evilmartians/lefthook/pull/772)) by @mrexox
+- docs: add docs for LEFTHOOK_OUTPUT var ([#771](https://github.com/evilmartians/lefthook/pull/771)) by @manbearwiz
+- fix: use direct lefthook package ([#774](https://github.com/evilmartians/lefthook/pull/774)) by @mrexox
+
 ## 1.7.2 (2024-07-11)
 
 - fix: add missing sub directory in hook template ([#768](https://github.com/evilmartians/lefthook/pull/768)) by @nikeee
