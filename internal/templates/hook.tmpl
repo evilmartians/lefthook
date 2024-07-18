@@ -75,7 +75,7 @@ call_lefthook()
       mint run csjones/lefthook-plugin "$@"
     elif command -v npx >/dev/null 2>&1
     then
-      npx lefthook "$@"
+    npx lefthook-${osArch}-${cpuArch} "$@"
     else
       echo "Can't find lefthook in PATH"
       {{- if .AssertLefthookInstalled}}
