@@ -2,9 +2,6 @@
   "name": "lefthook-windows-arm64",
   "version": "1.7.3",
   "description": "The Windows ARM 64-bit binary for lefthook, git hooks manager.",
-  "bin": {
-    "lefthook": "bin/lefthook"
-  },
   "preferUnplugged": false,
   "repository": "https://github.com/evilmartians/lefthook",
   "license": "MIT",
