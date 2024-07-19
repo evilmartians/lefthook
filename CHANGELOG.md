@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.7.4 (2024-07-19)
+
+- fix: rollback packaging changes ([#776](https://github.com/evilmartians/lefthook/pull/776)) by @mrexox
+
 ## 1.7.3 (2024-07-18)
 
 - feat: allow list of files in exclude option ([#772](https://github.com/evilmartians/lefthook/pull/772)) by @mrexox
