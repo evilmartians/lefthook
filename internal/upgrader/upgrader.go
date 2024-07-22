@@ -1,3 +1,4 @@
+// Package upgrader contains the auto-upgrade implementation for the lefthook executable.
 package upgrader
 
 import (
@@ -31,7 +32,7 @@ const (
 
 var (
 	errNoAsset        = errors.New("Couldn't find an asset to download. Please submit an issue to https://github.com/evilmartians/lefthook")
-	errInvalidHashsum = errors.New("SHA256 sum differs")
+	errInvalidHashsum = errors.New("SHA256 sums differ, it's not safe to use the downloaded binary.\nIf you have problems upgrading lefthook please submit an issue to https://github.com/evilmartians/lefthook")
 
 	osNames = map[string]string{
 		"windows": "Windows",
