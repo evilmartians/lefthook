@@ -16,6 +16,7 @@ var commands = [...]func(*lefthook.Options) *cobra.Command{
 	newUninstallCmd,
 	newRunCmd,
 	newDumpCmd,
+	newUpgradeCmd,
 }
 
 func newRootCmd() *cobra.Command {
