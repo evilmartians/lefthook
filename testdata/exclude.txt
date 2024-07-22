@@ -8,7 +8,7 @@ stdout 'excluded.txt lefthook.yml not-excluded.txt'
 exec lefthook run -f regexp
 stdout 'lefthook.yml not-excluded.txt'
 exec lefthook run -f array
-stdout 'lefthook.yml not-excluded.txt'
+stdout 'not-excluded.txt'
 
 -- lefthook.yml --
 skip_output:
@@ -25,7 +25,7 @@ regexp:
   commands:
     echo:
       run: echo {staged_files}
-      exclude: '^excluded.txt'
+      exclude: '^excluded\.[tx]+'
 
 array:
   commands:
@@ -33,6 +33,7 @@ array:
       run: echo {staged_files}
       exclude:
         - exclude.txt
+        - '*.yml'
 
 -- not-excluded.txt --
 sometext

@@ -80,15 +80,21 @@ func byExclude(vs []string, matcher interface{}) []string {
 
 		return vsf
 	case []interface{}:
-		excludeNames := make(map[string]struct{}, len(exclude))
+		if len(exclude) == 0 {
+			return vs
+		}
+
+		globs := make([]glob.Glob, 0, len(exclude))
 		for _, name := range exclude {
-			excludeNames[name.(string)] = struct{}{}
+			globs = append(globs, glob.MustCompile(name.(string)))
 		}
 
 		vsf := make([]string, 0)
 		for _, v := range vs {
-			if _, excluded := excludeNames[v]; !excluded {
-				vsf = append(vsf, v)
+			for _, g := range globs {
+				if ok := g.Match(v); !ok {
+					vsf = append(vsf, v)
+				}
 			}
 		}
 
