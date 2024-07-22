@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.7.5 (2024-07-22)
+
+- feat: use glob in exclude array ([#777](https://github.com/evilmartians/lefthook/pull/777)) by @mrexox
+
 ## 1.7.4 (2024-07-19)
 
 - fix: rollback packaging changes ([#776](https://github.com/evilmartians/lefthook/pull/776)) by @mrexox
