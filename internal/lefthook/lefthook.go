@@ -16,8 +16,8 @@ import (
 )
 
 const (
+	EnvVerbose     = "LEFTHOOK_VERBOSE" // keep all output
 	hookFileMode   = 0o755
-	envVerbose     = "LEFTHOOK_VERBOSE" // keep all output
 	oldHookPostfix = ".old"
 )
 
@@ -41,7 +41,7 @@ type Lefthook struct {
 
 // New returns an instance of Lefthook.
 func initialize(opts *Options) (*Lefthook, error) {
-	if os.Getenv(envVerbose) == "1" || os.Getenv(envVerbose) == "true" {
+	if os.Getenv(EnvVerbose) == "1" || os.Getenv(EnvVerbose) == "true" {
 		opts.Verbose = true
 	}
 
