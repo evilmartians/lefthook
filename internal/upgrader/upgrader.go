@@ -117,7 +117,7 @@ func (u *Upgrader) Upgrade(ctx context.Context, yes, force bool) error {
 	}
 
 	if !yes {
-		log.Infof("Do you want to upgrade lefthook to %s? [Y/n] ", latestVersion)
+		log.Infof("Upgrade %s to %s? %s ", log.Cyan("lefthook"), log.Yellow(latestVersion), log.Gray("[Y/n]"))
 		scanner := bufio.NewScanner(os.Stdin)
 		scanner.Scan()
 		ans := scanner.Text()
