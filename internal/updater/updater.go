@@ -27,6 +27,7 @@ const (
 	timeout                       = 10 * time.Second
 	latestReleaseURL              = "https://api.github.com/repos/evilmartians/lefthook/releases/latest"
 	checksumsFilename             = "lefthook_checksums.txt"
+	checksumFields                = 2
 	modExecutable     os.FileMode = 0o755
 )
 
@@ -59,17 +60,25 @@ type asset struct {
 	DownloadURL string `json:"browser_download_url"`
 }
 
+type Options struct {
+	Yes     bool
+	Force   bool
+	ExePath string
+}
+
 type Updater struct {
-	client *http.Client
+	client     *http.Client
+	releaseURL string
 }
 
 func New() *Updater {
 	return &Updater{
-		client: &http.Client{Timeout: timeout},
+		client:     &http.Client{Timeout: timeout},
+		releaseURL: latestReleaseURL,
 	}
 }
 
-func (u *Updater) SelfUpdate(ctx context.Context, yes, force bool) error {
+func (u *Updater) SelfUpdate(ctx context.Context, opts Options) error {
 	rel, ferr := u.fetchLatestRelease(ctx)
 	if ferr != nil {
 		return fmt.Errorf("latest release fetch failed: %w", ferr)
@@ -77,7 +86,7 @@ func (u *Updater) SelfUpdate(ctx context.Context, yes, force bool) error {
 
 	latestVersion := strings.TrimPrefix(rel.TagName, "v")
 
-	if latestVersion == version.Version(false) && !force {
+	if latestVersion == version.Version(false) && !opts.Force {
 		log.Infof("Up to date: %s\n", latestVersion)
 		return nil
 	}
@@ -117,7 +126,7 @@ func (u *Updater) SelfUpdate(ctx context.Context, yes, force bool) error {
 		log.Warn("Couldn't find checksums")
 	}
 
-	if !yes {
+	if !opts.Yes {
 		log.Infof("Update %s to %s? %s ", log.Cyan("lefthook"), log.Yellow(latestVersion), log.Gray("[Y/n]"))
 		scanner := bufio.NewScanner(os.Stdin)
 		scanner.Scan()
@@ -129,11 +138,7 @@ func (u *Updater) SelfUpdate(ctx context.Context, yes, force bool) error {
 		}
 	}
 
-	lefthookExePath, err := os.Executable()
-	if err != nil {
-		return fmt.Errorf("failed to determine the binary path: %w", err)
-	}
-
+	lefthookExePath := opts.ExePath
 	if realPath, serr := filepath.EvalSymlinks(lefthookExePath); serr == nil {
 		lefthookExePath = realPath
 	}
@@ -182,7 +187,7 @@ func (u *Updater) SelfUpdate(ctx context.Context, yes, force bool) error {
 }
 
 func (u *Updater) fetchLatestRelease(ctx context.Context) (*release, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, latestReleaseURL, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.releaseURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize a request: %w", err)
 	}
@@ -247,6 +252,10 @@ func (u *Updater) download(ctx context.Context, name, fileURL, checksumURL, path
 	scanner := bufio.NewScanner(checksumResp.Body)
 	for scanner.Scan() {
 		sums := strings.Fields(scanner.Text())
+		if len(sums) < checksumFields {
+			continue
+		}
+
 		log.Debugf("Checking %s %s", sums[0], sums[1])
 		if sums[1] == name {
 			if sums[0] == hashsum {
@@ -263,7 +272,7 @@ func (u *Updater) download(ctx context.Context, name, fileURL, checksumURL, path
 		}
 	}
 
-	log.Debugf("No matches found for %s %s\n", name, hashsum)
+	log.Debugf("No matches found for %s %s", name, hashsum)
 
 	return false, nil
 }

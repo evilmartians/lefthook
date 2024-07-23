@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -59,5 +60,14 @@ func update(opts *lefthook.Options, yes bool) error {
 		cancel()
 	}()
 
-	return updater.New().SelfUpdate(ctx, yes, opts.Force)
+	exePath, err := os.Executable()
+	if err != nil {
+		return fmt.Errorf("failed to determine the binary path: %w", err)
+	}
+
+	return updater.New().SelfUpdate(ctx, updater.Options{
+		Yes:     yes,
+		Force:   opts.Force,
+		ExePath: exePath,
+	})
 }
