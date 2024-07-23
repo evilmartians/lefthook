@@ -4,9 +4,9 @@ before:
     - go generate ./...
 builds:
   # Builds the binaries without `lefthook upgrade`
-  - id: no_upgrade
+  - id: no_self_update
     tags:
-      - no_upgrade
+      - no_self_update
     env:
       - GCO_ENABLED=0
     goos:

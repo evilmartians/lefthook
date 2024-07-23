@@ -12,7 +12,9 @@ import (
 //go:embed add-doc.txt
 var addDoc string
 
-func newAddCmd(opts *lefthook.Options) *cobra.Command {
+type add struct{}
+
+func (add) New(opts *lefthook.Options) *cobra.Command {
 	args := lefthook.AddArgs{}
 
 	addHookCompletions := func(cmd *cobra.Command, args []string, toComplete string) (ret []string, compDir cobra.ShellCompDirective) {

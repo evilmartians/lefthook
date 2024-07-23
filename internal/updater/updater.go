@@ -1,5 +1,5 @@
-// Package upgrader contains the auto-upgrade implementation for the lefthook executable.
-package upgrader
+// Package updater contains the self-update implementation for the lefthook executable.
+package updater
 
 import (
 	"bufio"
@@ -58,17 +58,17 @@ type asset struct {
 	DownloadURL string `json:"browser_download_url"`
 }
 
-type Upgrader struct {
+type Updater struct {
 	client *http.Client
 }
 
-func New() *Upgrader {
-	return &Upgrader{
+func New() *Updater {
+	return &Updater{
 		client: &http.Client{Timeout: timeout},
 	}
 }
 
-func (u *Upgrader) Upgrade(ctx context.Context, yes, force bool) error {
+func (u *Updater) SelfUpdate(ctx context.Context, yes, force bool) error {
 	rel, ferr := u.fetchLatestRelease(ctx)
 	if ferr != nil {
 		return fmt.Errorf("latest release fetch failed: %w", ferr)
@@ -117,13 +117,13 @@ func (u *Upgrader) Upgrade(ctx context.Context, yes, force bool) error {
 	}
 
 	if !yes {
-		log.Infof("Upgrade %s to %s? %s ", log.Cyan("lefthook"), log.Yellow(latestVersion), log.Gray("[Y/n]"))
+		log.Infof("Update %s to %s? %s ", log.Cyan("lefthook"), log.Yellow(latestVersion), log.Gray("[Y/n]"))
 		scanner := bufio.NewScanner(os.Stdin)
 		scanner.Scan()
 		ans := scanner.Text()
 
 		if len(ans) > 0 && ans[0] != 'y' && ans[0] != 'Y' {
-			log.Debug("Upgrade rejected")
+			log.Debug("Update rejected")
 			return nil
 		}
 	}
@@ -176,7 +176,7 @@ func (u *Upgrader) Upgrade(ctx context.Context, yes, force bool) error {
 	return nil
 }
 
-func (u *Upgrader) fetchLatestRelease(ctx context.Context) (*release, error) {
+func (u *Updater) fetchLatestRelease(ctx context.Context) (*release, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, latestReleaseURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize a request: %w", err)
@@ -198,7 +198,7 @@ func (u *Upgrader) fetchLatestRelease(ctx context.Context) (*release, error) {
 	return &rel, nil
 }
 
-func (u *Upgrader) download(ctx context.Context, name, fileURL, checksumURL, path string) (bool, error) {
+func (u *Updater) download(ctx context.Context, name, fileURL, checksumURL, path string) (bool, error) {
 	filereq, err := http.NewRequestWithContext(ctx, http.MethodGet, fileURL, nil)
 	if err != nil {
 		return false, fmt.Errorf("failed to build download request: %w", err)

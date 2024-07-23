@@ -1,4 +1,4 @@
-//go:build !no_self_update
+//go:build no_self_update
 
 package cmd
 
@@ -9,7 +9,7 @@ import (
 )
 
 type command interface {
-	New(*lefthook.Options) *cobra.Command
+	add(*lefthook.Options) *cobra.Command
 }
 
 var commands = [...]command{
@@ -19,5 +19,4 @@ var commands = [...]command{
 	uninstall{},
 	run{},
 	dump{},
-	selfUpdate{},
 }

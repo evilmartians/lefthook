@@ -10,19 +10,21 @@ import (
 
 	"github.com/evilmartians/lefthook/internal/lefthook"
 	"github.com/evilmartians/lefthook/internal/log"
-	"github.com/evilmartians/lefthook/internal/upgrader"
+	"github.com/evilmartians/lefthook/internal/updater"
 )
 
-func newUpgradeCmd(opts *lefthook.Options) *cobra.Command {
+type selfUpdate struct{}
+
+func (selfUpdate) New(opts *lefthook.Options) *cobra.Command {
 	var yes bool
 	upgradeCmd := cobra.Command{
-		Use:               "upgrade",
-		Short:             "Upgrade lefthook executable",
-		Example:           "lefthook upgrade",
+		Use:               "self-update",
+		Short:             "Update lefthook executable",
+		Example:           "lefthook self-update",
 		ValidArgsFunction: cobra.NoFileCompletions,
 		Args:              cobra.NoArgs,
 		RunE: func(_cmd *cobra.Command, _args []string) error {
-			return upgrade(opts, yes)
+			return update(opts, yes)
 		},
 	}
 
@@ -33,7 +35,7 @@ func newUpgradeCmd(opts *lefthook.Options) *cobra.Command {
 	return &upgradeCmd
 }
 
-func upgrade(opts *lefthook.Options, yes bool) error {
+func update(opts *lefthook.Options, yes bool) error {
 	if os.Getenv(lefthook.EnvVerbose) == "1" || os.Getenv(lefthook.EnvVerbose) == "true" {
 		opts.Verbose = true
 	}
@@ -57,5 +59,5 @@ func upgrade(opts *lefthook.Options, yes bool) error {
 		cancel()
 	}()
 
-	return upgrader.New().Upgrade(ctx, yes, opts.Force)
+	return updater.New().SelfUpdate(ctx, yes, opts.Force)
 }

@@ -52,7 +52,7 @@ func newRootCmd() *cobra.Command {
 	}
 
 	for _, subcommand := range commands {
-		rootCmd.AddCommand(subcommand(&options))
+		rootCmd.AddCommand(subcommand.New(&options))
 	}
 
 	return rootCmd

@@ -6,7 +6,9 @@ import (
 	"github.com/evilmartians/lefthook/internal/lefthook"
 )
 
-func newUninstallCmd(opts *lefthook.Options) *cobra.Command {
+type uninstall struct{}
+
+func (uninstall) New(opts *lefthook.Options) *cobra.Command {
 	args := lefthook.UninstallArgs{}
 
 	uninstallCmd := cobra.Command{
