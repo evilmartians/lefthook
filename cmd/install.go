@@ -7,7 +7,9 @@ import (
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
-func newInstallCmd(opts *lefthook.Options) *cobra.Command {
+type install struct{}
+
+func (install) New(opts *lefthook.Options) *cobra.Command {
 	var a, force bool
 
 	installCmd := cobra.Command{

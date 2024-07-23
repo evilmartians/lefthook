@@ -9,15 +9,6 @@ import (
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
-var commands = [...]func(*lefthook.Options) *cobra.Command{
-	newVersionCmd,
-	newAddCmd,
-	newInstallCmd,
-	newUninstallCmd,
-	newRunCmd,
-	newDumpCmd,
-}
-
 func newRootCmd() *cobra.Command {
 	options := lefthook.Options{
 		Fs: afero.NewOsFs(),
@@ -61,7 +52,7 @@ func newRootCmd() *cobra.Command {
 	}
 
 	for _, subcommand := range commands {
-		rootCmd.AddCommand(subcommand(&options))
+		rootCmd.AddCommand(subcommand.New(&options))
 	}
 
 	return rootCmd
