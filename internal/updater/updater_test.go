@@ -17,6 +17,10 @@ import (
 )
 
 func TestUpdater_SelfUpdate(t *testing.T) {
+	var extension string
+	if runtime.GOOS == "windows" {
+		extension = ".exe"
+	}
 	exePath := filepath.Join(os.TempDir(), "lefthook")
 	for name, tt := range map[string]struct {
 		latestRelease string
@@ -58,7 +62,7 @@ func TestUpdater_SelfUpdate(t *testing.T) {
 		},
 		"invalid hashsum": {
 			latestRelease: "v1.0.0",
-			assetName:     "lefthook_1.0.0_" + osNames[runtime.GOOS] + "_" + archNames[runtime.GOARCH],
+			assetName:     "lefthook_1.0.0_" + osNames[runtime.GOOS] + "_" + archNames[runtime.GOARCH] + extension,
 			opts: Options{
 				Yes:     true,
 				Force:   true,
@@ -68,15 +72,15 @@ func TestUpdater_SelfUpdate(t *testing.T) {
 			checksums: `
 				67a5740c6c66d986c5708cddd6bd0bc240db29451646fc4c1398b988dcf7cdfe lefthook_1.0.0_MacOS_arm64
 				67a5740c6c66d986c5708cddd6bd0bc240db29451646fc4c1398b988dcf7cdfe lefthook_1.0.0_MacOS_x86_64
-				67a5740c6c66d986c5708cddd6bd0bc240db29451646fc4c1398b988dcf7cdfe lefthook_1.0.0_Windows_x86_64
 				67a5740c6c66d986c5708cddd6bd0bc240db29451646fc4c1398b988dcf7cdfe lefthook_1.0.0_Linux_x86_64
 				67a5740c6c66d986c5708cddd6bd0bc240db29451646fc4c1398b988dcf7cdfe lefthook_1.0.0_Linux_arm64
+				67a5740c6c66d986c5708cddd6bd0bc240db29451646fc4c1398b988dcf7cdfe lefthook_1.0.0_Windows_x86_64.exe
 			`,
 			err: errInvalidHashsum,
 		},
 		"success": {
 			latestRelease: "v1.0.0",
-			assetName:     "lefthook_1.0.0_" + osNames[runtime.GOOS] + "_" + archNames[runtime.GOARCH],
+			assetName:     "lefthook_1.0.0_" + osNames[runtime.GOOS] + "_" + archNames[runtime.GOARCH] + extension,
 			opts: Options{
 				Yes:     true,
 				Force:   true,
@@ -86,9 +90,9 @@ func TestUpdater_SelfUpdate(t *testing.T) {
 			checksums: `
 				0e1c97246ba1bc8bde78355ae986589545d3c69bf1264d2d3c1835ec072006f6 lefthook_1.0.0_MacOS_arm64
 				0e1c97246ba1bc8bde78355ae986589545d3c69bf1264d2d3c1835ec072006f6 lefthook_1.0.0_MacOS_x86_64
-				0e1c97246ba1bc8bde78355ae986589545d3c69bf1264d2d3c1835ec072006f6 lefthook_1.0.0_Windows_x86_64
 				0e1c97246ba1bc8bde78355ae986589545d3c69bf1264d2d3c1835ec072006f6 lefthook_1.0.0_Linux_x86_64
 				0e1c97246ba1bc8bde78355ae986589545d3c69bf1264d2d3c1835ec072006f6 lefthook_1.0.0_Linux_arm64
+				0e1c97246ba1bc8bde78355ae986589545d3c69bf1264d2d3c1835ec072006f6 lefthook_1.0.0_Windows_x86_64.exe
 			`,
 			err: nil,
 		},
@@ -101,13 +105,15 @@ func TestUpdater_SelfUpdate(t *testing.T) {
 
 			checksumServer := httptest.NewServer(
 				http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					_, werr := w.Write([]byte(tt.checksums))
+					n, werr := w.Write([]byte(tt.checksums))
+					assert.Equal(n, len(tt.checksums))
 					assert.NoError(werr)
 				}))
 			defer checksumServer.Close()
 			assetServer := httptest.NewServer(
 				http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					_, werr := w.Write(tt.asset)
+					n, werr := w.Write(tt.asset)
+					assert.Equal(n, len(tt.asset))
 					assert.NoError(werr)
 				}))
 			defer assetServer.Close()
