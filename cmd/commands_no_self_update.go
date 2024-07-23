@@ -9,7 +9,7 @@ import (
 )
 
 type command interface {
-	add(*lefthook.Options) *cobra.Command
+	New(*lefthook.Options) *cobra.Command
 }
 
 var commands = [...]command{

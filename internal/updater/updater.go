@@ -77,7 +77,7 @@ func (u *Updater) SelfUpdate(ctx context.Context, yes, force bool) error {
 	latestVersion := strings.TrimPrefix(rel.TagName, "v")
 
 	if latestVersion == version.Version(false) && !force {
-		log.Infof("Already installed the latest version: %s\n", latestVersion)
+		log.Infof("Up to date: %s\n", latestVersion)
 		return nil
 	}
 
@@ -140,7 +140,6 @@ func (u *Updater) SelfUpdate(ctx context.Context, yes, force bool) error {
 	destPath := lefthookExePath + "." + latestVersion
 	defer os.Remove(destPath)
 
-	log.Debugf("Downloading to %s", destPath)
 	ok, err := u.download(ctx, wantedAsset, downloadURL, checksumURL, destPath)
 	if err != nil {
 		return err
@@ -152,12 +151,12 @@ func (u *Updater) SelfUpdate(ctx context.Context, yes, force bool) error {
 	backupPath := lefthookExePath + ".bak"
 	defer os.Remove(backupPath)
 
-	log.Debugf("Renaming %s -> %s", lefthookExePath, backupPath)
+	log.Debugf("mv %s %s", lefthookExePath, backupPath)
 	if err = os.Rename(lefthookExePath, backupPath); err != nil {
 		return fmt.Errorf("failed to backup lefthook executable: %w", err)
 	}
 
-	log.Debugf("Renaming %s -> %s", destPath, lefthookExePath)
+	log.Debugf("mv %s %s", destPath, lefthookExePath)
 	err = os.Rename(destPath, lefthookExePath)
 	if err != nil {
 		log.Errorf("Failed to replace the lefthook executable: %s\n", err)
@@ -168,7 +167,7 @@ func (u *Updater) SelfUpdate(ctx context.Context, yes, force bool) error {
 		return nil
 	}
 
-	log.Debugf("Making file %s executable", lefthookExePath)
+	log.Debugf("chmod +x %s", lefthookExePath)
 	if err = os.Chmod(lefthookExePath, modExecutable); err != nil {
 		return fmt.Errorf("failed to set mod executable: %w", err)
 	}
@@ -199,6 +198,8 @@ func (u *Updater) fetchLatestRelease(ctx context.Context) (*release, error) {
 }
 
 func (u *Updater) download(ctx context.Context, name, fileURL, checksumURL, path string) (bool, error) {
+	log.Debugf("Downloading %s to %s", fileURL, path)
+
 	filereq, err := http.NewRequestWithContext(ctx, http.MethodGet, fileURL, nil)
 	if err != nil {
 		return false, fmt.Errorf("failed to build download request: %w", err)
