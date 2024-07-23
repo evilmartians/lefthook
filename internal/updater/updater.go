@@ -33,6 +33,7 @@ const (
 var (
 	errNoAsset        = errors.New("Couldn't find an asset to download. Please submit an issue to https://github.com/evilmartians/lefthook")
 	errInvalidHashsum = errors.New("SHA256 sums differ, it's not safe to use the downloaded binary.\nIf you have problems upgrading lefthook please submit an issue to https://github.com/evilmartians/lefthook")
+	errUpdateFailed   = errors.New("Update failed")
 
 	osNames = map[string]string{
 		"windows": "Windows",
@@ -159,17 +160,22 @@ func (u *Updater) SelfUpdate(ctx context.Context, yes, force bool) error {
 	log.Debugf("mv %s %s", destPath, lefthookExePath)
 	err = os.Rename(destPath, lefthookExePath)
 	if err != nil {
-		log.Errorf("Failed to replace the lefthook executable: %s\n", err)
+		log.Errorf("Failed to replace the lefthook executable: %s", err)
 		if err = os.Rename(backupPath, lefthookExePath); err != nil {
 			return fmt.Errorf("failed to recover from backup: %w", err)
 		}
 
-		return nil
+		return errUpdateFailed
 	}
 
 	log.Debugf("chmod +x %s", lefthookExePath)
 	if err = os.Chmod(lefthookExePath, modExecutable); err != nil {
-		return fmt.Errorf("failed to set mod executable: %w", err)
+		log.Errorf("Failed to set executable file mode: %s", err)
+		if err = os.Rename(backupPath, lefthookExePath); err != nil {
+			return fmt.Errorf("failed to recover from backup: %w", err)
+		}
+
+		return errUpdateFailed
 	}
 
 	return nil
