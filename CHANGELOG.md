@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.7.6 (2024-07-24)
+
+- feat: add self-update command ([#778](https://github.com/evilmartians/lefthook/pull/778)) by @mrexox
+
 ## 1.7.5 (2024-07-22)
 
 - feat: use glob in exclude array ([#777](https://github.com/evilmartians/lefthook/pull/777)) by @mrexox
