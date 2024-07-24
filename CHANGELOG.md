@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.7.7 (2024-07-24)
+
+- fix: multiple excludes ([#782](https://github.com/evilmartians/lefthook/pull/782)) by @mrexox
+
 ## 1.7.6 (2024-07-24)
 
 - feat: add self-update command ([#778](https://github.com/evilmartians/lefthook/pull/778)) by @mrexox
