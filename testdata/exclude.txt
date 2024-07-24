@@ -4,11 +4,11 @@ exec git config user.email "you@example.com"
 exec git config user.name "Your Name"
 exec git add -A
 exec lefthook run -f all
-stdout 'excluded.txt lefthook.yml not-excluded.txt'
+stdout 'a.txt b.txt dir/a.txt dir/b.txt lefthook.yml'
 exec lefthook run -f regexp
-stdout 'lefthook.yml not-excluded.txt'
+stdout 'dir/a.txt dir/b.txt lefthook.yml'
 exec lefthook run -f array
-stdout 'not-excluded.txt'
+stdout 'dir/a.txt dir/b.txt'
 
 -- lefthook.yml --
 skip_output:
@@ -25,19 +25,27 @@ regexp:
   commands:
     echo:
       run: echo {staged_files}
-      exclude: '^excluded\.[tx]+'
+      exclude: '^(a.txt|b.txt)'
 
 array:
   commands:
     echo:
       run: echo {staged_files}
       exclude:
-        - exclude.txt
+        - a.txt
+        - b.txt
         - '*.yml'
 
--- not-excluded.txt --
-sometext
+-- a.txt --
+a
 
--- excluded.txt --
-somecode
+-- b.txt --
+b
+
+-- dir/a.txt --
+dir-a
+
+-- dir/b.txt --
+dir-b
+
 

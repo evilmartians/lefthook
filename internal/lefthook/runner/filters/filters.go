@@ -89,13 +89,20 @@ func byExclude(vs []string, matcher interface{}) []string {
 			globs = append(globs, glob.MustCompile(name.(string)))
 		}
 
+		var foundMatch bool
 		vsf := make([]string, 0)
 		for _, v := range vs {
 			for _, g := range globs {
-				if ok := g.Match(v); !ok {
-					vsf = append(vsf, v)
+				if ok := g.Match(v); ok {
+					foundMatch = true
+					break
 				}
 			}
+
+			if !foundMatch {
+				vsf = append(vsf, v)
+			}
+			foundMatch = false
 		}
 
 		return vsf
