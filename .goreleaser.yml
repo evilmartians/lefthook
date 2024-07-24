@@ -100,25 +100,27 @@ changelog:
     - '^\d+\.\d+\.\d+:'
 
 snapcrafts:
-  -
-    summary: Fast and powerful Git hooks manager for any type of projects.
+  - summary: Fast and powerful Git hooks manager for any type of projects.
     description: |
       Lefthook is a single dependency-free binary to manage all your git hooks. It works with any language in any environment, and in all common team workflows.
     grade: stable
     confinement: classic
     publish: true
     license: MIT
+    builds:
+      - no_self_update
 
 nfpms:
-  -
-    file_name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+  - file_name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
     homepage:  https://github.com/evilmartians/lefthook
     description: Lefthook a single dependency-free binary to manage all your git hooks that works with any language in any environment, and in all common team workflows
     maintainer: Evil Martians <lefthook@evilmartians.com>
     license: MIT
     vendor: Evil Martians
+    builds:
+      - no_self_update
     formats:
-    - deb
-    - rpm
+      - deb
+      - rpm
     dependencies:
-    - git
+      - git
