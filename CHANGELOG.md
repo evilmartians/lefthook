@@ -2,6 +2,13 @@
 
 ## master (unreleased)
 
+## 1.7.8 (2024-07-26)
+
+- fix: npm fix packages ([#789](https://github.com/evilmartians/lefthook/pull/789)) by @mrexox
+- fix: explicitly pass static flag to linker ([#788](https://github.com/evilmartians/lefthook/pull/788)) by @mrexox
+- ci: update workflow files ([#787](https://github.com/evilmartians/lefthook/pull/787)) by @mrexox
+- ci: use latest goreleaser ([#784](https://github.com/evilmartians/lefthook/pull/784)) by @mrexox
+
 ## 1.7.7 (2024-07-24)
 
 - fix: multiple excludes ([#782](https://github.com/evilmartians/lefthook/pull/782)) by @mrexox
