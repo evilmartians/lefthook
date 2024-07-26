@@ -1,3 +1,4 @@
+version: 2
 project_name: lefthook
 before:
   hooks:
