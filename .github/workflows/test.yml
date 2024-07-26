@@ -9,14 +9,11 @@ jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.22.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Install Go
         uses: actions/setup-go@v5
-        with:
-          go-version: ${{ matrix.go-version }}
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Test
@@ -31,7 +28,6 @@ jobs:
   test-integrity:
     strategy:
       matrix:
-        go-version: [1.22.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     env:
@@ -39,8 +35,6 @@ jobs:
     steps:
       - name: Install Go
         uses: actions/setup-go@v5
-        with:
-          go-version: ${{ matrix.go-version }}
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Prepare lefthook
@@ -69,8 +63,6 @@ jobs:
     steps:
       - name: Install Go
         uses: actions/setup-go@v5
-        with:
-          go-version: 1.22.x
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Build binaries
@@ -95,5 +87,5 @@ jobs:
     steps:
       - uses: coverallsapp/github-action@v2
         with:
-          carryforward: "integration-1.22.x ubuntu-latest,integration-1.22.x macos-latest,integration-1.22.x windows-latest,1.22.x ubuntu-latest,1.22.x macos-latest,1.22.x windows-latest"
+          carryforward: "integration-ubuntu-latest,integration-macos-latest,integration-windows-latest,ubuntu-latest,macos-latest,windows-latest"
           parallel-finished: true
