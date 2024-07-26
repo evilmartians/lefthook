@@ -4,9 +4,12 @@
   "description": "Simple git hooks manager",
   "main": "bin/index.js",
   "bin": {
-    "lefthook": "./bin/index.js"
+    "lefthook": "bin/index.js"
   },
-  "repository": "https://github.com/evilmartians/lefthook",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evilmartians/lefthook.git"
+  },
   "keywords": [
     "git",
     "hook",

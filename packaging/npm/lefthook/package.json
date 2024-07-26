@@ -2,7 +2,10 @@
   "name": "lefthook",
   "version": "1.7.7",
   "description": "Simple git hooks manager",
-  "repository": "https://github.com/evilmartians/lefthook",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evilmartians/lefthook.git"
+  },
   "main": "bin/index.js",
   "bin": {
     "lefthook": "bin/index.js"
