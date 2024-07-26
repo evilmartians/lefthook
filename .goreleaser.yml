@@ -7,11 +7,9 @@ builds:
   # Builds the binaries without `lefthook upgrade`
   - id: no_self_update
     tags:
-      - osusergo
-      - netgo
       - no_self_update
     env:
-      - GCO_ENABLED=0
+      - CGO_ENABLED=0
     goos:
       - linux
       - darwin
@@ -31,7 +29,7 @@ builds:
     flags:
       - -trimpath
     ldflags:
-      - -s -w -extldflags '-static' -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
+      - -s -w -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
 
   # Full lefthook binary
   - id: lefthook
@@ -56,7 +54,7 @@ builds:
     flags:
       - -trimpath
     ldflags:
-      - -s -w -extldflags '-static' -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
+      - -s -w -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
 
 archives:
   - id: lefthook

@@ -54,7 +54,7 @@ module Pack
     cd(__dir__)
     puts "Putting binaries to packages..."
     {
-      "#{DIST}/lefthook_linux_amd64_v1/lefthook"              =>  "npm/lefthook-linux-x64/bin/lefthook",
+      "#{DIST}/no_self_update_linux_amd64_v1/lefthook"              =>  "npm/lefthook-linux-x64/bin/lefthook",
       "#{DIST}/no_self_update_linux_arm64/lefthook"           =>  "npm/lefthook-linux-arm64/bin/lefthook",
       "#{DIST}/no_self_update_freebsd_amd64_v1/lefthook"      =>  "npm/lefthook-freebsd-x64/bin/lefthook",
       "#{DIST}/no_self_update_freebsd_arm64/lefthook"         =>  "npm/lefthook-freebsd-arm64/bin/lefthook",
@@ -68,7 +68,7 @@ module Pack
     end
 
     {
-      "#{DIST}/lefthook_linux_amd64_v1/lefthook"              =>  "npm-bundled/bin/lefthook-linux-x64/lefthook",
+      "#{DIST}/no_self_update_linux_amd64_v1/lefthook"              =>  "npm-bundled/bin/lefthook-linux-x64/lefthook",
       "#{DIST}/no_self_update_linux_arm64/lefthook"           =>  "npm-bundled/bin/lefthook-linux-arm64/lefthook",
       "#{DIST}/no_self_update_freebsd_amd64_v1/lefthook"      =>  "npm-bundled/bin/lefthook-freebsd-x64/lefthook",
       "#{DIST}/no_self_update_freebsd_arm64/lefthook"         =>  "npm-bundled/bin/lefthook-freebsd-arm64/lefthook",
@@ -82,7 +82,7 @@ module Pack
     end
 
     {
-      "#{DIST}/lefthook_linux_amd64_v1/lefthook"              =>  "rubygems/libexec/lefthook-linux-x64/lefthook",
+      "#{DIST}/no_self_update_linux_amd64_v1/lefthook"              =>  "rubygems/libexec/lefthook-linux-x64/lefthook",
       "#{DIST}/no_self_update_linux_arm64/lefthook"           =>  "rubygems/libexec/lefthook-linux-arm64/lefthook",
       "#{DIST}/no_self_update_freebsd_amd64_v1/lefthook"      =>  "rubygems/libexec/lefthook-freebsd-x64/lefthook",
       "#{DIST}/no_self_update_freebsd_arm64/lefthook"         =>  "rubygems/libexec/lefthook-freebsd-arm64/lefthook",
