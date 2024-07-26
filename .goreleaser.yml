@@ -26,6 +26,8 @@ builds:
         goarch: 386
       - goos: freebsd
         goarch: 386
+    flags:
+      - -trimpath
     ldflags:
       - -s -w -extldflags '-static' -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
 
@@ -49,6 +51,8 @@ builds:
         goarch: 386
       - goos: freebsd
         goarch: 386
+    flags:
+      - -trimpath
     ldflags:
       - -s -w -extldflags '-static' -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
 
