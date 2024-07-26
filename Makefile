@@ -1,10 +1,10 @@
 COMMIT_HASH = $(shell git rev-parse HEAD)
 
 build:
-	go build -ldflags "-s -w -X github.com/evilmartians/lefthook/internal/version.commit=$(COMMIT_HASH)" -o lefthook
+	go build -ldflags "-s -w -extldflags '-static' -X github.com/evilmartians/lefthook/internal/version.commit=$(COMMIT_HASH)" -o lefthook
 
 build-with-coverage:
-	go build -cover -ldflags "-s -w -X github.com/evilmartians/lefthook/internal/version.commit=$(COMMIT_HASH)" -o lefthook
+	go build -cover -ldflags "-s -w extldflags '-static' -X github.com/evilmartians/lefthook/internal/version.commit=$(COMMIT_HASH)" -o lefthook
 
 install: build
 	cp lefthook $$(go env GOPATH)/bin

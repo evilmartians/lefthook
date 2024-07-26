@@ -26,7 +26,7 @@ builds:
       - goos: freebsd
         goarch: 386
     ldflags:
-      - -s -w -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
+      - -s -w -extldflags '-static' -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
 
   # Full lefthook binary
   - id: lefthook
@@ -49,7 +49,7 @@ builds:
       - goos: freebsd
         goarch: 386
     ldflags:
-      - -s -w -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
+      - -s -w -extldflags '-static' -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
 
 archives:
   - id: lefthook
