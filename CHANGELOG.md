@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.7.9 (2024-07-26)
+
+- fix: typo CGO_ENABLED instead of GCO_ENABLED ([#791](https://github.com/evilmartians/lefthook/pull/791)) by @mrexox
+
 ## 1.7.8 (2024-07-26)
 
 - fix: npm fix packages ([#789](https://github.com/evilmartians/lefthook/pull/789)) by @mrexox
