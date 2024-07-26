@@ -12,12 +12,10 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Install Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: go.mod
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Install Go
+        uses: actions/setup-go@v5
       - name: Test
         run: go test ./... -coverprofile coverage.out
       - name: Report coverage
@@ -35,12 +33,10 @@ jobs:
     env:
       GOCOVERDIR: ${{ github.workspace }}/_icoverdir_
     steps:
-      - name: Install Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: go.mod
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Install Go
+        uses: actions/setup-go@v5
       - name: Prepare lefthook
         run: |
           mkdir _icoverdir_
@@ -65,12 +61,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: go.mod
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Install Go
+        uses: actions/setup-go@v5
       - name: Build binaries
         uses: goreleaser/goreleaser-action@v6
         with:
