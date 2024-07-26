@@ -145,7 +145,7 @@ func (r *Runner) runLFSHook(ctx context.Context) error {
 		log.Debugf(
 			"[git-lfs] executing hook: git lfs %s %s", r.HookName, strings.Join(r.GitArgs, " "),
 		)
-		out := bytes.NewBuffer(make([]byte, 0))
+		out := new(bytes.Buffer)
 		err := r.cmd.RunWithContext(
 			ctx,
 			append(
@@ -521,7 +521,7 @@ func (r *Runner) run(ctx context.Context, opts exec.Options, follow bool) bool {
 		return err == nil
 	}
 
-	out := bytes.NewBuffer(make([]byte, 0))
+	out := new(bytes.Buffer)
 
 	err := r.executor.Execute(ctx, opts, in, out)
 

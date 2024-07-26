@@ -9,16 +9,15 @@ jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.22.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go-version }}
-      - name: Checkout code
-        uses: actions/checkout@v4
+          go-version-file: go.mod
       - name: Test
         run: go test ./... -coverprofile coverage.out
       - name: Report coverage
@@ -31,18 +30,17 @@ jobs:
   test-integrity:
     strategy:
       matrix:
-        go-version: [1.22.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     env:
       GOCOVERDIR: ${{ github.workspace }}/_icoverdir_
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go-version }}
-      - name: Checkout code
-        uses: actions/checkout@v4
+          go-version-file: go.mod
       - name: Prepare lefthook
         run: |
           mkdir _icoverdir_
@@ -67,12 +65,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.22.x
-      - name: Checkout code
-        uses: actions/checkout@v4
+          go-version-file: go.mod
       - name: Build binaries
         uses: goreleaser/goreleaser-action@v6
         with:
@@ -95,5 +93,5 @@ jobs:
     steps:
       - uses: coverallsapp/github-action@v2
         with:
-          carryforward: "integration-1.22.x ubuntu-latest,integration-1.22.x macos-latest,integration-1.22.x windows-latest,1.22.x ubuntu-latest,1.22.x macos-latest,1.22.x windows-latest"
+          carryforward: "integration-ubuntu-latest,integration-macos-latest,integration-windows-latest,ubuntu-latest,macos-latest,windows-latest"
           parallel-finished: true
