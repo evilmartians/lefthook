@@ -3,7 +3,10 @@
   "version": "1.7.7",
   "description": "The Windows 64-bit binary for lefthook, git hooks manager.",
   "preferUnplugged": false,
-  "repository": "https://github.com/evilmartians/lefthook",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evilmartians/lefthook.git"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/evilmartians/lefthook/issues",
