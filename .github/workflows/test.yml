@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Install Go
         uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Test
@@ -35,6 +37,8 @@ jobs:
     steps:
       - name: Install Go
         uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Prepare lefthook
@@ -63,6 +67,8 @@ jobs:
     steps:
       - name: Install Go
         uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Build binaries
