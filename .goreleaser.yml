@@ -1,3 +1,4 @@
+version: 2
 project_name: lefthook
 before:
   hooks:
@@ -25,8 +26,10 @@ builds:
         goarch: 386
       - goos: freebsd
         goarch: 386
+    flags:
+      - -trimpath
     ldflags:
-      - -s -w -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
+      - -s -w -extldflags '-static' -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
 
   # Full lefthook binary
   - id: lefthook
@@ -48,8 +51,10 @@ builds:
         goarch: 386
       - goos: freebsd
         goarch: 386
+    flags:
+      - -trimpath
     ldflags:
-      - -s -w -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
+      - -s -w -extldflags '-static' -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
 
 archives:
   - id: lefthook
