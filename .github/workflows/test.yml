@@ -16,6 +16,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Install Go
         uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
       - name: Test
         run: go test ./... -coverprofile coverage.out
       - name: Report coverage
@@ -37,6 +39,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Install Go
         uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
       - name: Prepare lefthook
         run: |
           mkdir _icoverdir_
@@ -65,6 +69,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Install Go
         uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
       - name: Build binaries
         uses: goreleaser/goreleaser-action@v6
         with:
