@@ -7,6 +7,8 @@ builds:
   # Builds the binaries without `lefthook upgrade`
   - id: no_self_update
     tags:
+      - osusergo
+      - netgo
       - no_self_update
     env:
       - GCO_ENABLED=0
