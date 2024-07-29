@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+## 1.7.20 (2024-07-29)
+
+- deps: July 2024 ([#795](https://github.com/evilmartians/lefthook/pull/795)) by @mrexox
+- packaging(npm): try direct reference for lefthook executable ([#794](https://github.com/evilmartians/lefthook/pull/794)) by @mrexox
+
 ## 1.7.9 (2024-07-26)
 
 - fix: typo CGO_ENABLED instead of GCO_ENABLED ([#791](https://github.com/evilmartians/lefthook/pull/791)) by @mrexox
