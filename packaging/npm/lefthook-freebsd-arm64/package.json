@@ -3,6 +3,9 @@
   "version": "1.7.9",
   "description": "The FreeBSD ARM 64-bit binary for lefthook, git hooks manager.",
   "preferUnplugged": false,
+  "bin": {
+    "lefthook": "bin/lefthook"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/evilmartians/lefthook.git"

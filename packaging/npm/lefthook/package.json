@@ -7,9 +7,6 @@
     "url": "git+https://github.com/evilmartians/lefthook.git"
   },
   "main": "bin/index.js",
-  "bin": {
-    "lefthook": "bin/index.js"
-  },
   "keywords": [
     "git",
     "hook",
