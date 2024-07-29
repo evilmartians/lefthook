@@ -1,12 +1,15 @@
 {
   "name": "@evilmartians/lefthook-installer",
-  "version": "1.6.14",
+  "version": "1.7.9",
   "description": "Simple git hooks manager",
-  "main": "index.js",
+  "main": "bin/index.js",
   "bin": {
-    "lefthook": "./bin/index.js"
+    "lefthook": "bin/index.js"
   },
-  "repository": "https://github.com/evilmartians/lefthook",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evilmartians/lefthook.git"
+  },
   "keywords": [
     "git",
     "hook",
@@ -29,10 +32,6 @@
     "arm64"
   ],
   "scripts": {
-    "version": "cp -f ../../README.md ./",
     "install": "node install.js"
-  },
-  "dependencies": {
-    "node-downloader-helper": "^1.0.18"
   }
 }

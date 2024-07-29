@@ -5,10 +5,12 @@ import (
 
 	"github.com/evilmartians/lefthook/internal/lefthook"
 	"github.com/evilmartians/lefthook/internal/log"
-	"github.com/evilmartians/lefthook/internal/version"
+	ver "github.com/evilmartians/lefthook/internal/version"
 )
 
-func newVersionCmd(_opts *lefthook.Options) *cobra.Command {
+type version struct{}
+
+func (version) New(_opts *lefthook.Options) *cobra.Command {
 	var verbose bool
 
 	versionCmd := cobra.Command{
@@ -17,7 +19,7 @@ func newVersionCmd(_opts *lefthook.Options) *cobra.Command {
 		ValidArgsFunction: cobra.NoFileCompletions,
 		Args:              cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			log.Println(version.Version(verbose))
+			log.Println(ver.Version(verbose))
 		},
 	}
 

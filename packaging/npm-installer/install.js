@@ -1,4 +1,7 @@
-const { spawnSync } = require("child_process")
+const http = require('https')
+const fs = require('fs')
+const path = require("path")
+const chp = require("child_process")
 
 const iswin = ["win32", "cygwin"].includes(process.platform)
 
@@ -6,15 +9,19 @@ async function install() {
   if (process.env.CI) {
     return
   }
-  const exePath = await downloadBinary()
+  const downloadURL = getDownloadURL()
+  const extension = iswin ? ".exe" : ""
+  const fileName = `lefthook${extension}`
+  const exePath = path.join(__dirname, "bin", fileName)
+  await downloadBinary(downloadURL, exePath)
+  console.log('downloaded to', exePath)
   if (!iswin) {
-    const { chmodSync } = require("fs")
-    chmodSync(exePath, "755")
+    fs.chmodSync(exePath, "755")
   }
   // run install
-  spawnSync(exePath, ["install", "-f"], {
+  chp.spawnSync(exePath, ['install',  '-f'], {
     cwd: process.env.INIT_CWD || process.cwd(),
-    stdio: "inherit",
+    stdio: 'inherit',
   })
 }
 
@@ -46,28 +53,31 @@ function getDownloadURL() {
   return `https://github.com/evilmartians/lefthook/releases/download/v${version}/lefthook_${version}_${downloadOS}_${arch}${extension}`
 }
 
-const { DownloaderHelper } = require("node-downloader-helper")
-const path = require("path")
+async function downloadBinary(url, dest) {
+  console.log('downloading', url)
+  const file = fs.createWriteStream(dest)
+  return new Promise((resolve, reject) => {
+    http.get(url, function(response) {
+      if (response.statusCode === 302 && response.headers.location) {
+        // If the response is a 302 redirect, follow the new location
+        downloadBinary(response.headers.location, dest)
+          .then(resolve)
+          .catch(reject)
+      } else {
+        response.pipe(file)
 
-async function downloadBinary() {
-  // TODO zip the binaries to reduce the download size
-  const downloadURL = getDownloadURL()
-  const extension = iswin ? ".exe" : ""
-  const fileName = `lefthook${extension}`
-  const binDir = path.join(__dirname, "bin")
-  const dl = new DownloaderHelper(downloadURL, binDir, {
-    fileName,
-    retry: { maxRetries: 5, delay: 50 },
+        file.on('finish', function() {
+          file.close(() => {
+            resolve(dest)
+          })
+        })
+      }
+    }).on('error', function(err) {
+      fs.unlink(file, () => {
+        reject(err)
+      })
+    })
   })
-  dl.on("end", () => console.log("lefthook binary was downloaded"))
-  try {
-    await dl.start()
-  } catch(e) {
-    const message = `Failed to download ${fileName}: ${e.message} while fetching ${downloadURL}`
-    console.error(message)
-    throw new Error(message)
-  }
-  return path.join(binDir, fileName)
 }
 
 // start:

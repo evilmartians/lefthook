@@ -6,7 +6,9 @@ import (
 	"github.com/evilmartians/lefthook/internal/lefthook"
 )
 
-func newDumpCmd(opts *lefthook.Options) *cobra.Command {
+type dump struct{}
+
+func (dump) New(opts *lefthook.Options) *cobra.Command {
 	dumpArgs := lefthook.DumpArgs{}
 	dumpCmd := cobra.Command{
 		Use:               "dump",

@@ -1,0 +1,80 @@
+[windows] skip
+
+exec git init
+exec lefthook dump
+cmp stdout dump.yml
+! stderr .
+
+-- lefthook.yml --
+extends:
+  - extends/e1.yml
+
+pre-commit:
+  commands:
+    echo:
+      run: echo 0
+
+-- extends/e1.yml --
+extends:
+  - extends/e2.yml
+
+pre-commit:
+  commands:
+    echo:
+      run: echo 1
+      skip: true
+
+e1:
+  commands:
+    echo:
+      run: e1
+
+-- extends/e2.yml --
+extends:
+  - extends/e3.yml
+
+pre-commit:
+  commands:
+    echo:
+      run: echo 2
+      tags: ["backend"]
+
+e2:
+  commands:
+    echo:
+      run: e2
+
+-- extends/e3.yml --
+pre-commit:
+  commands:
+    echo:
+      glob: 3
+
+e3:
+  commands:
+    echo:
+      run: e3
+
+-- dump.yml --
+e1:
+  commands:
+    echo:
+      run: e1
+e2:
+  commands:
+    echo:
+      run: e2
+e3:
+  commands:
+    echo:
+      run: e3
+extends:
+  - extends/e3.yml
+pre-commit:
+  commands:
+    echo:
+      run: echo 2
+      skip: true
+      tags:
+        - backend
+      glob: "3"

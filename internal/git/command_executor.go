@@ -71,7 +71,7 @@ func (c CommandExecutor) CmdLinesWithinFolder(cmd []string, folder string) ([]st
 }
 
 func (c CommandExecutor) execute(cmd []string, root string) (string, error) {
-	out := bytes.NewBuffer(make([]byte, 0))
+	out := new(bytes.Buffer)
 	err := c.cmd.Run(cmd, root, system.NullReader, out)
 	strOut := out.String()
 

@@ -2,6 +2,78 @@
 
 ## master (unreleased)
 
+## 1.7.9 (2024-07-26)
+
+- fix: typo CGO_ENABLED instead of GCO_ENABLED ([#791](https://github.com/evilmartians/lefthook/pull/791)) by @mrexox
+
+## 1.7.8 (2024-07-26)
+
+- fix: npm fix packages ([#789](https://github.com/evilmartians/lefthook/pull/789)) by @mrexox
+- fix: explicitly pass static flag to linker ([#788](https://github.com/evilmartians/lefthook/pull/788)) by @mrexox
+- ci: update workflow files ([#787](https://github.com/evilmartians/lefthook/pull/787)) by @mrexox
+- ci: use latest goreleaser ([#784](https://github.com/evilmartians/lefthook/pull/784)) by @mrexox
+
+## 1.7.7 (2024-07-24)
+
+- fix: multiple excludes ([#782](https://github.com/evilmartians/lefthook/pull/782)) by @mrexox
+
+## 1.7.6 (2024-07-24)
+
+- feat: add self-update command ([#778](https://github.com/evilmartians/lefthook/pull/778)) by @mrexox
+
+## 1.7.5 (2024-07-22)
+
+- feat: use glob in exclude array ([#777](https://github.com/evilmartians/lefthook/pull/777)) by @mrexox
+
+## 1.7.4 (2024-07-19)
+
+- fix: rollback packaging changes ([#776](https://github.com/evilmartians/lefthook/pull/776)) by @mrexox
+
+## 1.7.3 (2024-07-18)
+
+- feat: allow list of files in exclude option ([#772](https://github.com/evilmartians/lefthook/pull/772)) by @mrexox
+- docs: add docs for LEFTHOOK_OUTPUT var ([#771](https://github.com/evilmartians/lefthook/pull/771)) by @manbearwiz
+- fix: use direct lefthook package ([#774](https://github.com/evilmartians/lefthook/pull/774)) by @mrexox
+
+## 1.7.2 (2024-07-11)
+
+- fix: add missing sub directory in hook template ([#768](https://github.com/evilmartians/lefthook/pull/768)) by @nikeee
+
+## 1.7.1 (2024-07-08)
+
+- fix: use correct extension in hook.tmpl ([#767](https://github.com/evilmartians/lefthook/pull/767)) by @apfohl
+
+## 1.7.0 (2024-07-08)
+
+- fix: publishing ([#765](https://github.com/evilmartians/lefthook/pull/765)) by @mrexox
+- perf: startup time reduce ([#705](https://github.com/evilmartians/lefthook/pull/705)) by @dalisoft
+- docs: add a note about pnpm package installation ([#761](https://github.com/evilmartians/lefthook/pull/761)) by @mrexox
+- ci: retriable integrity tests ([#758](https://github.com/evilmartians/lefthook/pull/758)) by @mrexox
+- ci: universal publisher with Ruby script ([#756](https://github.com/evilmartians/lefthook/pull/756)) by @mrexox
+
+## 1.6.18 (2024-06-21)
+
+- fix: allow multiple levels of extends ([#755](https://github.com/evilmartians/lefthook/pull/755)) by @mrexox
+
+## 1.6.17 (2024-06-20)
+
+- fix: apply local extends only if they are present ([#754](https://github.com/evilmartians/lefthook/pull/754)) by @mrexox
+- chore: setting proper error message for missing lefthook file ([#748](https://github.com/evilmartians/lefthook/pull/748)) by @Cadienvan
+
+## 1.6.16 (2024-06-13)
+
+- fix: skip overwriting hooks when fetching data from remotes ([#745](https://github.com/evilmartians/lefthook/pull/745)) by @mrexox
+- fix: fetch remotes only for non ghost hooks ([#744](https://github.com/evilmartians/lefthook/pull/744)) by @mrexox
+
+## 1.6.15 (2024-06-03)
+
+- feat: add refetch option to remotes config ([#739](https://github.com/evilmartians/lefthook/pull/739)) by @mrexox
+- deps: June, 3, lipgloss (0.11.0) and viper (1.19.0) ([#742](https://github.com/evilmartians/lefthook/pull/742)) by @mrexox
+- chore: enable copyloopvar, intrange, and prealloc ([#740](https://github.com/evilmartians/lefthook/pull/740)) by @scop
+- perf: delay git and uname commands in hook scripts until needed ([#737](https://github.com/evilmartians/lefthook/pull/737)) by @scop
+- chore: refactor commands interfaces ([#735](https://github.com/evilmartians/lefthook/pull/735)) by @mrexox
+- chore: upgrade to 1.59.0 ([#738](https://github.com/evilmartians/lefthook/pull/738)) by @scop
+
 ## 1.6.14 (2024-05-30)
 
 - fix: share STDIN across different commands on pre-push hook ([#732](https://github.com/evilmartians/lefthook/pull/732)) by @tdesveaux and @mrexox

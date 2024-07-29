@@ -1,12 +1,15 @@
 {
   "name": "@evilmartians/lefthook",
-  "version": "1.6.14",
+  "version": "1.7.9",
   "description": "Simple git hooks manager",
-  "main": "index.js",
+  "main": "bin/index.js",
   "bin": {
-    "lefthook": "./bin/index.js"
+    "lefthook": "bin/index.js"
   },
-  "repository": "https://github.com/evilmartians/lefthook",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evilmartians/lefthook.git"
+  },
   "keywords": [
     "git",
     "hook",
@@ -30,7 +33,6 @@
     "ia32"
   ],
   "scripts": {
-    "version": "git clean -fdX bin/ && (cd ../../dist/ && find . -maxdepth 2 -executable -type f -exec cp --parents \\{\\} ../packaging/npm-bundled/bin/ \\;) && cp -f ../../README.md ./",
     "postinstall": "node postinstall.js"
   }
 }

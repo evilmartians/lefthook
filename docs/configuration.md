@@ -561,7 +561,7 @@ pre-commit:
 
 **Default: `false`**
 
-> **Note**
+> [!NOTE]
 >
 > Lefthook runs commands and scripts **sequentially** by default.
 
@@ -571,7 +571,7 @@ Run commands and scripts concurrently.
 
 **Default: `false`**
 
-> **Note**
+> [!NOTE]
 >
 > Lefthook will return an error if both `piped: true` and `parallel: true` are set.
 
@@ -613,7 +613,7 @@ pre-push:
       run: yarn test
 ```
 
-> **Note**
+> [!NOTE]
 >
 > If used with [`parallel`](#parallel) the output can be a mess, so please avoid setting both options to `true`.
 
@@ -786,7 +786,7 @@ pre-push:
 
 Simply run `bundle exec rubocop` on all files with `.rb` extension excluding `application.rb` and `routes.rb` files.
 
-> **Note**
+> [!NOTE]
 >
 > `--force-exclusion` will apply `Exclude` configuration setting of Rubocop.
 
@@ -798,7 +798,9 @@ pre-commit:
     rubocop:
       tags: backend style
       glob: "*.rb"
-      exclude: '(^|/)(application|routes)\.rb$'
+      exclude:
+        - config/application.rb
+        - config/routes.rb
       run: bundle exec rubocop --force-exclusion {all_files}
 ```
 
@@ -1259,15 +1261,21 @@ pre-commit:
 
 ### `exclude`
 
-You can provide a regular expression to exclude some files from being passed to [`run`](#run) command.
+For the `exclude` option two variants are supported:
 
-The regular expression is matched against full paths to files in the repo,
-relative to the repo root, using `/` as the directory separator on all platforms.
-File paths do not begin with the separator or any other prefix.
+- A list of globs to be excluded
+- A single regular expression (deprecated)
+
+
+> [!NOTE]
+>
+> The regular expression is matched against full paths to files in the repo,
+> relative to the repo root, using `/` as the directory separator on all platforms.
+> File paths do not begin with the separator or any other prefix.
 
 **Example**
 
-Run Rubocop on staged files with `.rb` extension except for `application.rb`, `routes.rb`, and `rails_helper.rb` (wherever they are).
+Run Rubocop on staged files with `.rb` extension except for `application.rb`, `routes.rb`, `rails_helper.rb`, and all Ruby files in `config/initializers/`.
 
 ```yml
 # lefthook.yml
@@ -1276,7 +1284,24 @@ pre-commit:
   commands:
     lint:
       glob: "*.rb"
-      exclude: '(^|/)(application|routes|rails_helper)\.rb$'
+      exclude:
+        - config/routes.rb
+        - config/application.rb
+        - config/initializers/*.rb
+        - spec/rails_helper.rb
+      run: bundle exec rubocop --force-exclusion {staged_files}
+```
+
+The same example using a regular expression.
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      glob: "*.rb"
+      exclude: '(^|/)(application|routes|rails_helper|initializers/\w+)\.rb$'
       run: bundle exec rubocop --force-exclusion {staged_files}
 ```
 
@@ -1348,7 +1373,7 @@ pre-commit:
 
 **Default: `false`**
 
-> **Note**
+> [!NOTE]
 >
 > If you want to pass stdin to your command or script but don't need to get the input from CLI, use [`use_stdin`](#use_stdin) option instead.
 
@@ -1362,7 +1387,7 @@ Whether to use interactive mode. This applies the certain behavior:
 
 **Default: `0`**
 
-> **Note**
+> [!NOTE]
 >
 > This option makes sense only when `parallel: false` or `piped: true` is set.
 >
@@ -1445,7 +1470,7 @@ When you try to commit `git commit -m "bad commit text"` script `template_checke
 
 ### `use_stdin`
 
-> **Note**
+> [!NOTE]
 >
 > With many commands or scripts having `use_stdin: true`, only one will receive the data. The others will have nothing. If you need to pass the data from stdin to every command or script, please, submit a [feature request](https://github.com/evilmartians/lefthook/issues/new?assignees=&labels=feature+request&projects=&template=feature_request.md).
 

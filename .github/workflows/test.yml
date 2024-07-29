@@ -9,16 +9,15 @@ jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.22.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go-version }}
-      - name: Checkout code
-        uses: actions/checkout@v4
+          go-version-file: go.mod
       - name: Test
         run: go test ./... -coverprofile coverage.out
       - name: Report coverage
@@ -31,24 +30,27 @@ jobs:
   test-integrity:
     strategy:
       matrix:
-        go-version: [1.22.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     env:
       GOCOVERDIR: ${{ github.workspace }}/_icoverdir_
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go-version }}
-      - name: Checkout code
-        uses: actions/checkout@v4
+          go-version-file: go.mod
       - name: Prepare lefthook
         run: |
           mkdir _icoverdir_
           go install -cover
       - name: Run integrity tests
-        run: go test integrity_test.go -tags=integrity
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          command: go test integrity_test.go -tags=integrity
       - name: Collect coverage
         run: |
           go tool covdata textfmt -i _icoverdir_ -o coverage.out
@@ -63,18 +65,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.22.x
-      - name: Checkout code
-        uses: actions/checkout@v4
+          go-version-file: go.mod
       - name: Build binaries
-        uses: goreleaser/goreleaser-action@v5
+        uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
-          version: latest
-          args: build --snapshot --skip-validate --clean
+          version: '~> v2'
+          args: release --snapshot --skip=publish --skip=snapcraft --skip=validate --clean --verbose
       - name: Tar binaries to preserve executable bit
         run: 'tar -cvf lefthook-binaries.tar --directory dist/ $(find dist/ -executable -type f -printf "%P\0" | xargs --null)'
       - name: Upload binaries as artifacts
@@ -91,5 +93,5 @@ jobs:
     steps:
       - uses: coverallsapp/github-action@v2
         with:
-          carryforward: "integration-1.22.x ubuntu-latest,integration-1.22.x macos-latest,integration-1.22.x windows-latest,1.22.x ubuntu-latest,1.22.x macos-latest,1.22.x windows-latest"
+          carryforward: "integration-ubuntu-latest,integration-macos-latest,integration-windows-latest,ubuntu-latest,macos-latest,windows-latest"
           parallel-finished: true

@@ -16,6 +16,7 @@ Then use git as usually, you don't need to reinstall lefthook when you change th
 - [Control behavior with ENV variables](#control-behavior-with-env-variables)
   - [`LEFTHOOK`](#lefthook)
   - [`LEFTHOOK_EXCLUDE`](#lefthook_exclude)
+  - [`LEFTHOOK_OUTPUT`](#lefthook_output)
   - [`LEFTHOOK_QUIET`](#lefthook_quiet)
   - [`LEFTHOOK_VERBOSE`](#lefthook_verbose)
   - [`LEFTHOOK_BIN`](#lefthook_bin)
@@ -166,7 +167,7 @@ LEFTHOOK=0 git commit -am "Lefthook skipped"
 
 ### `LEFTHOOK_EXCLUDE`
 
-Use `LEFTHOOK_EXCLUDE=`{list of tags or command names to be excluded} to skip some commands or scripts by tag or name (for commands only). See [`exclude_tags`](./configuration.md#exclude_tags) config option for more details.
+Use `LEFTHOOK_EXCLUDE={list of tags or command names to be excluded}` to skip some commands or scripts by tag or name (for commands only). See the [`exclude_tags`](./configuration.md#exclude_tags) configuration option for more details.
 
 **Example**
 
@@ -174,9 +175,21 @@ Use `LEFTHOOK_EXCLUDE=`{list of tags or command names to be excluded} to skip so
 LEFTHOOK_EXCLUDE=ruby,security,lint git commit -am "Skip some tag checks"
 ```
 
+### `LEFTHOOK_OUTPUT`
+
+Use `LEFTHOOK_OUTPUT={list of output values}` to specify what to print in your output. You can also set `LEFTHOOK_OUTPUT=false` to disable all output except for errors. Refer to the [`output`](./configuration.md#output) configuration option for more details.
+
+**Example**
+
+```bash
+$ LEFTHOOK_OUTPUT=summary lefthook run pre-commit
+summary: (done in 0.52 seconds)
+✔️  lint
+```
+
 ### `LEFTHOOK_QUIET`
 
-You can skip some output printed by lefthook with `LEFTHOOK_QUIET` ENV variable. Just provide a list of output types. See [`skip_output`](./configuration.md#skip_output) config option for more details.
+You can skip some outputs printed by lefthook by setting the `LEFTHOOK_QUIET` environment variable. Provide a list of output types to be skipped. See the [`skip_output`](./configuration.md#skip_output) configuration option for more details.
 
 **Example**
 

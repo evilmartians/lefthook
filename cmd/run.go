@@ -8,7 +8,9 @@ import (
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
-func newRunCmd(opts *lefthook.Options) *cobra.Command {
+type run struct{}
+
+func (run) New(opts *lefthook.Options) *cobra.Command {
 	runArgs := lefthook.RunArgs{}
 
 	runHookCompletions := func(cmd *cobra.Command, args []string, toComplete string) (ret []string, compDir cobra.ShellCompDirective) {

@@ -1,31 +1,66 @@
+version: 2
 project_name: lefthook
 before:
   hooks:
     - go generate ./...
 builds:
-- env:
-  - CGO_ENABLED=0
-  goos:
-    - linux
-    - darwin
-    - windows
-    - freebsd
-  goarch:
-    - amd64
-    - arm64
-    - 386
-  ignore:
-    - goos: darwin
-      goarch: 386
-    - goos: linux
-      goarch: 386
-    - goos: freebsd
-      goarch: 386
-  ldflags:
-    - -s -w -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
+  # Builds the binaries without `lefthook upgrade`
+  - id: no_self_update
+    tags:
+      - no_self_update
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+      - freebsd
+    goarch:
+      - amd64
+      - arm64
+      - 386
+    ignore:
+      - goos: darwin
+        goarch: 386
+      - goos: linux
+        goarch: 386
+      - goos: freebsd
+        goarch: 386
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
+
+  # Full lefthook binary
+  - id: lefthook
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+      - freebsd
+    goarch:
+      - amd64
+      - arm64
+      - 386
+    ignore:
+      - goos: darwin
+        goarch: 386
+      - goos: linux
+        goarch: 386
+      - goos: freebsd
+        goarch: 386
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
+
 archives:
   - id: lefthook
     format: binary
+    builds:
+      - lefthook
     files:
     - none*
     name_template: >-
@@ -36,8 +71,11 @@ archives:
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
+
   - id: lefthook-gz
     format: gz
+    builds:
+      - lefthook
     files:
     - none*
     name_template: >-
@@ -48,10 +86,13 @@ archives:
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
+
 checksum:
   name_template: '{{ .ProjectName }}_checksums.txt'
+
 snapshot:
   name_template: "{{ .Tag }}"
+
 changelog:
   sort: asc
   filters:
@@ -64,25 +105,27 @@ changelog:
     - '^\d+\.\d+\.\d+:'
 
 snapcrafts:
-  -
-    summary: Fast and powerful Git hooks manager for any type of projects.
+  - summary: Fast and powerful Git hooks manager for any type of projects.
     description: |
       Lefthook is a single dependency-free binary to manage all your git hooks. It works with any language in any environment, and in all common team workflows.
     grade: stable
     confinement: classic
     publish: true
     license: MIT
+    builds:
+      - no_self_update
 
 nfpms:
-  -
-    file_name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+  - file_name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
     homepage:  https://github.com/evilmartians/lefthook
     description: Lefthook a single dependency-free binary to manage all your git hooks that works with any language in any environment, and in all common team workflows
-    maintainer: Alexander Abroskin <arkweid@evilmartians.com>
+    maintainer: Evil Martians <lefthook@evilmartians.com>
     license: MIT
     vendor: Evil Martians
+    builds:
+      - no_self_update
     formats:
-    - deb
-    - rpm
+      - deb
+      - rpm
     dependencies:
-    - git
+      - git
