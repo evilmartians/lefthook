@@ -2,7 +2,11 @@
 
 ## master (unreleased)
 
-## 1.7.20 (2024-07-29)
+## 1.7.11 (2024-07-29)
+
+- fix: revert packaging change ([#796](https://github.com/evilmartians/lefthook/pull/796)) by @mrexox
+
+## 1.7.10 (2024-07-29)
 
 - deps: July 2024 ([#795](https://github.com/evilmartians/lefthook/pull/795)) by @mrexox
 - packaging(npm): try direct reference for lefthook executable ([#794](https://github.com/evilmartians/lefthook/pull/794)) by @mrexox
