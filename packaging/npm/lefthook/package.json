@@ -6,9 +6,8 @@
     "type": "git",
     "url": "git+https://github.com/evilmartians/lefthook.git"
   },
-  "main": "bin/index.js",
   "bin": {
-    "lefthook": "bin/index.js"
+    "lefthook": "bin.sh"
   },
   "keywords": [
     "git",
@@ -31,8 +30,5 @@
     "lefthook-freebsd-x64": "1.7.11",
     "lefthook-windows-arm64": "1.7.11",
     "lefthook-windows-x64": "1.7.11"
-  },
-  "scripts": {
-    "postinstall": "node postinstall.js"
   }
 }
