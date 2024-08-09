@@ -2,6 +2,7 @@ package config
 
 import (
 	"io"
+	"os"
 	"runtime"
 
 	"github.com/evilmartians/lefthook/internal/system"
@@ -25,7 +26,7 @@ func (c *commandExecutor) execute(commandLine string) bool {
 		args = []string{"sh", "-c", commandLine}
 	}
 
-	err := c.cmd.Run(args, "", system.NullReader, io.Discard, io.Discard)
+	err := c.cmd.Run(args, "", system.NullReader, io.Discard, os.Stderr)
 
 	return err == nil
 }

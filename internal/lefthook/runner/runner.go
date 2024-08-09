@@ -173,24 +173,30 @@ func (r *Runner) runLFSHook(ctx context.Context) error {
 		errOut,
 	)
 
-	output := strings.Trim(out.String(), "\n")
-	if output != "" {
-		log.Debug("[git-lfs] stdout: ", output)
+	outString := strings.Trim(out.String(), "\n")
+	if outString != "" {
+		log.Debug("[git-lfs] stdout: ", outString)
 	}
-	errOutput := strings.Trim(errOut.String(), "\n")
-	if errOutput != "" {
-		log.Debug("[git-lfs] stderr: ", output)
+	errString := strings.Trim(errOut.String(), "\n")
+	if errString != "" {
+		log.Debug("[git-lfs] stderr: ", errString)
 	}
 	if err != nil {
 		log.Debug("[git-lfs] error:  ", err)
 	}
 
-	if err == nil && output != "" {
-		log.Info(output)
+	if err == nil && outString != "" {
+		log.Info("[git-lfs] stdout: ", outString)
 	}
 
 	if err != nil && (requiredExists || configExists) {
-		log.Warnf("git-lfs command failed: %s\n", output)
+		log.Warn("git-lfs command failed")
+		if len(outString) > 0 {
+			log.Warn("[git-lfs] stdout: ", outString)
+		}
+		if len(errString) > 0 {
+			log.Warn("[git-lfs] stderr: ", errString)
+		}
 		return err
 	}
 
