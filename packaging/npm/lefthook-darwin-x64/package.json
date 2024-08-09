@@ -1,6 +1,6 @@
 {
   "name": "lefthook-darwin-x64",
-  "version": "1.7.11",
+  "version": "1.7.12",
   "description": "The macOS 64-bit binary for lefthook, git hooks manager.",
   "preferUnplugged": false,
   "repository": {

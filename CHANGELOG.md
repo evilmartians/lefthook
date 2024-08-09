@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.7.12 (2024-08-09)
+
+- fix: log stderr in debug logs only ([#804](https://github.com/evilmartians/lefthook/pull/804)) by @mrexox
+
 ## 1.7.11 (2024-07-29)
 
 - fix: revert packaging change ([#796](https://github.com/evilmartians/lefthook/pull/796)) by @mrexox
