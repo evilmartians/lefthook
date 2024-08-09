@@ -141,51 +141,57 @@ func (r *Runner) runLFSHook(ctx context.Context) error {
 		return err
 	}
 
-	if git.IsLFSAvailable() {
-		log.Debugf(
-			"[git-lfs] executing hook: git lfs %s %s", r.HookName, strings.Join(r.GitArgs, " "),
-		)
-		out := new(bytes.Buffer)
-		err := r.cmd.RunWithContext(
-			ctx,
-			append(
-				[]string{"git", "lfs", r.HookName},
-				r.GitArgs...,
-			),
-			"",
-			r.stdin,
-			out,
-		)
-
-		output := strings.Trim(out.String(), "\n")
-		if output != "" {
-			log.Debug("[git-lfs] out: ", output)
-		}
-		if err != nil {
-			log.Debug("[git-lfs] err: ", err)
-		}
-
-		if err == nil && output != "" {
-			log.Info(output)
-		}
-
-		if err != nil && (requiredExists || configExists) {
-			log.Warnf("git-lfs command failed: %s\n", output)
-			return err
+	if !git.IsLFSAvailable() {
+		if requiredExists || configExists {
+			log.Errorf(
+				"This Repository requires Git LFS, but 'git-lfs' wasn't found.\n"+
+					"Install 'git-lfs' or consider reviewing the files:\n"+
+					"  - %s\n"+
+					"  - %s\n",
+				lfsRequiredFile, lfsConfigFile,
+			)
+			return errors.New("git-lfs is required")
 		}
 
 		return nil
 	}
 
-	if requiredExists || configExists {
-		log.Errorf(
-			"This Repository requires Git LFS, but 'git-lfs' wasn't found.\n"+
-				"Install 'git-lfs' or consider reviewing the files:\n"+
-				"  - %s\n"+
-				"  - %s\n",
-			lfsRequiredFile, lfsConfigFile,
-		)
-		return errors.New("git-lfs is required")
+	log.Debugf(
+		"[git-lfs] executing hook: git lfs %s %s", r.HookName, strings.Join(r.GitArgs, " "),
+	)
+	out := new(bytes.Buffer)
+	errOut := new(bytes.Buffer)
+	err = r.cmd.RunWithContext(
+		ctx,
+		append(
+			[]string{"git", "lfs", r.HookName},
+			r.GitArgs...,
+		),
+		"",
+		r.stdin,
+		out,
+		errOut,
+	)
+
+	output := strings.Trim(out.String(), "\n")
+	if output != "" {
+		log.Debug("[git-lfs] stdout: ", output)
+	}
+	errOutput := strings.Trim(errOut.String(), "\n")
+	if errOutput != "" {
+		log.Debug("[git-lfs] stderr: ", output)
+	}
+	if err != nil {
+		log.Debug("[git-lfs] error:  ", err)
+	}
+
+	if err == nil && output != "" {
+		log.Info(output)
+	}
+
+	if err != nil && (requiredExists || configExists) {
+		log.Warnf("git-lfs command failed: %s\n", output)
+		return err
 	}
 
 	return nil

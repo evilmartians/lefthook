@@ -14,7 +14,7 @@ import (
 
 type gitCmd struct{}
 
-func (g gitCmd) Run([]string, string, io.Reader, io.Writer) error {
+func (g gitCmd) Run([]string, string, io.Reader, io.Writer, io.Writer) error {
 	return nil
 }
 

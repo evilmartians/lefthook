@@ -12,7 +12,7 @@ type gitCmd struct {
 	cases map[string]string
 }
 
-func (g gitCmd) Run(cmd []string, _root string, _in io.Reader, out io.Writer) error {
+func (g gitCmd) Run(cmd []string, _root string, _in io.Reader, out io.Writer, _errOut io.Writer) error {
 	res, ok := g.cases[(strings.Join(cmd, " "))]
 	if !ok {
 		return errors.New("doesn't exist")
