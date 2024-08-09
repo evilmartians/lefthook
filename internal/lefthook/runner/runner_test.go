@@ -38,11 +38,11 @@ func (e executor) Execute(_ctx context.Context, opts exec.Options, _in io.Reader
 	return
 }
 
-func (e cmd) RunWithContext(context.Context, []string, string, io.Reader, io.Writer) error {
+func (e cmd) RunWithContext(context.Context, []string, string, io.Reader, io.Writer, io.Writer) error {
 	return nil
 }
 
-func (g *gitCmd) Run(cmd []string, _root string, _in io.Reader, out io.Writer) error {
+func (g *gitCmd) Run(cmd []string, _root string, _in io.Reader, out io.Writer, _errOut io.Writer) error {
 	g.mux.Lock()
 	g.commands = append(g.commands, strings.Join(cmd, " "))
 	g.mux.Unlock()

@@ -72,12 +72,17 @@ func (c CommandExecutor) CmdLinesWithinFolder(cmd []string, folder string) ([]st
 
 func (c CommandExecutor) execute(cmd []string, root string) (string, error) {
 	out := new(bytes.Buffer)
-	err := c.cmd.Run(cmd, root, system.NullReader, out)
-	strOut := out.String()
+	errOut := new(bytes.Buffer)
+	err := c.cmd.Run(cmd, root, system.NullReader, out, errOut)
+	outString := out.String()
 
-	log.Debug("[lefthook] out: ", strOut)
+	log.Debug("[lefthook] stdout: ", outString)
+	errString := errOut.String()
+	if len(errString) > 0 {
+		log.Debug("[lefthook] stderr: ", errString)
+	}
 
-	return strOut, err
+	return outString, err
 }
 
 func batchByLength(s []string, length int) [][]string {
