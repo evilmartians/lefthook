@@ -20,6 +20,7 @@ os =
   when "mingw32" then "windows" # Windows with MINGW64 reports RUBY_PLATFORM as "x64-mingw32"
   when "mingw"   then "windows"
   when "freebsd" then "freebsd"
+  when "openbsd" then "openbsd"
   else raise "Unknown OS: #{platform.os}"
   end
 
