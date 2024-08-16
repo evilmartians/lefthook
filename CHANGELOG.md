@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.7.13 (2024-08-16)
+
+- feat: support openbsd ([#808](https://github.com/evilmartians/lefthook/pull/808)) by @mrexox
+
 ## 1.7.12 (2024-08-09)
 
 - fix: log stderr in debug logs only ([#804](https://github.com/evilmartians/lefthook/pull/804)) by @mrexox
