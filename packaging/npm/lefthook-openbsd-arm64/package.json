@@ -1,0 +1,22 @@
+{
+  "name": "lefthook-openbsd-arm64",
+  "version": "1.7.12",
+  "description": "The OpenBSD ARM 64-bit binary for lefthook, git hooks manager.",
+  "preferUnplugged": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evilmartians/lefthook.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/evilmartians/lefthook/issues",
+    "email": "lefthook@evilmartians.com"
+  },
+  "homepage": "https://github.com/evilmartians/lefthook#readme",
+  "os": [
+    "openbsd"
+  ],
+  "cpu": [
+    "arm64"
+  ]
+}

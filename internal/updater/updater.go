@@ -41,6 +41,7 @@ var (
 		"darwin":  "MacOS",
 		"linux":   "Linux",
 		"freebsd": "Freebsd",
+		"openbsd": "Openbsd",
 	}
 
 	archNames = map[string]string{
