@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.7.14 (2024-08-17)
+
+Fix lefthook NPM package to include OpenBSD package as optional dependency.
+
 ## 1.7.13 (2024-08-16)
 
 - feat: support openbsd ([#808](https://github.com/evilmartians/lefthook/pull/808)) by @mrexox
