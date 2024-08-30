@@ -26,6 +26,7 @@ var lefthookContentRegexp = regexp.MustCompile("LEFTHOOK")
 type Options struct {
 	Fs                afero.Fs
 	Verbose, NoColors bool
+	Colors            string
 
 	// DEPRECATED. Will be removed in 1.3.0.
 	Force, Aggressive bool
@@ -49,7 +50,11 @@ func initialize(opts *Options) (*Lefthook, error) {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	log.SetColors(!opts.NoColors)
+	// DEPRECATED: Will be removed with a --no-colors option
+	if opts.NoColors && opts.Colors == "auto" {
+		opts.Colors = "off"
+	}
+	log.SetColors(opts.Colors)
 
 	repo, err := git.NewRepository(opts.Fs, git.NewExecutor(system.Cmd))
 	if err != nil {
