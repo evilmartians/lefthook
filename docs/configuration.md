@@ -97,9 +97,9 @@ When set to `true`, fail (with exit status 1) if `lefthook` executable can't be 
 
 ### `colors`
 
-**Default: `true`**
+**Default: `auto`**
 
-Whether enable or disable colorful output of Lefthook. This option can be overwritten with `--no-colors` option. You can also provide your own color codes.
+Whether enable or disable colorful output of Lefthook. This option can be overwritten with `--colors` option. You can also provide your own color codes.
 
 **Example**
 

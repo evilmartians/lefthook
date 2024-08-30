@@ -20,6 +20,8 @@ Then use git as usually, you don't need to reinstall lefthook when you change th
   - [`LEFTHOOK_QUIET`](#lefthook_quiet)
   - [`LEFTHOOK_VERBOSE`](#lefthook_verbose)
   - [`LEFTHOOK_BIN`](#lefthook_bin)
+  - [`NO_COLOR`](#no_color)
+  - [`CLICOLOR_FORCE`](#clicolor_force)
 - [Features and tips](#features-and-tips)
   - [Disable lefthook in CI](#disable-lefthook-in-ci)
   - [Local config](#local-config)
@@ -214,6 +216,14 @@ Useful for cases when:
 
 - lefthook is installed multiple ways, and you want to be explicit about which one is used (example: installed through homebrew, but also is in Gemfile but you are using a ruby version manager like rbenv that prepends it to the path)
 - debugging and/or developing lefthook
+
+### `NO_COLOR`
+
+Set `NO_COLOR=true` to disable colored output in lefthook and all subcommands that lefthook calls.
+
+### `CLICOLOR_FORCE`
+
+Set `CLICOLOR_FORCE=true` to force colored output in lefthook and all subcommands.
 
 ## Features and tips
 
