@@ -52,17 +52,19 @@ func initialize(opts *Options) (*Lefthook, error) {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	if isEnvEnabled(envForceColor) {
-		opts.Colors = "on"
-	}
+	if opts.Colors == "auto" {
+		if isEnvEnabled(envForceColor) {
+			opts.Colors = "on"
+		}
 
-	if isEnvEnabled(envNoColor) {
-		opts.Colors = "off"
-	}
+		if isEnvEnabled(envNoColor) {
+			opts.Colors = "off"
+		}
 
-	// DEPRECATED: Will be removed with a --no-colors option
-	if opts.NoColors && opts.Colors == "auto" {
-		opts.Colors = "off"
+		// DEPRECATED: Will be removed with a --no-colors option
+		if opts.NoColors {
+			opts.Colors = "off"
+		}
 	}
 
 	log.SetColors(opts.Colors)
