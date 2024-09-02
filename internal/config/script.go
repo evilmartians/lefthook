@@ -3,8 +3,8 @@ package config
 import (
 	"strings"
 
+	"github.com/knadh/koanf/v2"
 	"github.com/mitchellh/mapstructure"
-	"github.com/spf13/viper"
 
 	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/system"
@@ -38,21 +38,21 @@ func (s Script) ExecutionPriority() int {
 	return s.Priority
 }
 
-func mergeScripts(base, extra *viper.Viper) (map[string]*Script, error) {
+func mergeScripts(base, extra *koanf.Koanf) (map[string]*Script, error) {
 	if base == nil && extra == nil {
 		return nil, nil
 	}
 
 	if base == nil {
-		return unmarshalScripts(extra.GetStringMap("scripts"))
+		return unmarshalScripts(extra.Cut("scripts").Raw())
 	}
 
 	if extra == nil {
-		return unmarshalScripts(base.GetStringMap("scripts"))
+		return unmarshalScripts(base.Cut("scripts").Raw())
 	}
 
-	scriptsOrigin := base.GetStringMap("scripts")
-	scriptsOverride := extra.GetStringMap("scripts")
+	scriptsOrigin := base.Cut("scripts").Raw()
+	scriptsOverride := extra.Cut("scripts").Raw()
 	if scriptsOrigin == nil {
 		return unmarshalScripts(scriptsOverride)
 	}
@@ -71,14 +71,11 @@ func mergeScripts(base, extra *viper.Viper) (map[string]*Script, error) {
 		runReplaces[key] = &runReplace
 	}
 
-	err := base.MergeConfigMap(map[string]interface{}{
-		"scripts": scriptsOverride,
-	})
-	if err != nil {
+	if err := base.Set("scripts", scriptsOverride); err != nil {
 		return nil, err
 	}
 
-	scripts, err := unmarshalScripts(base.GetStringMap("scripts"))
+	scripts, err := unmarshalScripts(base.Cut("scripts").Raw())
 	if err != nil {
 		return nil, err
 	}
