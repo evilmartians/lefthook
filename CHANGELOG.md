@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+## 1.7.15 (2024-09-02)
+
+- fix: add better colors control ([#812](https://github.com/evilmartians/lefthook/pull/812)) by @mrexox
+- deps: August 2024 ([#802](https://github.com/evilmartians/lefthook/pull/802)) by @mrexox
+
 ## 1.7.14 (2024-08-17)
 
 Fix lefthook NPM package to include OpenBSD package as optional dependency.
