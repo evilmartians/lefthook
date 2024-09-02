@@ -11,6 +11,7 @@ import (
 	"syscall"
 
 	"github.com/evilmartians/lefthook/internal/log"
+
 	"github.com/mattn/go-isatty"
 	"github.com/mattn/go-tty"
 )
@@ -41,6 +42,12 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 			envs,
 			fmt.Sprintf("%s=%s", strings.ToUpper(name), os.ExpandEnv(value)),
 		)
+	}
+	switch log.Colors() {
+	case log.ColorOn:
+		envs = append(envs, "CLICOLOR_FORCE=true")
+	case log.ColorOff:
+		envs = append(envs, "NO_COLOR=true")
 	}
 
 	args := &executeArgs{

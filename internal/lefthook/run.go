@@ -14,7 +14,6 @@ import (
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner"
 	"github.com/evilmartians/lefthook/internal/log"
-	"github.com/evilmartians/lefthook/internal/version"
 )
 
 const (
@@ -91,10 +90,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	// }
 
 	if logSettings.LogMeta() {
-		log.Box(
-			log.Cyan("🥊 lefthook ")+log.Gray(fmt.Sprintf("v%s", version.Version(false))),
-			log.Gray("hook: ")+log.Bold(hookName),
-		)
+		log.LogMeta(hookName)
 	}
 
 	if !args.NoAutoInstall {
@@ -231,7 +227,7 @@ func printSummary(
 				continue
 			}
 
-			log.Infof("✔️  %s\n", log.Green(result.Name))
+			log.Success(result.Name)
 		}
 	}
 
@@ -241,12 +237,7 @@ func printSummary(
 				continue
 			}
 
-			failText := result.Text()
-			if len(failText) != 0 {
-				failText = fmt.Sprintf(": %s", failText)
-			}
-
-			log.Infof("🥊  %s%s\n", log.Red(result.Name), log.Red(failText))
+			log.Failure(result.Name, result.Text())
 		}
 	}
 }

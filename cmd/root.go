@@ -29,6 +29,11 @@ func newRootCmd() *cobra.Command {
 	rootCmd.PersistentFlags().BoolVarP(
 		&options.Verbose, "verbose", "v", false, "verbose output",
 	)
+
+	rootCmd.PersistentFlags().StringVar(
+		&options.Colors, "colors", "auto", "'auto', 'on', or 'off'",
+	)
+
 	rootCmd.PersistentFlags().BoolVar(
 		&options.NoColors, "no-colors", false, "disable colored output",
 	)
@@ -42,7 +47,11 @@ func newRootCmd() *cobra.Command {
 		&options.Aggressive, "aggressive", "a", false,
 		"use --force flag instead",
 	)
-	err := rootCmd.Flags().MarkDeprecated("aggressive", "use command-specific --force option")
+	err := rootCmd.PersistentFlags().MarkDeprecated("no-colors", "use --colors")
+	if err != nil {
+		log.Warn("Unexpected error:", err)
+	}
+	err = rootCmd.Flags().MarkDeprecated("aggressive", "use command-specific --force option")
 	if err != nil {
 		log.Warn("Unexpected error:", err)
 	}

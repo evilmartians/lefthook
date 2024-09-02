@@ -47,6 +47,12 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 			fmt.Sprintf("%s=%s", strings.ToUpper(name), os.ExpandEnv(value)),
 		)
 	}
+	switch log.Colors() {
+	case log.ColorOn:
+		envs = append(envs, "CLICOLOR_FORCE=true")
+	case log.ColorOff:
+		envs = append(envs, "NO_COLOR=true")
+	}
 
 	args := &executeArgs{
 		in:          in,

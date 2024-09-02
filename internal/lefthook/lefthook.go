@@ -17,6 +17,8 @@ import (
 
 const (
 	EnvVerbose     = "LEFTHOOK_VERBOSE" // keep all output
+	envNoColor     = "NO_COLOR"
+	envForceColor  = "CLICOLOR_FORCE"
 	hookFileMode   = 0o755
 	oldHookPostfix = ".old"
 )
@@ -26,6 +28,7 @@ var lefthookContentRegexp = regexp.MustCompile("LEFTHOOK")
 type Options struct {
 	Fs                afero.Fs
 	Verbose, NoColors bool
+	Colors            string
 
 	// DEPRECATED. Will be removed in 1.3.0.
 	Force, Aggressive bool
@@ -41,7 +44,7 @@ type Lefthook struct {
 
 // New returns an instance of Lefthook.
 func initialize(opts *Options) (*Lefthook, error) {
-	if os.Getenv(EnvVerbose) == "1" || os.Getenv(EnvVerbose) == "true" {
+	if isEnvEnabled(EnvVerbose) {
 		opts.Verbose = true
 	}
 
@@ -49,7 +52,22 @@ func initialize(opts *Options) (*Lefthook, error) {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	log.SetColors(!opts.NoColors)
+	if opts.Colors == "auto" {
+		if isEnvEnabled(envForceColor) {
+			opts.Colors = "on"
+		}
+
+		if isEnvEnabled(envNoColor) {
+			opts.Colors = "off"
+		}
+
+		// DEPRECATED: Will be removed with a --no-colors option
+		if opts.NoColors {
+			opts.Colors = "off"
+		}
+	}
+
+	log.SetColors(opts.Colors)
 
 	repo, err := git.NewRepository(opts.Fs, git.NewExecutor(system.Cmd))
 	if err != nil {
@@ -123,4 +141,13 @@ func (l *Lefthook) addHook(hook string, args templates.Args) error {
 	return afero.WriteFile(
 		l.Fs, hookPath, templates.Hook(hook, args), hookFileMode,
 	)
+}
+
+func isEnvEnabled(name string) bool {
+	value := os.Getenv(name)
+	if len(value) > 0 && value != "0" && value != "false" {
+		return true
+	}
+
+	return false
 }

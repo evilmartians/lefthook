@@ -11,6 +11,8 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/evilmartians/lefthook/internal/version"
 )
 
 var (
@@ -38,6 +40,10 @@ const (
 	spinnerCharSet     = 14
 	spinnerRefreshRate = 100 * time.Millisecond
 	spinnerText        = " waiting"
+
+	ColorAuto = iota
+	ColorOn
+	ColorOff
 )
 
 type StyleLogger struct {
@@ -48,7 +54,7 @@ type Logger struct {
 	level   Level
 	out     io.Writer
 	mu      sync.Mutex
-	colors  bool
+	colors  int
 	names   []string
 	spinner *spinner.Spinner
 }
@@ -57,13 +63,21 @@ func New() *Logger {
 	return &Logger{
 		level:  InfoLevel,
 		out:    os.Stdout,
-		colors: true,
+		colors: ColorAuto,
 		spinner: spinner.New(
 			spinner.CharSets[spinnerCharSet],
 			spinnerRefreshRate,
 			spinner.WithSuffix(spinnerText),
 		),
 	}
+}
+
+func Colors() int {
+	return std.colors
+}
+
+func Colorized() bool {
+	return std.colors == ColorAuto || std.colors == ColorOn
 }
 
 func StartSpinner() {
@@ -159,29 +173,49 @@ func SetLevel(level Level) {
 }
 
 func SetColors(colors interface{}) {
+	if colors == nil {
+		return
+	}
+
 	switch typedColors := colors.(type) {
-	case bool:
-		std.colors = typedColors
-		if !std.colors {
+	case string:
+		switch typedColors {
+		case "on":
+			std.colors = ColorOn
+		case "off":
+			std.colors = ColorOff
 			setColor(lipgloss.NoColor{}, &ColorRed)
 			setColor(lipgloss.NoColor{}, &ColorGreen)
 			setColor(lipgloss.NoColor{}, &ColorYellow)
 			setColor(lipgloss.NoColor{}, &ColorCyan)
 			setColor(lipgloss.NoColor{}, &GolorGray)
 			setColor(lipgloss.NoColor{}, &colorBorder)
+		default:
+			std.colors = ColorAuto
 		}
-		return
+	case bool:
+		if typedColors {
+			std.colors = ColorOn
+			return
+		}
+
+		std.colors = ColorOff
+		setColor(lipgloss.NoColor{}, &ColorRed)
+		setColor(lipgloss.NoColor{}, &ColorGreen)
+		setColor(lipgloss.NoColor{}, &ColorYellow)
+		setColor(lipgloss.NoColor{}, &ColorCyan)
+		setColor(lipgloss.NoColor{}, &GolorGray)
+		setColor(lipgloss.NoColor{}, &colorBorder)
 	case map[string]interface{}:
-		std.colors = true
+		std.colors = ColorOn
 		setColor(typedColors["red"], &ColorRed)
 		setColor(typedColors["green"], &ColorGreen)
 		setColor(typedColors["yellow"], &ColorYellow)
 		setColor(typedColors["cyan"], &ColorCyan)
 		setColor(typedColors["gray"], &GolorGray)
 		setColor(typedColors["gray"], &colorBorder)
-		return
 	default:
-		std.colors = true
+		std.colors = ColorAuto
 	}
 }
 
@@ -227,14 +261,46 @@ func Gray(s string) string {
 }
 
 func Bold(s string) string {
-	if !std.colors {
+	if !Colorized() {
 		return lipgloss.NewStyle().Render(s)
 	}
 
 	return lipgloss.NewStyle().Bold(true).Render(s)
 }
 
-func Box(left, right string) {
+func LogMeta(hookName string) {
+	name := "🥊 lefthook "
+	if !Colorized() {
+		name = "lefthook "
+	}
+
+	box(
+		Cyan(name)+Gray(fmt.Sprintf("v%s", version.Version(false))),
+		Gray("hook: ")+Bold(hookName),
+	)
+}
+
+func Success(name string) {
+	format := "✔️  %s\n"
+	if !Colorized() {
+		format = "✓  %s\n"
+	}
+	Infof(format, Green(name))
+}
+
+func Failure(name, failText string) {
+	if len(failText) != 0 {
+		failText = fmt.Sprintf(": %s", failText)
+	}
+
+	format := "🥊  %s%s\n"
+	if !Colorized() {
+		format = "✗  %s%s\n"
+	}
+	Infof(format, Red(name), Red(failText))
+}
+
+func box(left, right string) {
 	Info(
 		lipgloss.JoinHorizontal(
 			lipgloss.Top,
