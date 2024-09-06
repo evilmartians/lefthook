@@ -931,7 +931,7 @@ pre-commit:
   commands:
     lint:
       run: yarn lint
-    text:
+    test:
       run: yarn test
 ```
 
@@ -946,7 +946,7 @@ pre-commit:
   commands:
     lint:
       run: yarn lint
-    text:
+    test:
       run: yarn test
 ```
 
@@ -961,7 +961,7 @@ pre-commit:
   commands:
     lint:
       run: yarn lint
-    text:
+    test:
       run: yarn test
 ```
 
