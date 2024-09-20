@@ -66,11 +66,10 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 	return nil
 }
 
-func (e CommandExecutor) execute(cmdstr string, args *executeArgs) error {
-	cmdargs := strings.Split(cmdstr, " ")
-	command := exec.Command(cmdargs[0])
+func (e CommandExecutor) execute(cmd []string, args *executeArgs) error {
+	command := exec.Command(cmd[0])
 	command.SysProcAttr = &syscall.SysProcAttr{
-		CmdLine: strings.Join(cmdargs, " "),
+		CmdLine: strings.Join(cmd, " "),
 	}
 	command.Dir = args.root
 	command.Env = append(os.Environ(), args.envs...)
