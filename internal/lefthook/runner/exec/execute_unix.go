@@ -74,8 +74,8 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 	return nil
 }
 
-func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *executeArgs) error {
-	command := exec.CommandContext(ctx, "sh", "-c", cmdstr)
+func (e CommandExecutor) execute(ctx context.Context, cmd []string, args *executeArgs) error {
+	command := exec.CommandContext(ctx, "sh", "-c", strings.Join(cmd, " "))
 	command.Dir = args.root
 	command.Env = append(os.Environ(), args.envs...)
 

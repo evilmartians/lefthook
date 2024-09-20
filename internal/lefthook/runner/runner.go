@@ -358,7 +358,7 @@ func (r *Runner) runScript(ctx context.Context, script *config.Script, path stri
 	ok := r.run(ctx, exec.Options{
 		Name:        file.Name(),
 		Root:        r.Repo.RootPath,
-		Commands:    []string{command},
+		Commands:    [][]string{command},
 		Interactive: script.Interactive && !r.DisableTTY,
 		UseStdin:    script.UseStdin,
 		Env:         script.Env,

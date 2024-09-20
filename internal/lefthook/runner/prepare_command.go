@@ -15,7 +15,7 @@ import (
 
 // An object that describes the single command's run option.
 type run struct {
-	commands []string
+	commands [][]string
 	files    []string
 }
 
@@ -205,7 +205,7 @@ func escapeFiles(files []string) []string {
 func replaceInChunks(str string, templates map[string]*template, maxlen int) *run {
 	if len(templates) == 0 {
 		return &run{
-			commands: []string{str},
+			commands: [][]string{strings.Split(str, " ")},
 		}
 	}
 
@@ -230,7 +230,7 @@ func replaceInChunks(str string, templates map[string]*template, maxlen int) *ru
 	}
 
 	var exhausted int
-	commands := make([]string, 0)
+	commands := make([][]string, 0)
 	for {
 		command := str
 		for name, template := range templates {
@@ -244,7 +244,7 @@ func replaceInChunks(str string, templates map[string]*template, maxlen int) *ru
 		}
 
 		log.Debug("[lefthook] executing: ", command)
-		commands = append(commands, command)
+		commands = append(commands, strings.Split(command, " "))
 		if exhausted >= len(templates) {
 			break
 		}
