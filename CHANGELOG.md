@@ -2,6 +2,12 @@
 
 ## master (unreleased)
 
+## 1.7.16 (2024-09-23)
+
+- chore: enhance some code parts ([#824](https://github.com/evilmartians/lefthook/pull/824)) by @mrexox
+- fix: quote script path ([#823](https://github.com/evilmartians/lefthook/pull/823)) by @mrexox
+- docs: fix typo for command names in configuration.md ([#814](https://github.com/evilmartians/lefthook/pull/814)) by @nack43
+
 ## 1.7.15 (2024-09-02)
 
 - fix: add better colors control ([#812](https://github.com/evilmartians/lefthook/pull/812)) by @mrexox
