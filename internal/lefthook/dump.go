@@ -6,8 +6,9 @@ import (
 )
 
 type DumpArgs struct {
-	JSON bool
-	TOML bool
+	JSON   bool
+	TOML   bool
+	Format string
 }
 
 func Dump(opts *Options, args DumpArgs) {
@@ -23,7 +24,28 @@ func Dump(opts *Options, args DumpArgs) {
 		return
 	}
 
-	if err := cfg.Dump(args.JSON, args.TOML); err != nil {
+	var format config.DumpFormat
+
+	switch args.Format {
+	case "yaml":
+		format = config.YAMLFormat
+	case "json":
+		format = config.JSONFormat
+	case "toml":
+		format = config.TOMLFormat
+	default:
+		format = config.YAMLFormat
+	}
+
+	if args.JSON {
+		format = config.JSONFormat
+	}
+
+	if args.TOML {
+		format = config.TOMLFormat
+	}
+
+	if err := cfg.Dump(format); err != nil {
 		log.Errorf("couldn't dump config: %s\n", err)
 		return
 	}

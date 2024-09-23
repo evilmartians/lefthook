@@ -12,7 +12,15 @@ import (
 	"github.com/evilmartians/lefthook/internal/version"
 )
 
-const dumpIndent = 2
+type DumpFormat int
+
+const (
+	YAMLFormat DumpFormat = iota
+	JSONFormat
+	TOMLFormat
+
+	dumpIndent = 2
+)
 
 type Config struct {
 	MinVersion              string      `mapstructure:"min_version,omitempty"`
@@ -37,7 +45,7 @@ func (c *Config) Validate() error {
 	return version.CheckCovered(c.MinVersion)
 }
 
-func (c *Config) Dump(asJSON bool, asTOML bool) error {
+func (c *Config) Dump(format DumpFormat) error {
 	res := make(map[string]interface{})
 	if err := mapstructure.Decode(c, &res); err != nil {
 		return err
@@ -54,18 +62,28 @@ func (c *Config) Dump(asJSON bool, asTOML bool) error {
 		res[hookName] = hook
 	}
 
-	if asJSON {
-		return dumpJSON(res)
+	var dumper dumper
+	switch format {
+	case YAMLFormat:
+		dumper = yamlDumper{}
+	case TOMLFormat:
+		dumper = tomlDumper{}
+	case JSONFormat:
+		dumper = jsonDumper{}
+	default:
+		dumper = yamlDumper{}
 	}
 
-	if asTOML {
-		return dumpTOML(res)
-	}
-
-	return dumpYAML(res)
+	return dumper.Dump(res)
 }
 
-func dumpYAML(input map[string]interface{}) error {
+type dumper interface {
+	Dump(map[string]interface{}) error
+}
+
+type yamlDumper struct{}
+
+func (yamlDumper) Dump(input map[string]interface{}) error {
 	encoder := yaml.NewEncoder(os.Stdout)
 	encoder.SetIndent(dumpIndent)
 	defer encoder.Close()
@@ -78,23 +96,27 @@ func dumpYAML(input map[string]interface{}) error {
 	return nil
 }
 
-func dumpJSON(input map[string]interface{}) error {
+type tomlDumper struct{}
+
+func (tomlDumper) Dump(input map[string]interface{}) error {
+	encoder := toml.NewEncoder(os.Stdout)
+	err := encoder.Encode(input)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type jsonDumper struct{}
+
+func (jsonDumper) Dump(input map[string]interface{}) error {
 	res, err := json.MarshalIndent(input, "", "  ")
 	if err != nil {
 		return err
 	}
 
 	log.Info(string(res))
-
-	return nil
-}
-
-func dumpTOML(input map[string]interface{}) error {
-	encoder := toml.NewEncoder(os.Stdout)
-	err := encoder.Encode(input)
-	if err != nil {
-		return err
-	}
 
 	return nil
 }
