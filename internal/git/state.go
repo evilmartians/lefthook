@@ -21,13 +21,13 @@ var refBranchRegexp = regexp.MustCompile(`^ref:\s*refs/heads/(.+)$`)
 
 func (r *Repository) State() State {
 	branch := r.Branch()
-	if r.isMergeState() {
+	if r.inMergeState() {
 		return State{
 			Branch: branch,
 			Step:   MergeStep,
 		}
 	}
-	if r.isRebaseState() {
+	if r.inRebaseState() {
 		return State{
 			Branch: branch,
 			Step:   RebaseStep,
@@ -65,14 +65,14 @@ func (r *Repository) Branch() string {
 	return ""
 }
 
-func (r *Repository) isMergeState() bool {
+func (r *Repository) inMergeState() bool {
 	if _, err := r.Fs.Stat(filepath.Join(r.GitPath, "MERGE_HEAD")); os.IsNotExist(err) {
 		return false
 	}
 	return true
 }
 
-func (r *Repository) isRebaseState() bool {
+func (r *Repository) inRebaseState() bool {
 	if _, mergeErr := r.Fs.Stat(filepath.Join(r.GitPath, "rebase-merge")); os.IsNotExist(mergeErr) {
 		if _, applyErr := r.Fs.Stat(filepath.Join(r.GitPath, "rebase-apply")); os.IsNotExist(applyErr) {
 			return false
