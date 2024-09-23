@@ -5,11 +5,11 @@ exec lefthook dump
 cmp stdout lefthook-dumped.yml
 ! stderr .
 
-exec lefthook dump --json
+exec lefthook dump --format=json
 cmp stdout lefthook-dumped.json
 ! stderr .
 
-exec lefthook dump --toml
+exec lefthook dump -f toml
 cmp stdout lefthook-dumped.toml
 ! stderr .
 
