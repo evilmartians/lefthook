@@ -4,6 +4,8 @@ import (
 	"os"
 	"strings"
 
+	"gopkg.in/alessio/shellescape.v1"
+
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/log"
 )
@@ -36,7 +38,7 @@ func (r *Runner) prepareScript(script *config.Script, path string, file os.FileI
 		args = append(args, script.Runner)
 	}
 
-	args = append(args, path)
+	args = append(args, shellescape.Quote(path))
 	args = append(args, r.GitArgs...)
 
 	return strings.Join(args, " "), nil
