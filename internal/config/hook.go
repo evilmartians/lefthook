@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/spf13/viper"
+	"github.com/knadh/koanf/v2"
 
 	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/system"
@@ -48,7 +48,7 @@ func (h *Hook) DoSkip(gitState git.State) bool {
 	return skipChecker.check(gitState, h.Skip, h.Only)
 }
 
-func unmarshalHooks(base, extra *viper.Viper) (*Hook, error) {
+func unmarshalHooks(base, extra *koanf.Koanf) (*Hook, error) {
 	if base == nil && extra == nil {
 		return nil, nil
 	}
@@ -71,12 +71,12 @@ func unmarshalHooks(base, extra *viper.Viper) (*Hook, error) {
 	if base == nil {
 		base = extra
 	} else if extra != nil {
-		if err = base.MergeConfigMap(extra.AllSettings()); err != nil {
+		if err = base.Merge(extra); err != nil {
 			return nil, err
 		}
 	}
 
-	if err := base.Unmarshal(&hook); err != nil {
+	if err := base.Unmarshal("", &hook); err != nil {
 		return nil, err
 	}
 

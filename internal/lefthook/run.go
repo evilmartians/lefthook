@@ -55,8 +55,8 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	// Load config
 	cfg, err := config.Load(l.Fs, l.repo)
 	if err != nil {
-		var notFoundErr config.NotFoundError
-		if ok := errors.As(err, &notFoundErr); ok {
+		var errNotFound config.ErrNotFound
+		if ok := errors.As(err, &errNotFound); ok {
 			log.Warn(err.Error())
 			return nil
 		}

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/spf13/viper"
+	"github.com/knadh/koanf/v2"
 
 	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/system"
@@ -55,21 +55,21 @@ func (c Command) ExecutionPriority() int {
 	return c.Priority
 }
 
-func mergeCommands(base, extra *viper.Viper) (map[string]*Command, error) {
+func mergeCommands(base, extra *koanf.Koanf) (map[string]*Command, error) {
 	if base == nil && extra == nil {
 		return nil, nil
 	}
 
 	if base == nil {
-		return unmarshalCommands(extra.Sub("commands"))
+		return unmarshalCommands(extra.Cut("commands"))
 	}
 
 	if extra == nil {
-		return unmarshalCommands(base.Sub("commands"))
+		return unmarshalCommands(base.Cut("commands"))
 	}
 
-	commandsOrigin := base.Sub("commands")
-	commandsOverride := extra.Sub("commands")
+	commandsOrigin := base.Cut("commands")
+	commandsOverride := extra.Cut("commands")
 	if commandsOrigin == nil {
 		return unmarshalCommands(commandsOverride)
 	}
@@ -78,22 +78,22 @@ func mergeCommands(base, extra *viper.Viper) (map[string]*Command, error) {
 	}
 
 	runReplaces := make(map[string]*commandRunReplace)
-	for key := range commandsOrigin.AllSettings() {
+	for key := range commandsOrigin.Raw() {
 		var replace commandRunReplace
 
-		substructure := commandsOrigin.Sub(key)
+		substructure := commandsOrigin.Cut(key)
 		if substructure == nil {
 			continue
 		}
 
-		if err := substructure.Unmarshal(&replace); err != nil {
+		if err := substructure.Unmarshal("", &replace); err != nil {
 			return nil, err
 		}
 
 		runReplaces[key] = &replace
 	}
 
-	err := commandsOrigin.MergeConfigMap(commandsOverride.AllSettings())
+	err := commandsOrigin.Merge(commandsOverride)
 	if err != nil {
 		return nil, err
 	}
@@ -112,13 +112,9 @@ func mergeCommands(base, extra *viper.Viper) (map[string]*Command, error) {
 	return commands, nil
 }
 
-func unmarshalCommands(v *viper.Viper) (map[string]*Command, error) {
-	if v == nil {
-		return nil, nil
-	}
-
+func unmarshalCommands(k *koanf.Koanf) (map[string]*Command, error) {
 	commands := make(map[string]*Command)
-	if err := v.Unmarshal(&commands); err != nil {
+	if err := k.Unmarshal("", &commands); err != nil {
 		return nil, err
 	}
 
