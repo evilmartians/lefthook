@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 1.7.17 (2024-09-26)
+
+- feat: skip LFS hooks when pre-push hook is skipped ([#818](https://github.com/evilmartians/lefthook/pull/818)) by @zachahn
+
 ## 1.7.16 (2024-09-23)
 
 - chore: enhance some code parts ([#824](https://github.com/evilmartians/lefthook/pull/824)) by @mrexox
