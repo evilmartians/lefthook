@@ -65,8 +65,6 @@ git add -A && git commit -m '...'
 - [**Discussions**](https://github.com/evilmartians/lefthook/discussions) for questions, ideas, suggestions.
 <!-- - [**Wiki**](https://github.com/evilmartians/lefthook/wiki) for guides, examples, and benchmarks. -->
 
-***
-
 ## Why Lefthook
 
 * ### **Parallel execution**
@@ -200,9 +198,7 @@ skip_output:
   - success #(output from runners with exit code 0)
 ```
 
----
-
-## Table of contents:
+----
 
 ### Guides
 
