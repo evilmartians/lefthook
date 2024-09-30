@@ -149,7 +149,7 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force b
 		return nil
 	}
 
-	log.Infof(log.Cyan("sync hooks"))
+	log.Infof("%s", log.Cyan("sync hooks"))
 
 	var success bool
 	defer func() {

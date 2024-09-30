@@ -93,7 +93,7 @@ func (r *Repository) updateRemote(path, ref string) error {
 func (r *Repository) cloneRemote(dest, directoryName, url, ref string) error {
 	log.Debugf("Cloning remote config repository: %v/%v", dest, directoryName)
 
-	cmdClone := []string{"git", "-C", dest, "clone", "--quiet", "--depth", "1"}
+	cmdClone := []string{"git", "-C", dest, "clone", "--quiet", "--origin", "origin", "--depth", "1"}
 	if len(ref) > 0 {
 		cmdClone = append(cmdClone, "--branch", ref)
 	}
