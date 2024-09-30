@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+## 1.7.18 (2024-09-30)
+
+- fix: force remote name origin when using remotes ([#830](https://github.com/evilmartians/lefthook/pull/830)) by @mrexox
+- deps: September 2024 ([#829](https://github.com/evilmartians/lefthook/pull/829)) by @mrexox
+
 ## 1.7.17 (2024-09-26)
 
 - feat: skip LFS hooks when pre-push hook is skipped ([#818](https://github.com/evilmartians/lefthook/pull/818)) by @zachahn
