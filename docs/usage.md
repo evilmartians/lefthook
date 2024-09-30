@@ -1,19 +1,13 @@
 # Usage
 
-You want to use lefthook in your git project. Here is what you need:
-
-1. Create a `lefthook.yml` (or use any other [supported name](./configuration.md#config-file))
-1. [Install](#lefthook-install) lefthook git hooks
-
-Then use git as usually, you don't need to reinstall lefthook when you change the config.
-
 - [Commands](#commands)
   - [`lefthook install`](#lefthook-install)
   - [`lefthook uninstall`](#lefthook-uninstall)
   - [`lefthook add`](#lefthook-add)
   - [`lefthook run`](#lefthook-run)
   - [`lefthook version`](#lefthook-version)
-- [Control behavior with ENV variables](#control-behavior-with-env-variables)
+  - [`lefthook self-update`](#lefthook-self-update)
+- [ENV variables](#env-variables)
   - [`LEFTHOOK`](#lefthook)
   - [`LEFTHOOK_EXCLUDE`](#lefthook_exclude)
   - [`LEFTHOOK_OUTPUT`](#lefthook_output)
@@ -22,9 +16,9 @@ Then use git as usually, you don't need to reinstall lefthook when you change th
   - [`LEFTHOOK_BIN`](#lefthook_bin)
   - [`NO_COLOR`](#no_color)
   - [`CLICOLOR_FORCE`](#clicolor_force)
-- [Features and tips](#features-and-tips)
-  - [Disable lefthook in CI](#disable-lefthook-in-ci)
+- [Tips](#tips)
   - [Local config](#local-config)
+  - [Disable lefthook in CI](#disable-lefthook-in-ci)
   - [Commitlint example](#commitlint-example)
   - [Parallel execution](#parallel-execution)
   - [Concurrent files overrides](#concurrent-files-overrides)
@@ -37,32 +31,30 @@ Then use git as usually, you don't need to reinstall lefthook when you change th
 
 ## Commands
 
-Lefthook is a CLI utility and it has several commands for convenience. You can check the usage via `lefthook help` or `lefthook <command> -h/--help`.
-
-Here are the description of common usage of these commands.
+Use `lefthook help` or `lefthook <command> -h/--help` to discover available commands and their options.
 
 ### `lefthook install`
 
-Run `lefthook install` to initialize a `lefthook.yml` config and/or synchronize `.git/hooks/` with your configuration. This must be the first thing you do after cloning the repo with `lefthook.yml` config. For config options see our [configuration documentation](./configuration.md).
+`lefthook install` creates an empty `lefthook.yml` if a configuration file does not exist and updates git hooks to use lefthook. Run `lefthook install` after cloning the git repo.
 
-> If you use lefthook with NPM package manager it should have already run `lefthook install` in postinstall scripts.
+> [!NOTE]
+>
+> NPM package `lefthook` installs the hooks in a postinstall script automatically.
 
 ### `lefthook uninstall`
 
-Run `lefthook uninstall` when you want to clear hooks `.git/hooks/` related to `lefthook.yml` configuration. Use `-f/--force` flag to remove all git hooks.
-
-> Sometimes you feel like your git hooks are a mess and you want to start from the beginning. Use `lefthook uninstall` in this case.
+`lefthook uninstall` clears git hooks affected by lefthook.
 
 ### `lefthook add`
 
-Run `lefthook add pre-commit`, and lefthook will create a hook `.git/hooks/pre-commit`. This is the same lefthook does for [`install`](#lefthook-install) command but you don't need to create a configuration first.
+`lefthook add pre-commit` will create a file `.git/hooks/pre-commit`. This is the same lefthook does for [`install`](#lefthook-install) command but you don't need to create a configuration first.
 
-If you want to use scripts you can simplify adding new scripts with `lefthook add --dirs pre-commit`.
+To use custom scripts as hooks create the required directories with `lefthook add pre-commit --dirs`.
 
 **Example**
 
 ```bash
-$ lefthook add --dirs pre-push
+$ lefthook add pre-push --dirs
 ```
 
 Describe pre-push commands in `lefthook.yml`:
@@ -81,12 +73,11 @@ $ vim .lefthook/pre-push/audit.sh
 ...
 ```
 
-That's all! Now on `git push` the `audit.sh` command will be run in `bash` interpreter.
-If it fails the `git push` will be interrupted.
+Run `git push` and lefthook will run `bash audit.sh` as a pre-push hook.
 
 ### `lefthook run`
 
-This command is implicitly called in every git hook managed by lefthook. You can also use it for manual invoking some hooks handlers. You can also describe your own hooks that can be called manually only.
+`lefthook run` executes the commands and scripts configured for a given hook. Generated hooks call `lefthook run` implicitly.
 
 **Example**
 
@@ -145,7 +136,7 @@ $ lefthook run pre-commit --file file1.js --file file2.js
 
 ### `lefthook version`
 
-You can check version with `lefthook version` and you can also check the commit hash with `lefthook version --full`
+`lefthook version` prints the current binary version. Print the commit hash with `lefthook version --full`
 
 **Example**
 
@@ -155,11 +146,15 @@ $ lefthook version --full
 1.1.3 bb099d13c24114d2859815d9d23671a32932ffe2
 ```
 
-## Control behavior with ENV variables
+### `lefthook self-update`
+
+`lefthook self-update` updates the binary with the latest lefthook release on Github. This command is available only if you install lefthook from sources or download the binary from the Github Releases. For other ways use package-specific commands to update lefthook.
+
+## ENV variables
 
 ### `LEFTHOOK`
 
-You can set ENV variable `LEFTHOOK` to `0` or `false` to disable lefthook.
+Use `LEFTHOOK=0 git ...` or `LEFTHOOK=false git ...` to disable lefthook when running git commands.
 
 **Example**
 
@@ -225,16 +220,15 @@ Set `NO_COLOR=true` to disable colored output in lefthook and all subcommands th
 
 Set `CLICOLOR_FORCE=true` to force colored output in lefthook and all subcommands.
 
-## Features and tips
-
-### Disable lefthook in CI
-
-Add `CI=true` env variable if it doesn't exists on your service by default. Otherwise, if you use lefthook NPM package it will try running `lefthook install` in postinstall scripts.
-
+## Tips
 
 ### Local config
 
-We can use `lefthook-local.yml` as local config. Options in this file will overwrite options in `lefthook.yml`. (Don't forget to add this file to `.gitignore`)
+Use `lefthook-local.yml` to overwrite or extend options from the main config. (Don't forget to add this file to `.gitignore`)
+
+### Disable lefthook in CI
+
+When using NPM package `lefthook` set `CI=true` in your CI (if it does not set automatically). When `CI=true` is set lefthook NPM package won't install the hooks in the postinstall script.
 
 ### Commitlint example
 
