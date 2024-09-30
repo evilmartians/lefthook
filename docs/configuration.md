@@ -447,7 +447,7 @@ remotes:
 
 ## Hook name
 
-Commands and scripts are defined for git hooks. You can defined a hook for all hooks listed in [this file](../internal/config/available_hooks.go).
+Contains settings for the git hook (commands, scripts, skip rules, etc.). You can define a hook setting for all hooks listed [here](../internal/config/available_hooks.go).
 
 ### `files` (global)
 
