@@ -157,6 +157,8 @@ extends:
 > - `extends` – configs specified in [extends](#extends) option
 > - `remotes` – configs specified in [remotes](#remotes) option
 > - `lefthook-local.yml` – local config file
+>
+> So, `extends` override settings from `lefthook.yml`, `remotes` override `extends`, and `lefthook-local.yml` can override everything.
 
 ### `min_version`
 
