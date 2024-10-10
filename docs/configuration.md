@@ -150,6 +150,14 @@ extends:
   - ../extend.yml
 ```
 
+> [!IMPORTANT]
+> The extends will be merged to the main configuration in your file. Here is the order of settings applied:
+>
+> - `lefthook.yml` – main config file
+> - `extends` – configs specified in [extends](#extends) option
+> - `remotes` – configs specified in [remotes](#remotes) option
+> - `lefthook-local.yml` – local config file
+
 ### `min_version`
 
 If you want to specify a minimum version for lefthook binary (e.g. if you need some features older versions don't have) you can set this option.
