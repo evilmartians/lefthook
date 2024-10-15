@@ -155,6 +155,6 @@ Or take it from [binaries](https://github.com/evilmartians/lefthook/releases) an
 
 Have a question?
 
-:monocle_face: Check the [wiki](https://github.com/evilmartians/lefthook/wiki)
+<!-- :monocle_face: Check the [wiki](https://github.com/evilmartians/lefthook/wiki) -->
 
-:thinking: Or start a [discussion](https://github.com/evilmartians/lefthook/discussions)
+:thinking: Start a [discussion](https://github.com/evilmartians/lefthook/discussions)

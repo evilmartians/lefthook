@@ -1444,6 +1444,6 @@ We have a directory with few examples. You can check it [here](https://github.co
 
 Have a question?
 
-:monocle_face: Check the [wiki](https://github.com/evilmartians/lefthook/wiki)
+<!-- :monocle_face: Check the [wiki](https://github.com/evilmartians/lefthook/wiki) -->
 
-:thinking: Or start a [discussion](https://github.com/evilmartians/lefthook/discussions)
+:thinking: Start a [discussion](https://github.com/evilmartians/lefthook/discussions)
