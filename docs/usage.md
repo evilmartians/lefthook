@@ -43,7 +43,7 @@ Use `lefthook help` or `lefthook <command> -h/--help` to discover available comm
 
 ### `lefthook uninstall`
 
-`lefthook uninstall` clears git hooks affected by lefthook.
+`lefthook uninstall` clears git hooks affected by lefthook. If you have lefthook installed as an NPM package you should remove it manually.
 
 ### `lefthook add`
 
