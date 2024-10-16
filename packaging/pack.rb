@@ -24,7 +24,7 @@ module Pack
     puts "Cleaning... "
     rm(Dir["npm/**/README.md"])
     rm(Dir["npm/**/lefthook*"].filter(&File.method(:file?)))
-    system("git clean -fdX npm-installer/ npm-bundled/ npm-bundled/bin/ rubygems/libexec/ rubygems/pkg/", exception: true)
+    system("git clean -fdX npm-installer/ npm-bundled/ npm-bundled/bin/ rubygems/libexec/ rubygems/pkg/ pypi pypi/lefthook/", exception: true)
     puts "done"
   end
 
@@ -37,6 +37,7 @@ module Pack
 
     replace_in_file("npm/lefthook/package.json", /"(lefthook-.+)": "[\d.]+"/, %{"\\1": "#{VERSION}"})
     replace_in_file("rubygems/lefthook.gemspec", /(spec\.version\s+= ).*/, %{\\1"#{VERSION}"})
+    replace_in_file("pypi/setup.py", /(version+=).*/, %{\\1'#{VERSION}',})
   end
 
   def put_readme
