@@ -1,5 +1,8 @@
 from setuptools import setup, find_packages
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 setup(
     name='lefthook',
     version='1.7.18',
@@ -7,6 +10,8 @@ setup(
     author_email='lefthook@evilmartians.com',
     url='https://github.com/evilmartians/lefthook',
     description='A single dependency-free binary to manage all your git hooks that works with any language in any environment, and in all common team workflows',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     packages=find_packages(),
     entry_points={
         'console_scripts': [
