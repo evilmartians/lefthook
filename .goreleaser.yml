@@ -131,6 +131,7 @@ nfpms:
     builds:
       - no_self_update
     formats:
+      - apk
       - deb
       - rpm
     dependencies:
