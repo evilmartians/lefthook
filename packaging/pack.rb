@@ -101,6 +101,22 @@ module Pack
       cp(source, dest, verbose: true)
     end
 
+    {
+      "#{DIST}/no_self_update_linux_amd64_v1/lefthook"        =>  "pypi/lefthook/bin/lefthook-linux-x86_64/lefthook",
+      "#{DIST}/no_self_update_linux_arm64/lefthook"           =>  "pypi/lefthook/bin/lefthook-linux-arm64/lefthook",
+      "#{DIST}/no_self_update_freebsd_amd64_v1/lefthook"      =>  "pypi/lefthook/bin/lefthook-freebsd-x86_64/lefthook",
+      "#{DIST}/no_self_update_freebsd_arm64/lefthook"         =>  "pypi/lefthook/bin/lefthook-freebsd-arm64/lefthook",
+      "#{DIST}/no_self_update_openbsd_amd64_v1/lefthook"      =>  "pypi/lefthook/bin/lefthook-openbsd-x86_64/lefthook",
+      "#{DIST}/no_self_update_openbsd_arm64/lefthook"         =>  "pypi/lefthook/bin/lefthook-openbsd-arm64/lefthook",
+      "#{DIST}/no_self_update_windows_amd64_v1/lefthook.exe"  =>  "pypi/lefthook/bin/lefthook-windows-x86_64/lefthook.exe",
+      "#{DIST}/no_self_update_windows_arm64/lefthook.exe"     =>  "pypi/lefthook/bin/lefthook-windows-arm64/lefthook.exe",
+      "#{DIST}/no_self_update_darwin_amd64_v1/lefthook"       =>  "pypi/lefthook/bin/lefthook-darwin-x86_64/lefthook",
+      "#{DIST}/no_self_update_darwin_arm64/lefthook"          =>  "pypi/lefthook/bin/lefthook-darwin-arm64/lefthook",
+    }.each do |(source, dest)|
+      mkdir_p(File.dirname(dest))
+      cp(source, dest, verbose: true)
+    end
+
     puts "done"
   end
 
