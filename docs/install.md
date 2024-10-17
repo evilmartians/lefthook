@@ -13,6 +13,7 @@ Choose your fighter:
 - [Snap](#snap)
 - [Debian-based distro](#deb)
 - [RPM-based distro](#rpm)
+- [Alpine](#alpine)
 - [Arch Linux](#arch)
 - [Manual](#else)
 
@@ -63,15 +64,13 @@ Lefthook is available on NPM in the following flavors:
 ## <a id="go"></a> Go
 
 ```bash
-go get github.com/evilmartians/lefthook
+go install github.com/evilmartians/lefthook@latest
 ```
 
 ## <a id="python"></a> Python
 
-You can find Python wrapper here [package](https://github.com/life4/lefthook)
-
 ```sh
-python3 -m pip install --user lefthook
+python -m pip install --user lefthook
 ```
 
 ## <a id="swift"></a> Swift
@@ -120,7 +119,6 @@ snap install --classic lefthook
 curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.sh' | sudo -E bash
 sudo apt install lefthook
 ```
-
 See all instructions: https://cloudsmith.io/~evilmartians/repos/lefthook/setup/#formats-deb
 
 [![Hosted By: Cloudsmith](https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=flat-square)](https://cloudsmith.com "Debian package repository hosting is graciously provided by Cloudsmith")
@@ -133,6 +131,18 @@ sudo yum install lefthook
 ```
 
 See all instructions: https://cloudsmith.io/~evilmartians/repos/lefthook/setup/#repository-setup-yum
+
+[![Hosted By: Cloudsmith](https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=flat-square)](https://cloudsmith.com "RPM package repository hosting is graciously provided by Cloudsmith")
+
+## <a id="alpine"></a> APK packages for Alpine
+
+```sh
+sudo apk add --no-cache bash curl
+curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.alpine.sh' | sudo -E bash
+sudo apk add lefthook
+```
+
+See all instructions: https://cloudsmith.io/~evilmartians/repos/lefthook/setup/#formats-alpine
 
 [![Hosted By: Cloudsmith](https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=flat-square)](https://cloudsmith.com "RPM package repository hosting is graciously provided by Cloudsmith")
 
