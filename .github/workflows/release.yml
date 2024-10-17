@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  goreleaser:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -49,6 +49,31 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
 
+      - name: Preserve artifacts permissions with tar
+        run: tar -cvf dist.tar dist/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist.tar
+
+  publish-packages:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch all tags
+        run: git fetch --force --tags
+
+      - name: Download build binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+      - run: tar -xvf dist.tar
+
       - name: Publish to NPM, Rubygems and PyPI
         env:
           NPM_API_KEY: ${{ secrets.NPM_API_KEY }}
@@ -80,12 +105,20 @@ jobs:
           ruby pack.rb prepare
           ruby pack.rb publish
 
+  publish-homebrew:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
       - name: Update Homebrew formula
         uses: dawidd6/action-homebrew-bump-formula@v3
         with:
           formula: lefthook
           token: ${{secrets.HOMEBREW_TOKEN}}
 
+  publish-winget:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
       - name: Publish to Winget
         uses: vedantmgoyal2009/winget-releaser@v2
         with:
