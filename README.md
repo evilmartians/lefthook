@@ -8,7 +8,7 @@
 <img align="right" width="147" height="100" title="Lefthook logo"
      src="./logo_sign.svg">
 
-A Git hooks manager for Node.js, Ruby and many other types of projects.
+A Git hooks manager for Node.js, Ruby, Python and many other types of projects.
 
 * **Fast.** It is written in Go. Can run commands in parallel.
 * **Powerful.** It allows to control execution and files you pass to your commands.
@@ -33,10 +33,16 @@ With **NPM**:
 npm install lefthook --save-dev
 ```
 
-With **Ruby**:
+For **Ruby**:
 
 ```bash
 gem install lefthook
+```
+
+For **Python**:
+
+```bash
+pip install lefthook
 ```
 
 **[Installation guide](./docs/install.md)** with more ways to install lefthook: [apt](./docs/install.md#deb), [brew](./docs/install.md#homebrew), [winget](./docs/install.md#winget), and others.
