@@ -24,7 +24,7 @@ module Pack
     puts "Cleaning... "
     rm(Dir["npm/**/README.md"])
     rm(Dir["npm/**/lefthook*"].filter(&File.method(:file?)))
-    system("git clean -fdX npm-installer/ npm-bundled/ npm-bundled/bin/ rubygems/libexec/ rubygems/pkg/", exception: true)
+    system("git clean -fdX npm-installer/ npm-bundled/ npm-bundled/bin/ rubygems/libexec/ rubygems/pkg/ pypi pypi/lefthook/", exception: true)
     puts "done"
   end
 
@@ -37,6 +37,7 @@ module Pack
 
     replace_in_file("npm/lefthook/package.json", /"(lefthook-.+)": "[\d.]+"/, %{"\\1": "#{VERSION}"})
     replace_in_file("rubygems/lefthook.gemspec", /(spec\.version\s+= ).*/, %{\\1"#{VERSION}"})
+    replace_in_file("pypi/setup.py", /(version+=).*/, %{\\1'#{VERSION}',})
   end
 
   def put_readme
@@ -101,10 +102,31 @@ module Pack
       cp(source, dest, verbose: true)
     end
 
+    {
+      "#{DIST}/no_self_update_linux_amd64_v1/lefthook"        =>  "pypi/lefthook/bin/lefthook-linux-x86_64/lefthook",
+      "#{DIST}/no_self_update_linux_arm64/lefthook"           =>  "pypi/lefthook/bin/lefthook-linux-arm64/lefthook",
+      "#{DIST}/no_self_update_freebsd_amd64_v1/lefthook"      =>  "pypi/lefthook/bin/lefthook-freebsd-x86_64/lefthook",
+      "#{DIST}/no_self_update_freebsd_arm64/lefthook"         =>  "pypi/lefthook/bin/lefthook-freebsd-arm64/lefthook",
+      "#{DIST}/no_self_update_openbsd_amd64_v1/lefthook"      =>  "pypi/lefthook/bin/lefthook-openbsd-x86_64/lefthook",
+      "#{DIST}/no_self_update_openbsd_arm64/lefthook"         =>  "pypi/lefthook/bin/lefthook-openbsd-arm64/lefthook",
+      "#{DIST}/no_self_update_windows_amd64_v1/lefthook.exe"  =>  "pypi/lefthook/bin/lefthook-windows-x86_64/lefthook.exe",
+      "#{DIST}/no_self_update_windows_arm64/lefthook.exe"     =>  "pypi/lefthook/bin/lefthook-windows-arm64/lefthook.exe",
+      "#{DIST}/no_self_update_darwin_amd64_v1/lefthook"       =>  "pypi/lefthook/bin/lefthook-darwin-x86_64/lefthook",
+      "#{DIST}/no_self_update_darwin_arm64/lefthook"          =>  "pypi/lefthook/bin/lefthook-darwin-arm64/lefthook",
+    }.each do |(source, dest)|
+      mkdir_p(File.dirname(dest))
+      cp(source, dest, verbose: true)
+    end
+
     puts "done"
   end
 
   def publish
+    puts "Publishing to PyPI..."
+    cd(File.join(__dir__, "pypi"))
+    system("python setup.py sdist bdist_wheel", exception: true)
+    system("python -m twine upload --verbose --repository lefthook dist/*", exception: true)
+
     puts "Publishing lefthook npm..."
     cd(File.join(__dir__, "npm"))
     Dir["lefthook*"].each do |package|
@@ -122,7 +144,7 @@ module Pack
     cd(File.join(__dir__, "npm-installer"))
     system("npm publish --access public", exception: true)
 
-    puts "Publishing lefthook gem..."
+    puts "Publishing to Rubygems..."
     cd(File.join(__dir__, "rubygems"))
     system("rake build", exception: true)
     system("gem push pkg/*.gem", exception: true)

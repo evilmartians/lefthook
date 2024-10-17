@@ -20,10 +20,16 @@ jobs:
       - name: Fetch all tags
         run: git fetch --force --tags
 
-      - name: Set up Go
+      - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --upgrade pip twine wheel setuptools
 
       - name: Install Snapcraft
         uses: samuelmeuli/action-snapcraft@v2
@@ -43,10 +49,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
 
-      - name: Publish to NPM and Rubygems
+      - name: Publish to NPM, Rubygems and PyPI
         env:
           NPM_API_KEY: ${{ secrets.NPM_API_KEY }}
           RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+          PYPI_API_KEY: ${{ secrets.PYPI_API_KEY }}
         run: |
           cat << EOF > ~/.npmrc
           //registry.npmjs.org/:_authToken=${NPM_API_KEY}
@@ -58,6 +65,17 @@ jobs:
           :rubygems_api_key: ${RUBYGEMS_API_KEY}
           EOF
           chmod 0600 ~/.gem/credentials
+          cat << EOF > ~/.pypirc
+          [distutils]
+            index-servers =
+              lefthook
+
+          [lefthook]
+            repository = https://upload.pypi.org/legacy/
+            username = __token__
+            password = ${PYPI_API_KEY}
+          EOF
+          chmod 0600 ~/.pypirc
           cd packaging/
           ruby pack.rb prepare
           ruby pack.rb publish

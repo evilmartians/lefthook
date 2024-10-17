@@ -7,6 +7,10 @@ tmp/
 dist/
 
 # Packages
+packaging/pypi/lefthook/__pycache__/
+packaging/pypi/lefthook/bin/
+packaging/pypi/lefthook.egg-info/
+packaging/pypi/build/
 packaging/rubygems/pkg/
 packaging/rubygems/libexec/
 packaging/npm-bundled/bin/
