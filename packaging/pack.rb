@@ -122,11 +122,12 @@ module Pack
   end
 
   def publish
-    puts "Publishing to PyPI..."
-    cd(File.join(__dir__, "pypi"))
-    system("python setup.py sdist bdist_wheel", exception: true)
-    system("python -m twine upload --verbose --repository lefthook dist/*", exception: true)
+    publish_pypi
+    publish_npm
+    publish_gem
+  end
 
+  def publish_npm
     puts "Publishing lefthook npm..."
     cd(File.join(__dir__, "npm"))
     Dir["lefthook*"].each do |package|
@@ -143,13 +144,20 @@ module Pack
     puts "Publishing @evilmartians/lefthook-installer npm..."
     cd(File.join(__dir__, "npm-installer"))
     system("npm publish --access public", exception: true)
+  end
 
+  def publish_gem
     puts "Publishing to Rubygems..."
     cd(File.join(__dir__, "rubygems"))
     system("rake build", exception: true)
     system("gem push pkg/*.gem", exception: true)
+  end
 
-    puts "done"
+  def publish_pypi
+    puts "Publishing to PyPI..."
+    cd(File.join(__dir__, "pypi"))
+    system("python setup.py sdist bdist_wheel", exception: true)
+    system("python -m twine upload --verbose --repository lefthook dist/*", exception: true)
   end
 
   def replace_in_file(filepath, regexp, value)

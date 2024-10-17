@@ -25,12 +25,6 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - run: python -m pip install --upgrade pip twine wheel setuptools
-
       - name: Install Snapcraft
         uses: samuelmeuli/action-snapcraft@v2
 
@@ -56,40 +50,84 @@ jobs:
           name: dist
           path: dist.tar
 
-  publish-packages:
+  publish-npm:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - run: git fetch --force --tags
 
-      - name: Fetch all tags
-        run: git fetch --force --tags
-
-      - name: Download build binaries
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: dist
       - run: tar -xvf dist.tar
 
-      - name: Publish to NPM, Rubygems and PyPI
+      - name: Publish to NPM
         env:
           NPM_API_KEY: ${{ secrets.NPM_API_KEY }}
-          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
-          PYPI_API_KEY: ${{ secrets.PYPI_API_KEY }}
         run: |
           cat << EOF > ~/.npmrc
           //registry.npmjs.org/:_authToken=${NPM_API_KEY}
           EOF
           chmod 0600 ~/.npmrc
+          cd packaging/
+          ruby pack.rb prepare
+          ruby pack.rb publish_npm
+
+  publish-gem:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: git fetch --force --tags
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+      - run: tar -xvf dist.tar
+
+      - name: Publish to Rubygems
+        env:
+          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+        run: |
           mkdir -p ~/.gem/
           cat << EOF > ~/.gem/credentials
           ---
           :rubygems_api_key: ${RUBYGEMS_API_KEY}
           EOF
           chmod 0600 ~/.gem/credentials
+          cd packaging/
+          ruby pack.rb prepare
+          ruby pack.rb publish_gem
+
+  publish-pypi:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: git fetch --force --tags
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+      - run: tar -xvf dist.tar
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --upgrade pip twine wheel setuptools
+
+      - name: Publish to PyPI
+        env:
+          PYPI_API_KEY: ${{ secrets.PYPI_API_KEY }}
+        run: |
           cat << EOF > ~/.pypirc
           [distutils]
             index-servers =
@@ -103,7 +141,7 @@ jobs:
           chmod 0600 ~/.pypirc
           cd packaging/
           ruby pack.rb prepare
-          ruby pack.rb publish
+          ruby pack.rb publish_pypi
 
   publish-homebrew:
     needs: build
