@@ -1,6 +1,6 @@
 # Change log
 
-## 1.7.19 (2024-10-17)
+## 1.7.20 (2024-10-17)
 
 - feat: maintain Python package too ([#845](https://github.com/evilmartians/lefthook/pull/845)) by @mrexox
 - ci: generate apk files ([#843](https://github.com/evilmartians/lefthook/pull/843)) by @mrexox
@@ -8,6 +8,8 @@
 - chore: hide remaining wiki links ([#841](https://github.com/evilmartians/lefthook/pull/841)) by @midskyey
 - docs: update info about merge order ([#838](https://github.com/evilmartians/lefthook/pull/838)) by @mrexox
 - docs: actualize ([#831](https://github.com/evilmartians/lefthook/pull/831)) by @mrexox
+
+## 1.7.19 – failed to build
 
 ## 1.7.18 (2024-09-30)
 
