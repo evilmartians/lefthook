@@ -122,6 +122,11 @@ module Pack
   end
 
   def publish
+    puts "Publishing to PyPI..."
+    cd(File.join(__dir__, "pypi"))
+    system("python setup.py sdist bdist_wheel", exception: true)
+    system("python -m twine upload --verbose --repository lefthook dist/*", exception: true)
+
     puts "Publishing lefthook npm..."
     cd(File.join(__dir__, "npm"))
     Dir["lefthook*"].each do |package|
@@ -139,7 +144,7 @@ module Pack
     cd(File.join(__dir__, "npm-installer"))
     system("npm publish --access public", exception: true)
 
-    puts "Publishing lefthook gem..."
+    puts "Publishing to Rubygems..."
     cd(File.join(__dir__, "rubygems"))
     system("rake build", exception: true)
     system("gem push pkg/*.gem", exception: true)
