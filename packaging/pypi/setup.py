@@ -9,7 +9,7 @@ setup(
     author='Evil Martians',
     author_email='lefthook@evilmartians.com',
     url='https://github.com/evilmartians/lefthook',
-    description='A single dependency-free binary to manage all your git hooks that works with any language in any environment, and in all common team workflows',
+    description='Git hooks manager. Fast, powerful, simple.',
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=find_packages(),
