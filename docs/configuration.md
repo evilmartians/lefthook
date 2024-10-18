@@ -839,6 +839,18 @@ pre-commit:
       run: yarn lint
 ```
 
+Skipping when your are on a merge commit:
+
+```yml
+# lefthook.yml
+
+pre-push:
+  commands:
+    lint:
+      skip: merge-commit
+      run: yarn lint
+```
+
 Skipping the whole hook on `main` branch:
 
 ```yml
