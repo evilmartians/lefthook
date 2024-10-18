@@ -79,8 +79,8 @@ Config options:
       - [`priority`](#priority)
 
 Extra:
-- [Examples](#examples)
-- [More info](#more-info)
+- We have a directory with few examples. You can check it [here](https://github.com/evilmartians/lefthook/tree/master/examples).
+- :thinking: Start a [discussion](https://github.com/evilmartians/lefthook/discussions) if you have questions or concerns about configuration.
 
 ----
 
@@ -1454,15 +1454,3 @@ pre-commit:
     "check.go":
       runner: go run
 ```
-
-## Examples
-
-We have a directory with few examples. You can check it [here](https://github.com/evilmartians/lefthook/tree/master/examples).
-
-## More info
-
-Have a question?
-
-<!-- :monocle_face: Check the [wiki](https://github.com/evilmartians/lefthook/wiki) -->
-
-:thinking: Start a [discussion](https://github.com/evilmartians/lefthook/discussions)
