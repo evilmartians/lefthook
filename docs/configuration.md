@@ -2,68 +2,6 @@
 
 Lefthook [supports](#config-file) YAML, JSON, and TOML configuration. In this document `lefthook.yml` is used for simplicity.
 
-- [Config file](#config-file)
-- [Top level options](#top-level-options)
-  - [`assert_lefthook_installed`](#assert_lefthook_installed)
-  - [`colors`](#colors)
-  - [`no_tty`](#no_tty)
-  - [`extends`](#extends)
-  - [`min_version`](#min_version)
-  - [`skip_output`](#skip_output)
-  - [`source_dir`](#source_dir)
-  - [`source_dir_local`](#source_dir_local)
-  - [`rc`](#rc)
-- [`remotes`](#remotes)
-  - [`git_url`](#git_url)
-  - [`ref`](#ref-1)
-  - [`refetch`](#refetch)
-  - [`configs`](#configs)
-- [Hook name (e.g. `pre-commit`)](#hook-name)
-  - [`files` (global)](#files-global)
-  - [`parallel`](#parallel)
-  - [`piped`](#piped)
-  - [`follow`](#follow)
-  - [`exclude_tags`](#exclude_tags)
-  - [`commands`](#commands)
-  - [`scripts`](#scripts)
-- [Command](#command)
-  - [`run`](#run)
-    - [`{files}` template](#files-template)
-    - [`{staged_files}` template](#staged_files-template)
-    - [`{push_files}` template](#push_files-template)
-    - [`{all_files}` template](#all_files-template)
-    - [`{cmd}` template](#cmd-template)
-  - [`skip`](#skip)
-  - [`only`](#only)
-  - [`tags`](#tags)
-  - [`glob`](#glob)
-  - [`files`](#files)
-  - [`file_types`](#file_types)
-  - [`env`](#env)
-  - [`root`](#root)
-  - [`exclude`](#exclude)
-  - [`fail_text`](#fail_text)
-  - [`stage_fixed`](#stage_fixed)
-  - [`interactive`](#interactive)
-  - [`use_stdin`](#use_stdin)
-  - [`priority`](#priority)
-- [Script](#script)
-  - [`use_stdin`](#use_stdin)
-  - [`runner`](#runner)
-  - [`skip`](#skip)
-  - [`only`](#only)
-  - [`tags`](#tags)
-  - [`env`](#env)
-  - [`fail_text`](#fail_text)
-  - [`stage_fixed`](#stage_fixed)
-  - [`interactive`](#interactive)
-  - [`use_stdin`](#use_stdin)
-  - [`priority`](#priority)
-- [Examples](#examples)
-- [More info](#more-info)
-
-----
-
 ## Config file
 
 Lefthook supports the following file names for the main config:
@@ -81,9 +19,71 @@ If there are more than 1 file in the project, only one will be used, and you'll 
 
 Lefthook also merges an extra config with the name `lefthook-local`. All supported formats can be applied to this `-local` config. If you name your main config with the leading dot, like `.lefthook.json`, the `-local` config also must be named with the leading dot: `.lefthook-local.json`.
 
-## Top level options
+Config options:
+- [`assert_lefthook_installed`](#assert_lefthook_installed)
+- [`colors`](#colors)
+- [`no_tty`](#no_tty)
+- [`extends`](#extends)
+- [`min_version`](#min_version)
+- [`skip_output`](#skip_output)
+- [`source_dir`](#source_dir)
+- [`source_dir_local`](#source_dir_local)
+- [`rc`](#rc)
+- [`remotes`](#remotes)
+  - [`git_url`](#git_url)
+  - [`ref`](#ref-1)
+  - [`refetch`](#refetch)
+  - [`configs`](#configs)
+- [`<pre-commit>`](#hook-name) hook name
+  - [`files` (global)](#files-global)
+  - [`parallel`](#parallel)
+  - [`piped`](#piped)
+  - [`follow`](#follow)
+  - [`exclude_tags`](#exclude_tags)
+  - [`skip`](#skip)
+  - [`only`](#only)
+  - [`commands`](#commands)
+    - [`<command>`](#command) command name
+      - [`run`](#run)
+        - [`{files}` template](#files-template)
+        - [`{staged_files}` template](#staged_files-template)
+        - [`{push_files}` template](#push_files-template)
+        - [`{all_files}` template](#all_files-template)
+        - [`{cmd}` template](#cmd-template)
+      - [`skip`](#skip)
+      - [`only`](#only)
+      - [`tags`](#tags)
+      - [`glob`](#glob)
+      - [`files`](#files)
+      - [`file_types`](#file_types)
+      - [`env`](#env)
+      - [`root`](#root)
+      - [`exclude`](#exclude)
+      - [`fail_text`](#fail_text)
+      - [`stage_fixed`](#stage_fixed)
+      - [`interactive`](#interactive)
+      - [`use_stdin`](#use_stdin)
+      - [`priority`](#priority)
+  - [`scripts`](#scripts)
+    - [`<script>`](#script) script name
+      - [`use_stdin`](#use_stdin)
+      - [`runner`](#runner)
+      - [`skip`](#skip)
+      - [`only`](#only)
+      - [`tags`](#tags)
+      - [`env`](#env)
+      - [`fail_text`](#fail_text)
+      - [`stage_fixed`](#stage_fixed)
+      - [`interactive`](#interactive)
+      - [`use_stdin`](#use_stdin)
+      - [`priority`](#priority)
 
-These options are not related to git hooks, and they only control lefthook behavior.
+Extra:
+- We have a directory with few examples. You can check it [here](https://github.com/evilmartians/lefthook/tree/master/examples).
+- :thinking: Start a [discussion](https://github.com/evilmartians/lefthook/discussions) if you have questions or concerns about configuration.
+
+----
+
 
 ### `assert_lefthook_installed`
 
@@ -1454,15 +1454,3 @@ pre-commit:
     "check.go":
       runner: go run
 ```
-
-## Examples
-
-We have a directory with few examples. You can check it [here](https://github.com/evilmartians/lefthook/tree/master/examples).
-
-## More info
-
-Have a question?
-
-<!-- :monocle_face: Check the [wiki](https://github.com/evilmartians/lefthook/wiki) -->
-
-:thinking: Start a [discussion](https://github.com/evilmartians/lefthook/discussions)
