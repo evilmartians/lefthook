@@ -1,5 +1,12 @@
 # Change log
 
+## 1.7.22 (2024-10-18)
+
+- feat: add skip option merge-commit ([#850](https://github.com/evilmartians/lefthook/pull/850)) by @mrexox
+- ci: parallelize publishing ([#847](https://github.com/evilmartians/lefthook/pull/847)) by @mrexox
+- fix: increase self update download timeout ([#849](https://github.com/evilmartians/lefthook/pull/849)) by @mrexox
+- docs: update docs with new packages ([#848](https://github.com/evilmartians/lefthook/pull/848)) by @mrexox
+
 ## 1.7.21 (2024-10-17)
 
 - feat: maintain Python package too ([#845](https://github.com/evilmartians/lefthook/pull/845)) by @mrexox
