@@ -19,8 +19,7 @@ If there are more than 1 file in the project, only one will be used, and you'll 
 
 Lefthook also merges an extra config with the name `lefthook-local`. All supported formats can be applied to this `-local` config. If you name your main config with the leading dot, like `.lefthook.json`, the `-local` config also must be named with the leading dot: `.lefthook-local.json`.
 
-
-
+Config options:
 - [`assert_lefthook_installed`](#assert_lefthook_installed)
 - [`colors`](#colors)
 - [`no_tty`](#no_tty)
@@ -77,6 +76,7 @@ Lefthook also merges an extra config with the name `lefthook-local`. All support
   - [`use_stdin`](#use_stdin)
   - [`priority`](#priority)
 
+Extra:
 - [Examples](#examples)
 - [More info](#more-info)
 
