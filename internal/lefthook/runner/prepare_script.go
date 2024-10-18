@@ -11,7 +11,7 @@ import (
 )
 
 func (r *Runner) prepareScript(script *config.Script, path string, file os.FileInfo) (string, error) {
-	if script.DoSkip(r.Repo.State()) {
+	if script.DoSkip(r.Repo.State) {
 		return "", &skipError{"settings"}
 	}
 

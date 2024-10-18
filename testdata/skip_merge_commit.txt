@@ -1,0 +1,38 @@
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+exec git commit -m 'commit 1'
+exec lefthook install
+
+exec git checkout -b merge-me
+exec touch file.A
+exec git add -A
+exec git commit -m 'commit A'
+
+exec lefthook run pre-commit --force
+stdout 'skip-merge-commit'
+
+exec git checkout -
+exec touch file.B
+exec git add -A
+exec git commit -m 'commit B'
+
+exec git merge merge-me
+
+exec lefthook run pre-commit --force
+! stdout 'skip-merge-commit'
+
+-- lefthook.yml --
+skip_output:
+  - skips
+  - meta
+  - summary
+  - execution_info
+
+pre-commit:
+  commands:
+    skip-merge-commit:
+      skip:
+        - merge-commit
+      run: echo 'skip-merge-commit'

@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
-	"slices"
 	"testing"
 
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/evilmartians/lefthook/internal/git"
 )
@@ -153,6 +153,7 @@ post-commit:
 		},
 	} {
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
+			assert := assert.New(t)
 			fs := afero.NewMemMapFs()
 			lefthook := &Lefthook{
 				Options: &Options{Fs: fs},
@@ -167,48 +168,27 @@ post-commit:
 
 			// Create files that should exist
 			for _, path := range tt.existingDirs {
-				if err := fs.MkdirAll(path, 0o755); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
+				assert.NoError(fs.MkdirAll(path, 0o755))
 			}
 
-			err := afero.WriteFile(fs, configPath, []byte(tt.config), 0o644)
-			if err != nil {
-				t.Errorf("unexpected error: %s", err)
-			}
-
+			assert.NoError(afero.WriteFile(fs, configPath, []byte(tt.config), 0o644))
 			for env, value := range tt.envs {
 				t.Setenv(env, value)
 			}
 
+			git.ResetState()
 			err = lefthook.Run(tt.hook, RunArgs{}, tt.gitArgs)
-			if err != nil {
-				if !tt.error {
-					t.Errorf("unexpected error: %s", err)
-				}
+			if tt.error {
+				assert.Error(err)
 			} else {
-				if tt.error {
-					t.Errorf("expected an error")
-				}
+				assert.NoError(err)
 			}
 
 			hookNameCompletions := lefthook.configHookCompletions()
-			if tt.hookNameCompletions != nil {
-				if !slices.Equal(tt.hookNameCompletions, hookNameCompletions) {
-					t.Errorf("expected hook name completions %v, got %v", tt.hookNameCompletions, hookNameCompletions)
-				}
-			} else if len(hookNameCompletions) != 0 {
-				t.Errorf("expected no hook name completions, got %v", lefthook.configHookCompletions())
-			}
+			assert.ElementsMatch(tt.hookNameCompletions, hookNameCompletions)
 
 			hookCommandCompletions := lefthook.configHookCommandCompletions(tt.hook)
-			if tt.hookCommandCompletions != nil {
-				if !slices.Equal(tt.hookCommandCompletions, hookCommandCompletions) {
-					t.Errorf("expected hook command completions %v, got %v", tt.hookCommandCompletions, hookCommandCompletions)
-				}
-			} else if len(hookCommandCompletions) != 0 {
-				t.Errorf("expected no hook command completions, got %v", hookCommandCompletions)
-			}
+			assert.ElementsMatch(tt.hookCommandCompletions, hookCommandCompletions)
 		})
 	}
 }

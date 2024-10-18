@@ -26,7 +26,7 @@ type template struct {
 }
 
 func (r *Runner) prepareCommand(name string, command *config.Command) (*run, error) {
-	if command.DoSkip(r.Repo.State()) {
+	if command.DoSkip(r.Repo.State) {
 		return nil, &skipError{"settings"}
 	}
 

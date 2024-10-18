@@ -799,6 +799,13 @@ pre-commit:
 
 You can skip all or specific commands and scripts using `skip` option. You can also skip when merging, rebasing, or being on a specific branch. Globs are available for branches.
 
+Possible skip values:
+- `rebase` - when in rebase git state
+- `merge` - when in merge git state
+- `merge-commit` - when current HEAD commit is the merge commit
+- `ref: main` - when on a `main` branch
+- `run: test ${SKIP_ME} -eq 1` - when `test ${SKIP_ME} -eq 1` is successful (return code is 0)
+
 **Example**
 
 Always skipping a command:
@@ -836,6 +843,18 @@ pre-commit:
   commands:
     lint:
       skip: merge
+      run: yarn lint
+```
+
+Skipping when your are on a merge commit:
+
+```yml
+# lefthook.yml
+
+pre-push:
+  commands:
+    lint:
+      skip: merge-commit
       run: yarn lint
 ```
 
