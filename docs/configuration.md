@@ -2,23 +2,40 @@
 
 Lefthook [supports](#config-file) YAML, JSON, and TOML configuration. In this document `lefthook.yml` is used for simplicity.
 
-- [Config file](#config-file)
-- [Top level options](#top-level-options)
-  - [`assert_lefthook_installed`](#assert_lefthook_installed)
-  - [`colors`](#colors)
-  - [`no_tty`](#no_tty)
-  - [`extends`](#extends)
-  - [`min_version`](#min_version)
-  - [`skip_output`](#skip_output)
-  - [`source_dir`](#source_dir)
-  - [`source_dir_local`](#source_dir_local)
-  - [`rc`](#rc)
+## Config file
+
+Lefthook supports the following file names for the main config:
+
+- `lefthook.yml`
+- `.lefthook.yml`
+- `lefthook.yaml`
+- `.lefthook.yaml`
+- `lefthook.toml`
+- `.lefthook.toml`
+- `lefthook.json`
+- `.lefthook.json`
+
+If there are more than 1 file in the project, only one will be used, and you'll never know which one. So, please, use one format in a project.
+
+Lefthook also merges an extra config with the name `lefthook-local`. All supported formats can be applied to this `-local` config. If you name your main config with the leading dot, like `.lefthook.json`, the `-local` config also must be named with the leading dot: `.lefthook-local.json`.
+
+
+
+- [`assert_lefthook_installed`](#assert_lefthook_installed)
+- [`colors`](#colors)
+- [`no_tty`](#no_tty)
+- [`extends`](#extends)
+- [`min_version`](#min_version)
+- [`skip_output`](#skip_output)
+- [`source_dir`](#source_dir)
+- [`source_dir_local`](#source_dir_local)
+- [`rc`](#rc)
 - [`remotes`](#remotes)
   - [`git_url`](#git_url)
   - [`ref`](#ref-1)
   - [`refetch`](#refetch)
   - [`configs`](#configs)
-- [Hook name (e.g. `pre-commit`)](#hook-name)
+- [`<pre-commit>`](#hook-name) hook name
   - [`files` (global)](#files-global)
   - [`parallel`](#parallel)
   - [`piped`](#piped)
@@ -26,7 +43,7 @@ Lefthook [supports](#config-file) YAML, JSON, and TOML configuration. In this do
   - [`exclude_tags`](#exclude_tags)
   - [`commands`](#commands)
   - [`scripts`](#scripts)
-- [Command](#command)
+- [`<command>`](#command) command name
   - [`run`](#run)
     - [`{files}` template](#files-template)
     - [`{staged_files}` template](#staged_files-template)
@@ -47,7 +64,7 @@ Lefthook [supports](#config-file) YAML, JSON, and TOML configuration. In this do
   - [`interactive`](#interactive)
   - [`use_stdin`](#use_stdin)
   - [`priority`](#priority)
-- [Script](#script)
+- [`<script>`](#script) script name
   - [`use_stdin`](#use_stdin)
   - [`runner`](#runner)
   - [`skip`](#skip)
@@ -59,31 +76,12 @@ Lefthook [supports](#config-file) YAML, JSON, and TOML configuration. In this do
   - [`interactive`](#interactive)
   - [`use_stdin`](#use_stdin)
   - [`priority`](#priority)
+
 - [Examples](#examples)
 - [More info](#more-info)
 
 ----
 
-## Config file
-
-Lefthook supports the following file names for the main config:
-
-- `lefthook.yml`
-- `.lefthook.yml`
-- `lefthook.yaml`
-- `.lefthook.yaml`
-- `lefthook.toml`
-- `.lefthook.toml`
-- `lefthook.json`
-- `.lefthook.json`
-
-If there are more than 1 file in the project, only one will be used, and you'll never know which one. So, please, use one format in a project.
-
-Lefthook also merges an extra config with the name `lefthook-local`. All supported formats can be applied to this `-local` config. If you name your main config with the leading dot, like `.lefthook.json`, the `-local` config also must be named with the leading dot: `.lefthook-local.json`.
-
-## Top level options
-
-These options are not related to git hooks, and they only control lefthook behavior.
 
 ### `assert_lefthook_installed`
 
