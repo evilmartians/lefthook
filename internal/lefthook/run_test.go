@@ -181,6 +181,7 @@ post-commit:
 				t.Setenv(env, value)
 			}
 
+			git.ResetState()
 			err = lefthook.Run(tt.hook, RunArgs{}, tt.gitArgs)
 			if err != nil {
 				if !tt.error {

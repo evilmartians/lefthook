@@ -17,37 +17,41 @@ func NewSkipChecker(cmd system.Command) *skipChecker {
 }
 
 // check returns the result of applying a skip/only setting which can be a branch, git state, shell command, etc.
-func (sc *skipChecker) check(gitState git.State, skip interface{}, only interface{}) bool {
+func (sc *skipChecker) check(state func() git.State, skip interface{}, only interface{}) bool {
+	if skip == nil && only == nil {
+		return false
+	}
+
 	if skip != nil {
-		if sc.matches(gitState, skip) {
+		if sc.matches(state, skip) {
 			return true
 		}
 	}
 
 	if only != nil {
-		return !sc.matches(gitState, only)
+		return !sc.matches(state, only)
 	}
 
 	return false
 }
 
-func (sc *skipChecker) matches(gitState git.State, value interface{}) bool {
+func (sc *skipChecker) matches(state func() git.State, value interface{}) bool {
 	switch typedValue := value.(type) {
 	case bool:
 		return typedValue
 	case string:
-		return typedValue == gitState.Step
+		return typedValue == state().State
 	case []interface{}:
-		return sc.matchesSlices(gitState, typedValue)
+		return sc.matchesSlices(state, typedValue)
 	}
 	return false
 }
 
-func (sc *skipChecker) matchesSlices(gitState git.State, slice []interface{}) bool {
+func (sc *skipChecker) matchesSlices(gitState func() git.State, slice []interface{}) bool {
 	for _, state := range slice {
 		switch typedState := state.(type) {
 		case string:
-			if typedState == gitState.Step {
+			if typedState == gitState().State {
 				return true
 			}
 		case map[string]interface{}:
@@ -64,19 +68,20 @@ func (sc *skipChecker) matchesSlices(gitState git.State, slice []interface{}) bo
 	return false
 }
 
-func (sc *skipChecker) matchesRef(gitState git.State, typedState map[string]interface{}) bool {
+func (sc *skipChecker) matchesRef(state func() git.State, typedState map[string]interface{}) bool {
 	ref, ok := typedState["ref"].(string)
 	if !ok {
 		return false
 	}
 
-	if ref == gitState.Branch {
+	branch := state().Branch
+	if ref == branch {
 		return true
 	}
 
 	g := glob.MustCompile(ref)
 
-	return g.Match(gitState.Branch)
+	return g.Match(branch)
 }
 
 func (sc *skipChecker) matchesCommands(typedState map[string]interface{}) bool {

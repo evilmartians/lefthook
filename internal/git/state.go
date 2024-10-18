@@ -5,38 +5,68 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 )
 
 type State struct {
-	Branch, Step string
+	Branch, State string
 }
 
 const (
-	NilStep    string = ""
-	MergeStep  string = "merge"
-	RebaseStep string = "rebase"
+	Nil         string = ""
+	Merge       string = "merge"
+	MergeCommit string = "merge-commit"
+	Rebase      string = "rebase"
 )
 
-var refBranchRegexp = regexp.MustCompile(`^ref:\s*refs/heads/(.+)$`)
+var (
+	refBranchRegexp  = regexp.MustCompile(`^ref:\s*refs/heads/(.+)$`)
+	cmdParentCommits = []string{"git", "show", "--no-patch", `--format="%P"`}
+)
+
+var (
+	state            State
+	stateInitialized bool
+)
+
+func ResetState() {
+	stateInitialized = false
+}
 
 func (r *Repository) State() State {
+	if stateInitialized {
+		return state
+	}
+
+	stateInitialized = true
 	branch := r.Branch()
 	if r.inMergeState() {
-		return State{
+		state = State{
 			Branch: branch,
-			Step:   MergeStep,
+			State:  Merge,
 		}
+		return state
 	}
 	if r.inRebaseState() {
-		return State{
+		state = State{
 			Branch: branch,
-			Step:   RebaseStep,
+			State:  Rebase,
 		}
+		return state
 	}
-	return State{
+	if r.inMergeCommitState() {
+		state = State{
+			Branch: branch,
+			State:  MergeCommit,
+		}
+		return state
+	}
+
+	state = State{
 		Branch: branch,
-		Step:   NilStep,
+		State:  Nil,
 	}
+	return state
 }
 
 func (r *Repository) Branch() string {
@@ -80,4 +110,13 @@ func (r *Repository) inRebaseState() bool {
 	}
 
 	return true
+}
+
+func (r *Repository) inMergeCommitState() bool {
+	parents, err := r.Git.Cmd(cmdParentCommits)
+	if err != nil {
+		return false
+	}
+
+	return strings.Contains(parents, " ")
 }

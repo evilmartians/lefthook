@@ -252,7 +252,8 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{succeeded("lint")},
+			gitCommands: []string{`git show --no-patch --format="%P"`},
+			success:     []Result{succeeded("lint")},
 		},
 		{
 			name:     "with global skip merge",
@@ -289,7 +290,8 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{},
+			gitCommands: []string{`git show --no-patch --format="%P"`},
+			success:     []Result{},
 		},
 		{
 			name:     "with global only on merge",
@@ -354,7 +356,8 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{},
+			gitCommands: []string{`git show --no-patch --format="%P"`},
+			success:     []Result{},
 		},
 		{
 			name:   "with global only on ref",
@@ -375,6 +378,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
+			gitCommands: []string{`git show --no-patch --format="%P"`},
 			success: []Result{
 				succeeded("lint"),
 				succeeded("test"),
@@ -399,7 +403,8 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{},
+			gitCommands: []string{`git show --no-patch --format="%P"`},
+			success:     []Result{},
 		},
 		{
 			name:   "with global skip on another ref",
@@ -420,6 +425,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
+			gitCommands: []string{`git show --no-patch --format="%P"`},
 			success: []Result{
 				succeeded("test"),
 				succeeded("lint"),
@@ -510,8 +516,9 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{},
-			fail:    []Result{},
+			gitCommands: []string{`git show --no-patch --format="%P"`},
+			success:     []Result{},
+			fail:        []Result{},
 		},
 		{
 			name:       "with interactive and parallel",
@@ -771,6 +778,7 @@ func TestRunAll(t *testing.T) {
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
+			git.ResetState()
 			results, err := runner.RunAll(context.Background(), tt.sourceDirs)
 			if err != nil {
 				t.Errorf("unexpected error %s", err)

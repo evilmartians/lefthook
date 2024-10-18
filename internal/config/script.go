@@ -29,9 +29,9 @@ type scriptRunnerReplace struct {
 	Runner string `mapstructure:"runner"`
 }
 
-func (s Script) DoSkip(gitState git.State) bool {
+func (s Script) DoSkip(state func() git.State) bool {
 	skipChecker := NewSkipChecker(system.Cmd)
-	return skipChecker.check(gitState, s.Skip, s.Only)
+	return skipChecker.check(state, s.Skip, s.Only)
 }
 
 func (s Script) ExecutionPriority() int {
