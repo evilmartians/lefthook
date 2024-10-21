@@ -1,14 +1,17 @@
 package config
 
 import (
+	"bytes"
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
-	"os"
+	"fmt"
+	"io"
 
 	"github.com/mitchellh/mapstructure"
 	toml "github.com/pelletier/go-toml/v2"
 	"gopkg.in/yaml.v3"
 
-	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/evilmartians/lefthook/internal/version"
 )
 
@@ -16,10 +19,11 @@ type DumpFormat int
 
 const (
 	YAMLFormat DumpFormat = iota
-	JSONFormat
 	TOMLFormat
+	JSONFormat
+	JSONCompactFormat
 
-	dumpIndent = 2
+	yamlIndent = 2
 )
 
 type Config struct {
@@ -45,7 +49,25 @@ func (c *Config) Validate() error {
 	return version.CheckCovered(c.MinVersion)
 }
 
-func (c *Config) Dump(format DumpFormat) error {
+func (c *Config) Md5() (checksum string, err error) {
+	configBytes := new(bytes.Buffer)
+
+	err = c.Dump(JSONCompactFormat, configBytes)
+	if err != nil {
+		return
+	}
+
+	hash := md5.New()
+	_, err = io.Copy(hash, configBytes)
+	if err != nil {
+		return
+	}
+
+	checksum = hex.EncodeToString(hash.Sum(nil)[:16])
+	return
+}
+
+func (c *Config) Dump(format DumpFormat, out io.Writer) error {
 	res := make(map[string]interface{})
 	if err := mapstructure.Decode(c, &res); err != nil {
 		return err
@@ -69,23 +91,25 @@ func (c *Config) Dump(format DumpFormat) error {
 	case TOMLFormat:
 		dumper = tomlDumper{}
 	case JSONFormat:
-		dumper = jsonDumper{}
+		dumper = jsonDumper{pretty: true}
+	case JSONCompactFormat:
+		dumper = jsonDumper{pretty: false}
 	default:
 		dumper = yamlDumper{}
 	}
 
-	return dumper.Dump(res)
+	return dumper.Dump(res, out)
 }
 
 type dumper interface {
-	Dump(map[string]interface{}) error
+	Dump(map[string]interface{}, io.Writer) error
 }
 
 type yamlDumper struct{}
 
-func (yamlDumper) Dump(input map[string]interface{}) error {
-	encoder := yaml.NewEncoder(os.Stdout)
-	encoder.SetIndent(dumpIndent)
+func (yamlDumper) Dump(input map[string]interface{}, out io.Writer) error {
+	encoder := yaml.NewEncoder(out)
+	encoder.SetIndent(yamlIndent)
 	defer encoder.Close()
 
 	err := encoder.Encode(input)
@@ -98,8 +122,8 @@ func (yamlDumper) Dump(input map[string]interface{}) error {
 
 type tomlDumper struct{}
 
-func (tomlDumper) Dump(input map[string]interface{}) error {
-	encoder := toml.NewEncoder(os.Stdout)
+func (tomlDumper) Dump(input map[string]interface{}, out io.Writer) error {
+	encoder := toml.NewEncoder(out)
 	err := encoder.Encode(input)
 	if err != nil {
 		return err
@@ -108,15 +132,33 @@ func (tomlDumper) Dump(input map[string]interface{}) error {
 	return nil
 }
 
-type jsonDumper struct{}
+type jsonDumper struct {
+	pretty bool
+}
 
-func (jsonDumper) Dump(input map[string]interface{}) error {
-	res, err := json.MarshalIndent(input, "", "  ")
+func (j jsonDumper) Dump(input map[string]interface{}, out io.Writer) error {
+	var res []byte
+	var err error
+	if j.pretty {
+		res, err = json.MarshalIndent(input, "", "  ")
+	} else {
+		res, err = json.Marshal(input)
+	}
 	if err != nil {
 		return err
 	}
 
-	log.Info(string(res))
+	n, err := out.Write(res)
+	if n != len(res) {
+		return fmt.Errorf("file not written fully: %d/%d", n, len(res))
+	}
+	if err != nil {
+		return err
+	}
+
+	if j.pretty {
+		_, _ = out.Write([]byte("\n"))
+	}
 
 	return nil
 }
