@@ -138,6 +138,8 @@ no_tty: true
 
 You can extend your config with another one YAML file. Its content will be merged. Extends for `lefthook.yml`, `lefthook-local.yml`, and [`remote`](#remote) configs are handled separately, so you can have different extends in these files.
 
+You can use asterisk to make a glob.
+
 **Example**
 
 ```yml
@@ -148,6 +150,7 @@ extends:
   - /home/user/work/lefthook-extend-2.yml
   - lefthook-extends/file.yml
   - ../extend.yml
+  - projects/*/specific-lefthook-config.yml
 ```
 
 > [!IMPORTANT]
