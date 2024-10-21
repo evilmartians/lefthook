@@ -6,9 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/evilmartians/lefthook/internal/git"
 )
@@ -16,20 +15,16 @@ import (
 //gocyclo:ignore
 func TestLoad(t *testing.T) {
 	root, err := filepath.Abs("")
-	if err != nil {
-		t.Errorf("unexpected error: %s", err)
-	}
+	assert.NoError(t, err)
 
-	for i, tt := range [...]struct {
-		name                  string
-		global, local, remote string
-		remoteConfigPath      string
-		otherFiles            map[string]string
-		result                *Config
+	for name, tt := range map[string]struct {
+		files            map[string]string
+		remote           string
+		remoteConfigPath string
+		result           *Config
 	}{
-		{
-			name: "with global, dot",
-			otherFiles: map[string]string{
+		"with .lefthook.yml": {
+			files: map[string]string{
 				".lefthook.yml": `
 pre-commit:
   commands:
@@ -53,9 +48,8 @@ pre-commit:
 				},
 			},
 		},
-		{
-			name: "with global, nodot",
-			otherFiles: map[string]string{
+		"with lefthook.yml": {
+			files: map[string]string{
 				"lefthook.yml": `
 pre-commit:
   commands:
@@ -79,9 +73,8 @@ pre-commit:
 				},
 			},
 		},
-		{
-			name: "with global, nodot has priority",
-			otherFiles: map[string]string{
+		"with lefthook.yml and .lefthook.yml": {
+			files: map[string]string{
 				".lefthook.yml": `
 pre-commit:
   commands:
@@ -111,20 +104,21 @@ pre-commit:
 				},
 			},
 		},
-		{
-			name: "simple",
-			global: `
+		"simple": {
+			files: map[string]string{
+				"lefthook.yml": `
 pre-commit:
   commands:
     tests:
       run: yarn test
 `,
-			local: `
+				"lefthook-local.yml": `
 post-commit:
   commands:
     ping-done:
       run: curl -x POST status.com/done
 `,
+			},
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
@@ -149,9 +143,9 @@ post-commit:
 				},
 			},
 		},
-		{
-			name: "with overrides",
-			global: `
+		"with overrides": {
+			files: map[string]string{
+				"lefthook.yml": `
 min_version: 0.6.0
 source_dir: $HOME/sources
 source_dir_local: $HOME/sources_local
@@ -170,7 +164,7 @@ pre-commit:
     "format.sh":
       runner: bash
 `,
-			local: `
+				"lefthook-local.yml": `
 min_version: 1.0.0
 colors: false
 
@@ -190,6 +184,7 @@ pre-push:
       run: bundle exec rubocop
       tags: [backend, linter]
 `,
+			},
 			result: &Config{
 				MinVersion:     "1.0.0",
 				Colors:         false,
@@ -229,9 +224,8 @@ pre-push:
 				},
 			},
 		},
-		{
-			name: "with overrides, dot",
-			otherFiles: map[string]string{
+		"with overrides from .lefthook-local.yml": {
+			files: map[string]string{
 				".lefthook.yml": `
 pre-push:
   scripts:
@@ -263,9 +257,8 @@ pre-push:
 				},
 			},
 		},
-		{
-			name: "with overrides, dot, nodot",
-			otherFiles: map[string]string{
+		"with overrides, dot, nodot": {
+			files: map[string]string{
 				"lefthook.yml": `
 pre-push:
   scripts:
@@ -297,9 +290,8 @@ pre-push:
 				},
 			},
 		},
-		{
-			name: "with overrides, nodot has priority",
-			otherFiles: map[string]string{
+		"with overrides, nodot has priority": {
+			files: map[string]string{
 				"lefthook.yml": `
 pre-push:
   scripts:
@@ -337,9 +329,9 @@ pre-push:
 				},
 			},
 		},
-		{
-			name: "with extra hooks",
-			global: `
+		"with extra hooks": {
+			files: map[string]string{
+				"lefthook.yml": `
 tests:
   commands:
     tests:
@@ -350,6 +342,7 @@ lints:
     "linter.sh":
       runner: bash
 `,
+			},
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
@@ -373,9 +366,9 @@ lints:
 				},
 			},
 		},
-		{
-			name: "with extra hooks only in local config",
-			global: `
+		"with extra hooks only in local config": {
+			files: map[string]string{
+				"lefthook.yml": `
 colors:
   yellow: '#FFE4B5'
   red: 196
@@ -384,12 +377,13 @@ tests:
     tests:
       run: go test ./...
 `,
-			local: `
+				"lefthook-local.yml": `
 lints:
   scripts:
     "linter.sh":
       runner: bash
 `,
+			},
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
@@ -413,12 +407,13 @@ lints:
 				},
 			},
 		},
-		{
-			name: "with remote",
-			global: `
+		"with remote": {
+			files: map[string]string{
+				"lefthook.yml": `
 remote:
   git_url: git@github.com:evilmartians/lefthook
 `,
+			},
 			remote: `
 pre-commit:
   commands:
@@ -454,9 +449,9 @@ pre-commit:
 				},
 			},
 		},
-		{
-			name: "with remote and custom config name",
-			global: `
+		"with remote and custom config name": {
+			files: map[string]string{
+				"lefthook.yml": `
 remote:
   git_url: git@github.com:evilmartians/lefthook
   ref: v1.0.0
@@ -471,6 +466,7 @@ pre-commit:
     lint:
       run: this will be overwritten
 `,
+			},
 			remote: `
 pre-commit:
   commands:
@@ -519,9 +515,9 @@ pre-commit:
 				},
 			},
 		},
-		{
-			name: "with extends",
-			global: `
+		"with extends": {
+			files: map[string]string{
+				"lefthook.yml": `
 extends:
   - global-extend.yml
 
@@ -534,7 +530,7 @@ pre-push:
     global:
       run: echo global
 `,
-			local: `
+				"lefthook-local.yml": `
 extends:
   - local-extend.yml
 
@@ -543,17 +539,6 @@ pre-push:
     local:
       run: echo local
 `,
-			remote: `
-extends:
-  - ../remote-extend.yml
-
-pre-push:
-  commands:
-    remote:
-      run: echo remote
-`,
-			remoteConfigPath: filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook", "examples", "config.yml"),
-			otherFiles: map[string]string{
 				"global-extend.yml": `
 pre-push:
   scripts:
@@ -573,6 +558,16 @@ pre-push:
       runner: bash
 `,
 			},
+			remote: `
+extends:
+  - ../remote-extend.yml
+
+pre-push:
+  commands:
+    remote:
+      run: echo remote
+`,
+			remoteConfigPath: filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook", "examples", "config.yml"),
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
@@ -612,9 +607,9 @@ pre-push:
 				},
 			},
 		},
-		{
-			name: "with extends and local",
-			global: `
+		"with extends and local": {
+			files: map[string]string{
+				"lefthook.yml": `
 extends:
   - global-extend.yml
 pre-commit:
@@ -629,11 +624,10 @@ pre-commit:
       run: bundle exec rubocop
       tags: [other]
 `,
-			local: `
+				"lefthook-local.yml": `
 pre-commit:
   exclude_tags: [backend]
 `,
-			otherFiles: map[string]string{
 				"global-extend.yml": `
 pre-commit:
   exclude_tags: [test]
@@ -670,6 +664,51 @@ pre-commit:
 				},
 			},
 		},
+		"with glob in extends": {
+			files: map[string]string{
+				"lefthook.yml": `
+extends:
+  - dir/*/config.yml
+`,
+				"dir/a/config.yml": `
+pre-commit:
+  commands:
+    a:
+      run: echo A
+`,
+				"dir/b/config.yml": `
+pre-commit:
+  commands:
+    b:
+      run: echo B
+`,
+				"dir/b/c/config.yml": `
+pre-commit:
+  commands:
+    c:
+      run: echo C
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Extends:        []string{"dir/*/config.yml"},
+				Colors:         nil,
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Parallel: false,
+						Commands: map[string]*Command{
+							"a": {
+								Run: "echo A",
+							},
+							"b": {
+								Run: "echo B",
+							},
+						},
+					},
+				},
+			},
+		},
 	} {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		repo := &git.Repository{
@@ -678,53 +717,28 @@ pre-commit:
 			InfoPath: filepath.Join(root, ".git", "info"),
 		}
 
-		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			if tt.global != "" {
-				if err := fs.WriteFile(filepath.Join(root, "lefthook.yml"), []byte(tt.global), 0o644); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
-			}
+		t.Run(name, func(t *testing.T) {
+			assert := assert.New(t)
 
-			if tt.local != "" {
-				if err := fs.WriteFile(filepath.Join(root, "lefthook-local.yml"), []byte(tt.local), 0o644); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
-			}
-
-			if len(tt.remoteConfigPath) > 0 {
-				if err := fs.MkdirAll(filepath.Base(tt.remoteConfigPath), 0o755); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
-
-				if err := fs.WriteFile(tt.remoteConfigPath, []byte(tt.remote), 0o644); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
-			}
-
-			for name, content := range tt.otherFiles {
+			for name, content := range tt.files {
 				path := filepath.Join(
 					root,
 					filepath.Join(strings.Split(name, "/")...),
 				)
 				dir := filepath.Dir(path)
 
-				if err := fs.MkdirAll(dir, 0o775); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
-
-				if err := fs.WriteFile(path, []byte(content), 0o644); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
+				assert.NoError(fs.MkdirAll(dir, 0o775))
+				assert.NoError(fs.WriteFile(path, []byte(content), 0o644))
 			}
 
-			checkConfig, err := Load(fs.Fs, repo)
-
-			if err != nil {
-				t.Errorf("should parse configs without errors: %s", err)
-			} else if !cmp.Equal(checkConfig, tt.result, cmpopts.IgnoreUnexported(Hook{})) {
-				t.Errorf("configs should be equal")
-				t.Errorf("(-want +got):\n%s", cmp.Diff(tt.result, checkConfig))
+			if len(tt.remoteConfigPath) > 0 {
+				assert.NoError(fs.MkdirAll(filepath.Base(tt.remoteConfigPath), 0o755))
+				assert.NoError(fs.WriteFile(tt.remoteConfigPath, []byte(tt.remote), 0o644))
 			}
+
+			result, err := Load(fs.Fs, repo)
+			assert.NoError(err)
+			assert.Equal(result, tt.result)
 		})
 	}
 
@@ -776,56 +790,37 @@ run = "echo 1"
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
+			assert := assert.New(t)
+
+			// YAML
 			yamlConfig := filepath.Join(root, "lefthook.yml")
-			if err := fs.WriteFile(yamlConfig, []byte(tt.yaml), 0o644); err != nil {
-				t.Errorf("unexpected error: %s", err)
-			}
+			assert.NoError(fs.WriteFile(yamlConfig, []byte(tt.yaml), 0o644))
 
-			checkConfig, err := Load(fs.Fs, repo)
-			if err != nil {
-				t.Errorf("should parse configs without errors: %s", err)
-			} else if !cmp.Equal(checkConfig, tt.result, cmpopts.IgnoreUnexported(Hook{})) {
-				t.Errorf("configs should be equal")
-				t.Errorf("(-want +got):\n%s", cmp.Diff(tt.result, checkConfig))
-			}
+			result, err := Load(fs.Fs, repo)
+			assert.NoError(err)
+			assert.Equal(result, tt.result)
 
-			if err = fs.Remove(yamlConfig); err != nil {
-				t.Errorf("unexpected error: %s", err)
-			}
+			assert.NoError(fs.Remove(yamlConfig))
 
+			// JSON
 			jsonConfig := filepath.Join(root, "lefthook.json")
-			if err = fs.WriteFile(jsonConfig, []byte(tt.json), 0o644); err != nil {
-				t.Errorf("unexpected error: %s", err)
-			}
+			assert.NoError(fs.WriteFile(jsonConfig, []byte(tt.json), 0o644))
 
-			checkConfig, err = Load(fs.Fs, repo)
-			if err != nil {
-				t.Errorf("should parse configs without errors: %s", err)
-			} else if !cmp.Equal(checkConfig, tt.result, cmpopts.IgnoreUnexported(Hook{})) {
-				t.Errorf("configs should be equal")
-				t.Errorf("(-want +got):\n%s", cmp.Diff(tt.result, checkConfig))
-			}
+			result, err = Load(fs.Fs, repo)
+			assert.NoError(err)
+			assert.Equal(result, tt.result)
 
-			if err = fs.Remove(jsonConfig); err != nil {
-				t.Errorf("unexpected error: %s", err)
-			}
+			assert.NoError(fs.Remove(jsonConfig))
 
+			// TOML
 			tomlConfig := filepath.Join(root, "lefthook.toml")
-			if err = fs.WriteFile(tomlConfig, []byte(tt.toml), 0o644); err != nil {
-				t.Errorf("unexpected error: %s", err)
-			}
+			assert.NoError(fs.WriteFile(tomlConfig, []byte(tt.toml), 0o644))
 
-			checkConfig, err = Load(fs.Fs, repo)
-			if err != nil {
-				t.Errorf("should parse configs without errors: %s", err)
-			} else if !cmp.Equal(checkConfig, tt.result, cmpopts.IgnoreUnexported(Hook{})) {
-				t.Errorf("configs should be equal")
-				t.Errorf("(-want +got):\n%s", cmp.Diff(tt.result, checkConfig))
-			}
+			result, err = Load(fs.Fs, repo)
+			assert.NoError(err)
+			assert.Equal(result, tt.result)
 
-			if err = fs.Remove(tomlConfig); err != nil {
-				t.Errorf("unexpected error: %s", err)
-			}
+			assert.NoError(fs.Remove(tomlConfig))
 		})
 	}
 
@@ -833,16 +828,14 @@ run = "echo 1"
 		RemoteConfigPath string
 		Content          string
 	}
-	for i, tt := range [...]struct {
-		name          string
-		global, local string
-		remotes       []remote
-		otherFiles    map[string]string
-		result        *Config
+	for name, tt := range map[string]struct {
+		files   map[string]string
+		remotes []remote
+		result  *Config
 	}{
-		{
-			name: "with remotes, config and configs",
-			global: `
+		"with remotes, config and configs": {
+			files: map[string]string{
+				"lefthook.yml": `
 pre-commit:
   only:
     - ref: main
@@ -860,6 +853,7 @@ remotes:
       - examples/remote/ping.yml
     ref: v1.5.5
 `,
+			},
 			remotes: []remote{
 				{
 					RemoteConfigPath: filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v1.0.0", "examples", "custom.yml"),
@@ -939,53 +933,28 @@ pre-commit:
 			InfoPath: filepath.Join(root, ".git", "info"),
 		}
 
-		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			if tt.global != "" {
-				if err := fs.WriteFile(filepath.Join(root, "lefthook.yml"), []byte(tt.global), 0o644); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
-			}
+		t.Run(name, func(t *testing.T) {
+			assert := assert.New(t)
 
-			if tt.local != "" {
-				if err := fs.WriteFile(filepath.Join(root, "lefthook-local.yml"), []byte(tt.local), 0o644); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
-			}
-
-			for _, remote := range tt.remotes {
-				if err := fs.MkdirAll(filepath.Base(remote.RemoteConfigPath), 0o755); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
-
-				if err := fs.WriteFile(remote.RemoteConfigPath, []byte(remote.Content), 0o644); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
-			}
-
-			for name, content := range tt.otherFiles {
+			for name, content := range tt.files {
 				path := filepath.Join(
 					root,
 					filepath.Join(strings.Split(name, "/")...),
 				)
 				dir := filepath.Dir(path)
 
-				if err := fs.MkdirAll(dir, 0o775); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
-
-				if err := fs.WriteFile(path, []byte(content), 0o644); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
+				assert.NoError(fs.MkdirAll(dir, 0o775))
+				assert.NoError(fs.WriteFile(path, []byte(content), 0o644))
 			}
 
-			checkConfig, err := Load(fs.Fs, repo)
-
-			if err != nil {
-				t.Errorf("should parse configs without errors: %s", err)
-			} else if !cmp.Equal(checkConfig, tt.result, cmpopts.IgnoreUnexported(Hook{})) {
-				t.Errorf("configs should be equal")
-				t.Errorf("(-want +got):\n%s", cmp.Diff(tt.result, checkConfig))
+			for _, remote := range tt.remotes {
+				assert.NoError(fs.MkdirAll(filepath.Base(remote.RemoteConfigPath), 0o755))
+				assert.NoError(fs.WriteFile(remote.RemoteConfigPath, []byte(remote.Content), 0o644))
 			}
+
+			result, err := Load(fs.Fs, repo)
+			assert.NoError(err)
+			assert.Equal(result, tt.result)
 		})
 	}
 }
