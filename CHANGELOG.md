@@ -1,5 +1,13 @@
 # Change log
 
+## 1.8.0 (2024-10-22)
+
+- fix: [**breaking**] don't auto-install lefthook with npx if not found ([#602](https://github.com/evilmartians/lefthook/pull/602)) by @anthony-hayes
+- fix: [**breaking**] execute files command within configured root ([#607](https://github.com/evilmartians/lefthook/pull/607)) by @mrexox
+- fix: calculate hashsum of the full config ([#854](https://github.com/evilmartians/lefthook/pull/854)) by @mrexox
+- feat: support globs in extends ([#853](https://github.com/evilmartians/lefthook/pull/853)) by @mrexox
+- docs: simplify configuration docs ([#851](https://github.com/evilmartians/lefthook/pull/851)) by @mrexox
+
 ## 1.7.22 (2024-10-18)
 
 - feat: add skip option merge-commit ([#850](https://github.com/evilmartians/lefthook/pull/850)) by @mrexox
