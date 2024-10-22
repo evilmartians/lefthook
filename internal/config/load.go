@@ -219,28 +219,35 @@ func extend(fs afero.Fs, v *viper.Viper, root string) error {
 // extendRecursive merges extends.
 // If extends contain other extends they get merged too.
 func extendRecursive(fs afero.Fs, v *viper.Viper, root string, extends map[string]struct{}) error {
-	for _, path := range v.GetStringSlice("extends") {
-		if _, contains := extends[path]; contains {
-			return fmt.Errorf("possible recursion in extends: path %s is specified multiple times", path)
-		}
-		extends[path] = struct{}{}
-
-		if !filepath.IsAbs(path) {
-			path = filepath.Join(root, path)
+	for _, pathOrGlob := range v.GetStringSlice("extends") {
+		if !filepath.IsAbs(pathOrGlob) {
+			pathOrGlob = filepath.Join(root, pathOrGlob)
 		}
 
-		extendV := newViper(fs, root)
-		extendV.SetConfigFile(path)
-		if err := extendV.ReadInConfig(); err != nil {
-			return err
+		paths, err := afero.Glob(fs, pathOrGlob)
+		if err != nil {
+			return fmt.Errorf("bad glob syntax for '%s': %w", pathOrGlob, err)
 		}
 
-		if err := extendRecursive(fs, extendV, root, extends); err != nil {
-			return err
-		}
+		for _, path := range paths {
+			if _, contains := extends[path]; contains {
+				return fmt.Errorf("possible recursion in extends: path %s is specified multiple times", path)
+			}
+			extends[path] = struct{}{}
 
-		if err := v.MergeConfigMap(extendV.AllSettings()); err != nil {
-			return err
+			extendV := newViper(fs, root)
+			extendV.SetConfigFile(path)
+			if err := extendV.ReadInConfig(); err != nil {
+				return err
+			}
+
+			if err := extendRecursive(fs, extendV, root, extends); err != nil {
+				return err
+			}
+
+			if err := v.MergeConfigMap(extendV.AllSettings()); err != nil {
+				return err
+			}
 		}
 	}
 
