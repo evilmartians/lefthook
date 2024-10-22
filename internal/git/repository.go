@@ -108,19 +108,19 @@ func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
 // StagedFiles returns a list of staged files
 // or an error if git command fails.
 func (r *Repository) StagedFiles() ([]string, error) {
-	return r.FilesByCommand(cmdStagedFiles)
+	return r.FilesByCommand(cmdStagedFiles, "")
 }
 
 // StagedFiles returns a list of all files in repository
 // or an error if git command fails.
 func (r *Repository) AllFiles() ([]string, error) {
-	return r.FilesByCommand(cmdAllFiles)
+	return r.FilesByCommand(cmdAllFiles, "")
 }
 
 // PushFiles returns a list of files that are ready to be pushed
 // or an error if git command fails.
 func (r *Repository) PushFiles() ([]string, error) {
-	res, err := r.FilesByCommand(cmdPushFilesBase)
+	res, err := r.FilesByCommand(cmdPushFilesBase, "")
 	if err == nil {
 		return res, nil
 	}
@@ -147,7 +147,7 @@ func (r *Repository) PushFiles() ([]string, error) {
 		r.headBranch = r.emptyTreeSHA
 	}
 
-	return r.FilesByCommand(append(cmdPushFilesHead, r.headBranch))
+	return r.FilesByCommand(append(cmdPushFilesHead, r.headBranch), "")
 }
 
 // PartiallyStagedFiles returns the list of files that have both staged and
@@ -316,8 +316,8 @@ func (r *Repository) AddFiles(files []string) error {
 }
 
 // FilesByCommand accepts git command and returns its result as a list of filepaths.
-func (r *Repository) FilesByCommand(command []string) ([]string, error) {
-	lines, err := r.Git.CmdLines(command)
+func (r *Repository) FilesByCommand(command []string, folder string) ([]string, error) {
+	lines, err := r.Git.CmdLinesWithinFolder(command, folder)
 	if err != nil {
 		return nil, err
 	}
