@@ -2,11 +2,8 @@ package lefthook
 
 import (
 	"bufio"
-	"crypto/md5"
-	"encoding/hex"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -145,7 +142,7 @@ func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Con
 }
 
 func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force bool) error {
-	if checkHashSum && l.hooksSynchronized() {
+	if checkHashSum && l.hooksSynchronized(cfg) {
 		return nil
 	}
 
@@ -158,7 +155,7 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force b
 		}
 	}()
 
-	checksum, err := l.configChecksum()
+	checksum, err := cfg.Md5()
 	if err != nil {
 		return fmt.Errorf("could not calculate checksum: %w", err)
 	}
@@ -224,7 +221,7 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force b
 	return nil
 }
 
-func (l *Lefthook) hooksSynchronized() bool {
+func (l *Lefthook) hooksSynchronized(cfg *config.Config) bool {
 	// Check checksum in a checksum file
 	file, err := l.Fs.Open(l.checksumFilePath())
 	if err != nil {
@@ -264,7 +261,7 @@ func (l *Lefthook) hooksSynchronized() bool {
 		return true
 	}
 
-	configChecksum, err := l.configChecksum()
+	configChecksum, err := cfg.Md5()
 	if err != nil {
 		return false
 	}
@@ -291,40 +288,6 @@ func (l *Lefthook) configLastUpdateTimestamp() (timestamp int64, err error) {
 	}
 
 	timestamp = config.ModTime().Unix()
-	return
-}
-
-func (l *Lefthook) configChecksum() (checksum string, err error) {
-	paths, err := afero.ReadDir(l.Fs, l.repo.RootPath)
-	if err != nil {
-		return
-	}
-
-	var config string
-	for _, file := range paths {
-		if ok := configGlob.Match(file.Name()); ok {
-			config = file.Name()
-			break
-		}
-	}
-	if len(config) == 0 {
-		err = errNoConfig
-		return
-	}
-
-	file, err := l.Fs.Open(filepath.Join(l.repo.RootPath, config))
-	if err != nil {
-		return
-	}
-	defer file.Close()
-
-	hash := md5.New()
-	_, err = io.Copy(hash, file)
-	if err != nil {
-		return
-	}
-
-	checksum = hex.EncodeToString(hash.Sum(nil)[:16])
 	return
 }
 

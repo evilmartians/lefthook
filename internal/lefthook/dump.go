@@ -1,6 +1,8 @@
 package lefthook
 
 import (
+	"os"
+
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/log"
 )
@@ -45,7 +47,7 @@ func Dump(opts *Options, args DumpArgs) {
 		format = config.TOMLFormat
 	}
 
-	if err := cfg.Dump(format); err != nil {
+	if err := cfg.Dump(format, os.Stdout); err != nil {
 		log.Errorf("couldn't dump config: %s\n", err)
 		return
 	}

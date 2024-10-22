@@ -326,7 +326,7 @@ post-commit:
     notify:
       run: echo 'Done!'
 `,
-			checksum: "8b2c9fc6b3391b3cf020b97ab7037c61 1555894310\n",
+			checksum: "939f59e3f706df65f379a9ff5ce0119b 1555894310\n",
 			wantExist: []string{
 				configPath,
 				infoPath(config.ChecksumFileName),
