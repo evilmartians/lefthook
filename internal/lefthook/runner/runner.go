@@ -129,6 +129,11 @@ func (r *Runner) runLFSHook(ctx context.Context) error {
 		return nil
 	}
 
+	// Skip running git-lfs for pre-push hook when triggered manually
+	if len(r.GitArgs) == 0 && r.HookName == "pre-push" {
+		return nil
+	}
+
 	lfsRequiredFile := filepath.Join(r.Repo.RootPath, git.LFSRequiredFile)
 	lfsConfigFile := filepath.Join(r.Repo.RootPath, git.LFSConfigFile)
 
