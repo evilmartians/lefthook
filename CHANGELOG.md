@@ -1,5 +1,10 @@
 # Change log
 
+## 1.8.1 (2024-10-23)
+
+- chore: bump Go to 1.23 ([#856](https://github.com/evilmartians/lefthook/pull/856)) by Valentin Kiselev
+- fix: skip git lfs hook when calling manually ([#855](https://github.com/evilmartians/lefthook/pull/855)) by Valentin Kiselev
+
 ## 1.8.0 (2024-10-22)
 
 - fix: [**breaking**] don't auto-install lefthook with npx if not found ([#602](https://github.com/evilmartians/lefthook/pull/602)) by @anthony-hayes
