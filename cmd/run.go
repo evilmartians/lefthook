@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"sort"
+
 	"github.com/spf13/cobra"
+	"golang.org/x/exp/maps"
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/lefthook"
@@ -19,7 +22,9 @@ func (run) New(opts *lefthook.Options) *cobra.Command {
 			return
 		}
 		ret = lefthook.ConfigHookCompletions(opts)
-		ret = append(ret, config.AvailableHooks[:]...)
+		other := maps.Keys(config.AvailableHooks)
+		sort.Strings(other)
+		ret = append(ret, other...)
 		return
 	}
 

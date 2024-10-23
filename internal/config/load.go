@@ -280,7 +280,7 @@ func mergeLocal(v *viper.Viper) error {
 func unmarshalConfigs(base, extra *viper.Viper, c *Config) error {
 	c.Hooks = make(map[string]*Hook)
 
-	for _, hookName := range AvailableHooks {
+	for hookName := range AvailableHooks {
 		if err := addHook(hookName, base, extra, c); err != nil {
 			return err
 		}

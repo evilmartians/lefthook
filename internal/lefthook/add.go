@@ -27,7 +27,7 @@ func Add(opts *Options, args *AddArgs) error {
 
 // Creates a hook, given in args. The hook is a Lefthook hook.
 func (l *Lefthook) Add(args *AddArgs) error {
-	if !config.HookAvailable(args.Hook) {
+	if !config.KnownHook(args.Hook) {
 		return fmt.Errorf("Skip adding, hook is unavailable: %s", args.Hook)
 	}
 

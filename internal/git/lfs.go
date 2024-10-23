@@ -9,11 +9,11 @@ const (
 	LFSConfigFile   = ".lfsconfig"
 )
 
-var lfsHooks = [...]string{
-	"post-checkout",
-	"post-commit",
-	"post-merge",
-	"pre-push",
+var lfsHooks = map[string]struct{}{
+	"post-checkout": {},
+	"post-commit":   {},
+	"post-merge":    {},
+	"pre-push":      {},
 }
 
 // IsLFSAvailable returns 'true' if git-lfs is installed.
@@ -25,11 +25,6 @@ func IsLFSAvailable() bool {
 
 // IsLFSHook returns whether the hookName is supported by Git LFS.
 func IsLFSHook(hookName string) bool {
-	for _, lfsHookName := range lfsHooks {
-		if lfsHookName == hookName {
-			return true
-		}
-	}
-
-	return false
+	_, ok := lfsHooks[hookName]
+	return ok
 }
