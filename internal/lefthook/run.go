@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"slices"
 	"time"
 
 	"github.com/evilmartians/lefthook/internal/config"
@@ -108,7 +107,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	// Find the hook
 	hook, ok := cfg.Hooks[hookName]
 	if !ok {
-		if slices.Contains(config.AvailableHooks[:], hookName) {
+		if config.KnownHook(hookName) {
 			log.Debugf("[lefthook] skip: Hook %s doesn't exist in the config", hookName)
 			return nil
 		}
