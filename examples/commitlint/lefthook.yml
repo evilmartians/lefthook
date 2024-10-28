@@ -3,7 +3,7 @@ prepare-commit-msg:
   commands:
     commitzen:
       interactive: true
-      run: yarn run cz
+      run: yarn run cz --hook # Or npx cz --hook
       env:
         LEFTHOOK: 0
 
