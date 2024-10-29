@@ -10,9 +10,10 @@ const (
 
 // Result contains name of a command/script and an optional fail string.
 type Result struct {
+	Sub    []Result
 	Name   string
-	status status
 	text   string
+	status status
 }
 
 func (r Result) Success() bool {
@@ -37,4 +38,19 @@ func succeeded(name string) Result {
 
 func failed(name, text string) Result {
 	return Result{Name: name, status: failure, text: text}
+}
+
+func groupResult(name string, results []Result) Result {
+	var stat status = success
+	for _, res := range results {
+		if res.status == failure {
+			stat = failure
+			break
+		}
+		if res.status == skip {
+			stat = skip
+		}
+	}
+
+	return Result{Name: name, status: stat, Sub: results}
 }

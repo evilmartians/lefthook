@@ -8,7 +8,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"regexp"
 	"slices"
 	"sort"
 	"strconv"
@@ -22,19 +21,14 @@ import (
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
+	"github.com/evilmartians/lefthook/internal/lefthook/runner/action"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/exec"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/filters"
 	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/evilmartians/lefthook/internal/system"
 )
 
-const (
-	executableFileMode os.FileMode = 0o751
-	executableMask     os.FileMode = 0o111
-	execLogPadding                 = 2
-)
-
-var surroundingQuotesRegexp = regexp.MustCompile(`^'(.*)'$`)
+const execLogPadding = 2
 
 type Options struct {
 	Repo            *git.Repository
@@ -47,6 +41,7 @@ type Options struct {
 	Force           bool
 	Files           []string
 	RunOnlyCommands []string
+	SourceDirs      []string
 }
 
 // Runner responds for actual execution and handling the results.
@@ -72,15 +67,6 @@ func New(opts Options) *Runner {
 	}
 }
 
-// skipError implements error interface but indicates that the execution needs to be skipped.
-type skipError struct {
-	reason string
-}
-
-func (r *skipError) Error() string {
-	return r.reason
-}
-
 type executable interface {
 	*config.Command | *config.Script
 	ExecutionPriority() int
@@ -88,10 +74,10 @@ type executable interface {
 
 // RunAll runs scripts and commands.
 // LFS hook is executed at first if needed.
-func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) ([]Result, error) {
+func (r *Runner) RunAll(ctx context.Context) ([]Result, error) {
 	results := make([]Result, 0, len(r.Hook.Commands)+len(r.Hook.Scripts))
 
-	if r.Hook.DoSkip(r.Repo.State) {
+	if config.NewSkipChecker(system.Cmd).Check(r.Repo.State, r.Hook.Skip, r.Hook.Only) {
 		r.logSkip(r.HookName, "hook setting")
 		return results, nil
 	}
@@ -105,8 +91,10 @@ func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) ([]Result, err
 		defer log.StopSpinner()
 	}
 
-	scriptDirs := make([]string, 0, len(sourceDirs))
-	for _, sourceDir := range sourceDirs {
+	results = append(results, r.runActions(ctx)...)
+
+	scriptDirs := make([]string, 0, len(r.SourceDirs))
+	for _, sourceDir := range r.SourceDirs {
 		scriptDirs = append(scriptDirs, filepath.Join(
 			sourceDir, r.HookName,
 		))
@@ -309,16 +297,14 @@ func (r *Runner) runScripts(ctx context.Context, dir string) []Result {
 			continue
 		}
 
-		path := filepath.Join(dir, file.Name())
-
 		if r.Hook.Parallel {
 			wg.Add(1)
-			go func(script *config.Script, path string, file os.FileInfo, resChan chan Result) {
+			go func(script *config.Script, file os.FileInfo, resChan chan Result) {
 				defer wg.Done()
-				resChan <- r.runScript(ctx, script, path, file)
-			}(script, path, file, resChan)
+				resChan <- r.runScript(ctx, script, file)
+			}(script, file, resChan)
 		} else {
-			results = append(results, r.runScript(ctx, script, path, file))
+			results = append(results, r.runScript(ctx, script, file))
 		}
 	}
 
@@ -339,19 +325,31 @@ func (r *Runner) runScripts(ctx context.Context, dir string) []Result {
 			continue
 		}
 
-		path := filepath.Join(dir, file.Name())
-		results = append(results, r.runScript(ctx, script, path, file))
+		results = append(results, r.runScript(ctx, script, file))
 	}
 
 	return results
 }
 
-func (r *Runner) runScript(ctx context.Context, script *config.Script, path string, file os.FileInfo) Result {
-	command, err := r.prepareScript(script, path, file)
+func (r *Runner) runScript(ctx context.Context, script *config.Script, file os.FileInfo) Result {
+	scriptAction, err := action.New(file.Name(), &action.Params{
+		Repo:       r.Repo,
+		Hook:       r.Hook,
+		HookName:   r.HookName,
+		ForceFiles: r.Files,
+		Force:      r.Force,
+		GitArgs:    r.GitArgs,
+		SourceDirs: r.SourceDirs,
+		Runner:     script.Runner,
+		Script:     file.Name(),
+		Tags:       script.Tags,
+		Only:       script.Only,
+		Skip:       script.Skip,
+	})
 	if err != nil {
 		r.logSkip(file.Name(), err.Error())
 
-		var skipErr *skipError
+		var skipErr action.SkipError
 		if errors.As(err, &skipErr) {
 			return skipped(file.Name())
 		}
@@ -368,7 +366,7 @@ func (r *Runner) runScript(ctx context.Context, script *config.Script, path stri
 	ok := r.run(ctx, exec.Options{
 		Name:        file.Name(),
 		Root:        r.Repo.RootPath,
-		Commands:    []string{command},
+		Commands:    scriptAction.Execs,
 		Interactive: script.Interactive && !r.DisableTTY,
 		UseStdin:    script.UseStdin,
 		Env:         script.Env,
@@ -452,11 +450,27 @@ func (r *Runner) runCommands(ctx context.Context) []Result {
 }
 
 func (r *Runner) runCommand(ctx context.Context, name string, command *config.Command) Result {
-	run, err := r.prepareCommand(name, command)
+	runAction, err := action.New(name, &action.Params{
+		Repo:       r.Repo,
+		Hook:       r.Hook,
+		HookName:   r.HookName,
+		ForceFiles: r.Files,
+		Force:      r.Force,
+		GitArgs:    r.GitArgs,
+		Run:        command.Run,
+		Root:       command.Root,
+		Glob:       command.Glob,
+		Files:      command.Files,
+		FileTypes:  command.FileTypes,
+		Tags:       command.Tags,
+		Exclude:    command.Exclude,
+		Only:       command.Only,
+		Skip:       command.Skip,
+	})
 	if err != nil {
 		r.logSkip(name, err.Error())
 
-		var skipErr *skipError
+		var skipErr action.SkipError
 		if errors.As(err, &skipErr) {
 			return skipped(name)
 		}
@@ -473,7 +487,7 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 	ok := r.run(ctx, exec.Options{
 		Name:        name,
 		Root:        filepath.Join(r.Repo.RootPath, command.Root),
-		Commands:    run.commands,
+		Commands:    runAction.Execs,
 		Interactive: command.Interactive && !r.DisableTTY,
 		UseStdin:    command.UseStdin,
 		Env:         command.Env,
@@ -487,7 +501,7 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 	result := succeeded(name)
 
 	if config.HookUsesStagedFiles(r.HookName) && command.StageFixed {
-		files := run.files
+		files := runAction.Files
 
 		if len(files) == 0 {
 			var err error
@@ -497,7 +511,12 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 				return result
 			}
 
-			files = filters.Apply(r.Repo.Fs, command, files)
+			files = filters.Apply(r.Repo.Fs, files, filters.Params{
+				Glob:      command.Glob,
+				Root:      command.Root,
+				Exclude:   command.Exclude,
+				FileTypes: command.FileTypes,
+			})
 		}
 
 		if len(command.Root) > 0 {
@@ -550,23 +569,6 @@ func (r *Runner) run(ctx context.Context, opts exec.Options, follow bool) bool {
 	r.logExecute(opts.Name, err, out)
 
 	return err == nil
-}
-
-// Returns whether two arrays have at least one similar element.
-func intersect(a, b []string) bool {
-	intersections := make(map[string]struct{}, len(a))
-
-	for _, v := range a {
-		intersections[v] = struct{}{}
-	}
-
-	for _, v := range b {
-		if _, ok := intersections[v]; ok {
-			return true
-		}
-	}
-
-	return false
 }
 
 func (r *Runner) logSkip(name, reason string) {
