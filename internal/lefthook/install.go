@@ -159,7 +159,6 @@ func (l *Lefthook) shouldRefetch(remote *config.Remote) bool {
 	var lastFetchTime time.Time
 	remotePath := l.repo.RemoteFolder(remote.GitURL, remote.Ref)
 	info, err := l.Fs.Stat(filepath.Join(remotePath, ".git", "FETCH_HEAD"))
-
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return true
@@ -171,7 +170,6 @@ func (l *Lefthook) shouldRefetch(remote *config.Remote) bool {
 
 	lastFetchTime = info.ModTime()
 	return time.Now().After(lastFetchTime.Add(timedelta))
-
 }
 
 func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force bool) error {

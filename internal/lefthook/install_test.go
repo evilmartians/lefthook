@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
@@ -14,9 +15,7 @@ import (
 
 func TestLefthookInstall(t *testing.T) {
 	root, err := filepath.Abs("src")
-	if err != nil {
-		t.Errorf("unexpected error: %s", err)
-	}
+	assert.NoError(t, err)
 
 	configPath := filepath.Join(root, "lefthook.yml")
 
@@ -201,62 +200,46 @@ post-commit:
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
+			assert := assert.New(t)
+
 			// Create configuration file
 			if len(tt.config) > 0 {
-				if err := afero.WriteFile(fs, configPath, []byte(tt.config), 0o644); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
+				assert.NoError(afero.WriteFile(fs, configPath, []byte(tt.config), 0o644))
 				timestamp := time.Date(2022, time.June, 22, 10, 40, 10, 1, time.UTC)
-				if err := fs.Chtimes(configPath, timestamp, timestamp); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
+				assert.NoError(fs.Chtimes(configPath, timestamp, timestamp))
 			}
 
 			if len(tt.checksum) > 0 {
-				if err := afero.WriteFile(fs, lefthook.checksumFilePath(), []byte(tt.checksum), 0o644); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
+				assert.NoError(afero.WriteFile(fs, lefthook.checksumFilePath(), []byte(tt.checksum), 0o644))
 			}
 
 			// Create files that should exist
 			for hook, content := range tt.existingHooks {
 				path := hookPath(hook)
-				if err := fs.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
-				if err := afero.WriteFile(fs, path, []byte(content), 0o755); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
+				assert.NoError(fs.MkdirAll(filepath.Dir(path), 0o755))
+				assert.NoError(afero.WriteFile(fs, path, []byte(content), 0o755))
 			}
 
 			// Do install
 			err := lefthook.Install(tt.force)
-			if tt.wantError && err == nil {
-				t.Errorf("expected an error")
-			} else if !tt.wantError && err != nil {
-				t.Errorf("unexpected error: %s", err)
+			if tt.wantError {
+				assert.Error(err)
+			} else {
+				assert.NoError(err)
 			}
 
 			// Test files that should exist
 			for _, file := range tt.wantExist {
 				ok, err := afero.Exists(fs, file)
-				if err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
-				if !ok {
-					t.Errorf("expected %s to exist", file)
-				}
+				assert.NoError(err)
+				assert.Equal(ok, true)
 			}
 
 			// Test files that should not exist
 			for _, file := range tt.wantNotExist {
 				ok, err := afero.Exists(fs, file)
-				if err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
-				if ok {
-					t.Errorf("expected %s to not exist", file)
-				}
+				assert.NoError(err)
+				assert.Equal(ok, false)
 			}
 		})
 	}
@@ -264,9 +247,7 @@ post-commit:
 
 func TestCreateHooksIfNeeded(t *testing.T) {
 	root, err := filepath.Abs("src")
-	if err != nil {
-		t.Errorf("unexpected error: %s", err)
-	}
+	assert.NoError(t, err)
 
 	configPath := filepath.Join(root, "lefthook.yml")
 
@@ -345,67 +326,49 @@ post-commit:
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
+			assert := assert.New(t)
+
 			// Create configuration file
 			if len(tt.config) > 0 {
-				if err := afero.WriteFile(fs, configPath, []byte(tt.config), 0o644); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
+				assert.NoError(afero.WriteFile(fs, configPath, []byte(tt.config), 0o644))
 				timestamp := time.Date(2022, time.June, 22, 10, 40, 10, 1, time.UTC)
-				if err := fs.Chtimes(configPath, timestamp, timestamp); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
+				assert.NoError(fs.Chtimes(configPath, timestamp, timestamp))
 			}
 
 			if len(tt.checksum) > 0 {
-				if err := afero.WriteFile(fs, lefthook.checksumFilePath(), []byte(tt.checksum), 0o644); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
+				assert.NoError(afero.WriteFile(fs, lefthook.checksumFilePath(), []byte(tt.checksum), 0o644))
 			}
 
 			// Create files that should exist
 			for hook, content := range tt.existingHooks {
 				path := hookPath(hook)
-				if err := fs.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
-				if err := afero.WriteFile(fs, path, []byte(content), 0o755); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
+				assert.NoError(fs.MkdirAll(filepath.Dir(path), 0o755))
+				assert.NoError(afero.WriteFile(fs, path, []byte(content), 0o755))
 			}
 
 			cfg, err := config.Load(lefthook.Fs, repo)
-			if err != nil {
-				t.Errorf("unexpected error: %s", err)
-			}
+			assert.NoError(err)
 
 			// Create hooks
 			err = lefthook.createHooksIfNeeded(cfg, true, true)
-			if tt.wantError && err == nil {
-				t.Errorf("expected an error")
-			} else if !tt.wantError && err != nil {
-				t.Errorf("unexpected error: %s", err)
+			if tt.wantError {
+				assert.Error(err)
+			} else {
+				assert.NoError(err)
 			}
 
 			// Test files that should exist
 			for _, file := range tt.wantExist {
 				ok, err := afero.Exists(fs, file)
-				if err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
-				if !ok {
-					t.Errorf("expected %s to exist", file)
-				}
+				assert.NoError(err)
+				assert.Equal(ok, true)
 			}
 
 			// Test files that should not exist
 			for _, file := range tt.wantNotExist {
 				ok, err := afero.Exists(fs, file)
-				if err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
-				if ok {
-					t.Errorf("expected %s to not exist", file)
-				}
+				assert.NoError(err)
+				assert.Equal(ok, false)
 			}
 		})
 	}
@@ -413,9 +376,7 @@ post-commit:
 
 func TestShouldRefetch(t *testing.T) {
 	root, err := filepath.Abs("src")
-	if err != nil {
-		t.Errorf("unexpected error: %s", err)
-	}
+	assert.NoError(t, err)
 
 	configPath := filepath.Join(root, "lefthook.yml")
 	fetchHeadPath := func(lefthook *Lefthook, remote *config.Remote) string {
@@ -491,49 +452,30 @@ remotes:
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
+			assert := assert.New(t)
+
 			// Create configuration file
 			if len(tt.config) > 0 {
-				if err := afero.WriteFile(fs, configPath, []byte(tt.config), 0o644); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
+				assert.NoError(afero.WriteFile(fs, configPath, []byte(tt.config), 0o644))
 				timestamp := time.Date(2022, time.June, 22, 10, 40, 10, 1, time.UTC)
-				if err := fs.Chtimes(configPath, timestamp, timestamp); err != nil {
-					t.Errorf("unexpected error: %s", err)
-				}
+				assert.NoError(fs.Chtimes(configPath, timestamp, timestamp))
 			}
 
 			cfg, err := config.Load(lefthook.Fs, repo)
-			if err != nil {
-				t.Errorf("unexpected error: %s", err)
-			}
+			assert.NoError(err)
 
 			remote := cfg.Remotes[0]
 
-			if lefthook.shouldRefetch(remote) != tt.shouldRefetchInitially {
-				t.Errorf("unexpected shouldRefetch return before first fetch")
-			}
+			assert.Equal(lefthook.shouldRefetch(remote), tt.shouldRefetchInitially)
 
-			if err := afero.WriteFile(fs, fetchHeadPath(lefthook, remote), []byte(""), 0o644); err != nil {
-				t.Errorf("unexpected error: %s", err)
-			}
+			assert.NoError(afero.WriteFile(fs, fetchHeadPath(lefthook, remote), []byte(""), 0o644))
+			firstFetchTime := time.Now().Add(-2 * time.Minute)
 
-			firstFetchTime := time.Now().Add(-2 * time.Duration(time.Minute))
+			assert.NoError(fs.Chtimes(fetchHeadPath(lefthook, remote), firstFetchTime, firstFetchTime))
+			assert.Equal(lefthook.shouldRefetch(remote), tt.shouldRefetchAfter)
 
-			if err := fs.Chtimes(fetchHeadPath(lefthook, remote), firstFetchTime, firstFetchTime); err != nil {
-				t.Errorf("unexpected error: %s", err)
-			}
-
-			if lefthook.shouldRefetch(remote) != tt.shouldRefetchAfter {
-				t.Errorf("unexpected shouldRefetch return after refetch period")
-			}
-
-			if err := fs.Chtimes(fetchHeadPath(lefthook, remote), firstFetchTime, time.Now()); err != nil {
-				t.Errorf("unexpected error: %s", err)
-			}
-
-			if lefthook.shouldRefetch(remote) != tt.shouldRefetchBefore {
-				t.Errorf("unexpected shouldRefetch return before refetch period")
-			}
+			assert.NoError(fs.Chtimes(fetchHeadPath(lefthook, remote), firstFetchTime, time.Now()))
+			assert.Equal(lefthook.shouldRefetch(remote), tt.shouldRefetchBefore)
 		})
 	}
 }
