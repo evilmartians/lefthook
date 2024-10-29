@@ -49,6 +49,7 @@ colors:
   red: '#FF1493'
   yellow: '#F0E68C'
 pre-commit:
+  follow: true
   commands:
     lint:
       run: yarn lint {staged_files}
@@ -79,6 +80,7 @@ pre-commit:
     "yellow": "#F0E68C"
   },
   "pre-commit": {
+    "follow": true,
     "commands": {
       "lint": {
         "run": "yarn lint {staged_files}",

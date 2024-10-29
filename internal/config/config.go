@@ -11,8 +11,6 @@ import (
 	"github.com/mitchellh/mapstructure"
 	toml "github.com/pelletier/go-toml/v2"
 	"gopkg.in/yaml.v3"
-
-	"github.com/evilmartians/lefthook/internal/version"
 )
 
 type DumpFormat int
@@ -44,10 +42,6 @@ type Config struct {
 	Remotes []*Remote `mapstructure:"remotes,omitempty"`
 
 	Hooks map[string]*Hook `mapstructure:"-"`
-}
-
-func (c *Config) Validate() error {
-	return version.CheckCovered(c.MinVersion)
 }
 
 func (c *Config) Md5() (checksum string, err error) {
