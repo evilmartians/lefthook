@@ -1,5 +1,11 @@
 # Change log
 
+## 1.8.2 (2024-10-29)
+
+- chore: fix linter and tests by @mrexox
+- feat: add refetch_frequency parameter to settings ([#857](https://github.com/evilmartians/lefthook/pull/857)) by @gabriel-ss
+- docs: call commitizen properly ([#858](https://github.com/evilmartians/lefthook/pull/858)) by @politician
+
 ## 1.8.1 (2024-10-23)
 
 - chore: bump Go to 1.23 ([#856](https://github.com/evilmartians/lefthook/pull/856)) by Valentin Kiselev
