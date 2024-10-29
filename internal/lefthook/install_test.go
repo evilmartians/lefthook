@@ -410,3 +410,130 @@ post-commit:
 		})
 	}
 }
+
+func TestShouldRefetch(t *testing.T) {
+	root, err := filepath.Abs("src")
+	if err != nil {
+		t.Errorf("unexpected error: %s", err)
+	}
+
+	configPath := filepath.Join(root, "lefthook.yml")
+	fetchHeadPath := func(lefthook *Lefthook, remote *config.Remote) string {
+		remotePath := lefthook.repo.RemoteFolder(remote.GitURL, remote.Ref)
+		return filepath.Join(remotePath, ".git", "FETCH_HEAD")
+	}
+
+	repo := &git.Repository{
+		HooksPath: filepath.Join(root, ".git", "hooks"),
+		RootPath:  root,
+		InfoPath:  filepath.Join(root, ".git", "info"),
+	}
+	for n, tt := range [...]struct {
+		name, config                                                    string
+		shouldRefetchInitially, shouldRefetchAfter, shouldRefetchBefore bool
+	}{
+		{
+			name: "with refetch frequency configured to always",
+			config: `
+remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    refetch_frequency: always
+    configs:
+      - examples/remote/ping.yml
+`,
+			shouldRefetchInitially: true,
+			shouldRefetchAfter:     true,
+			shouldRefetchBefore:    true,
+		},
+		{
+			name: "with refetch frequency configured to 1 minute",
+			config: `
+remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    refetch_frequency: 1m
+    configs:
+      - examples/remote/ping.yml
+`,
+			shouldRefetchInitially: true,
+			shouldRefetchAfter:     true,
+			shouldRefetchBefore:    false,
+		},
+		{
+			name: "with refetch frequency configured to never",
+			config: `
+remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    refetch_frequency: never
+    configs:
+      - examples/remote/ping.yml
+`,
+			shouldRefetchInitially: false,
+			shouldRefetchAfter:     false,
+			shouldRefetchBefore:    false,
+		},
+		{
+			name: "with refetch frequency not configured",
+			config: `
+remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    configs:
+      - examples/remote/ping.yml
+`,
+			shouldRefetchInitially: false,
+			shouldRefetchAfter:     false,
+			shouldRefetchBefore:    false,
+		},
+	} {
+		fs := afero.NewMemMapFs()
+		lefthook := &Lefthook{
+			Options: &Options{Fs: fs},
+			repo:    repo,
+		}
+
+		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
+			// Create configuration file
+			if len(tt.config) > 0 {
+				if err := afero.WriteFile(fs, configPath, []byte(tt.config), 0o644); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
+				timestamp := time.Date(2022, time.June, 22, 10, 40, 10, 1, time.UTC)
+				if err := fs.Chtimes(configPath, timestamp, timestamp); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
+			}
+
+			cfg, err := config.Load(lefthook.Fs, repo)
+			if err != nil {
+				t.Errorf("unexpected error: %s", err)
+			}
+
+			remote := cfg.Remotes[0]
+
+			if lefthook.shouldRefetch(remote) != tt.shouldRefetchInitially {
+				t.Errorf("unexpected shouldRefetch return before first fetch")
+			}
+
+			if err := afero.WriteFile(fs, fetchHeadPath(lefthook, remote), []byte(""), 0o644); err != nil {
+				t.Errorf("unexpected error: %s", err)
+			}
+
+			firstFetchTime := time.Now().Add(-2 * time.Duration(time.Minute))
+
+			if err := fs.Chtimes(fetchHeadPath(lefthook, remote), firstFetchTime, firstFetchTime); err != nil {
+				t.Errorf("unexpected error: %s", err)
+			}
+
+			if lefthook.shouldRefetch(remote) != tt.shouldRefetchAfter {
+				t.Errorf("unexpected shouldRefetch return after refetch period")
+			}
+
+			if err := fs.Chtimes(fetchHeadPath(lefthook, remote), firstFetchTime, time.Now()); err != nil {
+				t.Errorf("unexpected error: %s", err)
+			}
+
+			if lefthook.shouldRefetch(remote) != tt.shouldRefetchBefore {
+				t.Errorf("unexpected shouldRefetch return before refetch period")
+			}
+		})
+	}
+}

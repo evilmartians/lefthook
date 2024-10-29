@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gobwas/glob"
 	"github.com/spf13/afero"
@@ -118,7 +119,7 @@ func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Con
 
 	if fetchRemotes {
 		for _, remote := range cfg.Remotes {
-			if remote.Configured() && remote.Refetch {
+			if remote.Configured() && l.shouldRefetch(remote) {
 				if err = l.repo.SyncRemote(remote.GitURL, remote.Ref, false); err != nil {
 					log.Warnf("Couldn't sync from %s. Will continue anyway: %s", remote.GitURL, err)
 					continue
@@ -139,6 +140,38 @@ func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Con
 
 	// Don't rely on config checksum if remotes were refetched
 	return cfg, l.createHooksIfNeeded(cfg, true, false)
+}
+
+func (l *Lefthook) shouldRefetch(remote *config.Remote) bool {
+	if remote.Refetch || remote.RefetchFrequency == "always" {
+		return true
+	}
+	if remote.RefetchFrequency == "" || remote.RefetchFrequency == "never" {
+		return false
+	}
+
+	timedelta, err := time.ParseDuration(remote.RefetchFrequency)
+	if err != nil {
+		log.Warnf("Couldn't parse refetch frequency %s. Will continue anyway: %s", remote.RefetchFrequency, err)
+		return false
+	}
+
+	var lastFetchTime time.Time
+	remotePath := l.repo.RemoteFolder(remote.GitURL, remote.Ref)
+	info, err := l.Fs.Stat(filepath.Join(remotePath, ".git", "FETCH_HEAD"))
+
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return true
+		}
+
+		log.Warnf("Failed to detect last fetch time: %s", err)
+		return false
+	}
+
+	lastFetchTime = info.ModTime()
+	return time.Now().After(lastFetchTime.Add(timedelta))
+
 }
 
 func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force bool) error {
