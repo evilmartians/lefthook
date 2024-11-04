@@ -8,7 +8,7 @@ require (
 	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/briandowns/spinner v1.23.1
 	github.com/charmbracelet/lipgloss v0.13.1
-	github.com/creack/pty v1.1.23
+	github.com/creack/pty v1.1.24
 	github.com/gobwas/glob v0.2.3
 	github.com/mattn/go-tty v0.0.7
 	github.com/mitchellh/mapstructure v1.5.0
