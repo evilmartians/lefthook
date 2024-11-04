@@ -7,7 +7,7 @@ toolchain go1.22.3
 require (
 	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/briandowns/spinner v1.23.1
-	github.com/charmbracelet/lipgloss v0.13.1
+	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/creack/pty v1.1.24
 	github.com/gobwas/glob v0.2.3
 	github.com/mattn/go-tty v0.0.7
@@ -23,7 +23,7 @@ require (
 
 require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/charmbracelet/x/ansi v0.3.2 // indirect
+	github.com/charmbracelet/x/ansi v0.4.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
