@@ -282,7 +282,7 @@ Provide an [**rc**](https://www.baeldung.com/linux/rc-files) file, which is actu
 Use cases:
 
 - You have a GUI program that runs git hooks (e.g., VSCode)
-- You reference executables that are accessible only from a tweaked $PATH environment variable (e.g., when using rbenv or nvm)
+- You reference executables that are accessible only from a tweaked $PATH environment variable (e.g., when using rbenv or nvm, fnm)
 - Or even if your GUI program cannot locate the `lefthook` executable :scream:
 - Or if you want to use ENV variables that control the executables behavior in `lefthook.yml`
 
@@ -329,6 +329,10 @@ In the rc file, export any new environment variables or modify existing ones.
 # An nvm way
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+# An fnm way
+export FNM_DIR="$HOME/.fnm"
+[ -s "$FNM_DIR/fnm.sh" ] && \. "$FNM_DIR/fnm.sh"
 
 # Or maybe just
 PATH=$PATH:$HOME/.nvm/versions/node/v15.14.0/bin
