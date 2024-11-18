@@ -1,5 +1,9 @@
 # Change log
 
+## 1.8.3 (2024-11-18)
+
+- fix: use absolute paths when cloning remotes ([#873](https://github.com/evilmartians/lefthook/pull/873)) by @mrexox
+
 ## 1.8.2 (2024-10-29)
 
 - chore: fix linter and tests by @mrexox
