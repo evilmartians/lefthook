@@ -25,6 +25,7 @@ Config options:
 - [`no_tty`](#no_tty)
 - [`extends`](#extends)
 - [`min_version`](#min_version)
+- [`output`](#output)
 - [`skip_output`](#skip_output)
 - [`source_dir`](#source_dir)
 - [`source_dir_local`](#source_dir_local)
