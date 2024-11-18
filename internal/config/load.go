@@ -1,20 +1,16 @@
+// TODO rewrite using Koanf
 package config
 
 import (
 	"errors"
 	"fmt"
-	iofs "io/fs"
-	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
+	"strings"
 
-	"github.com/knadh/koanf/parsers/json"
-	"github.com/knadh/koanf/parsers/toml/v2"
-	"github.com/knadh/koanf/parsers/yaml"
-	koanffs "github.com/knadh/koanf/providers/fs"
-	"github.com/knadh/koanf/v2"
 	"github.com/spf13/afero"
+	"github.com/spf13/viper"
 
 	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/log"
@@ -29,53 +25,51 @@ const (
 var (
 	hookKeyRegexp    = regexp.MustCompile(`^(?P<hookName>[^.]+)\.(scripts|commands)`)
 	localConfigNames = []string{"lefthook-local", ".lefthook-local"}
-	names            = []string{"lefthook", ".lefthook"}
-	extensions       = []string{".yml", ".yaml", ".toml", ".json"}
-	parsers          = map[string]func() koanf.Parser{
-		".json": jsonParser,
-		".yaml": yamlParser,
-		".yml":  yamlParser,
-		".toml": tomlParser,
+	mainConfigNames  = []string{"lefthook", ".lefthook"}
+	extensions       = map[string]struct{}{
+		".yaml": {},
+		".json": {},
+		".toml": {},
+		".yml":  {},
 	}
 )
 
-type ErrNotFound struct {
-	msg string
+// NotFoundError wraps viper.ConfigFileNotFoundError for lefthook.
+type NotFoundError struct {
+	message string
 }
 
-func (e ErrNotFound) Error() string {
-	return e.msg
-}
-
-func yamlParser() koanf.Parser {
-	return yaml.Parser()
-}
-
-func jsonParser() koanf.Parser {
-	return json.Parser()
-}
-
-func tomlParser() koanf.Parser {
-	return toml.Parser()
-}
-
-type fs struct {
-	fs afero.Fs
-}
-
-func (f fs) Open(name string) (iofs.File, error) {
-	return f.fs.Open(name)
+// Error returns message of viper.ConfigFileNotFoundError.
+func (err NotFoundError) Error() string {
+	return err.message
 }
 
 // Loads configs from the given directory with extensions.
-func Load(f afero.Fs, repo *git.Repository) (*Config, error) {
-	fs := fs{fs: f}
-	global, err := readOne(fs, repo.RootPath)
+func Load(fs afero.Fs, repo *git.Repository) (*Config, error) {
+	main, err := readOne(fs, repo.RootPath, mainConfigNames)
 	if err != nil {
 		return nil, err
 	}
 
-	extends, err := mergeAll(fs, repo)
+	extends := main.GetStringSlice("extends")
+	var remote *Remote
+	var remotes []*Remote
+	err = main.UnmarshalKey("remotes", &remotes)
+	if err != nil {
+		return nil, err
+	}
+	// Deprecated
+	err = main.UnmarshalKey("remote", &remote)
+	if err != nil {
+		return nil, err
+	}
+
+	// Backward compatibility
+	if remote != nil {
+		remotes = append(remotes, remote)
+	}
+
+	secondary, err := readSecondary(fs, repo, extends, remotes)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +79,7 @@ func Load(f afero.Fs, repo *git.Repository) (*Config, error) {
 	config.SourceDir = DefaultSourceDir
 	config.SourceDirLocal = DefaultSourceDirLocal
 
-	err = unmarshalConfigs(global, extends, &config)
+	err = unmarshalConfigs(main, secondary, &config)
 	if err != nil {
 		return nil, err
 	}
@@ -94,95 +88,83 @@ func Load(f afero.Fs, repo *git.Repository) (*Config, error) {
 	return &config, nil
 }
 
-func read(fs fs, path string, name string, parser func() koanf.Parser) (*koanf.Koanf, error) {
-	k := koanf.New(".")
-	if err := k.Load(koanffs.Provider(fs, filepath.Join(path, name)), parser()); err != nil {
+func read(fs afero.Fs, name, path string) (*viper.Viper, error) {
+	v := newViper(fs, path)
+	v.SetConfigName(name)
+
+	if err := v.ReadInConfig(); err != nil {
 		return nil, err
 	}
 
-	return k, nil
+	return v, nil
 }
 
-func readOne(fs fs, path string) (*koanf.Koanf, error) {
-	for _, name := range names {
-		for _, ext := range extensions {
-			k, err := read(fs, path, name+ext, parsers[ext])
-			if err != nil {
-				if errors.Is(err, os.ErrNotExist) {
-					continue
-				}
+func newViper(fs afero.Fs, path string) *viper.Viper {
+	v := viper.New()
+	v.SetFs(fs)
+	v.AddConfigPath(path)
 
-				return nil, err
+	// Allow overwriting settings with ENV variables
+	v.SetEnvPrefix("LEFTHOOK")
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	v.AutomaticEnv()
+
+	return v
+}
+
+func readOne(fs afero.Fs, path string, names []string) (*viper.Viper, error) {
+	for _, name := range names {
+		v, err := read(fs, name, path)
+		if err != nil {
+			var notFoundErr viper.ConfigFileNotFoundError
+			if ok := errors.As(err, &notFoundErr); ok {
+				continue
 			}
 
-			return k, nil
+			return nil, err
 		}
+
+		return v, nil
 	}
 
-	return nil, ErrNotFound{fmt.Sprintf("No config files were found in \"%s\"", path)}
+	return nil, NotFoundError{fmt.Sprintf("No config files with names %q have been found in \"%s\"", names, path)}
 }
 
-// mergeAll merges configs using the following order.
-// - lefthook/.lefthook
+// readSecondary reads extends, remotes and local config.
 // - files from `extends`
 // - files from `remotes`
 // - lefthook-local/.lefthook-local.
-func mergeAll(fs fs, repo *git.Repository) (*koanf.Koanf, error) {
-	extends, err := readOne(fs, repo.RootPath)
-	if err != nil {
+func readSecondary(fs afero.Fs, repo *git.Repository, extends []string, remotes []*Remote) (*viper.Viper, error) {
+	secondary := newViper(fs, repo.RootPath)
+	if err := extend(fs, repo.RootPath, secondary, extends); err != nil {
 		return nil, err
 	}
 
-	if err := extend(fs, extends, repo.RootPath); err != nil {
-		return nil, err
-	}
-
-	// Save global extends to compare them after merging local config
-	globalExtends := extends.Strings("extends")
-
-	if err := mergeRemotes(fs, repo, extends); err != nil {
+	if err := mergeRemotes(fs, repo, secondary, remotes); err != nil {
 		return nil, err
 	}
 
 	//nolint:nestif
-	if err := mergeLocal(fs, extends, repo.RootPath); err == nil {
+	if err := mergeLocal(secondary); err == nil {
 		// Local extends need to be re-applied only if they have different settings
-		localExtends := extends.Strings("extends")
-		if !slices.Equal(globalExtends, localExtends) {
-			if err = extend(fs, extends, repo.RootPath); err != nil {
+		localExtends := secondary.GetStringSlice("extends")
+		if !slices.Equal(extends, localExtends) {
+			if err = extend(fs, repo.RootPath, secondary, localExtends); err != nil {
 				return nil, err
 			}
 		}
 	} else {
-		if !errors.Is(err, os.ErrNotExist) {
+		var notFoundErr viper.ConfigFileNotFoundError
+		if ok := errors.As(err, &notFoundErr); !ok {
 			return nil, err
 		}
 	}
 
-	return extends, nil
+	return secondary, nil
 }
 
 // mergeRemotes merges remote configs to the current one.
-func mergeRemotes(fs fs, repo *git.Repository, k *koanf.Koanf) error {
-	var remote *Remote // Deprecated
-	var remotes []*Remote
-
-	err := k.Unmarshal("remotes", &remotes)
-	if err != nil {
-		return err
-	}
-
-	// Deprecated
-	err = k.Unmarshal("remote", &remote)
-	if err != nil {
-		return err
-	}
-
-	// Backward compatibility
-	if remote != nil {
-		remotes = append(remotes, remote)
-	}
-
+func mergeRemotes(fs afero.Fs, repo *git.Repository, v *viper.Viper, remotes []*Remote) error {
 	for _, remote := range remotes {
 		if !remote.Configured() {
 			continue
@@ -204,22 +186,23 @@ func mergeRemotes(fs fs, repo *git.Repository, k *koanf.Koanf) error {
 
 			log.Debugf("Merging remote config: %s: %s", remote.GitURL, configPath)
 
-			// _, err = fs.Stat(configPath)
-			// if err != nil {
-			// 	continue
-			// }
+			_, err := fs.Stat(configPath)
+			if err != nil {
+				continue
+			}
 
-			if err = merge(fs, k, configPath); err != nil {
+			if err = merge(v, "remotes", configPath); err != nil {
 				return err
 			}
 
-			if err = extend(fs, k, filepath.Dir(configPath)); err != nil {
+			extends := v.GetStringSlice("extends")
+			if err = extend(fs, filepath.Dir(configPath), v, extends); err != nil {
 				return err
 			}
 		}
 
 		// Reset extends to omit issues when extending with remote extends.
-		err = k.Set("extends", nil)
+		err := v.MergeConfigMap(map[string]interface{}{"extends": nil})
 		if err != nil {
 			return err
 		}
@@ -229,93 +212,73 @@ func mergeRemotes(fs fs, repo *git.Repository, k *koanf.Koanf) error {
 }
 
 // extend merges all files listed in 'extends' option into the config.
-func extend(fs fs, k *koanf.Koanf, root string) error {
-	return extendRecursive(fs, k, root, make(map[string]struct{}))
+func extend(fs afero.Fs, root string, v *viper.Viper, extends []string) error {
+	return extendRecursive(fs, root, v, extends, make(map[string]struct{}))
 }
 
 // extendRecursive merges extends.
 // If extends contain other extends they get merged too.
-func extendRecursive(fs fs, k *koanf.Koanf, root string, extends map[string]struct{}) error {
-	for _, pathOrGlob := range k.Strings("extends") {
+func extendRecursive(fs afero.Fs, root string, v *viper.Viper, extends []string, visited map[string]struct{}) error {
+	for _, pathOrGlob := range extends {
 		if !filepath.IsAbs(pathOrGlob) {
 			pathOrGlob = filepath.Join(root, pathOrGlob)
 		}
 
-		paths, err := afero.Glob(fs.fs, pathOrGlob)
+		paths, err := afero.Glob(fs, pathOrGlob)
 		if err != nil {
 			return fmt.Errorf("bad glob syntax for '%s': %w", pathOrGlob, err)
 		}
 
 		for _, path := range paths {
-			if _, contains := extends[path]; contains {
+			if _, contains := visited[path]; contains {
 				return fmt.Errorf("possible recursion in extends: path %s is specified multiple times", path)
 			}
-			extends[path] = struct{}{}
+			visited[path] = struct{}{}
 
-			ext := filepath.Ext(path)
-			if len(ext) == 0 || parsers[ext] == nil {
-				return fmt.Errorf("unable to parse an extension: %s", path)
-			}
-
-			if !filepath.IsAbs(path) {
-				path = filepath.Join(root, path)
-			}
-
-			ko := koanf.New(".")
-			if err := ko.Load(koanffs.Provider(fs, path), parsers[ext]()); err != nil {
-				return fmt.Errorf("failed to load file %s: %w", path, err)
-			}
-
-			if err := extendRecursive(fs, ko, root, extends); err != nil {
+			extendV := newViper(fs, root)
+			extendV.SetConfigFile(path)
+			if err := extendV.ReadInConfig(); err != nil {
 				return err
 			}
 
-			if err := k.Merge(ko); err != nil {
+			if err := extendRecursive(fs, root, extendV, extendV.GetStringSlice("extends"), visited); err != nil {
+				return err
+			}
+
+			if err := v.MergeConfigMap(extendV.AllSettings()); err != nil {
 				return err
 			}
 		}
 	}
-	return nil
-}
-
-// merge merges the configuration with a new one parsed from `path`.
-func merge(fs fs, k *koanf.Koanf, path string) error {
-	ext := filepath.Ext(path)
-	if len(ext) == 0 || parsers[ext] == nil {
-		return fmt.Errorf("unable to parse an extension: %s", path)
-	}
-
-	ko := koanf.New(".")
-	if err := ko.Load(koanffs.Provider(fs, path), parsers[ext]()); err != nil {
-		return fmt.Errorf("failed to load file %s: %w", path, err)
-	}
-
-	if err := k.Merge(ko); err != nil {
-		return err
-	}
 
 	return nil
 }
 
-// mergeLocal merges local configurations if they exist.
-func mergeLocal(fs fs, k *koanf.Koanf, root string) error {
+// merge merges the configuration using viper builtin MergeInConfig.
+func merge(v *viper.Viper, name, path string) error {
+	v.SetConfigName(name)
+	v.SetConfigFile(path)
+	return v.MergeInConfig()
+}
+
+func mergeLocal(v *viper.Viper) error {
 	for _, name := range localConfigNames {
-		for _, ext := range extensions {
-			err := merge(fs, k, filepath.Join(root, name+ext))
-			if err == nil {
-				break
+		if err := merge(v, name, ""); err != nil {
+			var notFoundErr viper.ConfigFileNotFoundError
+			if ok := errors.As(err, &notFoundErr); ok {
+				continue
 			}
 
-			if !errors.Is(err, os.ErrNotExist) {
-				return err
-			}
+			return err
 		}
+
+		break
 	}
 
 	return nil
 }
 
-func unmarshalConfigs(base, extra *koanf.Koanf, c *Config) error {
+func unmarshalConfigs(base, extra *viper.Viper, c *Config) error {
 	c.Hooks = make(map[string]*Hook)
 
 	for hookName := range AvailableHooks {
@@ -327,7 +290,7 @@ func unmarshalConfigs(base, extra *koanf.Koanf, c *Config) error {
 	// For extra non-git hooks.
 	// This behavior may be deprecated in next versions.
 	// Notice that with append we're allowing extra hooks to be added in local config
-	for _, maybeHook := range append(base.Keys(), extra.Keys()...) {
+	for _, maybeHook := range append(base.AllKeys(), extra.AllKeys()...) {
 		if !hookKeyRegexp.MatchString(maybeHook) {
 			continue
 		}
@@ -344,11 +307,11 @@ func unmarshalConfigs(base, extra *koanf.Koanf, c *Config) error {
 	}
 
 	// Merge config and unmarshal it
-	if err := base.Merge(extra); err != nil {
+	if err := base.MergeConfigMap(extra.AllSettings()); err != nil {
 		return err
 	}
 
-	if err := base.Unmarshal(".", c); err != nil {
+	if err := base.Unmarshal(c); err != nil {
 		return err
 	}
 
@@ -372,18 +335,9 @@ func unmarshalConfigs(base, extra *koanf.Koanf, c *Config) error {
 	return nil
 }
 
-func addHook(hookName string, base, extra *koanf.Koanf, c *Config) error {
-	if !extra.Exists(hookName) {
-		return nil
-	}
-
-	if !base.Exists(hookName) {
-		base.Set(hookName, extra.Cut(hookName).Raw())
-		return nil
-	}
-
-	baseHook := base.Cut(hookName)
-	extraHook := extra.Cut(hookName)
+func addHook(hookName string, base, extra *viper.Viper, c *Config) error {
+	baseHook := base.Sub(hookName)
+	extraHook := extra.Sub(hookName)
 
 	resultHook, err := unmarshalHooks(baseHook, extraHook)
 	if err != nil {
