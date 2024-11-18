@@ -1,5 +1,12 @@
 # Change log
 
+## 1.8.4 (2024-11-18)
+
+- ci: fix goreleaser update changes ([#874](https://github.com/evilmartians/lefthook/pull/874)) by @mrexox
+- deps: November 2024 ([#867](https://github.com/evilmartians/lefthook/pull/867)) by @mrexox
+- docs: add docs for fnm configuration ([#869](https://github.com/evilmartians/lefthook/pull/869)) by @vasylnahuliak
+- docs: add `output` to list of config options ([#868](https://github.com/evilmartians/lefthook/pull/868)) by @cr7pt0gr4ph7
+
 ## 1.8.3 (2024-11-18)
 
 - fix: use absolute paths when cloning remotes ([#873](https://github.com/evilmartians/lefthook/pull/873)) by @mrexox
