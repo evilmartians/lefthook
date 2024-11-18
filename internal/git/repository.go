@@ -26,10 +26,10 @@ var (
 	cmdStagedFiles   = []string{"git", "diff", "--name-only", "--cached", "--diff-filter=ACMR"}
 	cmdStatusShort   = []string{"git", "status", "--short", "--porcelain"}
 	cmdListStash     = []string{"git", "stash", "list"}
-	cmdRootPath      = []string{"git", "rev-parse", "--show-toplevel"}
-	cmdHooksPath     = []string{"git", "rev-parse", "--git-path", "hooks"}
-	cmdInfoPath      = []string{"git", "rev-parse", "--git-path", "info"}
-	cmdGitPath       = []string{"git", "rev-parse", "--git-dir"}
+	cmdRootPath      = []string{"git", "rev-parse", "--path-format=absolute", "--show-toplevel"}
+	cmdHooksPath     = []string{"git", "rev-parse", "--path-format=absolute", "--git-path", "hooks"}
+	cmdInfoPath      = []string{"git", "rev-parse", "--path-format=absolute", "--git-path", "info"}
+	cmdGitPath       = []string{"git", "rev-parse", "--path-format=absolute", "--git-dir"}
 	cmdAllFiles      = []string{"git", "ls-files", "--cached"}
 	cmdCreateStash   = []string{"git", "stash", "create"}
 	cmdStageFiles    = []string{"git", "add"}
@@ -62,15 +62,13 @@ func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
 	if err != nil {
 		return nil, err
 	}
-	if exists, _ := afero.DirExists(fs, filepath.Join(rootPath, hooksPath)); exists {
-		hooksPath = filepath.Join(rootPath, hooksPath)
-	}
 
 	infoPath, err := git.Cmd(cmdInfoPath)
 	if err != nil {
 		return nil, err
 	}
 	infoPath = filepath.Clean(infoPath)
+
 	if exists, _ := afero.DirExists(fs, infoPath); !exists {
 		err = fs.Mkdir(infoPath, infoDirMode)
 		if err != nil {
@@ -81,9 +79,6 @@ func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
 	gitPath, err := git.Cmd(cmdGitPath)
 	if err != nil {
 		return nil, err
-	}
-	if !filepath.IsAbs(gitPath) {
-		gitPath = filepath.Join(rootPath, gitPath)
 	}
 
 	emptyTreeSHA, err := git.Cmd(cmdEmptyTreeSHA)
