@@ -6,9 +6,12 @@ import (
 	"fmt"
 	"path/filepath"
 	"regexp"
-	"slices"
-	"strings"
 
+	"github.com/knadh/koanf/parsers/json"
+	"github.com/knadh/koanf/parsers/toml/v2"
+	"github.com/knadh/koanf/parsers/yaml"
+	kfs "github.com/knadh/koanf/providers/fs"
+	"github.com/knadh/koanf/v2"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 
@@ -26,11 +29,17 @@ var (
 	hookKeyRegexp    = regexp.MustCompile(`^(?P<hookName>[^.]+)\.(scripts|commands)`)
 	localConfigNames = []string{"lefthook-local", ".lefthook-local"}
 	mainConfigNames  = []string{"lefthook", ".lefthook"}
-	extensions       = map[string]struct{}{
-		".yaml": {},
-		".json": {},
-		".toml": {},
-		".yml":  {},
+	extensions       = []string{
+		".yml",
+		".yaml",
+		".json",
+		".toml",
+	}
+	parsers = map[string]koanf.Parser{
+		".yml":  yaml.Parser(),
+		".yaml": yaml.Parser(),
+		".json": json.Parser(),
+		".toml": toml.Parser(),
 	}
 )
 
@@ -44,34 +53,70 @@ func (err NotFoundError) Error() string {
 	return err.message
 }
 
+func loadOne(k *koanf.Koanf, filesystem afero.Fs, root string, names []string) error {
+	for _, extension := range extensions {
+		for _, name := range names {
+			config := filepath.Join(root, name+extension)
+			if ok, _ := afero.Exists(filesystem, config); !ok {
+				continue
+			}
+
+			if err := k.Load(kfs.Provider(afero.NewIOFS(filesystem), config), parsers[extension]); err != nil {
+				return err
+			}
+
+			return nil
+		}
+	}
+
+	return NotFoundError{fmt.Sprintf("No config files with names %q have been found in \"%s\"", names, root)}
+}
+
 // Loads configs from the given directory with extensions.
-func Load(fs afero.Fs, repo *git.Repository) (*Config, error) {
-	main, err := readOne(fs, repo.RootPath, mainConfigNames)
-	if err != nil {
+func Load(filesystem afero.Fs, repo *git.Repository) (*Config, error) {
+	main := koanf.New(".")
+
+	// Load main (e.g. lefthook.yml)
+	if err := loadOne(main, filesystem, repo.RootPath, mainConfigNames); err != nil {
 		return nil, err
 	}
 
-	extends := main.GetStringSlice("extends")
-	var remote *Remote
+	// Save `extends` and `remotes`
+	extends := main.Strings("extends")
 	var remotes []*Remote
-	err = main.UnmarshalKey("remotes", &remotes)
-	if err != nil {
-		return nil, err
-	}
-	// Deprecated
-	err = main.UnmarshalKey("remote", &remote)
-	if err != nil {
+	if err := main.Unmarshal("remotes", &remotes); err != nil {
 		return nil, err
 	}
 
-	// Backward compatibility
+	// Deprecated
+	var remote *Remote
+	if err := main.Unmarshal("remote", &remote); err != nil {
+		return nil, err
+	}
+
+	// Backward compatibility for `remote`. Will be deleted in future major release
 	if remote != nil {
 		remotes = append(remotes, remote)
 	}
 
-	secondary, err := readSecondary(fs, repo, extends, remotes)
-	if err != nil {
+	secondary := koanf.New(".")
+
+	// Load main `extends`
+	if err := extend(secondary, filesystem, repo.RootPath, extends); err != nil {
 		return nil, err
+	}
+
+	// Load main `remotes`
+	if err := loadRemotes(secondary, filesystem, repo, remotes); err != nil {
+		return nil, err
+	}
+
+	// Load optional local config (e.g. lefthook-local.yml)
+	if err := loadOne(secondary, filesystem, repo.RootPath, localConfigNames); err != nil {
+		var notFoundErr NotFoundError
+		if ok := errors.As(err, &notFoundErr); !ok {
+			return nil, err
+		}
 	}
 
 	var config Config
@@ -79,8 +124,8 @@ func Load(fs afero.Fs, repo *git.Repository) (*Config, error) {
 	config.SourceDir = DefaultSourceDir
 	config.SourceDirLocal = DefaultSourceDirLocal
 
-	err = unmarshalConfigs(main, secondary, &config)
-	if err != nil {
+	// TODO: continue here, merge rules must be applied
+	if err := unmarshalConfigs(main, secondary, &config); err != nil {
 		return nil, err
 	}
 
@@ -88,83 +133,56 @@ func Load(fs afero.Fs, repo *git.Repository) (*Config, error) {
 	return &config, nil
 }
 
-func read(fs afero.Fs, name, path string) (*viper.Viper, error) {
-	v := newViper(fs, path)
-	v.SetConfigName(name)
+// func read(fs afero.Fs, name, path string) (*viper.Viper, error) {
+// 	v := newViper(fs, path)
+// 	v.SetConfigName(name)
 
-	if err := v.ReadInConfig(); err != nil {
-		return nil, err
-	}
+// 	if err := v.ReadInConfig(); err != nil {
+// 		return nil, err
+// 	}
 
-	return v, nil
-}
+// 	return v, nil
+// }
 
-func newViper(fs afero.Fs, path string) *viper.Viper {
-	v := viper.New()
-	v.SetFs(fs)
-	v.AddConfigPath(path)
+// func newViper(fs afero.Fs, path string) *viper.Viper {
+// 	v := viper.New()
+// 	v.SetFs(fs)
+// 	v.AddConfigPath(path)
 
-	// Allow overwriting settings with ENV variables
-	v.SetEnvPrefix("LEFTHOOK")
-	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	v.AutomaticEnv()
+// 	// Allow overwriting settings with ENV variables
+// 	v.SetEnvPrefix("LEFTHOOK")
+// 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+// 	v.AutomaticEnv()
 
-	return v
-}
+// 	return v
+// }
 
-func readOne(fs afero.Fs, path string, names []string) (*viper.Viper, error) {
-	for _, name := range names {
-		v, err := read(fs, name, path)
-		if err != nil {
-			var notFoundErr viper.ConfigFileNotFoundError
-			if ok := errors.As(err, &notFoundErr); ok {
-				continue
-			}
-
-			return nil, err
-		}
-
-		return v, nil
-	}
-
-	return nil, NotFoundError{fmt.Sprintf("No config files with names %q have been found in \"%s\"", names, path)}
-}
-
-// readSecondary reads extends, remotes and local config.
+// loadSecondary reads extends, remotes and local config.
 // - files from `extends`
 // - files from `remotes`
 // - lefthook-local/.lefthook-local.
-func readSecondary(fs afero.Fs, repo *git.Repository, extends []string, remotes []*Remote) (*viper.Viper, error) {
-	secondary := newViper(fs, repo.RootPath)
-	if err := extend(fs, repo.RootPath, secondary, extends); err != nil {
-		return nil, err
-	}
+//func loadSecondary(k *koanf.Koanf, fs afero.Fs, repo *git.Repository, extends []string, remotes []*Remote) (*viper.Viper, error) {
+//	//nolint:nestif
+//	if err := mergeLocal(secondary); err == nil {
+//		// Local extends need to be re-applied only if they have different settings
+//		localExtends := secondary.GetStringSlice("extends")
+//		if !slices.Equal(extends, localExtends) {
+//			if err = extend(fs, repo.RootPath, secondary, localExtends); err != nil {
+//				return nil, err
+//			}
+//		}
+//	} else {
+//		var notFoundErr viper.ConfigFileNotFoundError
+//		if ok := errors.As(err, &notFoundErr); !ok {
+//			return nil, err
+//		}
+//	}
 
-	if err := mergeRemotes(fs, repo, secondary, remotes); err != nil {
-		return nil, err
-	}
+//	return secondary, nil
+//}
 
-	//nolint:nestif
-	if err := mergeLocal(secondary); err == nil {
-		// Local extends need to be re-applied only if they have different settings
-		localExtends := secondary.GetStringSlice("extends")
-		if !slices.Equal(extends, localExtends) {
-			if err = extend(fs, repo.RootPath, secondary, localExtends); err != nil {
-				return nil, err
-			}
-		}
-	} else {
-		var notFoundErr viper.ConfigFileNotFoundError
-		if ok := errors.As(err, &notFoundErr); !ok {
-			return nil, err
-		}
-	}
-
-	return secondary, nil
-}
-
-// mergeRemotes merges remote configs to the current one.
-func mergeRemotes(fs afero.Fs, repo *git.Repository, v *viper.Viper, remotes []*Remote) error {
+// loadRemotes merges remote configs to the current one.
+func loadRemotes(k *koanf.Koanf, filesystem afero.Fs, repo *git.Repository, remotes []*Remote) error {
 	for _, remote := range remotes {
 		if !remote.Configured() {
 			continue
@@ -186,24 +204,27 @@ func mergeRemotes(fs afero.Fs, repo *git.Repository, v *viper.Viper, remotes []*
 
 			log.Debugf("Merging remote config: %s: %s", remote.GitURL, configPath)
 
-			_, err := fs.Stat(configPath)
-			if err != nil {
+			if ok, err := afero.Exists(filesystem, configPath); !ok || err != nil {
 				continue
 			}
 
-			if err = merge(v, "remotes", configPath); err != nil {
+			parser, ok := parsers[filepath.Ext(configPath)]
+			if !ok {
+				panic("TODO: unknown extension to parse")
+			}
+
+			if err := k.Load(kfs.Provider(afero.NewIOFS(filesystem), configPath), parser); err != nil {
 				return err
 			}
 
-			extends := v.GetStringSlice("extends")
-			if err = extend(fs, filepath.Dir(configPath), v, extends); err != nil {
+			extends := k.Slices("extends")
+			if err := extend(k, filesystem, filepath.Dir(configPath), extends); err != nil {
 				return err
 			}
 		}
 
 		// Reset extends to omit issues when extending with remote extends.
-		err := v.MergeConfigMap(map[string]interface{}{"extends": nil})
-		if err != nil {
+		if err := k.Set("extends", nil); err != nil {
 			return err
 		}
 	}
@@ -212,19 +233,19 @@ func mergeRemotes(fs afero.Fs, repo *git.Repository, v *viper.Viper, remotes []*
 }
 
 // extend merges all files listed in 'extends' option into the config.
-func extend(fs afero.Fs, root string, v *viper.Viper, extends []string) error {
-	return extendRecursive(fs, root, v, extends, make(map[string]struct{}))
+func extend(k *koanf.Koanf, filesystem afero.Fs, root string, extends []string) error {
+	return extendRecursive(k, filesystem, root, extends, make(map[string]struct{}))
 }
 
 // extendRecursive merges extends.
 // If extends contain other extends they get merged too.
-func extendRecursive(fs afero.Fs, root string, v *viper.Viper, extends []string, visited map[string]struct{}) error {
+func extendRecursive(k *koanf.Koanf, filesystem afero.Fs, root string, extends []string, visited map[string]struct{}) error {
 	for _, pathOrGlob := range extends {
 		if !filepath.IsAbs(pathOrGlob) {
 			pathOrGlob = filepath.Join(root, pathOrGlob)
 		}
 
-		paths, err := afero.Glob(fs, pathOrGlob)
+		paths, err := afero.Glob(filesystem, pathOrGlob)
 		if err != nil {
 			return fmt.Errorf("bad glob syntax for '%s': %w", pathOrGlob, err)
 		}
@@ -235,17 +256,20 @@ func extendRecursive(fs afero.Fs, root string, v *viper.Viper, extends []string,
 			}
 			visited[path] = struct{}{}
 
-			extendV := newViper(fs, root)
-			extendV.SetConfigFile(path)
-			if err := extendV.ReadInConfig(); err != nil {
+			extent := koanf.New(".")
+			parser, ok := parsers[filepath.Ext(path)]
+			if !ok {
+				panic("TODO: unknown extension for extent " + path)
+			}
+			if err := extent.Load(kfs.Provider(afero.NewIOFS(filesystem), path), parser); err != nil {
 				return err
 			}
 
-			if err := extendRecursive(fs, root, extendV, extendV.GetStringSlice("extends"), visited); err != nil {
+			if err := extendRecursive(extent, filesystem, root, extent.Strings("extends"), visited); err != nil {
 				return err
 			}
 
-			if err := v.MergeConfigMap(extendV.AllSettings()); err != nil {
+			if err := k.Merge(extent); err != nil {
 				return err
 			}
 		}
@@ -254,14 +278,14 @@ func extendRecursive(fs afero.Fs, root string, v *viper.Viper, extends []string,
 	return nil
 }
 
-// merge merges the configuration using viper builtin MergeInConfig.
-func merge(v *viper.Viper, name, path string) error {
-	v.SetConfigName(name)
-	v.SetConfigFile(path)
-	return v.MergeInConfig()
-}
+// // merge merges the configuration using viper builtin MergeInConfig.
+// func merge(v *viper.Viper, name, path string) error {
+// 	v.SetConfigName(name)
+// 	v.SetConfigFile(path)
+// 	return v.MergeInConfig()
+// }
 
-func mergeLocal(v *viper.Viper) error {
+func loadLocal(k *koanf.Koanf) error {
 	for _, name := range localConfigNames {
 		if err := merge(v, name, ""); err != nil {
 			var notFoundErr viper.ConfigFileNotFoundError
