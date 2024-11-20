@@ -27,15 +27,15 @@ const (
 )
 
 type Config struct {
-	MinVersion              string      `mapstructure:"min_version,omitempty" koanf:"min_version"`
-	SourceDir               string      `mapstructure:"source_dir" koanf:"source_dir"`
-	SourceDirLocal          string      `mapstructure:"source_dir_local" koanf:"source_dir_local"`
+	MinVersion              string      `koanf:"min_version"               mapstructure:"min_version,omitempty"`
+	SourceDir               string      `koanf:"source_dir"                mapstructure:"source_dir"`
+	SourceDirLocal          string      `koanf:"source_dir_local"          mapstructure:"source_dir_local"`
 	Rc                      string      `mapstructure:"rc,omitempty"`
-	SkipOutput              interface{} `mapstructure:"skip_output,omitempty" koanf:"skip_output"`
+	SkipOutput              interface{} `koanf:"skip_output"               mapstructure:"skip_output,omitempty"`
 	Output                  interface{} `mapstructure:"output,omitempty"`
 	Extends                 []string    `mapstructure:"extends,omitempty"`
-	NoTTY                   bool        `mapstructure:"no_tty,omitempty" koanf:"no_tty"`
-	AssertLefthookInstalled bool        `mapstructure:"assert_lefthook_installed,omitempty" koanf:"assert_lefthook_installed"`
+	NoTTY                   bool        `koanf:"no_tty"                    mapstructure:"no_tty,omitempty"`
+	AssertLefthookInstalled bool        `koanf:"assert_lefthook_installed" mapstructure:"assert_lefthook_installed,omitempty"`
 	Colors                  interface{} `mapstructure:"colors,omitempty"`
 	SkipLFS                 bool        `mapstructure:"skip_lfs,omitempty"`
 
