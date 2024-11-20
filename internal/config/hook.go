@@ -2,10 +2,6 @@ package config
 
 import (
 	"errors"
-	"os"
-	"strings"
-
-	"github.com/knadh/koanf/v2"
 
 	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/system"
@@ -30,7 +26,7 @@ type Hook struct {
 	Parallel    bool        `json:"parallel,omitempty"     mapstructure:"parallel"     toml:"parallel,omitempty"     yaml:",omitempty"`
 	Piped       bool        `json:"piped,omitempty"        mapstructure:"piped"        toml:"piped,omitempty"        yaml:",omitempty"`
 	Follow      bool        `json:"follow,omitempty"       mapstructure:"follow"       toml:"follow,omitempty"       yaml:",omitempty"`
-	ExcludeTags []string    `json:"exclude_tags,omitempty" mapstructure:"exclude_tags" toml:"exclude_tags,omitempty" yaml:"exclude_tags,omitempty"`
+	ExcludeTags []string    `json:"exclude_tags,omitempty" mapstructure:"exclude_tags" toml:"exclude_tags,omitempty" yaml:"exclude_tags,omitempty" koanf:"exclude_tags"`
 	Skip        interface{} `json:"skip,omitempty"         mapstructure:"skip"         toml:"skip,omitempty,inline"  yaml:",omitempty"`
 	Only        interface{} `json:"only,omitempty"         mapstructure:"only"         toml:"only,omitempty,inline"  yaml:",omitempty"`
 }
@@ -46,43 +42,4 @@ func (h *Hook) Validate() error {
 func (h *Hook) DoSkip(state func() git.State) bool {
 	skipChecker := NewSkipChecker(system.Cmd)
 	return skipChecker.check(state, h.Skip, h.Only)
-}
-
-func unmarshalHooks(base, extra *koanf.Koanf) (*Hook, error) {
-	if base == nil && extra == nil {
-		return nil, nil
-	}
-
-	commands, err := mergeCommands(base, extra)
-	if err != nil {
-		return nil, err
-	}
-
-	scripts, err := mergeScripts(base, extra)
-	if err != nil {
-		return nil, err
-	}
-
-	hook := Hook{
-		Commands: commands,
-		Scripts:  scripts,
-	}
-
-	if base == nil {
-		base = extra
-	} else if extra != nil {
-		if err = base.Merge(extra); err != nil {
-			return nil, err
-		}
-	}
-
-	if err := base.Unmarshal("", &hook); err != nil {
-		return nil, err
-	}
-
-	if tags := os.Getenv("LEFTHOOK_EXCLUDE"); tags != "" {
-		hook.ExcludeTags = append(hook.ExcludeTags, strings.Split(tags, ",")...)
-	}
-
-	return &hook, nil
 }
