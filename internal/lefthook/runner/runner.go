@@ -43,6 +43,7 @@ type Options struct {
 	GitArgs         []string
 	LogSettings     log.Settings
 	DisableTTY      bool
+	SkipLFS         bool
 	Force           bool
 	Files           []string
 	RunOnlyCommands []string
@@ -125,6 +126,10 @@ func (r *Runner) RunAll(ctx context.Context, sourceDirs []string) ([]Result, err
 }
 
 func (r *Runner) runLFSHook(ctx context.Context) error {
+	if r.Options.SkipLFS {
+		return nil
+	}
+
 	if !git.IsLFSHook(r.HookName) {
 		return nil
 	}

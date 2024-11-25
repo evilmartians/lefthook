@@ -162,6 +162,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 			GitArgs:         gitArgs,
 			LogSettings:     logSettings,
 			DisableTTY:      cfg.NoTTY || args.NoTTY,
+			SkipLFS:         cfg.SkipLFS,
 			Files:           args.Files,
 			Force:           args.Force,
 			RunOnlyCommands: args.RunOnlyCommands,
