@@ -17,8 +17,7 @@ require (
 	github.com/spf13/afero v1.11.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
-	github.com/stretchr/testify v1.9.0
-	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
+	github.com/stretchr/testify v1.10.0
 	gopkg.in/alessio/shellescape.v1 v1.0.0-20170105083845-52074bc9df61
 )
 
@@ -33,6 +32,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
+	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/tools v0.22.0 // indirect
 )
 
