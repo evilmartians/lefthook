@@ -70,6 +70,11 @@ func (run) New(opts *lefthook.Options) *cobra.Command {
 	)
 
 	runCmd.Flags().BoolVar(
+		&runArgs.SkipLFS, "skip-lfs", false,
+		"skip running git lfs",
+	)
+
+	runCmd.Flags().BoolVar(
 		&runArgs.FilesFromStdin, "files-from-stdin", false,
 		"get files from standard input, null-separated",
 	)
