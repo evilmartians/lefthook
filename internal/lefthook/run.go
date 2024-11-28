@@ -27,6 +27,7 @@ type RunArgs struct {
 	FilesFromStdin  bool
 	Force           bool
 	NoAutoInstall   bool
+	SkipLFS         bool
 	Files           []string
 	RunOnlyCommands []string
 }
@@ -162,6 +163,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 			GitArgs:         gitArgs,
 			LogSettings:     logSettings,
 			DisableTTY:      cfg.NoTTY || args.NoTTY,
+			SkipLFS:         cfg.SkipLFS || args.SkipLFS,
 			Files:           args.Files,
 			Force:           args.Force,
 			RunOnlyCommands: args.RunOnlyCommands,

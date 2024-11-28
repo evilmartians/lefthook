@@ -1,3 +1,5 @@
+skip_lfs = true
+
 [pre-commit]
 parallel = true
 

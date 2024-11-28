@@ -93,6 +93,7 @@ func TestRunAll(t *testing.T) {
 		success, fail    []Result
 		gitCommands      []string
 		force            bool
+		skipLFS          bool
 	}{
 		"empty hook": {
 			hookName: "post-commit",
@@ -716,6 +717,21 @@ func TestRunAll(t *testing.T) {
 				"git diff --name-only HEAD @{push}",
 			},
 		},
+		"with LFS disabled": {
+			hookName: "post-checkout",
+			skipLFS:  true,
+			existingFiles: []string{
+				filepath.Join(root, "README.md"),
+			},
+			hook: &config.Hook{
+				Commands: map[string]*config.Command{
+					"ok": {
+						Run: "success",
+					},
+				},
+			},
+			success: []Result{succeeded("ok")},
+		},
 	} {
 		fs := afero.NewMemMapFs()
 		repo.Fs = fs
@@ -727,6 +743,7 @@ func TestRunAll(t *testing.T) {
 				LogSettings: log.NewSettings(),
 				GitArgs:     tt.args,
 				Force:       tt.force,
+				SkipLFS:     tt.skipLFS,
 			},
 			executor: executor{},
 			cmd:      cmd{},
