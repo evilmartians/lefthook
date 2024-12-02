@@ -187,9 +187,9 @@ jobs:
         env:
           CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
         run: |
-          cloudsmith push deb evilmartians/lefthook/distro/release dist/lefthook_*_amd64.deb
-          cloudsmith push deb evilmartians/lefthook/distro/release dist/lefthook_*_arm64.deb
-          cloudsmith push rpm evilmartians/lefthook/distro/release dist/lefthook_*_amd64.rpm
-          cloudsmith push rpm evilmartians/lefthook/distro/release dist/lefthook_*_arm64.rpm
-          cloudsmith push alpine evilmartians/lefthook/distro/release dist/lefthook_*_amd64.apk
-          cloudsmith push alpine evilmartians/lefthook/distro/release dist/lefthook_*_arm64.apk
+          cloudsmith push deb evilmartians/lefthook/any-distro/any-version dist/lefthook_*_amd64.deb
+          cloudsmith push deb evilmartians/lefthook/any-distro/any-version dist/lefthook_*_arm64.deb
+          cloudsmith push rpm evilmartians/lefthook/any-distro/any-version dist/lefthook_*_amd64.rpm
+          cloudsmith push rpm evilmartians/lefthook/any-distro/any-version dist/lefthook_*_arm64.rpm
+          cloudsmith push alpine evilmartians/lefthook/alpine/any-version dist/lefthook_*_amd64.apk
+          cloudsmith push alpine evilmartians/lefthook/alpine/any-version dist/lefthook_*_arm64.apk
