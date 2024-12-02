@@ -306,9 +306,48 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 	mainHook := main.Cut(name)
 	overrideHook := secondary.Cut(name)
 
+	// Special merge func to support merging {cmd} templates
 	options := koanf.WithMergeFunc(func(src, dest map[string]interface{}) error {
-		// TODO: merge dest to src replacing {cmd} properly
+		// perf: allocate with len of src commands here
+		destCommands := make(map[string]string)
+
+		switch commands := dest["commands"].(type) {
+		case map[string]interface{}:
+			for cmdName, command := range commands {
+				switch cmd := command.(type) {
+				case map[string]interface{}:
+					switch run := cmd["run"].(type) {
+					case string:
+						destCommands[cmdName] = run
+					default:
+					}
+				default:
+				}
+			}
+		default:
+		}
+
 		maps.Merge(src, dest)
+
+		if len(destCommands) > 0 {
+			switch commands := dest["commands"].(type) {
+			case map[string]interface{}:
+				for cmdName, command := range commands {
+					switch cmd := command.(type) {
+					case map[string]interface{}:
+						switch run := cmd["run"].(type) {
+						case string:
+							newRun := strings.ReplaceAll(run, CMD, destCommands[cmdName])
+							command.(map[string]interface{})["run"] = newRun
+						default:
+						}
+					default:
+					}
+				}
+			default:
+			}
+		}
+
 		return nil
 	})
 
@@ -327,45 +366,6 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 	c.Hooks[name] = &hook
 	return nil
 }
-
-// func unmarshalHook(main, override *koanf.Koanf) (*Hook, error) {
-// 	if main == nil && override == nil {
-// 		return nil, nil
-// 	}
-
-// 	commands, err := mergeCommands(main, override)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	scripts, err := mergeScripts(main, override)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	hook := Hook{
-// 		Commands: commands,
-// 		Scripts:  scripts,
-// 	}
-
-// 	if main == nil {
-// 		main = override
-// 	} else if override != nil {
-// 		if err = main.Merge(override); err != nil {
-// 			return nil, err
-// 		}
-// 	}
-
-// 	if err := main.Unmarshal("", &hook); err != nil {
-// 		return nil, err
-// 	}
-
-// 	if tags := os.Getenv("LEFTHOOK_EXCLUDE"); tags != "" {
-// 		hook.ExcludeTags = append(hook.ExcludeTags, strings.Split(tags, ",")...)
-// 	}
-
-// 	return &hook, nil
-// }
 
 // Rewritten from afero.NewIOFS to support opening paths starting with '/'.
 

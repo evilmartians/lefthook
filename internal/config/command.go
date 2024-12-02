@@ -2,9 +2,6 @@ package config
 
 import (
 	"errors"
-	"strings"
-
-	"github.com/knadh/koanf/v2"
 
 	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/system"
@@ -34,10 +31,6 @@ type Command struct {
 	StageFixed  bool   `json:"stage_fixed,omitempty" koanf:"stage_fixed"        mapstructure:"stage_fixed"   toml:"stage_fixed,omitempty" yaml:"stage_fixed,omitempty"`
 }
 
-type commandRunReplace struct {
-	Run string `mapstructure:"run"`
-}
-
 func (c Command) Validate() error {
 	if !isRunnerFilesCompatible(c.Run) {
 		return errFilesIncompatible
@@ -53,70 +46,4 @@ func (c Command) DoSkip(state func() git.State) bool {
 
 func (c Command) ExecutionPriority() int {
 	return c.Priority
-}
-
-func mergeCommands(base, extra *koanf.Koanf) (map[string]*Command, error) {
-	if base == nil && extra == nil {
-		return nil, nil
-	}
-
-	if base == nil {
-		return unmarshalCommands(extra.Cut("commands"))
-	}
-
-	if extra == nil {
-		return unmarshalCommands(base.Cut("commands"))
-	}
-
-	commandsOrigin := base.Cut("commands")
-	commandsOverride := extra.Cut("commands")
-	if commandsOrigin == nil {
-		return unmarshalCommands(commandsOverride)
-	}
-	if commandsOverride == nil {
-		return unmarshalCommands(commandsOrigin)
-	}
-
-	runReplaces := make(map[string]*commandRunReplace)
-	for key := range commandsOrigin.Raw() {
-		var replace commandRunReplace
-
-		substructure := commandsOrigin.Cut(key)
-		if substructure == nil {
-			continue
-		}
-
-		if err := substructure.Unmarshal("", &replace); err != nil {
-			return nil, err
-		}
-
-		runReplaces[key] = &replace
-	}
-
-	err := commandsOrigin.Merge(commandsOverride)
-	if err != nil {
-		return nil, err
-	}
-
-	commands, err := unmarshalCommands(commandsOrigin)
-	if err != nil {
-		return nil, err
-	}
-
-	for key, replace := range runReplaces {
-		if replace.Run != "" {
-			commands[key].Run = strings.ReplaceAll(commands[key].Run, CMD, replace.Run)
-		}
-	}
-
-	return commands, nil
-}
-
-func unmarshalCommands(k *koanf.Koanf) (map[string]*Command, error) {
-	commands := make(map[string]*Command)
-	if err := k.Unmarshal("", &commands); err != nil {
-		return nil, err
-	}
-
-	return commands, nil
 }
