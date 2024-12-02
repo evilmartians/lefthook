@@ -4,9 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
+	"strings"
 
+	"github.com/knadh/koanf/maps"
 	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/parsers/toml/v2"
 	"github.com/knadh/koanf/parsers/yaml"
@@ -114,6 +118,14 @@ func Load(filesystem afero.Fs, repo *git.Repository) (*Config, error) {
 	if err := loadOne(secondary, filesystem, repo.RootPath, localConfigNames); err != nil {
 		var configNotFoundErr ConfigNotFoundError
 		if ok := errors.As(err, &configNotFoundErr); !ok {
+			return nil, err
+		}
+	}
+
+	// Load local `extends`
+	localExtends := secondary.Strings("extends")
+	if len(localExtends) > 0 && !slices.Equal(extends, localExtends) {
+		if err := extend(secondary, filesystem, repo.RootPath, localExtends); err != nil {
 			return nil, err
 		}
 	}
@@ -295,36 +307,25 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 	overrideHook := secondary.Cut(name)
 
 	options := koanf.WithMergeFunc(func(src, dest map[string]interface{}) error {
+		// TODO: merge dest to src replacing {cmd} properly
+		maps.Merge(src, dest)
 		return nil
 	})
 
 	if err := mainHook.Load(koanfProvider{overrideHook}, nil, options); err != nil {
 		return err
 	}
-	// if err := mainHook.Merge(overrideHook); err != nil {
-	// 	return err
-	// }
-
 	var hook Hook
 	if err := mainHook.Unmarshal("", &hook); err != nil {
 		return err
 	}
 
+	if tags := os.Getenv("LEFTHOOK_EXCLUDE"); tags != "" {
+		hook.ExcludeTags = append(hook.ExcludeTags, strings.Split(tags, ",")...)
+	}
+
 	c.Hooks[name] = &hook
 	return nil
-
-	// resultHook, err := unmarshalHook(mainHook, overrideHook)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// if resultHook == nil {
-	// 	return nil
-	// }
-
-	// c.Hooks[hookName] = resultHook
-
-	// return nil
 }
 
 // func unmarshalHook(main, override *koanf.Koanf) (*Hook, error) {
@@ -366,7 +367,7 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 // 	return &hook, nil
 // }
 
-// Rewritten afero.NewIOFS to support opening paths starting with '/'.
+// Rewritten from afero.NewIOFS to support opening paths starting with '/'.
 
 type iofs struct {
 	fs afero.Fs

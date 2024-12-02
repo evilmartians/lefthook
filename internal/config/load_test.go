@@ -229,13 +229,13 @@ pre-push:
 				".lefthook.yml": `
 pre-push:
   scripts:
-    "global-extend":
+    "global-extend.sh":
       runner: bash
 `,
 				".lefthook-local.yml": `
 pre-push:
   scripts:
-    "local-extend":
+    "local-extend.sh":
       runner: bash
 `,
 			},
@@ -246,10 +246,10 @@ pre-push:
 				Hooks: map[string]*Hook{
 					"pre-push": {
 						Scripts: map[string]*Script{
-							"global-extend": {
+							"global-extend.sh": {
 								Runner: "bash",
 							},
-							"local-extend": {
+							"local-extend.sh": {
 								Runner: "bash",
 							},
 						},
