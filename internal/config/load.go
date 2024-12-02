@@ -308,11 +308,11 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 
 	// Special merge func to support merging {cmd} templates
 	options := koanf.WithMergeFunc(func(src, dest map[string]interface{}) error {
-		// perf: allocate with len of src commands here
-		destCommands := make(map[string]string)
+		var destCommands map[string]string
 
 		switch commands := dest["commands"].(type) {
 		case map[string]interface{}:
+			destCommands = make(map[string]string, len(commands))
 			for cmdName, command := range commands {
 				switch cmd := command.(type) {
 				case map[string]interface{}:
