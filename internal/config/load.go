@@ -4,10 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
 
 	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/parsers/toml/v2"
@@ -296,9 +294,16 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 	mainHook := main.Cut(name)
 	overrideHook := secondary.Cut(name)
 
-	if err := mainHook.Merge(overrideHook); err != nil {
+	options := koanf.WithMergeFunc(func(src, dest map[string]interface{}) error {
+		return nil
+	})
+
+	if err := mainHook.Load(koanfProvider{overrideHook}, nil, options); err != nil {
 		return err
 	}
+	// if err := mainHook.Merge(overrideHook); err != nil {
+	// 	return err
+	// }
 
 	var hook Hook
 	if err := mainHook.Unmarshal("", &hook); err != nil {
@@ -322,44 +327,44 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 	// return nil
 }
 
-func unmarshalHook(main, override *koanf.Koanf) (*Hook, error) {
-	if main == nil && override == nil {
-		return nil, nil
-	}
+// func unmarshalHook(main, override *koanf.Koanf) (*Hook, error) {
+// 	if main == nil && override == nil {
+// 		return nil, nil
+// 	}
 
-	commands, err := mergeCommands(main, override)
-	if err != nil {
-		return nil, err
-	}
+// 	commands, err := mergeCommands(main, override)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	scripts, err := mergeScripts(main, override)
-	if err != nil {
-		return nil, err
-	}
+// 	scripts, err := mergeScripts(main, override)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	hook := Hook{
-		Commands: commands,
-		Scripts:  scripts,
-	}
+// 	hook := Hook{
+// 		Commands: commands,
+// 		Scripts:  scripts,
+// 	}
 
-	if main == nil {
-		main = override
-	} else if override != nil {
-		if err = main.Merge(override); err != nil {
-			return nil, err
-		}
-	}
+// 	if main == nil {
+// 		main = override
+// 	} else if override != nil {
+// 		if err = main.Merge(override); err != nil {
+// 			return nil, err
+// 		}
+// 	}
 
-	if err := main.Unmarshal("", &hook); err != nil {
-		return nil, err
-	}
+// 	if err := main.Unmarshal("", &hook); err != nil {
+// 		return nil, err
+// 	}
 
-	if tags := os.Getenv("LEFTHOOK_EXCLUDE"); tags != "" {
-		hook.ExcludeTags = append(hook.ExcludeTags, strings.Split(tags, ",")...)
-	}
+// 	if tags := os.Getenv("LEFTHOOK_EXCLUDE"); tags != "" {
+// 		hook.ExcludeTags = append(hook.ExcludeTags, strings.Split(tags, ",")...)
+// 	}
 
-	return &hook, nil
-}
+// 	return &hook, nil
+// }
 
 // Rewritten afero.NewIOFS to support opening paths starting with '/'.
 
@@ -378,4 +383,16 @@ func (iofs iofs) Open(name string) (fs.File, error) {
 	}
 
 	return file, nil
+}
+
+type koanfProvider struct {
+	k *koanf.Koanf
+}
+
+func (k koanfProvider) Read() (map[string]interface{}, error) {
+	return k.k.Raw(), nil
+}
+
+func (k koanfProvider) ReadBytes() ([]byte, error) {
+	panic("not implemented")
 }
