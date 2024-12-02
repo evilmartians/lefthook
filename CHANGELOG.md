@@ -1,5 +1,10 @@
 # Change log
 
+## 1.8.5 (2024-12-02)
+
+- ci: automate publishing to cloudsmith ([#875](https://github.com/evilmartians/lefthook/pull/875)) by @mrexox
+- feat: add option to skip running LFS hooks ([#879](https://github.com/evilmartians/lefthook/pull/879)) by @zachah
+
 ## 1.8.4 (2024-11-18)
 
 - ci: fix goreleaser update changes ([#874](https://github.com/evilmartians/lefthook/pull/874)) by @mrexox

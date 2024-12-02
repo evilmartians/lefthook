@@ -1,6 +1,6 @@
 {
   "name": "lefthook-openbsd-x64",
-  "version": "1.8.4",
+  "version": "1.8.5",
   "description": "The OpenBSD 64-bit binary for lefthook, git hooks manager.",
   "preferUnplugged": false,
   "repository": {
