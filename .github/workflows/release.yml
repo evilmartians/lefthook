@@ -151,7 +151,7 @@ jobs:
         uses: dawidd6/action-homebrew-bump-formula@v3
         with:
           formula: lefthook
-          token: ${{secrets.HOMEBREW_TOKEN}}
+          token: ${{ secrets.HOMEBREW_TOKEN }}
 
   publish-winget:
     needs: build
@@ -163,3 +163,33 @@ jobs:
           identifier: evilmartians.lefthook
           fork-user: mrexox
           token: ${{ secrets.WINGET_TOKEN }}
+
+  publish-distro-packages:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+      - run: tar -xvf dist.tar
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --upgrade cloudsmith-cli
+
+      - name: Push packages to Cloudsmith
+        env:
+          CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
+        run: |
+          cloudsmith push deb evilmartians/lefthook/distro/release dist/lefthook_*_amd64.deb
+          cloudsmith push deb evilmartians/lefthook/distro/release dist/lefthook_*_arm64.deb
+          cloudsmith push rpm evilmartians/lefthook/distro/release dist/lefthook_*_amd64.rpm
+          cloudsmith push rpm evilmartians/lefthook/distro/release dist/lefthook_*_arm64.rpm
+          cloudsmith push alpine evilmartians/lefthook/distro/release dist/lefthook_*_amd64.apk
+          cloudsmith push alpine evilmartians/lefthook/distro/release dist/lefthook_*_arm64.apk
