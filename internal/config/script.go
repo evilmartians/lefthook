@@ -28,31 +28,3 @@ func (s Script) DoSkip(state func() git.State) bool {
 func (s Script) ExecutionPriority() int {
 	return s.Priority
 }
-
-// `scripts` are unmarshalled manually because viper
-// uses "." as a key delimiter. So, this definition:
-//
-// ```yaml
-// scripts:
-//
-//	"example.sh":
-//	    runner: bash
-//
-// ```
-//
-// Unmarshals into this:
-//
-// ```yaml
-// scripts:
-//
-//	example:
-//	  sh:
-//	    runner: bash
-//
-// ```
-//
-// This is not an expected behavior and cannot be controlled yet
-// Working with GetStringMap is the only way to get the structure "as is".
-// func unmarshal(input, output interface{}) error {
-// 	return mapstructure.WeakDecode(input, &output)
-// }

@@ -51,7 +51,6 @@ type ConfigNotFoundError struct {
 	message string
 }
 
-// Error returns message of viper.ConfigFileNotFoundError.
 func (err ConfigNotFoundError) Error() string {
 	return err.message
 }

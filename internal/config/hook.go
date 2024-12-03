@@ -12,15 +12,8 @@ const CMD = "{cmd}"
 var errPipedAndParallelSet = errors.New("conflicting options 'piped' and 'parallel' are set to 'true', remove one of this option from hook group")
 
 type Hook struct {
-	// Should be unmarshalled with `mapstructure:"commands"`
-	// But replacing '{cmd}' is still an issue
-	// Unmarshalling it manually, so omit auto unmarshalling
 	Commands map[string]*Command `json:"commands,omitempty" mapstructure:"-" toml:"commands,omitempty" yaml:",omitempty"`
-
-	// Should be unmarshalled with `mapstructure:"scripts"`
-	// But parsing keys with dots in it is still an issue: https://github.com/spf13/viper/issues/324
-	// Unmarshalling it manually, so omit auto unmarshalling
-	Scripts map[string]*Script `json:"scripts,omitempty" mapstructure:"-" toml:"scripts,omitempty" yaml:",omitempty"`
+	Scripts  map[string]*Script  `json:"scripts,omitempty"  mapstructure:"-" toml:"scripts,omitempty"  yaml:",omitempty"`
 
 	Files       string      `json:"files,omitempty"        mapstructure:"files"    toml:"files,omitempty"       yaml:",omitempty"`
 	Parallel    bool        `json:"parallel,omitempty"     mapstructure:"parallel" toml:"parallel,omitempty"    yaml:",omitempty"`
