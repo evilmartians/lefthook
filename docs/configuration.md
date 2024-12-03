@@ -581,13 +581,13 @@ pre-commit:
   exclude_tags: frontend
   commands:
     lint:
-      tag: frontend
+      tags: frontend
       ...
     test:
-      tag: frontend
+      tags: frontend
       ...
     check-syntax:
-      tag: documentation
+      tags: documentation
 ```
 
 ```bash
