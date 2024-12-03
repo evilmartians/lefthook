@@ -604,10 +604,14 @@ This option is good to specify in `lefthook-local.yml` when you want to skip som
 pre-push:
   commands:
     packages-audit:
-      tags: frontend security
+      tags:
+        - frontend
+        - security
       run: yarn audit
     gems-audit:
-      tags: backend security
+      tags:
+        - backend
+        - security
       run: bundle audit
 ```
 
@@ -747,7 +751,9 @@ Simply run `bundle exec rubocop` on all files with `.rb` extension excluding `ap
 pre-commit:
   commands:
     rubocop:
-      tags: backend style
+      tags:
+        - backend
+        - style
       glob: "*.rb"
       exclude:
         - config/application.rb
@@ -1012,10 +1018,14 @@ You can specify tags for commands and scripts. This is useful for [excluding](#e
 pre-commit:
   commands:
     lint:
-      tags: frontend,js
+      tags:
+        - frontend
+        - js
       run: yarn lint
     test:
-      tags: backend,ruby
+      tags:
+        - backend
+        - ruby
       run: bundle exec rspec
 ```
 
@@ -1069,7 +1079,9 @@ Provide a git command to list files.
 pre-push:
   commands:
     stylelint:
-      tags: frontend style
+      tags:
+        - frontend
+        - style
       files: git diff --name-only master
       glob: "*.js"
       run: yarn stylelint {files}
