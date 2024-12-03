@@ -30,7 +30,6 @@ var AvailableHooks = map[string]struct{}{
 	"push-to-checkout":      {},
 	"pre-auto-gc":           {},
 	"post-rewrite":          {},
-	"rebase":                {},
 	"sendemail-validate":    {},
 	"fsmonitor-watchman":    {},
 	"p4-changelist":         {},
