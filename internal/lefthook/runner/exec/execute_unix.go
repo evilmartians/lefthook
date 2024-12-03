@@ -10,7 +10,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 
 	"github.com/creack/pty"
 	"github.com/mattn/go-isatty"
@@ -44,7 +43,7 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 	for name, value := range opts.Env {
 		envs = append(
 			envs,
-			fmt.Sprintf("%s=%s", strings.ToUpper(name), os.ExpandEnv(value)),
+			fmt.Sprintf("%s=%s", name, os.ExpandEnv(value)),
 		)
 	}
 	switch log.Colors() {

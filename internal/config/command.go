@@ -2,9 +2,6 @@ package config
 
 import (
 	"errors"
-	"strings"
-
-	"github.com/spf13/viper"
 
 	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/system"
@@ -21,21 +18,17 @@ type Command struct {
 	Tags []string          `json:"tags,omitempty" mapstructure:"tags" toml:"tags,omitempty"        yaml:",omitempty"`
 	Env  map[string]string `json:"env,omitempty"  mapstructure:"env"  toml:"env,omitempty"         yaml:",omitempty"`
 
-	FileTypes []string `json:"file_types,omitempty" mapstructure:"file_types" toml:"file_types,omitempty" yaml:"file_types,omitempty"`
+	FileTypes []string `json:"file_types,omitempty" koanf:"file_types" mapstructure:"file_types" toml:"file_types,omitempty" yaml:"file_types,omitempty"`
 
 	Glob    string      `json:"glob,omitempty"    mapstructure:"glob"    toml:"glob,omitempty"    yaml:",omitempty"`
 	Root    string      `json:"root,omitempty"    mapstructure:"root"    toml:"root,omitempty"    yaml:",omitempty"`
 	Exclude interface{} `json:"exclude,omitempty" mapstructure:"exclude" toml:"exclude,omitempty" yaml:",omitempty"`
 
 	Priority    int    `json:"priority,omitempty"    mapstructure:"priority"    toml:"priority,omitempty"    yaml:",omitempty"`
-	FailText    string `json:"fail_text,omitempty"   mapstructure:"fail_text"   toml:"fail_text,omitempty"   yaml:"fail_text,omitempty"`
+	FailText    string `json:"fail_text,omitempty"   koanf:"fail_text"          mapstructure:"fail_text"     toml:"fail_text,omitempty"   yaml:"fail_text,omitempty"`
 	Interactive bool   `json:"interactive,omitempty" mapstructure:"interactive" toml:"interactive,omitempty" yaml:",omitempty"`
 	UseStdin    bool   `json:"use_stdin,omitempty"   mapstructure:"use_stdin"   toml:"use_stdin,omitempty"   yaml:",omitempty"`
-	StageFixed  bool   `json:"stage_fixed,omitempty" mapstructure:"stage_fixed" toml:"stage_fixed,omitempty" yaml:"stage_fixed,omitempty"`
-}
-
-type commandRunReplace struct {
-	Run string `mapstructure:"run"`
+	StageFixed  bool   `json:"stage_fixed,omitempty" koanf:"stage_fixed"        mapstructure:"stage_fixed"   toml:"stage_fixed,omitempty" yaml:"stage_fixed,omitempty"`
 }
 
 func (c Command) Validate() error {
@@ -53,74 +46,4 @@ func (c Command) DoSkip(state func() git.State) bool {
 
 func (c Command) ExecutionPriority() int {
 	return c.Priority
-}
-
-func mergeCommands(base, extra *viper.Viper) (map[string]*Command, error) {
-	if base == nil && extra == nil {
-		return nil, nil
-	}
-
-	if base == nil {
-		return unmarshalCommands(extra.Sub("commands"))
-	}
-
-	if extra == nil {
-		return unmarshalCommands(base.Sub("commands"))
-	}
-
-	commandsOrigin := base.Sub("commands")
-	commandsOverride := extra.Sub("commands")
-	if commandsOrigin == nil {
-		return unmarshalCommands(commandsOverride)
-	}
-	if commandsOverride == nil {
-		return unmarshalCommands(commandsOrigin)
-	}
-
-	runReplaces := make(map[string]*commandRunReplace)
-	for key := range commandsOrigin.AllSettings() {
-		var replace commandRunReplace
-
-		substructure := commandsOrigin.Sub(key)
-		if substructure == nil {
-			continue
-		}
-
-		if err := substructure.Unmarshal(&replace); err != nil {
-			return nil, err
-		}
-
-		runReplaces[key] = &replace
-	}
-
-	err := commandsOrigin.MergeConfigMap(commandsOverride.AllSettings())
-	if err != nil {
-		return nil, err
-	}
-
-	commands, err := unmarshalCommands(commandsOrigin)
-	if err != nil {
-		return nil, err
-	}
-
-	for key, replace := range runReplaces {
-		if replace.Run != "" {
-			commands[key].Run = strings.ReplaceAll(commands[key].Run, CMD, replace.Run)
-		}
-	}
-
-	return commands, nil
-}
-
-func unmarshalCommands(v *viper.Viper) (map[string]*Command, error) {
-	if v == nil {
-		return nil, nil
-	}
-
-	commands := make(map[string]*Command)
-	if err := v.Unmarshal(&commands); err != nil {
-		return nil, err
-	}
-
-	return commands, nil
 }
