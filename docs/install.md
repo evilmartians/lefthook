@@ -89,7 +89,7 @@ Or, with [mint](https://github.com/yonaskolb/Mint):
 mint run csjones/lefthook-plugin
 ```
 
-## <a id="scoop"></a> Scoop for Windowss
+## <a id="scoop"></a> Scoop for Windows
 
 ```sh
 scoop install lefthook
