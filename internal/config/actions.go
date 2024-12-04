@@ -28,11 +28,9 @@ type Action struct {
 }
 
 type Group struct {
-	Name     string    `json:"name,omitempty"     mapstructure:"name"     toml:"name,omitempty"     yaml:",omitempty"`
 	Root     string    `json:"root,omitempty"     mapstructure:"root"     toml:"root,omitempty"     yaml:",omitempty"`
 	Parallel bool      `json:"parallel,omitempty" mapstructure:"parallel" toml:"parallel,omitempty" yaml:",omitempty"`
 	Piped    bool      `json:"piped,omitempty"    mapstructure:"piped"    toml:"piped,omitempty"    yaml:",omitempty"`
-	Glob     string    `json:"glob,omitempty"     mapstructure:"glob"     toml:"glob,omitempty"     yaml:",omitempty"`
 	Actions  []*Action `json:"actions,omitempty"  mapstructure:"actions"  toml:"actions,omitempty"  yaml:",omitempty"`
 }
 
@@ -45,14 +43,6 @@ func (action *Action) PrintableName(id string) string {
 	}
 	if len(action.Script) != 0 {
 		return action.Script
-	}
-
-	return "[" + id + "]"
-}
-
-func (g *Group) PrintableName(id string) string {
-	if len(g.Name) != 0 {
-		return g.Name
 	}
 
 	return "[" + id + "]"
