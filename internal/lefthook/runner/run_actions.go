@@ -22,8 +22,10 @@ var (
 )
 
 type domain struct {
-	failed atomic.Bool
-	glob   string
+	failed *atomic.Bool
+
+	glob string
+	root string
 }
 
 func (r *Runner) runActions(ctx context.Context) []Result {
@@ -31,7 +33,8 @@ func (r *Runner) runActions(ctx context.Context) []Result {
 
 	results := make([]Result, 0, len(r.Hook.Actions))
 	resultsChan := make(chan Result, len(r.Hook.Actions))
-	domain := &domain{}
+	var failed atomic.Bool
+	domain := &domain{failed: &failed}
 	for i, action := range r.Hook.Actions {
 		id := strconv.Itoa(i)
 
@@ -80,7 +83,11 @@ func (r *Runner) runAction(ctx context.Context, domain *domain, id string, actio
 	}
 
 	if action.Group != nil {
-		return r.runGroup(ctx, id, action.Group)
+		inheritedDomain := *domain
+		inheritedDomain.glob = first(action.Glob, domain.glob)
+		inheritedDomain.root = first(action.Root, domain.root)
+		groupName := first(action.Name, "["+id+"]")
+		return r.runGroup(ctx, groupName, &inheritedDomain, action.Group)
 	}
 
 	return failed(action.PrintableName(id), "don't know how to run action")
@@ -88,11 +95,6 @@ func (r *Runner) runAction(ctx context.Context, domain *domain, id string, actio
 
 func (r *Runner) runSingleAction(ctx context.Context, domain *domain, id string, act *config.Action) Result {
 	name := act.PrintableName(id)
-
-	glob := act.Glob
-	if len(glob) == 0 {
-		glob = domain.glob
-	}
 
 	runAction, err := action.New(name, &action.Params{
 		Repo:       r.Repo,
@@ -103,10 +105,10 @@ func (r *Runner) runSingleAction(ctx context.Context, domain *domain, id string,
 		SourceDirs: r.SourceDirs,
 		GitArgs:    r.GitArgs,
 		Run:        act.Run,
-		Root:       act.Root,
+		Root:       first(act.Root, domain.root),
 		Runner:     act.Runner,
 		Script:     act.Script,
-		Glob:       glob,
+		Glob:       first(act.Glob, domain.glob),
 		Files:      act.Files,
 		FileTypes:  act.FileTypes,
 		Tags:       act.Tags,
@@ -171,16 +173,13 @@ func (r *Runner) runSingleAction(ctx context.Context, domain *domain, id string,
 	return succeeded(name)
 }
 
-func (r *Runner) runGroup(ctx context.Context, groupId string, group *config.Group) Result {
-	name := group.PrintableName(groupId)
-
+func (r *Runner) runGroup(ctx context.Context, groupName string, domain *domain, group *config.Group) Result {
 	if len(group.Actions) == 0 {
-		return failed(name, errEmptyGroup.Error())
+		return failed(groupName, errEmptyGroup.Error())
 	}
 
 	results := make([]Result, 0, len(group.Actions))
 	resultsChan := make(chan Result, len(group.Actions))
-	domain := &domain{glob: group.Glob}
 	var wg sync.WaitGroup
 
 	for i, action := range group.Actions {
@@ -209,5 +208,15 @@ func (r *Runner) runGroup(ctx context.Context, groupId string, group *config.Gro
 		results = append(results, result)
 	}
 
-	return groupResult(name, results)
+	return groupResult(groupName, results)
+}
+
+func first(args ...string) string {
+	for _, a := range args {
+		if len(a) > 0 {
+			return a
+		}
+	}
+
+	return ""
 }
