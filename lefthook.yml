@@ -3,17 +3,17 @@ skip_lfs: true
 pre-commit:
   parallel: true
   actions:
-    - group:
-        name: check code
-        glob: "*.go"
+    - name: check code
+      glob: "*.go"
+      group:
         actions:
-        - run: make lint
-          stage_fixed: true
+          - run: make lint
+            stage_fixed: true
 
-        - run: make test
+          - run: make test
 
-    - run: lychee --max-concurrency 3 {staged_files}
-      name: check links
+    - name: check links
+      run: lychee --max-concurrency 3 {staged_files}
       glob: '*.md'
       exclude:
         - CHANGELOG.md
