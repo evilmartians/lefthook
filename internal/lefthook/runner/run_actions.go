@@ -33,8 +33,10 @@ func (r *Runner) runActions(ctx context.Context) []Result {
 
 	results := make([]Result, 0, len(r.Hook.Actions))
 	resultsChan := make(chan Result, len(r.Hook.Actions))
+
 	var failed atomic.Bool
 	domain := &domain{failed: &failed}
+
 	for i, action := range r.Hook.Actions {
 		id := strconv.Itoa(i)
 
@@ -211,6 +213,7 @@ func (r *Runner) runGroup(ctx context.Context, groupName string, domain *domain,
 	return groupResult(groupName, results)
 }
 
+// first finds first non-empty string and returns it.
 func first(args ...string) string {
 	for _, a := range args {
 		if len(a) > 0 {
