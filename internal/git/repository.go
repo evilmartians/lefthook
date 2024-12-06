@@ -1,6 +1,7 @@
 package git
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,9 +11,11 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/internal/version"
 )
 
 const (
+	minGitVersion     = "2.31.0"
 	stashMessage      = "lefthook auto backup"
 	unstagedPatchName = "lefthook-unstaged.patch"
 	infoDirMode       = 0o775
@@ -20,7 +23,8 @@ const (
 )
 
 var (
-	headBranchRegexp = regexp.MustCompile(`HEAD -> (?P<name>.*)$`)
+	reHeadBranch     = regexp.MustCompile(`HEAD -> (?P<name>.*)$`)
+	reVersion        = regexp.MustCompile(`\d+\.\d+\.\d+`)
 	cmdPushFilesBase = []string{"git", "diff", "--name-only", "HEAD", "@{push}"}
 	cmdPushFilesHead = []string{"git", "diff", "--name-only", "HEAD"}
 	cmdStagedFiles   = []string{"git", "diff", "--name-only", "--cached", "--diff-filter=ACMR"}
@@ -36,6 +40,7 @@ var (
 	cmdRemotes       = []string{"git", "branch", "--remotes"}
 	cmdHideUnstaged  = []string{"git", "checkout", "--force", "--"}
 	cmdEmptyTreeSHA  = []string{"git", "hash-object", "-t", "tree", "/dev/null"}
+	cmdGitVersion    = []string{"git", "version"}
 )
 
 // Repository represents a git repository.
@@ -53,6 +58,18 @@ type Repository struct {
 
 // NewRepository returns a Repository or an error, if git repository it not initialized.
 func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
+	gitVersionOut, err := git.Cmd(cmdGitVersion)
+	if err == nil {
+		gitVersion := reVersion.FindString(gitVersionOut)
+		if err = version.Check(minGitVersion, gitVersion); err != nil {
+			log.Debugf("[lefthook] version check warning: %s %s", gitVersion, err)
+
+			if errors.Is(err, version.ErrUncoveredVersion) {
+				log.Warn("Git version is too old. Minimum supported version is " + minGitVersion)
+			}
+		}
+	}
+
 	rootPath, err := git.Cmd(cmdRootPath)
 	if err != nil {
 		return nil, err
@@ -127,12 +144,12 @@ func (r *Repository) PushFiles() ([]string, error) {
 		}
 
 		for _, branch := range branches {
-			if !headBranchRegexp.MatchString(branch) {
+			if !reHeadBranch.MatchString(branch) {
 				continue
 			}
 
-			matches := headBranchRegexp.FindStringSubmatch(branch)
-			r.headBranch = matches[headBranchRegexp.SubexpIndex("name")]
+			matches := reHeadBranch.FindStringSubmatch(branch)
+			r.headBranch = matches[reHeadBranch.SubexpIndex("name")]
 			break
 		}
 	}

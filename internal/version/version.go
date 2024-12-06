@@ -18,7 +18,10 @@ var (
 		`^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?$`,
 	)
 
-	errIncorrectVersion = errors.New("format of 'min_version' setting is incorrect")
+	ErrInvalidVersion   = errors.New("invalid version format")
+	ErrUncoveredVersion = errors.New("version is lower than required")
+
+	errInvalidMinVersion = errors.New("format of 'min_version' setting is incorrect")
 )
 
 func Version(verbose bool) string {
@@ -29,6 +32,37 @@ func Version(verbose bool) string {
 	return version
 }
 
+func Check(wanted, given string) error {
+	if !versionRegexp.MatchString(given) {
+		return ErrInvalidVersion
+	}
+
+	major, minor, patch, err := parseVersion(given)
+	if err != nil {
+		return ErrInvalidVersion
+	}
+
+	wantMajor, wantMinor, wantPatch, err := parseVersion(wanted)
+	if err != nil {
+		return ErrInvalidVersion
+	}
+
+	switch {
+	case major > wantMajor:
+		return nil
+	case major < wantMajor:
+		return ErrUncoveredVersion
+	case minor > wantMinor:
+		return nil
+	case minor < wantMinor:
+		return ErrUncoveredVersion
+	case patch >= wantPatch:
+		return nil
+	default:
+		return ErrUncoveredVersion
+	}
+}
+
 // CheckCovered returns true if given version is less or equal than current
 // and false otherwise.
 func CheckCovered(targetVersion string) error {
@@ -36,40 +70,20 @@ func CheckCovered(targetVersion string) error {
 		return nil
 	}
 
-	if !versionRegexp.MatchString(targetVersion) {
-		return errIncorrectVersion
+	err := Check(targetVersion, version)
+
+	if errors.Is(err, ErrUncoveredVersion) {
+		execPath, oserr := os.Executable()
+		if oserr != nil {
+			execPath = "<unknown>"
+		}
+
+		return fmt.Errorf("required lefthook version (%s) is higher than current (%s) at %s", targetVersion, version, execPath)
+	} else if errors.Is(err, ErrInvalidVersion) {
+		return errInvalidMinVersion
 	}
 
-	major, minor, patch, err := parseVersion(version)
-	if err != nil {
-		return err
-	}
-
-	tMajor, tMinor, tPatch, err := parseVersion(targetVersion)
-	if err != nil {
-		return err
-	}
-
-	execPath, err := os.Executable()
-	if err != nil {
-		execPath = "<unknown>"
-	}
-	errUncovered := fmt.Errorf("required lefthook version (%s) is higher than current (%s) at %s", targetVersion, version, execPath)
-
-	switch {
-	case major > tMajor:
-		return nil
-	case major < tMajor:
-		return errUncovered
-	case minor > tMinor:
-		return nil
-	case minor < tMinor:
-		return errUncovered
-	case patch >= tPatch:
-		return nil
-	default:
-		return errUncovered
-	}
+	return err
 }
 
 // parseVersion parses the version string of "1.2.3", "1.2", or just "1" and
