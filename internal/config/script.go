@@ -22,7 +22,7 @@ type Script struct {
 
 func (s Script) DoSkip(state func() git.State) bool {
 	skipChecker := NewSkipChecker(system.Cmd)
-	return skipChecker.check(state, s.Skip, s.Only)
+	return skipChecker.Check(state, s.Skip, s.Only)
 }
 
 func (s Script) ExecutionPriority() int {
