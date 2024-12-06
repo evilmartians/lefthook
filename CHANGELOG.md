@@ -1,5 +1,13 @@
 # Change log
 
+## 1.9.0 (2024-12-06)
+
+- chore: add minimum git version support warning ([#886](https://github.com/evilmartians/lefthook/pull/886)) by @mrexox
+- fix: reorder available hooks list ([#884](https://github.com/evilmartians/lefthook/pull/884)) by @scop
+- docs: correct typo in 'Scoop for Windows' section ([#883](https://github.com/evilmartians/lefthook/pull/883)) by @Daniil-Oberlev
+- refactor: [**breaking**] replace viper with koanf ([#813](https://github.com/evilmartians/lefthook/pull/813)) by @mrexox
+- ci: fix packages release ([#881](https://github.com/evilmartians/lefthook/pull/881)) by @mrexox
+
 ## 1.8.5 (2024-12-02)
 
 - ci: automate publishing to cloudsmith ([#875](https://github.com/evilmartians/lefthook/pull/875)) by @mrexox
