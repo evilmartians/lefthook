@@ -732,9 +732,9 @@ pre-commit:
 				Hooks: map[string]*Hook{
 					"pre-commit": {
 						Actions: []*Action{
-							&Action{Run: "1"},
-							&Action{Run: "local 2", Name: "second"},
-							&Action{Run: "3"},
+							{Run: "1"},
+							{Run: "local 2", Name: "second"},
+							{Run: "3"},
 						},
 					},
 				},
@@ -781,26 +781,26 @@ pre-commit:
 				Hooks: map[string]*Hook{
 					"pre-commit": {
 						Actions: []*Action{
-							&Action{
+							{
 								Name: "group 1",
 								Glob: "*.rb",
 								Group: &Group{
 									Parallel: true,
 									Actions: []*Action{
-										&Action{Run: "1.1"},
-										&Action{Run: "1.2"},
-										&Action{
+										{Run: "1.1"},
+										{Run: "1.2"},
+										{
 											Name: "nested",
 											Group: &Group{
 												Actions: []*Action{
-													&Action{Run: "1.nested.1"},
-													&Action{Run: "1.nested.2 local", Name: "nested 2"},
-													&Action{Run: "1.nested.3"},
+													{Run: "1.nested.1"},
+													{Run: "1.nested.2 local", Name: "nested 2"},
+													{Run: "1.nested.3"},
 												},
 											},
 										},
-										&Action{Run: "1.3"},
-										&Action{Run: "1.4"},
+										{Run: "1.3"},
+										{Run: "1.4"},
 									},
 								},
 							},

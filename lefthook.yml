@@ -3,7 +3,7 @@ skip_lfs: true
 pre-commit:
   parallel: true
   actions:
-    - name: check code
+    - name: lint & test
       glob: "*.go"
       group:
         actions:
