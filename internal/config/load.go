@@ -476,7 +476,7 @@ func mergeActions(src, dest map[string]interface{}) error {
 }
 
 func mergeActionsSlice(src, dest []interface{}) []interface{} {
-	mergable := make(map[string]map[string]interface{})
+	mergeable := make(map[string]map[string]interface{})
 	result := make([]interface{}, 0, len(dest))
 
 	for _, maybeAction := range dest {
@@ -484,7 +484,7 @@ func mergeActionsSlice(src, dest []interface{}) []interface{} {
 		case map[string]interface{}:
 			switch name := destAction["name"].(type) {
 			case string:
-				mergable[name] = destAction
+				mergeable[name] = destAction
 			default:
 			}
 
@@ -498,7 +498,7 @@ func mergeActionsSlice(src, dest []interface{}) []interface{} {
 		case map[string]interface{}:
 			switch name := srcAction["name"].(type) {
 			case string:
-				destAction, ok := mergable[name]
+				destAction, ok := mergeable[name]
 				if ok {
 					var srcSubActions []interface{}
 					var destSubActions []interface{}
