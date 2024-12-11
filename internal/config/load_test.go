@@ -709,6 +709,106 @@ pre-commit:
 				},
 			},
 		},
+		"with actions": {
+			files: map[string]string{
+				"lefthook.yml": `
+pre-commit:
+  actions:
+    - run: 1
+    - run: 2
+      name: second
+`,
+				"lefthook-local.yml": `
+pre-commit:
+  actions:
+    - run: 3
+    - run: local 2
+      name: second
+`,
+			},
+			result: &Config{
+				SourceDir:      ".lefthook",
+				SourceDirLocal: ".lefthook-local",
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Actions: []*Action{
+							&Action{Run: "1"},
+							&Action{Run: "local 2", Name: "second"},
+							&Action{Run: "3"},
+						},
+					},
+				},
+			},
+		},
+		"with nested actions": {
+			files: map[string]string{
+				"lefthook.yml": `
+pre-commit:
+  actions:
+    - name: group 1
+      group:
+        actions:
+          - run: 1.1
+          - run: 1.2
+          - name: nested
+            group:
+              actions:
+                - run: 1.nested.1
+                - run: 1.nested.2
+                  name: nested 2
+`,
+				"lefthook-local.yml": `
+pre-commit:
+  actions:
+    - name: group 1
+      glob: "*.rb"
+      group:
+        parallel: true
+        actions:
+          - name: nested
+            group:
+              actions:
+                - run: 1.nested.2 local
+                  name: nested 2
+                - run: 1.nested.3
+          - run: 1.3
+          - run: 1.4
+`,
+			},
+			result: &Config{
+				SourceDir:      ".lefthook",
+				SourceDirLocal: ".lefthook-local",
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Actions: []*Action{
+							&Action{
+								Name: "group 1",
+								Glob: "*.rb",
+								Group: &Group{
+									Parallel: true,
+									Actions: []*Action{
+										&Action{Run: "1.1"},
+										&Action{Run: "1.2"},
+										&Action{
+											Name: "nested",
+											Group: &Group{
+												Actions: []*Action{
+													&Action{Run: "1.nested.1"},
+													&Action{Run: "1.nested.2 local", Name: "nested 2"},
+													&Action{Run: "1.nested.3"},
+												},
+											},
+										},
+										&Action{Run: "1.3"},
+										&Action{Run: "1.4"},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	} {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		repo := &git.Repository{
@@ -738,7 +838,7 @@ pre-commit:
 
 			result, err := Load(fs.Fs, repo)
 			assert.NoError(err)
-			assert.Equal(result, tt.result)
+			assert.Equal(tt.result, result)
 		})
 	}
 

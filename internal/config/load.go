@@ -44,7 +44,8 @@ var (
 		".json": json.Parser(),
 		".toml": toml.Parser(),
 	}
-	withActionsMerge = koanf.WithMergeFunc(mergeActions)
+
+	mergeActionsOption = koanf.WithMergeFunc(mergeActions)
 )
 
 // ConfigNotFoundError.
@@ -64,7 +65,7 @@ func loadOne(k *koanf.Koanf, filesystem afero.Fs, root string, names []string) e
 				continue
 			}
 
-			if err := k.Load(kfs.Provider(newIOFS(filesystem), config), parsers[extension], withActionsMerge); err != nil {
+			if err := k.Load(kfs.Provider(newIOFS(filesystem), config), parsers[extension], mergeActionsOption); err != nil {
 				return err
 			}
 
@@ -176,7 +177,7 @@ func loadRemotes(k *koanf.Koanf, filesystem afero.Fs, repo *git.Repository, remo
 				panic("TODO: unknown extension to parse")
 			}
 
-			if err := k.Load(kfs.Provider(newIOFS(filesystem), configPath), parser, withActionsMerge); err != nil {
+			if err := k.Load(kfs.Provider(newIOFS(filesystem), configPath), parser, mergeActionsOption); err != nil {
 				return err
 			}
 
@@ -224,7 +225,7 @@ func extendRecursive(k *koanf.Koanf, filesystem afero.Fs, root string, extends [
 			if !ok {
 				panic("TODO: unknown extension for extent " + path)
 			}
-			if err := extent.Load(kfs.Provider(newIOFS(filesystem), path), parser, withActionsMerge); err != nil {
+			if err := extent.Load(kfs.Provider(newIOFS(filesystem), path), parser, mergeActionsOption); err != nil {
 				return err
 			}
 
@@ -232,7 +233,7 @@ func extendRecursive(k *koanf.Koanf, filesystem afero.Fs, root string, extends [
 				return err
 			}
 
-			if err := k.Load(koanfProvider{extent}, nil, withActionsMerge); err != nil {
+			if err := k.Load(koanfProvider{extent}, nil, mergeActionsOption); err != nil {
 				return err
 			}
 		}
@@ -361,6 +362,7 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 			default:
 			}
 		}
+
 		if len(destActions) > 0 {
 			dest["actions"] = destActions
 		}
@@ -417,6 +419,7 @@ func (k koanfProvider) ReadBytes() ([]byte, error) {
 
 func mergeActions(src, dest map[string]interface{}) error {
 	srcActions := make(map[string][]interface{})
+
 	for name, maybeHook := range src {
 		switch hook := maybeHook.(type) {
 		case map[string]interface{}:
@@ -473,19 +476,19 @@ func mergeActions(src, dest map[string]interface{}) error {
 }
 
 func mergeActionsSlice(src, dest []interface{}) []interface{} {
-	namedActions := make(map[string]map[string]interface{})
-	resultActions := make([]interface{}, 0, len(dest))
+	mergable := make(map[string]map[string]interface{})
+	result := make([]interface{}, 0, len(dest))
 
 	for _, maybeAction := range dest {
 		switch destAction := maybeAction.(type) {
 		case map[string]interface{}:
 			switch name := destAction["name"].(type) {
 			case string:
-				namedActions[name] = destAction
+				mergable[name] = destAction
 			default:
 			}
 
-			resultActions = append(resultActions, maybeAction)
+			result = append(result, maybeAction)
 		default:
 		}
 	}
@@ -495,7 +498,7 @@ func mergeActionsSlice(src, dest []interface{}) []interface{} {
 		case map[string]interface{}:
 			switch name := srcAction["name"].(type) {
 			case string:
-				destAction, ok := namedActions[name]
+				destAction, ok := mergable[name]
 				if ok {
 					var srcSubActions []interface{}
 					var destSubActions []interface{}
@@ -541,10 +544,10 @@ func mergeActionsSlice(src, dest []interface{}) []interface{} {
 			default:
 			}
 
-			resultActions = append(resultActions, maybeAction)
+			result = append(result, maybeAction)
 		default:
 		}
 	}
 
-	return resultActions
+	return result
 }
