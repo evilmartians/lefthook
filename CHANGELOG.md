@@ -1,5 +1,9 @@
 # Change log
 
+## 1.9.2 (2024-12-12)
+
+- fix: use correct remote scripts folder ([#891](https://github.com/evilmartians/lefthook/pull/891)) by @mrexox
+
 ## 1.9.1 (2024-12-12)
 
 - fix: skip_lfs config option ([#889](https://github.com/evilmartians/lefthook/pull/889)) by @zachahn
