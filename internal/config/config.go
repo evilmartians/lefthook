@@ -37,7 +37,7 @@ type Config struct {
 	NoTTY                   bool        `koanf:"no_tty"                    mapstructure:"no_tty,omitempty"`
 	AssertLefthookInstalled bool        `koanf:"assert_lefthook_installed" mapstructure:"assert_lefthook_installed,omitempty"`
 	Colors                  interface{} `mapstructure:"colors,omitempty"`
-	SkipLFS                 bool        `mapstructure:"skip_lfs,omitempty"`
+	SkipLFS                 bool        `koanf:"skip_lfs"                  mapstructure:"skip_lfs,omitempty"`
 
 	// Deprecated: use Remotes
 	Remote  *Remote   `mapstructure:"remote,omitempty"`
