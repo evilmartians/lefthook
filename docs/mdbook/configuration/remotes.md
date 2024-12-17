@@ -1,8 +1,5 @@
 ## `remotes`
 
-> [!IMPORTANT]
-> :test_tube: This feature is in **Beta** version
-
 You can provide multiple remote configs if you want to share yours lefthook configurations across many projects. Lefthook will automatically download and merge configurations into your local `lefthook.yml`.
 
 You can use [`extends`](./extends.md) but the paths must be relative to the remote repository root.

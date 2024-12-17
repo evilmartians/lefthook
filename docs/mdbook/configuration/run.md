@@ -4,7 +4,7 @@ This is a mandatory option for a command. This is actually a command that is exe
 
 You can use files templates that will be substituted with the appropriate files on execution:
 
-- `{files}` - custom [`files`](#files) command result.
+- `{files}` - custom [`files`](./files.md) command result.
 - `{staged_files}` - staged files which you try to commit.
 - `{push_files}` - files that are committed but not pushed.
 - `{all_files}` - all files tracked by git.
@@ -72,7 +72,7 @@ pre-push:
 
 Simply run `bundle exec rubocop` on all files with `.rb` extension excluding `application.rb` and `routes.rb` files.
 
-> [!NOTE]
+> NOTE
 >
 > `--force-exclusion` will apply `Exclude` configuration setting of Rubocop.
 
@@ -135,8 +135,6 @@ commit-msg:
     multiple-sign-off:
       run: 'test $(grep -c "^Signed-off-by: " {1}) -lt 2'
 ```
-
-**Notes**
 
 #### Rubocop
 

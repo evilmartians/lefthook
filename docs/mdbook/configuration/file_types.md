@@ -11,7 +11,8 @@ Filter files in a [`run`](./run.md) templates by their type. Supported types:
 |`symlink` | A symlink file. |
 |`not symlink` | Any non-symlink file. |
 
-> [!IMPORTANT]
+> IMPORTANT
+>
 > When passed multiple file types all constraints will be applied to the resulting list of files.
 
 **Examples**
