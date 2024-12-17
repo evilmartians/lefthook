@@ -1,0 +1,12 @@
+[book]
+authors = ["Evil Martians"]
+language = "en"
+multilingual = false
+src = "docs/mdbook"
+title = "Lefthook"
+
+[output.html]
+no-section-label = true
+
+[output.html.fold]
+enable = true
