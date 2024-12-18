@@ -1,5 +1,10 @@
 # Change log
 
+## 1.9.3 (2024-12-18)
+
+- fix: correctly parse config options ([#895](https://github.com/evilmartians/lefthook/pull/895)) by @mrexox
+- chore: add mdbook ([#894](https://github.com/evilmartians/lefthook/pull/894)) by @mrexox
+
 ## 1.9.2 (2024-12-12)
 
 - fix: use correct remote scripts folder ([#891](https://github.com/evilmartians/lefthook/pull/891)) by @mrexox
