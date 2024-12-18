@@ -1,5 +1,3 @@
-# Lefthook
-
 [Introduction](./intro.md)
 
 # User guide

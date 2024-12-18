@@ -3,7 +3,7 @@ authors = ["Evil Martians"]
 language = "en"
 multilingual = false
 src = "docs/mdbook"
-title = "Lefthook"
+title = "Lefthook Documentation"
 
 [output.html]
 no-section-label = true
