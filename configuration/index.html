@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Configuration - Lefthook</title>
+        <title>Config options - Lefthook Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -120,7 +120,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Lefthook</h1>
+                    <h1 class="menu-title">Lefthook Documentation</h1>
 
                     <div class="right-buttons">
                         <a href="../print.html" title="Print this book" aria-label="Print this book">
@@ -152,7 +152,21 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="config-options"><a class="header" href="#config-options">Config options</a></h1>
+                        <h2 id="config-file-name"><a class="header" href="#config-file-name">Config file name</a></h2>
+<p>Lefthook supports the following file names for the main config:</p>
+<ul>
+<li><code>lefthook.yml</code></li>
+<li><code>.lefthook.yml</code></li>
+<li><code>lefthook.yaml</code></li>
+<li><code>.lefthook.yaml</code></li>
+<li><code>lefthook.toml</code></li>
+<li><code>.lefthook.toml</code></li>
+<li><code>lefthook.json</code></li>
+<li><code>.lefthook.json</code></li>
+</ul>
+<p>If there are more than 1 file in the project, only one will be used, and you'll never know which one. So, please, use one format in a project.</p>
+<p>Lefthook also merges an extra config with the name <code>lefthook-local</code>. All supported formats can be applied to this <code>-local</code> config. If you name your main config with the leading dot, like <code>.lefthook.json</code>, the <code>-local</code> config also must be named with the leading dot: <code>.lefthook-local.json</code>.</p>
+<h2 id="options"><a class="header" href="#options">Options</a></h2>
 <ul>
 <li><a href="./assert_lefthook_installed.html"><code>assert_lefthook_installed</code></a></li>
 <li><a href="./colors.html"><code>colors</code></a></li>
@@ -223,7 +237,7 @@
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../installation/manual.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../usage/tips.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
@@ -237,7 +251,7 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../installation/manual.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../usage/tips.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 

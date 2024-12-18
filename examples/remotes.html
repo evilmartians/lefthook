@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>file_types - Lefthook Documentation</title>
+        <title>Remotes - Lefthook Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -152,64 +152,26 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="file_types"><a class="header" href="#file_types"><code>file_types</code></a></h2>
-<p>Filter files in a <a href="./run.html"><code>run</code></a> templates by their type. Supported types:</p>
-<div class="table-wrapper"><table><thead><tr><th>File type</th><th>Exlanation</th></tr></thead><tbody>
-<tr><td><code>text</code></td><td>Any file that contains text. Symlinks are not followed.</td></tr>
-<tr><td><code>binary</code></td><td>Any file that contains non-text bytes. Symlinks are not followed.</td></tr>
-<tr><td><code>executable</code></td><td>Any file that has executable bits set. Symlinks are not followed.</td></tr>
-<tr><td><code>not executable</code></td><td>Any file without executable bits in file mode. Symlinks included.</td></tr>
-<tr><td><code>symlink</code></td><td>A symlink file.</td></tr>
-<tr><td><code>not symlink</code></td><td>Any non-symlink file.</td></tr>
-</tbody></table>
-</div>
+                        <h2 id="remotes"><a class="header" href="#remotes">Remotes</a></h2>
 <blockquote>
-<p><strong>Important:</strong> When passed multiple file types all constraints will be applied to the resulting list of files</p>
+<p>Use configurations from other Git repositories via <code>remotes</code> feature.</p>
+<p>Lefthook will automatically download the remote config files and merge them into existing configuration.</p>
 </blockquote>
-<p><strong>Examples</strong></p>
-<p>Apply some different linters on text and binary files.</p>
-<pre><code class="language-yml"># lefthook.yml
-
-pre-commit:
-  commands:
-    lint-code:
-      run: yarn lint {staged_files}
-      file_types: text
-    check-hex-codes:
-      run: yarn check-hex {staged_files}
-      file_types: binary
-</code></pre>
-<p>Skip symlinks.</p>
-<pre><code class="language-yml"># lefthook.yml
-
-pre-commit:
-  commands:
-    lint:
-      run: yarn lint --fix {staged_files}
-      file_types:
-        - not symlink
-</code></pre>
-<p>Lint executable scripts.</p>
-<pre><code class="language-yml"># lefthook.yml
-
-pre-commit:
-  commands:
-    lint:
-      run: yarn lint --fix {staged_files}
-      file_types:
-        - executable
-        - text
+<pre><code class="language-yml">remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    configs:
+      - examples/remote/ping.yml
 </code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../configuration/files.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../examples/commitlint.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../configuration/env.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../examples/stage_fixed.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -219,11 +181,11 @@ pre-commit:
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../configuration/files.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../examples/commitlint.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../configuration/env.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../examples/stage_fixed.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>run - Lefthook</title>
+        <title>run - Lefthook Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -120,7 +120,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Lefthook</h1>
+                    <h1 class="menu-title">Lefthook Documentation</h1>
 
                     <div class="right-buttons">
                         <a href="../print.html" title="Print this book" aria-label="Print this book">
@@ -152,7 +152,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h3 id="run"><a class="header" href="#run"><code>run</code></a></h3>
+                        <h2 id="run"><a class="header" href="#run"><code>run</code></a></h2>
 <p>This is a mandatory option for a command. This is actually a command that is executed for the hook.</p>
 <p>You can use files templates that will be substituted with the appropriate files on execution:</p>
 <ul>
@@ -207,8 +207,7 @@ pre-push:
 <h4 id="all_files-template"><a class="header" href="#all_files-template"><code>{all_files}</code> template</a></h4>
 <p>Simply run <code>bundle exec rubocop</code> on all files with <code>.rb</code> extension excluding <code>application.rb</code> and <code>routes.rb</code> files.</p>
 <blockquote>
-<p>NOTE</p>
-<p><code>--force-exclusion</code> will apply <code>Exclude</code> configuration setting of Rubocop.</p>
+<p><strong>Note:</strong> <code>--force-exclusion</code> will apply <code>Exclude</code> configuration setting of Rubocop</p>
 </blockquote>
 <pre><code class="language-yml"># lefthook.yml
 

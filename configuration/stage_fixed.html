@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>stage_fixed - Lefthook</title>
+        <title>stage_fixed - Lefthook Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -120,7 +120,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Lefthook</h1>
+                    <h1 class="menu-title">Lefthook Documentation</h1>
 
                     <div class="right-buttons">
                         <a href="../print.html" title="Print this book" aria-label="Print this book">
@@ -152,10 +152,10 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h3 id="stage_fixed"><a class="header" href="#stage_fixed"><code>stage_fixed</code></a></h3>
+                        <h2 id="stage_fixed"><a class="header" href="#stage_fixed"><code>stage_fixed</code></a></h2>
 <p><strong>Default: <code>false</code></strong></p>
 <blockquote>
-<p>Used <strong>only for <code>pre-commit</code></strong> hook. Is ignored for other hooks.</p>
+<p>Works <strong>only for <code>pre-commit</code></strong> hook</p>
 </blockquote>
 <p>When set to <code>true</code> lefthook will automatically call <code>git add</code> on files after running the command or script. For a command if <a href="./files.html"><code>files</code></a> option was specified, the specified command will be used to retrieve files for <code>git add</code>. For scripts and commands without <a href="./files.html"><code>files</code></a> option <code>{staged_files}</code> template will be used. All filters (<a href="./glob.html"><code>glob</code></a>, <a href="./exclude.html"><code>exclude</code></a>) will be applied if specified.</p>
 <p><strong>Example</strong></p>

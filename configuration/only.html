@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>only - Lefthook</title>
+        <title>only - Lefthook Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -120,7 +120,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Lefthook</h1>
+                    <h1 class="menu-title">Lefthook Documentation</h1>
 
                     <div class="right-buttons">
                         <a href="../print.html" title="Print this book" aria-label="Print this book">
@@ -152,11 +152,10 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h3 id="only"><a class="header" href="#only"><code>only</code></a></h3>
+                        <h2 id="only"><a class="header" href="#only"><code>only</code></a></h2>
 <p>You can force a command, script, or the whole hook to execute only in certain conditions. This option acts like the opposite of <a href="./skip.html"><code>skip</code></a>. It accepts the same values but skips execution only if the condition is not satisfied.</p>
 <blockquote>
-<p>NOTE</p>
-<p><code>skip</code> option takes precedence over <code>only</code> option, so if you have conflicting conditions the execution will be skipped.</p>
+<p><strong>Note:</strong> <code>skip</code> option takes precedence over <code>only</code> option, so if you have conflicting conditions the execution will be skipped.</p>
 </blockquote>
 <p><strong>Example</strong></p>
 <p>Execute a hook only for <code>dev/*</code> branches.</p>

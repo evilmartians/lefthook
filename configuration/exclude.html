@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>exclude - Lefthook</title>
+        <title>exclude - Lefthook Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -120,7 +120,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Lefthook</h1>
+                    <h1 class="menu-title">Lefthook Documentation</h1>
 
                     <div class="right-buttons">
                         <a href="../print.html" title="Print this book" aria-label="Print this book">
@@ -152,15 +152,14 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h3 id="exclude"><a class="header" href="#exclude"><code>exclude</code></a></h3>
+                        <h2 id="exclude"><a class="header" href="#exclude"><code>exclude</code></a></h2>
 <p>For the <code>exclude</code> option two variants are supported:</p>
 <ul>
 <li>A list of globs to be excluded</li>
 <li>A single regular expression (deprecated)</li>
 </ul>
 <blockquote>
-<p>NOTE</p>
-<p>The regular expression is matched against full paths to files in the repo,
+<p><strong>Note:</strong> The regular expression is matched against full paths to files in the repo,
 relative to the repo root, using <code>/</code> as the directory separator on all platforms.
 File paths do not begin with the separator or any other prefix.</p>
 </blockquote>
@@ -189,7 +188,7 @@ pre-commit:
       exclude: '(^|/)(application|routes|rails_helper|initializers/\w+)\.rb$'
       run: bundle exec rubocop --force-exclusion {staged_files}
 </code></pre>
-<p><strong>Notes</strong></p>
+<p><strong>Important</strong></p>
 <p>Be careful with the config file format's string quoting and escaping rules when writing regexps in it. For YAML, single quotes are often the simplest choice.</p>
 <p>If you've specified <code>exclude</code> but don't have a files template in <a href="./run.html"><code>run</code></a> option, lefthook will check <code>{staged_files}</code> for <code>pre-commit</code> hook and <code>{push_files}</code> for <code>pre-push</code> hook and apply filtering. If no files left, the command will be skipped.</p>
 <pre><code class="language-yml"># lefthook.yml
