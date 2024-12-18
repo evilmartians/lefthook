@@ -200,14 +200,14 @@ fixer:
 $ lefthook run fixer
 ```
 
-* ### **Optional output**
+* ### **Control output**
 
-If you [don't want to see][config-skip_output] supporting information:
+You can control what lefthook prints with [output][config-output] option.
 
 ```yml
-skip_output:
-  - meta #(version and which hook running)
-  - success #(output from runners with exit code 0)
+output:
+  - execution
+  - failure
 ```
 
 ----
@@ -273,4 +273,5 @@ Check [examples][examples]
 [config-scripts]: https://evilmartians.github.io/lefthook/configuration/Scripts.html
 [config-tags]: https://evilmartians.github.io/lefthook/configuration/tags.html
 [config-skip_output]: https://evilmartians.github.io/lefthook/configuration/skip_output.html
+[config-output]: https://evilmartians.github.io/lefthook/configuration/output.html
 [usage-local-config]: https://evilmartians.github.io/lefthook/usage/tips.html#local-config

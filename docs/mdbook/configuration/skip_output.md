@@ -1,6 +1,6 @@
 ## `skip_output`
 
-> **DEPRECATED** This feature is deprecated and might be removed in future versions. Please, use `[output]` instead for managing verbosity.
+> **DEPRECATED** This feature is deprecated and might be removed in future versions. Please, use [`output`](./output.md) instead for managing verbosity.
 
 You can manage the verbosity using the `skip_output` config. You can set whether lefthook should print some parts of its output.
 
