@@ -22,8 +22,8 @@ output:
   - empty_summary  # Print summary heading when there are no steps to run
   - success        # Print successful steps
   - failure        # Print failed steps printing
-  - execution      # Print any execution logs (but prints if the execution failed)
-  - execution_out  # Print execution output (but still prints failed commands output)
+  - execution      # Print any execution logs
+  - execution_out  # Print execution output
   - execution_info # Print `EXECUTE > ...` logging
   - skips          # Print "skip" (i.e. no files matched)
 ```

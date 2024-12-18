@@ -14,7 +14,8 @@ A Git hooks manager for Node.js, Ruby, Python and many other types of projects.
 * **Powerful.** It allows to control execution and files you pass to your commands.
 * **Simple.** It is single dependency-free binary which can work in any environment.
 
-📖 [Check the docs](https://evilmartians.github.io/lefthook/)
+📖 [Documentation][documentation]
+
 📖 [Read the introduction post](https://evilmartians.com/chronicles/lefthook-knock-your-teams-code-back-into-shape?utm_source=lefthook)
 
 <a href="https://evilmartians.com/?utm_source=lefthook">
@@ -46,7 +47,7 @@ For **Python**:
 pip install lefthook
 ```
 
-**[Installation guide](./docs/install.md)** with more ways to install lefthook: [apt](./docs/install.md#deb), [brew](./docs/install.md#homebrew), [winget](./docs/install.md#winget), and others.
+**[Installation guide][installation]** with more ways to install lefthook: [apt][install-apt], [brew][install-brew], [winget][install-winget], and others.
 
 ## Usage
 
@@ -67,15 +68,15 @@ git add -A && git commit -m '...'
 
 #### More details
 
-- [**Configuration**](./docs/configuration.md) for `lefthook.yml` config options.
-- [**Usage**](./docs/usage.md) for **lefthook** CLI options, supported ENVs, and usage tips.
-- [**Discussions**](https://github.com/evilmartians/lefthook/discussions) for questions, ideas, suggestions.
+- [**Configuration**][configuration] for `lefthook.yml` config options.
+- [**Usage**][usage] for **lefthook** CLI options, supported ENVs, and usage tips.
+- [**Discussions**][discussion] for questions, ideas, suggestions.
 <!-- - [**Wiki**](https://github.com/evilmartians/lefthook/wiki) for guides, examples, and benchmarks. -->
 
 ## Why Lefthook
 
 * ### **Parallel execution**
-Gives you more speed. [Example](./docs/configuration.md#parallel)
+Gives you more speed. [docs][config-parallel]
 
 ```yml
 pre-push:
@@ -83,7 +84,7 @@ pre-push:
 ```
 
 * ### **Flexible list of files**
-If you want your own list. [Custom](./docs/configuration.md#files) and [prebuilt](./docs/configuration.md#run) examples.
+If you want your own list. [Custom][config-files] and [prebuilt][config-run] examples.
 
 ```yml
 pre-commit:
@@ -123,7 +124,7 @@ pre-commit:
 
 * ### **Run scripts**
 
-If oneline commands are not enough, you can execute files. [Example](./docs/configuration.md#script).
+If oneline commands are not enough, you can execute files. [docs][config-scripts]
 
 ```yml
 commit-msg:
@@ -133,22 +134,26 @@ commit-msg:
 ```
 
 * ### **Tags**
-If you want to control a group of commands. [Example](./docs/configuration.md#tags).
+If you want to control a group of commands. [docs][config-tags]
 
 ```yml
 pre-push:
   commands:
     packages-audit:
-      tags: frontend security
-      run: yarn audit
+      tags:
+        - frontend
+        - linters
+      run: yarn lint
     gems-audit:
-      tags: backend security
+      tags:
+        - backend
+        - security
       run: bundle audit
 ```
 
 * ### **Support Docker**
 
-If you are in the Docker environment. [Example](./docs/configuration.md#cmd-template).
+If you are in the Docker environment. [docs][config-run]
 
 ```yml
 pre-commit:
@@ -159,7 +164,7 @@ pre-commit:
 
 * ### **Local config**
 
-If you a frontend/backend developer and want to skip unnecessary commands or override something into Docker. [Description](./docs/usage.md#local-config).
+If you a frontend/backend developer and want to skip unnecessary commands or override something into Docker. [docs][usage-local-config]
 
 ```yml
 # lefthook-local.yml
@@ -195,29 +200,30 @@ fixer:
 $ lefthook run fixer
 ```
 
-* ### **Optional output**
+* ### **Control output**
 
-If you [don't want to see](./docs/configuration.md#skip_output) supporting information:
+You can control what lefthook prints with [output][config-output] option.
 
 ```yml
-skip_output:
-  - meta #(version and which hook running)
-  - success #(output from runners with exit code 0)
+output:
+  - execution
+  - failure
 ```
 
 ----
 
 ### Guides
 
-* [Install with Node.js](./docs/install.md#node)
-* [Install with Ruby](./docs/install.md#ruby)
-* [Install with Homebrew](./docs/install.md#homebrew)
-* [Install with Winget](./docs/install.md#winget)
-* [Install for Debian-based Linux](./docs/install.md#deb)
-* [Install for RPM-based Linux](./docs/install.md#rpm)
-* [Install for Arch Linux](./docs/install.md#arch)
-* [Usage](./docs/usage.md)
-* [Configuration](./docs/configuration.md)
+* [Install with Node.js][install-node]
+* [Install with Ruby][install-ruby]
+* [Install with Homebrew][install-brew]
+* [Install with Winget][install-winget]
+* [Install for Debian-based Linux][install-apt]
+* [Install for RPM-based Linux][install-rpm]
+* [Install for Arch Linux][install-arch]
+* [Install for Alpine Linux][install-alpine]
+* [Usage][usage]
+* [Configuration][configuration]
 <!-- * [Troubleshooting](https://github.com/evilmartians/lefthook/wiki/Troubleshooting) -->
 
 <!-- ### Migrate from -->
@@ -226,8 +232,8 @@ skip_output:
 <!-- * [Overcommit](https://github.com/evilmartians/lefthook/wiki/Migration-from-overcommit) -->
 
 ### Examples
-* [Simple script](https://github.com/evilmartians/lefthook/tree/master/examples/with_scripts)
-* [Full features](https://github.com/evilmartians/lefthook/tree/master/examples/complete)
+
+Check [examples][examples]
 
 <!-- ### Benchmarks -->
 <!-- * [vs Overcommit](https://github.com/evilmartians/lefthook/wiki/Benchmark-lefthook-vs-overcommit) -->
@@ -244,3 +250,28 @@ skip_output:
 * [Automatically linting docker containers](https://dev.to/nitzano/linting-docker-containers-2lo6?utm_source=lefthook)
 * [Smooth PostgreSQL upgrades in DockerDev environments with Lefthook](https://dev.to/palkan_tula/smooth-postgresql-upgrades-in-dockerdev-environments-with-lefthook-203k?utm_source=lefthook)
 * [Lefthook for React/React Native apps](https://blog.logrocket.com/deep-dive-into-lefthook-react-native?utm_source=lefthook)
+
+
+[documentation]: https://evilmartians.github.io/lefthook/
+[configuration]: https://evilmartians.github.io/lefthook/configuration/index.html
+[examples]: https://evilmartians.github.io/lefthook/examples/index.html
+[installation]: https://evilmartians.github.io/lefthook/installation/
+[usage]: https://evilmartians.github.io/lefthook/usage/index.html
+[discussion]: https://github.com/evilmartians/lefthook/discussions
+[install-apt]: https://evilmartians.github.io/lefthook/installation/deb.html
+[install-ruby]: https://evilmartians.github.io/lefthook/installation/ruby.html
+[install-node]: https://evilmartians.github.io/lefthook/installation/node.html
+[install-brew]: https://evilmartians.github.io/lefthook/installation/homebrew.html
+[install-winget]: https://evilmartians.github.io/lefthook/installation/winget.html
+[install-rpm]: https://evilmartians.github.io/lefthook/installation/rpm.html
+[install-arch]: https://evilmartians.github.io/lefthook/installation/arch.html
+[install-alpine]: https://evilmartians.github.io/lefthook/installation/alpine.html
+[config-parallel]: https://evilmartians.github.io/lefthook/configuration/parallel.html
+[config-files]: https://evilmartians.github.io/lefthook/configuration/files.html
+[config-glob]: https://evilmartians.github.io/lefthook/configuration/glob.html
+[config-run]: https://evilmartians.github.io/lefthook/configuration/run.html
+[config-scripts]: https://evilmartians.github.io/lefthook/configuration/Scripts.html
+[config-tags]: https://evilmartians.github.io/lefthook/configuration/tags.html
+[config-skip_output]: https://evilmartians.github.io/lefthook/configuration/skip_output.html
+[config-output]: https://evilmartians.github.io/lefthook/configuration/output.html
+[usage-local-config]: https://evilmartians.github.io/lefthook/usage/tips.html#local-config
