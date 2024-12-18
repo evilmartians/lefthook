@@ -5,7 +5,7 @@ You can find the Swift wrapper plugin [here](https://github.com/csjones/lefthook
 Utilize lefthook in your Swift project using Swift Package Manager:
 
 ```swift
-.package(url: "https://github.com/csjones/lefthook-plugin.git", exact: "1.9.2"),
+.package(url: "https://github.com/csjones/lefthook-plugin.git", exact: "1.9.3"),
 ```
 
 Or, with [mint](https://github.com/yonaskolb/Mint):
