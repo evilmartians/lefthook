@@ -14,7 +14,8 @@ A Git hooks manager for Node.js, Ruby, Python and many other types of projects.
 * **Powerful.** It allows to control execution and files you pass to your commands.
 * **Simple.** It is single dependency-free binary which can work in any environment.
 
-📖 [Check the docs](https://evilmartians.github.io/lefthook/)
+📖 [Documentation][documentation]
+
 📖 [Read the introduction post](https://evilmartians.com/chronicles/lefthook-knock-your-teams-code-back-into-shape?utm_source=lefthook)
 
 <a href="https://evilmartians.com/?utm_source=lefthook">
@@ -46,7 +47,7 @@ For **Python**:
 pip install lefthook
 ```
 
-**[Installation guide](./docs/install.md)** with more ways to install lefthook: [apt](./docs/install.md#deb), [brew](./docs/install.md#homebrew), [winget](./docs/install.md#winget), and others.
+**[Installation guide][installation]** with more ways to install lefthook: [apt](https://evilmartians.github.io/lefthook/installation/deb.html), [brew](https://evilmartians.github.io/lefthook/installation/homebrew.html), [winget](https://evilmartians.github.io/lefthook/installation/winget.html), and others.
 
 ## Usage
 
@@ -67,7 +68,7 @@ git add -A && git commit -m '...'
 
 #### More details
 
-- [**Configuration**](./docs/configuration.md) for `lefthook.yml` config options.
+- [**Configuration**][configuration] for `lefthook.yml` config options.
 - [**Usage**](./docs/usage.md) for **lefthook** CLI options, supported ENVs, and usage tips.
 - [**Discussions**](https://github.com/evilmartians/lefthook/discussions) for questions, ideas, suggestions.
 <!-- - [**Wiki**](https://github.com/evilmartians/lefthook/wiki) for guides, examples, and benchmarks. -->
@@ -244,3 +245,8 @@ skip_output:
 * [Automatically linting docker containers](https://dev.to/nitzano/linting-docker-containers-2lo6?utm_source=lefthook)
 * [Smooth PostgreSQL upgrades in DockerDev environments with Lefthook](https://dev.to/palkan_tula/smooth-postgresql-upgrades-in-dockerdev-environments-with-lefthook-203k?utm_source=lefthook)
 * [Lefthook for React/React Native apps](https://blog.logrocket.com/deep-dive-into-lefthook-react-native?utm_source=lefthook)
+
+
+[documentation]: https://evilmartians.github.io/lefthook/
+[configuration]: https://evilmartians.github.io/lefthook/configuration/index.html
+[installation]: https://evilmartians.github.io/lefthook/installation/
