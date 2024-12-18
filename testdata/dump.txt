@@ -34,6 +34,13 @@ pre-commit:
       skip: merge
       glob: "*.js"
       run: yarn test
+  scripts:
+    "my-script.sh":
+      runner: bash
+      use_stdin: true
+      stage_fixed: true
+      env:
+        FOO: bar
 -- lefthook-dumped.yml --
 colors:
   cyan: 14
@@ -54,6 +61,13 @@ pre-commit:
       run: yarn test
       skip: merge
       glob: '*.js'
+  scripts:
+    my-script.sh:
+      runner: bash
+      env:
+        FOO: bar
+      use_stdin: true
+      stage_fixed: true
   follow: true
 -- lefthook-dumped.json --
 {
@@ -83,6 +97,16 @@ pre-commit:
         "glob": "*.js"
       }
     },
+    "scripts": {
+      "my-script.sh": {
+        "runner": "bash",
+        "env": {
+          "FOO": "bar"
+        },
+        "use_stdin": true,
+        "stage_fixed": true
+      }
+    },
     "follow": true
   }
 }
@@ -107,3 +131,12 @@ interactive = true
 run = 'yarn test'
 skip = 'merge'
 glob = '*.js'
+
+[pre-commit.scripts]
+[pre-commit.scripts.'my-script.sh']
+runner = 'bash'
+use_stdin = true
+stage_fixed = true
+
+[pre-commit.scripts.'my-script.sh'.env]
+FOO = 'bar'
