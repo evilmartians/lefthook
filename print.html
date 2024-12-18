@@ -685,8 +685,8 @@ output:
   - empty_summary  # Print summary heading when there are no steps to run
   - success        # Print successful steps
   - failure        # Print failed steps printing
-  - execution      # Print any execution logs (but prints if the execution failed)
-  - execution_out  # Print execution output (but still prints failed commands output)
+  - execution      # Print any execution logs
+  - execution_out  # Print execution output
   - execution_info # Print `EXECUTE &gt; ...` logging
   - skips          # Print "skip" (i.e. no files matched)
 </code></pre>
@@ -695,7 +695,7 @@ output:
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="skip_output"><a class="header" href="#skip_output"><code>skip_output</code></a></h2>
 <blockquote>
-<p><strong>DEPRECATED</strong> This feature is deprecated and might be removed in future versions. Please, use <code>[output]</code> instead for managing verbosity.</p>
+<p><strong>DEPRECATED</strong> This feature is deprecated and might be removed in future versions. Please, use <a href="configuration/./output.html"><code>output</code></a> instead for managing verbosity.</p>
 </blockquote>
 <p>You can manage the verbosity using the <code>skip_output</code> config. You can set whether lefthook should print some parts of its output.</p>
 <p>Possible values are <code>meta,summary,success,failure,execution,execution_out,execution_info,skips</code>.</p>
