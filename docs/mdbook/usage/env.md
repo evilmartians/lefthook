@@ -1,5 +1,7 @@
 ## ENV variables
 
+> ENV variables can be used to control lefthook behavior. Most of them have the alternative CLI or config options.
+
 ### `LEFTHOOK`
 
 Use `LEFTHOOK=0 git ...` or `LEFTHOOK=false git ...` to disable lefthook when running git commands.

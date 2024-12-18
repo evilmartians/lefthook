@@ -1,5 +1,7 @@
 ## Tips
 
+> Small tips for better experience with lefthook
+
 ### Local config
 
 Use `lefthook-local.yml` to overwrite or extend options from the main config. (Don't forget to add this file to `.gitignore`)

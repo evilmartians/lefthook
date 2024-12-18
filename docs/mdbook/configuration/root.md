@@ -1,4 +1,4 @@
-### `root`
+## `root`
 
 You can change the CWD for the command you execute using `root` option.
 

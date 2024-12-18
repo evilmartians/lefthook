@@ -1,4 +1,4 @@
-### `colors`
+## `colors`
 
 **Default: `auto`**
 

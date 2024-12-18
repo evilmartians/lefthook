@@ -1,4 +1,4 @@
-### `extends`
+## `extends`
 
 You can extend your config with another one YAML file. Its content will be merged. Extends for `lefthook.yml`, `lefthook-local.yml`, and [`remotes`](./remotes.md) configs are handled separately, so you can have different extends in these files.
 

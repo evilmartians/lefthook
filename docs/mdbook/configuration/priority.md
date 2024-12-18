@@ -1,10 +1,8 @@
-### `priority`
+## `priority`
 
 **Default: `0`**
 
-> NOTE
->
-> This option makes sense only when `parallel: false` or `piped: true` is set.
+> **Note:** This option makes sense only when `parallel: false` or `piped: true` is set.
 >
 > Value `0` is considered an `+Infinity`, so commands or scripts with `priority: 0` or without this setting will be run at the very end.
 

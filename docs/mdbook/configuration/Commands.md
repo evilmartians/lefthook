@@ -1,4 +1,4 @@
-### `commands`
+## `commands`
 
 Commands to be executed for the hook. Each command has a name and associated run [options](#command).
 

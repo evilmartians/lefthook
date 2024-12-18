@@ -1,4 +1,4 @@
-### `exclude`
+## `exclude`
 
 For the `exclude` option two variants are supported:
 
@@ -6,9 +6,7 @@ For the `exclude` option two variants are supported:
 - A single regular expression (deprecated)
 
 
-> NOTE
->
-> The regular expression is matched against full paths to files in the repo,
+> **Note:** The regular expression is matched against full paths to files in the repo,
 > relative to the repo root, using `/` as the directory separator on all platforms.
 > File paths do not begin with the separator or any other prefix.
 
@@ -44,7 +42,7 @@ pre-commit:
       run: bundle exec rubocop --force-exclusion {staged_files}
 ```
 
-**Notes**
+**Important**
 
 Be careful with the config file format's string quoting and escaping rules when writing regexps in it. For YAML, single quotes are often the simplest choice.
 
