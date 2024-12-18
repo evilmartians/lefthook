@@ -14,6 +14,7 @@ A Git hooks manager for Node.js, Ruby, Python and many other types of projects.
 * **Powerful.** It allows to control execution and files you pass to your commands.
 * **Simple.** It is single dependency-free binary which can work in any environment.
 
+📖 [Check the docs](https://evilmartians.github.io/lefthook/)
 📖 [Read the introduction post](https://evilmartians.com/chronicles/lefthook-knock-your-teams-code-back-into-shape?utm_source=lefthook)
 
 <a href="https://evilmartians.com/?utm_source=lefthook">
