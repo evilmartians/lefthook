@@ -1,8 +1,10 @@
 # Lefthook
 
+[Introduction](./intro.md)
+
 # User guide
 
-- [Installation](./install.md)
+- [Installation](./installation/README.md)
   - [Ruby](./installation/ruby.md)
   - [Node.js](./installation/node.md)
   - [Go](./installation/go.md)
@@ -17,7 +19,14 @@
   - [Alpine](./installation/alpine.md)
   - [Arch Linux](./installation/arch.md)
   - [Manual](./installation/manual.md)
-- [Configuration](./configuration/README.md)
+- [Usage](./usage/README.md)
+  - [Commands](./usage/commands.md)
+  - [ENV variables](./usage/env.md)
+  - [Tips](./usage/tips.md)
+
+# Reference guide
+
+- [Config options](./configuration/README.md)
   - [`assert_lefthook_installed`](./configuration/assert_lefthook_installed.md)
   - [`colors`](./configuration/colors.md)
   - [`no_tty`](./configuration/no_tty.md)
@@ -69,7 +78,8 @@
       - [`interactive`](./configuration/interactive.md)
       - [`use_stdin`](./configuration/use_stdin.md)
       - [`priority`](./configuration/priority.md)
-- [Usage](./usage.md)
-  - [Commands](./usage/commands.md)
-  - [ENV variables](./usage/env.md)
-  - [Tips](./usage/tips.md)
+- [Examples](./examples/README.md)
+  - [Commitlint](./examples/commitlint.md)
+  - [Remotes](./examples/remotes.md)
+  - [Auto stage changed files](./examples/stage_fixed.md)
+  - [Filter files](./examples/filters.md)

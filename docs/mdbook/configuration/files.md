@@ -1,4 +1,4 @@
-### `files`
+## `files`
 
 A custom git command for files or directories to be referenced in `{files}` template for [`run`](./run.md) setting.
 

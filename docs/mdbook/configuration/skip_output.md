@@ -1,4 +1,4 @@
-### `skip_output`
+## `skip_output`
 
 > **DEPRECATED** This feature is deprecated and might be removed in future versions. Please, use `[output]` instead for managing verbosity.
 

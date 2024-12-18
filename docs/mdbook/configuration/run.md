@@ -1,4 +1,4 @@
-### `run`
+## `run`
 
 This is a mandatory option for a command. This is actually a command that is executed for the hook.
 
@@ -72,9 +72,7 @@ pre-push:
 
 Simply run `bundle exec rubocop` on all files with `.rb` extension excluding `application.rb` and `routes.rb` files.
 
-> NOTE
->
-> `--force-exclusion` will apply `Exclude` configuration setting of Rubocop.
+> **Note:** `--force-exclusion` will apply `Exclude` configuration setting of Rubocop
 
 ```yml
 # lefthook.yml

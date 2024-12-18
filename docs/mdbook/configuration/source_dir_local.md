@@ -1,4 +1,4 @@
-### `source_dir_local`
+## `source_dir_local`
 
 **Default: `.lefthook-local/`**
 

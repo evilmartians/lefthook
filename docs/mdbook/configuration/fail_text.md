@@ -1,4 +1,4 @@
-### `fail_text`
+## `fail_text`
 
 You can specify a text to show when the command or script fails.
 

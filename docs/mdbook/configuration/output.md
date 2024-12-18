@@ -1,4 +1,4 @@
-### `output`
+## `output`
 
 You can manage verbosity using the `output` config. You can specify what to print in your output by setting these values, which you need to have
 

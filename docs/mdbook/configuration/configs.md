@@ -1,4 +1,4 @@
-### `configs`
+## `configs`
 
 **Default:** `[lefthook.yml]`
 

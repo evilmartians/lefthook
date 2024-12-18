@@ -26,5 +26,4 @@ Lefthook is available on NPM in the following flavors:
     yarn add -D @evilmartians/lefthook-installer
     ```
 
-> NOTE
-> If you use `pnpm` package manager make sure you set `side-effects-cache = false` in your .npmrc, otherwise the postinstall script of the lefthook package won't be executed and hooks won't be installed.
+> **Note:** If you use `pnpm` package manager make sure you set `side-effects-cache = false` in your .npmrc, otherwise the postinstall script of the lefthook package won't be executed and hooks won't be installed.

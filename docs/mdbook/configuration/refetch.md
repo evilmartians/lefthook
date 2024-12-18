@@ -1,4 +1,4 @@
-### `refetch`
+## `refetch`
 
 **Default:** `false`
 

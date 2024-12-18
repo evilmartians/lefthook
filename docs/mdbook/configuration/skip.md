@@ -1,4 +1,4 @@
-### `skip`
+## `skip`
 
 You can skip all or specific commands and scripts using `skip` option. You can also skip when merging, rebasing, or being on a specific branch. Globs are available for branches.
 

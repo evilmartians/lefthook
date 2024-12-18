@@ -1,4 +1,4 @@
-### `git_url`
+## `git_url`
 
 A URL to Git repository. It will be accessed with privileges of the machine lefthook runs on.
 

@@ -1,4 +1,4 @@
-### `follow`
+## `follow`
 
 **Default: `false`**
 
@@ -18,6 +18,4 @@ pre-push:
       run: yarn test
 ```
 
-> NOTE
->
-> If used with [`parallel`](#parallel) the output can be a mess, so please avoid setting both options to `true`.
+> **Note:** If used with [`parallel`](#parallel) the output can be a mess, so please avoid setting both options to `true`
