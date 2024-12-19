@@ -3,7 +3,7 @@
 require "fileutils"
 require "digest"
 
-VERSION = "1.9.3"
+VERSION = "1.10.0"
 
 ROOT = File.join(__dir__, "..")
 DIST = File.join(ROOT, "dist")

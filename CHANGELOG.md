@@ -1,5 +1,10 @@
 # Change log
 
+## 1.10.0 (2024-12-19)
+
+- feat: add jobs option ([#861](https://github.com/evilmartians/lefthook/pull/861)) by @mrexox
+- ci: automate aur package update ([#899](https://github.com/evilmartians/lefthook/pull/899)) by @mrexox
+
 ## 1.9.3 (2024-12-18)
 
 - fix: correctly parse config options ([#895](https://github.com/evilmartians/lefthook/pull/895)) by @mrexox
