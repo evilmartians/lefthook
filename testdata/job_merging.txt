@@ -1,0 +1,125 @@
+[windows] skip
+
+exec git init
+exec lefthook dump
+cmp stdout dump.yml
+! stderr .
+
+-- lefthook.yml --
+extends:
+  - extends/e1.yml
+
+pre-commit:
+  jobs:
+    - name: group
+      group:
+        jobs:
+          - name: child
+            run: named
+          - run: 0 no-name
+    - name: echo
+      run: echo 0
+    - run: lefthook.yml
+
+-- extends/e1.yml --
+extends:
+  - extends/e2.yml
+
+pre-commit:
+  jobs:
+    - name: group
+      group:
+        jobs:
+          - name: child
+            run: child named
+          - run: 1 no-name
+    - name: echo
+      run: echo 1
+      skip: true
+    - run: e1
+
+e1:
+  jobs:
+    - name: echo
+      run: e1
+
+-- extends/e2.yml --
+extends:
+  - extends/e3.yml
+
+pre-commit:
+  jobs:
+    - name: group
+      glob: "*.rb"
+      group:
+        jobs:
+          - name: child
+            run: child named with glob
+          - run: 2 no-name
+    - name: echo
+      run: echo 2
+      tags: ["backend"]
+    - run: e2
+
+e2:
+  jobs:
+    - name: echo
+      run: e2
+
+-- extends/e3.yml --
+pre-commit:
+  jobs:
+    - name: group
+      glob: "*.rb"
+      group:
+        jobs:
+          - name: child
+            stage_fixed: true
+          - run: 3 no-name
+    - name: echo
+      glob: 3
+    - run: e3
+
+e3:
+  jobs:
+    - name: echo
+      run: e3
+
+-- dump.yml --
+e1:
+  jobs:
+    - name: echo
+      run: e1
+e2:
+  jobs:
+    - name: echo
+      run: e2
+e3:
+  jobs:
+    - name: echo
+      run: e3
+extends:
+  - extends/e3.yml
+pre-commit:
+  jobs:
+    - name: group
+      glob: '*.rb'
+      group:
+        jobs:
+          - name: child
+            run: child named with glob
+            stage_fixed: true
+          - run: 0 no-name
+          - run: 1 no-name
+          - run: 2 no-name
+          - run: 3 no-name
+    - name: echo
+      run: echo 2
+      glob: "3"
+      tags:
+        - backend
+      skip: true
+    - run: lefthook.yml
+    - run: e1
+    - run: e2
+    - run: e3

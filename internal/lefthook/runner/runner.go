@@ -91,8 +91,6 @@ func (r *Runner) RunAll(ctx context.Context) ([]Result, error) {
 		defer log.StopSpinner()
 	}
 
-	results = append(results, r.runJobs(ctx)...)
-
 	scriptDirs := make([]string, 0, len(r.SourceDirs))
 	for _, sourceDir := range r.SourceDirs {
 		scriptDirs = append(scriptDirs, filepath.Join(
@@ -101,6 +99,8 @@ func (r *Runner) RunAll(ctx context.Context) ([]Result, error) {
 	}
 
 	r.preHook()
+
+	results = append(results, r.runJobs(ctx)...)
 
 	for _, dir := range scriptDirs {
 		results = append(results, r.runScripts(ctx, dir)...)
