@@ -16,7 +16,7 @@ type Hook struct {
 	Skip        interface{} `json:"skip,omitempty"         mapstructure:"skip"     toml:"skip,omitempty,inline" yaml:",omitempty"`
 	Only        interface{} `json:"only,omitempty"         mapstructure:"only"     toml:"only,omitempty,inline" yaml:",omitempty"`
 
-	Actions []*Action `json:"actions,omitempty" mapstructure:"actions" toml:"actions,omitempty" yaml:",omitempty"`
+	Jobs []*Job `json:"jobs,omitempty" mapstructure:"jobs" toml:"jobs,omitempty" yaml:",omitempty"`
 
 	Commands map[string]*Command `json:"commands,omitempty" mapstructure:"-" toml:"commands,omitempty" yaml:",omitempty"`
 	Scripts  map[string]*Script  `json:"scripts,omitempty"  mapstructure:"-" toml:"scripts,omitempty"  yaml:",omitempty"`

@@ -709,18 +709,18 @@ pre-commit:
 				},
 			},
 		},
-		"with actions": {
+		"with jobs": {
 			files: map[string]string{
 				"lefthook.yml": `
 pre-commit:
-  actions:
+  jobs:
     - run: 1
     - run: 2
       name: second
 `,
 				"lefthook-local.yml": `
 pre-commit:
-  actions:
+  jobs:
     - run: 3
     - run: local 2
       name: second
@@ -731,7 +731,7 @@ pre-commit:
 				SourceDirLocal: ".lefthook-local",
 				Hooks: map[string]*Hook{
 					"pre-commit": {
-						Actions: []*Action{
+						Jobs: []*Job{
 							{Run: "1"},
 							{Run: "local 2", Name: "second"},
 							{Run: "3"},
@@ -740,34 +740,34 @@ pre-commit:
 				},
 			},
 		},
-		"with nested actions": {
+		"with nested jobs": {
 			files: map[string]string{
 				"lefthook.yml": `
 pre-commit:
-  actions:
+  jobs:
     - name: group 1
       group:
-        actions:
+        jobs:
           - run: 1.1
           - run: 1.2
           - name: nested
             group:
-              actions:
+              jobs:
                 - run: 1.nested.1
                 - run: 1.nested.2
                   name: nested 2
 `,
 				"lefthook-local.yml": `
 pre-commit:
-  actions:
+  jobs:
     - name: group 1
       glob: "*.rb"
       group:
         parallel: true
-        actions:
+        jobs:
           - name: nested
             group:
-              actions:
+              jobs:
                 - run: 1.nested.2 local
                   name: nested 2
                 - run: 1.nested.3
@@ -780,19 +780,19 @@ pre-commit:
 				SourceDirLocal: ".lefthook-local",
 				Hooks: map[string]*Hook{
 					"pre-commit": {
-						Actions: []*Action{
+						Jobs: []*Job{
 							{
 								Name: "group 1",
 								Glob: "*.rb",
 								Group: &Group{
 									Parallel: true,
-									Actions: []*Action{
+									Jobs: []*Job{
 										{Run: "1.1"},
 										{Run: "1.2"},
 										{
 											Name: "nested",
 											Group: &Group{
-												Actions: []*Action{
+												Jobs: []*Job{
 													{Run: "1.nested.1"},
 													{Run: "1.nested.2 local", Name: "nested 2"},
 													{Run: "1.nested.3"},
