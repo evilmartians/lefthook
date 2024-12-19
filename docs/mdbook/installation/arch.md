@@ -1,6 +1,6 @@
 ## AUR for Arch
 
-You can install lefthook [package](https://aur.archlinux.org/packages/lefthook) from AUR.
+[AUR package](https://aur.archlinux.org/packages/lefthook)
 
 ```sh
 yay -S lefthook
