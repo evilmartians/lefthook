@@ -1,6 +1,6 @@
 package config
 
-type Action struct {
+type Job struct {
 	Name   string `json:"name,omitempty"   mapstructure:"name"   toml:"name,omitempty"   yaml:",omitempty"`
 	Run    string `json:"run,omitempty"    mapstructure:"run"    toml:"run,omitempty"    yaml:",omitempty"`
 	Script string `json:"script,omitempty" mapstructure:"script" toml:"script,omitempty" yaml:",omitempty"`
@@ -28,21 +28,21 @@ type Action struct {
 }
 
 type Group struct {
-	Root     string    `json:"root,omitempty"     mapstructure:"root"     toml:"root,omitempty"     yaml:",omitempty"`
-	Parallel bool      `json:"parallel,omitempty" mapstructure:"parallel" toml:"parallel,omitempty" yaml:",omitempty"`
-	Piped    bool      `json:"piped,omitempty"    mapstructure:"piped"    toml:"piped,omitempty"    yaml:",omitempty"`
-	Actions  []*Action `json:"actions,omitempty"  mapstructure:"actions"  toml:"actions,omitempty"  yaml:",omitempty"`
+	Root     string `json:"root,omitempty"     mapstructure:"root"     toml:"root,omitempty"     yaml:",omitempty"`
+	Parallel bool   `json:"parallel,omitempty" mapstructure:"parallel" toml:"parallel,omitempty" yaml:",omitempty"`
+	Piped    bool   `json:"piped,omitempty"    mapstructure:"piped"    toml:"piped,omitempty"    yaml:",omitempty"`
+	Jobs     []*Job `json:"jobs,omitempty"     mapstructure:"jobs"     toml:"jobs,omitempty"     yaml:",omitempty"`
 }
 
-func (action *Action) PrintableName(id string) string {
-	if len(action.Name) != 0 {
-		return action.Name
+func (job *Job) PrintableName(id string) string {
+	if len(job.Name) != 0 {
+		return job.Name
 	}
-	if len(action.Run) != 0 {
-		return action.Run
+	if len(job.Run) != 0 {
+		return job.Run
 	}
-	if len(action.Script) != 0 {
-		return action.Script
+	if len(job.Script) != 0 {
+		return job.Script
 	}
 
 	return "[" + id + "]"

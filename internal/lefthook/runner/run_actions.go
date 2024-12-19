@@ -16,9 +16,9 @@ import (
 )
 
 var (
-	errActionContainsBothRunAndScript = errors.New("both `run` and `script` are not permitted")
-	errEmptyAction                    = errors.New("no execution instructions")
-	errEmptyGroup                     = errors.New("empty groups are not permitted")
+	errJobContainsBothRunAndScript = errors.New("both `run` and `script` are not permitted")
+	errEmptyJob                    = errors.New("no execution instructions")
+	errEmptyGroup                  = errors.New("empty groups are not permitted")
 )
 
 type domain struct {
@@ -28,33 +28,33 @@ type domain struct {
 	root string
 }
 
-func (r *Runner) runActions(ctx context.Context) []Result {
+func (r *Runner) runJobs(ctx context.Context) []Result {
 	var wg sync.WaitGroup
 
-	results := make([]Result, 0, len(r.Hook.Actions))
-	resultsChan := make(chan Result, len(r.Hook.Actions))
+	results := make([]Result, 0, len(r.Hook.Jobs))
+	resultsChan := make(chan Result, len(r.Hook.Jobs))
 
 	var failed atomic.Bool
 	domain := &domain{failed: &failed}
 
-	for i, action := range r.Hook.Actions {
+	for i, job := range r.Hook.Jobs {
 		id := strconv.Itoa(i)
 
 		if domain.failed.Load() && r.Hook.Piped {
-			r.logSkip(action.PrintableName(id), "broken pipe")
+			r.logSkip(job.PrintableName(id), "broken pipe")
 			continue
 		}
 
 		if !r.Hook.Parallel {
-			results = append(results, r.runAction(ctx, domain, id, action))
+			results = append(results, r.runJob(ctx, domain, id, job))
 			continue
 		}
 
 		wg.Add(1)
-		go func(action *config.Action) {
+		go func(job *config.Job) {
 			defer wg.Done()
-			resultsChan <- r.runAction(ctx, domain, id, action)
-		}(action)
+			resultsChan <- r.runJob(ctx, domain, id, job)
+		}(job)
 	}
 
 	wg.Wait()
@@ -66,36 +66,36 @@ func (r *Runner) runActions(ctx context.Context) []Result {
 	return results
 }
 
-func (r *Runner) runAction(ctx context.Context, domain *domain, id string, action *config.Action) Result {
-	// Check if do action is properly configured
-	if len(action.Run) > 0 && len(action.Script) > 0 {
-		return failed(action.PrintableName(id), errActionContainsBothRunAndScript.Error())
+func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *config.Job) Result {
+	// Check if do job is properly configured
+	if len(job.Run) > 0 && len(job.Script) > 0 {
+		return failed(job.PrintableName(id), errJobContainsBothRunAndScript.Error())
 	}
-	if len(action.Run) == 0 && len(action.Script) == 0 && action.Group == nil {
-		return failed(action.PrintableName(id), errEmptyAction.Error())
+	if len(job.Run) == 0 && len(job.Script) == 0 && job.Group == nil {
+		return failed(job.PrintableName(id), errEmptyJob.Error())
 	}
 
-	if action.Interactive && !r.DisableTTY && !r.Hook.Follow {
+	if job.Interactive && !r.DisableTTY && !r.Hook.Follow {
 		log.StopSpinner()
 		defer log.StartSpinner()
 	}
 
-	if len(action.Run) != 0 || len(action.Script) != 0 {
-		return r.runSingleAction(ctx, domain, id, action)
+	if len(job.Run) != 0 || len(job.Script) != 0 {
+		return r.runSingleJob(ctx, domain, id, job)
 	}
 
-	if action.Group != nil {
+	if job.Group != nil {
 		inheritedDomain := *domain
-		inheritedDomain.glob = first(action.Glob, domain.glob)
-		inheritedDomain.root = first(action.Root, domain.root)
-		groupName := first(action.Name, "["+id+"]")
-		return r.runGroup(ctx, groupName, &inheritedDomain, action.Group)
+		inheritedDomain.glob = first(job.Glob, domain.glob)
+		inheritedDomain.root = first(job.Root, domain.root)
+		groupName := first(job.Name, "["+id+"]")
+		return r.runGroup(ctx, groupName, &inheritedDomain, job.Group)
 	}
 
-	return failed(action.PrintableName(id), "don't know how to run action")
+	return failed(job.PrintableName(id), "don't know how to run job")
 }
 
-func (r *Runner) runSingleAction(ctx context.Context, domain *domain, id string, act *config.Action) Result {
+func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, act *config.Job) Result {
 	name := act.PrintableName(id)
 
 	runAction, err := action.New(name, &action.Params{
@@ -176,32 +176,32 @@ func (r *Runner) runSingleAction(ctx context.Context, domain *domain, id string,
 }
 
 func (r *Runner) runGroup(ctx context.Context, groupName string, domain *domain, group *config.Group) Result {
-	if len(group.Actions) == 0 {
+	if len(group.Jobs) == 0 {
 		return failed(groupName, errEmptyGroup.Error())
 	}
 
-	results := make([]Result, 0, len(group.Actions))
-	resultsChan := make(chan Result, len(group.Actions))
+	results := make([]Result, 0, len(group.Jobs))
+	resultsChan := make(chan Result, len(group.Jobs))
 	var wg sync.WaitGroup
 
-	for i, action := range group.Actions {
+	for i, job := range group.Jobs {
 		id := strconv.Itoa(i)
 
 		if domain.failed.Load() && group.Piped {
-			r.logSkip(action.PrintableName(id), "broken pipe")
+			r.logSkip(job.PrintableName(id), "broken pipe")
 			continue
 		}
 
 		if !group.Parallel {
-			results = append(results, r.runAction(ctx, domain, id, action))
+			results = append(results, r.runJob(ctx, domain, id, job))
 			continue
 		}
 
 		wg.Add(1)
-		go func(action *config.Action) {
+		go func(job *config.Job) {
 			defer wg.Done()
-			resultsChan <- r.runAction(ctx, domain, id, action)
-		}(action)
+			resultsChan <- r.runJob(ctx, domain, id, job)
+		}(job)
 	}
 
 	wg.Wait()

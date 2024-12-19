@@ -45,7 +45,7 @@ var (
 		".toml": toml.Parser(),
 	}
 
-	mergeActionsOption = koanf.WithMergeFunc(mergeActions)
+	mergeJobsOption = koanf.WithMergeFunc(mergeJobs)
 )
 
 // ConfigNotFoundError.
@@ -65,7 +65,7 @@ func loadOne(k *koanf.Koanf, filesystem afero.Fs, root string, names []string) e
 				continue
 			}
 
-			if err := k.Load(kfs.Provider(newIOFS(filesystem), config), parsers[extension], mergeActionsOption); err != nil {
+			if err := k.Load(kfs.Provider(newIOFS(filesystem), config), parsers[extension], mergeJobsOption); err != nil {
 				return err
 			}
 
@@ -177,7 +177,7 @@ func loadRemotes(k *koanf.Koanf, filesystem afero.Fs, repo *git.Repository, remo
 				panic("TODO: unknown extension to parse")
 			}
 
-			if err := k.Load(kfs.Provider(newIOFS(filesystem), configPath), parser, mergeActionsOption); err != nil {
+			if err := k.Load(kfs.Provider(newIOFS(filesystem), configPath), parser, mergeJobsOption); err != nil {
 				return err
 			}
 
@@ -225,7 +225,7 @@ func extendRecursive(k *koanf.Koanf, filesystem afero.Fs, root string, extends [
 			if !ok {
 				panic("TODO: unknown extension for extent " + path)
 			}
-			if err := extent.Load(kfs.Provider(newIOFS(filesystem), path), parser, mergeActionsOption); err != nil {
+			if err := extent.Load(kfs.Provider(newIOFS(filesystem), path), parser, mergeJobsOption); err != nil {
 				return err
 			}
 
@@ -233,7 +233,7 @@ func extendRecursive(k *koanf.Koanf, filesystem afero.Fs, root string, extends [
 				return err
 			}
 
-			if err := k.Load(koanfProvider{extent}, nil, mergeActionsOption); err != nil {
+			if err := k.Load(koanfProvider{extent}, nil, mergeJobsOption); err != nil {
 				return err
 			}
 		}
@@ -328,19 +328,19 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 		default:
 		}
 
-		var destActions, srcActions []interface{}
-		switch actions := dest["actions"].(type) {
+		var destJobs, srcJobs []interface{}
+		switch jobs := dest["jobs"].(type) {
 		case []interface{}:
-			destActions = actions
+			destJobs = jobs
 		default:
 		}
-		switch actions := src["actions"].(type) {
+		switch jobs := src["jobs"].(type) {
 		case []interface{}:
-			srcActions = actions
+			srcJobs = jobs
 		default:
 		}
 
-		destActions = mergeActionsSlice(srcActions, destActions)
+		destJobs = mergeJobsSlice(srcJobs, destJobs)
 
 		maps.Merge(src, dest)
 
@@ -363,8 +363,8 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 			}
 		}
 
-		if len(destActions) > 0 {
-			dest["actions"] = destActions
+		if len(destJobs) > 0 {
+			dest["jobs"] = destJobs
 		}
 
 		return nil
@@ -417,56 +417,56 @@ func (k koanfProvider) ReadBytes() ([]byte, error) {
 	panic("not implemented")
 }
 
-func mergeActions(src, dest map[string]interface{}) error {
-	srcActions := make(map[string][]interface{})
+func mergeJobs(src, dest map[string]interface{}) error {
+	srcJobs := make(map[string][]interface{})
 
 	for name, maybeHook := range src {
 		switch hook := maybeHook.(type) {
 		case map[string]interface{}:
-			switch actions := hook["actions"].(type) {
+			switch jobs := hook["jobs"].(type) {
 			case []interface{}:
-				srcActions[name] = actions
+				srcJobs[name] = jobs
 			default:
 			}
 		default:
 		}
 	}
 
-	destActions := make(map[string][]interface{})
+	destJobs := make(map[string][]interface{})
 	for name, maybeHook := range dest {
 		switch hook := maybeHook.(type) {
 		case map[string]interface{}:
-			switch actions := hook["actions"].(type) {
+			switch jobs := hook["jobs"].(type) {
 			case []interface{}:
-				destActions[name] = actions
+				destJobs[name] = jobs
 			default:
 			}
 		default:
 		}
 	}
 
-	if len(srcActions) == 0 || len(destActions) == 0 {
+	if len(srcJobs) == 0 || len(destJobs) == 0 {
 		maps.Merge(src, dest)
 		return nil
 	}
 
-	for hook, newActions := range srcActions {
-		oldActions, ok := destActions[hook]
+	for hook, newJobs := range srcJobs {
+		oldJobs, ok := destJobs[hook]
 		if !ok {
-			destActions[hook] = newActions
+			destJobs[hook] = newJobs
 			continue
 		}
 
-		destActions[hook] = mergeActionsSlice(newActions, oldActions)
+		destJobs[hook] = mergeJobsSlice(newJobs, oldJobs)
 	}
 
 	maps.Merge(src, dest)
 
 	for name, maybeHook := range dest {
-		if actions, ok := destActions[name]; ok {
+		if jobs, ok := destJobs[name]; ok {
 			switch hook := maybeHook.(type) {
 			case map[string]interface{}:
-				hook["actions"] = actions
+				hook["jobs"] = jobs
 			default:
 			}
 		}
@@ -475,65 +475,65 @@ func mergeActions(src, dest map[string]interface{}) error {
 	return nil
 }
 
-func mergeActionsSlice(src, dest []interface{}) []interface{} {
+func mergeJobsSlice(src, dest []interface{}) []interface{} {
 	mergeable := make(map[string]map[string]interface{})
 	result := make([]interface{}, 0, len(dest))
 
-	for _, maybeAction := range dest {
-		switch destAction := maybeAction.(type) {
+	for _, maybeJob := range dest {
+		switch destJob := maybeJob.(type) {
 		case map[string]interface{}:
-			switch name := destAction["name"].(type) {
+			switch name := destJob["name"].(type) {
 			case string:
-				mergeable[name] = destAction
+				mergeable[name] = destJob
 			default:
 			}
 
-			result = append(result, maybeAction)
+			result = append(result, maybeJob)
 		default:
 		}
 	}
 
-	for _, maybeAction := range src {
-		switch srcAction := maybeAction.(type) {
+	for _, maybeJob := range src {
+		switch srcJob := maybeJob.(type) {
 		case map[string]interface{}:
-			switch name := srcAction["name"].(type) {
+			switch name := srcJob["name"].(type) {
 			case string:
-				destAction, ok := mergeable[name]
+				destJob, ok := mergeable[name]
 				if ok {
-					var srcSubActions []interface{}
-					var destSubActions []interface{}
+					var srcSubJobs []interface{}
+					var destSubJobs []interface{}
 
-					switch srcGroup := srcAction["group"].(type) {
+					switch srcGroup := srcJob["group"].(type) {
 					case map[string]interface{}:
-						switch subActions := srcGroup["actions"].(type) {
+						switch subJobs := srcGroup["jobs"].(type) {
 						case []interface{}:
-							srcSubActions = subActions
+							srcSubJobs = subJobs
 						default:
 						}
 					default:
 					}
-					switch destGroup := destAction["group"].(type) {
+					switch destGroup := destJob["group"].(type) {
 					case map[string]interface{}:
-						switch subActions := destGroup["actions"].(type) {
+						switch subJobs := destGroup["jobs"].(type) {
 						case []interface{}:
-							destSubActions = subActions
+							destSubJobs = subJobs
 						default:
 						}
 					default:
 					}
 
-					if len(destSubActions) != 0 && len(srcSubActions) != 0 {
-						destSubActions = mergeActionsSlice(srcSubActions, destSubActions)
+					if len(destSubJobs) != 0 && len(srcSubJobs) != 0 {
+						destSubJobs = mergeJobsSlice(srcSubJobs, destSubJobs)
 					}
 
-					maps.Merge(srcAction, destAction)
+					maps.Merge(srcJob, destJob)
 
-					if len(destSubActions) != 0 {
-						switch destGroup := destAction["group"].(type) {
+					if len(destSubJobs) != 0 {
+						switch destGroup := destJob["group"].(type) {
 						case map[string]interface{}:
-							switch destGroup["actions"].(type) {
+							switch destGroup["jobs"].(type) {
 							case []interface{}:
-								destGroup["actions"] = destSubActions
+								destGroup["jobs"] = destSubJobs
 							default:
 							}
 						default:
@@ -544,7 +544,7 @@ func mergeActionsSlice(src, dest []interface{}) []interface{} {
 			default:
 			}
 
-			result = append(result, maybeAction)
+			result = append(result, maybeJob)
 		default:
 		}
 	}

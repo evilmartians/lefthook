@@ -91,7 +91,7 @@ func (r *Runner) RunAll(ctx context.Context) ([]Result, error) {
 		defer log.StopSpinner()
 	}
 
-	results = append(results, r.runActions(ctx)...)
+	results = append(results, r.runJobs(ctx)...)
 
 	scriptDirs := make([]string, 0, len(r.SourceDirs))
 	for _, sourceDir := range r.SourceDirs {

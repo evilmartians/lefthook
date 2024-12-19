@@ -2,11 +2,11 @@ skip_lfs: true
 
 pre-commit:
   parallel: true
-  actions:
+  jobs:
     - name: lint & test
       glob: "*.go"
       group:
-        actions:
+        jobs:
           - run: make lint
             stage_fixed: true
 
