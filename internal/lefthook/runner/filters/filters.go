@@ -10,7 +10,6 @@ import (
 	"github.com/gobwas/glob"
 	"github.com/spf13/afero"
 
-	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
@@ -29,17 +28,24 @@ const (
 	executableMask = 0o111
 )
 
-func Apply(fs afero.Fs, command *config.Command, files []string) []string {
+type Params struct {
+	Glob      string
+	Root      string
+	FileTypes []string
+	Exclude   interface{}
+}
+
+func Apply(fs afero.Fs, files []string, params Params) []string {
 	if len(files) == 0 {
 		return nil
 	}
 
 	log.Debug("[lefthook] files before filters:\n", files)
 
-	files = byGlob(files, command.Glob)
-	files = byExclude(files, command.Exclude)
-	files = byRoot(files, command.Root)
-	files = byType(fs, files, command.FileTypes)
+	files = byGlob(files, params.Glob)
+	files = byExclude(files, params.Exclude)
+	files = byRoot(files, params.Root)
+	files = byType(fs, files, params.FileTypes)
 
 	log.Debug("[lefthook] files after filters:\n", files)
 

@@ -13,6 +13,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner"
 	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/internal/version"
 )
 
 const (
@@ -20,6 +21,8 @@ const (
 	envSkipOutput = "LEFTHOOK_QUIET"  // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
 	envOutput     = "LEFTHOOK_OUTPUT" // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
 )
+
+var errPipedAndParallelSet = errors.New("conflicting options 'piped' and 'parallel' are set to 'true', remove one of this option from hook group")
 
 type RunArgs struct {
 	NoTTY           bool
@@ -64,7 +67,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		return err
 	}
 
-	if err = cfg.Validate(); err != nil {
+	if err = version.CheckCovered(cfg.MinVersion); err != nil {
 		return err
 	}
 
@@ -115,8 +118,9 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 
 		return fmt.Errorf("Hook %s doesn't exist in the config", hookName)
 	}
-	if err := hook.Validate(); err != nil {
-		return err
+
+	if hook.Parallel && hook.Piped {
+		return errPipedAndParallelSet
 	}
 
 	if args.FilesFromStdin {
@@ -166,11 +170,12 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 			Files:           args.Files,
 			Force:           args.Force,
 			RunOnlyCommands: args.RunOnlyCommands,
+			SourceDirs:      sourceDirs,
 		},
 	)
 
 	startTime := time.Now()
-	results, runErr := r.RunAll(ctx, sourceDirs)
+	results, runErr := r.RunAll(ctx)
 	if runErr != nil {
 		return fmt.Errorf("failed to run the hook: %w", runErr)
 	}
@@ -221,13 +226,17 @@ func printSummary(
 		)
 	}
 
+	logResults(0, results, logSettings)
+}
+
+func logResults(indent int, results []runner.Result, logSettings log.Settings) {
 	if logSettings.LogSuccess() {
 		for _, result := range results {
 			if !result.Success() {
 				continue
 			}
 
-			log.Success(result.Name)
+			log.Success(indent, result.Name)
 		}
 	}
 
@@ -237,7 +246,11 @@ func printSummary(
 				continue
 			}
 
-			log.Failure(result.Name, result.Text())
+			log.Failure(indent, result.Name, result.Text())
+
+			if len(result.Sub) > 0 {
+				logResults(indent+1, result.Sub, logSettings)
+			}
 		}
 	}
 }
@@ -253,9 +266,6 @@ func ConfigHookCompletions(opts *Options) []string {
 func (l *Lefthook) configHookCompletions() []string {
 	cfg, err := config.Load(l.Fs, l.repo)
 	if err != nil {
-		return nil
-	}
-	if err = cfg.Validate(); err != nil {
 		return nil
 	}
 	hooks := make([]string, 0, len(cfg.Hooks))
@@ -276,9 +286,6 @@ func ConfigHookCommandCompletions(opts *Options, hookName string) []string {
 func (l *Lefthook) configHookCommandCompletions(hookName string) []string {
 	cfg, err := config.Load(l.Fs, l.repo)
 	if err != nil {
-		return nil
-	}
-	if err = cfg.Validate(); err != nil {
 		return nil
 	}
 	if hook, found := cfg.Hooks[hookName]; !found {
