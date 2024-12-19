@@ -1,6 +1,6 @@
 ## ENV variables
 
-> ENV variables can be used to control lefthook behavior. Most of them have the alternative CLI or config options.
+> ENV variables control some lefthook behavior. Most of them have the alternative CLI or config options.
 
 ### `LEFTHOOK`
 

@@ -110,7 +110,7 @@ SHA1=$3
 
 ### Git LFS support
 
-> If git-lfs binary is not installed and not required in your project, LFS hooks won't be executed, and you won't be warned about it.
+> **Note:** If git-lfs binary is not installed and not required in your project, LFS hooks won't be executed, and you won't be warned about it.
 
 Lefthook runs LFS hooks internally for the following hooks:
 
@@ -120,6 +120,8 @@ Lefthook runs LFS hooks internally for the following hooks:
 - pre-push
 
 Errors are suppressed if git LFS is not required for the project. You can use [`LEFTHOOK_VERBOSE`](./env.md#lefthook_verbose) ENV to make lefthook show git LFS output.
+
+To avoid using LFS set [`skip_lfs: true`](../configuration/skip_lfs.md) in lefthook.yml or lefthook-local.yml
 
 ### Pass stdin to a command or script
 

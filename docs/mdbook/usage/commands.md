@@ -1,16 +1,12 @@
 ## Commands
 
-> **tip**
->
-> Use `lefthook help` or `lefthook <command> -h/--help` to discover available commands and their options
+> **Tip:** Use `lefthook help` or `lefthook <command> -h/--help` to discover available commands and their options
 
 ### `lefthook install`
 
 `lefthook install` creates an empty `lefthook.yml` if a configuration file does not exist and updates git hooks to use lefthook. Run `lefthook install` after cloning the git repo.
 
-> **note**
->
-> NPM package `lefthook` installs the hooks in a postinstall script automatically.
+> **Note:** NPM package `lefthook` installs the hooks in a postinstall script automatically
 
 ### `lefthook uninstall`
 
