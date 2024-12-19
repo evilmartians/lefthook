@@ -28,9 +28,8 @@ regexp:
       exclude: '^(a.txt|b.txt)'
 
 array:
-  commands:
-    echo:
-      run: echo {staged_files}
+  jobs:
+    - run: echo {staged_files}
       exclude:
         - a.txt
         - b.txt
