@@ -1,4 +1,4 @@
-package action
+package jobs
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ type template struct {
 	cnt   int
 }
 
-func buildCommand(params *Params) (*Action, error) {
+func buildCommand(params *Params) (*Job, error) {
 	if err := params.validateCommand(); err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func buildCommand(params *Params) (*Action, error) {
 	}
 
 	if config.HookUsesStagedFiles(params.HookName) {
-		ok, err := canSkipAction(params, filterParams, templates[config.SubStagedFiles], params.Repo.StagedFiles)
+		ok, err := canSkipJob(params, filterParams, templates[config.SubStagedFiles], params.Repo.StagedFiles)
 		if err != nil {
 			return nil, err
 		}
@@ -134,7 +134,7 @@ func buildCommand(params *Params) (*Action, error) {
 	}
 
 	if config.HookUsesPushFiles(params.HookName) {
-		ok, err := canSkipAction(params, filterParams, templates[config.SubPushFiles], params.Repo.PushFiles)
+		ok, err := canSkipJob(params, filterParams, templates[config.SubPushFiles], params.Repo.PushFiles)
 		if err != nil {
 			return nil, err
 		}
@@ -146,7 +146,7 @@ func buildCommand(params *Params) (*Action, error) {
 	return result, nil
 }
 
-func canSkipAction(params *Params, filterParams filters.Params, template *template, filesFn func() ([]string, error)) (bool, error) {
+func canSkipJob(params *Params, filterParams filters.Params, template *template, filesFn func() ([]string, error)) (bool, error) {
 	if template != nil {
 		return len(template.files) == 0, nil
 	}
@@ -184,9 +184,9 @@ func escapeFiles(files []string) []string {
 	return filesEsc
 }
 
-func replaceInChunks(str string, templates map[string]*template, maxlen int) *Action {
+func replaceInChunks(str string, templates map[string]*template, maxlen int) *Job {
 	if len(templates) == 0 {
-		return &Action{
+		return &Job{
 			Execs: []string{str},
 		}
 	}
@@ -232,7 +232,7 @@ func replaceInChunks(str string, templates map[string]*template, maxlen int) *Ac
 		}
 	}
 
-	return &Action{
+	return &Job{
 		Execs: commands,
 		Files: allFiles,
 	}

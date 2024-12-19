@@ -9,9 +9,9 @@ import (
 	"sync/atomic"
 
 	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/lefthook/runner/action"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/exec"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/filters"
+	"github.com/evilmartians/lefthook/internal/lefthook/runner/jobs"
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
@@ -95,12 +95,12 @@ func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *con
 	return failed(job.PrintableName(id), "don't know how to run job")
 }
 
-func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, act *config.Job) Result {
-	name := act.PrintableName(id)
+func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, job *config.Job) Result {
+	name := job.PrintableName(id)
 
-	root := first(act.Root, domain.root)
-	glob := first(act.Glob, domain.glob)
-	runAction, err := action.New(name, &action.Params{
+	root := first(job.Root, domain.root)
+	glob := first(job.Glob, domain.glob)
+	executionJob, err := jobs.New(name, &jobs.Params{
 		Repo:       r.Repo,
 		Hook:       r.Hook,
 		HookName:   r.HookName,
@@ -108,22 +108,22 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, ac
 		Force:      r.Force,
 		SourceDirs: r.SourceDirs,
 		GitArgs:    r.GitArgs,
-		Run:        act.Run,
+		Run:        job.Run,
 		Root:       root,
-		Runner:     act.Runner,
-		Script:     act.Script,
+		Runner:     job.Runner,
+		Script:     job.Script,
 		Glob:       glob,
-		Files:      act.Files,
-		FileTypes:  act.FileTypes,
-		Tags:       act.Tags,
-		Exclude:    act.Exclude,
-		Only:       act.Only,
-		Skip:       act.Skip,
+		Files:      job.Files,
+		FileTypes:  job.FileTypes,
+		Tags:       job.Tags,
+		Exclude:    job.Exclude,
+		Only:       job.Only,
+		Skip:       job.Skip,
 	})
 	if err != nil {
 		r.logSkip(name, err.Error())
 
-		var skipErr action.SkipError
+		var skipErr jobs.SkipError
 		if errors.As(err, &skipErr) {
 			return skipped(name)
 		}
@@ -134,20 +134,20 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, ac
 
 	ok := r.run(ctx, exec.Options{
 		Name:        name,
-		Root:        filepath.Join(r.Repo.RootPath, act.Root),
-		Commands:    runAction.Execs,
-		Interactive: act.Interactive && !r.DisableTTY,
-		UseStdin:    act.UseStdin,
-		Env:         act.Env,
+		Root:        filepath.Join(r.Repo.RootPath, root),
+		Commands:    executionJob.Execs,
+		Interactive: job.Interactive && !r.DisableTTY,
+		UseStdin:    job.UseStdin,
+		Env:         job.Env,
 	}, r.Hook.Follow)
 
 	if !ok {
 		domain.failed.Store(true)
-		return failed(name, act.FailText)
+		return failed(name, job.FailText)
 	}
 
-	if config.HookUsesStagedFiles(r.HookName) && act.StageFixed {
-		files := runAction.Files
+	if config.HookUsesStagedFiles(r.HookName) && job.StageFixed {
+		files := executionJob.Files
 
 		if len(files) == 0 {
 			var err error
@@ -160,8 +160,8 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, ac
 			files = filters.Apply(r.Repo.Fs, files, filters.Params{
 				Glob:      glob,
 				Root:      root,
-				Exclude:   act.Exclude,
-				FileTypes: act.FileTypes,
+				Exclude:   job.Exclude,
+				FileTypes: job.FileTypes,
 			})
 		}
 

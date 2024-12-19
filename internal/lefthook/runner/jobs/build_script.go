@@ -1,4 +1,4 @@
-package action
+package jobs
 
 import (
 	"fmt"
@@ -24,7 +24,7 @@ func (s scriptNotExistsError) Error() string {
 	return fmt.Sprintf("script does not exist: %s", s.scriptPath)
 }
 
-func buildScript(params *Params) (*Action, error) {
+func buildScript(params *Params) (*Job, error) {
 	if err := params.validateScript(); err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func buildScript(params *Params) (*Action, error) {
 		return nil, scriptNotExistsError{params.Script}
 	}
 
-	return &Action{
+	return &Job{
 		Execs: execs,
 		Files: []string{},
 	}, nil
