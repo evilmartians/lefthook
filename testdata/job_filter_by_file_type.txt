@@ -1,0 +1,57 @@
+[windows] skip
+
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec lefthook install
+chmod 777 executable
+symlink symlink -> results
+exec git add -A
+exec git commit -m 'test'
+exec lefthook run filters
+stdout '.*all ❯\s+executable lefthook.yml results symlink\s+┃.*'
+stdout '.*filter_text ❯\s+executable lefthook.yml results\s+┃.*'
+stdout '.*filter_executable ❯\s+executable\s+┃.*'
+stdout '.*filter_symlink ❯\s+symlink\s+┃.*'
+stdout '.*filter_not_symlink ❯\s+executable lefthook.yml results\s+┃.*'
+stdout '.*filter_not_executable ❯\s+lefthook.yml results symlink\s*'
+
+-- lefthook.yml --
+output:
+  - execution
+  - skips
+filters:
+  piped: true
+  jobs:
+    - name: all
+      run: echo {all_files}
+
+    - name: filter_text
+      run: echo {all_files}
+      file_types: text
+
+    - name: filter_executable
+      run: echo {all_files}
+      file_types: executable
+
+    - name: filter_symlink
+      run: echo {all_files}
+      file_types: symlink
+
+    - name: filter_not_symlink
+      run: echo {all_files}
+      file_types: not symlink
+
+    - name: filter_not_executable
+      run: echo {all_files}
+      file_types:
+        - not executable
+
+-- results --
+some text
+
+-- executable --
+#!/bin/sh
+
+echo 'Executable'
+

@@ -29,7 +29,7 @@ const (
 )
 
 var (
-	hookKeyRegexp    = regexp.MustCompile(`^(?P<hookName>[^.]+)\.(scripts|commands)`)
+	hookKeyRegexp    = regexp.MustCompile(`^(?P<hookName>[^.]+)\.(scripts|commands|jobs)`)
 	localConfigNames = []string{"lefthook-local", ".lefthook-local"}
 	mainConfigNames  = []string{"lefthook", ".lefthook"}
 	extensions       = []string{
@@ -116,16 +116,18 @@ func Load(filesystem afero.Fs, repo *git.Repository) (*Config, error) {
 	}
 
 	// Load optional local config (e.g. lefthook-local.yml)
+	var noLocal bool
 	if err := loadOne(secondary, filesystem, repo.RootPath, localConfigNames); err != nil {
 		var configNotFoundErr ConfigNotFoundError
 		if ok := errors.As(err, &configNotFoundErr); !ok {
 			return nil, err
 		}
+		noLocal = true
 	}
 
 	// Load local `extends`
 	localExtends := secondary.Strings("extends")
-	if len(localExtends) > 0 && !slices.Equal(extends, localExtends) {
+	if !noLocal && !slices.Equal(extends, localExtends) {
 		if err := extend(secondary, filesystem, repo.RootPath, localExtends); err != nil {
 			return nil, err
 		}
