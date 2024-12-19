@@ -49,6 +49,7 @@ colors:
   red: '#FF1493'
   yellow: '#F0E68C'
 pre-commit:
+  follow: true
   commands:
     lint:
       run: yarn lint {staged_files}
@@ -68,7 +69,6 @@ pre-commit:
         FOO: bar
       use_stdin: true
       stage_fixed: true
-  follow: true
 -- lefthook-dumped.json --
 {
   "colors": {
@@ -79,6 +79,7 @@ pre-commit:
     "yellow": "#F0E68C"
   },
   "pre-commit": {
+    "follow": true,
     "commands": {
       "lint": {
         "run": "yarn lint {staged_files}",
@@ -106,8 +107,7 @@ pre-commit:
         "use_stdin": true,
         "stage_fixed": true
       }
-    },
-    "follow": true
+    }
   }
 }
 -- lefthook-dumped.toml --

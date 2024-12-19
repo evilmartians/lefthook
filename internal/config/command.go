@@ -2,12 +2,9 @@ package config
 
 import (
 	"errors"
-
-	"github.com/evilmartians/lefthook/internal/git"
-	"github.com/evilmartians/lefthook/internal/system"
 )
 
-var errFilesIncompatible = errors.New("One of your runners contains incompatible file types")
+var ErrFilesIncompatible = errors.New("One of your runners contains incompatible file types")
 
 type Command struct {
 	Run   string `json:"run"             mapstructure:"run"   toml:"run"             yaml:"run"`
@@ -29,19 +26,6 @@ type Command struct {
 	Interactive bool   `json:"interactive,omitempty" mapstructure:"interactive" toml:"interactive,omitempty" yaml:",omitempty"`
 	UseStdin    bool   `json:"use_stdin,omitempty"   koanf:"use_stdin"          mapstructure:"use_stdin"     toml:"use_stdin,omitempty"   yaml:"use_stdin,omitempty"`
 	StageFixed  bool   `json:"stage_fixed,omitempty" koanf:"stage_fixed"        mapstructure:"stage_fixed"   toml:"stage_fixed,omitempty" yaml:"stage_fixed,omitempty"`
-}
-
-func (c Command) Validate() error {
-	if !isRunnerFilesCompatible(c.Run) {
-		return errFilesIncompatible
-	}
-
-	return nil
-}
-
-func (c Command) DoSkip(state func() git.State) bool {
-	skipChecker := NewSkipChecker(system.Cmd)
-	return skipChecker.check(state, c.Skip, c.Only)
 }
 
 func (c Command) ExecutionPriority() int {

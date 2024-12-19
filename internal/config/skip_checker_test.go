@@ -18,7 +18,7 @@ func (mc mockCmd) Run(cmd []string, _root string, _in io.Reader, _out io.Writer,
 	}
 }
 
-func TestDoSkip(t *testing.T) {
+func TestSkipChecker_Check(t *testing.T) {
 	skipChecker := NewSkipChecker(mockCmd{})
 
 	for _, tt := range [...]struct {
@@ -151,7 +151,7 @@ func TestDoSkip(t *testing.T) {
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			if skipChecker.check(tt.state, tt.skip, tt.only) != tt.skipped {
+			if skipChecker.Check(tt.state, tt.skip, tt.only) != tt.skipped {
 				t.Errorf("Expected: %v, Was %v", tt.skipped, !tt.skipped)
 			}
 		})

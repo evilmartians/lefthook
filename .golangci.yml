@@ -18,6 +18,13 @@ linters-settings:
     rules:
       - name: unused-parameter
         disabled: true
+  unused:
+    field-writes-are-uses: false
+    post-statements-are-reads: true
+    exported-fields-are-used: false
+    parameters-are-used: true
+    local-variables-are-used: false
+    generated-is-used: false
 
 issues:
   exclude:

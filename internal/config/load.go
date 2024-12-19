@@ -29,7 +29,7 @@ const (
 )
 
 var (
-	hookKeyRegexp    = regexp.MustCompile(`^(?P<hookName>[^.]+)\.(scripts|commands)`)
+	hookKeyRegexp    = regexp.MustCompile(`^(?P<hookName>[^.]+)\.(scripts|commands|jobs)`)
 	localConfigNames = []string{"lefthook-local", ".lefthook-local"}
 	mainConfigNames  = []string{"lefthook", ".lefthook"}
 	extensions       = []string{
@@ -44,6 +44,8 @@ var (
 		".json": json.Parser(),
 		".toml": toml.Parser(),
 	}
+
+	mergeJobsOption = koanf.WithMergeFunc(mergeJobs)
 )
 
 // ConfigNotFoundError.
@@ -63,7 +65,7 @@ func loadOne(k *koanf.Koanf, filesystem afero.Fs, root string, names []string) e
 				continue
 			}
 
-			if err := k.Load(kfs.Provider(newIOFS(filesystem), config), parsers[extension]); err != nil {
+			if err := k.Load(kfs.Provider(newIOFS(filesystem), config), parsers[extension], mergeJobsOption); err != nil {
 				return err
 			}
 
@@ -114,16 +116,18 @@ func Load(filesystem afero.Fs, repo *git.Repository) (*Config, error) {
 	}
 
 	// Load optional local config (e.g. lefthook-local.yml)
+	var noLocal bool
 	if err := loadOne(secondary, filesystem, repo.RootPath, localConfigNames); err != nil {
 		var configNotFoundErr ConfigNotFoundError
 		if ok := errors.As(err, &configNotFoundErr); !ok {
 			return nil, err
 		}
+		noLocal = true
 	}
 
 	// Load local `extends`
 	localExtends := secondary.Strings("extends")
-	if len(localExtends) > 0 && !slices.Equal(extends, localExtends) {
+	if !noLocal && !slices.Equal(extends, localExtends) {
 		if err := extend(secondary, filesystem, repo.RootPath, localExtends); err != nil {
 			return nil, err
 		}
@@ -172,10 +176,10 @@ func loadRemotes(k *koanf.Koanf, filesystem afero.Fs, repo *git.Repository, remo
 
 			parser, ok := parsers[filepath.Ext(configPath)]
 			if !ok {
-				panic("TODO: unknown extension to parse")
+				return fmt.Errorf("can't parse config '%[1]s', file has unsupported or no extension\nhint: rename %[1]s to %[1]s.yml", configPath)
 			}
 
-			if err := k.Load(kfs.Provider(newIOFS(filesystem), configPath), parser); err != nil {
+			if err := k.Load(kfs.Provider(newIOFS(filesystem), configPath), parser, mergeJobsOption); err != nil {
 				return err
 			}
 
@@ -221,9 +225,9 @@ func extendRecursive(k *koanf.Koanf, filesystem afero.Fs, root string, extends [
 			extent := koanf.New(".")
 			parser, ok := parsers[filepath.Ext(path)]
 			if !ok {
-				panic("TODO: unknown extension for extent " + path)
+				return fmt.Errorf("can't parse config '%[1]s', file has unsupported or no extension\nhint: rename %[1]s to %[1]s.yml", path)
 			}
-			if err := extent.Load(kfs.Provider(newIOFS(filesystem), path), parser); err != nil {
+			if err := extent.Load(kfs.Provider(newIOFS(filesystem), path), parser, mergeJobsOption); err != nil {
 				return err
 			}
 
@@ -231,7 +235,7 @@ func extendRecursive(k *koanf.Koanf, filesystem afero.Fs, root string, extends [
 				return err
 			}
 
-			if err := k.Merge(extent); err != nil {
+			if err := k.Load(koanfProvider{extent}, nil, mergeJobsOption); err != nil {
 				return err
 			}
 		}
@@ -326,6 +330,20 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 		default:
 		}
 
+		var destJobs, srcJobs []interface{}
+		switch jobs := dest["jobs"].(type) {
+		case []interface{}:
+			destJobs = jobs
+		default:
+		}
+		switch jobs := src["jobs"].(type) {
+		case []interface{}:
+			srcJobs = jobs
+		default:
+		}
+
+		destJobs = mergeJobsSlice(srcJobs, destJobs)
+
 		maps.Merge(src, dest)
 
 		if len(destCommands) > 0 {
@@ -345,6 +363,10 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 				}
 			default:
 			}
+		}
+
+		if len(destJobs) > 0 {
+			dest["jobs"] = destJobs
 		}
 
 		return nil
@@ -395,4 +417,139 @@ func (k koanfProvider) Read() (map[string]interface{}, error) {
 
 func (k koanfProvider) ReadBytes() ([]byte, error) {
 	panic("not implemented")
+}
+
+func mergeJobs(src, dest map[string]interface{}) error {
+	srcJobs := make(map[string][]interface{})
+
+	for name, maybeHook := range src {
+		switch hook := maybeHook.(type) {
+		case map[string]interface{}:
+			switch jobs := hook["jobs"].(type) {
+			case []interface{}:
+				srcJobs[name] = jobs
+			default:
+			}
+		default:
+		}
+	}
+
+	destJobs := make(map[string][]interface{})
+	for name, maybeHook := range dest {
+		switch hook := maybeHook.(type) {
+		case map[string]interface{}:
+			switch jobs := hook["jobs"].(type) {
+			case []interface{}:
+				destJobs[name] = jobs
+			default:
+			}
+		default:
+		}
+	}
+
+	if len(srcJobs) == 0 || len(destJobs) == 0 {
+		maps.Merge(src, dest)
+		return nil
+	}
+
+	for hook, newJobs := range srcJobs {
+		oldJobs, ok := destJobs[hook]
+		if !ok {
+			destJobs[hook] = newJobs
+			continue
+		}
+
+		destJobs[hook] = mergeJobsSlice(newJobs, oldJobs)
+	}
+
+	maps.Merge(src, dest)
+
+	for name, maybeHook := range dest {
+		if jobs, ok := destJobs[name]; ok {
+			switch hook := maybeHook.(type) {
+			case map[string]interface{}:
+				hook["jobs"] = jobs
+			default:
+			}
+		}
+	}
+
+	return nil
+}
+
+func mergeJobsSlice(src, dest []interface{}) []interface{} {
+	mergeable := make(map[string]map[string]interface{})
+	result := make([]interface{}, 0, len(dest))
+
+	for _, maybeJob := range dest {
+		switch destJob := maybeJob.(type) {
+		case map[string]interface{}:
+			switch name := destJob["name"].(type) {
+			case string:
+				mergeable[name] = destJob
+			default:
+			}
+
+			result = append(result, maybeJob)
+		default:
+		}
+	}
+
+	for _, maybeJob := range src {
+		switch srcJob := maybeJob.(type) {
+		case map[string]interface{}:
+			switch name := srcJob["name"].(type) {
+			case string:
+				destJob, ok := mergeable[name]
+				if ok {
+					var srcSubJobs []interface{}
+					var destSubJobs []interface{}
+
+					switch srcGroup := srcJob["group"].(type) {
+					case map[string]interface{}:
+						switch subJobs := srcGroup["jobs"].(type) {
+						case []interface{}:
+							srcSubJobs = subJobs
+						default:
+						}
+					default:
+					}
+					switch destGroup := destJob["group"].(type) {
+					case map[string]interface{}:
+						switch subJobs := destGroup["jobs"].(type) {
+						case []interface{}:
+							destSubJobs = subJobs
+						default:
+						}
+					default:
+					}
+
+					if len(destSubJobs) != 0 && len(srcSubJobs) != 0 {
+						destSubJobs = mergeJobsSlice(srcSubJobs, destSubJobs)
+					}
+
+					maps.Merge(srcJob, destJob)
+
+					if len(destSubJobs) != 0 {
+						switch destGroup := destJob["group"].(type) {
+						case map[string]interface{}:
+							switch destGroup["jobs"].(type) {
+							case []interface{}:
+								destGroup["jobs"] = destSubJobs
+							default:
+							}
+						default:
+						}
+					}
+					continue
+				}
+			default:
+			}
+
+			result = append(result, maybeJob)
+		default:
+		}
+	}
+
+	return result
 }

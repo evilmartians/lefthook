@@ -1,0 +1,23 @@
+skip_lfs: true
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: lint & test
+      glob: "*.go"
+      group:
+        jobs:
+          - run: make lint
+            stage_fixed: true
+
+          - run: make test
+
+    - name: check links
+      run: lychee --max-concurrency 3 {staged_files}
+      glob: '*.md'
+      exclude:
+        - CHANGELOG.md
+
+    - name: fix typos
+      run: typos --write-changes {staged_files}
+      stage_fixed: true

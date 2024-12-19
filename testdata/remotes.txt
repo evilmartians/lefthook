@@ -19,6 +19,7 @@ remotes:
 -- lefthook-dump.yml --
 DEPRECATED: "remotes"."config" option is deprecated and will be omitted in the next major release, use "configs" option instead
 pre-commit:
+  parallel: true
   commands:
     js-lint:
       run: npx eslint --fix {staged_files} && git add {staged_files}
@@ -38,7 +39,6 @@ pre-commit:
   scripts:
     good_job.js:
       runner: node
-  parallel: true
 pre-push:
   commands:
     spelling:

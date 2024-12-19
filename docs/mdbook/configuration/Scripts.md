@@ -16,7 +16,20 @@ To add a script for a `pre-commit` hook:
          runner: bash
    ```
 
-**Example**
+### Script options
+
+- [`runner`](./runner.md)
+- [`skip`](./skip.md)
+- [`only`](./only.md)
+- [`tags`](./tags.md)
+- [`env`](./env.md)
+- [`fail_text`](./fail_text.md)
+- [`stage_fixed`](./stage_fixed.md)
+- [`interactive`](./interactive.md)
+- [`use_stdin`](./use_stdin.md)
+- [`priority`](./priority.md)
+
+### Example
 
 Let's create a bash script to check commit templates `.lefthook/commit-msg/template_checker`:
 
@@ -43,16 +56,3 @@ commit-msg:
 ```
 
 When you try to commit `git commit -m "bad commit text"` script `template_checker` will be executed. Since commit text doesn't match the described pattern the commit process will be interrupted.
-
-### Script options
-
-- [`runner`](./runner.md)
-- [`skip`](./skip.md)
-- [`only`](./only.md)
-- [`tags`](./tags.md)
-- [`env`](./env.md)
-- [`fail_text`](./fail_text.md)
-- [`stage_fixed`](./stage_fixed.md)
-- [`interactive`](./interactive.md)
-- [`use_stdin`](./use_stdin.md)
-- [`priority`](./priority.md)

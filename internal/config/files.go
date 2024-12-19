@@ -9,9 +9,6 @@ const (
 	SubPushFiles   string = "{push_files}"
 )
 
-func isRunnerFilesCompatible(runner string) bool {
-	if strings.Contains(runner, SubStagedFiles) && strings.Contains(runner, SubPushFiles) {
-		return false
-	}
-	return true
+func IsRunFilesCompatible(run string) bool {
+	return !(strings.Contains(run, SubStagedFiles) && strings.Contains(run, SubPushFiles))
 }
