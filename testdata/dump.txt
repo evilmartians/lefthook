@@ -69,7 +69,6 @@ pre-commit:
         FOO: bar
       use_stdin: true
       stage_fixed: true
-  follow: true
 -- lefthook-dumped.json --
 {
   "colors": {
@@ -108,8 +107,7 @@ pre-commit:
         "use_stdin": true,
         "stage_fixed": true
       }
-    },
-    "follow": true
+    }
   }
 }
 -- lefthook-dumped.toml --
