@@ -176,7 +176,7 @@ func loadRemotes(k *koanf.Koanf, filesystem afero.Fs, repo *git.Repository, remo
 
 			parser, ok := parsers[filepath.Ext(configPath)]
 			if !ok {
-				panic("TODO: unknown extension to parse")
+				return fmt.Errorf("can't parse config '%[1]s', file has unsupported or no extension\nhint: rename %[1]s to %[1]s.yml", configPath)
 			}
 
 			if err := k.Load(kfs.Provider(newIOFS(filesystem), configPath), parser, mergeJobsOption); err != nil {
@@ -225,7 +225,7 @@ func extendRecursive(k *koanf.Koanf, filesystem afero.Fs, root string, extends [
 			extent := koanf.New(".")
 			parser, ok := parsers[filepath.Ext(path)]
 			if !ok {
-				panic("TODO: unknown extension for extent " + path)
+				return fmt.Errorf("can't parse config '%[1]s', file has unsupported or no extension\nhint: rename %[1]s to %[1]s.yml", path)
 			}
 			if err := extent.Load(kfs.Provider(newIOFS(filesystem), path), parser, mergeJobsOption); err != nil {
 				return err
