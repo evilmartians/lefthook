@@ -165,20 +165,9 @@
 
 pre-commit:
   commands:
-    lint-frontend:
-      run: yarn lint
-      glob: ".{ts,tsx}"
-    lint-backend:
+    lint:
       run: bundle exec rubocop {staged_files}
       glob: "*.rb"
-    test-frontend:
-      run: yarn test
-      glob: "*.tsx"
-    test-backend:
-      run: bundle exec rspec
-      glob: "spec/*"
-    check-typos:
-      run: typos {staged_files}
     check-links:
       run: lychee {staged_files}
 </code></pre>
@@ -187,10 +176,8 @@ pre-commit:
 pre-commit:
   parallel: true # run all commands concurrently
   commands:
-    lint-backend:
+    lint:
       run: docker-compose run backend {cmd} # wrap the original command with docker-compose
-    test-backend:
-      run: docker-compose run backend {cmd}
     check-links:
       skip: true # skip checking links
 
@@ -208,23 +195,12 @@ post-merge:
 pre-commit:
   parallel: true
   commands:
-    lint-frontend:
-      run: yarn lint
-      glob: "*.{ts,tsx}"
-    lint-backend:
+    lint:
       run: docker-compose run backend bundle exec rubocop {staged_files}
       glob: "*.rb"
-    test-frontend:
-      run: yarn test
-      glob: "*.tsx"
-    test-backend:
-      run: docker-compose run backend bundle exec rspec
-      glob: "spec/*"
     check-links:
       run: lychee {staged_files}
       skip: true
-    check-typos:
-      run: typos {staged_files}
 
 post-merge:
   files: "git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD"

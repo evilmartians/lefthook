@@ -1178,19 +1178,33 @@ pre-commit:
       only: rebase
       run: yarn lint-quickly
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="commands-1"><a class="header" href="#commands-1"><code>commands</code></a></h2>
-<p>Commands to be executed for the hook. Each command has a name and associated run <a href="configuration/Commands.html#command">options</a>.</p>
-<p><strong>Example</strong></p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="jobs"><a class="header" href="#jobs"><code>jobs</code></a></h2>
+<p>Job can either be a command or a script. Configuring <code>jobs</code> is more flexible than configuring <code>commands</code> and <code>scripts</code>, although all options are supported now.</p>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
-  commands:
-    lint:
-      ... # command options
+  jobs:
+    - run: yarn lint
+    - run: yarn test
 </code></pre>
-<h3 id="command-options"><a class="header" href="#command-options">Command options</a></h3>
+<p>This is how jobs configuration differ from commands and scripts:</p>
 <ul>
+<li>Jobs have optional names. Lefthook merges named jobs across <a href="configuration/./extends.html">extends</a> and <a href="configuration/../examples/lefthook-local.html">local configs</a>. Unnamed jobs get appended in the definition order.</li>
+<li>Jobs can have groups of other jobs. For groups you can specify <a href="configuration/./parallel.html"><code>parallel</code></a> or <a href="configuration/./piped.html"><code>piped</code></a> flow for a bunch of jobs. Also <a href="configuration/./glob.html"><code>glob</code></a> and <a href="configuration/./root.html"><code>root</code></a> parameters of a group apply to all its jobs (even nested).</li>
+</ul>
+<h3 id="job-options"><a class="header" href="#job-options">Job options</a></h3>
+<ul>
+<li><a href="configuration/./name.html"><code>name</code></a></li>
 <li><a href="configuration/./run.html"><code>run</code></a></li>
+<li><a href="configuration/./script.html"><code>script</code></a></li>
+<li><a href="configuration/./runner.html"><code>runner</code></a></li>
+<li><a href="configuration/./group.html"><code>group</code></a>
+<ul>
+<li><a href="configuration/./parallel.html"><code>parallel</code></a></li>
+<li><a href="configuration/./piped.html"><code>piped</code></a></li>
+<li><a href="configuration/./jobs.html"><code>jobs</code></a></li>
+</ul>
+</li>
 <li><a href="configuration/./skip.html"><code>skip</code></a></li>
 <li><a href="configuration/./only.html"><code>only</code></a></li>
 <li><a href="configuration/./tags.html"><code>tags</code></a></li>
@@ -1204,8 +1218,45 @@ pre-commit:
 <li><a href="configuration/./stage_fixed.html"><code>stage_fixed</code></a></li>
 <li><a href="configuration/./interactive.html"><code>interactive</code></a></li>
 <li><a href="configuration/./use_stdin.html"><code>use_stdin</code></a></li>
-<li><a href="configuration/./priority.html"><code>priority</code></a></li>
 </ul>
+<h3 id="example-1"><a class="header" href="#example-1">Example</a></h3>
+<blockquote>
+<p><strong>Note:</strong> Currently only <code>root</code> and <code>glob</code> options are applied to group jobs. Other options must be set for each job separately. If you find this inconvenient, please submit a <a href="https://github.com/evilmartians/lefthook/issues/new?assignees=&amp;labels=feature+request&amp;projects=&amp;template=feature_request.md">feature request</a>.</p>
+</blockquote>
+<p>A simple configuration with one piped group which executes in parallel with other jobs.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: migrate
+      root: backend/
+      glob: "db/migrations/*"
+      group:
+        piped: true
+        jobs:
+          - run: bundle install
+          - run: rails db:migrate
+    - run: yarn lint --fix {staged_files}
+      root: frontend/
+      stage_fixed: true
+    - run: bundle exec rubocop
+      root: backend/
+    - run: golangci-lint
+      root: proxy/
+    - script: verify.sh
+      runner: bash
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="name"><a class="header" href="#name"><code>name</code></a></h2>
+<p>Name of a job. Will be printed in summary. If specified, the jobs can be merged with a jobs of the same name in a <a href="configuration/../examples/lefthook-local.html">local config</a> or <a href="configuration/./extends.html">extends</a>.</p>
+<h3 id="example-2"><a class="header" href="#example-2">Example</a></h3>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  jobs:
+    - name: lint and fix
+      run: yarn run eslint --fix {staged_files}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="run"><a class="header" href="#run"><code>run</code></a></h2>
 <p>This is a mandatory option for a command. This is actually a command that is executed for the hook.</p>
 <p>You can use files templates that will be substituted with the appropriate files on execution:</p>
@@ -1330,6 +1381,153 @@ pre-commit:
       glob: "*.js"
       # Will quote where needed with single quotes
       run: yarn test {staged_files} # will run `yarn eslint file1.js file2.js '[strange name].spec.js'`
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="script"><a class="header" href="#script"><code>script</code></a></h2>
+<p>Name of a script to execute. The rules are the same as for <a href="configuration/./Scripts.html"><code>scripts</code></a></p>
+<h3 id="example-3"><a class="header" href="#example-3">Example</a></h3>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  jobs:
+    - script: linter.sh
+      runner: bash
+</code></pre>
+<pre><code class="language-bash"># .lefthook/pre-commit/linter.sh
+
+echo "Everything is OK"
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="runner"><a class="header" href="#runner"><code>runner</code></a></h2>
+<p>You should specify a runner for the script. This is a command that should execute a script file. It will be called the following way: <code>&lt;runner&gt; &lt;path-to-script&gt;</code> (e.g. <code>ruby .lefthook/pre-commit/lint.rb</code>).</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  scripts:
+    "lint.js":
+      runner: node
+    "check.go":
+      runner: go run
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="group"><a class="header" href="#group"><code>group</code></a></h2>
+<p>Specifies a group of jobs and option to run them with.</p>
+<ul>
+<li><a href="configuration/./parallel.html"><code>parallel</code></a></li>
+<li><a href="configuration/./piped.html"><code>piped</code></a></li>
+<li><a href="configuration/./jobs.html"><code>jobs</code></a></li>
+</ul>
+<h3 id="example-4"><a class="header" href="#example-4">Example</a></h3>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  jobs:
+    - group:
+        parallel: true
+        jobs:
+          - run: echo hello from a group
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> To make a group mergeable with settings defined in local config or extends you have to specify the name of the job group belongs to:</p>
+<pre><code class="language-yml">pre-commit:
+  jobs:
+    - name: a name of a group
+      group:
+        jobs:
+          - run: echo from a group job
+</code></pre>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="parallel-1"><a class="header" href="#parallel-1"><code>parallel</code></a></h2>
+<p><strong>Default: <code>false</code></strong></p>
+<blockquote>
+<p><strong>Note:</strong> Lefthook runs commands and scripts <strong>sequentially</strong> by default</p>
+</blockquote>
+<p>Run commands and scripts concurrently.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="piped-1"><a class="header" href="#piped-1"><code>piped</code></a></h2>
+<p><strong>Default: <code>false</code></strong></p>
+<blockquote>
+<p><strong>Note:</strong> Lefthook will return an error if both <code>piped: true</code> and <code>parallel: true</code> are set</p>
+</blockquote>
+<p>Stop running commands and scripts if one of them fail.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-yml"># lefthook.yml
+
+database:
+  piped: true # Stop if one of the steps fail
+  commands:
+    1_create:
+      run: rake db:create
+    2_migrate:
+      run: rake db:migrate
+    3_seed:
+      run: rake db:seed
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="jobs-1"><a class="header" href="#jobs-1"><code>jobs</code></a></h2>
+<p>Job can either be a command or a script. Configuring <code>jobs</code> is more flexible than configuring <code>commands</code> and <code>scripts</code>, although all options are supported now.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  jobs:
+    - run: yarn lint
+    - run: yarn test
+</code></pre>
+<p>This is how jobs configuration differ from commands and scripts:</p>
+<ul>
+<li>Jobs have optional names. Lefthook merges named jobs across <a href="configuration/./extends.html">extends</a> and <a href="configuration/../examples/lefthook-local.html">local configs</a>. Unnamed jobs get appended in the definition order.</li>
+<li>Jobs can have groups of other jobs. For groups you can specify <a href="configuration/./parallel.html"><code>parallel</code></a> or <a href="configuration/./piped.html"><code>piped</code></a> flow for a bunch of jobs. Also <a href="configuration/./glob.html"><code>glob</code></a> and <a href="configuration/./root.html"><code>root</code></a> parameters of a group apply to all its jobs (even nested).</li>
+</ul>
+<h3 id="job-options-1"><a class="header" href="#job-options-1">Job options</a></h3>
+<ul>
+<li><a href="configuration/./name.html"><code>name</code></a></li>
+<li><a href="configuration/./run.html"><code>run</code></a></li>
+<li><a href="configuration/./script.html"><code>script</code></a></li>
+<li><a href="configuration/./runner.html"><code>runner</code></a></li>
+<li><a href="configuration/./group.html"><code>group</code></a>
+<ul>
+<li><a href="configuration/./parallel.html"><code>parallel</code></a></li>
+<li><a href="configuration/./piped.html"><code>piped</code></a></li>
+<li><a href="configuration/./jobs.html"><code>jobs</code></a></li>
+</ul>
+</li>
+<li><a href="configuration/./skip.html"><code>skip</code></a></li>
+<li><a href="configuration/./only.html"><code>only</code></a></li>
+<li><a href="configuration/./tags.html"><code>tags</code></a></li>
+<li><a href="configuration/./glob.html"><code>glob</code></a></li>
+<li><a href="configuration/./files.html"><code>files</code></a></li>
+<li><a href="configuration/./file_types.html"><code>file_types</code></a></li>
+<li><a href="configuration/./env.html"><code>env</code></a></li>
+<li><a href="configuration/./root.html"><code>root</code></a></li>
+<li><a href="configuration/./exclude.html"><code>exclude</code></a></li>
+<li><a href="configuration/./fail_text.html"><code>fail_text</code></a></li>
+<li><a href="configuration/./stage_fixed.html"><code>stage_fixed</code></a></li>
+<li><a href="configuration/./interactive.html"><code>interactive</code></a></li>
+<li><a href="configuration/./use_stdin.html"><code>use_stdin</code></a></li>
+</ul>
+<h3 id="example-5"><a class="header" href="#example-5">Example</a></h3>
+<blockquote>
+<p><strong>Note:</strong> Currently only <code>root</code> and <code>glob</code> options are applied to group jobs. Other options must be set for each job separately. If you find this inconvenient, please submit a <a href="https://github.com/evilmartians/lefthook/issues/new?assignees=&amp;labels=feature+request&amp;projects=&amp;template=feature_request.md">feature request</a>.</p>
+</blockquote>
+<p>A simple configuration with one piped group which executes in parallel with other jobs.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: migrate
+      root: backend/
+      glob: "db/migrations/*"
+      group:
+        piped: true
+        jobs:
+          - run: bundle install
+          - run: rails db:migrate
+    - run: yarn lint --fix {staged_files}
+      root: frontend/
+      stage_fixed: true
+    - run: bundle exec rubocop
+      root: backend/
+    - run: golangci-lint
+      root: proxy/
+    - script: verify.sh
+      runner: bash
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="skip-1"><a class="header" href="#skip-1"><code>skip</code></a></h2>
 <p>You can skip all or specific commands and scripts using <code>skip</code> option. You can also skip when merging, rebasing, or being on a specific branch. Globs are available for branches.</p>
@@ -1758,97 +1956,158 @@ pre-push:
       runner: bash
       use_stdin: true
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="priority"><a class="header" href="#priority"><code>priority</code></a></h2>
-<p><strong>Default: <code>0</code></strong></p>
-<blockquote>
-<p><strong>Note:</strong> This option makes sense only when <code>parallel: false</code> or <code>piped: true</code> is set.</p>
-<p>Value <code>0</code> is considered an <code>+Infinity</code>, so commands or scripts with <code>priority: 0</code> or without this setting will be run at the very end.</p>
-</blockquote>
-<p>Set priority from 1 to +Infinity. This option can be used to configure the order of the sequential steps.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="commands-1"><a class="header" href="#commands-1"><code>commands</code></a></h2>
+<p>Commands to be executed for the hook. Each command has a name and associated run <a href="configuration/Commands.html#command">options</a>.</p>
 <p><strong>Example</strong></p>
-<pre><code class="language-yml"># lefthook.yml
-
-post-checkout:
-  piped: true
-  commands:
-    db-create:
-      priority: 1
-      run: rails db:create
-    db-migrate:
-      priority: 2
-      run: rails db:migrate
-    db-seed:
-      priority: 3
-      run: rails db:seed
-
-  scripts:
-    "check-spelling.sh":
-      runner: bash
-      priority: 1
-    "check-grammar.rb":
-      runner: ruby
-      priority: 2
-</code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="scripts"><a class="header" href="#scripts">Scripts</a></h2>
-<p>Scripts are stored under <code>&lt;source_dir&gt;/&lt;hook-name&gt;/</code> folder. These scripts are your own executables which are being run in the project root.</p>
-<p>To add a script for a <code>pre-commit</code> hook:</p>
-<ol>
-<li>Run <code>lefthook add -d pre-commit</code></li>
-<li>Edit <code>.lefthook/pre-commit/my-script.sh</code></li>
-<li>Add an entry to <code>lefthook.yml</code>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
-  scripts:
-    "my-script.sh":
-      runner: bash
+  commands:
+    lint:
+      ... # command options
 </code></pre>
-</li>
-</ol>
-<p><strong>Example</strong></p>
-<p>Let's create a bash script to check commit templates <code>.lefthook/commit-msg/template_checker</code>:</p>
-<pre><code class="language-bash">INPUT_FILE=$1
-START_LINE=`head -n1 $INPUT_FILE`
-PATTERN="^(TICKET)-[[:digit:]]+: "
-if ! [[ "$START_LINE" =~ $PATTERN ]]; then
-  echo "Bad commit message, see example: TICKET-123: some text"
-  exit 1
-fi
-</code></pre>
-<p>Now we can ask lefthook to run our bash script by adding this code to
-<code>lefthook.yml</code> file:</p>
-<pre><code class="language-yml"># lefthook.yml
-
-commit-msg:
-  scripts:
-    "template_checker":
-      runner: bash
-</code></pre>
-<p>When you try to commit <code>git commit -m "bad commit text"</code> script <code>template_checker</code> will be executed. Since commit text doesn't match the described pattern the commit process will be interrupted.</p>
-<h3 id="script-options"><a class="header" href="#script-options">Script options</a></h3>
+<h3 id="command-options"><a class="header" href="#command-options">Command options</a></h3>
 <ul>
-<li><a href="configuration/./runner.html"><code>runner</code></a></li>
+<li><a href="configuration/./run.html"><code>run</code></a></li>
 <li><a href="configuration/./skip.html"><code>skip</code></a></li>
 <li><a href="configuration/./only.html"><code>only</code></a></li>
 <li><a href="configuration/./tags.html"><code>tags</code></a></li>
+<li><a href="configuration/./glob.html"><code>glob</code></a></li>
+<li><a href="configuration/./files.html"><code>files</code></a></li>
+<li><a href="configuration/./file_types.html"><code>file_types</code></a></li>
 <li><a href="configuration/./env.html"><code>env</code></a></li>
+<li><a href="configuration/./root.html"><code>root</code></a></li>
+<li><a href="configuration/./exclude.html"><code>exclude</code></a></li>
 <li><a href="configuration/./fail_text.html"><code>fail_text</code></a></li>
 <li><a href="configuration/./stage_fixed.html"><code>stage_fixed</code></a></li>
 <li><a href="configuration/./interactive.html"><code>interactive</code></a></li>
 <li><a href="configuration/./use_stdin.html"><code>use_stdin</code></a></li>
 <li><a href="configuration/./priority.html"><code>priority</code></a></li>
 </ul>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="runner"><a class="header" href="#runner"><code>runner</code></a></h2>
-<p>You should specify a runner for the script. This is a command that should execute a script file. It will be called the following way: <code>&lt;runner&gt; &lt;path-to-script&gt;</code> (e.g. <code>ruby .lefthook/pre-commit/lint.rb</code>).</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="run-1"><a class="header" href="#run-1"><code>run</code></a></h2>
+<p>This is a mandatory option for a command. This is actually a command that is executed for the hook.</p>
+<p>You can use files templates that will be substituted with the appropriate files on execution:</p>
+<ul>
+<li><code>{files}</code> - custom <a href="configuration/./files.html"><code>files</code></a> command result.</li>
+<li><code>{staged_files}</code> - staged files which you try to commit.</li>
+<li><code>{push_files}</code> - files that are committed but not pushed.</li>
+<li><code>{all_files}</code> - all files tracked by git.</li>
+<li><code>{cmd}</code> - shorthand for the command from <code>lefthook.yml</code>.</li>
+<li><code>{0}</code> - shorthand for the single space-joint string of git hook arguments.</li>
+<li><code>{N}</code> - shorthand for the N-th git hook argument.</li>
+</ul>
 <p><strong>Example</strong></p>
+<p>Run <code>yarn lint</code> on <code>pre-commit</code> hook.</p>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
+  commands:
+    lint:
+      run: yarn lint
+</code></pre>
+<h4 id="files-template-1"><a class="header" href="#files-template-1"><code>{files}</code> template</a></h4>
+<p>Run <code>go vet</code> only on files listed with <code>git ls-files -m</code> command with <code>.go</code> extension.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    govet:
+      files: git ls-files -m
+      glob: "*.go"
+      run: go vet {files}
+</code></pre>
+<h4 id="staged_files-template-1"><a class="header" href="#staged_files-template-1"><code>{staged_files}</code> template</a></h4>
+<p>Run <code>yarn eslint</code> only on staged files with <code>.js</code>, <code>.ts</code>, <code>.jsx</code>, and <code>.tsx</code> extensions.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    eslint:
+      glob: "*.{js,ts,jsx,tsx}"
+      run: yarn eslint {staged_files}
+</code></pre>
+<h4 id="push_files-template-1"><a class="header" href="#push_files-template-1"><code>{push_files}</code> template</a></h4>
+<p>If you want to lint files only before pushing them.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-push:
+  commands:
+    eslint:
+      glob: "*.{js,ts,jsx,tsx}"
+      run: yarn eslint {push_files}
+</code></pre>
+<h4 id="all_files-template-1"><a class="header" href="#all_files-template-1"><code>{all_files}</code> template</a></h4>
+<p>Simply run <code>bundle exec rubocop</code> on all files with <code>.rb</code> extension excluding <code>application.rb</code> and <code>routes.rb</code> files.</p>
+<blockquote>
+<p><strong>Note:</strong> <code>--force-exclusion</code> will apply <code>Exclude</code> configuration setting of Rubocop</p>
+</blockquote>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    rubocop:
+      tags:
+        - backend
+        - style
+      glob: "*.rb"
+      exclude:
+        - config/application.rb
+        - config/routes.rb
+      run: bundle exec rubocop --force-exclusion {all_files}
+</code></pre>
+<h4 id="cmd-template-1"><a class="header" href="#cmd-template-1"><code>{cmd}</code> template</a></h4>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      run: yarn lint
   scripts:
-    "lint.js":
+    "good_job.js":
       runner: node
-    "check.go":
-      runner: go run
+</code></pre>
+<p>You can wrap it in docker runner locally:</p>
+<pre><code class="language-yml"># lefthook-local.yml
+
+pre-commit:
+  commands:
+    lint:
+      run: docker run -it --rm &lt;container_id_or_name&gt; {cmd}
+  scripts:
+    "good_job.js":
+      runner: docker run -it --rm &lt;container_id_or_name&gt; {cmd}
+</code></pre>
+<h4 id="git-arguments-1"><a class="header" href="#git-arguments-1">Git arguments</a></h4>
+<p>Make sure commits are signed.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+# Note: commit-msg hook takes a single parameter,
+#       the name of the file that holds the proposed commit log message.
+# Source: https://git-scm.com/docs/githooks#_commit_msg
+commit-msg:
+  commands:
+    multiple-sign-off:
+      run: 'test $(grep -c "^Signed-off-by: " {1}) -lt 2'
+</code></pre>
+<h4 id="rubocop-1"><a class="header" href="#rubocop-1">Rubocop</a></h4>
+<p>If using <code>{all_files}</code> with RuboCop, it will ignore RuboCop's <code>Exclude</code> configuration setting. To avoid this, pass <code>--force-exclusion</code>.</p>
+<h4 id="quotes-1"><a class="header" href="#quotes-1">Quotes</a></h4>
+<p>If you want to have all your files quoted with double quotes <code>"</code> or single quotes <code>'</code>, quote the appropriate shorthand:</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      glob: "*.js"
+      # Quoting with double quotes `"` might be helpful for Windows users
+      run: yarn eslint "{staged_files}" # will run `yarn eslint "file1.js" "file2.js" "[strange name].js"`
+    test:
+      glob: "*.{spec.js}"
+      run: yarn test '{staged_files}' # will run `yarn eslint 'file1.spec.js' 'file2.spec.js' '[strange name].spec.js'`
+    format:
+      glob: "*.js"
+      # Will quote where needed with single quotes
+      run: yarn test {staged_files} # will run `yarn eslint file1.js file2.js '[strange name].spec.js'`
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="skip-2"><a class="header" href="#skip-2"><code>skip</code></a></h2>
 <p>You can skip all or specific commands and scripts using <code>skip</code> option. You can also skip when merging, rebasing, or being on a specific branch. Globs are available for branches.</p>
@@ -2004,6 +2263,105 @@ pre-commit:
         - ruby
       run: bundle exec rspec
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="glob-1"><a class="header" href="#glob-1"><code>glob</code></a></h2>
+<p>You can set a glob to filter files for your command. This is only used if you use a file template in <a href="configuration/./run.html"><code>run</code></a> option or provide your custom <a href="configuration/./files.html"><code>files</code></a> command.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      glob: "*.{js,ts,jsx,tsx}"
+      run: yarn eslint {staged_files}
+</code></pre>
+<p><strong>Notes</strong></p>
+<p>For patterns that you can use see <a href="https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm">this</a> reference. We use <a href="https://github.com/gobwas/glob">glob</a> library.</p>
+<p>If you've specified <code>glob</code> but don't have a files template in <a href="configuration/./run.html"><code>run</code></a> option, lefthook will check <code>{staged_files}</code> for <code>pre-commit</code> hook and <code>{push_files}</code> for <code>pre-push</code> hook and apply filtering. If no files left, the command will be skipped.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      glob: "*.js"
+      run: npm run lint # skipped if no .js files staged
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="files-1"><a class="header" href="#files-1"><code>files</code></a></h2>
+<p>A custom git command for files or directories to be referenced in <code>{files}</code> template for <a href="configuration/./run.html"><code>run</code></a> setting.</p>
+<p>If the result of this command is empty, the execution of commands will be skipped.</p>
+<p>This option overwrites the <a href="configuration/./files-global.html">hook-level <code>files</code></a> option.</p>
+<p><strong>Example</strong></p>
+<p>Provide a git command to list files.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-push:
+  commands:
+    stylelint:
+      tags:
+        - frontend
+        - style
+      files: git diff --name-only master
+      glob: "*.js"
+      run: yarn stylelint {files}
+</code></pre>
+<p>Call a custom script for listing files.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-push:
+  commands:
+    rubocop:
+      tags: backend
+      glob: "**/*.rb"
+      files: node ./lefthook-scripts/ls-files.js # you can call your own scripts
+      run: bundle exec rubocop --force-exclusion --parallel {files}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="file_types-1"><a class="header" href="#file_types-1"><code>file_types</code></a></h2>
+<p>Filter files in a <a href="configuration/./run.html"><code>run</code></a> templates by their type. Supported types:</p>
+<div class="table-wrapper"><table><thead><tr><th>File type</th><th>Exlanation</th></tr></thead><tbody>
+<tr><td><code>text</code></td><td>Any file that contains text. Symlinks are not followed.</td></tr>
+<tr><td><code>binary</code></td><td>Any file that contains non-text bytes. Symlinks are not followed.</td></tr>
+<tr><td><code>executable</code></td><td>Any file that has executable bits set. Symlinks are not followed.</td></tr>
+<tr><td><code>not executable</code></td><td>Any file without executable bits in file mode. Symlinks included.</td></tr>
+<tr><td><code>symlink</code></td><td>A symlink file.</td></tr>
+<tr><td><code>not symlink</code></td><td>Any non-symlink file.</td></tr>
+</tbody></table>
+</div>
+<blockquote>
+<p><strong>Important:</strong> When passed multiple file types all constraints will be applied to the resulting list of files</p>
+</blockquote>
+<p><strong>Examples</strong></p>
+<p>Apply some different linters on text and binary files.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    lint-code:
+      run: yarn lint {staged_files}
+      file_types: text
+    check-hex-codes:
+      run: yarn check-hex {staged_files}
+      file_types: binary
+</code></pre>
+<p>Skip symlinks.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      run: yarn lint --fix {staged_files}
+      file_types:
+        - not symlink
+</code></pre>
+<p>Lint executable scripts.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      run: yarn lint --fix {staged_files}
+      file_types:
+        - executable
+        - text
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="env-1"><a class="header" href="#env-1"><code>env</code></a></h2>
 <p>You can specify some ENV variables for the command or script.</p>
 <p><strong>Example</strong></p>
@@ -2035,6 +2393,79 @@ pre-commit:
 </code></pre>
 <p><strong>Notes</strong></p>
 <p>This option is useful when using lefthook on different OSes or shells where ENV variables are set in different ways.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="root-1"><a class="header" href="#root-1"><code>root</code></a></h2>
+<p>You can change the CWD for the command you execute using <code>root</code> option.</p>
+<p>This is useful when you execute some <code>npm</code> or <code>yarn</code> command but the <code>package.json</code> is in another directory.</p>
+<p>For <code>pre-push</code> and <code>pre-commit</code> hooks and for the custom <code>files</code> command <code>root</code> option is used to filter file paths. If all files are filtered the command will be skipped.</p>
+<p><strong>Example</strong></p>
+<p>Format and stage files from a <code>client/</code> folder.</p>
+<pre><code class="language-bash"># Folders structure
+
+$ tree .
+.
+├── client/
+│   ├── package.json
+│   ├── node_modules/
+|   ├── ...
+├── server/
+|   ...
+</code></pre>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      root: "client/"
+      glob: "*.{js,ts}"
+      run: yarn eslint --fix {staged_files} &amp;&amp; git add {staged_files}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="exclude-1"><a class="header" href="#exclude-1"><code>exclude</code></a></h2>
+<p>For the <code>exclude</code> option two variants are supported:</p>
+<ul>
+<li>A list of globs to be excluded</li>
+<li>A single regular expression (deprecated)</li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong> The regular expression is matched against full paths to files in the repo,
+relative to the repo root, using <code>/</code> as the directory separator on all platforms.
+File paths do not begin with the separator or any other prefix.</p>
+</blockquote>
+<p><strong>Example</strong></p>
+<p>Run Rubocop on staged files with <code>.rb</code> extension except for <code>application.rb</code>, <code>routes.rb</code>, <code>rails_helper.rb</code>, and all Ruby files in <code>config/initializers/</code>.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      glob: "*.rb"
+      exclude:
+        - config/routes.rb
+        - config/application.rb
+        - config/initializers/*.rb
+        - spec/rails_helper.rb
+      run: bundle exec rubocop --force-exclusion {staged_files}
+</code></pre>
+<p>The same example using a regular expression.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      glob: "*.rb"
+      exclude: '(^|/)(application|routes|rails_helper|initializers/\w+)\.rb$'
+      run: bundle exec rubocop --force-exclusion {staged_files}
+</code></pre>
+<p><strong>Important</strong></p>
+<p>Be careful with the config file format's string quoting and escaping rules when writing regexps in it. For YAML, single quotes are often the simplest choice.</p>
+<p>If you've specified <code>exclude</code> but don't have a files template in <a href="configuration/./run.html"><code>run</code></a> option, lefthook will check <code>{staged_files}</code> for <code>pre-commit</code> hook and <code>{push_files}</code> for <code>pre-push</code> hook and apply filtering. If no files left, the command will be skipped.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      exclude: '(^|/)application\.rb$'
+      run: bundle exec rubocop # skipped if only application.rb was staged
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="fail_text-1"><a class="header" href="#fail_text-1"><code>fail_text</code></a></h2>
 <p>You can specify a text to show when the command or script fails.</p>
 <p><strong>Example</strong></p>
@@ -2105,6 +2536,353 @@ pre-push:
       runner: bash
       use_stdin: true
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="priority"><a class="header" href="#priority"><code>priority</code></a></h2>
+<p><strong>Default: <code>0</code></strong></p>
+<blockquote>
+<p><strong>Note:</strong> This option makes sense only when <code>parallel: false</code> or <code>piped: true</code> is set.</p>
+<p>Value <code>0</code> is considered an <code>+Infinity</code>, so commands or scripts with <code>priority: 0</code> or without this setting will be run at the very end.</p>
+</blockquote>
+<p>Set priority from 1 to +Infinity. This option can be used to configure the order of the sequential steps.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-yml"># lefthook.yml
+
+post-checkout:
+  piped: true
+  commands:
+    db-create:
+      priority: 1
+      run: rails db:create
+    db-migrate:
+      priority: 2
+      run: rails db:migrate
+    db-seed:
+      priority: 3
+      run: rails db:seed
+
+  scripts:
+    "check-spelling.sh":
+      runner: bash
+      priority: 1
+    "check-grammar.rb":
+      runner: ruby
+      priority: 2
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="scripts"><a class="header" href="#scripts">Scripts</a></h2>
+<p>Scripts are stored under <code>&lt;source_dir&gt;/&lt;hook-name&gt;/</code> folder. These scripts are your own executables which are being run in the project root.</p>
+<p>To add a script for a <code>pre-commit</code> hook:</p>
+<ol>
+<li>Run <code>lefthook add -d pre-commit</code></li>
+<li>Edit <code>.lefthook/pre-commit/my-script.sh</code></li>
+<li>Add an entry to <code>lefthook.yml</code>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  scripts:
+    "my-script.sh":
+      runner: bash
+</code></pre>
+</li>
+</ol>
+<h3 id="script-options"><a class="header" href="#script-options">Script options</a></h3>
+<ul>
+<li><a href="configuration/./runner.html"><code>runner</code></a></li>
+<li><a href="configuration/./skip.html"><code>skip</code></a></li>
+<li><a href="configuration/./only.html"><code>only</code></a></li>
+<li><a href="configuration/./tags.html"><code>tags</code></a></li>
+<li><a href="configuration/./env.html"><code>env</code></a></li>
+<li><a href="configuration/./fail_text.html"><code>fail_text</code></a></li>
+<li><a href="configuration/./stage_fixed.html"><code>stage_fixed</code></a></li>
+<li><a href="configuration/./interactive.html"><code>interactive</code></a></li>
+<li><a href="configuration/./use_stdin.html"><code>use_stdin</code></a></li>
+<li><a href="configuration/./priority.html"><code>priority</code></a></li>
+</ul>
+<h3 id="example-6"><a class="header" href="#example-6">Example</a></h3>
+<p>Let's create a bash script to check commit templates <code>.lefthook/commit-msg/template_checker</code>:</p>
+<pre><code class="language-bash">INPUT_FILE=$1
+START_LINE=`head -n1 $INPUT_FILE`
+PATTERN="^(TICKET)-[[:digit:]]+: "
+if ! [[ "$START_LINE" =~ $PATTERN ]]; then
+  echo "Bad commit message, see example: TICKET-123: some text"
+  exit 1
+fi
+</code></pre>
+<p>Now we can ask lefthook to run our bash script by adding this code to
+<code>lefthook.yml</code> file:</p>
+<pre><code class="language-yml"># lefthook.yml
+
+commit-msg:
+  scripts:
+    "template_checker":
+      runner: bash
+</code></pre>
+<p>When you try to commit <code>git commit -m "bad commit text"</code> script <code>template_checker</code> will be executed. Since commit text doesn't match the described pattern the commit process will be interrupted.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="runner-1"><a class="header" href="#runner-1"><code>runner</code></a></h2>
+<p>You should specify a runner for the script. This is a command that should execute a script file. It will be called the following way: <code>&lt;runner&gt; &lt;path-to-script&gt;</code> (e.g. <code>ruby .lefthook/pre-commit/lint.rb</code>).</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  scripts:
+    "lint.js":
+      runner: node
+    "check.go":
+      runner: go run
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="skip-3"><a class="header" href="#skip-3"><code>skip</code></a></h2>
+<p>You can skip all or specific commands and scripts using <code>skip</code> option. You can also skip when merging, rebasing, or being on a specific branch. Globs are available for branches.</p>
+<p>Possible skip values:</p>
+<ul>
+<li><code>rebase</code> - when in rebase git state</li>
+<li><code>merge</code> - when in merge git state</li>
+<li><code>merge-commit</code> - when current HEAD commit is the merge commit</li>
+<li><code>ref: main</code> - when on a <code>main</code> branch</li>
+<li><code>run: test ${SKIP_ME} -eq 1</code> - when <code>test ${SKIP_ME} -eq 1</code> is successful (return code is 0)</li>
+</ul>
+<p><strong>Example</strong></p>
+<p>Always skipping a command:</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      skip: true
+      run: yarn lint
+</code></pre>
+<p>Skipping on merging and rebasing:</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      skip:
+        - merge
+        - rebase
+      run: yarn lint
+</code></pre>
+<p>Or</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      skip: merge
+      run: yarn lint
+</code></pre>
+<p>Skipping when your are on a merge commit:</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-push:
+  commands:
+    lint:
+      skip: merge-commit
+      run: yarn lint
+</code></pre>
+<p>Skipping the whole hook on <code>main</code> branch:</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  skip:
+    - ref: main
+  commands:
+    lint:
+      run: yarn lint
+    test:
+      run: yarn test
+</code></pre>
+<p>Skipping hook for all <code>dev/*</code> branches:</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  skip:
+    - ref: dev/*
+  commands:
+    lint:
+      run: yarn lint
+    test:
+      run: yarn test
+</code></pre>
+<p>Skipping hook by running a command:</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  skip:
+    - run: test "${NO_HOOK}" -eq 1
+  commands:
+    lint:
+      run: yarn lint
+    test:
+      run: yarn test
+</code></pre>
+<blockquote>
+<p>TIP</p>
+<p>Always skipping is useful when you have a <code>lefthook-local.yml</code> config and you don't want to run some commands locally. So you just overwrite the <code>skip</code> option for them to be <code>true</code>.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      run: yarn lint
+</code></pre>
+<pre><code class="language-yml"># lefthook-local.yml
+
+pre-commit:
+  commands:
+    lint:
+      skip: true
+</code></pre>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="only-3"><a class="header" href="#only-3"><code>only</code></a></h2>
+<p>You can force a command, script, or the whole hook to execute only in certain conditions. This option acts like the opposite of <a href="configuration/./skip.html"><code>skip</code></a>. It accepts the same values but skips execution only if the condition is not satisfied.</p>
+<blockquote>
+<p><strong>Note:</strong> <code>skip</code> option takes precedence over <code>only</code> option, so if you have conflicting conditions the execution will be skipped.</p>
+</blockquote>
+<p><strong>Example</strong></p>
+<p>Execute a hook only for <code>dev/*</code> branches.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  only:
+    - ref: dev/*
+  commands:
+    lint:
+      run: yarn lint
+    test:
+      run: yarn test
+</code></pre>
+<p>When rebasing execute quick linter but skip usual linter and tests.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      skip: rebase
+      run: yarn lint
+    test:
+      skip: rebase
+      run: yarn test
+    lint-on-rebase:
+      only: rebase
+      run: yarn lint-quickly
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="tags-2"><a class="header" href="#tags-2"><code>tags</code></a></h2>
+<p>You can specify tags for commands and scripts. This is useful for <a href="configuration/./exclude_tags.html">excluding</a>. You can specify more than one tag using comma.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      tags:
+        - frontend
+        - js
+      run: yarn lint
+    test:
+      tags:
+        - backend
+        - ruby
+      run: bundle exec rspec
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="env-2"><a class="header" href="#env-2"><code>env</code></a></h2>
+<p>You can specify some ENV variables for the command or script.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    test:
+      env:
+        RAILS_ENV: test
+      run: bundle exec rspec
+</code></pre>
+<h4 id="extending-path-2"><a class="header" href="#extending-path-2">Extending PATH</a></h4>
+<p>If your hook is run by GUI program, and you use some PATH tweaks in your ~/.<shell>rc, you might see an error saying <em>executable not found</em>. In that case You can extend the <strong>$PATH</strong> variable with <code>lefthook-local.yml</code> configuration the following way.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    test:
+      run: yarn test
+</code></pre>
+<pre><code class="language-yml"># lefthook-local.yml
+
+pre-commit:
+  commands:
+    test:
+      env:
+        PATH: $PATH:/home/me/path/to/yarn
+</code></pre>
+<p><strong>Notes</strong></p>
+<p>This option is useful when using lefthook on different OSes or shells where ENV variables are set in different ways.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="fail_text-2"><a class="header" href="#fail_text-2"><code>fail_text</code></a></h2>
+<p>You can specify a text to show when the command or script fails.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      run: yarn lint
+      fail_text: Add node executable to $PATH
+</code></pre>
+<pre><code class="language-bash">$ git commit -m 'fix: Some bug'
+
+Lefthook v1.1.3
+RUNNING HOOK: pre-commit
+
+  EXECUTE &gt; lint
+
+SUMMARY: (done in 0.01 seconds)
+🥊  lint: Add node executable to $PATH env
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="stage_fixed-2"><a class="header" href="#stage_fixed-2"><code>stage_fixed</code></a></h2>
+<p><strong>Default: <code>false</code></strong></p>
+<blockquote>
+<p>Works <strong>only for <code>pre-commit</code></strong> hook</p>
+</blockquote>
+<p>When set to <code>true</code> lefthook will automatically call <code>git add</code> on files after running the command or script. For a command if <a href="configuration/./files.html"><code>files</code></a> option was specified, the specified command will be used to retrieve files for <code>git add</code>. For scripts and commands without <a href="configuration/./files.html"><code>files</code></a> option <code>{staged_files}</code> template will be used. All filters (<a href="configuration/./glob.html"><code>glob</code></a>, <a href="configuration/./exclude.html"><code>exclude</code></a>) will be applied if specified.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      run: npm run lint --fix {staged_files}
+      stage_fixed: true
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="interactive-2"><a class="header" href="#interactive-2"><code>interactive</code></a></h2>
+<p><strong>Default: <code>false</code></strong></p>
+<blockquote>
+<p><strong>Note:</strong> If you want to pass stdin to your command or script but don't need to get the input from CLI, use <a href="configuration/./use_stdin.html"><code>use_stdin</code></a> option instead.</p>
+</blockquote>
+<p>Whether to use interactive mode. This applies the certain behavior:</p>
+<ul>
+<li>All <code>interactive</code> commands/scripts are executed after non-interactive. Exception: <a href="configuration/./piped.html"><code>piped</code></a> option is set to <code>true</code>.</li>
+<li>When executing, lefthook tries to open /dev/tty (Linux/Unix only) and use it as stdin.</li>
+<li>When <a href="configuration/./no_tty.html"><code>no_tty</code></a> option is set, <code>interactive</code> is ignored.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="use_stdin-2"><a class="header" href="#use_stdin-2"><code>use_stdin</code></a></h2>
+<blockquote>
+<p><strong>Note:</strong> With many commands or scripts having <code>use_stdin: true</code>, only one will receive the data. The others will have nothing. If you need to pass the data from stdin to every command or script, please, submit a <a href="https://github.com/evilmartians/lefthook/issues/new?assignees=&amp;labels=feature+request&amp;projects=&amp;template=feature_request.md">feature request</a>.</p>
+</blockquote>
+<p>Pass the stdin from the OS to the command/script.</p>
+<p><strong>Example</strong></p>
+<p>Use this option for the <code>pre-push</code> hook when you have a script that does <code>while read ...</code>. Without this option lefthook will hang: lefthook uses <a href="https://github.com/creack/pty">pseudo TTY</a> by default, and it doesn't close stdin when all data is read.</p>
+<pre><code class="language-bash"># .lefthook/pre-push/do-the-magic.sh
+
+remote="$1"
+url="$2"
+
+while read local_ref local_oid remote_ref remote_oid; do
+  # ...
+done
+</code></pre>
+<pre><code class="language-yml"># lefthook.yml
+pre-push:
+  scripts:
+    "do-the-magic.sh":
+      runner: bash
+      use_stdin: true
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="priority-1"><a class="header" href="#priority-1"><code>priority</code></a></h2>
 <p><strong>Default: <code>0</code></strong></p>
 <blockquote>
@@ -2153,20 +2931,9 @@ post-checkout:
 
 pre-commit:
   commands:
-    lint-frontend:
-      run: yarn lint
-      glob: ".{ts,tsx}"
-    lint-backend:
+    lint:
       run: bundle exec rubocop {staged_files}
       glob: "*.rb"
-    test-frontend:
-      run: yarn test
-      glob: "*.tsx"
-    test-backend:
-      run: bundle exec rspec
-      glob: "spec/*"
-    check-typos:
-      run: typos {staged_files}
     check-links:
       run: lychee {staged_files}
 </code></pre>
@@ -2175,10 +2942,8 @@ pre-commit:
 pre-commit:
   parallel: true # run all commands concurrently
   commands:
-    lint-backend:
+    lint:
       run: docker-compose run backend {cmd} # wrap the original command with docker-compose
-    test-backend:
-      run: docker-compose run backend {cmd}
     check-links:
       skip: true # skip checking links
 
@@ -2196,23 +2961,12 @@ post-merge:
 pre-commit:
   parallel: true
   commands:
-    lint-frontend:
-      run: yarn lint
-      glob: "*.{ts,tsx}"
-    lint-backend:
+    lint:
       run: docker-compose run backend bundle exec rubocop {staged_files}
       glob: "*.rb"
-    test-frontend:
-      run: yarn test
-      glob: "*.tsx"
-    test-backend:
-      run: docker-compose run backend bundle exec rspec
-      glob: "spec/*"
     check-links:
       run: lychee {staged_files}
       skip: true
-    check-typos:
-      run: typos {staged_files}
 
 post-merge:
   files: "git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD"

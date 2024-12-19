@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>run - Lefthook Documentation</title>
+        <title>group - Lefthook Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -155,141 +155,43 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="run"><a class="header" href="#run"><code>run</code></a></h2>
-<p>This is a mandatory option for a command. This is actually a command that is executed for the hook.</p>
-<p>You can use files templates that will be substituted with the appropriate files on execution:</p>
+                        <h2 id="group"><a class="header" href="#group"><code>group</code></a></h2>
+<p>Specifies a group of jobs and option to run them with.</p>
 <ul>
-<li><code>{files}</code> - custom <a href="./files.html"><code>files</code></a> command result.</li>
-<li><code>{staged_files}</code> - staged files which you try to commit.</li>
-<li><code>{push_files}</code> - files that are committed but not pushed.</li>
-<li><code>{all_files}</code> - all files tracked by git.</li>
-<li><code>{cmd}</code> - shorthand for the command from <code>lefthook.yml</code>.</li>
-<li><code>{0}</code> - shorthand for the single space-joint string of git hook arguments.</li>
-<li><code>{N}</code> - shorthand for the N-th git hook argument.</li>
+<li><a href="./parallel.html"><code>parallel</code></a></li>
+<li><a href="./piped.html"><code>piped</code></a></li>
+<li><a href="./jobs.html"><code>jobs</code></a></li>
 </ul>
-<p><strong>Example</strong></p>
-<p>Run <code>yarn lint</code> on <code>pre-commit</code> hook.</p>
+<h3 id="example"><a class="header" href="#example">Example</a></h3>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
-  commands:
-    lint:
-      run: yarn lint
+  jobs:
+    - group:
+        parallel: true
+        jobs:
+          - run: echo hello from a group
 </code></pre>
-<h4 id="files-template"><a class="header" href="#files-template"><code>{files}</code> template</a></h4>
-<p>Run <code>go vet</code> only on files listed with <code>git ls-files -m</code> command with <code>.go</code> extension.</p>
-<pre><code class="language-yml"># lefthook.yml
-
-pre-commit:
-  commands:
-    govet:
-      files: git ls-files -m
-      glob: "*.go"
-      run: go vet {files}
-</code></pre>
-<h4 id="staged_files-template"><a class="header" href="#staged_files-template"><code>{staged_files}</code> template</a></h4>
-<p>Run <code>yarn eslint</code> only on staged files with <code>.js</code>, <code>.ts</code>, <code>.jsx</code>, and <code>.tsx</code> extensions.</p>
-<pre><code class="language-yml"># lefthook.yml
-
-pre-commit:
-  commands:
-    eslint:
-      glob: "*.{js,ts,jsx,tsx}"
-      run: yarn eslint {staged_files}
-</code></pre>
-<h4 id="push_files-template"><a class="header" href="#push_files-template"><code>{push_files}</code> template</a></h4>
-<p>If you want to lint files only before pushing them.</p>
-<pre><code class="language-yml"># lefthook.yml
-
-pre-push:
-  commands:
-    eslint:
-      glob: "*.{js,ts,jsx,tsx}"
-      run: yarn eslint {push_files}
-</code></pre>
-<h4 id="all_files-template"><a class="header" href="#all_files-template"><code>{all_files}</code> template</a></h4>
-<p>Simply run <code>bundle exec rubocop</code> on all files with <code>.rb</code> extension excluding <code>application.rb</code> and <code>routes.rb</code> files.</p>
 <blockquote>
-<p><strong>Note:</strong> <code>--force-exclusion</code> will apply <code>Exclude</code> configuration setting of Rubocop</p>
+<p><strong>Note:</strong> To make a group mergeable with settings defined in local config or extends you have to specify the name of the job group belongs to:</p>
+<pre><code class="language-yml">pre-commit:
+  jobs:
+    - name: a name of a group
+      group:
+        jobs:
+          - run: echo from a group job
+</code></pre>
 </blockquote>
-<pre><code class="language-yml"># lefthook.yml
-
-pre-commit:
-  commands:
-    rubocop:
-      tags:
-        - backend
-        - style
-      glob: "*.rb"
-      exclude:
-        - config/application.rb
-        - config/routes.rb
-      run: bundle exec rubocop --force-exclusion {all_files}
-</code></pre>
-<h4 id="cmd-template"><a class="header" href="#cmd-template"><code>{cmd}</code> template</a></h4>
-<pre><code class="language-yml"># lefthook.yml
-
-pre-commit:
-  commands:
-    lint:
-      run: yarn lint
-  scripts:
-    "good_job.js":
-      runner: node
-</code></pre>
-<p>You can wrap it in docker runner locally:</p>
-<pre><code class="language-yml"># lefthook-local.yml
-
-pre-commit:
-  commands:
-    lint:
-      run: docker run -it --rm &lt;container_id_or_name&gt; {cmd}
-  scripts:
-    "good_job.js":
-      runner: docker run -it --rm &lt;container_id_or_name&gt; {cmd}
-</code></pre>
-<h4 id="git-arguments"><a class="header" href="#git-arguments">Git arguments</a></h4>
-<p>Make sure commits are signed.</p>
-<pre><code class="language-yml"># lefthook.yml
-
-# Note: commit-msg hook takes a single parameter,
-#       the name of the file that holds the proposed commit log message.
-# Source: https://git-scm.com/docs/githooks#_commit_msg
-commit-msg:
-  commands:
-    multiple-sign-off:
-      run: 'test $(grep -c "^Signed-off-by: " {1}) -lt 2'
-</code></pre>
-<h4 id="rubocop"><a class="header" href="#rubocop">Rubocop</a></h4>
-<p>If using <code>{all_files}</code> with RuboCop, it will ignore RuboCop's <code>Exclude</code> configuration setting. To avoid this, pass <code>--force-exclusion</code>.</p>
-<h4 id="quotes"><a class="header" href="#quotes">Quotes</a></h4>
-<p>If you want to have all your files quoted with double quotes <code>"</code> or single quotes <code>'</code>, quote the appropriate shorthand:</p>
-<pre><code class="language-yml"># lefthook.yml
-
-pre-commit:
-  commands:
-    lint:
-      glob: "*.js"
-      # Quoting with double quotes `"` might be helpful for Windows users
-      run: yarn eslint "{staged_files}" # will run `yarn eslint "file1.js" "file2.js" "[strange name].js"`
-    test:
-      glob: "*.{spec.js}"
-      run: yarn test '{staged_files}' # will run `yarn eslint 'file1.spec.js' 'file2.spec.js' '[strange name].spec.js'`
-    format:
-      glob: "*.js"
-      # Will quote where needed with single quotes
-      run: yarn test {staged_files} # will run `yarn eslint file1.js file2.js '[strange name].spec.js'`
-</code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../configuration/name.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../configuration/runner.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../configuration/script.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../configuration/parallel.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -299,11 +201,11 @@ pre-commit:
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../configuration/name.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../configuration/runner.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../configuration/script.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../configuration/parallel.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

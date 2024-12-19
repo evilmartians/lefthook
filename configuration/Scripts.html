@@ -171,7 +171,20 @@ pre-commit:
 </code></pre>
 </li>
 </ol>
-<p><strong>Example</strong></p>
+<h3 id="script-options"><a class="header" href="#script-options">Script options</a></h3>
+<ul>
+<li><a href="./runner.html"><code>runner</code></a></li>
+<li><a href="./skip.html"><code>skip</code></a></li>
+<li><a href="./only.html"><code>only</code></a></li>
+<li><a href="./tags.html"><code>tags</code></a></li>
+<li><a href="./env.html"><code>env</code></a></li>
+<li><a href="./fail_text.html"><code>fail_text</code></a></li>
+<li><a href="./stage_fixed.html"><code>stage_fixed</code></a></li>
+<li><a href="./interactive.html"><code>interactive</code></a></li>
+<li><a href="./use_stdin.html"><code>use_stdin</code></a></li>
+<li><a href="./priority.html"><code>priority</code></a></li>
+</ul>
+<h3 id="example"><a class="header" href="#example">Example</a></h3>
 <p>Let's create a bash script to check commit templates <code>.lefthook/commit-msg/template_checker</code>:</p>
 <pre><code class="language-bash">INPUT_FILE=$1
 START_LINE=`head -n1 $INPUT_FILE`
@@ -191,19 +204,6 @@ commit-msg:
       runner: bash
 </code></pre>
 <p>When you try to commit <code>git commit -m "bad commit text"</code> script <code>template_checker</code> will be executed. Since commit text doesn't match the described pattern the commit process will be interrupted.</p>
-<h3 id="script-options"><a class="header" href="#script-options">Script options</a></h3>
-<ul>
-<li><a href="./runner.html"><code>runner</code></a></li>
-<li><a href="./skip.html"><code>skip</code></a></li>
-<li><a href="./only.html"><code>only</code></a></li>
-<li><a href="./tags.html"><code>tags</code></a></li>
-<li><a href="./env.html"><code>env</code></a></li>
-<li><a href="./fail_text.html"><code>fail_text</code></a></li>
-<li><a href="./stage_fixed.html"><code>stage_fixed</code></a></li>
-<li><a href="./interactive.html"><code>interactive</code></a></li>
-<li><a href="./use_stdin.html"><code>use_stdin</code></a></li>
-<li><a href="./priority.html"><code>priority</code></a></li>
-</ul>
 
                     </main>
 
