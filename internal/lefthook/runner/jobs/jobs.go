@@ -1,4 +1,4 @@
-package action
+package jobs
 
 import (
 	"github.com/evilmartians/lefthook/internal/config"
@@ -28,12 +28,12 @@ type Params struct {
 	Skip      interface{}
 }
 
-type Action struct {
+type Job struct {
 	Execs []string
 	Files []string
 }
 
-func New(name string, params *Params) (*Action, error) {
+func New(name string, params *Params) (*Job, error) {
 	if params.skip() {
 		return nil, SkipError{"settings"}
 	}
@@ -47,18 +47,18 @@ func New(name string, params *Params) (*Action, error) {
 	}
 
 	var err error
-	var action *Action
+	var job *Job
 	if len(params.Run) != 0 {
-		action, err = buildCommand(params)
+		job, err = buildCommand(params)
 	} else {
-		action, err = buildScript(params)
+		job, err = buildScript(params)
 	}
 
 	if err != nil {
 		return nil, err
 	}
 
-	return action, nil
+	return job, nil
 }
 
 func (p *Params) skip() bool {

@@ -21,9 +21,9 @@ import (
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
-	"github.com/evilmartians/lefthook/internal/lefthook/runner/action"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/exec"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/filters"
+	"github.com/evilmartians/lefthook/internal/lefthook/runner/jobs"
 	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/evilmartians/lefthook/internal/system"
 )
@@ -332,7 +332,7 @@ func (r *Runner) runScripts(ctx context.Context, dir string) []Result {
 }
 
 func (r *Runner) runScript(ctx context.Context, script *config.Script, file os.FileInfo) Result {
-	scriptAction, err := action.New(file.Name(), &action.Params{
+	job, err := jobs.New(file.Name(), &jobs.Params{
 		Repo:       r.Repo,
 		Hook:       r.Hook,
 		HookName:   r.HookName,
@@ -349,7 +349,7 @@ func (r *Runner) runScript(ctx context.Context, script *config.Script, file os.F
 	if err != nil {
 		r.logSkip(file.Name(), err.Error())
 
-		var skipErr action.SkipError
+		var skipErr jobs.SkipError
 		if errors.As(err, &skipErr) {
 			return skipped(file.Name())
 		}
@@ -366,7 +366,7 @@ func (r *Runner) runScript(ctx context.Context, script *config.Script, file os.F
 	ok := r.run(ctx, exec.Options{
 		Name:        file.Name(),
 		Root:        r.Repo.RootPath,
-		Commands:    scriptAction.Execs,
+		Commands:    job.Execs,
 		Interactive: script.Interactive && !r.DisableTTY,
 		UseStdin:    script.UseStdin,
 		Env:         script.Env,
@@ -450,7 +450,7 @@ func (r *Runner) runCommands(ctx context.Context) []Result {
 }
 
 func (r *Runner) runCommand(ctx context.Context, name string, command *config.Command) Result {
-	runAction, err := action.New(name, &action.Params{
+	job, err := jobs.New(name, &jobs.Params{
 		Repo:       r.Repo,
 		Hook:       r.Hook,
 		HookName:   r.HookName,
@@ -470,7 +470,7 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 	if err != nil {
 		r.logSkip(name, err.Error())
 
-		var skipErr action.SkipError
+		var skipErr jobs.SkipError
 		if errors.As(err, &skipErr) {
 			return skipped(name)
 		}
@@ -487,7 +487,7 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 	ok := r.run(ctx, exec.Options{
 		Name:        name,
 		Root:        filepath.Join(r.Repo.RootPath, command.Root),
-		Commands:    runAction.Execs,
+		Commands:    job.Execs,
 		Interactive: command.Interactive && !r.DisableTTY,
 		UseStdin:    command.UseStdin,
 		Env:         command.Env,
@@ -501,7 +501,7 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 	result := succeeded(name)
 
 	if config.HookUsesStagedFiles(r.HookName) && command.StageFixed {
-		files := runAction.Files
+		files := job.Files
 
 		if len(files) == 0 {
 			var err error
