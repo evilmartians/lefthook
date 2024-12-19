@@ -7,6 +7,7 @@ title = "Lefthook Documentation"
 
 [output.html]
 no-section-label = true
+git-repository-url = "https://github.com/evilmartians/lefthook"
 
 [output.html.fold]
 enable = true
