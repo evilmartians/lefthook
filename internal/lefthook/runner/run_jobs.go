@@ -98,6 +98,8 @@ func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *con
 func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, act *config.Job) Result {
 	name := act.PrintableName(id)
 
+	root := first(act.Root, domain.root)
+	glob := first(act.Glob, domain.glob)
 	runAction, err := action.New(name, &action.Params{
 		Repo:       r.Repo,
 		Hook:       r.Hook,
@@ -107,10 +109,10 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, ac
 		SourceDirs: r.SourceDirs,
 		GitArgs:    r.GitArgs,
 		Run:        act.Run,
-		Root:       first(act.Root, domain.root),
+		Root:       root,
 		Runner:     act.Runner,
 		Script:     act.Script,
-		Glob:       first(act.Glob, domain.glob),
+		Glob:       glob,
 		Files:      act.Files,
 		FileTypes:  act.FileTypes,
 		Tags:       act.Tags,
@@ -156,16 +158,16 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, ac
 			}
 
 			files = filters.Apply(r.Repo.Fs, files, filters.Params{
-				Glob:      act.Glob,
-				Root:      act.Root,
+				Glob:      glob,
+				Root:      root,
 				Exclude:   act.Exclude,
 				FileTypes: act.FileTypes,
 			})
 		}
 
-		if len(act.Root) > 0 {
+		if len(root) > 0 {
 			for i, file := range files {
-				files[i] = filepath.Join(act.Root, file)
+				files[i] = filepath.Join(root, file)
 			}
 		}
 
