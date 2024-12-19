@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Use commitlint - Lefthook Documentation</title>
+        <title>lefthook-local.yml - Lefthook Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -152,61 +152,96 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="commitlint-and-commitzen"><a class="header" href="#commitlint-and-commitzen">Commitlint and commitzen</a></h2>
-<p>Use lefthook to generate commit messages using commitzen and validate them with commitlint.</p>
-<h2 id="install-dependencies"><a class="header" href="#install-dependencies">Install dependencies</a></h2>
-<pre><code class="language-bash">yarn add -D @commitlint/cli @commitlint/config-conventional
-
-# For commitzen
-yarn add -D commitizen cz-conventional-changelog
-</code></pre>
-<h2 id="configure"><a class="header" href="#configure">Configure</a></h2>
-<p>Setup <code>commitlint.config.js</code>. Conventional configuration:</p>
-<pre><code class="language-js">// commitlint.config.js
-
-module.exports = {extends: ['@commitlint/config-conventional']};
-</code></pre>
-<p>If you are using commitzen, make sure to add this in <code>package.json</code>:</p>
-<pre><code class="language-json">"config": {
-  "commitizen": {
-    "path": "./node_modules/cz-conventional-changelog"
-  }
-}
-</code></pre>
-<p>Configure lefthook:</p>
+                        <h2 id="lefthook-localyml"><a class="header" href="#lefthook-localyml">lefthook-local.yml</a></h2>
+<p><code>lefthook-local.yml</code> overrides and extends the configuration of your main <code>lefthook.yml</code> (or <code>lefthook.toml</code>, <a href="../configuration">etc.</a>) file.</p>
+<blockquote>
+<p><strong>Tip:</strong> You can put <code>lefthook-local.yml</code> into your <code>~/.gitignore</code>, so in every project you can have your local-only overrides.</p>
+</blockquote>
+<p><em>Special feature</em> of <code>lefthook-local.yml</code>: you can wrap the commands using <code>{cmd}</code> template.</p>
 <pre><code class="language-yml"># lefthook.yml
 
-# Build commit messages
-prepare-commit-msg:
+pre-commit:
   commands:
-    commitzen:
-      interactive: true
-      run: yarn run cz --hook # Or npx cz --hook
-      env:
-        LEFTHOOK: 0
-
-# Validate commit messages
-commit-msg:
-  commands:
-    "lint commit message":
-      run: yarn run commitlint --edit {1}
+    lint-frontend:
+      run: yarn lint
+      glob: ".{ts,tsx}"
+    lint-backend:
+      run: bundle exec rubocop {staged_files}
+      glob: "*.rb"
+    test-frontend:
+      run: yarn test
+      glob: "*.tsx"
+    test-backend:
+      run: bundle exec rspec
+      glob: "spec/*"
+    check-typos:
+      run: typos {staged_files}
+    check-links:
+      run: lychee {staged_files}
 </code></pre>
-<h2 id="test-it"><a class="header" href="#test-it">Test it</a></h2>
-<pre><code class="language-bash"># You can type it without message, if you are using commitzen
-git commit
+<pre><code class="language-yml"># lefthook-local.yml
 
-# Or provide a commit message is using only commitlint
-git commit -am 'fix: typo'
+pre-commit:
+  parallel: true # run all commands concurrently
+  commands:
+    lint-backend:
+      run: docker-compose run backend {cmd} # wrap the original command with docker-compose
+    test-backend:
+      run: docker-compose run backend {cmd}
+    check-links:
+      skip: true # skip checking links
+
+# Add another hook
+post-merge:
+  files: "git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD"
+  commands:
+    dependencies:
+      glob: "Gemfile*"
+      run: docker-compose run backend bundle install
+</code></pre>
+<hr />
+<pre><code class="language-yml"># The resulting config would look like this
+
+pre-commit:
+  parallel: true
+  commands:
+    lint-frontend:
+      run: yarn lint
+      glob: "*.{ts,tsx}"
+    lint-backend:
+      run: docker-compose run backend bundle exec rubocop {staged_files}
+      glob: "*.rb"
+    test-frontend:
+      run: yarn test
+      glob: "*.tsx"
+    test-backend:
+      run: docker-compose run backend bundle exec rspec
+      glob: "spec/*"
+    check-links:
+      run: lychee {staged_files}
+      skip: true
+    check-typos:
+      run: typos {staged_files}
+
+post-merge:
+  files: "git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD"
+  commands:
+    dependencies:
+      glob: "Gemfile*"
+      run: docker-compose run backend bundle install
 </code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../examples/remotes.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../examples/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
+                            <a rel="next prefetch" href="../examples/stage_fixed.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -214,10 +249,13 @@ git commit -am 'fix: typo'
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../examples/remotes.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../examples/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
+                    <a rel="next prefetch" href="../examples/stage_fixed.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
             </nav>
 
         </div>

@@ -268,11 +268,11 @@ sudo apk add lefthook
 <p>See all instructions: https://cloudsmith.io/~evilmartians/repos/lefthook/setup/#formats-alpine</p>
 <p><a href="https://cloudsmith.com" title="RPM package repository hosting is graciously provided by Cloudsmith"><img src="https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&amp;style=flat-square" alt="Hosted By: Cloudsmith" /></a></p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="aur-for-arch"><a class="header" href="#aur-for-arch">AUR for Arch</a></h2>
-<p>You can install lefthook <a href="https://aur.archlinux.org/packages/lefthook">package</a> from AUR.</p>
+<p><a href="https://aur.archlinux.org/packages/lefthook">AUR package</a></p>
 <pre><code class="language-sh">yay -S lefthook
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="manuall-installation-with-prebuilt-executable"><a class="header" href="#manuall-installation-with-prebuilt-executable">Manuall installation with prebuilt executable</a></h2>
-<p>Or take it from <a href="https://github.com/evilmartians/lefthook/releases">binaries</a> and install manually.</p>
+<p>Download from <a href="https://github.com/evilmartians/lefthook/releases">binaries</a> and install manually.</p>
 <ol>
 <li>Download the executable for your OS and Arch</li>
 <li>Put the executable under the $PATH (for unix systems)</li>
@@ -317,14 +317,12 @@ sudo apk add lefthook
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="commands"><a class="header" href="#commands">Commands</a></h2>
 <blockquote>
-<p><strong>tip</strong></p>
-<p>Use <code>lefthook help</code> or <code>lefthook &lt;command&gt; -h/--help</code> to discover available commands and their options</p>
+<p><strong>Tip:</strong> Use <code>lefthook help</code> or <code>lefthook &lt;command&gt; -h/--help</code> to discover available commands and their options</p>
 </blockquote>
 <h3 id="lefthook-install"><a class="header" href="#lefthook-install"><code>lefthook install</code></a></h3>
 <p><code>lefthook install</code> creates an empty <code>lefthook.yml</code> if a configuration file does not exist and updates git hooks to use lefthook. Run <code>lefthook install</code> after cloning the git repo.</p>
 <blockquote>
-<p><strong>note</strong></p>
-<p>NPM package <code>lefthook</code> installs the hooks in a postinstall script automatically.</p>
+<p><strong>Note:</strong> NPM package <code>lefthook</code> installs the hooks in a postinstall script automatically</p>
 </blockquote>
 <h3 id="lefthook-uninstall"><a class="header" href="#lefthook-uninstall"><code>lefthook uninstall</code></a></h3>
 <p><code>lefthook uninstall</code> clears git hooks affected by lefthook. If you have lefthook installed as an NPM package you should remove it manually.</p>
@@ -391,7 +389,7 @@ $ lefthook run pre-commit --file file1.js --file file2.js
 <p><code>lefthook self-update</code> updates the binary with the latest lefthook release on Github. This command is available only if you install lefthook from sources or download the binary from the Github Releases. For other ways use package-specific commands to update lefthook.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="env-variables"><a class="header" href="#env-variables">ENV variables</a></h2>
 <blockquote>
-<p>ENV variables can be used to control lefthook behavior. Most of them have the alternative CLI or config options.</p>
+<p>ENV variables control some lefthook behavior. Most of them have the alternative CLI or config options.</p>
 </blockquote>
 <h3 id="lefthook"><a class="header" href="#lefthook"><code>LEFTHOOK</code></a></h3>
 <p>Use <code>LEFTHOOK=0 git ...</code> or <code>LEFTHOOK=false git ...</code> to disable lefthook when running git commands.</p>
@@ -515,7 +513,7 @@ SHA1=$3
 </code></pre>
 <h3 id="git-lfs-support"><a class="header" href="#git-lfs-support">Git LFS support</a></h3>
 <blockquote>
-<p>If git-lfs binary is not installed and not required in your project, LFS hooks won't be executed, and you won't be warned about it.</p>
+<p><strong>Note:</strong> If git-lfs binary is not installed and not required in your project, LFS hooks won't be executed, and you won't be warned about it.</p>
 </blockquote>
 <p>Lefthook runs LFS hooks internally for the following hooks:</p>
 <ul>
@@ -525,6 +523,7 @@ SHA1=$3
 <li>pre-push</li>
 </ul>
 <p>Errors are suppressed if git LFS is not required for the project. You can use <a href="usage/./env.html#lefthook_verbose"><code>LEFTHOOK_VERBOSE</code></a> ENV to make lefthook show git LFS output.</p>
+<p>To avoid using LFS set <a href="usage/../configuration/skip_lfs.html"><code>skip_lfs: true</code></a> in lefthook.yml or lefthook-local.yml</p>
 <h3 id="pass-stdin-to-a-command-or-script"><a class="header" href="#pass-stdin-to-a-command-or-script">Pass stdin to a command or script</a></h3>
 <p>When you need to read the data from stdin – specify <a href="usage/../configuration/use_stdin.html"><code>use_stdin: true</code></a>. This option is good when you write a command or script that receives data from git using stdin (for the <code>pre-push</code> hook, for example).</p>
 <h3 id="using-an-interactive-command-or-script"><a class="header" href="#using-an-interactive-command-or-script">Using an interactive command or script</a></h3>
@@ -555,6 +554,7 @@ SHA1=$3
 <li><a href="configuration/./source_dir.html"><code>source_dir</code></a></li>
 <li><a href="configuration/./source_dir_local.html"><code>source_dir_local</code></a></li>
 <li><a href="configuration/./rc.html"><code>rc</code></a></li>
+<li><a href="configuration/./skip_lfs.html"><code>skip_lfs</code></a></li>
 <li><a href="configuration/./remotes.html"><code>remotes</code></a>
 <ul>
 <li><a href="configuration/./git_url.html"><code>git_url</code></a></li>
@@ -564,7 +564,7 @@ SHA1=$3
 <li><a href="configuration/./configs.html"><code>configs</code></a></li>
 </ul>
 </li>
-<li><a href="configuration/./Hook.html">Git hook</a>
+<li><a href="configuration/./Hook.html">{Git hook name}</a> (e.g. <code>pre-commit</code>)
 <ul>
 <li><a href="configuration/./files-global.html"><code>files</code> (global)</a></li>
 <li><a href="configuration/./parallel.html"><code>parallel</code></a></li>
@@ -786,6 +786,19 @@ PATH=$PATH:$HOME/.nvm/versions/node/v15.14.0/bin
 $ lefthook install -f
 </code></pre>
 <p>Now any program that runs your hooks will have a tweaked PATH environment variable and will be able to get <code>nvm</code> :wink:</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="skip_lfs"><a class="header" href="#skip_lfs"><code>skip_lfs</code></a></h2>
+<p><strong>Default:</strong> <code>false</code></p>
+<p>Skip running LFS hooks even if it exists on your system.</p>
+<h3 id="example"><a class="header" href="#example">Example</a></h3>
+<pre><code class="language-yml"># lefthook.yml
+
+skip_lfs: true
+
+pre-push:
+  commands:
+    test:
+      run: yarn test
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="remotes"><a class="header" href="#remotes"><code>remotes</code></a></h2>
 <p>You can provide multiple remote configs if you want to share yours lefthook configurations across many projects. Lefthook will automatically download and merge configurations into your local <code>lefthook.yml</code>.</p>
 <p>You can use <a href="configuration/./extends.html"><code>extends</code></a> but the paths must be relative to the remote repository root.</p>
@@ -2127,64 +2140,83 @@ post-checkout:
 <li><a href="examples/./stage_fixed.html">Auto stage changed files</a></li>
 <li><a href="examples/./filters.html">Filter files</a></li>
 </ul>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="commitlint-and-commitzen"><a class="header" href="#commitlint-and-commitzen">Commitlint and commitzen</a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook-localyml"><a class="header" href="#lefthook-localyml">lefthook-local.yml</a></h2>
+<p><code>lefthook-local.yml</code> overrides and extends the configuration of your main <code>lefthook.yml</code> (or <code>lefthook.toml</code>, <a href="examples/../configuration">etc.</a>) file.</p>
 <blockquote>
-<p>Use lefthook to generate commit messages using commitzen and validate them with commitlint.</p>
+<p><strong>Tip:</strong> You can put <code>lefthook-local.yml</code> into your <code>~/.gitignore</code>, so in every project you can have your local-only overrides.</p>
 </blockquote>
-<h2 id="install-dependencies"><a class="header" href="#install-dependencies">Install dependencies</a></h2>
-<pre><code class="language-bash">yarn add -D @commitlint/cli @commitlint/config-conventional
-# If using commitzen
-yarn add -D commitizen cz-conventional-changelog
-</code></pre>
-<h2 id="configure"><a class="header" href="#configure">Configure</a></h2>
-<p>Setup <code>commitlint.config.js</code>. Conventional configuration:</p>
-<pre><code class="language-bash">echo "module.exports = {extends: ['@commitlint/config-conventional']};" &gt; commitlint.config.js
-</code></pre>
-<p>If you are using commitzen, make sure to add this in <code>package.json</code>:</p>
-<pre><code class="language-json">"config": {
-  "commitizen": {
-    "path": "./node_modules/cz-conventional-changelog"
-  }
-}
-</code></pre>
-<h2 id="test-it"><a class="header" href="#test-it">Test it</a></h2>
-<pre><code class="language-bash"># You can type it without message, if you are using commitzen
-git commit
-
-# Or provide a commit message is using only commitlint
-git commit -am 'fix: typo'
-</code></pre>
-<hr />
+<p><em>Special feature</em> of <code>lefthook-local.yml</code>: you can wrap the commands using <code>{cmd}</code> template.</p>
 <pre><code class="language-yml"># lefthook.yml
 
-# Use this to build commit messages
-prepare-commit-msg:
+pre-commit:
   commands:
-    commitzen:
-      interactive: true
-      run: yarn run cz --hook # Or npx cz --hook
-      env:
-        LEFTHOOK: 0
+    lint-frontend:
+      run: yarn lint
+      glob: ".{ts,tsx}"
+    lint-backend:
+      run: bundle exec rubocop {staged_files}
+      glob: "*.rb"
+    test-frontend:
+      run: yarn test
+      glob: "*.tsx"
+    test-backend:
+      run: bundle exec rspec
+      glob: "spec/*"
+    check-typos:
+      run: typos {staged_files}
+    check-links:
+      run: lychee {staged_files}
+</code></pre>
+<pre><code class="language-yml"># lefthook-local.yml
 
-# Use this to validate commit messages
-commit-msg:
+pre-commit:
+  parallel: true # run all commands concurrently
   commands:
-    "lint commit message":
-      run: yarn run commitlint --edit {1}
-</code></pre>
-<pre><code class="language-js"># commitlint.config.js
+    lint-backend:
+      run: docker-compose run backend {cmd} # wrap the original command with docker-compose
+    test-backend:
+      run: docker-compose run backend {cmd}
+    check-links:
+      skip: true # skip checking links
 
-module.exports = {extends: ['@commitlint/config-conventional']};
+# Add another hook
+post-merge:
+  files: "git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD"
+  commands:
+    dependencies:
+      glob: "Gemfile*"
+      run: docker-compose run backend bundle install
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="remotes-1"><a class="header" href="#remotes-1">Remotes</a></h2>
-<blockquote>
-<p>Use configurations from other Git repositories via <code>remotes</code> feature.</p>
-<p>Lefthook will automatically download the remote config files and merge them into existing configuration.</p>
-</blockquote>
-<pre><code class="language-yml">remotes:
-  - git_url: https://github.com/evilmartians/lefthook
-    configs:
-      - examples/remote/ping.yml
+<hr />
+<pre><code class="language-yml"># The resulting config would look like this
+
+pre-commit:
+  parallel: true
+  commands:
+    lint-frontend:
+      run: yarn lint
+      glob: "*.{ts,tsx}"
+    lint-backend:
+      run: docker-compose run backend bundle exec rubocop {staged_files}
+      glob: "*.rb"
+    test-frontend:
+      run: yarn test
+      glob: "*.tsx"
+    test-backend:
+      run: docker-compose run backend bundle exec rspec
+      glob: "spec/*"
+    check-links:
+      run: lychee {staged_files}
+      skip: true
+    check-typos:
+      run: typos {staged_files}
+
+post-merge:
+  files: "git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD"
+  commands:
+    dependencies:
+      glob: "Gemfile*"
+      run: docker-compose run backend bundle install
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="stage-fixed-files"><a class="header" href="#stage-fixed-files">Stage fixed files</a></h2>
 <blockquote>
@@ -2231,6 +2263,91 @@ frontend/README.md
 </code></pre>
 <p>After all filters applied the <code>lint</code> command will execute the following:</p>
 <pre><code class="language-bash">yarn lint frontend/src/index.ts --fix
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="skip-or-run-on-condition"><a class="header" href="#skip-or-run-on-condition">Skip or run on condition</a></h2>
+<p>Here are two hooks.</p>
+<p><code>pre-commit</code> hook will only be executed when you're committing something on a branch starting with <code>def/</code> prefix.</p>
+<p>In <code>pre-push</code> hook:</p>
+<ul>
+<li><code>test</code> command will be skipped if <code>NO_TEST</code> env variable is set to <code>1</code></li>
+<li><code>lint</code> command will only be executed if you're pushing the <code>main</code> branch</li>
+</ul>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  only:
+    - ref: dev/*
+  commands:
+    lint:
+      run: yarn lint {staged_files} --fix
+      glob: "*.{ts,js}"
+    test:
+      run: yarn test
+
+pre-push:
+  commands:
+    test:
+      run: yarn test
+      skip:
+        - run: test "$NO_TEST" -eq 1
+    lint:
+      run: yarn lint
+      only:
+        - ref: main
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="remotes-1"><a class="header" href="#remotes-1">Remotes</a></h2>
+<p>Use configurations from other Git repositories via <code>remotes</code> feature.</p>
+<p>Lefthook will automatically download the remote config files and merge them into existing configuration.</p>
+<pre><code class="language-yml">remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    configs:
+      - examples/remote/ping.yml
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="commitlint-and-commitzen"><a class="header" href="#commitlint-and-commitzen">Commitlint and commitzen</a></h2>
+<p>Use lefthook to generate commit messages using commitzen and validate them with commitlint.</p>
+<h2 id="install-dependencies"><a class="header" href="#install-dependencies">Install dependencies</a></h2>
+<pre><code class="language-bash">yarn add -D @commitlint/cli @commitlint/config-conventional
+
+# For commitzen
+yarn add -D commitizen cz-conventional-changelog
+</code></pre>
+<h2 id="configure"><a class="header" href="#configure">Configure</a></h2>
+<p>Setup <code>commitlint.config.js</code>. Conventional configuration:</p>
+<pre><code class="language-js">// commitlint.config.js
+
+module.exports = {extends: ['@commitlint/config-conventional']};
+</code></pre>
+<p>If you are using commitzen, make sure to add this in <code>package.json</code>:</p>
+<pre><code class="language-json">"config": {
+  "commitizen": {
+    "path": "./node_modules/cz-conventional-changelog"
+  }
+}
+</code></pre>
+<p>Configure lefthook:</p>
+<pre><code class="language-yml"># lefthook.yml
+
+# Build commit messages
+prepare-commit-msg:
+  commands:
+    commitzen:
+      interactive: true
+      run: yarn run cz --hook # Or npx cz --hook
+      env:
+        LEFTHOOK: 0
+
+# Validate commit messages
+commit-msg:
+  commands:
+    "lint commit message":
+      run: yarn run commitlint --edit {1}
+</code></pre>
+<h2 id="test-it"><a class="header" href="#test-it">Test it</a></h2>
+<pre><code class="language-bash"># You can type it without message, if you are using commitzen
+git commit
+
+# Or provide a commit message is using only commitlint
+git commit -am 'fix: typo'
 </code></pre>
 
                     </main>

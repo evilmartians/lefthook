@@ -234,7 +234,7 @@ SHA1=$3
 </code></pre>
 <h3 id="git-lfs-support"><a class="header" href="#git-lfs-support">Git LFS support</a></h3>
 <blockquote>
-<p>If git-lfs binary is not installed and not required in your project, LFS hooks won't be executed, and you won't be warned about it.</p>
+<p><strong>Note:</strong> If git-lfs binary is not installed and not required in your project, LFS hooks won't be executed, and you won't be warned about it.</p>
 </blockquote>
 <p>Lefthook runs LFS hooks internally for the following hooks:</p>
 <ul>
@@ -244,6 +244,7 @@ SHA1=$3
 <li>pre-push</li>
 </ul>
 <p>Errors are suppressed if git LFS is not required for the project. You can use <a href="./env.html#lefthook_verbose"><code>LEFTHOOK_VERBOSE</code></a> ENV to make lefthook show git LFS output.</p>
+<p>To avoid using LFS set <a href="../configuration/skip_lfs.html"><code>skip_lfs: true</code></a> in lefthook.yml or lefthook-local.yml</p>
 <h3 id="pass-stdin-to-a-command-or-script"><a class="header" href="#pass-stdin-to-a-command-or-script">Pass stdin to a command or script</a></h3>
 <p>When you need to read the data from stdin – specify <a href="../configuration/use_stdin.html"><code>use_stdin: true</code></a>. This option is good when you write a command or script that receives data from git using stdin (for the <code>pre-push</code> hook, for example).</p>
 <h3 id="using-an-interactive-command-or-script"><a class="header" href="#using-an-interactive-command-or-script">Using an interactive command or script</a></h3>

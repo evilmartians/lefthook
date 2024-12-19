@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Use commitlint - Lefthook Documentation</title>
+        <title>skip_lfs - Lefthook Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -152,61 +152,31 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="commitlint-and-commitzen"><a class="header" href="#commitlint-and-commitzen">Commitlint and commitzen</a></h2>
-<p>Use lefthook to generate commit messages using commitzen and validate them with commitlint.</p>
-<h2 id="install-dependencies"><a class="header" href="#install-dependencies">Install dependencies</a></h2>
-<pre><code class="language-bash">yarn add -D @commitlint/cli @commitlint/config-conventional
-
-# For commitzen
-yarn add -D commitizen cz-conventional-changelog
-</code></pre>
-<h2 id="configure"><a class="header" href="#configure">Configure</a></h2>
-<p>Setup <code>commitlint.config.js</code>. Conventional configuration:</p>
-<pre><code class="language-js">// commitlint.config.js
-
-module.exports = {extends: ['@commitlint/config-conventional']};
-</code></pre>
-<p>If you are using commitzen, make sure to add this in <code>package.json</code>:</p>
-<pre><code class="language-json">"config": {
-  "commitizen": {
-    "path": "./node_modules/cz-conventional-changelog"
-  }
-}
-</code></pre>
-<p>Configure lefthook:</p>
+                        <h2 id="skip_lfs"><a class="header" href="#skip_lfs"><code>skip_lfs</code></a></h2>
+<p><strong>Default:</strong> <code>false</code></p>
+<p>Skip running LFS hooks even if it exists on your system.</p>
+<h3 id="example"><a class="header" href="#example">Example</a></h3>
 <pre><code class="language-yml"># lefthook.yml
 
-# Build commit messages
-prepare-commit-msg:
-  commands:
-    commitzen:
-      interactive: true
-      run: yarn run cz --hook # Or npx cz --hook
-      env:
-        LEFTHOOK: 0
+skip_lfs: true
 
-# Validate commit messages
-commit-msg:
+pre-push:
   commands:
-    "lint commit message":
-      run: yarn run commitlint --edit {1}
-</code></pre>
-<h2 id="test-it"><a class="header" href="#test-it">Test it</a></h2>
-<pre><code class="language-bash"># You can type it without message, if you are using commitzen
-git commit
-
-# Or provide a commit message is using only commitlint
-git commit -am 'fix: typo'
+    test:
+      run: yarn test
 </code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../examples/remotes.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../configuration/rc.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
+                            <a rel="next prefetch" href="../configuration/remotes.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -214,10 +184,13 @@ git commit -am 'fix: typo'
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../examples/remotes.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../configuration/rc.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
+                    <a rel="next prefetch" href="../configuration/remotes.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
             </nav>
 
         </div>
