@@ -1,6 +1,6 @@
 ## `jobs`
 
-Jobs provide a flexible way to define tasks, supporting both commands and scripts. Jobs can be grouped which provides advanced flow control.
+Jobs provide a flexible way to define tasks, supporting both commands and scripts. Jobs can be grouped for advanced flow control.
 
 ### Basic example
 
