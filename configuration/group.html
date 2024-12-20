@@ -156,11 +156,11 @@
                 <div id="content" class="content">
                     <main>
                         <h2 id="group"><a class="header" href="#group"><code>group</code></a></h2>
-<p>Specifies a group of jobs and option to run them with.</p>
+<p>You can define a group of jobs and configure how they should execute using the following options:</p>
 <ul>
-<li><a href="./parallel.html"><code>parallel</code></a></li>
-<li><a href="./piped.html"><code>piped</code></a></li>
-<li><a href="./jobs.html"><code>jobs</code></a></li>
+<li><a href="./parallel.html"><code>parallel</code></a>: Executes all jobs in the group simultaneously.</li>
+<li><a href="./piped.html"><code>piped</code></a>: Executes jobs sequentially, passing output between them.</li>
+<li><a href="./jobs.html"><code>jobs</code></a>: Specifies the jobs within the group.</li>
 </ul>
 <h3 id="example"><a class="header" href="#example">Example</a></h3>
 <pre><code class="language-yml"># lefthook.yml
@@ -170,7 +170,9 @@ pre-commit:
     - group:
         parallel: true
         jobs:
-          - run: echo hello from a group
+          - run: echo 1
+          - run: echo 2
+          - run: echo 3
 </code></pre>
 <blockquote>
 <p><strong>Note:</strong> To make a group mergeable with settings defined in local config or extends you have to specify the name of the job group belongs to:</p>
@@ -179,7 +181,10 @@ pre-commit:
     - name: a name of a group
       group:
         jobs:
-          - run: echo from a group job
+          - name: lint
+            run: yarn lint
+          - name: test
+            run: yarn test
 </code></pre>
 </blockquote>
 

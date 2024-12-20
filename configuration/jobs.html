@@ -156,7 +156,9 @@
                 <div id="content" class="content">
                     <main>
                         <h2 id="jobs"><a class="header" href="#jobs"><code>jobs</code></a></h2>
-<p>Job can either be a command or a script. Configuring <code>jobs</code> is more flexible than configuring <code>commands</code> and <code>scripts</code>, although all options are supported now.</p>
+<p>Jobs provide a flexible way to define tasks, supporting both commands and scripts. Jobs can be grouped which provides advanced flow control.</p>
+<h3 id="basic-example"><a class="header" href="#basic-example">Basic example</a></h3>
+<p>Define jobs in your <code>lefthook.yml</code> file under a specific hook like <code>pre-commit</code>:</p>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
@@ -164,12 +166,19 @@ pre-commit:
     - run: yarn lint
     - run: yarn test
 </code></pre>
-<p>This is how jobs configuration differ from commands and scripts:</p>
+<h3 id="differences-from-commands-and-scripts"><a class="header" href="#differences-from-commands-and-scripts">Differences from Commands and Scripts</a></h3>
+<p><strong>Optional Job Names</strong></p>
 <ul>
-<li>Jobs have optional names. Lefthook merges named jobs across <a href="./extends.html">extends</a> and <a href="../examples/lefthook-local.html">local configs</a>. Unnamed jobs get appended in the definition order.</li>
-<li>Jobs can have groups of other jobs. For groups you can specify <a href="./parallel.html"><code>parallel</code></a> or <a href="./piped.html"><code>piped</code></a> flow for a bunch of jobs. Also <a href="./glob.html"><code>glob</code></a> and <a href="./root.html"><code>root</code></a> parameters of a group apply to all its jobs (even nested).</li>
+<li>Named jobs are merged across <a href="./extends.html"><code>extends</code></a> and local config.</li>
+<li>Unnamed jobs are appended in the order of their definition.</li>
+</ul>
+<p><strong>Job Groups</strong></p>
+<ul>
+<li>Groups can include other jobs.</li>
+<li>Flow within groups can be parallel or piped. Options like <code>glob</code> and <code>root</code> apply to all jobs in the group, including nested ones.</li>
 </ul>
 <h3 id="job-options"><a class="header" href="#job-options">Job options</a></h3>
+<p>Below are the available options for configuring jobs.</p>
 <ul>
 <li><a href="./name.html"><code>name</code></a></li>
 <li><a href="./run.html"><code>run</code></a></li>
@@ -198,9 +207,9 @@ pre-commit:
 </ul>
 <h3 id="example"><a class="header" href="#example">Example</a></h3>
 <blockquote>
-<p><strong>Note:</strong> Currently only <code>root</code> and <code>glob</code> options are applied to group jobs. Other options must be set for each job separately. If you find this inconvenient, please submit a <a href="https://github.com/evilmartians/lefthook/issues/new?assignees=&amp;labels=feature+request&amp;projects=&amp;template=feature_request.md">feature request</a>.</p>
+<p><strong>Note:</strong> Currently, only root and glob options are applied to group jobs. Other options must be set for each job individually. Submit a <a href="https://github.com/evilmartians/lefthook/issues/new?assignees=&amp;labels=feature+request&amp;projects=&amp;template=feature_request.md">feature request</a> if this limits your workflow.</p>
 </blockquote>
-<p>A simple configuration with one piped group which executes in parallel with other jobs.</p>
+<p>A configuration demonstrating a piped group running in parallel with other jobs:</p>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
@@ -224,6 +233,7 @@ pre-commit:
     - script: verify.sh
       runner: bash
 </code></pre>
+<p>This configuration runs migrate jobs in a piped flow while other jobs execute in parallel.</p>
 
                     </main>
 

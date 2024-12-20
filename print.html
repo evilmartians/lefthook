@@ -912,6 +912,34 @@ remotes:
 <li><a href="configuration/./exclude_tags.html"><code>exclude_tags</code></a></li>
 <li><a href="configuration/./skip.html"><code>skip</code></a></li>
 <li><a href="configuration/./only.html"><code>only</code></a></li>
+<li><a href="configuration/./jobs.html"><code>jobs</code></a>
+<ul>
+<li><a href="configuration/./name.html"><code>name</code></a></li>
+<li><a href="configuration/./run.html"><code>run</code></a></li>
+<li><a href="configuration/./script.html"><code>script</code></a></li>
+<li><a href="configuration/./runner.html"><code>runner</code></a></li>
+<li><a href="configuration/./group.html"><code>group</code></a>
+<ul>
+<li><a href="configuration/./parallel.html"><code>parallel</code></a></li>
+<li><a href="configuration/./piped.html"><code>piped</code></a></li>
+<li><a href="configuration/./jobs.html"><code>jobs</code></a></li>
+</ul>
+</li>
+<li><a href="configuration/./skip.html"><code>skip</code></a></li>
+<li><a href="configuration/./only.html"><code>only</code></a></li>
+<li><a href="configuration/./tags.html"><code>tags</code></a></li>
+<li><a href="configuration/./glob.html"><code>glob</code></a></li>
+<li><a href="configuration/./files.html"><code>files</code></a></li>
+<li><a href="configuration/./file_types.html"><code>file_types</code></a></li>
+<li><a href="configuration/./env.html"><code>env</code></a></li>
+<li><a href="configuration/./root.html"><code>root</code></a></li>
+<li><a href="configuration/./exclude.html"><code>exclude</code></a></li>
+<li><a href="configuration/./fail_text.html"><code>fail_text</code></a></li>
+<li><a href="configuration/./stage_fixed.html"><code>stage_fixed</code></a></li>
+<li><a href="configuration/./interactive.html"><code>interactive</code></a></li>
+<li><a href="configuration/./use_stdin.html"><code>use_stdin</code></a></li>
+</ul>
+</li>
 <li><a href="configuration/./Commands.html"><code>commands</code></a>
 <ul>
 <li><a href="configuration/./run.html"><code>run</code></a></li>
@@ -1179,7 +1207,9 @@ pre-commit:
       run: yarn lint-quickly
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="jobs"><a class="header" href="#jobs"><code>jobs</code></a></h2>
-<p>Job can either be a command or a script. Configuring <code>jobs</code> is more flexible than configuring <code>commands</code> and <code>scripts</code>, although all options are supported now.</p>
+<p>Jobs provide a flexible way to define tasks, supporting both commands and scripts. Jobs can be grouped which provides advanced flow control.</p>
+<h3 id="basic-example"><a class="header" href="#basic-example">Basic example</a></h3>
+<p>Define jobs in your <code>lefthook.yml</code> file under a specific hook like <code>pre-commit</code>:</p>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
@@ -1187,12 +1217,19 @@ pre-commit:
     - run: yarn lint
     - run: yarn test
 </code></pre>
-<p>This is how jobs configuration differ from commands and scripts:</p>
+<h3 id="differences-from-commands-and-scripts"><a class="header" href="#differences-from-commands-and-scripts">Differences from Commands and Scripts</a></h3>
+<p><strong>Optional Job Names</strong></p>
 <ul>
-<li>Jobs have optional names. Lefthook merges named jobs across <a href="configuration/./extends.html">extends</a> and <a href="configuration/../examples/lefthook-local.html">local configs</a>. Unnamed jobs get appended in the definition order.</li>
-<li>Jobs can have groups of other jobs. For groups you can specify <a href="configuration/./parallel.html"><code>parallel</code></a> or <a href="configuration/./piped.html"><code>piped</code></a> flow for a bunch of jobs. Also <a href="configuration/./glob.html"><code>glob</code></a> and <a href="configuration/./root.html"><code>root</code></a> parameters of a group apply to all its jobs (even nested).</li>
+<li>Named jobs are merged across <a href="configuration/./extends.html"><code>extends</code></a> and local config.</li>
+<li>Unnamed jobs are appended in the order of their definition.</li>
+</ul>
+<p><strong>Job Groups</strong></p>
+<ul>
+<li>Groups can include other jobs.</li>
+<li>Flow within groups can be parallel or piped. Options like <code>glob</code> and <code>root</code> apply to all jobs in the group, including nested ones.</li>
 </ul>
 <h3 id="job-options"><a class="header" href="#job-options">Job options</a></h3>
+<p>Below are the available options for configuring jobs.</p>
 <ul>
 <li><a href="configuration/./name.html"><code>name</code></a></li>
 <li><a href="configuration/./run.html"><code>run</code></a></li>
@@ -1221,9 +1258,9 @@ pre-commit:
 </ul>
 <h3 id="example-1"><a class="header" href="#example-1">Example</a></h3>
 <blockquote>
-<p><strong>Note:</strong> Currently only <code>root</code> and <code>glob</code> options are applied to group jobs. Other options must be set for each job separately. If you find this inconvenient, please submit a <a href="https://github.com/evilmartians/lefthook/issues/new?assignees=&amp;labels=feature+request&amp;projects=&amp;template=feature_request.md">feature request</a>.</p>
+<p><strong>Note:</strong> Currently, only root and glob options are applied to group jobs. Other options must be set for each job individually. Submit a <a href="https://github.com/evilmartians/lefthook/issues/new?assignees=&amp;labels=feature+request&amp;projects=&amp;template=feature_request.md">feature request</a> if this limits your workflow.</p>
 </blockquote>
-<p>A simple configuration with one piped group which executes in parallel with other jobs.</p>
+<p>A configuration demonstrating a piped group running in parallel with other jobs:</p>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
@@ -1247,6 +1284,7 @@ pre-commit:
     - script: verify.sh
       runner: bash
 </code></pre>
+<p>This configuration runs migrate jobs in a piped flow while other jobs execute in parallel.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="name"><a class="header" href="#name"><code>name</code></a></h2>
 <p>Name of a job. Will be printed in summary. If specified, the jobs can be merged with a jobs of the same name in a <a href="configuration/../examples/lefthook-local.html">local config</a> or <a href="configuration/./extends.html">extends</a>.</p>
 <h3 id="example-2"><a class="header" href="#example-2">Example</a></h3>
@@ -1409,11 +1447,11 @@ pre-commit:
       runner: go run
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="group"><a class="header" href="#group"><code>group</code></a></h2>
-<p>Specifies a group of jobs and option to run them with.</p>
+<p>You can define a group of jobs and configure how they should execute using the following options:</p>
 <ul>
-<li><a href="configuration/./parallel.html"><code>parallel</code></a></li>
-<li><a href="configuration/./piped.html"><code>piped</code></a></li>
-<li><a href="configuration/./jobs.html"><code>jobs</code></a></li>
+<li><a href="configuration/./parallel.html"><code>parallel</code></a>: Executes all jobs in the group simultaneously.</li>
+<li><a href="configuration/./piped.html"><code>piped</code></a>: Executes jobs sequentially, passing output between them.</li>
+<li><a href="configuration/./jobs.html"><code>jobs</code></a>: Specifies the jobs within the group.</li>
 </ul>
 <h3 id="example-4"><a class="header" href="#example-4">Example</a></h3>
 <pre><code class="language-yml"># lefthook.yml
@@ -1423,7 +1461,9 @@ pre-commit:
     - group:
         parallel: true
         jobs:
-          - run: echo hello from a group
+          - run: echo 1
+          - run: echo 2
+          - run: echo 3
 </code></pre>
 <blockquote>
 <p><strong>Note:</strong> To make a group mergeable with settings defined in local config or extends you have to specify the name of the job group belongs to:</p>
@@ -1432,7 +1472,10 @@ pre-commit:
     - name: a name of a group
       group:
         jobs:
-          - run: echo from a group job
+          - name: lint
+            run: yarn lint
+          - name: test
+            run: yarn test
 </code></pre>
 </blockquote>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="parallel-1"><a class="header" href="#parallel-1"><code>parallel</code></a></h2>
@@ -1461,7 +1504,9 @@ database:
       run: rake db:seed
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="jobs-1"><a class="header" href="#jobs-1"><code>jobs</code></a></h2>
-<p>Job can either be a command or a script. Configuring <code>jobs</code> is more flexible than configuring <code>commands</code> and <code>scripts</code>, although all options are supported now.</p>
+<p>Jobs provide a flexible way to define tasks, supporting both commands and scripts. Jobs can be grouped which provides advanced flow control.</p>
+<h3 id="basic-example-1"><a class="header" href="#basic-example-1">Basic example</a></h3>
+<p>Define jobs in your <code>lefthook.yml</code> file under a specific hook like <code>pre-commit</code>:</p>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
@@ -1469,12 +1514,19 @@ pre-commit:
     - run: yarn lint
     - run: yarn test
 </code></pre>
-<p>This is how jobs configuration differ from commands and scripts:</p>
+<h3 id="differences-from-commands-and-scripts-1"><a class="header" href="#differences-from-commands-and-scripts-1">Differences from Commands and Scripts</a></h3>
+<p><strong>Optional Job Names</strong></p>
 <ul>
-<li>Jobs have optional names. Lefthook merges named jobs across <a href="configuration/./extends.html">extends</a> and <a href="configuration/../examples/lefthook-local.html">local configs</a>. Unnamed jobs get appended in the definition order.</li>
-<li>Jobs can have groups of other jobs. For groups you can specify <a href="configuration/./parallel.html"><code>parallel</code></a> or <a href="configuration/./piped.html"><code>piped</code></a> flow for a bunch of jobs. Also <a href="configuration/./glob.html"><code>glob</code></a> and <a href="configuration/./root.html"><code>root</code></a> parameters of a group apply to all its jobs (even nested).</li>
+<li>Named jobs are merged across <a href="configuration/./extends.html"><code>extends</code></a> and local config.</li>
+<li>Unnamed jobs are appended in the order of their definition.</li>
+</ul>
+<p><strong>Job Groups</strong></p>
+<ul>
+<li>Groups can include other jobs.</li>
+<li>Flow within groups can be parallel or piped. Options like <code>glob</code> and <code>root</code> apply to all jobs in the group, including nested ones.</li>
 </ul>
 <h3 id="job-options-1"><a class="header" href="#job-options-1">Job options</a></h3>
+<p>Below are the available options for configuring jobs.</p>
 <ul>
 <li><a href="configuration/./name.html"><code>name</code></a></li>
 <li><a href="configuration/./run.html"><code>run</code></a></li>
@@ -1503,9 +1555,9 @@ pre-commit:
 </ul>
 <h3 id="example-5"><a class="header" href="#example-5">Example</a></h3>
 <blockquote>
-<p><strong>Note:</strong> Currently only <code>root</code> and <code>glob</code> options are applied to group jobs. Other options must be set for each job separately. If you find this inconvenient, please submit a <a href="https://github.com/evilmartians/lefthook/issues/new?assignees=&amp;labels=feature+request&amp;projects=&amp;template=feature_request.md">feature request</a>.</p>
+<p><strong>Note:</strong> Currently, only root and glob options are applied to group jobs. Other options must be set for each job individually. Submit a <a href="https://github.com/evilmartians/lefthook/issues/new?assignees=&amp;labels=feature+request&amp;projects=&amp;template=feature_request.md">feature request</a> if this limits your workflow.</p>
 </blockquote>
-<p>A simple configuration with one piped group which executes in parallel with other jobs.</p>
+<p>A configuration demonstrating a piped group running in parallel with other jobs:</p>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
@@ -1529,6 +1581,7 @@ pre-commit:
     - script: verify.sh
       runner: bash
 </code></pre>
+<p>This configuration runs migrate jobs in a piped flow while other jobs execute in parallel.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="skip-1"><a class="header" href="#skip-1"><code>skip</code></a></h2>
 <p>You can skip all or specific commands and scripts using <code>skip</code> option. You can also skip when merging, rebasing, or being on a specific branch. Globs are available for branches.</p>
 <p>Possible skip values:</p>
