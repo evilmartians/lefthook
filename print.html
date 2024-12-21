@@ -1296,6 +1296,14 @@ pre-commit:
       run: yarn run eslint --fix {staged_files}
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="run"><a class="header" href="#run"><code>run</code></a></h2>
+<blockquote>
+<p><strong>Note:</strong> <code>run</code> command is treated differently on Unix-like systems (macOS, Linux) and Windows:</p>
+<ul>
+<li>*<strong>nix</strong>: commands get wrapped with <code>sh -c '&lt;run&gt;'</code></li>
+<li><strong>Windows</strong>: commands execute natively</li>
+</ul>
+<p>So, when on *nix systems you can use pipes, builtins of a Bourne Shell, etc. For Windows the capabilities are limited by a single command.</p>
+</blockquote>
 <p>This is a mandatory option for a command. This is actually a command that is executed for the hook.</p>
 <p>You can use files templates that will be substituted with the appropriate files on execution:</p>
 <ul>
@@ -1307,6 +1315,9 @@ pre-commit:
 <li><code>{0}</code> - shorthand for the single space-joint string of git hook arguments.</li>
 <li><code>{N}</code> - shorthand for the N-th git hook argument.</li>
 </ul>
+<blockquote>
+<p><strong>Note:</strong> Command line length has a limit on every system. If your list of files is quite long, lefthook splits your files list to fit in the limit and runs few commands sequentially.</p>
+</blockquote>
 <p><strong>Example</strong></p>
 <p>Run <code>yarn lint</code> on <code>pre-commit</code> hook.</p>
 <pre><code class="language-yml"># lefthook.yml
@@ -1419,6 +1430,17 @@ pre-commit:
       glob: "*.js"
       # Will quote where needed with single quotes
       run: yarn test {staged_files} # will run `yarn eslint file1.js file2.js '[strange name].spec.js'`
+</code></pre>
+<h4 id="scripts"><a class="header" href="#scripts">Scripts</a></h4>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  jobs:
+    - name: a whole script in a run
+      run: |
+        for file in $(ls .); do
+          yarn lint $file
+        done
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="script"><a class="header" href="#script"><code>script</code></a></h2>
 <p>Name of a script to execute. The rules are the same as for <a href="configuration/./Scripts.html"><code>scripts</code></a></p>
@@ -2038,6 +2060,14 @@ pre-commit:
 <li><a href="configuration/./priority.html"><code>priority</code></a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="run-1"><a class="header" href="#run-1"><code>run</code></a></h2>
+<blockquote>
+<p><strong>Note:</strong> <code>run</code> command is treated differently on Unix-like systems (macOS, Linux) and Windows:</p>
+<ul>
+<li>*<strong>nix</strong>: commands get wrapped with <code>sh -c '&lt;run&gt;'</code></li>
+<li><strong>Windows</strong>: commands execute natively</li>
+</ul>
+<p>So, when on *nix systems you can use pipes, builtins of a Bourne Shell, etc. For Windows the capabilities are limited by a single command.</p>
+</blockquote>
 <p>This is a mandatory option for a command. This is actually a command that is executed for the hook.</p>
 <p>You can use files templates that will be substituted with the appropriate files on execution:</p>
 <ul>
@@ -2049,6 +2079,9 @@ pre-commit:
 <li><code>{0}</code> - shorthand for the single space-joint string of git hook arguments.</li>
 <li><code>{N}</code> - shorthand for the N-th git hook argument.</li>
 </ul>
+<blockquote>
+<p><strong>Note:</strong> Command line length has a limit on every system. If your list of files is quite long, lefthook splits your files list to fit in the limit and runs few commands sequentially.</p>
+</blockquote>
 <p><strong>Example</strong></p>
 <p>Run <code>yarn lint</code> on <code>pre-commit</code> hook.</p>
 <pre><code class="language-yml"># lefthook.yml
@@ -2161,6 +2194,17 @@ pre-commit:
       glob: "*.js"
       # Will quote where needed with single quotes
       run: yarn test {staged_files} # will run `yarn eslint file1.js file2.js '[strange name].spec.js'`
+</code></pre>
+<h4 id="scripts-1"><a class="header" href="#scripts-1">Scripts</a></h4>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  jobs:
+    - name: a whole script in a run
+      run: |
+        for file in $(ls .); do
+          yarn lint $file
+        done
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="skip-2"><a class="header" href="#skip-2"><code>skip</code></a></h2>
 <p>You can skip all or specific commands and scripts using <code>skip</code> option. You can also skip when merging, rebasing, or being on a specific branch. Globs are available for branches.</p>
@@ -2620,7 +2664,7 @@ post-checkout:
       runner: ruby
       priority: 2
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="scripts"><a class="header" href="#scripts">Scripts</a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="scripts-2"><a class="header" href="#scripts-2">Scripts</a></h2>
 <p>Scripts are stored under <code>&lt;source_dir&gt;/&lt;hook-name&gt;/</code> folder. These scripts are your own executables which are being run in the project root.</p>
 <p>To add a script for a <code>pre-commit</code> hook:</p>
 <ol>
