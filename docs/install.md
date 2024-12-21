@@ -1,5 +1,9 @@
 # Install lefthook
 
+> [!IMPORTANT]
+>
+> This documentation is stale and will be removed soon. Please check the new: https://evilmartians.github.io/lefthook/installation/
+
 Choose your fighter:
 
 - [Ruby](#ruby)
