@@ -1,5 +1,9 @@
 # Configure lefthook
 
+> [!IMPORTANT]
+>
+> This documentation is stale and will be removed soon. Please check the new: https://evilmartians.github.io/lefthook/configuration/
+
 Lefthook [supports](#config-file) YAML, JSON, and TOML configuration. In this document `lefthook.yml` is used for simplicity.
 
 ## Config file

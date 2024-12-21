@@ -1,5 +1,9 @@
 # Usage
 
+> [!IMPORTANT]
+>
+> This documentation is stale and will be removed soon. Please check the new: https://evilmartians.github.io/lefthook/usage/
+
 - [Commands](#commands)
   - [`lefthook install`](#lefthook-install)
   - [`lefthook uninstall`](#lefthook-uninstall)
