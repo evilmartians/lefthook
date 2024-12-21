@@ -1,5 +1,12 @@
 ## `run`
 
+> **Note:** `run` command is treated differently on Unix-like systems (macOS, Linux) and Windows:
+>
+> - ***nix**: commands get wrapped with `sh -c '<run>'`
+> - **Windows**: commands execute natively
+>
+> So, when on *nix systems you can use pipes, builtins of a Bourne Shell, etc. For Windows the capabilities are limited by a single command.
+
 This is a mandatory option for a command. This is actually a command that is executed for the hook.
 
 You can use files templates that will be substituted with the appropriate files on execution:
@@ -11,6 +18,8 @@ You can use files templates that will be substituted with the appropriate files 
 - `{cmd}` - shorthand for the command from `lefthook.yml`.
 - `{0}` - shorthand for the single space-joint string of git hook arguments.
 - `{N}` - shorthand for the N-th git hook argument.
+
+> **Note:** Command line length has a limit on every system. If your list of files is quite long, lefthook splits your files list to fit in the limit and runs few commands sequentially.
 
 **Example**
 
