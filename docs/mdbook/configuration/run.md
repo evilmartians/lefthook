@@ -168,3 +168,17 @@ pre-commit:
       # Will quote where needed with single quotes
       run: yarn test {staged_files} # will run `yarn eslint file1.js file2.js '[strange name].spec.js'`
 ```
+
+#### Scripts
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  jobs:
+    - name: a whole script in a run
+      run: |
+        for file in $(ls .); do
+          yarn lint $file
+        done
+```
