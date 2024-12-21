@@ -94,6 +94,11 @@ func (run) New(opts *lefthook.Options) *cobra.Command {
 		"run only specified commands",
 	)
 
+	runCmd.Flags().StringSliceVar(
+		&runArgs.RunOnlyJobs, "jobs", nil,
+		"run only specified jobs",
+	)
+
 	err := runCmd.Flags().MarkDeprecated("files", "use --file flag instead")
 	if err != nil {
 		log.Warn("Unexpected error:", err)

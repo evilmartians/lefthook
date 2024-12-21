@@ -41,6 +41,7 @@ type Options struct {
 	Force           bool
 	Files           []string
 	RunOnlyCommands []string
+	RunOnlyJobs     []string
 	SourceDirs      []string
 }
 

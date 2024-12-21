@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -81,6 +82,10 @@ func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *con
 	}
 
 	if len(job.Run) != 0 || len(job.Script) != 0 {
+		if len(r.RunOnlyJobs) != 0 && !slices.Contains(r.RunOnlyJobs, job.Name) {
+			return skipped(job.PrintableName(id))
+		}
+
 		return r.runSingleJob(ctx, domain, id, job)
 	}
 
@@ -89,6 +94,16 @@ func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *con
 		inheritedDomain.glob = first(job.Glob, domain.glob)
 		inheritedDomain.root = first(job.Root, domain.root)
 		groupName := first(job.Name, "["+id+"]")
+
+		if len(r.RunOnlyJobs) != 0 && slices.Contains(r.RunOnlyJobs, job.Name) {
+			children := make([]string, len(job.Group.Jobs), 0)
+			for _, child := range job.Group.Jobs {
+				children = append(children, child.Name)
+			}
+
+			r.RunOnlyJobs = append(r.RunOnlyJobs, children...)
+		}
+
 		return r.runGroup(ctx, groupName, &inheritedDomain, job.Group)
 	}
 
