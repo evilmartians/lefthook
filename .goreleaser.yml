@@ -62,13 +62,25 @@ builds:
     ldflags:
       - -s -w -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
 
+  - id: lefthook-linux-aarch64
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
+
 archives:
   - id: lefthook
     format: binary
     builds:
       - lefthook
     files:
-    - none*
+      - none*
     name_template: >-
       {{ .ProjectName }}_
       {{- .Version }}_
@@ -76,6 +88,22 @@ archives:
       {{- else }}{{ title .Os }}{{ end }}_
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+
+  - id: lefthook-linux-aarch64
+    format: binary
+    builds:
+      - lefthook-linux-aarch64
+    files:
+      - none*
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- if eq .Os "darwin" }}MacOS
+      {{- else }}{{ title .Os }}{{ end }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else if eq .Arch "arm64" }}aarch64
       {{- else }}{{ .Arch }}{{ end }}
 
   - id: lefthook-gz
