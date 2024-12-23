@@ -2,6 +2,7 @@
 
 require "fileutils"
 require "digest"
+require "open-uri"
 
 VERSION = "1.10.0"
 
@@ -169,17 +170,17 @@ module Pack
     pkgbuild_dest = File.join(aur_repo, "PKGBUILD")
     cp(pkgbuild_source, pkgbuild_dest, verbose: true)
 
-    cd(aur_repo)
-
     sha256 = Digest::SHA256.new
-    File.open(File.join(DIST, 'lefthook_source.tar.gz'), 'rb') do |file|
+    URI.open("https://github.com/evilmartians/lefthook/archive/v#{VERSION}.tar.gz") do |file|
       while chunk = file.read(1024)  # Read the file in chunks
         sha256.update(chunk)
       end
     end
+
     sha256sum = sha256.hexdigest
     replace_in_file(pkgbuild_dest, /{{ sha256sum }}/, sha256sum)
 
+    cd(aur_repo)
     system("makepkg --printsrcinfo > .SRCINFO")
     system("makepkg")
     system("makepkg --install")

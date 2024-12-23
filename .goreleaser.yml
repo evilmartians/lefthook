@@ -93,12 +93,6 @@ archives:
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
 
-
-source:
-  enabled: true
-  name_template: "{{ .ProjectName }}_source"
-  format: "tar.gz"
-
 checksum:
   name_template: "{{ .ProjectName }}_checksums.txt"
   algorithm: sha256

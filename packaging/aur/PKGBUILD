@@ -7,7 +7,7 @@ pkgrel=1
 arch=('x86_64' 'aarch64')
 url="https://github.com/evilmartians/lefthook"
 license=('MIT')
-makedepends=('go>=1.23' 'rsync')
+makedepends=('go>=1.23')
 source=("https://github.com/evilmartians/lefthook/archive/v${pkgver}.tar.gz")
 sha256sums=('{{ sha256sum }}')
 

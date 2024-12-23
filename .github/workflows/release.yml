@@ -204,11 +204,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: dist
-      - run: tar -xvf dist.tar
-
       - name: Update AUR package
         run: |
           pacman -Syu --noconfirm
