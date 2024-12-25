@@ -271,8 +271,13 @@ sudo apk add lefthook
 <p>See all instructions: https://cloudsmith.io/~evilmartians/repos/lefthook/setup/#formats-alpine</p>
 <p><a href="https://cloudsmith.com" title="RPM package repository hosting is graciously provided by Cloudsmith"><img src="https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&amp;style=flat-square" alt="Hosted By: Cloudsmith" /></a></p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="aur-for-arch"><a class="header" href="#aur-for-arch">AUR for Arch</a></h2>
-<p><a href="https://aur.archlinux.org/packages/lefthook">AUR package</a></p>
-<pre><code class="language-sh">yay -S lefthook
+<p>Official <a href="https://aur.archlinux.org/packages/lefthook">AUR package</a> (compiles from sources)
+Community <a href="https://aur.archlinux.org/packages/lefthook-bin">AUR package</a> (delivers pre-compiled binaries)</p>
+<pre><code class="language-sh"># To compile from sources
+yay -S lefthook
+
+# To install only executable
+yay -S lefthook-bin
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="manuall-installation-with-prebuilt-executable"><a class="header" href="#manuall-installation-with-prebuilt-executable">Manuall installation with prebuilt executable</a></h2>
 <p>Download from <a href="https://github.com/evilmartians/lefthook/releases">binaries</a> and install manually.</p>
