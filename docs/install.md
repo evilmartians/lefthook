@@ -152,8 +152,8 @@ See all instructions: https://cloudsmith.io/~evilmartians/repos/lefthook/setup/#
 
 ## <a id="arch"></a> AUR for Arch
 
-Official [AUR package](https://aur.archlinux.org/packages/lefthook) (compiles from sources)
-Community [AUR package](https://aur.archlinux.org/packages/lefthook-bin) (delivers pre-compiled binaries)
+- Official [AUR package](https://aur.archlinux.org/packages/lefthook) (compiles from sources)
+- Community [AUR package](https://aur.archlinux.org/packages/lefthook-bin) (delivers pre-compiled binaries)
 
 ```sh
 # To compile from sources
