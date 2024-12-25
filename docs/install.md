@@ -152,10 +152,15 @@ See all instructions: https://cloudsmith.io/~evilmartians/repos/lefthook/setup/#
 
 ## <a id="arch"></a> AUR for Arch
 
-You can install lefthook [package](https://aur.archlinux.org/packages/lefthook) from AUR.
+Official [AUR package](https://aur.archlinux.org/packages/lefthook) (compiles from sources)
+Community [AUR package](https://aur.archlinux.org/packages/lefthook-bin) (delivers pre-compiled binaries)
 
 ```sh
+# To compile from sources
 yay -S lefthook
+
+# To install only executable
+yay -S lefthook-bin
 ```
 
 ## <a id="else"></a> Manuall installation with prebuilt executable
