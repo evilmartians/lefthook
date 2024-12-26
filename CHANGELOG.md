@@ -1,5 +1,11 @@
 # Change log
 
+## 1.10.1 (2024-12-26)
+
+- feat: add ability to specify job names for command run ([#904](https://github.com/evilmartians/lefthook/pull/904)) by @mrexox
+- ci: add linux aarch64 binary to release ([#903](https://github.com/evilmartians/lefthook/pull/903)) by @mrexox
+- ci: fix aur build ([#905](https://github.com/evilmartians/lefthook/pull/905)) by @mrexox
+
 ## 1.10.0 (2024-12-19)
 
 - feat: add jobs option ([#861](https://github.com/evilmartians/lefthook/pull/861)) by @mrexox
