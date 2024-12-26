@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -24,8 +25,9 @@ var (
 type domain struct {
 	failed *atomic.Bool
 
-	glob string
-	root string
+	glob     string
+	root     string
+	onlyJobs []string
 }
 
 func (r *Runner) runJobs(ctx context.Context) []Result {
@@ -35,7 +37,7 @@ func (r *Runner) runJobs(ctx context.Context) []Result {
 	resultsChan := make(chan Result, len(r.Hook.Jobs))
 
 	var failed atomic.Bool
-	domain := &domain{failed: &failed}
+	domain := &domain{failed: &failed, onlyJobs: r.RunOnlyJobs}
 
 	for i, job := range r.Hook.Jobs {
 		id := strconv.Itoa(i)
@@ -81,6 +83,10 @@ func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *con
 	}
 
 	if len(job.Run) != 0 || len(job.Script) != 0 {
+		if len(domain.onlyJobs) != 0 && !slices.Contains(domain.onlyJobs, job.Name) {
+			return skipped(job.PrintableName(id))
+		}
+
 		return r.runSingleJob(ctx, domain, id, job)
 	}
 
@@ -89,6 +95,11 @@ func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *con
 		inheritedDomain.glob = first(job.Glob, domain.glob)
 		inheritedDomain.root = first(job.Root, domain.root)
 		groupName := first(job.Name, "["+id+"]")
+
+		if len(domain.onlyJobs) != 0 && slices.Contains(domain.onlyJobs, job.Name) {
+			inheritedDomain.onlyJobs = []string{}
+		}
+
 		return r.runGroup(ctx, groupName, &inheritedDomain, job.Group)
 	}
 
