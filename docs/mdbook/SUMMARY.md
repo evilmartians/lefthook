@@ -106,3 +106,7 @@
   - [Skip or run on condition](./examples/skip.md)
   - [Use remote config](./examples/remotes.md)
   - [Use commitlint](./examples/commitlint.md)
+
+---
+
+[Contributors](./misc/contributors.md)
