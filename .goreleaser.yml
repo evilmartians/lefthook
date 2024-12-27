@@ -90,6 +90,21 @@ archives:
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
 
+  - id: lefthook-gz
+    format: gz
+    builds:
+      - lefthook
+    files:
+    - none*
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- if eq .Os "darwin" }}MacOS
+      {{- else }}{{ title .Os }}{{ end }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+
   - id: lefthook-linux-aarch64
     format: binary
     builds:
@@ -106,12 +121,12 @@ archives:
       {{- else if eq .Arch "arm64" }}aarch64
       {{- else }}{{ .Arch }}{{ end }}
 
-  - id: lefthook-gz
+  - id: lefthook-linux-aarch64-gz
     format: gz
     builds:
-      - lefthook
+      - lefthook-linux-aarch64
     files:
-    - none*
+      - none*
     name_template: >-
       {{ .ProjectName }}_
       {{- .Version }}_
@@ -119,6 +134,7 @@ archives:
       {{- else }}{{ title .Os }}{{ end }}_
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
+      {{- else if eq .Arch "arm64" }}aarch64
       {{- else }}{{ .Arch }}{{ end }}
 
 checksum:
