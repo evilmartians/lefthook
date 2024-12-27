@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Use commitlint - Lefthook Documentation</title>
+        <title>Contributors - Lefthook Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -155,64 +155,52 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="commitlint-and-commitzen"><a class="header" href="#commitlint-and-commitzen">Commitlint and commitzen</a></h2>
-<p>Use lefthook to generate commit messages using commitzen and validate them with commitlint.</p>
-<h2 id="install-dependencies"><a class="header" href="#install-dependencies">Install dependencies</a></h2>
-<pre><code class="language-bash">yarn add -D @commitlint/cli @commitlint/config-conventional
-
-# For commitzen
-yarn add -D commitizen cz-conventional-changelog
-</code></pre>
-<h2 id="configure"><a class="header" href="#configure">Configure</a></h2>
-<p>Setup <code>commitlint.config.js</code>. Conventional configuration:</p>
-<pre><code class="language-js">// commitlint.config.js
-
-module.exports = {extends: ['@commitlint/config-conventional']};
-</code></pre>
-<p>If you are using commitzen, make sure to add this in <code>package.json</code>:</p>
-<pre><code class="language-json">"config": {
-  "commitizen": {
-    "path": "./node_modules/cz-conventional-changelog"
-  }
-}
-</code></pre>
-<p>Configure lefthook:</p>
-<pre><code class="language-yml"># lefthook.yml
-
-# Build commit messages
-prepare-commit-msg:
-  commands:
-    commitzen:
-      interactive: true
-      run: yarn run cz --hook # Or npx cz --hook
-      env:
-        LEFTHOOK: 0
-
-# Validate commit messages
-commit-msg:
-  commands:
-    "lint commit message":
-      run: yarn run commitlint --edit {1}
-</code></pre>
-<h2 id="test-it"><a class="header" href="#test-it">Test it</a></h2>
-<pre><code class="language-bash"># You can type it without message, if you are using commitzen
-git commit
-
-# Or provide a commit message is using only commitlint
-git commit -am 'fix: typo'
-</code></pre>
+                        <h1 id="contributors"><a class="header" href="#contributors">Contributors</a></h1>
+<ul>
+<li><a href="https://github.com/Arkweid">Arkweid</a></li>
+<li><a href="https://github.com/Envek">Envek</a></li>
+<li><a href="https://github.com/mrexox">mrexox</a></li>
+<li><a href="https://github.com/skryukov">skryukov</a></li>
+<li><a href="https://github.com/scop">scop</a></li>
+<li><a href="https://github.com/hyperupcall">hyperupcall</a></li>
+<li><a href="https://github.com/MartijnCuppens">MartijnCuppens</a></li>
+<li><a href="https://github.com/palkan">palkan</a></li>
+<li><a href="https://github.com/markovichecha">markovichecha</a></li>
+<li><a href="https://github.com/technicalpickles">technicalpickles</a></li>
+<li><a href="https://github.com/aminya">aminya</a></li>
+<li><a href="https://github.com/prog-supdex">prog-supdex</a></li>
+<li><a href="https://github.com/HellSquirrel">HellSquirrel</a></li>
+<li><a href="https://github.com/Evilweed">Evilweed</a></li>
+<li><a href="https://github.com/PikachuEXE">PikachuEXE</a></li>
+<li><a href="https://github.com/jsmestad">jsmestad</a></li>
+<li><a href="https://github.com/DmitryTsepelev">DmitryTsepelev</a></li>
+<li><a href="https://github.com/pmirecki">pmirecki</a></li>
+<li><a href="https://github.com/0legovich">0legovich</a></li>
+<li><a href="https://github.com/zachahn">zachahn</a></li>
+<li><a href="https://github.com/sitiom">sitiom</a></li>
+<li><a href="https://github.com/spearmootz">spearmootz</a></li>
+<li><a href="https://github.com/pwinckles">pwinckles</a></li>
+<li><a href="https://github.com/pablobirukov">pablobirukov</a></li>
+<li><a href="https://github.com/nihalgonsalves">nihalgonsalves</a></li>
+<li><a href="https://github.com/nesk">nesk</a></li>
+<li><a href="https://github.com/jaydorsey">jaydorsey</a></li>
+<li><a href="https://github.com/fantua">fantua</a></li>
+<li><a href="https://github.com/orsinium">orsinium</a></li>
+<li><a href="https://github.com/fabn">fabn</a></li>
+</ul>
+<p>If you feel you’re missing from this list, feel free to add yourself in a PR.</p>
+<!---
+curl https://api.github.com/repos/evilmartians/lefthook/contributors | jq '.[] | "[" + .login + "]" + "(" + .url + ")"'
+-->
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../examples/remotes.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../examples/commitlint.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../misc/contributors.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <i class="fa fa-angle-right"></i>
-                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -220,13 +208,10 @@ git commit -am 'fix: typo'
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../examples/remotes.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../examples/commitlint.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../misc/contributors.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <i class="fa fa-angle-right"></i>
-                    </a>
             </nav>
 
         </div>
