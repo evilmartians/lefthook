@@ -36,6 +36,15 @@ func (run) New(opts *lefthook.Options) *cobra.Command {
 		return
 	}
 
+	runHookJobCompletions := func(cmd *cobra.Command, args []string, toComplete string) (ret []string, compDir cobra.ShellCompDirective) {
+		compDir = cobra.ShellCompDirectiveNoFileComp
+		if len(args) == 0 {
+			return
+		}
+		ret = lefthook.ConfigHookJobCompletions(opts, args[0])
+		return
+	}
+
 	runCmd := cobra.Command{
 		Use:               "run hook-name [git args...]",
 		Short:             "Execute group of hooks",
@@ -105,6 +114,8 @@ func (run) New(opts *lefthook.Options) *cobra.Command {
 	}
 
 	_ = runCmd.RegisterFlagCompletionFunc("commands", runHookCommandCompletions)
+
+	_ = runCmd.RegisterFlagCompletionFunc("jobs", runHookJobCompletions)
 
 	return &runCmd
 }
