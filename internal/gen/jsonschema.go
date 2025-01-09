@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"reflect"
+	"time"
 
 	"github.com/invopop/jsonschema"
 
@@ -14,7 +15,6 @@ import (
 func main() {
 	r := new(jsonschema.Reflector)
 	r.ExpandedStruct = true
-	r.AllowAdditionalProperties = true
 	r.AdditionalFields = func(t reflect.Type) []reflect.StructField {
 		if t == reflect.TypeOf(config.Config{}) {
 			return reflect.VisibleFields(reflect.TypeOf(struct {
@@ -51,12 +51,14 @@ func main() {
 
 		return []reflect.StructField{}
 	}
-
-	schema, err := json.MarshalIndent(r.Reflect(&config.Config{}), "", "  ")
+	schema := r.Reflect(&config.Config{})
+	schema.ID = "https://json.schemastore.org/lefthook.json"
+	schema.Comments = "Last updated on " + time.Now().Format("2006.01.02") + "."
+	dumped, err := json.MarshalIndent(schema, "", "  ")
 	if err != nil {
 		log.Error(err)
 		return
 	}
 
-	log.Info(string(schema))
+	log.Info(string(dumped))
 }
