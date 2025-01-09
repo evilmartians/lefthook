@@ -8,9 +8,6 @@ import (
 	"github.com/evilmartians/lefthook/internal/lefthook"
 )
 
-////go:embed schema.json
-// var jsonSchema []byte
-
 type validate struct{}
 
 func (validate) New(opts *lefthook.Options) *cobra.Command {
