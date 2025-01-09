@@ -10,6 +10,7 @@ require (
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/creack/pty v1.1.24
 	github.com/gobwas/glob v0.2.3
+	github.com/invopop/jsonschema v0.13.0
 	github.com/knadh/koanf/maps v0.1.1
 	github.com/knadh/koanf/parsers/json v0.1.0
 	github.com/knadh/koanf/parsers/toml/v2 v2.1.0
@@ -22,8 +23,8 @@ require (
 	github.com/schollz/progressbar/v3 v3.17.1
 	github.com/spf13/afero v1.11.0
 	github.com/spf13/cobra v1.8.1
+	github.com/stoewer/go-strcase v1.3.0
 	github.com/stretchr/testify v1.9.0
-	gopkg.in/alessio/shellescape.v1 v1.0.0-20170105083845-52074bc9df61
 )
 
 require (
@@ -33,22 +34,19 @@ require (
 	github.com/charmbracelet/x/ansi v0.4.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/go-viper/mapstructure/v2 v2.1.0 // indirect
-	github.com/iancoleman/strcase v0.3.0 // indirect
-	github.com/invopop/jsonschema v0.13.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
-	github.com/stoewer/go-strcase v1.3.0 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
 	golang.org/x/tools v0.22.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 )
 
 require (
-	github.com/alessio/shellescape v1.4.1 // indirect
+	github.com/alessio/shellescape v1.4.1
 	github.com/fatih/color v1.14.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
