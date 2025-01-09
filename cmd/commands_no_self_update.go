@@ -19,4 +19,5 @@ var commands = [...]command{
 	uninstall{},
 	run{},
 	dump{},
+	validate{},
 }

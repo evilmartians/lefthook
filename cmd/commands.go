@@ -20,4 +20,5 @@ var commands = [...]command{
 	run{},
 	dump{},
 	selfUpdate{},
+	validate{},
 }
