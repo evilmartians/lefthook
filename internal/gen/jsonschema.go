@@ -5,7 +5,6 @@ import (
 	"reflect"
 
 	"github.com/invopop/jsonschema"
-	"github.com/stoewer/go-strcase"
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/log"
@@ -14,7 +13,6 @@ import (
 //go:generate go run jsonschema.go
 func main() {
 	r := new(jsonschema.Reflector)
-	r.KeyNamer = strcase.SnakeCase
 	r.ExpandedStruct = true
 	r.AllowAdditionalProperties = true
 	r.AdditionalFields = func(t reflect.Type) []reflect.StructField {

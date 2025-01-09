@@ -6,7 +6,7 @@ import (
 )
 
 type Script struct {
-	Runner string `json:"runner" mapstructure:"runner" toml:"runner" yaml:"runner"`
+	Runner string `json:"runner,omitempty" mapstructure:"runner" toml:"runner,omitempty" yaml:"runner,omitempty"`
 
 	Skip     interface{}       `json:"skip,omitempty"     jsonschema:"oneof_type=boolean;array" mapstructure:"skip"       toml:"skip,omitempty,inline" yaml:",omitempty"`
 	Only     interface{}       `json:"only,omitempty"     jsonschema:"oneof_type=boolean;array" mapstructure:"only"       toml:"only,omitempty,inline" yaml:",omitempty"`

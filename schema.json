@@ -103,7 +103,10 @@
           "type": "array"
         }
       },
-      "type": "object"
+      "type": "object",
+      "required": [
+        "jobs"
+      ]
     },
     "Hook": {
       "properties": {
@@ -167,6 +170,26 @@
       "type": "object"
     },
     "Job": {
+      "oneOf": [
+        {
+          "required": [
+            "run"
+          ],
+          "title": "Run a command"
+        },
+        {
+          "required": [
+            "script"
+          ],
+          "title": "Run a script"
+        },
+        {
+          "required": [
+            "group"
+          ],
+          "title": "Run a group"
+        }
+      ],
       "properties": {
         "name": {
           "type": "string"
@@ -346,22 +369,23 @@
           "type": "boolean"
         }
       },
-      "type": "object",
-      "required": [
-        "runner"
-      ]
+      "type": "object"
     }
   },
   "properties": {
     "min_version": {
-      "type": "string"
+      "type": "string",
+      "description": "Specify a minimum version for the lefthook binary"
     },
     "source_dir": {
-      "type": "string"
+      "type": "string",
+      "description": "Change a directory for script files. Directory for script files contains folders with git hook names which contain script files.",
+      "default": ".lefthook/"
     },
     "source_dir_local": {
       "type": "string",
-      "description": "Change a directory for local script files (not stored in VCS)"
+      "description": "Change a directory for local script files (not stored in VCS)",
+      "default": ".lefthook-local/"
     },
     "rc": {
       "type": "string",
@@ -417,10 +441,6 @@
       "type": "boolean",
       "description": "Skip running Git LFS hooks (enabled by default)"
     },
-    "remote": {
-      "$ref": "#/$defs/Remote",
-      "description": "Deprecated: use remotes"
-    },
     "remotes": {
       "items": {
         "$ref": "#/$defs/Remote"
@@ -428,88 +448,92 @@
       "type": "array",
       "description": "Provide multiple remote configs to use lefthook configurations shared across projects. Lefthook will automatically download and merge configurations into main config."
     },
-    "pre_commit": {
+    "remote": {
+      "$ref": "#/$defs/Remote",
+      "description": "Deprecated: use remotes"
+    },
+    "pre-commit": {
       "$ref": "#/$defs/Hook"
     },
-    "applypatch_msg": {
+    "applypatch-msg": {
       "$ref": "#/$defs/Hook"
     },
-    "pre_applypatch": {
+    "pre-applypatch": {
       "$ref": "#/$defs/Hook"
     },
-    "post_applypatch": {
+    "post-applypatch": {
       "$ref": "#/$defs/Hook"
     },
-    "pre_merge_commit": {
+    "pre-merge-commit": {
       "$ref": "#/$defs/Hook"
     },
-    "prepare_commit_msg": {
+    "prepare-commit-msg": {
       "$ref": "#/$defs/Hook"
     },
-    "commit_msg": {
+    "commit-msg": {
       "$ref": "#/$defs/Hook"
     },
-    "post_commit": {
+    "post-commit": {
       "$ref": "#/$defs/Hook"
     },
-    "pre_rebase": {
+    "pre-rebase": {
       "$ref": "#/$defs/Hook"
     },
-    "post_checkout": {
+    "post-checkout": {
       "$ref": "#/$defs/Hook"
     },
-    "post_merge": {
+    "post-merge": {
       "$ref": "#/$defs/Hook"
     },
-    "pre_push": {
+    "pre-push": {
       "$ref": "#/$defs/Hook"
     },
-    "pre_receive": {
+    "pre-receive": {
       "$ref": "#/$defs/Hook"
     },
     "update": {
       "$ref": "#/$defs/Hook"
     },
-    "proc_receive": {
+    "proc-receive": {
       "$ref": "#/$defs/Hook"
     },
-    "post_receive": {
+    "post-receive": {
       "$ref": "#/$defs/Hook"
     },
-    "post_update": {
+    "post-update": {
       "$ref": "#/$defs/Hook"
     },
-    "reference_transaction": {
+    "reference-transaction": {
       "$ref": "#/$defs/Hook"
     },
-    "push_to_checkout": {
+    "push-to-checkout": {
       "$ref": "#/$defs/Hook"
     },
-    "pre_auto_gc": {
+    "pre-auto-gc": {
       "$ref": "#/$defs/Hook"
     },
-    "post_rewrite": {
+    "post-rewrite": {
       "$ref": "#/$defs/Hook"
     },
-    "sendemail_validate": {
+    "sendemail-validate": {
       "$ref": "#/$defs/Hook"
     },
-    "fsmonitor_watchman": {
+    "fsmonitor-watchman": {
       "$ref": "#/$defs/Hook"
     },
-    "p4_changelist": {
+    "p4-changelist": {
       "$ref": "#/$defs/Hook"
     },
-    "p4_prepare_changelist": {
+    "p4-prepare-changelist": {
       "$ref": "#/$defs/Hook"
     },
-    "p4_post_changelist": {
+    "p4-post-changelist": {
       "$ref": "#/$defs/Hook"
     },
-    "p4_pre_submit": {
+    "p4-pre-submit": {
       "$ref": "#/$defs/Hook"
     },
-    "post_index_change": {
+    "post-index-change": {
       "$ref": "#/$defs/Hook"
     }
   },
