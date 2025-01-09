@@ -258,7 +258,11 @@ func join(args ...interface{}) interface{} {
 		case []interface{}:
 			result = append(result, list...)
 		default:
-			return a
+			if len(result) > 0 {
+				return result
+			} else {
+				return a
+			}
 		}
 	}
 
