@@ -27,6 +27,7 @@ type domain struct {
 
 	glob     string
 	root     string
+	exclude  interface{}
 	onlyJobs []string
 }
 
@@ -94,6 +95,18 @@ func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *con
 		inheritedDomain := *domain
 		inheritedDomain.glob = first(job.Glob, domain.glob)
 		inheritedDomain.root = first(job.Root, domain.root)
+		switch list := job.Exclude.(type) {
+		case []interface{}:
+			switch inherited := inheritedDomain.exclude.(type) {
+			case []interface{}:
+				inherited = append(inherited, list...)
+				inheritedDomain.exclude = inherited
+			default:
+				inheritedDomain.exclude = job.Exclude
+			}
+		default:
+			inheritedDomain.exclude = job.Exclude
+		}
 		groupName := first(job.Name, "["+id+"]")
 
 		if len(domain.onlyJobs) != 0 && slices.Contains(domain.onlyJobs, job.Name) {
@@ -111,6 +124,7 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, jo
 
 	root := first(job.Root, domain.root)
 	glob := first(job.Glob, domain.glob)
+	exclude := join(job.Exclude, domain.exclude)
 	executionJob, err := jobs.New(name, &jobs.Params{
 		Repo:       r.Repo,
 		Hook:       r.Hook,
@@ -127,7 +141,7 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, jo
 		Files:      job.Files,
 		FileTypes:  job.FileTypes,
 		Tags:       job.Tags,
-		Exclude:    job.Exclude,
+		Exclude:    exclude,
 		Only:       job.Only,
 		Skip:       job.Skip,
 	})
@@ -171,7 +185,7 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, jo
 			files = filters.Apply(r.Repo.Fs, files, filters.Params{
 				Glob:      glob,
 				Root:      root,
-				Exclude:   job.Exclude,
+				Exclude:   exclude,
 				FileTypes: job.FileTypes,
 			})
 		}
@@ -235,4 +249,18 @@ func first(args ...string) string {
 	}
 
 	return ""
+}
+
+func join(args ...interface{}) interface{} {
+	result := []interface{}{}
+	for _, a := range args {
+		switch list := a.(type) {
+		case []interface{}:
+			result = append(result, list...)
+		default:
+			return a
+		}
+	}
+
+	return result
 }
