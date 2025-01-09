@@ -25,23 +25,45 @@ const (
 )
 
 type Config struct {
-	MinVersion              string      `koanf:"min_version"               mapstructure:"min_version,omitempty"`
-	SourceDir               string      `koanf:"source_dir"                mapstructure:"source_dir"`
-	SourceDirLocal          string      `koanf:"source_dir_local"          mapstructure:"source_dir_local"`
-	Rc                      string      `mapstructure:"rc,omitempty"`
-	SkipOutput              interface{} `koanf:"skip_output"               mapstructure:"skip_output,omitempty"`
-	Output                  interface{} `mapstructure:"output,omitempty"`
-	Extends                 []string    `mapstructure:"extends,omitempty"`
-	NoTTY                   bool        `koanf:"no_tty"                    mapstructure:"no_tty,omitempty"`
-	AssertLefthookInstalled bool        `koanf:"assert_lefthook_installed" mapstructure:"assert_lefthook_installed,omitempty"`
-	Colors                  interface{} `mapstructure:"colors,omitempty"`
-	SkipLFS                 bool        `koanf:"skip_lfs"                  mapstructure:"skip_lfs,omitempty"`
+	// Specify a minimum version for the lefthook binary
+	MinVersion string `json:"min_version,omitempty" koanf:"min_version" mapstructure:"min_version,omitempty"`
+
+	// Change a directory for script files. Directory for script files contains folders with git hook names which contain script files.
+	SourceDir string `json:"source_dir,omitempty" koanf:"source_dir" mapstructure:"source_dir,omitempty"`
+
+	// Change a directory for local script files (not stored in VCS)
+	SourceDirLocal string `json:"source_dir_local,omitempty" koanf:"source_dir_local" mapstructure:"source_dir_local,omitempty"`
+
+	// Provide an rc file, which is actually a simple sh script
+	Rc string `json:"rc,omitempty" mapstructure:"rc,omitempty"`
+
+	SkipOutput interface{} `json:"skip_output,omitempty" jsonschema:"oneof_type=boolean;array" koanf:"skip_output" mapstructure:"skip_output,omitempty"`
+
+	// Manage verbosity by skipping the printing of output of some steps
+	Output interface{} `json:"output,omitempty" jsonschema:"oneof_type=boolean;array" mapstructure:"output,omitempty"`
+
+	// Specify files to extend config with
+	Extends []string `json:"extends,omitempty" mapstructure:"extends,omitempty"`
+
+	// Whether hide spinner and other interactive things
+	NoTTY bool `json:"no_tty,omitempty" koanf:"no_tty" mapstructure:"no_tty,omitempty"`
+
+	// If `true`, fail (with exit status 1) if `lefthook` executable can't be found in `$PATH`, under `node_modules/`, or any other supported method
+	AssertLefthookInstalled bool `json:"assert_lefthook_installed,omitempty" koanf:"assert_lefthook_installed" mapstructure:"assert_lefthook_installed,omitempty"`
+
+	// Enable, disable, or set your own colors for lefthook output
+	Colors interface{} `json:"colors,omitempty" jsonschema:"oneof_type=boolean;object" mapstructure:"colors,omitempty"`
+
+	// Skip running Git LFS hooks (enabled by default)
+	SkipLFS bool `json:"skip_lfs,omitempty" koanf:"skip_lfs" mapstructure:"skip_lfs,omitempty"`
 
 	// Deprecated: use Remotes
-	Remote  *Remote   `mapstructure:"remote,omitempty"`
-	Remotes []*Remote `mapstructure:"remotes,omitempty"`
+	Remote *Remote `json:"remote,omitempty" mapstructure:"-"`
 
-	Hooks map[string]*Hook `mapstructure:"-"`
+	// Provide multiple remote configs to use lefthook configurations shared across projects. Lefthook will automatically download and merge configurations into main config.
+	Remotes []*Remote `json:"remotes,omitempty" mapstructure:"remotes,omitempty"`
+
+	Hooks map[string]*Hook `jsonschema:"-" mapstructure:"-"`
 }
 
 func (c *Config) Md5() (checksum string, err error) {

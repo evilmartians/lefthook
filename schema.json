@@ -1,0 +1,419 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/evilmartians/lefthook/internal/config/config",
+  "$defs": {
+    "Command": {
+      "properties": {
+        "run": {
+          "type": "string"
+        },
+        "files": {
+          "type": "string"
+        },
+        "skip": true,
+        "only": true,
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "env": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "file_types": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "glob": {
+          "type": "string"
+        },
+        "root": {
+          "type": "string"
+        },
+        "exclude": true,
+        "priority": {
+          "type": "integer"
+        },
+        "fail_text": {
+          "type": "string"
+        },
+        "interactive": {
+          "type": "boolean"
+        },
+        "use_stdin": {
+          "type": "boolean"
+        },
+        "stage_fixed": {
+          "type": "boolean"
+        }
+      },
+      "type": "object",
+      "required": [
+        "run"
+      ]
+    },
+    "Group": {
+      "properties": {
+        "root": {
+          "type": "string"
+        },
+        "parallel": {
+          "type": "boolean"
+        },
+        "piped": {
+          "type": "boolean"
+        },
+        "jobs": {
+          "items": {
+            "$ref": "#/$defs/Job"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "Hook": {
+      "properties": {
+        "parallel": {
+          "type": "boolean"
+        },
+        "piped": {
+          "type": "boolean"
+        },
+        "follow": {
+          "type": "boolean"
+        },
+        "files": {
+          "type": "string"
+        },
+        "exclude_tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "skip": true,
+        "only": true,
+        "jobs": {
+          "items": {
+            "$ref": "#/$defs/Job"
+          },
+          "type": "array"
+        },
+        "commands": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Command"
+          },
+          "type": "object"
+        },
+        "scripts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Script"
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "Job": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "run": {
+          "type": "string"
+        },
+        "script": {
+          "type": "string"
+        },
+        "runner": {
+          "type": "string"
+        },
+        "glob": {
+          "type": "string"
+        },
+        "root": {
+          "type": "string"
+        },
+        "files": {
+          "type": "string"
+        },
+        "fail_text": {
+          "type": "string"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "file_types": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "env": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "interactive": {
+          "type": "boolean"
+        },
+        "use_stdin": {
+          "type": "boolean"
+        },
+        "stage_fixed": {
+          "type": "boolean"
+        },
+        "exclude": true,
+        "skip": true,
+        "only": true,
+        "group": {
+          "$ref": "#/$defs/Group"
+        }
+      },
+      "type": "object"
+    },
+    "Remote": {
+      "properties": {
+        "git_url": {
+          "type": "string"
+        },
+        "ref": {
+          "type": "string"
+        },
+        "config": {
+          "type": "string",
+          "description": "Deprecated"
+        },
+        "configs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "refetch": {
+          "type": "boolean"
+        },
+        "refetch_frequency": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "Script": {
+      "properties": {
+        "runner": {
+          "type": "string"
+        },
+        "skip": true,
+        "only": true,
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "env": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "priority": {
+          "type": "integer"
+        },
+        "fail_text": {
+          "type": "string"
+        },
+        "interactive": {
+          "type": "boolean"
+        },
+        "use_stdin": {
+          "type": "boolean"
+        },
+        "stage_fixed": {
+          "type": "boolean"
+        }
+      },
+      "type": "object",
+      "required": [
+        "runner"
+      ]
+    }
+  },
+  "properties": {
+    "min_version": {
+      "type": "string",
+      "description": "Specify a minimum version for the lefthook binary"
+    },
+    "source_dir": {
+      "type": "string",
+      "description": "Change a directory for script files. Directory for script files contains folders with git hook names which contain script files."
+    },
+    "source_dir_local": {
+      "type": "string",
+      "description": "Change a directory for local script files (not stored in VCS)"
+    },
+    "rc": {
+      "type": "string",
+      "description": "Provide an rc file, which is actually a simple sh script"
+    },
+    "skip_output": {
+      "oneOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "array"
+        }
+      ]
+    },
+    "output": {
+      "oneOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "array"
+        }
+      ],
+      "description": "Manage verbosity by skipping the printing of output of some steps"
+    },
+    "extends": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "Specify files to extend config with"
+    },
+    "no_tty": {
+      "type": "boolean",
+      "description": "Whether hide spinner and other interactive things"
+    },
+    "assert_lefthook_installed": {
+      "type": "boolean",
+      "description": "If `true`, fail (with exit status 1) if `lefthook` executable can't be found in `$PATH`, under `node_modules/`, or any other supported method"
+    },
+    "colors": {
+      "oneOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "description": "Enable, disable, or set your own colors for lefthook output"
+    },
+    "skip_lfs": {
+      "type": "boolean",
+      "description": "Skip running Git LFS hooks (enabled by default)"
+    },
+    "remote": {
+      "$ref": "#/$defs/Remote",
+      "description": "Deprecated: use Remotes"
+    },
+    "remotes": {
+      "items": {
+        "$ref": "#/$defs/Remote"
+      },
+      "type": "array",
+      "description": "Provide multiple remote configs to use lefthook configurations shared across projects. Lefthook will automatically download and merge configurations into main config."
+    },
+    "pre_commit": {
+      "$ref": "#/$defs/Hook"
+    },
+    "applypatch_msg": {
+      "$ref": "#/$defs/Hook"
+    },
+    "pre_applypatch": {
+      "$ref": "#/$defs/Hook"
+    },
+    "post_applypatch": {
+      "$ref": "#/$defs/Hook"
+    },
+    "pre_merge_commit": {
+      "$ref": "#/$defs/Hook"
+    },
+    "prepare_commit_msg": {
+      "$ref": "#/$defs/Hook"
+    },
+    "commit_msg": {
+      "$ref": "#/$defs/Hook"
+    },
+    "post_commit": {
+      "$ref": "#/$defs/Hook"
+    },
+    "pre_rebase": {
+      "$ref": "#/$defs/Hook"
+    },
+    "post_checkout": {
+      "$ref": "#/$defs/Hook"
+    },
+    "post_merge": {
+      "$ref": "#/$defs/Hook"
+    },
+    "pre_push": {
+      "$ref": "#/$defs/Hook"
+    },
+    "pre_receive": {
+      "$ref": "#/$defs/Hook"
+    },
+    "update": {
+      "$ref": "#/$defs/Hook"
+    },
+    "proc_receive": {
+      "$ref": "#/$defs/Hook"
+    },
+    "post_receive": {
+      "$ref": "#/$defs/Hook"
+    },
+    "post_update": {
+      "$ref": "#/$defs/Hook"
+    },
+    "reference_transaction": {
+      "$ref": "#/$defs/Hook"
+    },
+    "push_to_checkout": {
+      "$ref": "#/$defs/Hook"
+    },
+    "pre_auto_gc": {
+      "$ref": "#/$defs/Hook"
+    },
+    "post_rewrite": {
+      "$ref": "#/$defs/Hook"
+    },
+    "sendemail_validate": {
+      "$ref": "#/$defs/Hook"
+    },
+    "fsmonitor_watchman": {
+      "$ref": "#/$defs/Hook"
+    },
+    "p4_changelist": {
+      "$ref": "#/$defs/Hook"
+    },
+    "p4_prepare_changelist": {
+      "$ref": "#/$defs/Hook"
+    },
+    "p4_post_changelist": {
+      "$ref": "#/$defs/Hook"
+    },
+    "p4_pre_submit": {
+      "$ref": "#/$defs/Hook"
+    },
+    "post_index_change": {
+      "$ref": "#/$defs/Hook"
+    }
+  },
+  "type": "object"
+}

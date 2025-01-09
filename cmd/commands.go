@@ -1,4 +1,4 @@
-//go:build !no_self_update
+//go:build !no_self_update && !jsonschema
 
 package cmd
 

@@ -6,6 +6,10 @@ build:
 build-with-coverage:
 	go build -cover -ldflags "-s -w -X github.com/evilmartians/lefthook/internal/version.commit=$(COMMIT_HASH)" -o lefthook
 
+jsonschema:
+	go build -tags=jsonschema -ldflags "-s -w -X github.com/evilmartians/lefthook/internal/version.commit=$(COMMIT_HASH)" -o gen_schema || exit 1
+	./gen_schema jsonschema > schema.json
+
 install: build
 	cp lefthook $$(go env GOPATH)/bin
 
