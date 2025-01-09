@@ -25,43 +25,33 @@ const (
 )
 
 type Config struct {
-	// Specify a minimum version for the lefthook binary
-	MinVersion string `json:"min_version,omitempty" koanf:"min_version" mapstructure:"min_version,omitempty"`
+	MinVersion string `json:"min_version,omitempty" jsonschema:"description=Specify a minimum version for the lefthook binary" koanf:"min_version" mapstructure:"min_version,omitempty"`
 
-	// Change a directory for script files. Directory for script files contains folders with git hook names which contain script files.
-	SourceDir string `json:"source_dir,omitempty" koanf:"source_dir" mapstructure:"source_dir,omitempty"`
+	SourceDir string `json:"source_dir,omitempty" jsonschema:"Change a directory for script files. Directory for script files contains folders with git hook names which contain script files." koanf:"source_dir" mapstructure:"source_dir,omitempty"`
 
-	// Change a directory for local script files (not stored in VCS)
-	SourceDirLocal string `json:"source_dir_local,omitempty" koanf:"source_dir_local" mapstructure:"source_dir_local,omitempty"`
+	SourceDirLocal string `json:"source_dir_local,omitempty" jsonschema:"description=Change a directory for local script files (not stored in VCS)" koanf:"source_dir_local" mapstructure:"source_dir_local,omitempty"`
 
-	// Provide an rc file, which is actually a simple sh script
-	Rc string `json:"rc,omitempty" mapstructure:"rc,omitempty"`
+	Rc string `json:"rc,omitempty" jsonschema:"description=Provide an rc file - a simple sh script" mapstructure:"rc,omitempty"`
 
 	SkipOutput interface{} `json:"skip_output,omitempty" jsonschema:"oneof_type=boolean;array" koanf:"skip_output" mapstructure:"skip_output,omitempty"`
 
-	// Manage verbosity by skipping the printing of output of some steps
-	Output interface{} `json:"output,omitempty" jsonschema:"oneof_type=boolean;array" mapstructure:"output,omitempty"`
+	Output interface{} `json:"output,omitempty" jsonschema:"oneof_type=boolean;array,description=Manage verbosity by skipping the printing of output of some steps" mapstructure:"output,omitempty"`
 
-	// Specify files to extend config with
-	Extends []string `json:"extends,omitempty" mapstructure:"extends,omitempty"`
+	Extends []string `json:"extends,omitempty" jsonschema:"description=Specify files to extend config with" mapstructure:"extends,omitempty"`
 
-	// Whether hide spinner and other interactive things
-	NoTTY bool `json:"no_tty,omitempty" koanf:"no_tty" mapstructure:"no_tty,omitempty"`
+	NoTTY bool `json:"no_tty,omitempty" jsonschema:"description=Whether hide spinner and other interactive things" koanf:"no_tty" mapstructure:"no_tty,omitempty"`
 
-	// If `true`, fail (with exit status 1) if `lefthook` executable can't be found in `$PATH`, under `node_modules/`, or any other supported method
 	AssertLefthookInstalled bool `json:"assert_lefthook_installed,omitempty" koanf:"assert_lefthook_installed" mapstructure:"assert_lefthook_installed,omitempty"`
 
-	// Enable, disable, or set your own colors for lefthook output
-	Colors interface{} `json:"colors,omitempty" jsonschema:"default=true,oneof_type=boolean;object" mapstructure:"colors,omitempty"`
+	//
+	Colors interface{} `json:"colors,omitempty" jsonschema:"description=Enable disable or set your own colors for lefthook output,default=true,oneof_type=boolean;object" mapstructure:"colors,omitempty"`
 
-	// Skip running Git LFS hooks (enabled by default)
-	SkipLFS bool `json:"skip_lfs,omitempty" koanf:"skip_lfs" mapstructure:"skip_lfs,omitempty"`
+	SkipLFS bool `json:"skip_lfs,omitempty" jsonschema:"description=Skip running Git LFS hooks (enabled by default)" koanf:"skip_lfs" mapstructure:"skip_lfs,omitempty"`
 
 	// Deprecated: use Remotes
-	Remote *Remote `json:"remote,omitempty" mapstructure:"-"`
+	Remote *Remote `json:"remote,omitempty" jsonschema:"description=Deprecated: use remotes" mapstructure:"-"`
 
-	// Provide multiple remote configs to use lefthook configurations shared across projects. Lefthook will automatically download and merge configurations into main config.
-	Remotes []*Remote `json:"remotes,omitempty" mapstructure:"remotes,omitempty"`
+	Remotes []*Remote `json:"remotes,omitempty" jsonschema:"description=Provide multiple remote configs to use lefthook configurations shared across projects. Lefthook will automatically download and merge configurations into main config." mapstructure:"remotes,omitempty"`
 
 	Hooks map[string]*Hook `jsonschema:"-" mapstructure:"-"`
 }

@@ -270,7 +270,10 @@
             "type": "string"
           },
           "type": "array",
-          "description": "An optional array of config paths from remote's root"
+          "description": "An optional array of config paths from remote's root",
+          "default": [
+            "lefthook.yml"
+          ]
         },
         "refetch": {
           "type": "boolean",
@@ -280,12 +283,12 @@
           "type": "string",
           "description": "Provide a frequency for the remotes refetches",
           "examples": [
-            "4h"
+            "24h"
           ]
         },
         "config": {
           "type": "string",
-          "description": "Deprecated, use configs"
+          "description": "Deprecated: use configs"
         }
       },
       "type": "object"
@@ -351,12 +354,10 @@
   },
   "properties": {
     "min_version": {
-      "type": "string",
-      "description": "Specify a minimum version for the lefthook binary"
+      "type": "string"
     },
     "source_dir": {
-      "type": "string",
-      "description": "Change a directory for script files. Directory for script files contains folders with git hook names which contain script files."
+      "type": "string"
     },
     "source_dir_local": {
       "type": "string",
@@ -364,7 +365,7 @@
     },
     "rc": {
       "type": "string",
-      "description": "Provide an rc file, which is actually a simple sh script"
+      "description": "Provide an rc file - a simple sh script"
     },
     "skip_output": {
       "oneOf": [
@@ -399,8 +400,7 @@
       "description": "Whether hide spinner and other interactive things"
     },
     "assert_lefthook_installed": {
-      "type": "boolean",
-      "description": "If `true`, fail (with exit status 1) if `lefthook` executable can't be found in `$PATH`, under `node_modules/`, or any other supported method"
+      "type": "boolean"
     },
     "colors": {
       "oneOf": [
@@ -411,7 +411,7 @@
           "type": "object"
         }
       ],
-      "description": "Enable, disable, or set your own colors for lefthook output"
+      "description": "Enable disable or set your own colors for lefthook output"
     },
     "skip_lfs": {
       "type": "boolean",
@@ -419,7 +419,7 @@
     },
     "remote": {
       "$ref": "#/$defs/Remote",
-      "description": "Deprecated: use Remotes"
+      "description": "Deprecated: use remotes"
     },
     "remotes": {
       "items": {
