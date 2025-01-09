@@ -285,6 +285,14 @@ func ConfigHookCommandCompletions(opts *Options, hookName string) []string {
 	return lefthook.configHookCommandCompletions(hookName)
 }
 
+func ConfigHookJobCompletions(opts *Options, hookName string) []string {
+	lefthook, err := initialize(opts)
+	if err != nil {
+		return nil
+	}
+	return lefthook.configHookJobCompletions(hookName)
+}
+
 func (l *Lefthook) configHookCommandCompletions(hookName string) []string {
 	cfg, err := config.Load(l.Fs, l.repo)
 	if err != nil {
@@ -298,6 +306,22 @@ func (l *Lefthook) configHookCommandCompletions(hookName string) []string {
 			commands = append(commands, command)
 		}
 		return commands
+	}
+}
+
+func (l *Lefthook) configHookJobCompletions(hookName string) []string {
+	cfg, err := config.Load(l.Fs, l.repo)
+	if err != nil {
+		return nil
+	}
+	if hook, found := cfg.Hooks[hookName]; !found {
+		return nil
+	} else {
+		jobs := make([]string, 0, len(hook.Jobs))
+		for _, job := range hook.Jobs {
+			jobs = append(jobs, job.Name)
+		}
+		return jobs
 	}
 }
 
