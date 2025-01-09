@@ -8,13 +8,13 @@ import (
 const CMD = "{cmd}"
 
 type Hook struct {
-	Parallel    bool        `json:"parallel,omitempty"     mapstructure:"parallel" toml:"parallel,omitempty"    yaml:",omitempty"`
-	Piped       bool        `json:"piped,omitempty"        mapstructure:"piped"    toml:"piped,omitempty"       yaml:",omitempty"`
-	Follow      bool        `json:"follow,omitempty"       mapstructure:"follow"   toml:"follow,omitempty"      yaml:",omitempty"`
-	Files       string      `json:"files,omitempty"        mapstructure:"files"    toml:"files,omitempty"       yaml:",omitempty"`
-	ExcludeTags []string    `json:"exclude_tags,omitempty" koanf:"exclude_tags"    mapstructure:"exclude_tags"  toml:"exclude_tags,omitempty" yaml:"exclude_tags,omitempty"`
-	Skip        interface{} `json:"skip,omitempty"         mapstructure:"skip"     toml:"skip,omitempty,inline" yaml:",omitempty"`
-	Only        interface{} `json:"only,omitempty"         mapstructure:"only"     toml:"only,omitempty,inline" yaml:",omitempty"`
+	Parallel    bool        `json:"parallel,omitempty"     mapstructure:"parallel"               toml:"parallel,omitempty"   yaml:",omitempty"`
+	Piped       bool        `json:"piped,omitempty"        mapstructure:"piped"                  toml:"piped,omitempty"      yaml:",omitempty"`
+	Follow      bool        `json:"follow,omitempty"       mapstructure:"follow"                 toml:"follow,omitempty"     yaml:",omitempty"`
+	Files       string      `json:"files,omitempty"        mapstructure:"files"                  toml:"files,omitempty"      yaml:",omitempty"`
+	ExcludeTags []string    `json:"exclude_tags,omitempty" koanf:"exclude_tags"                  mapstructure:"exclude_tags" toml:"exclude_tags,omitempty" yaml:"exclude_tags,omitempty"`
+	Skip        interface{} `json:"skip,omitempty"         jsonschema:"oneof_type=boolean;array" mapstructure:"skip"         toml:"skip,omitempty,inline"  yaml:",omitempty"`
+	Only        interface{} `json:"only,omitempty"         jsonschema:"oneof_type=boolean;array" mapstructure:"only"         toml:"only,omitempty,inline"  yaml:",omitempty"`
 
 	Jobs []*Job `json:"jobs,omitempty" mapstructure:"jobs" toml:"jobs,omitempty" yaml:",omitempty"`
 

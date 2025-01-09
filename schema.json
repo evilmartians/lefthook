@@ -10,8 +10,26 @@
         "files": {
           "type": "string"
         },
-        "skip": true,
-        "only": true,
+        "skip": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "array"
+            }
+          ]
+        },
+        "only": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "array"
+            }
+          ]
+        },
         "tags": {
           "items": {
             "type": "string"
@@ -36,7 +54,16 @@
         "root": {
           "type": "string"
         },
-        "exclude": true,
+        "exclude": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array"
+            }
+          ]
+        },
         "priority": {
           "type": "integer"
         },
@@ -98,8 +125,26 @@
           },
           "type": "array"
         },
-        "skip": true,
-        "only": true,
+        "skip": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "array"
+            }
+          ]
+        },
+        "only": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "array"
+            }
+          ]
+        },
         "jobs": {
           "items": {
             "$ref": "#/$defs/Job"
@@ -174,9 +219,36 @@
         "stage_fixed": {
           "type": "boolean"
         },
-        "exclude": true,
-        "skip": true,
-        "only": true,
+        "exclude": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array"
+            }
+          ]
+        },
+        "skip": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "array"
+            }
+          ]
+        },
+        "only": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "array"
+            }
+          ]
+        },
         "group": {
           "$ref": "#/$defs/Group"
         }
@@ -186,26 +258,34 @@
     "Remote": {
       "properties": {
         "git_url": {
-          "type": "string"
+          "type": "string",
+          "description": "A URL to Git repository. It will be accessed with privileges of the machine lefthook runs on."
         },
         "ref": {
-          "type": "string"
-        },
-        "config": {
           "type": "string",
-          "description": "Deprecated"
+          "description": "An optional *branch* or *tag* name"
         },
         "configs": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "description": "An optional array of config paths from remote's root"
         },
         "refetch": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Set to true if you want to always refetch the remote"
         },
         "refetch_frequency": {
-          "type": "string"
+          "type": "string",
+          "description": "Provide a frequency for the remotes refetches",
+          "examples": [
+            "4h"
+          ]
+        },
+        "config": {
+          "type": "string",
+          "description": "Deprecated, use configs"
         }
       },
       "type": "object"
@@ -215,8 +295,26 @@
         "runner": {
           "type": "string"
         },
-        "skip": true,
-        "only": true,
+        "skip": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "array"
+            }
+          ]
+        },
+        "only": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "array"
+            }
+          ]
+        },
         "tags": {
           "items": {
             "type": "string"

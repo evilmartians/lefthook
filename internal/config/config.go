@@ -52,7 +52,7 @@ type Config struct {
 	AssertLefthookInstalled bool `json:"assert_lefthook_installed,omitempty" koanf:"assert_lefthook_installed" mapstructure:"assert_lefthook_installed,omitempty"`
 
 	// Enable, disable, or set your own colors for lefthook output
-	Colors interface{} `json:"colors,omitempty" jsonschema:"oneof_type=boolean;object" mapstructure:"colors,omitempty"`
+	Colors interface{} `json:"colors,omitempty" jsonschema:"default=true,oneof_type=boolean;object" mapstructure:"colors,omitempty"`
 
 	// Skip running Git LFS hooks (enabled by default)
 	SkipLFS bool `json:"skip_lfs,omitempty" koanf:"skip_lfs" mapstructure:"skip_lfs,omitempty"`
