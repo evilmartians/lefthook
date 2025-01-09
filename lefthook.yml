@@ -21,3 +21,7 @@ pre-commit:
     - name: fix typos
       run: typos --write-changes {staged_files}
       stage_fixed: true
+
+    - name: update JSON schema
+      run: go generate internal/gen/jsonschema.go > schema.json && git add schema.json
+      glob: 'internal/config/*.go'
