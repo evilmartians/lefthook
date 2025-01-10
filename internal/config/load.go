@@ -76,26 +76,25 @@ func loadOne(k *koanf.Koanf, filesystem afero.Fs, root string, names []string) e
 	return ConfigNotFoundError{fmt.Sprintf("No config files with names %q have been found in \"%s\"", names, root)}
 }
 
-// Loads configs from the given directory with extensions.
-func Load(filesystem afero.Fs, repo *git.Repository) (*Config, error) {
+func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.Koanf, error) {
 	main := koanf.New(".")
 
 	// Load main (e.g. lefthook.yml)
 	if err := loadOne(main, filesystem, repo.RootPath, mainConfigNames); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Save `extends` and `remotes`
 	extends := main.Strings("extends")
 	var remotes []*Remote
 	if err := main.Unmarshal("remotes", &remotes); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Deprecated
 	var remote *Remote
 	if err := main.Unmarshal("remote", &remote); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Backward compatibility for `remote`. Will be deleted in future major release
@@ -107,12 +106,12 @@ func Load(filesystem afero.Fs, repo *git.Repository) (*Config, error) {
 
 	// Load main `extends`
 	if err := extend(secondary, filesystem, repo.RootPath, extends); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Load main `remotes`
 	if err := loadRemotes(secondary, filesystem, repo, remotes); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Load optional local config (e.g. lefthook-local.yml)
@@ -120,7 +119,7 @@ func Load(filesystem afero.Fs, repo *git.Repository) (*Config, error) {
 	if err := loadOne(secondary, filesystem, repo.RootPath, localConfigNames); err != nil {
 		var configNotFoundErr ConfigNotFoundError
 		if ok := errors.As(err, &configNotFoundErr); !ok {
-			return nil, err
+			return nil, nil, err
 		}
 		noLocal = true
 	}
@@ -129,8 +128,18 @@ func Load(filesystem afero.Fs, repo *git.Repository) (*Config, error) {
 	localExtends := secondary.Strings("extends")
 	if !noLocal && !slices.Equal(extends, localExtends) {
 		if err := extend(secondary, filesystem, repo.RootPath, localExtends); err != nil {
-			return nil, err
+			return nil, nil, err
 		}
+	}
+
+	return main, secondary, nil
+}
+
+// Loads configs from the given directory with extensions.
+func Load(filesystem afero.Fs, repo *git.Repository) (*Config, error) {
+	main, secondary, err := LoadKoanf(filesystem, repo)
+	if err != nil {
+		return nil, err
 	}
 
 	var config Config

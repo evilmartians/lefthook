@@ -2,7 +2,6 @@
 .idea/
 /lefthook
 /lefthook-local.yml
-/gen_schema
 
 tmp/
 dist/
