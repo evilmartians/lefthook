@@ -537,6 +537,17 @@ func mergeJobsSlice(src, dest []interface{}) []interface{} {
 						destSubJobs = mergeJobsSlice(srcSubJobs, destSubJobs)
 					}
 
+					switch srcRun := srcJob["run"].(type) {
+					case string:
+						switch destRun := destJob["run"].(type) {
+						case string:
+							newRun := strings.ReplaceAll(srcRun, CMD, destRun)
+							srcJob["run"] = newRun
+						default:
+						}
+					default:
+					}
+
 					maps.Merge(srcJob, destJob)
 
 					if len(destSubJobs) != 0 {
