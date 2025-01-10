@@ -1,5 +1,9 @@
 # Change log
 
+## 1.10.3 (2025-01-10)
+
+- fix: replace cmd in jobs ([#918](https://github.com/evilmartians/lefthook/pull/918)) by @mrexox
+
 ## 1.10.2 (2025-01-10)
 
 - feat: add validate command ([#915](https://github.com/evilmartians/lefthook/pull/915)) by @mrexox
