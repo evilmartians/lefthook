@@ -257,12 +257,13 @@ func join(args ...interface{}) interface{} {
 		switch list := a.(type) {
 		case []interface{}:
 			result = append(result, list...)
-		default:
+		case interface{}:
 			if len(result) > 0 {
 				return result
 			} else {
 				return a
 			}
+		default:
 		}
 	}
 
