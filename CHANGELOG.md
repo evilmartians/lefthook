@@ -1,5 +1,13 @@
 # Change log
 
+## 1.10.2 (2025-01-10)
+
+- feat: add validate command ([#915](https://github.com/evilmartians/lefthook/pull/915)) by @mrexox
+- feat: inherit exclude option in groups ([#916](https://github.com/evilmartians/lefthook/pull/916)) by @mrexox
+- chore: auto generate json schema ([#914](https://github.com/evilmartians/lefthook/pull/914)) by @mrexox
+- feat: run --jobs completion ([#913](https://github.com/evilmartians/lefthook/pull/913)) by @scop
+- ci: add gzipped linux aarch64 binary to release artifacts ([#908](https://github.com/evilmartians/lefthook/pull/908)) by @mrexox
+-
 ## 1.10.1 (2024-12-26)
 
 - feat: add ability to specify job names for command run ([#904](https://github.com/evilmartians/lefthook/pull/904)) by @mrexox
