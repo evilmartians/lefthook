@@ -809,6 +809,36 @@ pre-commit:
 				},
 			},
 		},
+		"with jobs overwrite": {
+			files: map[string]string{
+				"lefthook.yml": `
+pre-commit:
+  jobs:
+    - name: job 1
+      run: echo from job 1
+`,
+				"lefthook-local.yml": `
+pre-commit:
+  jobs:
+    - name: job 1
+      run: wrap {cmd}
+`,
+			},
+			result: &Config{
+				SourceDir:      ".lefthook",
+				SourceDirLocal: ".lefthook-local",
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Jobs: []*Job{
+							{
+								Name: "job 1",
+								Run:  "wrap echo from job 1",
+							},
+						},
+					},
+				},
+			},
+		},
 	} {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		repo := &git.Repository{

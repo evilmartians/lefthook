@@ -537,6 +537,7 @@ func mergeJobsSlice(src, dest []interface{}) []interface{} {
 						destSubJobs = mergeJobsSlice(srcSubJobs, destSubJobs)
 					}
 
+					// Replace possible {cmd} before merging the jobs
 					switch srcRun := srcJob["run"].(type) {
 					case string:
 						switch destRun := destJob["run"].(type) {
