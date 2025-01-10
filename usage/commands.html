@@ -159,6 +159,16 @@
 <blockquote>
 <p><strong>Tip:</strong> Use <code>lefthook help</code> or <code>lefthook &lt;command&gt; -h/--help</code> to discover available commands and their options</p>
 </blockquote>
+<ul>
+<li><a href="#lefthook-install"><code>lefthook install</code></a></li>
+<li><a href="#lefthook-uninstall"><code>lefthook uninstall</code></a></li>
+<li><a href="#lefthook-add"><code>lefthook add</code></a></li>
+<li><a href="#lefthook-run"><code>lefthook run</code></a></li>
+<li><a href="#lefthook-version"><code>lefthook version</code></a></li>
+<li><a href="#lefthook-self-update"><code>lefthook self-update</code></a></li>
+<li><a href="#lefthook-validate"><code>lefthook validate</code></a></li>
+<li><a href="#lefthook-dump"><code>lefthook dump</code></a></li>
+</ul>
 <h3 id="lefthook-install"><a class="header" href="#lefthook-install"><code>lefthook install</code></a></h3>
 <p><code>lefthook install</code> creates an empty <code>lefthook.yml</code> if a configuration file does not exist and updates git hooks to use lefthook. Run <code>lefthook install</code> after cloning the git repo.</p>
 <blockquote>
@@ -227,6 +237,10 @@ $ lefthook run pre-commit --file file1.js --file file2.js
 </code></pre>
 <h3 id="lefthook-self-update"><a class="header" href="#lefthook-self-update"><code>lefthook self-update</code></a></h3>
 <p><code>lefthook self-update</code> updates the binary with the latest lefthook release on Github. This command is available only if you install lefthook from sources or download the binary from the Github Releases. For other ways use package-specific commands to update lefthook.</p>
+<h3 id="lefthook-validate"><a class="header" href="#lefthook-validate"><code>lefthook validate</code></a></h3>
+<p><code>lefthook validate</code> loads JSON schema from the Github repo and validates you main lefthook config (e.g. <code>lefthook.yml</code>) and secondary configs (<code>lefthook-local.yml</code>, configs from <code>extends</code> and <code>remotes</code>). Use <code>lefthook dump</code> to get the full config and locate the issue.</p>
+<h3 id="lefthook-dump"><a class="header" href="#lefthook-dump"><code>lefthook dump</code></a></h3>
+<p><code>lefthook dump</code> prints the merged config. This is the actual config lefthook uses, it can be build from the main config (<code>lefthook.yml</code>), remotes, extends, and <code>lefthook-local.yml</code> overrides.</p>
 
                     </main>
 
