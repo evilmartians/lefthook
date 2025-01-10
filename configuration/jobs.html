@@ -175,7 +175,7 @@ pre-commit:
 <p><strong>Job Groups</strong></p>
 <ul>
 <li>Groups can include other jobs.</li>
-<li>Flow within groups can be parallel or piped. Options like <code>glob</code> and <code>root</code> apply to all jobs in the group, including nested ones.</li>
+<li>Flow within groups can be parallel or piped. Options <code>glob</code>, <code>root</code>, and <code>exclude</code> apply to all jobs in the group, including nested ones.</li>
 </ul>
 <h3 id="job-options"><a class="header" href="#job-options">Job options</a></h3>
 <p>Below are the available options for configuring jobs.</p>
@@ -207,7 +207,7 @@ pre-commit:
 </ul>
 <h3 id="example"><a class="header" href="#example">Example</a></h3>
 <blockquote>
-<p><strong>Note:</strong> Currently, only root and glob options are applied to group jobs. Other options must be set for each job individually. Submit a <a href="https://github.com/evilmartians/lefthook/issues/new?assignees=&amp;labels=feature+request&amp;projects=&amp;template=feature_request.md">feature request</a> if this limits your workflow.</p>
+<p><strong>Note:</strong> Currently, only <code>root</code>, <code>glob</code>, and <code>exclude</code> options are applied to group jobs. Other options must be set for each job individually. Submit a <a href="https://github.com/evilmartians/lefthook/issues/new?assignees=&amp;labels=feature+request&amp;projects=&amp;template=feature_request.md">feature request</a> if this limits your workflow.</p>
 </blockquote>
 <p>A configuration demonstrating a piped group running in parallel with other jobs:</p>
 <pre><code class="language-yml"># lefthook.yml
