@@ -10,7 +10,7 @@ type Script struct {
 
 	Skip     interface{}       `json:"skip,omitempty"     jsonschema:"oneof_type=boolean;array" mapstructure:"skip"       toml:"skip,omitempty,inline" yaml:",omitempty"`
 	Only     interface{}       `json:"only,omitempty"     jsonschema:"oneof_type=boolean;array" mapstructure:"only"       toml:"only,omitempty,inline" yaml:",omitempty"`
-	Tags     []string          `json:"tags,omitempty"     mapstructure:"tags"                   toml:"tags,omitempty"     yaml:",omitempty"`
+	Tags     []string          `json:"tags,omitempty"     jsonschema:"oneof_type=string;array"  mapstructure:"tags"       toml:"tags,omitempty"        yaml:",omitempty"`
 	Env      map[string]string `json:"env,omitempty"      mapstructure:"env"                    toml:"env,omitempty"      yaml:",omitempty"`
 	Priority int               `json:"priority,omitempty" mapstructure:"priority"               toml:"priority,omitempty" yaml:",omitempty"`
 

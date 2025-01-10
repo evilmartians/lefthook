@@ -36,7 +36,7 @@ func Validate(opts *Options) error {
 		details := result.ToList()
 		logValidationErrors(0, *details)
 
-		return errors.New("Validation failed: main config")
+		return errors.New("Validation failed for main config")
 	}
 
 	result = schema.Validate(secondary.Raw())
@@ -44,7 +44,7 @@ func Validate(opts *Options) error {
 		details := result.ToList()
 		logValidationErrors(0, *details)
 
-		return errors.New("Validation failed: secondary config")
+		return errors.New("Validation failed for secondary config")
 	}
 
 	log.Info("All good")
@@ -52,31 +52,40 @@ func Validate(opts *Options) error {
 }
 
 func logValidationErrors(indent int, details jsonschema.List) {
-	if len(details.Details) == 0 && details.Valid {
+	if details.Valid {
 		return
 	}
 
 	if len(details.InstanceLocation) > 0 {
-		var errors []string
-		if len(details.Errors) > 0 {
-			for key, value := range details.Errors {
-				errors = append(errors, "["+key+"] "+value)
-			}
-		}
+		logDetail(indent, details)
 
-		key := strings.Repeat(" ", indent) + strings.ReplaceAll(details.InstanceLocation, "/", "") + ":"
-
-		if len(errors) == 0 {
-			key = log.Gray(key)
-		} else {
-			key = log.Yellow(key)
-		}
-
-		log.Info(key, log.Red(strings.Join(errors, ",")))
 		indent += 2
 	}
 
 	for _, d := range details.Details {
 		logValidationErrors(indent, d)
+	}
+}
+
+func logDetail(indent int, details jsonschema.List) {
+	var errors []string
+	if len(details.Errors) > 0 {
+		for _, err := range details.Errors {
+			errors = append(errors, err)
+		}
+	}
+
+	option := strings.Repeat(" ", indent) + strings.TrimLeft(details.InstanceLocation, "/") + ":"
+
+	if len(errors) == 0 {
+		option = log.Gray(option)
+	} else {
+		option = log.Yellow(option)
+	}
+
+	if len(details.Details) > 0 {
+		log.Info(option)
+	} else {
+		log.Info(option, log.Red(strings.Join(errors, ",")))
 	}
 }
