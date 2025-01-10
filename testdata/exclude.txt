@@ -4,13 +4,13 @@ exec git config user.email "you@example.com"
 exec git config user.name "Your Name"
 exec git add -A
 exec lefthook run -f all
-stdout 'a.txt b.txt dir/a.txt dir/b.txt lefthook.yml'
+stdout '^a.txt b.txt dir/a.txt dir/b.txt lefthook.yml\s*$'
 exec lefthook run -f regexp
-stdout 'dir/a.txt dir/b.txt lefthook.yml'
+stdout '^dir/a.txt dir/b.txt lefthook.yml\s*$'
 exec lefthook run -f array
-stdout 'dir/a.txt dir/b.txt'
+stdout '^dir/a.txt dir/b.txt\s*$'
 exec lefthook run -f nested
-stdout 'dir/b.txt lefthook.yml\s+b.txt dir/b.txt'
+stdout '^lefthook.yml\s+dir/b.txt lefthook.yml\s+b.txt dir/b.txt\s*$'
 
 -- lefthook.yml --
 skip_output:
@@ -39,6 +39,9 @@ array:
 
 nested:
   jobs:
+    - exclude:
+        - '*.txt'
+      run: echo {staged_files}
     - exclude:
         - a.txt
         - dir/a.txt
