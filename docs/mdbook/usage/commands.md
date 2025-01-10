@@ -2,6 +2,15 @@
 
 > **Tip:** Use `lefthook help` or `lefthook <command> -h/--help` to discover available commands and their options
 
+- [`lefthook install`](#lefthook-install)
+- [`lefthook uninstall`](#lefthook-uninstall)
+- [`lefthook add`](#lefthook-add)
+- [`lefthook run`](#lefthook-run)
+- [`lefthook version`](#lefthook-version)
+- [`lefthook self-update`](#lefthook-self-update)
+- [`lefthook validate`](#lefthook-validate)
+- [`lefthook dump`](#lefthook-dump)
+
 ### `lefthook install`
 
 `lefthook install` creates an empty `lefthook.yml` if a configuration file does not exist and updates git hooks to use lefthook. Run `lefthook install` after cloning the git repo.
@@ -117,3 +126,10 @@ $ lefthook version --full
 
 `lefthook self-update` updates the binary with the latest lefthook release on Github. This command is available only if you install lefthook from sources or download the binary from the Github Releases. For other ways use package-specific commands to update lefthook.
 
+### `lefthook validate`
+
+`lefthook validate` loads JSON schema from the Github repo and validates you main lefthook config (e.g. `lefthook.yml`) and secondary configs (`lefthook-local.yml`, configs from `extends` and `remotes`). Use `lefthook dump` to get the full config and locate the issue.
+
+### `lefthook dump`
+
+`lefthook dump` prints the merged config. This is the actual config lefthook uses, it can be build from the main config (`lefthook.yml`), remotes, extends, and `lefthook-local.yml` overrides.

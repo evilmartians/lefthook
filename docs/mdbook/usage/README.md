@@ -7,6 +7,8 @@
   - [`lefthook run`](./commands.md#lefthook-run)
   - [`lefthook version`](./commands.md#lefthook-version)
   - [`lefthook self-update`](./commands.md#lefthook-self-update)
+  - [`lefthook validate`](./commands.md#lefthook-validate)
+  - [`lefthook dump`](./commands.md#lefthook-dump)
 - [ENV variables](./env.md)
   - [`LEFTHOOK`](./env.md#lefthook)
   - [`LEFTHOOK_EXCLUDE`](./env.md#lefthook_exclude)
