@@ -25,7 +25,7 @@ pre-commit:
 **Job Groups**
 
 - Groups can include other jobs.
-- Flow within groups can be parallel or piped. Options like `glob` and `root` apply to all jobs in the group, including nested ones.
+- Flow within groups can be parallel or piped. Options `glob`, `root`, and `exclude` apply to all jobs in the group, including nested ones.
 
 ### Job options
 
@@ -55,7 +55,7 @@ Below are the available options for configuring jobs.
 
 ### Example
 
-> **Note:** Currently, only root and glob options are applied to group jobs. Other options must be set for each job individually. Submit a [feature request](https://github.com/evilmartians/lefthook/issues/new?assignees=&labels=feature+request&projects=&template=feature_request.md) if this limits your workflow.
+> **Note:** Currently, only `root`, `glob`, and `exclude` options are applied to group jobs. Other options must be set for each job individually. Submit a [feature request](https://github.com/evilmartians/lefthook/issues/new?assignees=&labels=feature+request&projects=&template=feature_request.md) if this limits your workflow.
 
 A configuration demonstrating a piped group running in parallel with other jobs:
 
