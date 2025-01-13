@@ -1,5 +1,11 @@
 # Change log
 
+## 1.10.4 (2025-01-13)
+
+- fix: avoid skipping pre commit when deleted files staged ([#925](https://github.com/evilmartians/lefthook/pull/925)) by @mrexox
+- fix: use roots from jobs for possible npm package location ([#924](https://github.com/evilmartians/lefthook/pull/924)) by @mrexox
+- deps: January 2025 ([#926](https://github.com/evilmartians/lefthook/pull/926)) by @mrexox
+
 ## 1.10.3 (2025-01-10)
 
 - fix: replace cmd in jobs ([#918](https://github.com/evilmartians/lefthook/pull/918)) by @mrexox
