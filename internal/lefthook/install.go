@@ -205,6 +205,8 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force b
 				}
 			}
 		}
+
+		collectAllJobRoots(rootsMap, hook.Jobs)
 	}
 	roots := make([]string, 0, len(rootsMap))
 	for root := range rootsMap {
@@ -250,6 +252,21 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force b
 	}
 
 	return nil
+}
+
+func collectAllJobRoots(roots map[string]struct{}, jobs []*config.Job) {
+	for _, job := range jobs {
+		if len(job.Root) > 0 {
+			root := strings.Trim(job.Root, "/")
+			if _, ok := roots[root]; !ok {
+				roots[root] = struct{}{}
+			}
+		}
+
+		if job.Group != nil {
+			collectAllJobRoots(roots, job.Group.Jobs)
+		}
+	}
 }
 
 func (l *Lefthook) hooksSynchronized(cfg *config.Config) bool {
