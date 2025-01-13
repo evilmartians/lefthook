@@ -56,7 +56,7 @@ func buildCommand(params *Params) (*Job, error) {
 			} else {
 				cmd = []string{"sh", "-c", filesCmd}
 			}
-			return params.Repo.FilesByCommand(cmd, params.Root)
+			return params.Repo.FindExistingFiles(cmd, params.Root)
 		}
 	}
 
@@ -124,7 +124,7 @@ func buildCommand(params *Params) (*Job, error) {
 	}
 
 	if config.HookUsesStagedFiles(params.HookName) {
-		ok, err := canSkipJob(params, filterParams, templates[config.SubStagedFiles], params.Repo.StagedFiles)
+		ok, err := canSkipJob(params, filterParams, templates[config.SubStagedFiles], params.Repo.StagedFilesWithDeleted)
 		if err != nil {
 			return nil, err
 		}
