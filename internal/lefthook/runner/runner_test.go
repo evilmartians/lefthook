@@ -50,6 +50,7 @@ func (g *gitCmd) Run(cmd []string, _root string, _in io.Reader, out io.Writer, _
 
 	cmdLine := strings.Join(cmd, " ")
 	if cmdLine == "git diff --name-only --cached --diff-filter=ACMR" ||
+		cmdLine == "git diff --name-only --cached --diff-filter=ACMRD" ||
 		cmdLine == "git diff --name-only HEAD @{push}" {
 		root, _ := filepath.Abs("src")
 		_, err := out.Write([]byte(strings.Join([]string{
@@ -622,7 +623,7 @@ func TestRunAll(t *testing.T) {
 					"fail": {
 						Run:        "fail",
 						StageFixed: true,
-						Glob:       "*.sh",
+						Glob:       "*.txt",
 					},
 				},
 			},
