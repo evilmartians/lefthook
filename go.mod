@@ -17,14 +17,14 @@ require (
 	github.com/knadh/koanf/parsers/toml/v2 v2.1.0
 	github.com/knadh/koanf/parsers/yaml v0.1.0
 	github.com/knadh/koanf/providers/fs v0.1.0
-	github.com/knadh/koanf/v2 v2.1.1
+	github.com/knadh/koanf/v2 v2.1.2
 	github.com/mattn/go-tty v0.0.7
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rogpeppe/go-internal v1.13.1
-	github.com/schollz/progressbar/v3 v3.17.1
-	github.com/spf13/afero v1.11.0
+	github.com/schollz/progressbar/v3 v3.18.0
+	github.com/spf13/afero v1.12.0
 	github.com/spf13/cobra v1.8.1
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 )
 
 require (
@@ -33,7 +33,7 @@ require (
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/charmbracelet/x/ansi v0.4.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
-	github.com/go-viper/mapstructure/v2 v2.1.0 // indirect
+	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/goccy/go-json v0.10.3 // indirect
 	github.com/goccy/go-yaml v1.13.4 // indirect
 	github.com/gotnospirit/makeplural v0.0.0-20180622080156-a5f48d94d976 // indirect
@@ -62,8 +62,8 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.3
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	golang.org/x/sys v0.27.0 // indirect
-	golang.org/x/term v0.26.0 // indirect
-	golang.org/x/text v0.19.0 // indirect
+	golang.org/x/sys v0.29.0 // indirect
+	golang.org/x/term v0.28.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1
 )
