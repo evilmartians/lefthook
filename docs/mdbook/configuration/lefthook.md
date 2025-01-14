@@ -2,6 +2,8 @@
 
 **Default:** `null`
 
+> Added in lefthook `1.10.5`
+
 Provide a full path to lefthook executable or a command to run lefthook. Bourne shell (`sh`) syntax is supported.
 
 > **Important:** This option does not merge from `remotes` or `extends` for security reasons. But it gets merged from lefthook local config if specified.
