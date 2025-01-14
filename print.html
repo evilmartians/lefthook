@@ -719,6 +719,9 @@ extends:
 </blockquote>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook-1"><a class="header" href="#lefthook-1"><code>lefthook</code></a></h2>
 <p><strong>Default:</strong> <code>null</code></p>
+<blockquote>
+<p>Added in lefthook <code>1.10.5</code></p>
+</blockquote>
 <p>Provide a full path to lefthook executable or a command to run lefthook. Bourne shell (<code>sh</code>) syntax is supported.</p>
 <blockquote>
 <p><strong>Important:</strong> This option does not merge from <code>remotes</code> or <code>extends</code> for security reasons. But it gets merged from lefthook local config if specified.</p>
@@ -1307,6 +1310,9 @@ pre-commit:
       run: yarn lint-quickly
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="jobs"><a class="header" href="#jobs"><code>jobs</code></a></h2>
+<blockquote>
+<p>Added in lefthook <code>1.10.0</code></p>
+</blockquote>
 <p>Jobs provide a flexible way to define tasks, supporting both commands and scripts. Jobs can be grouped for advanced flow control.</p>
 <h3 id="basic-example"><a class="header" href="#basic-example">Basic example</a></h3>
 <p>Define jobs in your <code>lefthook.yml</code> file under a specific hook like <code>pre-commit</code>:</p>
@@ -1626,6 +1632,9 @@ database:
       run: rake db:seed
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="jobs-1"><a class="header" href="#jobs-1"><code>jobs</code></a></h2>
+<blockquote>
+<p>Added in lefthook <code>1.10.0</code></p>
+</blockquote>
 <p>Jobs provide a flexible way to define tasks, supporting both commands and scripts. Jobs can be grouped for advanced flow control.</p>
 <h3 id="basic-example-1"><a class="header" href="#basic-example-1">Basic example</a></h3>
 <p>Define jobs in your <code>lefthook.yml</code> file under a specific hook like <code>pre-commit</code>:</p>
