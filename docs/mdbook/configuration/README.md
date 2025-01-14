@@ -21,6 +21,7 @@ Lefthook also merges an extra config with the name `lefthook-local`. All support
 - [`colors`](./colors.md)
 - [`no_tty`](./no_tty.md)
 - [`extends`](./extends.md)
+- [`lefthook`](./lefthook.md)
 - [`min_version`](./min_version.md)
 - [`output`](./output.md)
 - [`skip_output`](./skip_output.md)

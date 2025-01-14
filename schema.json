@@ -392,11 +392,15 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2025.01.10.",
+  "$comment": "Last updated on 2025.01.14.",
   "properties": {
     "min_version": {
       "type": "string",
       "description": "Specify a minimum version for the lefthook binary"
+    },
+    "lefthook": {
+      "type": "string",
+      "description": "Lefthook executable path or command"
     },
     "source_dir": {
       "type": "string",

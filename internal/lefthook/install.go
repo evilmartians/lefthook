@@ -225,6 +225,7 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force b
 			Rc:                      cfg.Rc,
 			AssertLefthookInstalled: cfg.AssertLefthookInstalled,
 			Roots:                   roots,
+			LefthookExe:             cfg.Lefthook,
 		}
 		if err = l.addHook(hook, templateArgs); err != nil {
 			return fmt.Errorf("could not add the hook: %w", err)

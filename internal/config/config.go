@@ -27,6 +27,8 @@ const (
 type Config struct {
 	MinVersion string `json:"min_version,omitempty" jsonschema:"description=Specify a minimum version for the lefthook binary" koanf:"min_version" mapstructure:"min_version,omitempty"`
 
+	Lefthook string `json:"lefthook,omitempty" jsonschema:"description=Lefthook executable path or command" mapstructure:"lefthook,omitempty"`
+
 	SourceDir string `json:"source_dir,omitempty" jsonschema:"default=.lefthook/,description=Change a directory for script files. Directory for script files contains folders with git hook names which contain script files." koanf:"source_dir" mapstructure:"source_dir,omitempty"`
 
 	SourceDirLocal string `json:"source_dir_local,omitempty" jsonschema:"default=.lefthook-local/,description=Change a directory for local script files (not stored in VCS)" koanf:"source_dir_local" mapstructure:"source_dir_local,omitempty"`

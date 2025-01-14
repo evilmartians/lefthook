@@ -5,6 +5,7 @@ import (
 	"embed"
 	"fmt"
 	"runtime"
+	"strings"
 	"text/template"
 )
 
@@ -15,6 +16,7 @@ var templatesFS embed.FS
 
 type Args struct {
 	Rc                      string
+	LefthookExe             string
 	AssertLefthookInstalled bool
 	Roots                   []string
 }
@@ -22,6 +24,7 @@ type Args struct {
 type hookTmplData struct {
 	HookName                string
 	Extension               string
+	LefthookExe             string
 	Rc                      string
 	Roots                   []string
 	AssertLefthookInstalled bool
@@ -36,6 +39,7 @@ func Hook(hookName string, args Args) []byte {
 		Rc:                      args.Rc,
 		AssertLefthookInstalled: args.AssertLefthookInstalled,
 		Roots:                   args.Roots,
+		LefthookExe:             strings.ReplaceAll(strings.TrimSpace(args.LefthookExe), "\n", ";"),
 	})
 	if err != nil {
 		panic(err)
