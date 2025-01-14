@@ -1,3 +1,4 @@
+assert_lefthook_installed: true
 skip_lfs: true
 
 pre-commit:

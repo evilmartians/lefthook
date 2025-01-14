@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	timeout                       = 20 * time.Second
+	timeout                       = 120 * time.Second
 	latestReleaseURL              = "https://api.github.com/repos/evilmartians/lefthook/releases/latest"
 	checksumsFilename             = "lefthook_checksums.txt"
 	checksumFields                = 2
