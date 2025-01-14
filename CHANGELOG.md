@@ -1,5 +1,10 @@
 # Change log
 
+## 1.10.5 (2025-01-14)
+
+- feat: add lefthook option for custom path or command ([#927](https://github.com/evilmartians/lefthook/pull/927)) by @mrexox
+- chore: update config template with new jobs by @mrexox
+
 ## 1.10.4 (2025-01-13)
 
 - fix: avoid skipping pre commit when deleted files staged ([#925](https://github.com/evilmartians/lefthook/pull/925)) by @mrexox
