@@ -29,6 +29,7 @@
   - [`colors`](./configuration/colors.md)
   - [`no_tty`](./configuration/no_tty.md)
   - [`extends`](./configuration/extends.md)
+  - [`lefthook`](./configuration/lefthook.md)
   - [`min_version`](./configuration/min_version.md)
   - [`output`](./configuration/output.md)
   - [`skip_output`](./configuration/skip_output.md)
