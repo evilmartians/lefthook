@@ -114,6 +114,9 @@ func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.
 		return nil, nil, err
 	}
 
+	// Don't allow to set `lefthook` field by a remote config
+	secondary.Delete("lefthook")
+
 	// Load optional local config (e.g. lefthook-local.yml)
 	var noLocal bool
 	if err := loadOne(secondary, filesystem, repo.RootPath, localConfigNames); err != nil {
