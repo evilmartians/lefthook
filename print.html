@@ -574,6 +574,7 @@ SHA1=$3
 <li><a href="configuration/./colors.html"><code>colors</code></a></li>
 <li><a href="configuration/./no_tty.html"><code>no_tty</code></a></li>
 <li><a href="configuration/./extends.html"><code>extends</code></a></li>
+<li><a href="configuration/./lefthook.html"><code>lefthook</code></a></li>
 <li><a href="configuration/./min_version.html"><code>min_version</code></a></li>
 <li><a href="configuration/./output.html"><code>output</code></a></li>
 <li><a href="configuration/./skip_output.html"><code>skip_output</code></a></li>
@@ -716,6 +717,54 @@ extends:
 </ul>
 <p>So, <code>extends</code> override settings from <code>lefthook.yml</code>, <code>remotes</code> override <code>extends</code>, and <code>lefthook-local.yml</code> can override everything.</p>
 </blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook-1"><a class="header" href="#lefthook-1"><code>lefthook</code></a></h2>
+<p><strong>Default:</strong> <code>null</code></p>
+<p>Provide a full path to lefthook executable or a command to run lefthook. Bourne shell (<code>sh</code>) syntax is supported.</p>
+<blockquote>
+<p><strong>Important:</strong> This option does not merge from <code>remotes</code> or <code>extends</code> for security reasons. But it gets merged from lefthook local config if specified.</p>
+</blockquote>
+<p>There are three reasons you may want to specify <code>lefthook</code>:</p>
+<ol>
+<li>You want to force using specific lefthook version from your dependencies (e.g. npm package)</li>
+<li>You use OnP loader for your JS/TS project, and your <code>package.json</code> with lefthook dependency locates in a subfolder</li>
+<li>You want to make sure you use concrete lefthook executable path and want to defined it in <code>lefthook-local.yml</code></li>
+</ol>
+<h3 id="examples"><a class="header" href="#examples">Examples</a></h3>
+<h4 id="specify-lefthook-executable"><a class="header" href="#specify-lefthook-executable">Specify lefthook executable</a></h4>
+<pre><code class="language-yml"># lefthook.yml
+
+lefthook: /usr/bin/lefthook
+
+pre-commit:
+  jobs:
+    - run: yarn lint
+</code></pre>
+<h4 id="specify-a-command-to-run-lefthook"><a class="header" href="#specify-a-command-to-run-lefthook">Specify a command to run lefthook</a></h4>
+<pre><code class="language-yml"># lefthook.yml
+
+lefthook: |
+  cd project-with-lefthook
+  pnpm lefthook
+
+pre-commit:
+  jobs:
+    - run: yarn lint
+      root: project-with-lefthook
+</code></pre>
+<h4 id="force-using-a-version-from-rubygems"><a class="header" href="#force-using-a-version-from-rubygems">Force using a version from Rubygems</a></h4>
+<pre><code class="language-yml"># lefthook.yml
+
+lefthook: bundle exec lefthook
+
+pre-commit:
+  jobs:
+    - run: bundle exec rubocop {staged_files}
+</code></pre>
+<h4 id="enable-debug-logs"><a class="header" href="#enable-debug-logs">Enable debug logs</a></h4>
+<pre><code class="language-yml"># lefthook-local.yml
+
+lefthook: lefthook --verbose
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="min_version"><a class="header" href="#min_version"><code>min_version</code></a></h2>
 <p>If you want to specify a minimum version for lefthook binary (e.g. if you need some features older versions don't have) you can set this option.</p>
 <p><strong>Example</strong></p>
@@ -3062,7 +3111,7 @@ post-checkout:
       runner: ruby
       priority: 2
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="examples"><a class="header" href="#examples">Examples</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="examples-1"><a class="header" href="#examples-1">Examples</a></h1>
 <ul>
 <li><a href="examples/./lefthook-local.html">Use lefthook-local.yml with extensions and overrides</a></li>
 <li><a href="examples/./stage_fixed.html">Auto stage changed files</a></li>
