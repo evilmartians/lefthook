@@ -19,7 +19,7 @@ call_lefthook()
   then
     "$LEFTHOOK_BIN" "$@"
   {{ if .LefthookExe -}}
-  elif sh -c "{{ .LefthookExe }} -h" >/dev/null 2>&1
+  elif test -n "{{ .LefthookExe }}"
   then
     {{ .LefthookExe }} "$@"
   {{ end -}}
