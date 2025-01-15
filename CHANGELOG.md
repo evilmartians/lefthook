@@ -1,5 +1,11 @@
 # Change log
 
+## 1.10.6 (2025-01-15)
+
+- fix: use lefthook option in ghost hook too ([#929](https://github.com/evilmartians/lefthook/pull/929)) by @mrexox
+- feat: add schema.json to npm packages ([#928](https://github.com/evilmartians/lefthook/pull/928)) by @mrexox
+- fix: increase timeout for self-update to 2 mins by @mrexox
+
 ## 1.10.5 (2025-01-14)
 
 - feat: add lefthook option for custom path or command ([#927](https://github.com/evilmartians/lefthook/pull/927)) by @mrexox
