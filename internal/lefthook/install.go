@@ -236,6 +236,7 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force b
 		Rc:                      cfg.Rc,
 		AssertLefthookInstalled: cfg.AssertLefthookInstalled,
 		Roots:                   roots,
+		LefthookExe:             cfg.Lefthook,
 	}
 	if err = l.addHook(config.GhostHookName, templateArgs); err != nil {
 		return nil
