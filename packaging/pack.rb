@@ -17,7 +17,7 @@ module Pack
   def prepare
     clean
     set_version
-    put_readme
+    put_additional_files
     put_binaries
   end
 
@@ -43,14 +43,19 @@ module Pack
     replace_in_file("aur/PKGBUILD", /(pkgver+=).*/, %{\\1#{VERSION}})
   end
 
-  def put_readme
+  def put_additional_files
     cd(__dir__)
-    puts "Putting READMEs... "
+    puts "Putting README... "
     Dir["npm/*"].each do |npm_dir|
       cp(File.join(ROOT, "README.md"), File.join(npm_dir, "README.md"), verbose: true)
     end
     cp(File.join(ROOT, "README.md"), "npm-bundled/", verbose: true)
     cp(File.join(ROOT, "README.md"), "npm-installer/", verbose: true)
+
+    puts "Putting schema.json..."
+    cp(File.join(ROOT, "schema.json"), "npm/lefthook/", verbose: true)
+    cp(File.join(ROOT, "schema.json"), "npm-bundled/", verbose: true)
+    cp(File.join(ROOT, "schema.json"), "npm-installer/", verbose: true)
     puts "done"
   end
 

@@ -3,6 +3,9 @@
   "version": "1.10.5",
   "description": "Simple git hooks manager",
   "main": "bin/index.js",
+  "files": [
+    "schema.json"
+  ],
   "bin": {
     "lefthook": "bin/index.js"
   },
