@@ -1,2 +1,2 @@
-[default.extend-words]
-"Pn" = "Pn" # for PnP
+[default.extend-identifiers]
+"PnP" = "PnP"
