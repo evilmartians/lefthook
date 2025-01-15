@@ -18,5 +18,8 @@ packaging/npm-bundled/bin/
 packaging/npm-*/README.md
 packaging/npm/*/bin/
 packaging/npm/*/README.md
+packaging/npm/*/schema.json
+packaging/npm-bundled/schema.json
+packaging/npm-installer/schema.json
 !packaging/npm/*/package.json
 !packaging/npm/lefthook/bin/index.js

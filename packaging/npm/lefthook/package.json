@@ -7,6 +7,9 @@
     "url": "git+https://github.com/evilmartians/lefthook.git"
   },
   "main": "bin/index.js",
+  "files": [
+    "schema.json"
+  ],
   "bin": {
     "lefthook": "bin/index.js"
   },
