@@ -23,6 +23,7 @@ type Params struct {
 	Files     string
 	FileTypes []string
 	Tags      []string
+	Templates map[string]string
 	Exclude   interface{}
 	Only      interface{}
 	Skip      interface{}

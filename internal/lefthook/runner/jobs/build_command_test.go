@@ -68,13 +68,13 @@ func Test_getNChars(t *testing.T) {
 func Test_replaceInChunks(t *testing.T) {
 	for i, tt := range [...]struct {
 		str       string
-		templates map[string]*template
+		templates map[string]*filesTemplate
 		maxlen    int
 		job       *Job
 	}{
 		{
 			str: "echo {staged_files}",
-			templates: map[string]*template{
+			templates: map[string]*filesTemplate{
 				"{staged_files}": {
 					files: []string{"file1", "file2", "file3"},
 					cnt:   1,
@@ -88,7 +88,7 @@ func Test_replaceInChunks(t *testing.T) {
 		},
 		{
 			str: "echo {staged_files}",
-			templates: map[string]*template{
+			templates: map[string]*filesTemplate{
 				"{staged_files}": {
 					files: []string{"file1", "file2", "file3"},
 					cnt:   1,
@@ -106,7 +106,7 @@ func Test_replaceInChunks(t *testing.T) {
 		},
 		{
 			str: "echo {files} && git add {files}",
-			templates: map[string]*template{
+			templates: map[string]*filesTemplate{
 				"{files}": {
 					files: []string{"file1", "file2", "file3"},
 					cnt:   2,
@@ -123,7 +123,7 @@ func Test_replaceInChunks(t *testing.T) {
 		},
 		{
 			str: "echo {files} && git add {files}",
-			templates: map[string]*template{
+			templates: map[string]*filesTemplate{
 				"{files}": {
 					files: []string{"file1", "file2", "file3"},
 					cnt:   2,
@@ -139,7 +139,7 @@ func Test_replaceInChunks(t *testing.T) {
 		},
 		{
 			str: "echo {push_files} && git add {files}",
-			templates: map[string]*template{
+			templates: map[string]*filesTemplate{
 				"{push_files}": {
 					files: []string{"push-file"},
 					cnt:   1,
@@ -160,7 +160,7 @@ func Test_replaceInChunks(t *testing.T) {
 		},
 		{
 			str: "echo {push_files} && git add {files}",
-			templates: map[string]*template{
+			templates: map[string]*filesTemplate{
 				"{push_files}": {
 					files: []string{"push1", "push2", "push3"},
 					cnt:   1,

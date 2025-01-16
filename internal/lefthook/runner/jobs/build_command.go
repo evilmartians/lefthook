@@ -17,7 +17,7 @@ import (
 var surroundingQuotesRegexp = regexp.MustCompile(`^'(.*)'$`)
 
 // template is stats for template replacements in a command string.
-type template struct {
+type filesTemplate struct {
 	files []string
 	cnt   int
 }
@@ -67,7 +67,7 @@ func buildCommand(params *Params) (*Job, error) {
 		config.SubFiles:       cmdFiles,
 	}
 
-	templates := make(map[string]*template)
+	filesTemplates := make(map[string]*filesTemplate)
 
 	filterParams := filters.Params{
 		Glob:      params.Glob,
@@ -81,8 +81,8 @@ func buildCommand(params *Params) (*Job, error) {
 			continue
 		}
 
-		templ := &template{cnt: cnt}
-		templates[filesType] = templ
+		templ := &filesTemplate{cnt: cnt}
+		filesTemplates[filesType] = templ
 
 		files, err := fn()
 		if err != nil {
@@ -100,7 +100,7 @@ func buildCommand(params *Params) (*Job, error) {
 	// Checking substitutions and skipping execution if it is empty.
 	//
 	// Special case for `files` option: return if the result of files command is empty.
-	if !params.Force && len(filesCmd) > 0 && templates[config.SubFiles] == nil {
+	if !params.Force && len(filesCmd) > 0 && filesTemplates[config.SubFiles] == nil {
 		files, err := filesFns[config.SubFiles]()
 		if err != nil {
 			return nil, fmt.Errorf("error calling replace command for %s: %w", config.SubFiles, err)
@@ -116,15 +116,19 @@ func buildCommand(params *Params) (*Job, error) {
 	runString := params.Run
 	runString = replacePositionalArguments(runString, params.GitArgs)
 
+	for keyword, replacement := range params.Templates {
+		runString = strings.ReplaceAll(runString, "{"+keyword+"}", replacement)
+	}
+
 	maxlen := system.MaxCmdLen()
-	result := replaceInChunks(runString, templates, maxlen)
+	result := replaceInChunks(runString, filesTemplates, maxlen)
 
 	if params.Force || len(result.Files) != 0 {
 		return result, nil
 	}
 
 	if config.HookUsesStagedFiles(params.HookName) {
-		ok, err := canSkipJob(params, filterParams, templates[config.SubStagedFiles], params.Repo.StagedFilesWithDeleted)
+		ok, err := canSkipJob(params, filterParams, filesTemplates[config.SubStagedFiles], params.Repo.StagedFilesWithDeleted)
 		if err != nil {
 			return nil, err
 		}
@@ -134,7 +138,7 @@ func buildCommand(params *Params) (*Job, error) {
 	}
 
 	if config.HookUsesPushFiles(params.HookName) {
-		ok, err := canSkipJob(params, filterParams, templates[config.SubPushFiles], params.Repo.PushFiles)
+		ok, err := canSkipJob(params, filterParams, filesTemplates[config.SubPushFiles], params.Repo.PushFiles)
 		if err != nil {
 			return nil, err
 		}
@@ -146,7 +150,7 @@ func buildCommand(params *Params) (*Job, error) {
 	return result, nil
 }
 
-func canSkipJob(params *Params, filterParams filters.Params, template *template, filesFn func() ([]string, error)) (bool, error) {
+func canSkipJob(params *Params, filterParams filters.Params, template *filesTemplate, filesFn func() ([]string, error)) (bool, error) {
 	if template != nil {
 		return len(template.files) == 0, nil
 	}
@@ -184,7 +188,7 @@ func escapeFiles(files []string) []string {
 	return filesEsc
 }
 
-func replaceInChunks(str string, templates map[string]*template, maxlen int) *Job {
+func replaceInChunks(str string, templates map[string]*filesTemplate, maxlen int) *Job {
 	if len(templates) == 0 {
 		return &Job{
 			Execs: []string{str},

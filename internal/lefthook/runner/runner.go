@@ -43,6 +43,7 @@ type Options struct {
 	RunOnlyCommands []string
 	RunOnlyJobs     []string
 	SourceDirs      []string
+	Templates       map[string]string
 }
 
 // Runner responds for actual execution and handling the results.
@@ -346,6 +347,7 @@ func (r *Runner) runScript(ctx context.Context, script *config.Script, file os.F
 		Tags:       script.Tags,
 		Only:       script.Only,
 		Skip:       script.Skip,
+		Templates:  r.Templates,
 	})
 	if err != nil {
 		r.logSkip(file.Name(), err.Error())
@@ -467,6 +469,7 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 		Exclude:    command.Exclude,
 		Only:       command.Only,
 		Skip:       command.Skip,
+		Templates:  r.Templates,
 	})
 	if err != nil {
 		r.logSkip(name, err.Error())
