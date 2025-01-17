@@ -1,5 +1,7 @@
 ## `templates`
 
+> Added in lefthook `1.10.8`
+
 Provide custom replacement for templates in `run` values.
 
 With `templates` you can specify what can be overridden via `lefthook-local.yml` without a need to overwrite every jobs in your configuration.
