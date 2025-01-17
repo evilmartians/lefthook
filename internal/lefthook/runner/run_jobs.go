@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strconv"
+	"strings"
 	"sync"
 	"sync/atomic"
 
@@ -29,6 +30,7 @@ type domain struct {
 	root     string
 	exclude  interface{}
 	onlyJobs []string
+	names    []string
 }
 
 func (r *Runner) runJobs(ctx context.Context) []Result {
@@ -107,7 +109,8 @@ func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *con
 		default:
 			inheritedDomain.exclude = job.Exclude
 		}
-		groupName := first(job.Name, "["+id+"]")
+		groupName := first(job.Name, "group ("+id+")")
+		inheritedDomain.names = append(inheritedDomain.names, groupName)
 
 		if len(domain.onlyJobs) != 0 && slices.Contains(domain.onlyJobs, job.Name) {
 			inheritedDomain.onlyJobs = []string{}
@@ -158,7 +161,7 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, jo
 	}
 
 	ok := r.run(ctx, exec.Options{
-		Name:        name,
+		Name:        strings.Join(append(domain.names, name), " ❯ "),
 		Root:        filepath.Join(r.Repo.RootPath, root),
 		Commands:    executionJob.Execs,
 		Interactive: job.Interactive && !r.DisableTTY,
