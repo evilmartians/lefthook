@@ -1,6 +1,11 @@
 # Change log
 
-## 1.10.6 (2025-01-15)
+## 1.10.8 (2025-01-17)
+
+- feat: add custom plain templates ([#930](https://github.com/evilmartians/lefthook/pull/930)) by @mrexox
+- fix: unique names for nested operations ([#931](https://github.com/evilmartians/lefthook/pull/931)) by @mrexox
+
+## 1.10.7 (2025-01-15)
 
 - fix: use lefthook option in ghost hook too ([#929](https://github.com/evilmartians/lefthook/pull/929)) by @mrexox
 - feat: add schema.json to npm packages ([#928](https://github.com/evilmartians/lefthook/pull/928)) by @mrexox
