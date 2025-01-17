@@ -347,7 +347,6 @@ func (r *Runner) runScript(ctx context.Context, script *config.Script, file os.F
 		Tags:       script.Tags,
 		Only:       script.Only,
 		Skip:       script.Skip,
-		Templates:  r.Templates,
 	})
 	if err != nil {
 		r.logSkip(file.Name(), err.Error())

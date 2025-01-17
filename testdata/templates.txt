@@ -1,0 +1,14 @@
+exec git init
+exec lefthook run test
+stdout '^\s*hello\s*$'
+
+-- lefthook.yml --
+templates:
+  message: hello
+
+output:
+  - execution_out
+
+test:
+  jobs:
+    - run: echo {message}

@@ -16,7 +16,7 @@ import (
 
 var surroundingQuotesRegexp = regexp.MustCompile(`^'(.*)'$`)
 
-// template is stats for template replacements in a command string.
+// fileTemplate contains for template replacements in a command string.
 type filesTemplate struct {
 	files []string
 	cnt   int
