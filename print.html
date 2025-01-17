@@ -572,16 +572,12 @@ SHA1=$3
 <ul>
 <li><a href="configuration/./assert_lefthook_installed.html"><code>assert_lefthook_installed</code></a></li>
 <li><a href="configuration/./colors.html"><code>colors</code></a></li>
-<li><a href="configuration/./no_tty.html"><code>no_tty</code></a></li>
 <li><a href="configuration/./extends.html"><code>extends</code></a></li>
 <li><a href="configuration/./lefthook.html"><code>lefthook</code></a></li>
 <li><a href="configuration/./min_version.html"><code>min_version</code></a></li>
+<li><a href="configuration/./no_tty.html"><code>no_tty</code></a></li>
 <li><a href="configuration/./output.html"><code>output</code></a></li>
-<li><a href="configuration/./skip_output.html"><code>skip_output</code></a></li>
-<li><a href="configuration/./source_dir.html"><code>source_dir</code></a></li>
-<li><a href="configuration/./source_dir_local.html"><code>source_dir_local</code></a></li>
 <li><a href="configuration/./rc.html"><code>rc</code></a></li>
-<li><a href="configuration/./skip_lfs.html"><code>skip_lfs</code></a></li>
 <li><a href="configuration/./remotes.html"><code>remotes</code></a>
 <ul>
 <li><a href="configuration/./git_url.html"><code>git_url</code></a></li>
@@ -591,6 +587,11 @@ SHA1=$3
 <li><a href="configuration/./configs.html"><code>configs</code></a></li>
 </ul>
 </li>
+<li><a href="configuration/./skip_output.html"><code>skip_output</code></a></li>
+<li><a href="configuration/./source_dir.html"><code>source_dir</code></a></li>
+<li><a href="configuration/./source_dir_local.html"><code>source_dir_local</code></a></li>
+<li><a href="configuration/./skip_lfs.html"><code>skip_lfs</code></a></li>
+<li><a href="configuration/./templates.html"><code>templates</code></a></li>
 <li><a href="configuration/./Hook.html">{Git hook name}</a> (e.g. <code>pre-commit</code>)
 <ul>
 <li><a href="configuration/./files-global.html"><code>files</code> (global)</a></li>
@@ -686,14 +687,6 @@ colors:
   red: '#FF1493'
   yellow: '#F0E68C'
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="no_tty"><a class="header" href="#no_tty"><code>no_tty</code></a></h2>
-<p><strong>Default: <code>false</code></strong></p>
-<p>Whether hide spinner and other interactive things. This can be also controlled with <code>--no-tty</code> option for <code>lefthook run</code> command.</p>
-<p><strong>Example</strong></p>
-<pre><code class="language-yml"># lefthook.yml
-
-no_tty: true
-</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="extends"><a class="header" href="#extends"><code>extends</code></a></h2>
 <p>You can extend your config with another one YAML file. Its content will be merged. Extends for <code>lefthook.yml</code>, <code>lefthook-local.yml</code>, and <a href="configuration/./remotes.html"><code>remotes</code></a> configs are handled separately, so you can have different extends in these files.</p>
 <p>You can use asterisk to make a glob.</p>
@@ -775,6 +768,14 @@ lefthook: lefthook --verbose
 
 min_version: 1.1.3
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="no_tty"><a class="header" href="#no_tty"><code>no_tty</code></a></h2>
+<p><strong>Default: <code>false</code></strong></p>
+<p>Whether hide spinner and other interactive things. This can be also controlled with <code>--no-tty</code> option for <code>lefthook run</code> command.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-yml"># lefthook.yml
+
+no_tty: true
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="output"><a class="header" href="#output"><code>output</code></a></h2>
 <p>You can manage verbosity using the <code>output</code> config. You can specify what to print in your output by setting these values, which you need to have</p>
 <p>Possible values are <code>meta,summary,success,failure,execution,execution_out,execution_info,skips</code>.
@@ -799,46 +800,6 @@ output:
 <p>You can also <em>extend</em> this list with an environment variable <code>LEFTHOOK_OUTPUT</code>:</p>
 <pre><code class="language-bash">LEFTHOOK_OUTPUT="meta,success,summary" lefthook run pre-commit
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="skip_output"><a class="header" href="#skip_output"><code>skip_output</code></a></h2>
-<blockquote>
-<p><strong>DEPRECATED</strong> This feature is deprecated and might be removed in future versions. Please, use <a href="configuration/./output.html"><code>output</code></a> instead for managing verbosity.</p>
-</blockquote>
-<p>You can manage the verbosity using the <code>skip_output</code> config. You can set whether lefthook should print some parts of its output.</p>
-<p>Possible values are <code>meta,summary,success,failure,execution,execution_out,execution_info,skips</code>.</p>
-<p>You can also disable all output with setting <code>skip_output: true</code>. In this case only errors will be printed.</p>
-<p>This config quiets all outputs except for errors.</p>
-<p><strong>Example</strong></p>
-<pre><code class="language-yml"># lefthook.yml
-
-skip_output:
-  - meta           # Skips lefthook version printing
-  - summary        # Skips summary block (successful and failed steps) printing
-  - empty_summary  # Skips summary heading when there are no steps to run
-  - success        # Skips successful steps printing
-  - failure        # Skips failed steps printing
-  - execution      # Skips printing any execution logs (but prints if the execution failed)
-  - execution_out  # Skips printing execution output (but still prints failed commands output)
-  - execution_info # Skips printing `EXECUTE &gt; ...` logging
-  - skips          # Skips "skip" printing (i.e. no files matched)
-</code></pre>
-<p>You can also <em>extend</em> this list with an environment variable <code>LEFTHOOK_QUIET</code>:</p>
-<pre><code class="language-bash">LEFTHOOK_QUIET="meta,success,summary" lefthook run pre-commit
-</code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="source_dir"><a class="header" href="#source_dir"><code>source_dir</code></a></h2>
-<p><strong>Default: <code>.lefthook/</code></strong></p>
-<p>Change a directory for script files. Directory for script files contains folders with git hook names which contain script files.</p>
-<p>Example of directory tree:</p>
-<pre><code>.lefthook/
-├── pre-commit/
-│   ├── lint.sh
-│   └── test.py
-└── pre-push/
-    └── check-files.rb
-</code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="source_dir_local"><a class="header" href="#source_dir_local"><code>source_dir_local</code></a></h2>
-<p><strong>Default: <code>.lefthook-local/</code></strong></p>
-<p>Change a directory for <em>local</em> script files (not stored in VCS).</p>
-<p>This option is useful if you have a <code>lefthook-local.yml</code> config file and want to reference different scripts there.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="rc"><a class="header" href="#rc"><code>rc</code></a></h2>
 <p>Provide an <a href="https://www.baeldung.com/linux/rc-files"><strong>rc</strong></a> file, which is actually a simple <code>sh</code> script. Currently it can be used to set ENV variables that are not accessible from non-shell programs.</p>
 <p><strong>Example</strong></p>
@@ -892,19 +853,6 @@ PATH=$PATH:$HOME/.nvm/versions/node/v15.14.0/bin
 $ lefthook install -f
 </code></pre>
 <p>Now any program that runs your hooks will have a tweaked PATH environment variable and will be able to get <code>nvm</code> :wink:</p>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="skip_lfs"><a class="header" href="#skip_lfs"><code>skip_lfs</code></a></h2>
-<p><strong>Default:</strong> <code>false</code></p>
-<p>Skip running LFS hooks even if it exists on your system.</p>
-<h3 id="example"><a class="header" href="#example">Example</a></h3>
-<pre><code class="language-yml"># lefthook.yml
-
-skip_lfs: true
-
-pre-push:
-  commands:
-    test:
-      run: yarn test
-</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="remotes"><a class="header" href="#remotes"><code>remotes</code></a></h2>
 <p>You can provide multiple remote configs if you want to share yours lefthook configurations across many projects. Lefthook will automatically download and merge configurations into your local <code>lefthook.yml</code>.</p>
 <p>You can use <a href="configuration/./extends.html"><code>extends</code></a> but the paths must be relative to the remote repository root.</p>
@@ -1003,6 +951,91 @@ remotes:
     configs:
       - configs/pre-push.yml
 
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="skip_output"><a class="header" href="#skip_output"><code>skip_output</code></a></h2>
+<blockquote>
+<p><strong>DEPRECATED</strong> This feature is deprecated and might be removed in future versions. Please, use <a href="configuration/./output.html"><code>output</code></a> instead for managing verbosity.</p>
+</blockquote>
+<p>You can manage the verbosity using the <code>skip_output</code> config. You can set whether lefthook should print some parts of its output.</p>
+<p>Possible values are <code>meta,summary,success,failure,execution,execution_out,execution_info,skips</code>.</p>
+<p>You can also disable all output with setting <code>skip_output: true</code>. In this case only errors will be printed.</p>
+<p>This config quiets all outputs except for errors.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-yml"># lefthook.yml
+
+skip_output:
+  - meta           # Skips lefthook version printing
+  - summary        # Skips summary block (successful and failed steps) printing
+  - empty_summary  # Skips summary heading when there are no steps to run
+  - success        # Skips successful steps printing
+  - failure        # Skips failed steps printing
+  - execution      # Skips printing any execution logs (but prints if the execution failed)
+  - execution_out  # Skips printing execution output (but still prints failed commands output)
+  - execution_info # Skips printing `EXECUTE &gt; ...` logging
+  - skips          # Skips "skip" printing (i.e. no files matched)
+</code></pre>
+<p>You can also <em>extend</em> this list with an environment variable <code>LEFTHOOK_QUIET</code>:</p>
+<pre><code class="language-bash">LEFTHOOK_QUIET="meta,success,summary" lefthook run pre-commit
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="source_dir"><a class="header" href="#source_dir"><code>source_dir</code></a></h2>
+<p><strong>Default: <code>.lefthook/</code></strong></p>
+<p>Change a directory for script files. Directory for script files contains folders with git hook names which contain script files.</p>
+<p>Example of directory tree:</p>
+<pre><code>.lefthook/
+├── pre-commit/
+│   ├── lint.sh
+│   └── test.py
+└── pre-push/
+    └── check-files.rb
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="source_dir_local"><a class="header" href="#source_dir_local"><code>source_dir_local</code></a></h2>
+<p><strong>Default: <code>.lefthook-local/</code></strong></p>
+<p>Change a directory for <em>local</em> script files (not stored in VCS).</p>
+<p>This option is useful if you have a <code>lefthook-local.yml</code> config file and want to reference different scripts there.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="skip_lfs"><a class="header" href="#skip_lfs"><code>skip_lfs</code></a></h2>
+<p><strong>Default:</strong> <code>false</code></p>
+<p>Skip running LFS hooks even if it exists on your system.</p>
+<h3 id="example"><a class="header" href="#example">Example</a></h3>
+<pre><code class="language-yml"># lefthook.yml
+
+skip_lfs: true
+
+pre-push:
+  commands:
+    test:
+      run: yarn test
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="templates"><a class="header" href="#templates"><code>templates</code></a></h2>
+<p>Provide custom replacement for templates in <code>run</code> values.</p>
+<p>With <code>templates</code> you can specify what can be overridden via <code>lefthook-local.yml</code> without a need to overwrite every jobs in your configuration.</p>
+<h2 id="example-1"><a class="header" href="#example-1">Example</a></h2>
+<h3 id="override-with-lefthook-localyml"><a class="header" href="#override-with-lefthook-localyml">Override with lefthook-local.yml</a></h3>
+<pre><code class="language-yml"># lefthook.yml
+
+templates:
+  dip: # empty
+
+pre-commit:
+  jobs:
+    # Will run: `bundle exec rubocop file1 file2 file3 ...`
+    - run: {dip} bundle exec rubocop {staged_files}
+</code></pre>
+<pre><code class="language-yml"># lefthook.yml
+
+templates:
+  dip: dip # Will run: `dip bundle exec rubocop file1 file2 file3 ...`
+</code></pre>
+<h3 id="reduce-redundancy"><a class="header" href="#reduce-redundancy">Reduce redundancy</a></h3>
+<pre><code class="language-yml"># lefthook.yml
+
+templates:
+  wrapper: docker-compose run --rm -v $(pwd):/app service
+
+pre-commit:
+  jobs:
+    - run: {wrapper} yarn format
+    - run: {wrapper} yarn lint
+    - run: {wrapper} yarn test
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="git-hook"><a class="header" href="#git-hook">Git hook</a></h2>
 <p>Contains settings for the git hook (commands, scripts, skip rules, etc.). You can specify any Git hook or your own custom, e.g. <code>test</code></p>
@@ -1362,7 +1395,7 @@ pre-commit:
 <li><a href="configuration/./interactive.html"><code>interactive</code></a></li>
 <li><a href="configuration/./use_stdin.html"><code>use_stdin</code></a></li>
 </ul>
-<h3 id="example-1"><a class="header" href="#example-1">Example</a></h3>
+<h3 id="example-2"><a class="header" href="#example-2">Example</a></h3>
 <blockquote>
 <p><strong>Note:</strong> Currently, only <code>root</code>, <code>glob</code>, and <code>exclude</code> options are applied to group jobs. Other options must be set for each job individually. Submit a <a href="https://github.com/evilmartians/lefthook/issues/new?assignees=&amp;labels=feature+request&amp;projects=&amp;template=feature_request.md">feature request</a> if this limits your workflow.</p>
 </blockquote>
@@ -1393,7 +1426,7 @@ pre-commit:
 <p>This configuration runs migrate jobs in a piped flow while other jobs execute in parallel.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="name"><a class="header" href="#name"><code>name</code></a></h2>
 <p>Name of a job. Will be printed in summary. If specified, the jobs can be merged with a jobs of the same name in a <a href="configuration/../examples/lefthook-local.html">local config</a> or <a href="configuration/./extends.html">extends</a>.</p>
-<h3 id="example-2"><a class="header" href="#example-2">Example</a></h3>
+<h3 id="example-3"><a class="header" href="#example-3">Example</a></h3>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
@@ -1550,7 +1583,7 @@ pre-commit:
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="script"><a class="header" href="#script"><code>script</code></a></h2>
 <p>Name of a script to execute. The rules are the same as for <a href="configuration/./Scripts.html"><code>scripts</code></a></p>
-<h3 id="example-3"><a class="header" href="#example-3">Example</a></h3>
+<h3 id="example-4"><a class="header" href="#example-4">Example</a></h3>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
@@ -1581,7 +1614,7 @@ pre-commit:
 <li><a href="configuration/./piped.html"><code>piped</code></a>: Executes jobs sequentially, passing output between them.</li>
 <li><a href="configuration/./jobs.html"><code>jobs</code></a>: Specifies the jobs within the group.</li>
 </ul>
-<h3 id="example-4"><a class="header" href="#example-4">Example</a></h3>
+<h3 id="example-5"><a class="header" href="#example-5">Example</a></h3>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
@@ -1684,7 +1717,7 @@ pre-commit:
 <li><a href="configuration/./interactive.html"><code>interactive</code></a></li>
 <li><a href="configuration/./use_stdin.html"><code>use_stdin</code></a></li>
 </ul>
-<h3 id="example-5"><a class="header" href="#example-5">Example</a></h3>
+<h3 id="example-6"><a class="header" href="#example-6">Example</a></h3>
 <blockquote>
 <p><strong>Note:</strong> Currently, only <code>root</code>, <code>glob</code>, and <code>exclude</code> options are applied to group jobs. Other options must be set for each job individually. Submit a <a href="https://github.com/evilmartians/lefthook/issues/new?assignees=&amp;labels=feature+request&amp;projects=&amp;template=feature_request.md">feature request</a> if this limits your workflow.</p>
 </blockquote>
@@ -2802,7 +2835,7 @@ pre-commit:
 <li><a href="configuration/./use_stdin.html"><code>use_stdin</code></a></li>
 <li><a href="configuration/./priority.html"><code>priority</code></a></li>
 </ul>
-<h3 id="example-6"><a class="header" href="#example-6">Example</a></h3>
+<h3 id="example-7"><a class="header" href="#example-7">Example</a></h3>
 <p>Let's create a bash script to check commit templates <code>.lefthook/commit-msg/template_checker</code>:</p>
 <pre><code class="language-bash">INPUT_FILE=$1
 START_LINE=`head -n1 $INPUT_FILE`

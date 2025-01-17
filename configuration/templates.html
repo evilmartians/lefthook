@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>rc - Lefthook Documentation</title>
+        <title>templates - Lefthook Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -155,69 +155,48 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="rc"><a class="header" href="#rc"><code>rc</code></a></h2>
-<p>Provide an <a href="https://www.baeldung.com/linux/rc-files"><strong>rc</strong></a> file, which is actually a simple <code>sh</code> script. Currently it can be used to set ENV variables that are not accessible from non-shell programs.</p>
-<p><strong>Example</strong></p>
-<p>Use cases:</p>
-<ul>
-<li>You have a GUI program that runs git hooks (e.g., VSCode)</li>
-<li>You reference executables that are accessible only from a tweaked $PATH environment variable (e.g., when using rbenv or nvm, fnm)</li>
-<li>Or even if your GUI program cannot locate the <code>lefthook</code> executable :scream:</li>
-<li>Or if you want to use ENV variables that control the executables behavior in <code>lefthook.yml</code></li>
-</ul>
-<pre><code class="language-bash"># An npm executable which is managed by nvm
-$ which npm
-/home/user/.nvm/versions/node/v15.14.0/bin/npm
+                        <h2 id="templates"><a class="header" href="#templates"><code>templates</code></a></h2>
+<p>Provide custom replacement for templates in <code>run</code> values.</p>
+<p>With <code>templates</code> you can specify what can be overridden via <code>lefthook-local.yml</code> without a need to overwrite every jobs in your configuration.</p>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<h3 id="override-with-lefthook-localyml"><a class="header" href="#override-with-lefthook-localyml">Override with lefthook-local.yml</a></h3>
+<pre><code class="language-yml"># lefthook.yml
+
+templates:
+  dip: # empty
+
+pre-commit:
+  jobs:
+    # Will run: `bundle exec rubocop file1 file2 file3 ...`
+    - run: {dip} bundle exec rubocop {staged_files}
 </code></pre>
 <pre><code class="language-yml"># lefthook.yml
 
+templates:
+  dip: dip # Will run: `dip bundle exec rubocop file1 file2 file3 ...`
+</code></pre>
+<h3 id="reduce-redundancy"><a class="header" href="#reduce-redundancy">Reduce redundancy</a></h3>
+<pre><code class="language-yml"># lefthook.yml
+
+templates:
+  wrapper: docker-compose run --rm -v $(pwd):/app service
+
 pre-commit:
-  commands:
-    lint:
-      run: npm run eslint {staged_files}
+  jobs:
+    - run: {wrapper} yarn format
+    - run: {wrapper} yarn lint
+    - run: {wrapper} yarn test
 </code></pre>
-<p>Provide a tweak to access <code>npm</code> executable the same way you do it in your ~/<shell>rc.</p>
-<pre><code class="language-yml"># lefthook-local.yml
-
-# You can choose whatever name you want.
-# You can share it between projects where you use lefthook.
-# Make sure the path is absolute.
-rc: ~/.lefthookrc
-</code></pre>
-<p>Or</p>
-<pre><code class="language-yml"># lefthook-local.yml
-
-# If the path contains spaces, you need to quote it.
-rc: '"${XDG_CONFIG_HOME:-$HOME/.config}/lefthookrc"'
-</code></pre>
-<p>In the rc file, export any new environment variables or modify existing ones.</p>
-<pre><code class="language-bash"># ~/.lefthookrc
-
-# An nvm way
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] &amp;&amp; \. "$NVM_DIR/nvm.sh"
-
-# An fnm way
-export FNM_DIR="$HOME/.fnm"
-[ -s "$FNM_DIR/fnm.sh" ] &amp;&amp; \. "$FNM_DIR/fnm.sh"
-
-# Or maybe just
-PATH=$PATH:$HOME/.nvm/versions/node/v15.14.0/bin
-</code></pre>
-<pre><code class="language-bash"># Make sure you updated git hooks. This is important.
-$ lefthook install -f
-</code></pre>
-<p>Now any program that runs your hooks will have a tweaked PATH environment variable and will be able to get <code>nvm</code> :wink:</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../configuration/output.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../configuration/skip_lfs.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../configuration/remotes.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../configuration/Hook.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -227,11 +206,11 @@ $ lefthook install -f
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../configuration/output.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../configuration/skip_lfs.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../configuration/remotes.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../configuration/Hook.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
