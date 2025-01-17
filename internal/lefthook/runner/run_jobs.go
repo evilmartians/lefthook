@@ -147,6 +147,7 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, jo
 		Exclude:    exclude,
 		Only:       job.Only,
 		Skip:       job.Skip,
+		Templates:  r.Templates,
 	})
 	if err != nil {
 		r.logSkip(name, err.Error())

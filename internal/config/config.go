@@ -51,6 +51,8 @@ type Config struct {
 
 	Remotes []*Remote `json:"remotes,omitempty" jsonschema:"description=Provide multiple remote configs to use lefthook configurations shared across projects. Lefthook will automatically download and merge configurations into main config." mapstructure:"remotes,omitempty"`
 
+	Templates map[string]string `json:"templates,omitempty" jsonschema:"description=Custom templates for replacements in run commands." mapstructure:"templates,omitempty"`
+
 	// Deprecated: use Remotes
 	Remote *Remote `json:"remote,omitempty" jsonschema:"description=Deprecated: use remotes" mapstructure:"-"`
 

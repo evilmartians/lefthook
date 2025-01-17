@@ -392,7 +392,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2025.01.14.",
+  "$comment": "Last updated on 2025.01.16.",
   "properties": {
     "min_version": {
       "type": "string",
@@ -472,6 +472,13 @@
       },
       "type": "array",
       "description": "Provide multiple remote configs to use lefthook configurations shared across projects. Lefthook will automatically download and merge configurations into main config."
+    },
+    "templates": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object",
+      "description": "Custom templates for replacements in run commands."
     },
     "remote": {
       "$ref": "#/$defs/Remote",
