@@ -30,8 +30,8 @@ const (
 
 var (
 	hookKeyRegexp    = regexp.MustCompile(`^(?P<hookName>[^.]+)\.(scripts|commands|jobs)`)
-	localConfigNames = []string{"lefthook-local", ".lefthook-local"}
-	mainConfigNames  = []string{"lefthook", ".lefthook"}
+	localConfigNames = []string{"lefthook-local", ".lefthook-local", filepath.Join(".config", "lefthook-local")}
+	mainConfigNames  = []string{"lefthook", ".lefthook", filepath.Join(".config", "lefthook")}
 	extensions       = []string{
 		".yml",
 		".yaml",
