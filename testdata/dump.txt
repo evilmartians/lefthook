@@ -61,7 +61,8 @@ pre-commit:
     test:
       run: yarn test
       skip: merge
-      glob: '*.js'
+      glob:
+        - '*.js'
   scripts:
     my-script.sh:
       runner: bash
@@ -95,7 +96,9 @@ pre-commit:
       "test": {
         "run": "yarn test",
         "skip": "merge",
-        "glob": "*.js"
+        "glob": [
+          "*.js"
+        ]
       }
     },
     "scripts": {
@@ -130,7 +133,7 @@ interactive = true
 [pre-commit.commands.test]
 run = 'yarn test'
 skip = 'merge'
-glob = '*.js'
+glob = ['*.js']
 
 [pre-commit.scripts]
 [pre-commit.scripts.'my-script.sh']
