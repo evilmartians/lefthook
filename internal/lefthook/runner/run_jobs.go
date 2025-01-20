@@ -101,14 +101,18 @@ func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *con
 		case []interface{}:
 			switch inherited := inheritedDomain.exclude.(type) {
 			case []interface{}:
+				// List of globs get appended
 				inherited = append(inherited, list...)
 				inheritedDomain.exclude = inherited
 			default:
+				// Regex value will be overwritten with a list of globs
 				inheritedDomain.exclude = job.Exclude
 			}
 		case string:
+			// Regex value always overwrites excludes
 			inheritedDomain.exclude = job.Exclude
 		default:
+			// Inherit
 		}
 		groupName := first(job.Name, "group ("+id+")")
 		inheritedDomain.names = append(inheritedDomain.names, groupName)
