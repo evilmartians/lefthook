@@ -201,7 +201,7 @@ pre-push:
 								Tags: []string{"backend", "test"},
 							},
 							"lint": {
-								Glob: "*.rb",
+								Glob: []string{"*.rb"},
 								Run:  "docker exec -it ruby:2.7 bundle exec rubocop",
 								Tags: []string{"backend", "linter"},
 							},
@@ -649,7 +649,7 @@ pre-commit:
 							"global-lint": {
 								Run:  "bundle exec rubocop",
 								Tags: []string{"backend", "linter"},
-								Glob: "*.rb",
+								Glob: []string{"*.rb"},
 							},
 							"global-other": {
 								Run:  "bundle exec rubocop",
@@ -783,7 +783,7 @@ pre-commit:
 						Jobs: []*Job{
 							{
 								Name: "group 1",
-								Glob: "*.rb",
+								Glob: []string{"*.rb"},
 								Group: &Group{
 									Parallel: true,
 									Jobs: []*Job{

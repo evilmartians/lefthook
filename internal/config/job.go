@@ -6,10 +6,10 @@ type Job struct {
 	Script string `json:"script,omitempty" jsonschema:"oneof_required=Run a script"  mapstructure:"script"   toml:"script,omitempty" yaml:",omitempty"`
 	Runner string `json:"runner,omitempty" mapstructure:"runner"                     toml:"runner,omitempty" yaml:",omitempty"`
 
-	Glob     string `json:"glob,omitempty"      mapstructure:"glob"  toml:"glob,omitempty"    yaml:",omitempty"`
-	Root     string `json:"root,omitempty"      mapstructure:"root"  toml:"root,omitempty"    yaml:",omitempty"`
-	Files    string `json:"files,omitempty"     mapstructure:"files" toml:"files,omitempty"   yaml:",omitempty"`
-	FailText string `json:"fail_text,omitempty" koanf:"fail_text"    mapstructure:"fail_text" toml:"fail_text,omitempty" yaml:"fail_text,omitempty"`
+	Glob     []string `json:"glob,omitempty"      jsonschema:"oneof_type=string;array" mapstructure:"glob"      toml:"glob,omitempty"      yaml:",omitempty"`
+	Root     string   `json:"root,omitempty"      mapstructure:"root"                  toml:"root,omitempty"    yaml:",omitempty"`
+	Files    string   `json:"files,omitempty"     mapstructure:"files"                 toml:"files,omitempty"   yaml:",omitempty"`
+	FailText string   `json:"fail_text,omitempty" koanf:"fail_text"                    mapstructure:"fail_text" toml:"fail_text,omitempty" yaml:"fail_text,omitempty"`
 
 	Tags      []string `json:"tags,omitempty"       mapstructure:"tags" toml:"tags,omitempty"     yaml:",omitempty"`
 	FileTypes []string `json:"file_types,omitempty" koanf:"file_types"  mapstructure:"file_types" toml:"file_types,omitempty" yaml:"file_types,omitempty"`

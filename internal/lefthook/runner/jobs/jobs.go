@@ -19,10 +19,10 @@ type Params struct {
 	Root      string
 	Runner    string
 	Script    string
-	Glob      string
 	Files     string
 	FileTypes []string
 	Tags      []string
+	Glob      []string
 	Templates map[string]string
 	Exclude   interface{}
 	Only      interface{}

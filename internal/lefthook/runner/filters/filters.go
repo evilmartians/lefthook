@@ -29,7 +29,7 @@ const (
 )
 
 type Params struct {
-	Glob      string
+	Glob      []string
 	Root      string
 	FileTypes []string
 	Exclude   interface{}
@@ -52,19 +52,33 @@ func Apply(fs afero.Fs, files []string, params Params) []string {
 	return files
 }
 
-func byGlob(vs []string, matcher string) []string {
-	if matcher == "" {
+func byGlob(vs []string, matchers []string) []string {
+	if len(matchers) == 0 {
 		return vs
 	}
 
-	g := glob.MustCompile(strings.ToLower(matcher))
-
+	var hasNonEmpty bool
 	vsf := make([]string, 0)
-	for _, v := range vs {
-		if res := g.Match(strings.ToLower(v)); res {
-			vsf = append(vsf, v)
+	for _, matcher := range matchers {
+		if len(matcher) == 0 {
+			continue
+		}
+
+		hasNonEmpty = true
+
+		g := glob.MustCompile(strings.ToLower(matcher))
+
+		for _, v := range vs {
+			if res := g.Match(strings.ToLower(v)); res {
+				vsf = append(vsf, v)
+			}
 		}
 	}
+
+	if !hasNonEmpty {
+		return vs
+	}
+
 	return vsf
 }
 
