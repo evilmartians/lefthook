@@ -1,5 +1,9 @@
 # Change log
 
+## 1.10.9 (2025-01-20)
+
+- fix: make uninstall --remove-configs description more accurate ([#934](https://github.com/evilmartians/lefthook/pull/934)) by @scop
+
 ## 1.10.8 (2025-01-17)
 
 - feat: add custom plain templates ([#930](https://github.com/evilmartians/lefthook/pull/930)) by @mrexox
