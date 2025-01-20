@@ -106,8 +106,9 @@ func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *con
 			default:
 				inheritedDomain.exclude = job.Exclude
 			}
-		default:
+		case string:
 			inheritedDomain.exclude = job.Exclude
+		default:
 		}
 		groupName := first(job.Name, "group ("+id+")")
 		inheritedDomain.names = append(inheritedDomain.names, groupName)
