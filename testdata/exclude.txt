@@ -10,7 +10,7 @@ stdout '^dir/a.txt dir/b.txt lefthook.yml\s*$'
 exec lefthook run -f array
 stdout '^dir/a.txt dir/b.txt\s*$'
 exec lefthook run -f nested
-stdout '^lefthook.yml\s+dir/b.txt lefthook.yml\s+b.txt dir/b.txt\s*$'
+stdout '^lefthook.yml\s+dir/b.txt lefthook.yml\s+b.txt dir/b.txt lefthook.yml\s+b.txt dir/b.txt\s*$'
 
 -- lefthook.yml --
 skip_output:
@@ -50,9 +50,14 @@ nested:
           - exclude:
               - b.txt
             run: echo {staged_files}
-          - exclude:
-              - '*.yml'
-            run: echo {staged_files}
+          - group:
+              jobs:
+                - run: echo {staged_files}
+          - group:
+              jobs:
+                - exclude:
+                    - '*.yml'
+                  run: echo {staged_files}
 -- a.txt --
 a
 
