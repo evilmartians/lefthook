@@ -8,11 +8,24 @@ You can set a glob to filter files for your command. This is only used if you us
 # lefthook.yml
 
 pre-commit:
-  commands:
-    lint:
-      glob: "*.{js,ts,jsx,tsx}"
+  jobs:
+    - name: lint
       run: yarn eslint {staged_files}
+      glob: "*.{js,ts,jsx,tsx}"
 ```
+
+> **Note:** from lefthook version `1.10.10` you can also provide a list of globs:
+>
+> ```yml
+> # lefthook.yml
+>
+> pre-commit:
+>   jobs:
+>     - run: yarn lint {staged_files}
+>       glob:
+>         - "*.ts"
+>         - "*.js"
+> ```
 
 **Notes**
 
@@ -24,8 +37,8 @@ If you've specified `glob` but don't have a files template in [`run`](./run.md) 
 # lefthook.yml
 
 pre-commit:
-  commands:
-    lint:
-      glob: "*.js"
+  jobs:
+    - name: lint
       run: npm run lint # skipped if no .js files staged
+      glob: "*.js"
 ```
