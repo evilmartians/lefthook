@@ -1,5 +1,10 @@
 # Change log
 
+## 1.10.10 (2025-01-21)
+
+- feat: allow providing a list of globs ([#937](https://github.com/evilmartians/lefthook/pull/937)) by @mrexox
+- fix: properly inherit exclude options when not overwritten ([#936](https://github.com/evilmartians/lefthook/pull/936)) by @mrexox
+
 ## 1.10.9 (2025-01-20)
 
 - fix: make uninstall --remove-configs description more accurate ([#934](https://github.com/evilmartians/lefthook/pull/934)) by @scop
