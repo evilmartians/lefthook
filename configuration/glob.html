@@ -161,21 +161,33 @@
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
-  commands:
-    lint:
-      glob: "*.{js,ts,jsx,tsx}"
+  jobs:
+    - name: lint
       run: yarn eslint {staged_files}
+      glob: "*.{js,ts,jsx,tsx}"
 </code></pre>
+<blockquote>
+<p><strong>Note:</strong> from lefthook version <code>1.10.10</code> you can also provide a list of globs:</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  jobs:
+    - run: yarn lint {staged_files}
+      glob:
+        - "*.ts"
+        - "*.js"
+</code></pre>
+</blockquote>
 <p><strong>Notes</strong></p>
 <p>For patterns that you can use see <a href="https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm">this</a> reference. We use <a href="https://github.com/gobwas/glob">glob</a> library.</p>
 <p>If you've specified <code>glob</code> but don't have a files template in <a href="./run.html"><code>run</code></a> option, lefthook will check <code>{staged_files}</code> for <code>pre-commit</code> hook and <code>{push_files}</code> for <code>pre-push</code> hook and apply filtering. If no files left, the command will be skipped.</p>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
-  commands:
-    lint:
-      glob: "*.js"
+  jobs:
+    - name: lint
       run: npm run lint # skipped if no .js files staged
+      glob: "*.js"
 </code></pre>
 
                     </main>
