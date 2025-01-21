@@ -20,7 +20,7 @@ A Git hooks manager for Node.js, Ruby, Python and many other types of projects.
 📖 [Read the documentation][documentation]
 
 <a href="https://evilmartians.com/?utm_source=lefthook">
-<img src="https://evilmartians.com/badges/sponsored-by-evil-martians.svg" alt="Sponsored by Evil Martians" width="236" height="54"></a>
+<img src="https://evilmartians.com/badges/sponsored-by-evil-martians.svg" alt="Sponsored by Evil Martians" width="100%" height="54"></a>
 
 ## Install
 
