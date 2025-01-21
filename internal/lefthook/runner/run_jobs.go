@@ -95,7 +95,7 @@ func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *con
 
 	if job.Group != nil {
 		inheritedDomain := *domain
-		inheritedDomain.glob = append(inheritedDomain.glob, job.Glob...)
+		inheritedDomain.glob = slices.Concat(inheritedDomain.glob, job.Glob)
 		inheritedDomain.root = first(job.Root, domain.root)
 		switch list := job.Exclude.(type) {
 		case []interface{}:
