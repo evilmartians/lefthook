@@ -103,7 +103,8 @@ extends:
 pre-commit:
   jobs:
     - name: group
-      glob: '*.rb'
+      glob:
+        - '*.rb'
       group:
         jobs:
           - name: child
@@ -115,7 +116,8 @@ pre-commit:
           - run: 3 no-name
     - name: echo
       run: echo 2
-      glob: "3"
+      glob:
+        - "3"
       tags:
         - backend
       skip: true

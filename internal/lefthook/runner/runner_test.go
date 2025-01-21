@@ -618,12 +618,12 @@ func TestRunAll(t *testing.T) {
 					"ok": {
 						Run:        "success",
 						StageFixed: true,
-						Glob:       "*.md",
+						Glob:       []string{"*.md"},
 					},
 					"fail": {
 						Run:        "fail",
 						StageFixed: true,
-						Glob:       "*.txt",
+						Glob:       []string{"*.txt"},
 					},
 				},
 			},
@@ -648,12 +648,12 @@ func TestRunAll(t *testing.T) {
 					"ok": {
 						Run:        "success",
 						StageFixed: true,
-						Glob:       "*.md",
+						Glob:       []string{"*.md"},
 					},
 					"fail": {
 						Run:        "fail",
 						StageFixed: true,
-						Glob:       "*.sh",
+						Glob:       []string{"*.sh"},
 					},
 				},
 			},
@@ -703,12 +703,12 @@ func TestRunAll(t *testing.T) {
 					"ok": {
 						Run:        "success",
 						StageFixed: true,
-						Glob:       "*.md",
+						Glob:       []string{"*.md"},
 					},
 					"fail": {
 						Run:        "fail",
 						StageFixed: true,
-						Glob:       "*.sh",
+						Glob:       []string{"*.sh"},
 					},
 				},
 			},

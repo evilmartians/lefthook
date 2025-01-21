@@ -56,7 +56,17 @@
           "type": "array"
         },
         "glob": {
-          "type": "string"
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array"
+            }
+          ],
+          "items": {
+            "type": "string"
+          }
         },
         "root": {
           "type": "string"
@@ -214,7 +224,17 @@
           "type": "string"
         },
         "glob": {
-          "type": "string"
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array"
+            }
+          ],
+          "items": {
+            "type": "string"
+          }
         },
         "root": {
           "type": "string"
@@ -392,7 +412,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2025.01.16.",
+  "$comment": "Last updated on 2025.01.21.",
   "properties": {
     "min_version": {
       "type": "string",
