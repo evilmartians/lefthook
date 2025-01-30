@@ -18,6 +18,7 @@ func main() {
 	r.AdditionalFields = func(t reflect.Type) []reflect.StructField {
 		if t == reflect.TypeOf(config.Config{}) {
 			return reflect.VisibleFields(reflect.TypeOf(struct {
+				Schema               string      ` json:"$schema,omitempty"`
 				PreCommit            *config.Hook `json:"pre-commit,omitempty"`
 				ApplypatchMsg        *config.Hook `json:"applypatch-msg,omitempty"`
 				PreApplypatch        *config.Hook `json:"pre-applypatch,omitempty"`
