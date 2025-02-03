@@ -31,6 +31,10 @@ pre-commit:
 
 For patterns that you can use see [this](https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm) reference. We use [glob](https://github.com/gobwas/glob) library.
 
+***When using `root:`***
+
+Globs are still calculated from the actual root of the git repo, `root` is ignored.
+
 ***Behaviour of `**`***
 
 Note that the behaviour of `**` is different from typical glob implementations, like `ls` or tools like `lint-staged` in that a double-asterisk matches 1+ directories deep, not zero or more directories.
