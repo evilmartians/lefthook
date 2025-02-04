@@ -1947,6 +1947,17 @@ pre-commit:
 </blockquote>
 <p><strong>Notes</strong></p>
 <p>For patterns that you can use see <a href="https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm">this</a> reference. We use <a href="https://github.com/gobwas/glob">glob</a> library.</p>
+<p><em><strong>When using <code>root:</code></strong></em></p>
+<p>Globs are still calculated from the actual root of the git repo, <code>root</code> is ignored.</p>
+<p><em><strong>Behaviour of <code>**</code></strong></em></p>
+<p>Note that the behaviour of <code>**</code> is different from typical glob implementations, like <code>ls</code> or tools like <code>lint-staged</code> in that a double-asterisk matches 1+ directories deep, not zero or more directories.
+If you want to match <em>both</em> files at the top level and nested, then rather than:</p>
+<pre><code class="language-yaml">glob: "src/**/*.js"
+</code></pre>
+<p>You'll need:</p>
+<pre><code class="language-yaml">glob: "src/*.js"
+</code></pre>
+<p><em><strong>Using <code>glob</code> without a files template in<code>run</code></strong></em></p>
 <p>If you've specified <code>glob</code> but don't have a files template in <a href="configuration/./run.html"><code>run</code></a> option, lefthook will check <code>{staged_files}</code> for <code>pre-commit</code> hook and <code>{push_files}</code> for <code>pre-push</code> hook and apply filtering. If no files left, the command will be skipped.</p>
 <pre><code class="language-yml"># lefthook.yml
 
@@ -2090,6 +2101,9 @@ pre-commit:
       glob: "*.{js,ts}"
       run: yarn eslint --fix {staged_files} &amp;&amp; git add {staged_files}
 </code></pre>
+<p><strong>Notes</strong></p>
+<p><em><strong>When using <code>root:</code></strong></em></p>
+<p>Globs are still calculated from the actual root of the git repo, <code>root</code> is ignored.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="exclude"><a class="header" href="#exclude"><code>exclude</code></a></h2>
 <p>For the <code>exclude</code> option two variants are supported:</p>
 <ul>
@@ -2561,6 +2575,17 @@ pre-commit:
 </blockquote>
 <p><strong>Notes</strong></p>
 <p>For patterns that you can use see <a href="https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm">this</a> reference. We use <a href="https://github.com/gobwas/glob">glob</a> library.</p>
+<p><em><strong>When using <code>root:</code></strong></em></p>
+<p>Globs are still calculated from the actual root of the git repo, <code>root</code> is ignored.</p>
+<p><em><strong>Behaviour of <code>**</code></strong></em></p>
+<p>Note that the behaviour of <code>**</code> is different from typical glob implementations, like <code>ls</code> or tools like <code>lint-staged</code> in that a double-asterisk matches 1+ directories deep, not zero or more directories.
+If you want to match <em>both</em> files at the top level and nested, then rather than:</p>
+<pre><code class="language-yaml">glob: "src/**/*.js"
+</code></pre>
+<p>You'll need:</p>
+<pre><code class="language-yaml">glob: "src/*.js"
+</code></pre>
+<p><em><strong>Using <code>glob</code> without a files template in<code>run</code></strong></em></p>
 <p>If you've specified <code>glob</code> but don't have a files template in <a href="configuration/./run.html"><code>run</code></a> option, lefthook will check <code>{staged_files}</code> for <code>pre-commit</code> hook and <code>{push_files}</code> for <code>pre-push</code> hook and apply filtering. If no files left, the command will be skipped.</p>
 <pre><code class="language-yml"># lefthook.yml
 
@@ -2704,6 +2729,9 @@ pre-commit:
       glob: "*.{js,ts}"
       run: yarn eslint --fix {staged_files} &amp;&amp; git add {staged_files}
 </code></pre>
+<p><strong>Notes</strong></p>
+<p><em><strong>When using <code>root:</code></strong></em></p>
+<p>Globs are still calculated from the actual root of the git repo, <code>root</code> is ignored.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="exclude-1"><a class="header" href="#exclude-1"><code>exclude</code></a></h2>
 <p>For the <code>exclude</code> option two variants are supported:</p>
 <ul>

@@ -181,6 +181,9 @@ pre-commit:
       glob: "*.{js,ts}"
       run: yarn eslint --fix {staged_files} &amp;&amp; git add {staged_files}
 </code></pre>
+<p><strong>Notes</strong></p>
+<p><em><strong>When using <code>root:</code></strong></em></p>
+<p>Globs are still calculated from the actual root of the git repo, <code>root</code> is ignored.</p>
 
                     </main>
 
