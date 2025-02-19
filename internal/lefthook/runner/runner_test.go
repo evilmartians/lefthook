@@ -601,8 +601,6 @@ func TestRunAll(t *testing.T) {
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git add .*script.sh.*README.md",
 				"git diff --name-only --cached --diff-filter=ACMR",
-				"git diff --name-only --cached --diff-filter=ACMR",
-				"git diff --name-only --cached --diff-filter=ACMR",
 				"git add .*script.sh.*README.md",
 			},
 		},
@@ -628,8 +626,7 @@ func TestRunAll(t *testing.T) {
 			success: []Result{succeeded("ok")},
 			gitCommands: []string{
 				"git status --short",
-				"git diff --name-only --cached --diff-filter=ACMR",
-				"git diff --name-only --cached --diff-filter=ACMR",
+				"git diff --name-only --cached --diff-filter=ACMRD",
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git add .*README.md",
 			},
@@ -756,6 +753,7 @@ func TestRunAll(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 			git.ResetState()
+			repo.InitializeForTest()
 			results, err := runner.RunAll(context.Background())
 			assert.NoError(err)
 
