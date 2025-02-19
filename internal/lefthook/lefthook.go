@@ -74,6 +74,8 @@ func initialize(opts *Options) (*Lefthook, error) {
 		return nil, err
 	}
 
+	repo.Precompute()
+
 	return &Lefthook{Options: opts, repo: repo}, nil
 }
 

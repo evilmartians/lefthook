@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/spf13/afero"
 
@@ -58,6 +59,10 @@ type Repository struct {
 	InfoPath          string
 	unstagedPatchPath string
 	headBranch        string
+
+	stagedFilesOnce            func() ([]string, error)
+	stagedFilesWithDeletedOnce func() ([]string, error)
+	statusShortOnce            func() ([]string, error)
 }
 
 // NewRepository returns a Repository or an error, if git repository it not initialized.
@@ -94,7 +99,7 @@ func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
 
 	git.root = rootPath
 
-	return &Repository{
+	r := &Repository{
 		Fs:                fs,
 		Git:               git,
 		HooksPath:         hooksPath,
@@ -102,17 +107,45 @@ func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
 		GitPath:           gitPath,
 		InfoPath:          infoPath,
 		unstagedPatchPath: filepath.Join(infoPath, unstagedPatchName),
-	}, nil
+	}
+
+	r.InitializeForTest()
+
+	return r, nil
+}
+
+// Precompute runs various Git commands in the background so the results are ready.
+func (r *Repository) Precompute() {
+	// Precompute immediately in the background:
+	go r.stagedFilesOnce()
+	go r.stagedFilesWithDeletedOnce()
+	go r.statusShortOnce()
+}
+
+// InitializeForTest must be called if you constructed a Repository without using `NewRepository`.
+// This can also be called multiple times to reset the cache.
+func (r *Repository) InitializeForTest() {
+	r.stagedFilesOnce = sync.OnceValues(func() ([]string, error) {
+		return r.FindExistingFiles(cmdStagedFiles, "")
+	})
+
+	r.stagedFilesWithDeletedOnce = sync.OnceValues(func() ([]string, error) {
+		return r.FindExistingFiles(cmdStagedFilesWithDeleted, "")
+	})
+
+	r.statusShortOnce = sync.OnceValues(func() ([]string, error) {
+		return r.Git.CmdLines(cmdStatusShort)
+	})
 }
 
 // StagedFiles returns a list of staged files which exist on file system.
 func (r *Repository) StagedFiles() ([]string, error) {
-	return r.FindExistingFiles(cmdStagedFiles, "")
+	return r.stagedFilesOnce()
 }
 
 // StagedFilesWithDeleted returns a list of staged files with deleted files.
 func (r *Repository) StagedFilesWithDeleted() ([]string, error) {
-	return r.FindAllFiles(cmdStagedFilesWithDeleted, "")
+	return r.stagedFilesWithDeletedOnce()
 }
 
 // StagedFiles returns a list of all files in repository.
@@ -156,7 +189,7 @@ func (r *Repository) PushFiles() ([]string, error) {
 // unstaged changes.
 // See https://git-scm.com/docs/git-status#_short_format.
 func (r *Repository) PartiallyStagedFiles() ([]string, error) {
-	lines, err := r.Git.CmdLines(cmdStatusShort)
+	lines, err := r.statusShortOnce()
 	if err != nil {
 		return []string{}, err
 	}
