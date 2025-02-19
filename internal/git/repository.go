@@ -20,6 +20,9 @@ const (
 	unstagedPatchName = "lefthook-unstaged.patch"
 	infoDirMode       = 0o775
 	minStatusLen      = 3
+
+	// The result of `git hash-object -t tree /dev/null`.
+	emptyTreeSHA = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 )
 
 var (
@@ -31,17 +34,19 @@ var (
 	cmdStagedFilesWithDeleted = []string{"git", "diff", "--name-only", "--cached", "--diff-filter=ACMRD"}
 	cmdStatusShort            = []string{"git", "status", "--short", "--porcelain"}
 	cmdListStash              = []string{"git", "stash", "list"}
-	cmdRootPath               = []string{"git", "rev-parse", "--path-format=absolute", "--show-toplevel"}
-	cmdHooksPath              = []string{"git", "rev-parse", "--path-format=absolute", "--git-path", "hooks"}
-	cmdInfoPath               = []string{"git", "rev-parse", "--path-format=absolute", "--git-path", "info"}
-	cmdGitPath                = []string{"git", "rev-parse", "--path-format=absolute", "--git-dir"}
-	cmdAllFiles               = []string{"git", "ls-files", "--cached"}
-	cmdCreateStash            = []string{"git", "stash", "create"}
-	cmdStageFiles             = []string{"git", "add"}
-	cmdRemotes                = []string{"git", "branch", "--remotes"}
-	cmdHideUnstaged           = []string{"git", "checkout", "--force", "--"}
-	cmdEmptyTreeSHA           = []string{"git", "hash-object", "-t", "tree", "/dev/null"}
-	cmdGitVersion             = []string{"git", "version"}
+	cmdPaths                  = []string{
+		"git", "rev-parse", "--path-format=absolute",
+		"--show-toplevel",
+		"--git-path", "hooks",
+		"--git-path", "info",
+		"--git-dir",
+	}
+	cmdAllFiles     = []string{"git", "ls-files", "--cached"}
+	cmdCreateStash  = []string{"git", "stash", "create"}
+	cmdStageFiles   = []string{"git", "add"}
+	cmdRemotes      = []string{"git", "branch", "--remotes"}
+	cmdHideUnstaged = []string{"git", "checkout", "--force", "--"}
+	cmdGitVersion   = []string{"git", "version"}
 )
 
 // Repository represents a git repository.
@@ -54,7 +59,6 @@ type Repository struct {
 	InfoPath          string
 	unstagedPatchPath string
 	headBranch        string
-	emptyTreeSHA      string
 }
 
 // NewRepository returns a Repository or an error, if git repository it not initialized.
@@ -71,37 +75,22 @@ func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
 		}
 	}
 
-	rootPath, err := git.Cmd(cmdRootPath)
+	paths, err := git.Cmd(cmdPaths)
 	if err != nil {
 		return nil, err
 	}
 
-	hooksPath, err := git.Cmd(cmdHooksPath)
-	if err != nil {
-		return nil, err
-	}
-
-	infoPath, err := git.Cmd(cmdInfoPath)
-	if err != nil {
-		return nil, err
-	}
-	infoPath = filepath.Clean(infoPath)
+	pathsSplit := strings.Split(paths, "\n")
+	rootPath := pathsSplit[0]
+	hooksPath := pathsSplit[1]
+	infoPath := filepath.Clean(pathsSplit[2])
+	gitPath := pathsSplit[3]
 
 	if exists, _ := afero.DirExists(fs, infoPath); !exists {
 		err = fs.Mkdir(infoPath, infoDirMode)
 		if err != nil {
 			return nil, err
 		}
-	}
-
-	gitPath, err := git.Cmd(cmdGitPath)
-	if err != nil {
-		return nil, err
-	}
-
-	emptyTreeSHA, err := git.Cmd(cmdEmptyTreeSHA)
-	if err != nil {
-		log.Debug("Couldn't get empty tree SHA value, not critical")
 	}
 
 	git.root = rootPath
@@ -114,7 +103,6 @@ func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
 		GitPath:           gitPath,
 		InfoPath:          infoPath,
 		unstagedPatchPath: filepath.Join(infoPath, unstagedPatchName),
-		emptyTreeSHA:      emptyTreeSHA,
 	}, nil
 }
 
@@ -159,7 +147,7 @@ func (r *Repository) PushFiles() ([]string, error) {
 
 	// Nothing has been pushed yet or upstream is not set
 	if len(r.headBranch) == 0 {
-		r.headBranch = r.emptyTreeSHA
+		r.headBranch = emptyTreeSHA
 	}
 
 	return r.FindExistingFiles(append(cmdPushFilesHead, r.headBranch), "")
