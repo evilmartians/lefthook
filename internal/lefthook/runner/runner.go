@@ -55,6 +55,8 @@ type Runner struct {
 	failed               atomic.Bool
 	executor             exec.Executor
 	cmd                  system.CommandWithContext
+
+	didStash bool
 }
 
 func New(opts Options) *Runner {
@@ -218,6 +220,8 @@ func (r *Runner) preHook() {
 		return
 	}
 
+	r.didStash = true
+
 	log.Debug("[lefthook] saving partially staged files")
 
 	r.partiallyStagedFiles = partiallyStagedFiles
@@ -243,7 +247,7 @@ func (r *Runner) preHook() {
 }
 
 func (r *Runner) postHook() {
-	if !config.HookUsesStagedFiles(r.HookName) {
+	if !r.didStash {
 		return
 	}
 
