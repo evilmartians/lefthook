@@ -165,7 +165,7 @@ post-commit:
 					GitPath:   gitPath,
 				},
 			}
-			lefthook.repo.InitializeForTest()
+			lefthook.repo.Setup()
 
 			// Create files that should exist
 			for _, path := range tt.existingDirs {

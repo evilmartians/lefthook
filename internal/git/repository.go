@@ -10,7 +10,6 @@ import (
 	"sync"
 
 	"github.com/spf13/afero"
-	"golang.org/x/sync/errgroup"
 
 	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/evilmartians/lefthook/internal/version"
@@ -111,7 +110,7 @@ func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
 		unstagedPatchPath: filepath.Join(infoPath, unstagedPatchName),
 	}
 
-	r.InitializeForTest()
+	r.Setup()
 
 	return r, nil
 }
@@ -120,31 +119,34 @@ func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
 // This returns a function which can be used to wait for the result. This should
 // be invoked to ensure we're not holding any locks on the Git repository.
 func (r *Repository) Precompute() func() {
-	var eg errgroup.Group
+	var wg sync.WaitGroup
 
-	eg.Go(func() error {
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
 		_, _ = r.stagedFilesOnce()
-		return nil
-	})
+	}()
 
-	eg.Go(func() error {
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
 		_, _ = r.stagedFilesWithDeletedOnce()
-		return nil
-	})
+	}()
 
-	eg.Go(func() error {
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
 		_, _ = r.statusShortOnce()
-		return nil
-	})
+	}()
 
-	return func() {
-		_ = eg.Wait()
-	}
+	return wg.Wait
 }
 
-// InitializeForTest must be called if you constructed a Repository without using `NewRepository`.
+// Setup must be called after you've constructed a Repository directly.
+// It's not necessary to invoke if you've used NewRepository.
+//
 // This can also be called multiple times to reset the cache.
-func (r *Repository) InitializeForTest() {
+func (r *Repository) Setup() {
 	r.stagedFilesOnce = sync.OnceValues(func() ([]string, error) {
 		return r.FindExistingFiles(cmdStagedFiles, "")
 	})
