@@ -31,6 +31,27 @@ pre-commit:
 
 For patterns that you can use see [this](https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm) reference. We use [glob](https://github.com/gobwas/glob) library.
 
+***When using `root:`***
+
+Globs are still calculated from the actual root of the git repo, `root` is ignored.
+
+***Behaviour of `**`***
+
+Note that the behaviour of `**` is different from typical glob implementations, like `ls` or tools like `lint-staged` in that a double-asterisk matches 1+ directories deep, not zero or more directories.
+If you want to match *both* files at the top level and nested, then rather than:
+
+```yaml
+glob: "src/**/*.js"
+```
+
+You'll need:
+
+```yaml
+glob: "src/*.js"
+```
+
+***Using `glob` without a files template in`run`***
+
 If you've specified `glob` but don't have a files template in [`run`](./run.md) option, lefthook will check `{staged_files}` for `pre-commit` hook and `{push_files}` for `pre-push` hook and apply filtering. If no files left, the command will be skipped.
 
 ```yml
