@@ -1,5 +1,11 @@
 # Change log
 
+## 1.10.11 (2025-02-21)
+
+- deps: bump github.com/spf13/cobra from 1.8.1 to 1.9.1 ([#952](https://github.com/evilmartians/lefthook/pull/952)) ([#958](https://github.com/evilmartians/lefthook/pull/958)) by @mrexox
+- fix: add $schema property ([#942](https://github.com/evilmartians/lefthook/pull/942)) by @mst-mkt
+- deps: bump github.com/briandowns/spinner from 1.23.1 to 1.23.2 ([#935](https://github.com/evilmartians/lefthook/pull/935)) ([#940](https://github.com/evilmartians/lefthook/pull/940)) by @mrexox
+
 ## 1.10.10 (2025-01-21)
 
 - feat: allow providing a list of globs ([#937](https://github.com/evilmartians/lefthook/pull/937)) by @mrexox
