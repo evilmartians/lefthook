@@ -50,6 +50,7 @@ MM staged but changed
 					},
 				},
 			}
+			repository.Setup()
 
 			files, err := repository.PartiallyStagedFiles()
 			if tt.error && err != nil {

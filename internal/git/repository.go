@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/spf13/afero"
 
@@ -20,6 +21,9 @@ const (
 	unstagedPatchName = "lefthook-unstaged.patch"
 	infoDirMode       = 0o775
 	minStatusLen      = 3
+
+	// The result of `git hash-object -t tree /dev/null`.
+	emptyTreeSHA = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 )
 
 var (
@@ -31,17 +35,19 @@ var (
 	cmdStagedFilesWithDeleted = []string{"git", "diff", "--name-only", "--cached", "--diff-filter=ACMRD"}
 	cmdStatusShort            = []string{"git", "status", "--short", "--porcelain"}
 	cmdListStash              = []string{"git", "stash", "list"}
-	cmdRootPath               = []string{"git", "rev-parse", "--path-format=absolute", "--show-toplevel"}
-	cmdHooksPath              = []string{"git", "rev-parse", "--path-format=absolute", "--git-path", "hooks"}
-	cmdInfoPath               = []string{"git", "rev-parse", "--path-format=absolute", "--git-path", "info"}
-	cmdGitPath                = []string{"git", "rev-parse", "--path-format=absolute", "--git-dir"}
-	cmdAllFiles               = []string{"git", "ls-files", "--cached"}
-	cmdCreateStash            = []string{"git", "stash", "create"}
-	cmdStageFiles             = []string{"git", "add"}
-	cmdRemotes                = []string{"git", "branch", "--remotes"}
-	cmdHideUnstaged           = []string{"git", "checkout", "--force", "--"}
-	cmdEmptyTreeSHA           = []string{"git", "hash-object", "-t", "tree", "/dev/null"}
-	cmdGitVersion             = []string{"git", "version"}
+	cmdPaths                  = []string{
+		"git", "rev-parse", "--path-format=absolute",
+		"--show-toplevel",
+		"--git-path", "hooks",
+		"--git-path", "info",
+		"--git-dir",
+	}
+	cmdAllFiles     = []string{"git", "ls-files", "--cached"}
+	cmdCreateStash  = []string{"git", "stash", "create"}
+	cmdStageFiles   = []string{"git", "add"}
+	cmdRemotes      = []string{"git", "branch", "--remotes"}
+	cmdHideUnstaged = []string{"git", "checkout", "--force", "--"}
+	cmdGitVersion   = []string{"git", "version"}
 )
 
 // Repository represents a git repository.
@@ -54,7 +60,10 @@ type Repository struct {
 	InfoPath          string
 	unstagedPatchPath string
 	headBranch        string
-	emptyTreeSHA      string
+
+	stagedFilesOnce            func() ([]string, error)
+	stagedFilesWithDeletedOnce func() ([]string, error)
+	statusShortOnce            func() ([]string, error)
 }
 
 // NewRepository returns a Repository or an error, if git repository it not initialized.
@@ -71,21 +80,16 @@ func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
 		}
 	}
 
-	rootPath, err := git.Cmd(cmdRootPath)
+	paths, err := git.Cmd(cmdPaths)
 	if err != nil {
 		return nil, err
 	}
 
-	hooksPath, err := git.Cmd(cmdHooksPath)
-	if err != nil {
-		return nil, err
-	}
-
-	infoPath, err := git.Cmd(cmdInfoPath)
-	if err != nil {
-		return nil, err
-	}
-	infoPath = filepath.Clean(infoPath)
+	pathsSplit := strings.Split(paths, "\n")
+	rootPath := pathsSplit[0]
+	hooksPath := pathsSplit[1]
+	infoPath := filepath.Clean(pathsSplit[2])
+	gitPath := pathsSplit[3]
 
 	if exists, _ := afero.DirExists(fs, infoPath); !exists {
 		err = fs.Mkdir(infoPath, infoDirMode)
@@ -94,19 +98,9 @@ func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
 		}
 	}
 
-	gitPath, err := git.Cmd(cmdGitPath)
-	if err != nil {
-		return nil, err
-	}
-
-	emptyTreeSHA, err := git.Cmd(cmdEmptyTreeSHA)
-	if err != nil {
-		log.Debug("Couldn't get empty tree SHA value, not critical")
-	}
-
 	git.root = rootPath
 
-	return &Repository{
+	r := &Repository{
 		Fs:                fs,
 		Git:               git,
 		HooksPath:         hooksPath,
@@ -114,18 +108,66 @@ func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
 		GitPath:           gitPath,
 		InfoPath:          infoPath,
 		unstagedPatchPath: filepath.Join(infoPath, unstagedPatchName),
-		emptyTreeSHA:      emptyTreeSHA,
-	}, nil
+	}
+
+	r.Setup()
+
+	return r, nil
+}
+
+// Precompute runs various Git commands in the background so the results are ready.
+// This returns a function which can be used to wait for the result. This should
+// be invoked to ensure we're not holding any locks on the Git repository.
+func (r *Repository) Precompute() func() {
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		_, _ = r.stagedFilesOnce()
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		_, _ = r.stagedFilesWithDeletedOnce()
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		_, _ = r.statusShortOnce()
+	}()
+
+	return wg.Wait
+}
+
+// Setup must be called after you've constructed a Repository directly.
+// It's not necessary to invoke if you've used NewRepository.
+//
+// This can also be called multiple times to reset the cache.
+func (r *Repository) Setup() {
+	r.stagedFilesOnce = sync.OnceValues(func() ([]string, error) {
+		return r.FindExistingFiles(cmdStagedFiles, "")
+	})
+
+	r.stagedFilesWithDeletedOnce = sync.OnceValues(func() ([]string, error) {
+		return r.FindAllFiles(cmdStagedFilesWithDeleted, "")
+	})
+
+	r.statusShortOnce = sync.OnceValues(func() ([]string, error) {
+		return r.Git.CmdLines(cmdStatusShort)
+	})
 }
 
 // StagedFiles returns a list of staged files which exist on file system.
 func (r *Repository) StagedFiles() ([]string, error) {
-	return r.FindExistingFiles(cmdStagedFiles, "")
+	return r.stagedFilesOnce()
 }
 
 // StagedFilesWithDeleted returns a list of staged files with deleted files.
 func (r *Repository) StagedFilesWithDeleted() ([]string, error) {
-	return r.FindAllFiles(cmdStagedFilesWithDeleted, "")
+	return r.stagedFilesWithDeletedOnce()
 }
 
 // StagedFiles returns a list of all files in repository.
@@ -159,7 +201,7 @@ func (r *Repository) PushFiles() ([]string, error) {
 
 	// Nothing has been pushed yet or upstream is not set
 	if len(r.headBranch) == 0 {
-		r.headBranch = r.emptyTreeSHA
+		r.headBranch = emptyTreeSHA
 	}
 
 	return r.FindExistingFiles(append(cmdPushFilesHead, r.headBranch), "")
@@ -169,7 +211,7 @@ func (r *Repository) PushFiles() ([]string, error) {
 // unstaged changes.
 // See https://git-scm.com/docs/git-status#_short_format.
 func (r *Repository) PartiallyStagedFiles() ([]string, error) {
-	lines, err := r.Git.CmdLines(cmdStatusShort)
+	lines, err := r.statusShortOnce()
 	if err != nil {
 		return []string{}, err
 	}

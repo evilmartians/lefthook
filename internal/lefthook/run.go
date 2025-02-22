@@ -50,6 +50,9 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		return nil
 	}
 
+	waitPrecompute := l.repo.Precompute()
+	defer waitPrecompute()
+
 	var verbose bool
 	if l.Verbose {
 		log.SetLevel(log.DebugLevel)

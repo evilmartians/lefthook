@@ -601,11 +601,7 @@ func TestRunAll(t *testing.T) {
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git add .*script.sh.*README.md",
 				"git diff --name-only --cached --diff-filter=ACMR",
-				"git diff --name-only --cached --diff-filter=ACMR",
-				"git diff --name-only --cached --diff-filter=ACMR",
 				"git add .*script.sh.*README.md",
-				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
-				"git stash list",
 			},
 		},
 		"with pre-commit skip": {
@@ -630,12 +626,9 @@ func TestRunAll(t *testing.T) {
 			success: []Result{succeeded("ok")},
 			gitCommands: []string{
 				"git status --short",
-				"git diff --name-only --cached --diff-filter=ACMR",
-				"git diff --name-only --cached --diff-filter=ACMR",
+				"git diff --name-only --cached --diff-filter=ACMRD",
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git add .*README.md",
-				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
-				"git stash list",
 			},
 		},
 		"with pre-commit skip but forced": {
@@ -664,8 +657,6 @@ func TestRunAll(t *testing.T) {
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git add .*README.md",
-				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
-				"git stash list",
 			},
 		},
 		"with pre-commit and stage_fixed=true under root": {
@@ -689,8 +680,6 @@ func TestRunAll(t *testing.T) {
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git add .*scripts.*script.sh",
-				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
-				"git stash list",
 			},
 		},
 		"with pre-push skip": {
@@ -764,6 +753,7 @@ func TestRunAll(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 			git.ResetState()
+			repo.Setup()
 			results, err := runner.RunAll(context.Background())
 			assert.NoError(err)
 
