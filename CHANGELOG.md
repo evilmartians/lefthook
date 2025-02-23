@@ -1,5 +1,9 @@
 # Change log
 
+## 1.11.0 (2025-02-23)
+
+- perf: speed up git commands ([#956](https://github.com/evilmartians/lefthook/pull/956)) by [@judofyr](https://github.com/judofyr)
+
 ## 1.10.11 (2025-02-21)
 
 - deps: bump github.com/spf13/cobra from 1.8.1 to 1.9.1 ([#952](https://github.com/evilmartians/lefthook/pull/952)) ([#958](https://github.com/evilmartians/lefthook/pull/958)) by [@mrexox](https://github.com/mrexox)
