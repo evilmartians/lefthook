@@ -21,6 +21,10 @@ func NewExecutor(cmd system.Command) *CommandExecutor {
 	return &CommandExecutor{cmd: cmd}
 }
 
+func (c CommandExecutor) WithEnv(name, value string) CommandExecutor {
+	return CommandExecutor{cmd: c.cmd.WithEnv(name, value), root: c.root}
+}
+
 // Cmd runs plain string command. Trims spaces around output.
 func (c CommandExecutor) Cmd(cmd []string) (string, error) {
 	out, err := c.execute(cmd, c.root)

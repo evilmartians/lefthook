@@ -6,9 +6,14 @@ import (
 	"testing"
 
 	"github.com/evilmartians/lefthook/internal/git"
+	"github.com/evilmartians/lefthook/internal/system"
 )
 
 type mockCmd struct{}
+
+func (mc mockCmd) WithEnv(string, string) system.Command {
+	return mc
+}
 
 func (mc mockCmd) Run(cmd []string, _root string, _in io.Reader, _out io.Writer, _errOut io.Writer) error {
 	if len(cmd) == 3 && cmd[2] == "success" {

@@ -65,8 +65,14 @@ func (r *Repository) SyncRemote(url, ref string, force bool) error {
 func (r *Repository) updateRemote(path, ref string) error {
 	log.Debugf("Updating remote config repository: %s", path)
 
+	git := r.Git.WithEnv(
+		"GIT_DIR", filepath.Join(path, ".git"),
+	).WithEnv(
+		"GIT_INDEX_FILE", filepath.Join(path, ".git", "index"),
+	)
+
 	if len(ref) != 0 {
-		_, err := r.Git.Cmd([]string{
+		_, err := git.Cmd([]string{
 			"git", "-C", path, "fetch", "--quiet", "--depth", "1",
 			"origin", ref,
 		})
@@ -74,14 +80,14 @@ func (r *Repository) updateRemote(path, ref string) error {
 			return err
 		}
 
-		_, err = r.Git.Cmd([]string{
+		_, err = git.Cmd([]string{
 			"git", "-C", path, "checkout", "FETCH_HEAD",
 		})
 		if err != nil {
 			return err
 		}
 	} else {
-		_, err := r.Git.Cmd([]string{"git", "-C", path, "pull", "--quiet"})
+		_, err := git.Cmd([]string{"git", "-C", path, "pull", "--quiet"})
 		if err != nil {
 			return err
 		}
