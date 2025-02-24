@@ -14,7 +14,7 @@ type gitCmd struct {
 	cases map[string]string
 }
 
-func (g gitCmd) WithEnv(string, string) system.Command {
+func (g gitCmd) WithEnvs(...string) system.Command {
 	return g
 }
 

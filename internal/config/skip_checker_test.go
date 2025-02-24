@@ -11,7 +11,7 @@ import (
 
 type mockCmd struct{}
 
-func (mc mockCmd) WithEnv(string, string) system.Command {
+func (mc mockCmd) WithEnvs(...string) system.Command {
 	return mc
 }
 

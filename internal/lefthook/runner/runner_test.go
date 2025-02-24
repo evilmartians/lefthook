@@ -44,7 +44,7 @@ func (e cmd) RunWithContext(context.Context, []string, string, io.Reader, io.Wri
 	return nil
 }
 
-func (g *gitCmd) WithEnv(string, string) system.Command {
+func (g *gitCmd) WithEnvs(...string) system.Command {
 	return g
 }
 
