@@ -18,6 +18,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/exec"
 	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/internal/system"
 )
 
 type (
@@ -41,6 +42,10 @@ func (e executor) Execute(_ctx context.Context, opts exec.Options, _in io.Reader
 
 func (e cmd) RunWithContext(context.Context, []string, string, io.Reader, io.Writer, io.Writer) error {
 	return nil
+}
+
+func (g *gitCmd) WithEnvs(...string) system.Command {
+	return g
 }
 
 func (g *gitCmd) Run(cmd []string, _root string, _in io.Reader, out io.Writer, _errOut io.Writer) error {

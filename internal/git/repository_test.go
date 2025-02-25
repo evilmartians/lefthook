@@ -6,10 +6,16 @@ import (
 	"io"
 	"strings"
 	"testing"
+
+	"github.com/evilmartians/lefthook/internal/system"
 )
 
 type gitCmd struct {
 	cases map[string]string
+}
+
+func (g gitCmd) WithEnvs(...string) system.Command {
+	return g
 }
 
 func (g gitCmd) Run(cmd []string, _root string, _in io.Reader, out io.Writer, _errOut io.Writer) error {
