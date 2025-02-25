@@ -1,5 +1,9 @@
 # Change log
 
+## 1.11.1 (2025-02-25)
+
+- fix: remote issue with worktrees ([#960](https://github.com/evilmartians/lefthook/pull/960)) by [@mrexox](https://github.com/mrexox)
+
 ## 1.11.0 (2025-02-23)
 
 - perf: speed up git commands ([#956](https://github.com/evilmartians/lefthook/pull/956)) by [@judofyr](https://github.com/judofyr)
