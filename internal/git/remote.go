@@ -65,11 +65,8 @@ func (r *Repository) SyncRemote(url, ref string, force bool) error {
 func (r *Repository) updateRemote(path, ref string) error {
 	log.Debugf("Updating remote config repository: %s", path)
 
-	// This is overwriting values for worktrees, otherwise it does not work.
-	git := r.Git.WithEnvs(
-		"GIT_DIR", filepath.Join(path, ".git"),
-		"GIT_INDEX_FILE", filepath.Join(path, ".git", "index"),
-	)
+	// This is overwriting ENVs for worktrees, otherwise it does not work.
+	git := r.Git.WithoutEnvs()
 
 	if len(ref) != 0 {
 		_, err := git.Cmd([]string{
@@ -105,7 +102,7 @@ func (r *Repository) cloneRemote(dest, directoryName, url, ref string) error {
 	}
 	cmdClone = append(cmdClone, url, directoryName)
 
-	_, err := r.Git.Cmd(cmdClone)
+	_, err := r.Git.WithoutEnvs().Cmd(cmdClone)
 	if err != nil {
 		return err
 	}
