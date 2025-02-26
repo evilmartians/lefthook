@@ -21,8 +21,8 @@ func NewExecutor(cmd system.Command) *CommandExecutor {
 	return &CommandExecutor{cmd: cmd}
 }
 
-func (c CommandExecutor) WithEnvs(envs ...string) CommandExecutor {
-	return CommandExecutor{cmd: c.cmd.WithEnvs(envs...), root: c.root}
+func (c CommandExecutor) WithoutEnvs() CommandExecutor {
+	return CommandExecutor{cmd: c.cmd.WithoutEnvs(), root: c.root}
 }
 
 // Cmd runs plain string command. Trims spaces around output.

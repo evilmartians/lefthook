@@ -3,7 +3,6 @@ package system
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -12,13 +11,13 @@ import (
 )
 
 type osCmd struct {
-	env []string
+	noEnvs bool
 }
 
 var Cmd = osCmd{}
 
 type Command interface {
-	WithEnvs(...string) Command
+	WithoutEnvs() Command
 	Run([]string, string, io.Reader, io.Writer, io.Writer) error
 }
 
@@ -26,20 +25,8 @@ type CommandWithContext interface {
 	RunWithContext(context.Context, []string, string, io.Reader, io.Writer, io.Writer) error
 }
 
-func (c osCmd) WithEnvs(envs ...string) Command {
-	if len(envs)%2 != 0 {
-		panic("usage: WithEnvs(name, value, name, value...")
-	}
-
-	if c.env == nil {
-		//nolint:mnd
-		c.env = make([]string, 0, len(envs)/2)
-	}
-
-	for i := 0; i < len(envs); i += 2 {
-		c.env = append(c.env, fmt.Sprintf("%s=%s", envs[i], envs[i+1]))
-	}
-
+func (c osCmd) WithoutEnvs() Command {
+	c.noEnvs = true
 	return c
 }
 
@@ -60,9 +47,12 @@ func (c osCmd) RunWithContext(
 	log.Debug("[lefthook] cmd:    ", command)
 
 	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
-	cmd.Env = append(cmd.Env, os.Environ()...)
-	cmd.Env = append(cmd.Env, c.env...)
-	cmd.Env = append(cmd.Env, "LEFTHOOK=0")
+	if c.noEnvs {
+		cmd.Env = []string{"LEFTHOOK=0"}
+	} else {
+		cmd.Env = os.Environ()
+		cmd.Env = append(cmd.Env, "LEFTHOOK=0")
+	}
 
 	if len(root) > 0 {
 		cmd.Dir = root
