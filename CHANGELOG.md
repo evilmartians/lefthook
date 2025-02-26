@@ -1,5 +1,9 @@
 # Change log
 
+## 1.11.2 (2025-02-26)
+
+- fix: do not inherit envs in remote Git commands ([#963](https://github.com/evilmartians/lefthook/pull/963)) by [@mrexox](https://github.com/mrexox)
+
 ## 1.11.1 (2025-02-25)
 
 - fix: remote issue with worktrees ([#960](https://github.com/evilmartians/lefthook/pull/960)) by [@mrexox](https://github.com/mrexox)
