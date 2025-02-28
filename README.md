@@ -3,11 +3,8 @@
 
 # Lefthook
 
-> The fastest polyglot Git hooks manager out there
-
 <img align="right" width="147" height="100" title="Lefthook logo"
      src="./logo_sign.svg">
-
 
 A Git hooks manager for Node.js, Ruby, Python and many other types of projects.
 
@@ -87,12 +84,14 @@ If you want your own list. [Custom][config-files] and [prebuilt][config-run] exa
 
 ```yml
 pre-commit:
-  commands:
-    frontend-linter:
+  jobs:
+    - name: lint frontend
       run: yarn eslint {staged_files}
-    backend-linter:
+
+    - name: lint backend
       run: bundle exec rubocop --force-exclusion {all_files}
-    frontend-style:
+
+    - name: stylelint frontend
       files: git diff --name-only HEAD @{push}
       run: yarn stylelint {files}
 ```
@@ -102,8 +101,8 @@ If you want to filter list of files. You could find more glob pattern examples [
 
 ```yml
 pre-commit:
-  commands:
-    backend-linter:
+  jobs:
+    - name: lint backend
       glob: "*.rb" # glob filter
       exclude: '(^|/)(application|routes)\.rb$' # regexp filter
       run: bundle exec rubocop --force-exclusion {all_files}
@@ -114,8 +113,8 @@ If you want to execute the commands in a relative path
 
 ```yml
 pre-commit:
-  commands:
-    backend-linter:
+  jobs:
+    - name: lint backend
       root: "api/" # Careful to have only trailing slash
       glob: "*.rb" # glob filter
       run: bundle exec rubocop {all_files}
@@ -127,8 +126,8 @@ If oneline commands are not enough, you can execute files. [docs][config-scripts
 
 ```yml
 commit-msg:
-  scripts:
-    "template_checker":
+  jobs:
+    - script: "template_checker"
       runner: bash
 ```
 
@@ -137,13 +136,14 @@ If you want to control a group of commands. [docs][config-tags]
 
 ```yml
 pre-push:
-  commands:
-    packages-audit:
+  jobs:
+    - name: audit packages
       tags:
         - frontend
         - linters
       run: yarn lint
-    gems-audit:
+
+    - name: audit gems
       tags:
         - backend
         - security
@@ -156,8 +156,8 @@ If you are in the Docker environment. [docs][config-run]
 
 ```yml
 pre-commit:
-  scripts:
-    "good_job.js":
+  jobs:
+    - script: "good_job.js"
       runner: docker run -it --rm <container_id_or_name> {cmd}
 ```
 
@@ -170,8 +170,8 @@ If you a frontend/backend developer and want to skip unnecessary commands or ove
 pre-push:
   exclude_tags:
     - frontend
-  commands:
-    packages-audit:
+  jobs:
+    - name: audit packages
       skip: true
 ```
 
@@ -189,11 +189,9 @@ If you want to run specific group of commands directly.
 
 ```yml
 fixer:
-  commands:
-    ruby-fixer:
-      run: bundle exec rubocop --force-exclusion --safe-auto-correct {staged_files}
-    js-fixer:
-      run: yarn eslint --fix {staged_files}
+  jobs:
+    - run: bundle exec rubocop --force-exclusion --safe-auto-correct {staged_files}
+    - run: yarn eslint --fix {staged_files}
 ```
 ```bash
 $ lefthook run fixer

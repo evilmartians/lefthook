@@ -1,12 +1,14 @@
 # Install lefthook
 
-Choose your fighter:
+As a dev dependency
 
 - [Ruby](./ruby.md)
 - [Node.js](./node.md)
+- [Swift](./swift.md)
+
+With package managers
 - [Go](./go.md)
 - [Python](./python.md)
-- [Swift](./swift.md)
 - [Scoop](./scoop.md)
 - [Homebrew](./homebrew.md)
 - [Winget](./winget.md)
@@ -15,4 +17,6 @@ Choose your fighter:
 - [RPM-based distro](./rpm.md)
 - [Alpine](./alpine.md)
 - [Arch Linux](./arch.md)
-- [Manual](./manual.md)
+
+
+[Manual installation](./manual.md)
