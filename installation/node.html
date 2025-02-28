@@ -156,33 +156,36 @@
                 <div id="content" class="content">
                     <main>
                         <h2 id="nodejs"><a class="header" href="#nodejs">Node.js</a></h2>
-<p>Lefthook is available on NPM in the following flavors:</p>
-<ol>
-<li>
-<p><a href="https://www.npmjs.com/package/lefthook">lefthook</a> that will install the proper binary:</p>
-<pre><code class="language-bash">npm install lefthook --save-dev
-# or yarn:
-yarn add -D lefthook
+<pre><code class="language-bash">npm install --save-dev lefthook
 </code></pre>
-</li>
-<li>
-<p><a href="https://www.npmjs.com/package/@evilmartians/lefthook">@evilmartians/lefthook</a> with pre-bundled binaries for all architectures:</p>
-<pre><code class="language-bash">npm install @evilmartians/lefthook --save-dev
-# or yarn:
-yarn add -D @evilmartians/lefthook
+<pre><code class="language-bash">yarn add --dev lefthook
 </code></pre>
-</li>
-<li>
-<p><a href="https://www.npmjs.com/package/@evilmartians/lefthook-installer">@evilmartians/lefthook-installer</a> that will fetch binary file on installation:</p>
-<pre><code class="language-bash">npm install @evilmartians/lefthook-installer --save-dev
-# or yarn:
-yarn add -D @evilmartians/lefthook-installer
+<pre><code class="language-bash">pnpm install --dev lefthook
 </code></pre>
-</li>
-</ol>
 <blockquote>
 <p><strong>Note:</strong> If you use <code>pnpm</code> package manager make sure you set <code>side-effects-cache = false</code> in your .npmrc, otherwise the postinstall script of the lefthook package won't be executed and hooks won't be installed.</p>
 </blockquote>
+<p><strong>Note</strong>: lefthook has three NPM packages with different ways to deliver the executables</p>
+<ol>
+<li>
+<p><a href="https://www.npmjs.com/package/lefthook">lefthook</a> installs one executable for your system</p>
+<pre><code class="language-bash">npm install --save-dev lefthook
+</code></pre>
+</li>
+<li>
+<p><strong>legacy</strong><sup class="footnote-reference"><a href="#1">1</a></sup> <a href="https://www.npmjs.com/package/@evilmartians/lefthook">@evilmartians/lefthook</a>  installs executables for all OS</p>
+<pre><code class="language-bash">npm install --save-dev @evilmartians/lefthook
+</code></pre>
+</li>
+<li>
+<p><strong>legacy</strong><sup class="footnote-reference"><a href="#1">1</a></sup> <a href="https://www.npmjs.com/package/@evilmartians/lefthook-installer">@evilmartians/lefthook-installer</a> fetches the right executable on installation</p>
+<pre><code class="language-bash">npm install --save-dev @evilmartians/lefthook-installer
+</code></pre>
+</li>
+</ol>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p>Legacy distributions are still maintained but they will be shut down in the future.</p>
+</div>
 
                     </main>
 
@@ -192,7 +195,7 @@ yarn add -D @evilmartians/lefthook-installer
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../installation/go.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../installation/swift.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -206,7 +209,7 @@ yarn add -D @evilmartians/lefthook-installer
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../installation/go.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../installation/swift.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

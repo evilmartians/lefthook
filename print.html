@@ -159,18 +159,16 @@
                         <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
 <p><img align="right" width="147" height="125" title="Lefthook logo"
      src="./favicon.svg"></p>
-<p><strong>Lefthook</strong> is a Git hooks manager. This documentation provides the reference for installing, configuring and using the lefthook.</p>
+<p><strong>Lefthook</strong> is a Git hooks manager. Here is how to</p>
 <ul>
 <li>
-<p><strong><a href="./installation">Installation instructions</a></strong> to install lefthook to your OS or project.</p>
+<p><strong><a href="./installation">Install</a></strong> lefthook to your project or globally.</p>
 </li>
 <li>
-<p><strong><a href="./examples">Examples</a></strong> of lefthook common usage.</p>
-</li>
-<li>
-<p><strong><a href="./configuration">Configuration</a></strong> with detailed explanation of lefthook options.</p>
+<p><strong><a href="./configuration">Configure</a></strong> <code>lefthook.yml</code> with detailed options explanation.</p>
 </li>
 </ul>
+<p>See also: <a href="./examples"><strong>examples</strong></a> of lefthook common usage.</p>
 <p><strong>Example:</strong> Run your linters on <code>pre-commit</code> hook and forget about the routine.</p>
 <pre><code class="language-yml"># lefthook.yml
 
@@ -194,13 +192,16 @@ pre-commit:
 <img src="https://evilmartians.com/badges/sponsored-by-evil-martians.svg" alt="Sponsored by Evil Martians" width="100%" height="54"></a>
 <p>❓<em>If you have a question or found a mistake in the documentation, please create a new <a href="https://github.com/evilmartians/lefthook/discussions/new/choose">discussion</a>. Small contributions help maintaining the quality of the project.</em></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="install-lefthook"><a class="header" href="#install-lefthook">Install lefthook</a></h1>
-<p>Choose your fighter:</p>
+<p>As a dev dependency</p>
 <ul>
 <li><a href="installation/./ruby.html">Ruby</a></li>
 <li><a href="installation/./node.html">Node.js</a></li>
+<li><a href="installation/./swift.html">Swift</a></li>
+</ul>
+<p>With package managers</p>
+<ul>
 <li><a href="installation/./go.html">Go</a></li>
 <li><a href="installation/./python.html">Python</a></li>
-<li><a href="installation/./swift.html">Swift</a></li>
 <li><a href="installation/./scoop.html">Scoop</a></li>
 <li><a href="installation/./homebrew.html">Homebrew</a></li>
 <li><a href="installation/./winget.html">Winget</a></li>
@@ -209,47 +210,51 @@ pre-commit:
 <li><a href="installation/./rpm.html">RPM-based distro</a></li>
 <li><a href="installation/./alpine.html">Alpine</a></li>
 <li><a href="installation/./arch.html">Arch Linux</a></li>
-<li><a href="installation/./manual.html">Manual</a></li>
 </ul>
+<p><a href="installation/./manual.html">Manual installation</a></p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="ruby"><a class="header" href="#ruby">Ruby</a></h2>
+<pre><code class="language-ruby"># Gemfile
+
+group :development do
+  gem "lefthook", require: false
+end
+</code></pre>
+<p>Or globally</p>
 <pre><code class="language-bash">gem install lefthook
 </code></pre>
 <p><strong>Troubleshooting</strong></p>
 <p>If you see the error <code>lefthook: command not found</code> you need to check your $PATH. Also try to restart your terminal.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="nodejs"><a class="header" href="#nodejs">Node.js</a></h2>
-<p>Lefthook is available on NPM in the following flavors:</p>
-<ol>
-<li>
-<p><a href="https://www.npmjs.com/package/lefthook">lefthook</a> that will install the proper binary:</p>
-<pre><code class="language-bash">npm install lefthook --save-dev
-# or yarn:
-yarn add -D lefthook
+<pre><code class="language-bash">npm install --save-dev lefthook
 </code></pre>
-</li>
-<li>
-<p><a href="https://www.npmjs.com/package/@evilmartians/lefthook">@evilmartians/lefthook</a> with pre-bundled binaries for all architectures:</p>
-<pre><code class="language-bash">npm install @evilmartians/lefthook --save-dev
-# or yarn:
-yarn add -D @evilmartians/lefthook
+<pre><code class="language-bash">yarn add --dev lefthook
 </code></pre>
-</li>
-<li>
-<p><a href="https://www.npmjs.com/package/@evilmartians/lefthook-installer">@evilmartians/lefthook-installer</a> that will fetch binary file on installation:</p>
-<pre><code class="language-bash">npm install @evilmartians/lefthook-installer --save-dev
-# or yarn:
-yarn add -D @evilmartians/lefthook-installer
+<pre><code class="language-bash">pnpm install --dev lefthook
 </code></pre>
-</li>
-</ol>
 <blockquote>
 <p><strong>Note:</strong> If you use <code>pnpm</code> package manager make sure you set <code>side-effects-cache = false</code> in your .npmrc, otherwise the postinstall script of the lefthook package won't be executed and hooks won't be installed.</p>
 </blockquote>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="go"><a class="header" href="#go">Go</a></h2>
-<pre><code class="language-bash">go install github.com/evilmartians/lefthook@latest
+<p><strong>Note</strong>: lefthook has three NPM packages with different ways to deliver the executables</p>
+<ol>
+<li>
+<p><a href="https://www.npmjs.com/package/lefthook">lefthook</a> installs one executable for your system</p>
+<pre><code class="language-bash">npm install --save-dev lefthook
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="python"><a class="header" href="#python">Python</a></h2>
-<pre><code class="language-sh">python -m pip install --user lefthook
+</li>
+<li>
+<p><strong>legacy</strong><sup class="footnote-reference"><a href="#1">1</a></sup> <a href="https://www.npmjs.com/package/@evilmartians/lefthook">@evilmartians/lefthook</a>  installs executables for all OS</p>
+<pre><code class="language-bash">npm install --save-dev @evilmartians/lefthook
 </code></pre>
+</li>
+<li>
+<p><strong>legacy</strong><sup class="footnote-reference"><a href="#1">1</a></sup> <a href="https://www.npmjs.com/package/@evilmartians/lefthook-installer">@evilmartians/lefthook-installer</a> fetches the right executable on installation</p>
+<pre><code class="language-bash">npm install --save-dev @evilmartians/lefthook-installer
+</code></pre>
+</li>
+</ol>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p>Legacy distributions are still maintained but they will be shut down in the future.</p>
+</div>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="swift"><a class="header" href="#swift">Swift</a></h2>
 <p>You can find the Swift wrapper plugin <a href="https://github.com/csjones/lefthook-plugin">here</a>.</p>
 <p>Utilize lefthook in your Swift project using Swift Package Manager:</p>
@@ -257,6 +262,12 @@ yarn add -D @evilmartians/lefthook-installer
 </code></pre>
 <p>Or, with <a href="https://github.com/yonaskolb/Mint">mint</a>:</p>
 <pre><code class="language-bash">mint run csjones/lefthook-plugin
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="go"><a class="header" href="#go">Go</a></h2>
+<pre><code class="language-bash">go install github.com/evilmartians/lefthook@latest
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="python"><a class="header" href="#python">Python</a></h2>
+<pre><code class="language-sh">python -m pip install --user lefthook
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="scoop-for-windows"><a class="header" href="#scoop-for-windows">Scoop for Windows</a></h2>
 <pre><code class="language-sh">scoop install lefthook
@@ -301,11 +312,7 @@ yay -S lefthook
 yay -S lefthook-bin
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="manuall-installation-with-prebuilt-executable"><a class="header" href="#manuall-installation-with-prebuilt-executable">Manuall installation with prebuilt executable</a></h2>
-<p>Download from <a href="https://github.com/evilmartians/lefthook/releases">binaries</a> and install manually.</p>
-<ol>
-<li>Download the executable for your OS and Arch</li>
-<li>Put the executable under the $PATH (for unix systems)</li>
-</ol>
+<p>Download binaries from <a href="https://github.com/evilmartians/lefthook/releases/latest">latest release</a> and install manually.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="usage"><a class="header" href="#usage">Usage</a></h1>
 <ul>
 <li><a href="usage/./commands.html">Commands</a>
@@ -3229,12 +3236,12 @@ post-checkout:
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="examples-1"><a class="header" href="#examples-1">Examples</a></h1>
 <ul>
-<li><a href="examples/./lefthook-local.html">Use lefthook-local.yml with extensions and overrides</a></li>
-<li><a href="examples/./stage_fixed.html">Auto stage changed files</a></li>
-<li><a href="examples/./filters.html">Filter files</a></li>
+<li><a href="examples/./lefthook-local.html">lefthook-local.yml (with extensions and overrides)</a></li>
+<li><a href="examples/./stage_fixed.html">Apply fixes on pre-commit hook</a></li>
+<li><a href="examples/./filters.html">Filter files for commands</a></li>
 <li><a href="examples/./skip.html">Skip or run on condition</a></li>
 <li><a href="examples/./remotes.html">Use remote config</a></li>
-<li><a href="examples/./commitlint.html">Use commitlint</a></li>
+<li><a href="examples/./commitlint.html">Use with commitlint</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook-localyml"><a class="header" href="#lefthook-localyml">lefthook-local.yml</a></h2>
 <p><code>lefthook-local.yml</code> overrides and extends the configuration of your main <code>lefthook.yml</code> (or <code>lefthook.toml</code>, <a href="examples/../configuration">etc.</a>) file.</p>
