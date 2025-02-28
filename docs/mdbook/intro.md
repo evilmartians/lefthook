@@ -3,15 +3,13 @@
 <img align="right" width="147" height="125" title="Lefthook logo"
      src="./favicon.svg">
 
-**Lefthook** is a Git hooks manager. This documentation provides the reference for installing, configuring and using the lefthook.
+**Lefthook** is a Git hooks manager. Here is how to
 
+- **[Install](./installation)** lefthook to your project or globally.
 
-- **[Installation instructions](./installation)** to install lefthook to your OS or project.
+- **[Configure](./configuration)** `lefthook.yml` with detailed options explanation.
 
-- **[Examples](./examples)** of lefthook common usage.
-
-- **[Configuration](./configuration)** with detailed explanation of lefthook options.
-
+See also: [**examples**](./examples) of lefthook common usage.
 
 **Example:** Run your linters on `pre-commit` hook and forget about the routine.
 
