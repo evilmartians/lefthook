@@ -7,6 +7,8 @@ import (
 var ErrFilesIncompatible = errors.New("One of your runners contains incompatible file types")
 
 type Command struct {
+	Shell []string `json:"shell,omitempty"    jsonschema:"oneof_type=string;array" mapstructure:"shell"      toml:"shell,omitempty"    yaml:",omitempty"`
+
 	Run   string `json:"run"             mapstructure:"run"   toml:"run"             yaml:"run"`
 	Files string `json:"files,omitempty" mapstructure:"files" toml:"files,omitempty" yaml:",omitempty"`
 

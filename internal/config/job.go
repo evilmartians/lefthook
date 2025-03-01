@@ -1,10 +1,11 @@
 package config
 
 type Job struct {
-	Name   string `json:"name,omitempty"   mapstructure:"name"                       toml:"name,omitempty"   yaml:",omitempty"`
-	Run    string `json:"run,omitempty"    jsonschema:"oneof_required=Run a command" mapstructure:"run"      toml:"run,omitempty"    yaml:",omitempty"`
-	Script string `json:"script,omitempty" jsonschema:"oneof_required=Run a script"  mapstructure:"script"   toml:"script,omitempty" yaml:",omitempty"`
-	Runner string `json:"runner,omitempty" mapstructure:"runner"                     toml:"runner,omitempty" yaml:",omitempty"`
+	Name   string   `json:"name,omitempty"   mapstructure:"name"                       toml:"name,omitempty"   yaml:",omitempty"`
+	Shell  []string `json:"shell,omitempty"    jsonschema:"oneof_type=string;array" mapstructure:"shell"      toml:"shell,omitempty"    yaml:",omitempty"`
+	Run    string   `json:"run,omitempty"    jsonschema:"oneof_required=Run a command" mapstructure:"run"      toml:"run,omitempty"    yaml:",omitempty"`
+	Script string   `json:"script,omitempty" jsonschema:"oneof_required=Run a script"  mapstructure:"script"   toml:"script,omitempty" yaml:",omitempty"`
+	Runner string   `json:"runner,omitempty" mapstructure:"runner"                     toml:"runner,omitempty" yaml:",omitempty"`
 
 	Glob     []string `json:"glob,omitempty"      jsonschema:"oneof_type=string;array" mapstructure:"glob"      toml:"glob,omitempty"      yaml:",omitempty"`
 	Root     string   `json:"root,omitempty"      mapstructure:"root"                  toml:"root,omitempty"    yaml:",omitempty"`

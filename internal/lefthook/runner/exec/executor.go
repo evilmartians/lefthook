@@ -11,6 +11,7 @@ type Options struct {
 	Commands              []string
 	Env                   map[string]string
 	Interactive, UseStdin bool
+	Shell                 []string
 }
 
 // Executor provides an interface for command execution.

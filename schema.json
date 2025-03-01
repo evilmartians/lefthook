@@ -4,6 +4,19 @@
   "$defs": {
     "Command": {
       "properties": {
+        "shell": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array"
+            }
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
         "run": {
           "type": "string"
         },
@@ -214,6 +227,19 @@
         "name": {
           "type": "string"
         },
+        "shell": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array"
+            }
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
         "run": {
           "type": "string"
         },
@@ -412,7 +438,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2025.02.26.",
+  "$comment": "Last updated on 2025.03.01.",
   "properties": {
     "min_version": {
       "type": "string",
