@@ -173,6 +173,7 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, jo
 		Interactive: job.Interactive && !r.DisableTTY,
 		UseStdin:    job.UseStdin,
 		Env:         job.Env,
+		Shell:       job.Shell,
 	}, r.Hook.Follow)
 
 	if !ok {

@@ -498,6 +498,7 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 		Interactive: command.Interactive && !r.DisableTTY,
 		UseStdin:    command.UseStdin,
 		Env:         command.Env,
+		Shell:       command.Shell,
 	}, r.Hook.Follow)
 
 	if !ok {
