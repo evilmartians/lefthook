@@ -20,7 +20,7 @@ require (
 	github.com/knadh/koanf/v2 v2.1.2
 	github.com/mattn/go-tty v0.0.7
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/rogpeppe/go-internal v1.13.1
+	github.com/rogpeppe/go-internal v1.14.1
 	github.com/schollz/progressbar/v3 v3.18.0
 	github.com/spf13/afero v1.12.0
 	github.com/spf13/cobra v1.9.1
@@ -46,7 +46,7 @@ require (
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
-	golang.org/x/tools v0.22.0 // indirect
+	golang.org/x/tools v0.26.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 )
 
