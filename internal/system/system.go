@@ -6,18 +6,19 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
 type osCmd struct {
-	noEnvs bool
+	excludeEnvs []string
 }
 
 var Cmd = osCmd{}
 
 type Command interface {
-	WithoutEnvs() Command
+	WithoutEnvs(...string) Command
 	Run([]string, string, io.Reader, io.Writer, io.Writer) error
 }
 
@@ -25,8 +26,8 @@ type CommandWithContext interface {
 	RunWithContext(context.Context, []string, string, io.Reader, io.Writer, io.Writer) error
 }
 
-func (c osCmd) WithoutEnvs() Command {
-	c.noEnvs = true
+func (c osCmd) WithoutEnvs(envs ...string) Command {
+	c.excludeEnvs = envs
 	return c
 }
 
@@ -47,8 +48,18 @@ func (c osCmd) RunWithContext(
 	log.Debug("[lefthook] cmd:    ", command)
 
 	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
-	if c.noEnvs {
-		cmd.Env = []string{"LEFTHOOK=0"}
+	if len(c.excludeEnvs) > 0 {
+	loop:
+		for _, env := range os.Environ() {
+			for _, noenv := range c.excludeEnvs {
+				if strings.HasPrefix(env, noenv) {
+					log.Debug("[lefthook] noenv ", env)
+					continue loop
+				}
+			}
+			cmd.Env = append(cmd.Env, env)
+		}
+		cmd.Env = append(cmd.Env, "LEFTHOOK=0")
 	} else {
 		cmd.Env = os.Environ()
 		cmd.Env = append(cmd.Env, "LEFTHOOK=0")
