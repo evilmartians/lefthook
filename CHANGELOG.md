@@ -1,5 +1,9 @@
 # Change log
 
+## 1.11.3 (2025-03-07)
+
+- fix: remote cloning issues ([#969](https://github.com/evilmartians/lefthook/pull/969)) by [@mrexox](https://github.com/mrexox)
+
 ## 1.11.2 (2025-02-26)
 
 - fix: do not inherit envs in remote Git commands ([#963](https://github.com/evilmartians/lefthook/pull/963)) by [@mrexox](https://github.com/mrexox)
