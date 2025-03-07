@@ -15,7 +15,7 @@ import (
 
 type gitCmd struct{}
 
-func (g gitCmd) WithoutEnvs() system.Command {
+func (g gitCmd) WithoutEnvs(...string) system.Command {
 	return g
 }
 

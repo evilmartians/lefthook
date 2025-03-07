@@ -66,7 +66,7 @@ func (r *Repository) updateRemote(path, ref string) error {
 	log.Debugf("Updating remote config repository: %s", path)
 
 	// This is overwriting ENVs for worktrees, otherwise it does not work.
-	git := r.Git.WithoutEnvs()
+	git := r.Git.WithoutEnvs("GIT_DIR", "GIT_INDEX_FILE")
 
 	if len(ref) != 0 {
 		_, err := git.Cmd([]string{
@@ -102,7 +102,7 @@ func (r *Repository) cloneRemote(dest, directoryName, url, ref string) error {
 	}
 	cmdClone = append(cmdClone, url, directoryName)
 
-	_, err := r.Git.WithoutEnvs().Cmd(cmdClone)
+	_, err := r.Git.WithoutEnvs("GIT_DIR", "GIT_INDEX_FILE").Cmd(cmdClone)
 	if err != nil {
 		return err
 	}
