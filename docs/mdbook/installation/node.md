@@ -9,7 +9,7 @@ yarn add --dev lefthook
 ```
 
 ```bash
-pnpm install --dev lefthook
+pnpm add -D lefthook
 ```
 
 > **Note:** If you use `pnpm` package manager make sure you set `side-effects-cache = false` in your .npmrc, otherwise the postinstall script of the lefthook package won't be executed and hooks won't be installed.
