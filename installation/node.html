@@ -24,9 +24,9 @@
         <link rel="stylesheet" href="../fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="../highlight.css">
-        <link rel="stylesheet" href="../tomorrow-night.css">
-        <link rel="stylesheet" href="../ayu-highlight.css">
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
@@ -160,7 +160,7 @@
 </code></pre>
 <pre><code class="language-bash">yarn add --dev lefthook
 </code></pre>
-<pre><code class="language-bash">pnpm install --dev lefthook
+<pre><code class="language-bash">pnpm add -D lefthook
 </code></pre>
 <blockquote>
 <p><strong>Note:</strong> If you use <code>pnpm</code> package manager make sure you set <code>side-effects-cache = false</code> in your .npmrc, otherwise the postinstall script of the lefthook package won't be executed and hooks won't be installed.</p>
