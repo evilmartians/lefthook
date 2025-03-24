@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/creack/pty"
 	"github.com/mattn/go-isatty"
@@ -62,10 +63,16 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 		useStdin:    opts.UseStdin,
 	}
 
+	shellargs := opts.Shell
+	if shellargs == nil {
+		shellargs = []string{"sh", "-c"}
+	}
+
 	// We can have one command split into separate to fit into shell command max length.
 	// In this case we execute those commands one by one.
 	for _, command := range opts.Commands {
-		if err := e.execute(ctx, command, args); err != nil {
+		cmdargs := append(shellargs, command)
+		if err := e.execute(ctx, cmdargs, args); err != nil {
 			return err
 		}
 	}
@@ -73,11 +80,12 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 	return nil
 }
 
-func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *executeArgs) error {
-	command := exec.CommandContext(ctx, "sh", "-c", cmdstr)
+func (e CommandExecutor) execute(ctx context.Context, cmdargs []string, args *executeArgs) error {
+	command := exec.CommandContext(ctx, cmdargs[0], cmdargs[1:]...)
 	command.Dir = args.root
 	command.Env = append(os.Environ(), args.envs...)
 
+	log.Debug("[lefthook] run command: ", strings.Join(cmdargs, " "))
 	if args.interactive || args.useStdin {
 		command.Stdout = args.out
 		command.Stdin = args.in

@@ -58,7 +58,7 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 	}
 
 	for _, command := range opts.Commands {
-		if err := e.execute(command, args); err != nil {
+		if err := e.execute(opts.Shell, command, args); err != nil {
 			return err
 		}
 	}
@@ -66,11 +66,18 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 	return nil
 }
 
-func (e CommandExecutor) execute(cmdstr string, args *executeArgs) error {
-	cmdargs := strings.Split(cmdstr, " ")
-	command := exec.Command(cmdargs[0])
-	command.SysProcAttr = &syscall.SysProcAttr{
-		CmdLine: strings.Join(cmdargs, " "),
+func (e CommandExecutor) execute(shell []string, cmdstr string, args *executeArgs) error {
+	var command *exec.Cmd
+	var cmdargs []string
+	if len(shell) >= 1 {
+		cmdargs = append(shell, cmdstr)
+		command = exec.Command(cmdargs[0], cmdargs[1:]...)
+	} else {
+		cmdargs = strings.Split(cmdstr, " ")
+		command = exec.Command(cmdargs[0])
+		command.SysProcAttr = &syscall.SysProcAttr{
+			CmdLine: strings.Join(cmdargs, " "),
+		}
 	}
 	command.Dir = args.root
 	command.Env = append(os.Environ(), args.envs...)
@@ -78,6 +85,7 @@ func (e CommandExecutor) execute(cmdstr string, args *executeArgs) error {
 	command.Stdout = args.out
 	command.Stdin = args.in
 	command.Stderr = os.Stderr
+	log.Debug("[lefthook] run command: ", strings.Join(cmdargs, " "))
 	err := command.Start()
 	if err != nil {
 		return err
