@@ -1,5 +1,12 @@
 # Change log
 
+## 1.11.4 (2025-03-24)
+
+- feat: support lefthook as go tool ([#976](https://github.com/evilmartians/lefthook/pull/976)) by [@nmoniz](https://github.com/nmoniz)
+- fix: use dedicated build path for swift plugin ([#978](https://github.com/evilmartians/lefthook/pull/978)) by [@csjones](https://github.com/csjones)
+- deps: March 2025 ([#977](https://github.com/evilmartians/lefthook/pull/977)) by [@mrexox](https://github.com/mrexox)
+- docs: update pnpm install command in the installation guide ([#974](https://github.com/evilmartians/lefthook/pull/974)) by [@hoosierhuy](https://github.com/hoosierhuy)
+
 ## 1.11.3 (2025-03-07)
 
 - fix: remote cloning issues ([#969](https://github.com/evilmartians/lefthook/pull/969)) by [@mrexox](https://github.com/mrexox)
