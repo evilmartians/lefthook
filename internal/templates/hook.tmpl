@@ -63,6 +63,9 @@ call_lefthook()
     then
       "$dir/{{.}}/node_modules/lefthook/bin/index.js" "$@"
     {{ end }}
+    elif go tool lefthook -h >/dev/null 2>&1
+    then
+      go tool lefthook "$@"
     elif bundle exec lefthook -h >/dev/null 2>&1
     then
       bundle exec lefthook "$@"

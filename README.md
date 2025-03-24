@@ -25,6 +25,12 @@ With **Go** (>= 1.24):
 go install github.com/evilmartians/lefthook@latest
 ```
 
+* or as a go tool
+
+```bash
+go get -tool github.com/evilmartians/lefthook
+```
+
 With **NPM**:
 
 ```bash
