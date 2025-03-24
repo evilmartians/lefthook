@@ -1,7 +1,6 @@
 package updater
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -141,7 +140,7 @@ func TestUpdater_SelfUpdate(t *testing.T) {
 				releaseURL: releaseServer.URL,
 			}
 
-			err = upd.SelfUpdate(context.Background(), tt.opts)
+			err = upd.SelfUpdate(t.Context(), tt.opts)
 
 			if tt.err != nil {
 				if !errors.Is(err, tt.err) {
