@@ -80,7 +80,7 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 	}
 
 	cmdLine := "\"" + sh + "\"" + " -c " + "\"" + cmdstr + "\""
-	log.Debug("run: ", cmdLine)
+	log.Debug("[lefthook] run: ", cmdLine)
 
 	command := exec.CommandContext(ctx, sh)
 	command.SysProcAttr = &syscall.SysProcAttr{

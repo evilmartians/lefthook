@@ -74,6 +74,7 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 }
 
 func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *executeArgs) error {
+	log.Debug("[lefthook] run: ", cmdstr)
 	command := exec.CommandContext(ctx, "sh", "-c", cmdstr)
 	command.Dir = args.root
 	command.Env = append(os.Environ(), args.envs...)
