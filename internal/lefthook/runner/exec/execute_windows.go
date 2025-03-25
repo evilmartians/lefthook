@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"syscall"
 
 	"github.com/evilmartians/lefthook/internal/log"
@@ -15,6 +14,9 @@ import (
 	"github.com/mattn/go-isatty"
 	"github.com/mattn/go-tty"
 )
+
+const plainSh = "sh"
+const fullPathSh = `C:\Program Files\Git\bin\sh.exe`
 
 type CommandExecutor struct{}
 type executeArgs struct {
@@ -58,7 +60,7 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 	}
 
 	for _, command := range opts.Commands {
-		if err := e.execute(command, args); err != nil {
+		if err := e.execute(ctx, command, args); err != nil {
 			return err
 		}
 	}
@@ -66,11 +68,23 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 	return nil
 }
 
-func (e CommandExecutor) execute(cmdstr string, args *executeArgs) error {
-	cmdargs := strings.Split(cmdstr, " ")
-	command := exec.Command(cmdargs[0])
+func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *executeArgs) error {
+	var sh string
+	// Git hooks always setup GIT_INDEX env variable so here we check if we are in
+	// a Git hook and can use `sh` without specifying the full path. This should cover most use cases.
+	if len(os.Getenv("GIT_INDEX_FILE")) != 0 {
+		sh = plainSh
+	} else {
+		// In case you call `lefthook run ...` from the terminal
+		sh = fullPathSh
+	}
+
+	cmdLine := "\"" + sh + "\"" + " -c " + "\"" + cmdstr + "\""
+	log.Debug("run: ", cmdLine)
+
+	command := exec.CommandContext(ctx, sh)
 	command.SysProcAttr = &syscall.SysProcAttr{
-		CmdLine: strings.Join(cmdargs, " "),
+		CmdLine: cmdLine,
 	}
 	command.Dir = args.root
 	command.Env = append(os.Environ(), args.envs...)
