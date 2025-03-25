@@ -1,5 +1,9 @@
 # Change log
 
+## 1.11.5 (2025-03-25)
+
+- fix: windows scripts issues ([#979](https://github.com/evilmartians/lefthook/pull/979)) by [@mrexox](https://github.com/mrexox)
+
 ## 1.11.4 (2025-03-24)
 
 - feat: support lefthook as go tool ([#976](https://github.com/evilmartians/lefthook/pull/976)) by [@nmoniz](https://github.com/nmoniz)
