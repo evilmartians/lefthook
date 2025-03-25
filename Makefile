@@ -10,7 +10,11 @@ jsonschema:
 	go generate internal/gen/jsonschema.go > schema.json
 
 install: build
+ifeq ($(shell go env GOOS),windows)
+	copy lefthook $(shell go env GOPATH)\bin\lefthook.exe
+else
 	cp lefthook $$(go env GOPATH)/bin
+endif
 
 test:
 	go test -cpu 24 -race -count=1 -timeout=30s ./...
