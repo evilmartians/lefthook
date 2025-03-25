@@ -156,14 +156,6 @@
                 <div id="content" class="content">
                     <main>
                         <h2 id="run"><a class="header" href="#run"><code>run</code></a></h2>
-<blockquote>
-<p><strong>Note:</strong> <code>run</code> command is treated differently on Unix-like systems (macOS, Linux) and Windows:</p>
-<ul>
-<li>*<strong>nix</strong>: commands get wrapped with <code>sh -c '&lt;run&gt;'</code></li>
-<li><strong>Windows</strong>: commands execute natively</li>
-</ul>
-<p>So, when on *nix systems you can use pipes, builtins of a Bourne Shell, etc. For Windows the capabilities are limited by a single command.</p>
-</blockquote>
 <p>This is a mandatory option for a command. This is actually a command that is executed for the hook.</p>
 <p>You can use files templates that will be substituted with the appropriate files on execution:</p>
 <ul>
