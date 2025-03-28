@@ -183,7 +183,7 @@ func escapeFiles(files []string) []string {
 		}
 	}
 
-	log.Debug("[lefthook] files after escaping:\n", filesEsc)
+	log.DebugBuilder().Add("[lefthook] files after escaping: ", filesEsc).Log()
 
 	return filesEsc
 }
