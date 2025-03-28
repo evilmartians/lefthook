@@ -168,22 +168,41 @@ module Pack
     system("python -m twine upload --verbose --repository lefthook dist/*", exception: true)
   end
 
-  def publish_aur
-    aur_repo = File.join(__dir__, "lefthook-aur")
-    system("git clone ssh://aur@aur.archlinux.org/lefthook.git #{aur_repo}")
-    pkgbuild_source = File.join(__dir__, "aur", "PKGBUILD")
+  def publish_aur_lefthook
+    publish_aur("lefthook", {
+      sha256sum: "https://github.com/evilmartians/lefthook/archive/v#{VERSION}.tar.gz"
+    })
+  end
+
+  def publish_aur_lefthook_bin
+    publish_aur("lefthook-bin", {
+      sha256sum_linux_x86_64: "https://github.com/evilmartians/lefthook/releases/download/v#{VERSION}/lefthook_#{VERSION}_Linux_x86_64.gz",
+      sha256sum_linux_aarch64: "https://github.com/evilmartians/lefthook/releases/download/v#{VERSION}/lefthook_#{VERSION}_Linux_arm64.gz"
+    })
+  end
+
+  def publish_aur(package_name, sha256files = {})
+    aur_repo = File.join(__dir__, "#{package_name}-aur")
+    system("git clone ssh://aur@aur.archlinux.org/#{package_name}.git #{aur_repo}")
+    pkgbuild_source = File.join(__dir__, "aur", package_name, "PKGBUILD")
     pkgbuild_dest = File.join(aur_repo, "PKGBUILD")
     cp(pkgbuild_source, pkgbuild_dest, verbose: true)
 
-    sha256 = Digest::SHA256.new
-    URI.open("https://github.com/evilmartians/lefthook/archive/v#{VERSION}.tar.gz") do |file|
-      while chunk = file.read(1024)  # Read the file in chunks
-        sha256.update(chunk)
+    sha256sums = {}
+    sha256files.each do |name, url|
+      sha256 = Digest::SHA256.new
+      URI.open(url) do |file|
+        while chunk = file.read(1024)  # Read the file in chunks
+          sha256.update(chunk)
+        end
       end
+
+      sha256sums[name] = sha256.hexdigest
     end
 
-    sha256sum = sha256.hexdigest
-    replace_in_file(pkgbuild_dest, /{{ sha256sum }}/, sha256sum)
+    sha256sums.each do |name, sha256sum|
+      replace_in_file(pkgbuild_dest, /{{ #{name} }}/, sha256sum)
+    end
 
     cd(aur_repo)
     system("makepkg --printsrcinfo > .SRCINFO")
@@ -193,8 +212,8 @@ module Pack
     system("git config user.name 'github-actions[bot]'")
     system("git config user.email 'github-actions[bot]@users.noreply.github.com'")
     system("git add PKGBUILD .SRCINFO")
-    system("git commit -m 'release v#{VERSION}'")
-    system("git push origin master")
+    # system("git commit -m 'release v#{VERSION}'")
+    # system("git push origin master")
   end
 
   def replace_in_file(filepath, regexp, value)
