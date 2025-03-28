@@ -45,15 +45,12 @@ func (c osCmd) RunWithContext(
 	out io.Writer,
 	errOut io.Writer,
 ) error {
-	log.Debug("[lefthook] cmd:    ", command)
-
 	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
 	if len(c.excludeEnvs) > 0 {
 	loop:
 		for _, env := range os.Environ() {
 			for _, noenv := range c.excludeEnvs {
 				if strings.HasPrefix(env, noenv) {
-					log.Debug("[lefthook] noenv ", env)
 					continue loop
 				}
 			}
@@ -67,7 +64,6 @@ func (c osCmd) RunWithContext(
 
 	if len(root) > 0 {
 		cmd.Dir = root
-		log.Debug("[lefthook] dir:    ", root)
 	}
 
 	cmd.Stdin = in
@@ -75,9 +71,16 @@ func (c osCmd) RunWithContext(
 	cmd.Stderr = errOut
 
 	err := cmd.Run()
-	if err != nil {
-		log.Debug("[lefthook] error:  ", err)
+
+	b := log.DebugBuilder()
+	b.Add("[lefthook] cmd:    ", strings.Join(command, " "))
+	if len(root) > 0 {
+		b.Add("[lefthook] dir:    ", root)
 	}
+	if err != nil {
+		b.Add("[lefthook] error:  ", err)
+	}
+	b.Log()
 
 	return err
 }
