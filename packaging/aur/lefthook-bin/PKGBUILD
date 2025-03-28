@@ -1,7 +1,9 @@
+# Maintainer: Lefthook <lefthook@evilmartians.com>
+
 pkgname=lefthook-bin
+pkgdesc="Git hooks manager"
 pkgver=1.11.5
 pkgrel=1
-pkgdesc="git hooks manager"
 arch=('x86_64' 'aarch64')
 url="https://github.com/evilmartians/lefthook"
 license=('MIT')
