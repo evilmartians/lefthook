@@ -181,15 +181,15 @@ module Pack
     })
   end
 
-  def publish_aur(package_name, sha256files = {})
+  def publish_aur(package_name, sha256urls = {})
     aur_repo = File.join(__dir__, "#{package_name}-aur")
-    system("git clone ssh://aur@aur.archlinux.org/#{package_name}.git #{aur_repo}")
+    system("git clone ssh://aur@aur.archlinux.org/#{package_name}.git #{aur_repo}", exception: true)
     pkgbuild_source = File.join(__dir__, "aur", package_name, "PKGBUILD")
     pkgbuild_dest = File.join(aur_repo, "PKGBUILD")
     cp(pkgbuild_source, pkgbuild_dest, verbose: true)
 
     sha256sums = {}
-    sha256files.each do |name, url|
+    sha256urls.each do |name, url|
       sha256 = Digest::SHA256.new
       URI.open(url) do |file|
         while chunk = file.read(1024)  # Read the file in chunks
@@ -205,15 +205,15 @@ module Pack
     end
 
     cd(aur_repo)
-    system("makepkg --printsrcinfo > .SRCINFO")
-    system("makepkg")
-    system("makepkg --install")
+    system("makepkg --printsrcinfo > .SRCINFO", exception: true)
+    system("makepkg", exception: true)
+    system("makepkg --install", exception: true)
 
-    system("git config user.name 'github-actions[bot]'")
-    system("git config user.email 'github-actions[bot]@users.noreply.github.com'")
-    system("git add PKGBUILD .SRCINFO")
-    # system("git commit -m 'release v#{VERSION}'")
-    # system("git push origin master")
+    system("git config user.name 'github-actions[bot]'", exception: true)
+    system("git config user.email 'github-actions[bot]@users.noreply.github.com'", exception: true)
+    system("git add PKGBUILD .SRCINFO", exception: true)
+    system("git commit -m 'release v#{VERSION}'", exception: true)
+    system("git push origin master", exception: true)
   end
 
   def replace_in_file(filepath, regexp, value)
