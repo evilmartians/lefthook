@@ -81,14 +81,20 @@ func (c CommandExecutor) execute(cmd []string, root string) (string, error) {
 	outString := out.String()
 	errString := errOut.String()
 
-	b := log.DebugBuilder()
 	if len(outString) > 0 {
-		b.Add("[lefthook] stdout: ", outString)
+		log.Builder(log.DebugLevel).
+			Add("[lefthook] stdout: ", outString).
+			Log()
 	}
-	if len(errString) > 0 {
-		b.Add("[lefthook] stderr: ", errString)
+
+	if err != nil {
+		if len(errString) > 0 {
+			log.Builder(log.ErrorLevel).
+				Add("> ", strings.Join(cmd, " ")).
+				Add("  ", errString).
+				Log()
+		}
 	}
-	b.Log()
 
 	return outString, err
 }

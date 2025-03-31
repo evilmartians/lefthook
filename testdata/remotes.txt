@@ -17,7 +17,7 @@ remotes:
       - examples/remote/ping.yml
 
 -- lefthook-dump.yml --
-DEPRECATED: "remotes"."config" option is deprecated and will be omitted in the next major release, use "configs" option instead
+│  DEPRECATED: "remotes"."config" option is deprecated and will be omitted in the next major release, use "configs" option instead
 pre-commit:
   parallel: true
   commands:
