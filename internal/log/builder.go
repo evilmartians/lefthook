@@ -33,13 +33,14 @@ func (b *logBuilder) Add(prefix string, data interface{}) builder {
 	var lines []string
 	switch v := data.(type) {
 	case string:
-		lines = strings.Split(v, "\n")
+		lines = strings.Split(strings.TrimSpace(v), "\n")
 	case []string:
 		lines = v
 	default:
 		lines = strings.Split(fmt.Sprint(data), "\n")
 	}
 	for i, line := range lines {
+		line = strings.TrimSpace(line)
 		if i == 0 {
 			b.builder.WriteString(prefix + line + "\n")
 		} else {
