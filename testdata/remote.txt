@@ -13,8 +13,8 @@ remote:
   ref: v1.4.0
 
 -- lefthook-dump.yml --
-DEPRECATED: "remote" option is deprecated and will be omitted in the next major release, use "remotes" option instead
-DEPRECATED: "remotes"."config" option is deprecated and will be omitted in the next major release, use "configs" option instead
+│  DEPRECATED: "remote" option is deprecated and will be omitted in the next major release, use "remotes" option instead
+│  DEPRECATED: "remotes"."config" option is deprecated and will be omitted in the next major release, use "configs" option instead
 pre-commit:
   scripts:
     good_job.js:
