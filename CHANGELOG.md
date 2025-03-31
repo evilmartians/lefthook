@@ -1,5 +1,12 @@
 # Change log
 
+## 1.11.6 (2025-03-31)
+
+- fix: print git errors  ([#984](https://github.com/evilmartians/lefthook/pull/984)) by [@mrexox](https://github.com/mrexox)
+- packaging: maintain lefthook-bin AUR package ([#982](https://github.com/evilmartians/lefthook/pull/982)) by [@mrexox](https://github.com/mrexox)
+- chore: fancier logging ([#983](https://github.com/evilmartians/lefthook/pull/983)) by [@mrexox](https://github.com/mrexox)
+- docs: remove a note about the difference for unix-like and windows by [@mrexox](https://github.com/mrexox)
+
 ## 1.11.5 (2025-03-25)
 
 - fix: windows scripts issues ([#979](https://github.com/evilmartians/lefthook/pull/979)) by [@mrexox](https://github.com/mrexox)

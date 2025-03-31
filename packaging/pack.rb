@@ -4,7 +4,7 @@ require "fileutils"
 require "digest"
 require "open-uri"
 
-VERSION = "1.11.5"
+VERSION = "1.11.6"
 
 ROOT = File.join(__dir__, "..")
 DIST = File.join(ROOT, "dist")
@@ -40,7 +40,8 @@ module Pack
     replace_in_file("npm/lefthook/package.json", /"(lefthook-.+)": "[\d.]+"/, %{"\\1": "#{VERSION}"})
     replace_in_file("rubygems/lefthook.gemspec", /(spec\.version\s+= ).*/, %{\\1"#{VERSION}"})
     replace_in_file("pypi/setup.py", /(version+=).*/, %{\\1'#{VERSION}',})
-    replace_in_file("aur/PKGBUILD", /(pkgver+=).*/, %{\\1#{VERSION}})
+    replace_in_file("aur/lefthook/PKGBUILD", /(pkgver+=).*/, %{\\1#{VERSION}})
+    replace_in_file("aur/lefthook-bin/PKGBUILD", /(pkgver+=).*/, %{\\1#{VERSION}})
   end
 
   def put_additional_files
