@@ -40,7 +40,7 @@ func Apply(fs afero.Fs, files []string, params Params) []string {
 		return nil
 	}
 
-	b := log.DebugBuilder()
+	b := log.Builder(log.DebugLevel)
 	b.Add("[lefthook] files before filters: ", files)
 
 	files = byGlob(files, params.Glob)

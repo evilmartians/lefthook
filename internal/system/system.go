@@ -72,7 +72,7 @@ func (c osCmd) RunWithContext(
 
 	err := cmd.Run()
 
-	b := log.DebugBuilder()
+	b := log.Builder(log.DebugLevel)
 	b.Add("[lefthook] cmd:    ", strings.Join(command, " "))
 	if len(root) > 0 {
 		b.Add("[lefthook] dir:    ", root)
