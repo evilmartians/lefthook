@@ -178,7 +178,7 @@ module Pack
   def publish_aur_lefthook_bin
     publish_aur("lefthook-bin", {
       sha256sum_linux_x86_64: "https://github.com/evilmartians/lefthook/releases/download/v#{VERSION}/lefthook_#{VERSION}_Linux_x86_64.gz",
-      sha256sum_linux_aarch64: "https://github.com/evilmartians/lefthook/releases/download/v#{VERSION}/lefthook_#{VERSION}_Linux_arm64.gz"
+      sha256sum_linux_aarch64: "https://github.com/evilmartians/lefthook/releases/download/v#{VERSION}/lefthook_#{VERSION}_Linux_aarch64.gz"
     })
   end
 
@@ -207,8 +207,8 @@ module Pack
 
     cd(aur_repo)
     system("makepkg --printsrcinfo > .SRCINFO", exception: true)
-    system("makepkg", exception: true)
-    system("makepkg --install", exception: true)
+    system("makepkg --noconfirm", exception: true)
+    system("makepkg --install --noconfirm", exception: true)
 
     system("git config user.name 'github-actions[bot]'", exception: true)
     system("git config user.email 'github-actions[bot]@users.noreply.github.com'", exception: true)

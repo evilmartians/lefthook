@@ -12,7 +12,7 @@ makedepends=()
 provides=('lefthook')
 conflicts=('lefthook')
 source_x86_64=("https://github.com/evilmartians/lefthook/releases/download/v${pkgver}/lefthook_${pkgver}_Linux_x86_64.gz")
-source_aarch64=("https://github.com/evilmartians/lefthook/releases/download/v${pkgver}/lefthook_${pkgver}_Linux_arm64.gz")
+source_aarch64=("https://github.com/evilmartians/lefthook/releases/download/v${pkgver}/lefthook_${pkgver}_Linux_aarch64.gz")
 sha256sums_x86_64=('{{ sha256sum_linux_x86_64 }}')
 sha256sums_aarch64=('{{ sha256sum_linux_aarch64 }}')
 
