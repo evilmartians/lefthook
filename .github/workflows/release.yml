@@ -207,7 +207,7 @@ jobs:
       - name: Update AUR package
         run: |
           pacman -Syu --noconfirm
-          pacman -S --noconfirm openssh git ruby
+          pacman -S --noconfirm openssh git ruby go base-devel
 
           useradd -m -G wheel runner
           echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
@@ -239,7 +239,7 @@ jobs:
       - name: Update AUR package
         run: |
           pacman -Syu --noconfirm
-          pacman -S --noconfirm openssh git ruby
+          pacman -S --noconfirm openssh git ruby base-devel
 
           useradd -m -G wheel runner
           echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
