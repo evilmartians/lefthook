@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -399,6 +400,13 @@ func (r *Repository) extractFiles(lines []string, checkExistence bool) ([]string
 		file := strings.TrimSpace(line)
 		if len(file) == 0 {
 			continue
+		}
+
+		unescaped, err := strconv.Unquote(file)
+		if err == nil {
+			file = unescaped
+		} else {
+			log.Debug("[lefthook] couldn't unquote "+file, err)
 		}
 
 		if !checkExistence {
