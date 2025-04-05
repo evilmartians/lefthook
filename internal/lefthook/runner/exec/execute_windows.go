@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"syscall"
 
 	"github.com/evilmartians/lefthook/internal/log"
@@ -16,7 +17,7 @@ import (
 )
 
 const plainSh = "sh"
-const fullPathSh = `C:\Program Files\Git\bin\sh.exe`
+const fullPathSh = `sh.exe`
 
 type CommandExecutor struct{}
 type executeArgs struct {
@@ -79,7 +80,8 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 		sh = fullPathSh
 	}
 
-	cmdLine := "\"" + sh + "\"" + " -c " + "\"" + cmdstr + "\""
+	cmdStrQuoted := strings.ReplaceAll(cmdstr, "\"", "\\\"")
+	cmdLine := "\"" + sh + "\"" + " -c " + "\"" + cmdStrQuoted + "\""
 	log.Debug("[lefthook] run: ", cmdLine)
 
 	command := exec.CommandContext(ctx, sh)
