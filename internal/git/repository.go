@@ -178,9 +178,9 @@ func (r *Repository) AllFiles() ([]string, error) {
 
 // PushFiles returns a list of files that are ready to be pushed.
 func (r *Repository) PushFiles() ([]string, error) {
-	res, err := r.FindExistingFiles(cmdPushFilesBase, "")
+	lines, err := r.Git.OnlyDebugLogs().CmdLinesWithinFolder(cmdPushFilesBase, "")
 	if err == nil {
-		return res, nil
+		return r.extractFiles(lines, true)
 	}
 
 	if len(r.headBranch) == 0 {
