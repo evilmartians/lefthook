@@ -1,5 +1,12 @@
 # Change log
 
+## 1.11.7 (2025-04-07)
+
+- fix: avoid error logging when determining pre push files ([#995](https://github.com/evilmartians/lefthook/pull/995)) by [@mrexox](https://github.com/mrexox)
+- docs: allow duplicate files in SUMMARY ([#988](https://github.com/evilmartians/lefthook/pull/988)) by [@mrexox](https://github.com/mrexox)
+- fix: unquote paths to valid UTF-8 ([#987](https://github.com/evilmartians/lefthook/pull/987)) by [@mrexox](https://github.com/mrexox)
+- packaging: aur fixes ([#985](https://github.com/evilmartians/lefthook/pull/985)) by [@mrexox](https://github.com/mrexox)
+
 ## 1.11.6 (2025-03-31)
 
 - fix: print git errors  ([#984](https://github.com/evilmartians/lefthook/pull/984)) by [@mrexox](https://github.com/mrexox)

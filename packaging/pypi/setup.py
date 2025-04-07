@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='lefthook',
-    version='1.11.6',
+    version='1.11.7',
     author='Evil Martians',
     author_email='lefthook@evilmartians.com',
     url='https://github.com/evilmartians/lefthook',
