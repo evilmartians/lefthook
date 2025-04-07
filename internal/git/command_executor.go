@@ -12,8 +12,9 @@ import (
 
 // CommandExecutor provides some methods that take some effect on execution and/or result data.
 type CommandExecutor struct {
-	cmd  system.Command
-	root string
+	cmd           system.Command
+	root          string
+	onlyDebugLogs bool
 }
 
 // NewExecutor returns an object that executes given commands in the OS.
@@ -23,6 +24,10 @@ func NewExecutor(cmd system.Command) *CommandExecutor {
 
 func (c CommandExecutor) WithoutEnvs(envs ...string) CommandExecutor {
 	return CommandExecutor{cmd: c.cmd.WithoutEnvs(envs...), root: c.root}
+}
+
+func (c CommandExecutor) OnlyDebugLogs() CommandExecutor {
+	return CommandExecutor{cmd: c.cmd, root: c.root, onlyDebugLogs: true}
 }
 
 // Cmd runs plain string command. Trims spaces around output.
@@ -89,7 +94,11 @@ func (c CommandExecutor) execute(cmd []string, root string) (string, error) {
 
 	if err != nil {
 		if len(errString) > 0 {
-			log.Builder(log.ErrorLevel).
+			logLevel := log.ErrorLevel
+			if c.onlyDebugLogs {
+				logLevel = log.DebugLevel
+			}
+			log.Builder(logLevel).
 				Add("> ", strings.Join(cmd, " ")).
 				Add("  ", errString).
 				Log()
