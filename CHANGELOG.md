@@ -1,5 +1,10 @@
 # Change log
 
+## 1.11.8 (2025-04-08)
+
+- fix: sh lookup on Windows ([#997](https://github.com/evilmartians/lefthook/pull/997)) by [@mrexox](https://github.com/mrexox)
+- fix: fix command execution error on Windows #989 ([#992](https://github.com/evilmartians/lefthook/pull/992)) by [@atsushifx](https://github.com/atsushifx)
+
 ## 1.11.7 (2025-04-07)
 
 - fix: avoid error logging when determining pre push files ([#995](https://github.com/evilmartians/lefthook/pull/995)) by [@mrexox](https://github.com/mrexox)
