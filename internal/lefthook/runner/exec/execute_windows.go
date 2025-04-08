@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
+	"sync"
 	"syscall"
 
 	"github.com/evilmartians/lefthook/internal/log"
@@ -17,7 +17,30 @@ import (
 )
 
 const plainSh = "sh"
-const fullPathGitDirDefault = `C:\Program Files\Git`
+const shDefaultPath = `C:\Program Files\Git\bin\sh.exe`
+
+var getShFullPath = sync.OnceValues(func() (string, error) {
+	if _, err := os.Stat(shDefaultPath); err == nil {
+		return shDefaultPath, nil
+	}
+
+	path, err := exec.LookPath("sh")
+	if len(path) > 0 {
+		return path, nil
+	}
+
+	gitPath, err := exec.LookPath("git")
+	if err != nil {
+		return "", err
+	}
+
+	shPath := filepath.Join(gitPath, "..", "..", "bin", "sh.exe")
+	if _, err := os.Stat(shPath); err != nil {
+		return "", err
+	}
+
+	return shPath, nil
+})
 
 type CommandExecutor struct{}
 type executeArgs struct {
@@ -71,23 +94,24 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 
 func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *executeArgs) error {
 	var sh string
+	var err error
 	// Git hooks always setup GIT_INDEX env variable so here we check if we are in
 	// a Git hook and can use `sh` without specifying the full path. This should cover most use cases.
 	if len(os.Getenv("GIT_INDEX_FILE")) != 0 {
 		sh = plainSh
 	} else {
 		// In case you call `lefthook run ...` from the terminal
-		var err error
-
-		sh, err = getFullPathSh()
+		sh, err = getShFullPath()
 		if err != nil {
 			log.Errorf("Couldn't find sh.exe: %s\n", err)
 			return err
 		}
 	}
 
-	cmdStrQuoted := strings.ReplaceAll(strings.ReplaceAll(cmdstr, "\\", "\\\\"), "\"", "\\\"")
-	cmdLine := "\"" + sh + "\"" + " -c " + "\"" + cmdStrQuoted + "\""
+	// This change is breaking but might be useful. Consider quoting if it fixes all possible
+	// options for {staged_files}, '{staged_files}', and "{staged_files}".
+	// cmdStrQuoted := strings.ReplaceAll(strings.ReplaceAll(cmdstr, "\\", "\\\\"), "\"", "\\\"")
+	cmdLine := "\"" + sh + "\"" + " -c " + "\"" + cmdstr + "\""
 	log.Debug("[lefthook] run: ", cmdLine)
 
 	command := exec.CommandContext(ctx, sh)
@@ -100,7 +124,7 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 	command.Stdout = args.out
 	command.Stdin = args.in
 	command.Stderr = os.Stderr
-	err := command.Start()
+	err = command.Start()
 	if err != nil {
 		return err
 	}
@@ -108,45 +132,4 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 	defer func() { _ = command.Process.Kill() }()
 
 	return command.Wait()
-}
-
-func getFullPathSh() (string, error) {
-	var fullPathSh string
-	gitbashDir, err := findExecutableDir("git-bash.exe")
-	if err == nil {
-		fullPathSh = filepath.Join(gitbashDir, "sh.exe")
-		if _, err := os.Stat(fullPathSh); err == nil {
-			return fullPathSh, nil
-		}
-		fullPathSh = filepath.Join(gitbashDir, "bin", "sh.exe")
-		if _, err := os.Stat(fullPathSh); err == nil {
-			return fullPathSh, nil
-		}
-	}
-
-	gitDir, err := findExecutableDir("git.exe")
-	if err == nil {
-		baseDir := filepath.Dir(gitDir)
-		fullPathSh = filepath.Join(baseDir, "bin", "sh.exe")
-		if _, err := os.Stat(fullPathSh); err == nil {
-			return fullPathSh, nil
-		}
-	}
-	fullPathSh = filepath.Join(fullPathGitDirDefault, "bin", "sh.exe")
-	if _, err := os.Stat(fullPathSh); err == nil {
-		return fullPathSh, nil
-	}
-	return "", fmt.Errorf("sh.exe not found in PATH")
-}
-func findExecutableDir(cmdStr string) (string, error) {
-	pathEnv := os.Getenv("PATH")
-	paths := strings.Split(pathEnv, string(os.PathListSeparator))
-
-	for _, dir := range paths {
-		findPath := filepath.Join(dir, cmdStr)
-		if _, err := os.Stat(findPath); err == nil {
-			return dir, nil
-		}
-	}
-	return "", fmt.Errorf("%s not found in PATH", cmdStr)
 }
