@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"syscall"
 
 	"github.com/evilmartians/lefthook/internal/log"
@@ -16,7 +17,7 @@ import (
 )
 
 const plainSh = "sh"
-const fullPathSh = `C:\Program Files\Git\bin\sh.exe`
+const fullPathGitDirDefault = `C:\Program Files\Git`
 
 type CommandExecutor struct{}
 type executeArgs struct {
@@ -76,10 +77,17 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 		sh = plainSh
 	} else {
 		// In case you call `lefthook run ...` from the terminal
-		sh = fullPathSh
+		var err error
+
+		sh, err = getFullPathSh()
+		if err != nil {
+			log.Errorf("Couldn't find sh.exe: %s\n", err)
+			return err
+		}
 	}
 
-	cmdLine := "\"" + sh + "\"" + " -c " + "\"" + cmdstr + "\""
+	cmdStrQuoted := strings.ReplaceAll(strings.ReplaceAll(cmdstr, "\\", "\\\\"), "\"", "\\\"")
+	cmdLine := "\"" + sh + "\"" + " -c " + "\"" + cmdStrQuoted + "\""
 	log.Debug("[lefthook] run: ", cmdLine)
 
 	command := exec.CommandContext(ctx, sh)
@@ -100,4 +108,45 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 	defer func() { _ = command.Process.Kill() }()
 
 	return command.Wait()
+}
+
+func getFullPathSh() (string, error) {
+	var fullPathSh string
+	gitbashDir, err := findExecutableDir("git-bash.exe")
+	if err == nil {
+		fullPathSh = filepath.Join(gitbashDir, "sh.exe")
+		if _, err := os.Stat(fullPathSh); err == nil {
+			return fullPathSh, nil
+		}
+		fullPathSh = filepath.Join(gitbashDir, "bin", "sh.exe")
+		if _, err := os.Stat(fullPathSh); err == nil {
+			return fullPathSh, nil
+		}
+	}
+
+	gitDir, err := findExecutableDir("git.exe")
+	if err == nil {
+		baseDir := filepath.Dir(gitDir)
+		fullPathSh = filepath.Join(baseDir, "bin", "sh.exe")
+		if _, err := os.Stat(fullPathSh); err == nil {
+			return fullPathSh, nil
+		}
+	}
+	fullPathSh = filepath.Join(fullPathGitDirDefault, "bin", "sh.exe")
+	if _, err := os.Stat(fullPathSh); err == nil {
+		return fullPathSh, nil
+	}
+	return "", fmt.Errorf("sh.exe not found in PATH")
+}
+func findExecutableDir(cmdStr string) (string, error) {
+	pathEnv := os.Getenv("PATH")
+	paths := strings.Split(pathEnv, string(os.PathListSeparator))
+
+	for _, dir := range paths {
+		findPath := filepath.Join(dir, cmdStr)
+		if _, err := os.Stat(findPath); err == nil {
+			return dir, nil
+		}
+	}
+	return "", fmt.Errorf("%s not found in PATH", cmdStr)
 }
