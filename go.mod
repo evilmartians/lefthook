@@ -12,7 +12,7 @@ require (
 	github.com/gobwas/glob v0.2.3
 	github.com/invopop/jsonschema v0.13.0
 	github.com/kaptinlin/jsonschema v0.2.2
-	github.com/knadh/koanf/maps v0.1.1
+	github.com/knadh/koanf/maps v0.1.2
 	github.com/knadh/koanf/parsers/json v0.1.0
 	github.com/knadh/koanf/parsers/toml/v2 v2.1.0
 	github.com/knadh/koanf/parsers/yaml v0.1.0
