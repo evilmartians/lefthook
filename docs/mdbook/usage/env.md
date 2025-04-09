@@ -70,3 +70,8 @@ Set `NO_COLOR=true` to disable colored output in lefthook and all subcommands th
 
 Set `CLICOLOR_FORCE=true` to force colored output in lefthook and all subcommands.
 
+### `CI`
+
+Use `CI=true` to prevent lefthook from installing hooks during the postinstall script.
+
+To override this behavior and allow hook installation despite `CI=true`, set `LEFTHOOK=1` or `LEFTHOOK=true`. This takes precedence over the `CI` variable.

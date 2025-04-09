@@ -1,4 +1,4 @@
-if (!process.env.CI) {
+if (!process.env.CI || process.env.LEFTHOOK == '1' && process.env.LEFTHOOK == 'true') {
   const { spawnSync } = require('child_process');
   const { getExePath } = require('./get-exe');
 
