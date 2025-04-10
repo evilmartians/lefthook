@@ -6,7 +6,8 @@ const chp = require("child_process")
 const iswin = ["win32", "cygwin"].includes(process.platform)
 
 async function install() {
-  if (process.env.CI && process.env.LEFTHOOK != '1' && process.env.LEFTHOOK != 'true') {
+  const isEnabled = (value) => value && value !== "0" && value !== "false";
+  if (isEnabled(process.env.CI) && !isEnabled(process.env.LEFTHOOK)) {
     return
   }
   const downloadURL = getDownloadURL()
