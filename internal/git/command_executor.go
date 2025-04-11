@@ -80,17 +80,16 @@ func (c CommandExecutor) CmdLinesWithinFolder(cmd []string, folder string) ([]st
 }
 
 func (c CommandExecutor) execute(cmd []string, root string) (string, error) {
-	out := new(bytes.Buffer)
-	errOut := new(bytes.Buffer)
-	err := c.cmd.Run(cmd, root, system.NullReader, out, errOut)
-	outString := out.String()
-	errString := errOut.String()
+	stdout := new(bytes.Buffer)
+	stderr := new(bytes.Buffer)
+	err := c.cmd.Run(cmd, root, system.NullReader, stdout, stderr)
+	outString := stdout.String()
+	errString := stderr.String()
 
-	if len(outString) > 0 {
-		log.Builder(log.DebugLevel).
-			Add("[lefthook] stdout: ", outString).
-			Log()
-	}
+	log.Builder(log.DebugLevel, "[lefthook] ").
+		Add("git: ", strings.Join(cmd, " ")).
+		Add("out: ", outString).
+		Log()
 
 	if err != nil {
 		if len(errString) > 0 {
@@ -98,9 +97,9 @@ func (c CommandExecutor) execute(cmd []string, root string) (string, error) {
 			if c.onlyDebugLogs {
 				logLevel = log.DebugLevel
 			}
-			log.Builder(logLevel).
+			log.Builder(logLevel, "").
 				Add("> ", strings.Join(cmd, " ")).
-				Add("  ", errString).
+				Add("! ", errString).
 				Log()
 		}
 	}

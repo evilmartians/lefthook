@@ -25,6 +25,10 @@ pre-commit:
 
     - name: update JSON schema
       run: go generate internal/gen/jsonschema.go > schema.json && git add schema.json
-      glob: 'internal/config/*.go'
-      exclude:
-        - 'internal/config/*_test.go'
+      glob:
+        - 'internal/config/command.go'
+        - 'internal/config/config.go'
+        - 'internal/config/hook.go'
+        - 'internal/config/job.go'
+        - 'internal/config/remote.go'
+        - 'internal/config/script.go'

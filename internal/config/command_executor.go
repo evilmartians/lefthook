@@ -1,10 +1,11 @@
 package config
 
 import (
-	"io"
-	"os"
+	"bytes"
 	"runtime"
+	"strings"
 
+	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/evilmartians/lefthook/internal/system"
 )
 
@@ -26,7 +27,21 @@ func (c *commandExecutor) execute(commandLine string) bool {
 		args = []string{"sh", "-c", commandLine}
 	}
 
-	err := c.cmd.Run(args, "", system.NullReader, io.Discard, os.Stderr)
+	stdout := new(bytes.Buffer)
+	stderr := new(bytes.Buffer)
+
+	err := c.cmd.Run(args, "", system.NullReader, stdout, stderr)
+
+	b := log.Builder(log.DebugLevel, "[lefthook] ").
+		Add("run: ", strings.Join(args, " ")).
+		Add("out: ", stdout.String()).
+		Add("err: ", stderr.String())
+
+	if err != nil {
+		b.Add("!:   ", err.Error())
+	}
+
+	b.Log()
 
 	return err == nil
 }

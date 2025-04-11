@@ -405,8 +405,6 @@ func (r *Repository) extractFiles(lines []string, checkExistence bool) ([]string
 		unescaped, err := strconv.Unquote(file)
 		if err == nil {
 			file = unescaped
-		} else {
-			log.Debug("[lefthook] couldn't unquote "+file, err)
 		}
 
 		if !checkExistence {

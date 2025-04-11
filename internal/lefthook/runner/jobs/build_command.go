@@ -183,7 +183,9 @@ func escapeFiles(files []string) []string {
 		}
 	}
 
-	log.Builder(log.DebugLevel).Add("[lefthook] files after escaping: ", filesEsc).Log()
+	log.Builder(log.DebugLevel, "[lefthook] ").
+		Add("files after escaping: ", filesEsc).
+		Log()
 
 	return filesEsc
 }
@@ -229,7 +231,7 @@ func replaceInChunks(str string, templates map[string]*filesTemplate, maxlen int
 			command = replaceQuoted(command, name, added)
 		}
 
-		log.Debug("[lefthook] executing: ", command)
+		log.Debug("[lefthook] job: ", command)
 		commands = append(commands, command)
 		if exhausted >= len(templates) {
 			break
