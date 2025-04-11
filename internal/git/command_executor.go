@@ -97,9 +97,9 @@ func (c CommandExecutor) execute(cmd []string, root string) (string, error) {
 			if c.onlyDebugLogs {
 				logLevel = log.DebugLevel
 			}
-			log.Builder(logLevel, "").
-				Add("> ", strings.Join(cmd, " ")).
-				Add("! ", errString).
+			log.Builder(logLevel, "> ").
+				Add("", strings.Join(cmd, " ")).
+				Add("", errString).
 				Log()
 		}
 	}

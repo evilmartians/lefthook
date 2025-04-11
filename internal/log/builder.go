@@ -74,7 +74,7 @@ func (b *logBuilder) Log() {
 }
 
 func (b *logBuilder) String() string {
-	return b.prefix + b.builder.String()
+	return b.builder.String()
 }
 
 func (d dummyBuilder) Add(_ string, _ interface{}) builder { return d }
