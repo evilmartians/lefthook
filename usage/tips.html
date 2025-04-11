@@ -162,7 +162,9 @@
 <h3 id="local-config"><a class="header" href="#local-config">Local config</a></h3>
 <p>Use <code>lefthook-local.yml</code> to overwrite or extend options from the main config. (Don't forget to add this file to <code>.gitignore</code>)</p>
 <h3 id="disable-lefthook-in-ci"><a class="header" href="#disable-lefthook-in-ci">Disable lefthook in CI</a></h3>
-<p>When using NPM package <code>lefthook</code> set <code>CI=true</code> in your CI (if it does not set automatically). When <code>CI=true</code> is set lefthook NPM package won't install the hooks in the postinstall script.</p>
+<p>When using NPM package <code>lefthook</code>, set <code>CI=true</code> in your CI (if it does not set it automatically) to prevent lefthook from installing hooks in the postinstall script.</p>
+<h3 id="enable-lefthook-in-ci"><a class="header" href="#enable-lefthook-in-ci">Enable lefthook in CI</a></h3>
+<p>When using NPM package <code>lefthook</code>, and your CI sets <code>CI=true</code> automatically, set <code>LEFTHOOK=1</code> to install the hooks in the postinstall script.</p>
 <h3 id="commitlint-example"><a class="header" href="#commitlint-example">Commitlint example</a></h3>
 <p>Let's create a bash script to check conventional commit status <code>.lefthook/commit-msg/commitlint.sh</code>:</p>
 <pre><code class="language-bash">echo $(head -n1 $1) | npx commitlint --color

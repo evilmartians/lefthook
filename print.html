@@ -448,6 +448,12 @@ $ lefthook run pre-commit --file file1.js --file file2.js
 <p><strong>Example</strong></p>
 <pre><code class="language-bash">LEFTHOOK=0 git commit -am "Lefthook skipped"
 </code></pre>
+<p>When using NPM package <code>lefthook</code> in CI, and your CI sets <code>CI=true</code> automatically, use <code>LEFTHOOK=1</code> or <code>LEFTHOOK=true</code> to install hooks in the postinstall script:</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-bash">LEFTHOOK=1 npm install
+LEFTHOOK=1 yarn install
+LEFTHOOK=1 pnpm install
+</code></pre>
 <h3 id="lefthook_exclude"><a class="header" href="#lefthook_exclude"><code>LEFTHOOK_EXCLUDE</code></a></h3>
 <p>Use <code>LEFTHOOK_EXCLUDE={list of tags or command names to be excluded}</code> to skip some commands or scripts by tag or name (for commands only). See the <a href="usage/../configuration/exclude_tags.html"><code>exclude_tags</code></a> configuration option for more details.</p>
 <p><strong>Example</strong></p>
@@ -483,6 +489,15 @@ SUMMARY: (done in 0.01 seconds)
 <p>Set <code>NO_COLOR=true</code> to disable colored output in lefthook and all subcommands that lefthook calls.</p>
 <h3 id="clicolor_force"><a class="header" href="#clicolor_force"><code>CLICOLOR_FORCE</code></a></h3>
 <p>Set <code>CLICOLOR_FORCE=true</code> to force colored output in lefthook and all subcommands.</p>
+<h3 id="ci"><a class="header" href="#ci"><code>CI</code></a></h3>
+<p>When using NPM package <code>lefthook</code>, set <code>CI=true</code> in your CI (if it does not set it automatically) to prevent lefthook from installing hooks in the postinstall script:</p>
+<pre><code class="language-bash">CI=true npm install
+CI=true yarn install
+CI=true pnpm install
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> Set <code>LEFTHOOK=1</code> or <code>LEFTHOOK=true</code> to override this behavior and install hooks in the postinstall script (despite <code>CI=true</code>).</p>
+</blockquote>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="tips"><a class="header" href="#tips">Tips</a></h2>
 <blockquote>
 <p>Small tips for better experience with lefthook</p>
@@ -490,7 +505,9 @@ SUMMARY: (done in 0.01 seconds)
 <h3 id="local-config"><a class="header" href="#local-config">Local config</a></h3>
 <p>Use <code>lefthook-local.yml</code> to overwrite or extend options from the main config. (Don't forget to add this file to <code>.gitignore</code>)</p>
 <h3 id="disable-lefthook-in-ci"><a class="header" href="#disable-lefthook-in-ci">Disable lefthook in CI</a></h3>
-<p>When using NPM package <code>lefthook</code> set <code>CI=true</code> in your CI (if it does not set automatically). When <code>CI=true</code> is set lefthook NPM package won't install the hooks in the postinstall script.</p>
+<p>When using NPM package <code>lefthook</code>, set <code>CI=true</code> in your CI (if it does not set it automatically) to prevent lefthook from installing hooks in the postinstall script.</p>
+<h3 id="enable-lefthook-in-ci"><a class="header" href="#enable-lefthook-in-ci">Enable lefthook in CI</a></h3>
+<p>When using NPM package <code>lefthook</code>, and your CI sets <code>CI=true</code> automatically, set <code>LEFTHOOK=1</code> to install the hooks in the postinstall script.</p>
 <h3 id="commitlint-example"><a class="header" href="#commitlint-example">Commitlint example</a></h3>
 <p>Let's create a bash script to check conventional commit status <code>.lefthook/commit-msg/commitlint.sh</code>:</p>
 <pre><code class="language-bash">echo $(head -n1 $1) | npx commitlint --color
