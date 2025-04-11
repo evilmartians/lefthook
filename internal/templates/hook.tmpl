@@ -81,6 +81,9 @@ call_lefthook()
     elif command -v mint >/dev/null 2>&1
     then
       mint run csjones/lefthook-plugin "$@"
+    elif uv run lefthook -h >/dev/null 2>&1
+    then
+      uv run lefthook "$@"
     else
       echo "Can't find lefthook in PATH"
       {{- if .AssertLefthookInstalled}}
