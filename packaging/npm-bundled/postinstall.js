@@ -1,4 +1,5 @@
-if (!process.env.CI) {
+const isEnabled = (value) => value && value !== "0" && value !== "false";
+if (!isEnabled(process.env.CI) || isEnabled(process.env.LEFTHOOK)) {
   const { spawnSync } = require('child_process');
   const { getExePath } = require('./get-exe');
 
