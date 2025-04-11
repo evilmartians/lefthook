@@ -36,7 +36,7 @@ type Job struct {
 
 func New(name string, params *Params) (*Job, error) {
 	if params.skip() {
-		return nil, SkipError{"settings"}
+		return nil, SkipError{"by condition"}
 	}
 
 	if intersect(params.Hook.ExcludeTags, params.Tags) {

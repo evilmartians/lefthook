@@ -92,7 +92,10 @@ func (sc *skipChecker) matchesCommands(typedState map[string]interface{}) bool {
 
 	result := sc.exec.execute(commandLine)
 
-	log.Debugf("[lefthook] skip/only cmd: %s, result: %t", commandLine, result)
+	log.Builder(log.DebugLevel, "[lefthook] ").
+		Add("skip/only: ", commandLine).
+		Add("result:    ", result).
+		Log()
 
 	return result
 }

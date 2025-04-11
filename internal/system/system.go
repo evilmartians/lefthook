@@ -7,8 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-
-	"github.com/evilmartians/lefthook/internal/log"
 )
 
 type osCmd struct {
@@ -71,16 +69,6 @@ func (c osCmd) RunWithContext(
 	cmd.Stderr = errOut
 
 	err := cmd.Run()
-
-	b := log.Builder(log.DebugLevel)
-	b.Add("[lefthook] cmd:    ", strings.Join(command, " "))
-	if len(root) > 0 {
-		b.Add("[lefthook] dir:    ", root)
-	}
-	if err != nil {
-		b.Add("[lefthook] error:  ", err)
-	}
-	b.Log()
 
 	return err
 }

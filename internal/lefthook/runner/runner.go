@@ -237,7 +237,9 @@ func (r *Runner) preHook() {
 		return
 	}
 
-	log.Builder(log.DebugLevel).Add("[lefthook] hide partially staged files: ", r.partiallyStagedFiles).Log()
+	log.Builder(log.DebugLevel, "[lefthook] ").
+		Add("hide partially staged files: ", r.partiallyStagedFiles).
+		Log()
 
 	err = r.Repo.HideUnstaged(r.partiallyStagedFiles)
 	if err != nil {

@@ -40,16 +40,16 @@ func Apply(fs afero.Fs, files []string, params Params) []string {
 		return nil
 	}
 
-	b := log.Builder(log.DebugLevel)
-	b.Add("[lefthook] files before filters: ", files)
+	b := log.Builder(log.DebugLevel, "[lefthook] ").
+		Add("filtered [ ]: ", files)
 
 	files = byGlob(files, params.Glob)
 	files = byExclude(files, params.Exclude)
 	files = byRoot(files, params.Root)
 	files = byType(fs, files, params.FileTypes)
 
-	b.Add("[lefthook] files after filters:  ", files)
-	b.Log()
+	b.Add("filtered [x]: ", files).
+		Log()
 
 	return files
 }

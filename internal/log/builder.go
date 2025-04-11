@@ -15,15 +15,17 @@ type dummyBuilder struct{}
 
 type logBuilder struct {
 	level   Level
+	prefix  string
 	builder strings.Builder
 }
 
-func Builder(level Level) builder {
+func Builder(level Level, prefix string) builder {
 	if !std.IsLevelEnabled(level) {
 		return dummyBuilder{}
 	}
 
 	return &logBuilder{
+		prefix:  prefix,
 		level:   level,
 		builder: strings.Builder{},
 	}
@@ -41,10 +43,17 @@ func (b *logBuilder) Add(prefix string, data interface{}) builder {
 	}
 	for i, line := range lines {
 		line = strings.TrimSpace(line)
-		if i == 0 {
-			b.builder.WriteString(prefix + line + "\n")
-		} else {
-			b.builder.WriteString(strings.Repeat(" ", len(prefix)) + line + "\n")
+		if len(line) == 0 {
+			continue
+		}
+
+		switch {
+		case b.builder.Len() == 0:
+			b.builder.WriteString(b.prefix + prefix + line + "\n")
+		case i == 0:
+			b.builder.WriteString(strings.Repeat(" ", len(b.prefix)) + prefix + line + "\n")
+		default:
+			b.builder.WriteString(strings.Repeat(" ", len(b.prefix)+len(prefix)) + line + "\n")
 		}
 	}
 
