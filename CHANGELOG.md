@@ -1,5 +1,11 @@
 # Change log
 
+## 1.11.9 (2025-04-11)
+
+- fix: better logging ([#1003](https://github.com/evilmartians/lefthook/pull/1003)) by [@mrexox](https://github.com/mrexox)
+- feat: allow installing hooks in CI ([#1001](https://github.com/evilmartians/lefthook/pull/1001)) by [@caugner](https://github.com/caugner)
+- deps: Dependencies upgrade [@mrexox](https://github.com/mrexox)
+
 ## 1.11.8 (2025-04-08)
 
 - fix: sh lookup on Windows ([#997](https://github.com/evilmartians/lefthook/pull/997)) by [@mrexox](https://github.com/mrexox)
