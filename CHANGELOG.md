@@ -1,5 +1,10 @@
 # Change log
 
+## 1.11.10 (2025-04-14)
+
+- deps: bump github.com/pelletier/go-toml/v2 from 2.2.3 to 2.2.4 ([#1005](https://github.com/evilmartians/lefthook/pull/1005)) ([#1006](https://github.com/evilmartians/lefthook/pull/1006)) by [@mrexox](https://github.com/mrexox)
+- feat: add support for uv ([#1004](https://github.com/evilmartians/lefthook/pull/1004)) by [@toshok](https://github.com/toshok)
+
 ## 1.11.9 (2025-04-11)
 
 - fix: better logging ([#1003](https://github.com/evilmartians/lefthook/pull/1003)) by [@mrexox](https://github.com/mrexox)
