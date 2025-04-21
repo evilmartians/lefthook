@@ -57,8 +57,8 @@ github.com/knadh/koanf/parsers/json v0.1.0 h1:dzSZl5pf5bBcW0Acnu20Djleto19T0CfHc
 github.com/knadh/koanf/parsers/json v0.1.0/go.mod h1:ll2/MlXcZ2BfXD6YJcjVFzhG9P0TdJ207aIBKQhV2hY=
 github.com/knadh/koanf/parsers/toml/v2 v2.2.0 h1:2nV7tHYJ5OZy2BynQ4mOJ6k5bDqbbCzRERLUKBytz3A=
 github.com/knadh/koanf/parsers/toml/v2 v2.2.0/go.mod h1:JpjTeK1Ge1hVX0wbof5DMCuDBriR8bWgeQP98eeOZpI=
-github.com/knadh/koanf/parsers/yaml v0.1.0 h1:ZZ8/iGfRLvKSaMEECEBPM1HQslrZADk8fP1XFUxVI5w=
-github.com/knadh/koanf/parsers/yaml v0.1.0/go.mod h1:cvbUDC7AL23pImuQP0oRw/hPuccrNBS2bps8asS0CwY=
+github.com/knadh/koanf/parsers/yaml v1.0.0 h1:PXyeHCRhAMKyfLJaoTWsqUTxIFeDMmdAKz3XVEslZV4=
+github.com/knadh/koanf/parsers/yaml v1.0.0/go.mod h1:Q63VAOh/s6XaQs6a0TB2w9GFUuuPGvfYrCSWb9eWAQU=
 github.com/knadh/koanf/providers/fs v1.0.0 h1:tvn4MrduLgdOSUqqEHULUuIcELXf6xDOpH8GUErpYaY=
 github.com/knadh/koanf/providers/fs v1.0.0/go.mod h1:FksHET+xXFNDozvj8ZCdom54OnZ6eGKJtC5FhZJKx/8=
 github.com/knadh/koanf/v2 v2.2.0 h1:FZFwd9bUjpb8DyCWARUBy5ovuhDs1lI87dOEn2K8UVU=
