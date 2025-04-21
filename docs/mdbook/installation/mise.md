@@ -1,5 +1,7 @@
 ## Mise
 
+> See [https://github.com/jdx/mise](https://github.com/jdx/mise)
+
 ```bash
 mise use lefthook@latest
 ```

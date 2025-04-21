@@ -16,6 +16,7 @@
   - [RPM-based distro](./installation/rpm.md)
   - [Alpine](./installation/alpine.md)
   - [Arch Linux](./installation/arch.md)
+  - [Mise](./installation/mise.md)
   - [Manual](./installation/manual.md)
 - [Usage](./usage/README.md)
   - [Commands](./usage/commands.md)
