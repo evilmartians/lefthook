@@ -1,5 +1,10 @@
 # Change log
 
+## 1.11.11 (2025-04-21)
+
+- deps: koanf and jsonschema ([#1013](https://github.com/evilmartians/lefthook/pull/1013)) by [@mrexox](https://github.com/mrexox)
+- feat: add support for mise ([#1007](https://github.com/evilmartians/lefthook/pull/1007)) by [@shahar-py](https://github.com/shahar-py)
+
 ## 1.11.10 (2025-04-14)
 
 - deps: bump github.com/pelletier/go-toml/v2 from 2.2.3 to 2.2.4 ([#1005](https://github.com/evilmartians/lefthook/pull/1005)) ([#1006](https://github.com/evilmartians/lefthook/pull/1006)) by [@mrexox](https://github.com/mrexox)
