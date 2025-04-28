@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/afero"
 
+	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
@@ -33,12 +34,7 @@ func (l *Lefthook) Uninstall(args *UninstallArgs) error {
 	}
 
 	if args.RemoveConfig {
-		for _, name := range []string{
-			".lefthook",
-			"lefthook",
-			".lefthook-local",
-			"lefthook-local",
-		} {
+		for _, name := range append(config.MainConfigNames, config.LocalConfigNames...) {
 			for _, extension := range []string{
 				".yml", ".yaml", ".toml", ".json",
 			} {

@@ -30,8 +30,8 @@ const (
 
 var (
 	hookKeyRegexp    = regexp.MustCompile(`^(?P<hookName>[^.]+)\.(scripts|commands|jobs)`)
-	localConfigNames = []string{"lefthook-local", ".lefthook-local"}
-	mainConfigNames  = []string{"lefthook", ".lefthook"}
+	LocalConfigNames = []string{"lefthook-local", ".lefthook-local", filepath.Join(".config", "lefthook-local")}
+	MainConfigNames  = []string{"lefthook", ".lefthook", filepath.Join(".config", "lefthook")}
 	extensions       = []string{
 		".yml",
 		".yaml",
@@ -65,6 +65,7 @@ func loadOne(k *koanf.Koanf, filesystem afero.Fs, root string, names []string) e
 				continue
 			}
 
+			log.Debug("loading config: ", config)
 			if err := k.Load(kfs.Provider(newIOFS(filesystem), config), parsers[extension], mergeJobsOption); err != nil {
 				return err
 			}
@@ -80,7 +81,7 @@ func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.
 	main := koanf.New(".")
 
 	// Load main (e.g. lefthook.yml)
-	if err := loadOne(main, filesystem, repo.RootPath, mainConfigNames); err != nil {
+	if err := loadOne(main, filesystem, repo.RootPath, MainConfigNames); err != nil {
 		return nil, nil, err
 	}
 
@@ -119,7 +120,7 @@ func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.
 
 	// Load optional local config (e.g. lefthook-local.yml)
 	var noLocal bool
-	if err := loadOne(secondary, filesystem, repo.RootPath, localConfigNames); err != nil {
+	if err := loadOne(secondary, filesystem, repo.RootPath, LocalConfigNames); err != nil {
 		var configNotFoundErr ConfigNotFoundError
 		if ok := errors.As(err, &configNotFoundErr); !ok {
 			return nil, nil, err

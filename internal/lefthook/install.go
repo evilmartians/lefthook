@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gobwas/glob"
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/internal/config"
@@ -29,7 +28,6 @@ const (
 
 var (
 	lefthookChecksumRegexp = regexp.MustCompile(`(\w+)\s+(\d+)`)
-	configGlob             = glob.MustCompile("{.,}lefthook.{yml,yaml,json,toml}")
 	errNoConfig            = errors.New("no lefthook config found")
 )
 
@@ -86,18 +84,23 @@ func (l *Lefthook) readOrCreateConfig() (*config.Config, error) {
 }
 
 func (l *Lefthook) configExists(path string) bool {
-	paths, err := afero.ReadDir(l.Fs, path)
-	if err != nil {
-		return false
-	}
+	configPath, _ := l.findMainConfig(path)
+	return configPath != ""
+}
 
-	for _, file := range paths {
-		if ok := configGlob.Match(file.Name()); ok {
-			return true
+func (l *Lefthook) findMainConfig(path string) (string, error) {
+	for _, name := range config.MainConfigNames {
+		for _, extension := range []string{
+			".yml", ".yaml", ".toml", ".json",
+		} {
+			configPath := filepath.Join(path, name+extension)
+			if ok, _ := afero.Exists(l.Fs, configPath); ok {
+				return configPath, nil
+			}
 		}
 	}
 
-	return false
+	return "", errNoConfig
 }
 
 func (l *Lefthook) createConfig(path string) error {
@@ -319,26 +322,18 @@ func (l *Lefthook) hooksSynchronized(cfg *config.Config) bool {
 	return storedChecksum == configChecksum
 }
 
-func (l *Lefthook) configLastUpdateTimestamp() (timestamp int64, err error) {
-	paths, err := afero.ReadDir(l.Fs, l.repo.RootPath)
+func (l *Lefthook) configLastUpdateTimestamp() (int64, error) {
+	configPath, err := l.findMainConfig(l.repo.RootPath)
 	if err != nil {
-		return
-	}
-	var config os.FileInfo
-	for _, file := range paths {
-		if ok := configGlob.Match(file.Name()); ok {
-			config = file
-			break
-		}
+		return 0, err
 	}
 
-	if config == nil {
-		err = errNoConfig
-		return
+	config, err := l.Fs.Stat(configPath)
+	if err != nil {
+		return 0, err
 	}
 
-	timestamp = config.ModTime().Unix()
-	return
+	return config.ModTime().Unix(), nil
 }
 
 func (l *Lefthook) addChecksumFile(checksum string) error {
