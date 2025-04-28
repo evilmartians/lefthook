@@ -33,7 +33,7 @@ func (uninstall) New(opts *lefthook.Options) *cobra.Command {
 
 	uninstallCmd.Flags().BoolVarP(
 		&args.RemoveConfig, "remove-configs", "c", false,
-		"remove lefthook.yml, lefthook-local.yml, .lefthook.yml, and .lefthook-local.yml",
+		"remove lefthook main and secondary config files",
 	)
 
 	return &uninstallCmd

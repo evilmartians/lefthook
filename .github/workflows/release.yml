@@ -194,7 +194,7 @@ jobs:
           cloudsmith push alpine evilmartians/lefthook/alpine/any-version dist/lefthook_*_amd64.apk
           cloudsmith push alpine evilmartians/lefthook/alpine/any-version dist/lefthook_*_arm64.apk
 
-  publish-aur:
+  publish-aur_lefthook:
     needs: build
     runs-on: ubuntu-latest
     container:
@@ -207,7 +207,7 @@ jobs:
       - name: Update AUR package
         run: |
           pacman -Syu --noconfirm
-          pacman -S --noconfirm openssh git ruby
+          pacman -S --noconfirm openssh git ruby go base-devel
 
           useradd -m -G wheel runner
           echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
@@ -223,5 +223,37 @@ jobs:
             echo "  User aur" >> ~/.ssh/config
             ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
 
-            ruby packaging/pack.rb publish_aur
+            ruby packaging/pack.rb publish_aur_lefthook
+          '
+
+  publish-aur_lefthook-bin:
+    needs: build
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update AUR package
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm openssh git ruby base-devel
+
+          useradd -m -G wheel runner
+          echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+          chown -R runner:runner .
+
+          su runner -c '
+            mkdir -p ~/.ssh
+            echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/aur
+            chmod 600 ~/.ssh/aur
+            echo "Host aur.archlinux.org" >> ~/.ssh/config
+            echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
+            echo "  User aur" >> ~/.ssh/config
+            ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
+
+            ruby packaging/pack.rb publish_aur_lefthook_bin
           '

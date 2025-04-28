@@ -17,19 +17,21 @@ remotes:
       - examples/remote/ping.yml
 
 -- lefthook-dump.yml --
-DEPRECATED: "remotes"."config" option is deprecated and will be omitted in the next major release, use "configs" option instead
+│  DEPRECATED: "remotes"."config" option is deprecated and will be omitted in the next major release, use "configs" option instead
 pre-commit:
   parallel: true
   commands:
     js-lint:
       run: npx eslint --fix {staged_files} && git add {staged_files}
-      glob: '*.{js,ts}'
+      glob:
+        - '*.{js,ts}'
     ping:
       run: echo pong
     ruby-lint:
       run: bundle exec rubocop --force-exclusion --parallel '{files}'
       files: git diff-tree -r --name-only --diff-filter=CDMR HEAD origin/master
-      glob: '*.rb'
+      glob:
+        - '*.rb'
     ruby-test:
       run: bundle exec rspec
       skip:
@@ -44,7 +46,8 @@ pre-push:
     spelling:
       run: npx yaspeller {files}
       files: git diff --name-only HEAD @{push}
-      glob: '*.md'
+      glob:
+        - '*.md'
 remotes:
   - git_url: https://github.com/evilmartians/lefthook
     ref: v1.4.0

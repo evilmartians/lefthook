@@ -26,7 +26,7 @@ var (
 type domain struct {
 	failed *atomic.Bool
 
-	glob     string
+	glob     []string
 	root     string
 	exclude  interface{}
 	onlyJobs []string
@@ -95,19 +95,24 @@ func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *con
 
 	if job.Group != nil {
 		inheritedDomain := *domain
-		inheritedDomain.glob = first(job.Glob, domain.glob)
+		inheritedDomain.glob = slices.Concat(inheritedDomain.glob, job.Glob)
 		inheritedDomain.root = first(job.Root, domain.root)
 		switch list := job.Exclude.(type) {
 		case []interface{}:
 			switch inherited := inheritedDomain.exclude.(type) {
 			case []interface{}:
+				// List of globs get appended
 				inherited = append(inherited, list...)
 				inheritedDomain.exclude = inherited
 			default:
+				// Regex value will be overwritten with a list of globs
 				inheritedDomain.exclude = job.Exclude
 			}
-		default:
+		case string:
+			// Regex value always overwrites excludes
 			inheritedDomain.exclude = job.Exclude
+		default:
+			// Inherit
 		}
 		groupName := first(job.Name, "group ("+id+")")
 		inheritedDomain.names = append(inheritedDomain.names, groupName)
@@ -126,7 +131,7 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, jo
 	name := job.PrintableName(id)
 
 	root := first(job.Root, domain.root)
-	glob := first(job.Glob, domain.glob)
+	glob := slices.Concat(domain.glob, job.Glob)
 	exclude := join(job.Exclude, domain.exclude)
 	executionJob, err := jobs.New(name, &jobs.Params{
 		Repo:       r.Repo,

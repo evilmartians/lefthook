@@ -1,12 +1,13 @@
 {
   "name": "@evilmartians/lefthook",
-  "version": "1.10.8",
+  "version": "1.11.11",
   "description": "Simple git hooks manager",
   "main": "bin/index.js",
   "files": [
     "postinstall.js",
     "get-exe.js",
-    "schema.json"
+    "schema.json",
+    "bin/**/*"
   ],
   "bin": {
     "lefthook": "bin/index.js"

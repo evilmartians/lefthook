@@ -28,31 +28,31 @@ func slicesEqual(a, b []string) bool {
 func TestByGlob(t *testing.T) {
 	for i, tt := range [...]struct {
 		source, result []string
-		glob           string
+		glob           []string
 	}{
 		{
 			source: []string{"folder/subfolder/0.rb", "1.txt", "2.RB", "3.rbs"},
-			glob:   "",
+			glob:   []string{},
 			result: []string{"folder/subfolder/0.rb", "1.txt", "2.RB", "3.rbs"},
 		},
 		{
 			source: []string{"folder/subfolder/0.rb", "1.txt", "2.RB", "3.rbs"},
-			glob:   "*.rb",
+			glob:   []string{"*.rb"},
 			result: []string{"folder/subfolder/0.rb", "2.RB"},
 		},
 		{
 			source: []string{"folder/subfolder/0.rb", "1.rbs"},
-			glob:   "**/*.rb",
+			glob:   []string{"**/*.rb"},
 			result: []string{"folder/subfolder/0.rb"},
 		},
 		{
 			source: []string{"folder/0.rb", "1.rBs", "2.rbv"},
-			glob:   "*.rb?",
+			glob:   []string{"*.rb?"},
 			result: []string{"1.rBs", "2.rbv"},
 		},
 		{
 			source: []string{"f.a", "f.b", "f.c", "f.cn"},
-			glob:   "*.{a,b,cn}",
+			glob:   []string{"*.{a,b,cn}"},
 			result: []string{"f.a", "f.b", "f.cn"},
 		},
 	} {
@@ -68,7 +68,7 @@ func TestByGlob(t *testing.T) {
 func TestByExclude(t *testing.T) {
 	for i, tt := range [...]struct {
 		source, result []string
-		exclude        string
+		exclude        interface{}
 	}{
 		{
 			source:  []string{"folder/subfolder/0.rb", "1.txt", "2.RB", "3.rb"},
@@ -93,6 +93,11 @@ func TestByExclude(t *testing.T) {
 		{
 			source:  []string{"f.a", "f.b", "f.c", "f.cn"},
 			exclude: ".*\\.(a|b|cn)$",
+			result:  []string{"f.c"},
+		},
+		{
+			source:  []string{"f.a", "f.b", "f.c", "f.cn"},
+			exclude: []interface{}{"*.a", "*.b", "*.cn"},
 			result:  []string{"f.c"},
 		},
 	} {

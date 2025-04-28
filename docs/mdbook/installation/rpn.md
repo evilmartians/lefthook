@@ -1,1 +1,0 @@
-# RPM-based distro

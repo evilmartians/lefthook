@@ -6,10 +6,16 @@ import (
 	"io"
 	"strings"
 	"testing"
+
+	"github.com/evilmartians/lefthook/internal/system"
 )
 
 type gitCmd struct {
 	cases map[string]string
+}
+
+func (g gitCmd) WithoutEnvs(...string) system.Command {
+	return g
 }
 
 func (g gitCmd) Run(cmd []string, _root string, _in io.Reader, out io.Writer, _errOut io.Writer) error {
@@ -50,6 +56,7 @@ MM staged but changed
 					},
 				},
 			}
+			repository.Setup()
 
 			files, err := repository.PartiallyStagedFiles()
 			if tt.error && err != nil {

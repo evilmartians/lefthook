@@ -2,5 +2,5 @@
 
 > [!IMPORTANT]
 >
-> This documentation was moved to https://evilmartians.github.io/lefthook/installation/
+> This documentation was moved to https://lefthook.dev/installation/
 

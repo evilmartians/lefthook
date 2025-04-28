@@ -27,6 +27,7 @@ var (
 
 	separatorWidth  = 36
 	separatorMargin = 2
+	padding         = 2
 )
 
 type Level uint32
@@ -116,7 +117,7 @@ func (s StyleLogger) Info(str string) {
 }
 
 func Debug(args ...interface{}) {
-	res := fmt.Sprint(args...)
+	res := strings.TrimSpace(fmt.Sprint(args...))
 	std.Debug(color(GolorGray).Render(res))
 }
 
@@ -372,21 +373,34 @@ func (l *Logger) Info(args ...interface{}) {
 	l.Log(InfoLevel, args...)
 }
 
-func (l *Logger) Debug(args ...interface{}) {
+func (l *Logger) Debug(args ...string) {
 	leftBorder := lipgloss.NewStyle().
 		BorderStyle(lipgloss.NormalBorder()).
 		BorderLeft(true).
 		BorderForeground(colorBorder).
-		Render("")
-	l.Log(DebugLevel, append([]interface{}{leftBorder}, args...)...)
+		PaddingLeft(padding).
+		Render(args...)
+	l.Log(DebugLevel, leftBorder)
 }
 
-func (l *Logger) Error(args ...interface{}) {
-	l.Log(ErrorLevel, args...)
+func (l *Logger) Error(args ...string) {
+	leftBorder := lipgloss.NewStyle().
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderLeft(true).
+		BorderForeground(ColorRed).
+		PaddingLeft(padding).
+		Render(args...)
+	l.Log(ErrorLevel, leftBorder)
 }
 
-func (l *Logger) Warn(args ...interface{}) {
-	l.Log(WarnLevel, args...)
+func (l *Logger) Warn(args ...string) {
+	leftBorder := lipgloss.NewStyle().
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderLeft(true).
+		BorderForeground(ColorYellow).
+		PaddingLeft(padding).
+		Render(args...)
+	l.Log(WarnLevel, leftBorder)
 }
 
 func (l *Logger) Infof(format string, args ...interface{}) {

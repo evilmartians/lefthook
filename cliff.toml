@@ -9,7 +9,7 @@ body = """
     ## (unreleased)
 {% endif %}
 {% for commit in commits %}\
-    - {{ commit.group }}: {% if commit.breaking %}[**breaking**] {% endif %}{{ commit.message }} by {{ commit.author.name }}
+    - {{ commit.group }}: {% if commit.breaking %}[**breaking**] {% endif %}{{ commit.message }} by {% if commit.remote.username %}[@{{commit.remote.username}}](https://github.com/{{commit.remote.username}}) {% else %} {{ commit.author.name }}{% endif %}
 {% endfor %}\n
 """
 trim = true

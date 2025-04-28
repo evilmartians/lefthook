@@ -77,4 +77,5 @@ pre-commit:
       skip: true
       tags:
         - backend
-      glob: "3"
+      glob:
+        - "3"

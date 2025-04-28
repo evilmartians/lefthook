@@ -41,7 +41,6 @@ linters:
     - containedctx
     - contextcheck
     - copyloopvar
-    - decorder
     - dogsled
     - dupl
     - dupword
@@ -81,7 +80,7 @@ linters:
     - revive
     - staticcheck
     - tagalign
-    - tenv
+    - usetesting
     - typecheck
     - unconvert
     - unparam

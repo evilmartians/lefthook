@@ -23,7 +23,7 @@ pre-commit:
 ```
 
 ```yml
-# lefthook.yml
+# lefthook-local.yml
 
 templates:
   dip: dip # Will run: `dip bundle exec rubocop file1 file2 file3 ...`

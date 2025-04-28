@@ -1,12 +1,5 @@
 ## `run`
 
-> **Note:** `run` command is treated differently on Unix-like systems (macOS, Linux) and Windows:
->
-> - ***nix**: commands get wrapped with `sh -c '<run>'`
-> - **Windows**: commands execute natively
->
-> So, when on *nix systems you can use pipes, builtins of a Bourne Shell, etc. For Windows the capabilities are limited by a single command.
-
 This is a mandatory option for a command. This is actually a command that is executed for the hook.
 
 You can use files templates that will be substituted with the appropriate files on execution:

@@ -4,7 +4,7 @@ require "fileutils"
 require "digest"
 require "open-uri"
 
-VERSION = "1.10.8"
+VERSION = "1.11.11"
 
 ROOT = File.join(__dir__, "..")
 DIST = File.join(ROOT, "dist")
@@ -40,7 +40,8 @@ module Pack
     replace_in_file("npm/lefthook/package.json", /"(lefthook-.+)": "[\d.]+"/, %{"\\1": "#{VERSION}"})
     replace_in_file("rubygems/lefthook.gemspec", /(spec\.version\s+= ).*/, %{\\1"#{VERSION}"})
     replace_in_file("pypi/setup.py", /(version+=).*/, %{\\1'#{VERSION}',})
-    replace_in_file("aur/PKGBUILD", /(pkgver+=).*/, %{\\1#{VERSION}})
+    replace_in_file("aur/lefthook/PKGBUILD", /(pkgver+=).*/, %{\\1#{VERSION}})
+    replace_in_file("aur/lefthook-bin/PKGBUILD", /(pkgver+=).*/, %{\\1#{VERSION}})
   end
 
   def put_additional_files
@@ -168,33 +169,52 @@ module Pack
     system("python -m twine upload --verbose --repository lefthook dist/*", exception: true)
   end
 
-  def publish_aur
-    aur_repo = File.join(__dir__, "lefthook-aur")
-    system("git clone ssh://aur@aur.archlinux.org/lefthook.git #{aur_repo}")
-    pkgbuild_source = File.join(__dir__, "aur", "PKGBUILD")
+  def publish_aur_lefthook
+    publish_aur("lefthook", {
+      sha256sum: "https://github.com/evilmartians/lefthook/archive/v#{VERSION}.tar.gz"
+    })
+  end
+
+  def publish_aur_lefthook_bin
+    publish_aur("lefthook-bin", {
+      sha256sum_linux_x86_64: "https://github.com/evilmartians/lefthook/releases/download/v#{VERSION}/lefthook_#{VERSION}_Linux_x86_64.gz",
+      sha256sum_linux_aarch64: "https://github.com/evilmartians/lefthook/releases/download/v#{VERSION}/lefthook_#{VERSION}_Linux_aarch64.gz"
+    })
+  end
+
+  def publish_aur(package_name, sha256urls = {})
+    aur_repo = File.join(__dir__, "#{package_name}-aur")
+    system("git clone ssh://aur@aur.archlinux.org/#{package_name}.git #{aur_repo}", exception: true)
+    pkgbuild_source = File.join(__dir__, "aur", package_name, "PKGBUILD")
     pkgbuild_dest = File.join(aur_repo, "PKGBUILD")
     cp(pkgbuild_source, pkgbuild_dest, verbose: true)
 
-    sha256 = Digest::SHA256.new
-    URI.open("https://github.com/evilmartians/lefthook/archive/v#{VERSION}.tar.gz") do |file|
-      while chunk = file.read(1024)  # Read the file in chunks
-        sha256.update(chunk)
+    sha256sums = {}
+    sha256urls.each do |name, url|
+      sha256 = Digest::SHA256.new
+      URI.open(url) do |file|
+        while chunk = file.read(1024)  # Read the file in chunks
+          sha256.update(chunk)
+        end
       end
+
+      sha256sums[name] = sha256.hexdigest
     end
 
-    sha256sum = sha256.hexdigest
-    replace_in_file(pkgbuild_dest, /{{ sha256sum }}/, sha256sum)
+    sha256sums.each do |name, sha256sum|
+      replace_in_file(pkgbuild_dest, /{{ #{name} }}/, sha256sum)
+    end
 
     cd(aur_repo)
-    system("makepkg --printsrcinfo > .SRCINFO")
-    system("makepkg")
-    system("makepkg --install")
+    system("makepkg --printsrcinfo > .SRCINFO", exception: true)
+    system("makepkg --noconfirm", exception: true)
+    system("makepkg --install --noconfirm", exception: true)
 
-    system("git config user.name 'github-actions[bot]'")
-    system("git config user.email 'github-actions[bot]@users.noreply.github.com'")
-    system("git add PKGBUILD .SRCINFO")
-    system("git commit -m 'release v#{VERSION}'")
-    system("git push origin master")
+    system("git config user.name 'github-actions[bot]'", exception: true)
+    system("git config user.email 'github-actions[bot]@users.noreply.github.com'", exception: true)
+    system("git add PKGBUILD .SRCINFO", exception: true)
+    system("git commit -m 'release v#{VERSION}'", exception: true)
+    system("git push origin master", exception: true)
   end
 
   def replace_in_file(filepath, regexp, value)

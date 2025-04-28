@@ -50,6 +50,9 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		return nil
 	}
 
+	waitPrecompute := l.repo.Precompute()
+	defer waitPrecompute()
+
 	var verbose bool
 	if l.Verbose {
 		log.SetLevel(log.DebugLevel)
@@ -310,6 +313,17 @@ func (l *Lefthook) configHookCommandCompletions(hookName string) []string {
 	}
 }
 
+func findJobNames(jobs []*config.Job) []string {
+	jobNames := make([]string, 0, len(jobs))
+	for _, job := range jobs {
+		jobNames = append(jobNames, job.Name)
+		if job.Group != nil {
+			jobNames = append(jobNames, findJobNames(job.Group.Jobs)...)
+		}
+	}
+	return jobNames
+}
+
 func (l *Lefthook) configHookJobCompletions(hookName string) []string {
 	cfg, err := config.Load(l.Fs, l.repo)
 	if err != nil {
@@ -318,11 +332,7 @@ func (l *Lefthook) configHookJobCompletions(hookName string) []string {
 	if hook, found := cfg.Hooks[hookName]; !found {
 		return nil
 	} else {
-		jobs := make([]string, 0, len(hook.Jobs))
-		for _, job := range hook.Jobs {
-			jobs = append(jobs, job.Name)
-		}
-		return jobs
+		return findJobNames(hook.Jobs)
 	}
 }
 

@@ -12,13 +12,22 @@ import (
 
 // CommandExecutor provides some methods that take some effect on execution and/or result data.
 type CommandExecutor struct {
-	cmd  system.Command
-	root string
+	cmd           system.Command
+	root          string
+	onlyDebugLogs bool
 }
 
 // NewExecutor returns an object that executes given commands in the OS.
 func NewExecutor(cmd system.Command) *CommandExecutor {
 	return &CommandExecutor{cmd: cmd}
+}
+
+func (c CommandExecutor) WithoutEnvs(envs ...string) CommandExecutor {
+	return CommandExecutor{cmd: c.cmd.WithoutEnvs(envs...), root: c.root}
+}
+
+func (c CommandExecutor) OnlyDebugLogs() CommandExecutor {
+	return CommandExecutor{cmd: c.cmd, root: c.root, onlyDebugLogs: true}
 }
 
 // Cmd runs plain string command. Trims spaces around output.
@@ -71,15 +80,28 @@ func (c CommandExecutor) CmdLinesWithinFolder(cmd []string, folder string) ([]st
 }
 
 func (c CommandExecutor) execute(cmd []string, root string) (string, error) {
-	out := new(bytes.Buffer)
-	errOut := new(bytes.Buffer)
-	err := c.cmd.Run(cmd, root, system.NullReader, out, errOut)
-	outString := out.String()
+	stdout := new(bytes.Buffer)
+	stderr := new(bytes.Buffer)
+	err := c.cmd.Run(cmd, root, system.NullReader, stdout, stderr)
+	outString := stdout.String()
+	errString := stderr.String()
 
-	log.Debug("[lefthook] stdout: ", outString)
-	errString := errOut.String()
-	if len(errString) > 0 {
-		log.Debug("[lefthook] stderr: ", errString)
+	log.Builder(log.DebugLevel, "[lefthook] ").
+		Add("git: ", strings.Join(cmd, " ")).
+		Add("out: ", outString).
+		Log()
+
+	if err != nil {
+		if len(errString) > 0 {
+			logLevel := log.ErrorLevel
+			if c.onlyDebugLogs {
+				logLevel = log.DebugLevel
+			}
+			log.Builder(logLevel, "> ").
+				Add("", strings.Join(cmd, " ")).
+				Add("", errString).
+				Log()
+		}
 	}
 
 	return outString, err

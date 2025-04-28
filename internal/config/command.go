@@ -17,7 +17,7 @@ type Command struct {
 
 	FileTypes []string `json:"file_types,omitempty" koanf:"file_types" mapstructure:"file_types" toml:"file_types,omitempty" yaml:"file_types,omitempty"`
 
-	Glob    string      `json:"glob,omitempty"    mapstructure:"glob"                  toml:"glob,omitempty"  yaml:",omitempty"`
+	Glob    []string    `json:"glob,omitempty"    jsonschema:"oneof_type=string;array" mapstructure:"glob"    toml:"glob,omitempty"    yaml:",omitempty"`
 	Root    string      `json:"root,omitempty"    mapstructure:"root"                  toml:"root,omitempty"  yaml:",omitempty"`
 	Exclude interface{} `json:"exclude,omitempty" jsonschema:"oneof_type=string;array" mapstructure:"exclude" toml:"exclude,omitempty" yaml:",omitempty"`
 

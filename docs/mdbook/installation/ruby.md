@@ -1,5 +1,15 @@
 ## Ruby
 
+```ruby
+# Gemfile
+
+group :development do
+  gem "lefthook", require: false
+end
+```
+
+Or globally
+
 ```bash
 gem install lefthook
 ```

@@ -10,9 +10,14 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/evilmartians/lefthook/internal/git"
+	"github.com/evilmartians/lefthook/internal/system"
 )
 
 type gitCmd struct{}
+
+func (g gitCmd) WithoutEnvs(...string) system.Command {
+	return g
+}
 
 func (g gitCmd) Run([]string, string, io.Reader, io.Writer, io.Writer) error {
 	return nil
@@ -165,6 +170,7 @@ post-commit:
 					GitPath:   gitPath,
 				},
 			}
+			lefthook.repo.Setup()
 
 			// Create files that should exist
 			for _, path := range tt.existingDirs {

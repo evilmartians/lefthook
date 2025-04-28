@@ -10,7 +10,11 @@ jsonschema:
 	go generate internal/gen/jsonschema.go > schema.json
 
 install: build
+ifeq ($(shell go env GOOS),windows)
+	copy lefthook $(shell go env GOPATH)\bin\lefthook.exe
+else
 	cp lefthook $$(go env GOPATH)/bin
+endif
 
 test:
 	go test -cpu 24 -race -count=1 -timeout=30s ./...
@@ -23,7 +27,7 @@ bench:
 
 bin/golangci-lint:
 	@test -x $$(go env GOPATH)/bin/golangci-lint || \
-		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH)/bin v1.59.0
+		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH)/bin v1.64.8
 
 lint: bin/golangci-lint
 	$$(go env GOPATH)/bin/golangci-lint run --fix

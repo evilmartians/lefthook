@@ -18,6 +18,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/exec"
 	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/internal/system"
 )
 
 type (
@@ -41,6 +42,10 @@ func (e executor) Execute(_ctx context.Context, opts exec.Options, _in io.Reader
 
 func (e cmd) RunWithContext(context.Context, []string, string, io.Reader, io.Writer, io.Writer) error {
 	return nil
+}
+
+func (g *gitCmd) WithoutEnvs(...string) system.Command {
+	return g
 }
 
 func (g *gitCmd) Run(cmd []string, _root string, _in io.Reader, out io.Writer, _errOut io.Writer) error {
@@ -601,11 +606,7 @@ func TestRunAll(t *testing.T) {
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git add .*script.sh.*README.md",
 				"git diff --name-only --cached --diff-filter=ACMR",
-				"git diff --name-only --cached --diff-filter=ACMR",
-				"git diff --name-only --cached --diff-filter=ACMR",
 				"git add .*script.sh.*README.md",
-				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
-				"git stash list",
 			},
 		},
 		"with pre-commit skip": {
@@ -618,24 +619,21 @@ func TestRunAll(t *testing.T) {
 					"ok": {
 						Run:        "success",
 						StageFixed: true,
-						Glob:       "*.md",
+						Glob:       []string{"*.md"},
 					},
 					"fail": {
 						Run:        "fail",
 						StageFixed: true,
-						Glob:       "*.txt",
+						Glob:       []string{"*.txt"},
 					},
 				},
 			},
 			success: []Result{succeeded("ok")},
 			gitCommands: []string{
 				"git status --short",
-				"git diff --name-only --cached --diff-filter=ACMR",
-				"git diff --name-only --cached --diff-filter=ACMR",
+				"git diff --name-only --cached --diff-filter=ACMRD",
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git add .*README.md",
-				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
-				"git stash list",
 			},
 		},
 		"with pre-commit skip but forced": {
@@ -648,12 +646,12 @@ func TestRunAll(t *testing.T) {
 					"ok": {
 						Run:        "success",
 						StageFixed: true,
-						Glob:       "*.md",
+						Glob:       []string{"*.md"},
 					},
 					"fail": {
 						Run:        "fail",
 						StageFixed: true,
-						Glob:       "*.sh",
+						Glob:       []string{"*.sh"},
 					},
 				},
 			},
@@ -664,8 +662,6 @@ func TestRunAll(t *testing.T) {
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git add .*README.md",
-				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
-				"git stash list",
 			},
 		},
 		"with pre-commit and stage_fixed=true under root": {
@@ -689,8 +685,6 @@ func TestRunAll(t *testing.T) {
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git add .*scripts.*script.sh",
-				"git apply -v --whitespace=nowarn --recount --unidiff-zero ",
-				"git stash list",
 			},
 		},
 		"with pre-push skip": {
@@ -703,12 +697,12 @@ func TestRunAll(t *testing.T) {
 					"ok": {
 						Run:        "success",
 						StageFixed: true,
-						Glob:       "*.md",
+						Glob:       []string{"*.md"},
 					},
 					"fail": {
 						Run:        "fail",
 						StageFixed: true,
-						Glob:       "*.sh",
+						Glob:       []string{"*.sh"},
 					},
 				},
 			},
@@ -764,7 +758,8 @@ func TestRunAll(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 			git.ResetState()
-			results, err := runner.RunAll(context.Background())
+			repo.Setup()
+			results, err := runner.RunAll(t.Context())
 			assert.NoError(err)
 
 			var success, fail []Result

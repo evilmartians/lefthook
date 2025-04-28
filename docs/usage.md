@@ -2,4 +2,4 @@
 
 > [!IMPORTANT]
 >
-> This documentation was moved to https://evilmartians.github.io/lefthook/usage/
+> This documentation was moved to https://lefthook.dev/usage/

@@ -55,6 +55,8 @@ type Runner struct {
 	failed               atomic.Bool
 	executor             exec.Executor
 	cmd                  system.CommandWithContext
+
+	didStash bool
 }
 
 func New(opts Options) *Runner {
@@ -218,6 +220,8 @@ func (r *Runner) preHook() {
 		return
 	}
 
+	r.didStash = true
+
 	log.Debug("[lefthook] saving partially staged files")
 
 	r.partiallyStagedFiles = partiallyStagedFiles
@@ -233,17 +237,19 @@ func (r *Runner) preHook() {
 		return
 	}
 
+	log.Builder(log.DebugLevel, "[lefthook] ").
+		Add("hide partially staged files: ", r.partiallyStagedFiles).
+		Log()
+
 	err = r.Repo.HideUnstaged(r.partiallyStagedFiles)
 	if err != nil {
 		log.Warnf("Couldn't hide unstaged files: %s\n", err)
 		return
 	}
-
-	log.Debugf("[lefthook] hide partially staged files: %v\n", r.partiallyStagedFiles)
 }
 
 func (r *Runner) postHook() {
-	if !config.HookUsesStagedFiles(r.HookName) {
+	if !r.didStash {
 		return
 	}
 
