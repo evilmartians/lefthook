@@ -169,7 +169,7 @@ pre-commit:
 
 * ### **Local config**
 
-If you a frontend/backend developer and want to skip unnecessary commands or override something into Docker. [docs][usage-local-config]
+If you are a frontend/backend developer and want to skip unnecessary commands or override something in Docker. [docs][usage-local-config]
 
 ```yml
 # lefthook-local.yml
