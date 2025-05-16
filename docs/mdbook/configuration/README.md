@@ -2,14 +2,23 @@
 
 Lefthook supports the following file names for the main config:
 
-- `lefthook.yml`
-- `.lefthook.yml`
-- `lefthook.yaml`
-- `.lefthook.yaml`
-- `lefthook.toml`
-- `.lefthook.toml`
-- `lefthook.json`
-- `.lefthook.json`
+| Format | File name |
+|-------|-----------|
+| YAML  | `lefthook.yml` |
+| YAML  | `.lefthook.yml` |
+| YAML  | `.config/lefthook.yml` |
+|-------|-----------|
+| YAML  | `lefthook.yaml` |
+| YAML  | `.lefthook.yaml` |
+| YAML  | `.config/lefthook.yaml` |
+|-------|-----------|
+| TOML  | `lefthook.toml` |
+| TOML  | `.lefthook.toml` |
+| TOML  | `.config/lefthook.toml` |
+|-------|-----------|
+| JSON  | `lefthook.json` |
+| JSON  | `.lefthook.json` |
+| JSON  | `.config/lefthook.json` |
 
 If there are more than 1 file in the project, only one will be used, and you'll never know which one. So, please, use one format in a project.
 
