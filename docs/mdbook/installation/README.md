@@ -17,6 +17,7 @@ With package managers
 - [RPM-based distro](./rpm.md)
 - [Alpine](./alpine.md)
 - [Arch Linux](./arch.md)
+- [Mise](./mise.md)
 
 
 [Manual installation](./manual.md)
