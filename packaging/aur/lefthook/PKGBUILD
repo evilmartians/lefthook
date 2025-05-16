@@ -2,7 +2,7 @@
 
 pkgname=lefthook
 pkgdesc="Git hooks manager"
-pkgver=1.11.12
+pkgver=1.11.13
 pkgrel=1
 arch=('x86_64' 'aarch64')
 url="https://github.com/evilmartians/lefthook"

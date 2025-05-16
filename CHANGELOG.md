@@ -1,5 +1,12 @@
 # Change log
 
+## 1.11.13 (2025-05-16)
+
+- deps: May 2025 ([#1024](https://github.com/evilmartians/lefthook/pull/1024)) by [@mrexox](https://github.com/mrexox)
+- fix: load scripts from .config too ([#1018](https://github.com/evilmartians/lefthook/pull/1018)) by [@mrexox](https://github.com/mrexox)
+- chore: change "existed" to "existing" ([#1022](https://github.com/evilmartians/lefthook/pull/1022)) by [@assyrus-favolo](https://github.com/assyrus-favolo)
+- docs: fix grammatical error in `Local config` section ([#1019](https://github.com/evilmartians/lefthook/pull/1019)) by [@dev-kas](https://github.com/dev-kas)
+
 ## 1.11.12 (2025-04-28)
 
 - feat: load from .config dir ([#1017](https://github.com/evilmartians/lefthook/pull/1017)) by [@mrexox](https://github.com/mrexox)
