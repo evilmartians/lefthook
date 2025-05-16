@@ -157,16 +157,24 @@
                     <main>
                         <h2 id="config-file-name"><a class="header" href="#config-file-name">Config file name</a></h2>
 <p>Lefthook supports the following file names for the main config:</p>
-<ul>
-<li><code>lefthook.yml</code></li>
-<li><code>.lefthook.yml</code></li>
-<li><code>lefthook.yaml</code></li>
-<li><code>.lefthook.yaml</code></li>
-<li><code>lefthook.toml</code></li>
-<li><code>.lefthook.toml</code></li>
-<li><code>lefthook.json</code></li>
-<li><code>.lefthook.json</code></li>
-</ul>
+<div class="table-wrapper"><table><thead><tr><th>Format</th><th>File name</th></tr></thead><tbody>
+<tr><td>YAML</td><td><code>lefthook.yml</code></td></tr>
+<tr><td>YAML</td><td><code>.lefthook.yml</code></td></tr>
+<tr><td>YAML</td><td><code>.config/lefthook.yml</code></td></tr>
+<tr><td>-------</td><td>-----------</td></tr>
+<tr><td>YAML</td><td><code>lefthook.yaml</code></td></tr>
+<tr><td>YAML</td><td><code>.lefthook.yaml</code></td></tr>
+<tr><td>YAML</td><td><code>.config/lefthook.yaml</code></td></tr>
+<tr><td>-------</td><td>-----------</td></tr>
+<tr><td>TOML</td><td><code>lefthook.toml</code></td></tr>
+<tr><td>TOML</td><td><code>.lefthook.toml</code></td></tr>
+<tr><td>TOML</td><td><code>.config/lefthook.toml</code></td></tr>
+<tr><td>-------</td><td>-----------</td></tr>
+<tr><td>JSON</td><td><code>lefthook.json</code></td></tr>
+<tr><td>JSON</td><td><code>.lefthook.json</code></td></tr>
+<tr><td>JSON</td><td><code>.config/lefthook.json</code></td></tr>
+</tbody></table>
+</div>
 <p>If there are more than 1 file in the project, only one will be used, and you'll never know which one. So, please, use one format in a project.</p>
 <p>Filenames without the leading dot will also be looked up from the <a href="https://github.com/pi0/config-dir"><code>.config</code> subdirectory</a>.</p>
 <p>Lefthook also merges an extra config with the name <code>lefthook-local</code>. All supported formats can be applied to this <code>-local</code> config. If you name your main config with the leading dot, like <code>.lefthook.json</code>, the <code>-local</code> config also must be named with the leading dot: <code>.lefthook-local.json</code>.</p>
