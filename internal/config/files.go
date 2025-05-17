@@ -10,5 +10,5 @@ const (
 )
 
 func IsRunFilesCompatible(run string) bool {
-	return !(strings.Contains(run, SubStagedFiles) && strings.Contains(run, SubPushFiles))
+	return !strings.Contains(run, SubStagedFiles) || !strings.Contains(run, SubPushFiles)
 }

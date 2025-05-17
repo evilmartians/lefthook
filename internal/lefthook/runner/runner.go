@@ -118,7 +118,7 @@ func (r *Runner) RunAll(ctx context.Context) ([]Result, error) {
 }
 
 func (r *Runner) runLFSHook(ctx context.Context) error {
-	if r.Options.SkipLFS {
+	if r.SkipLFS {
 		return nil
 	}
 

@@ -31,7 +31,7 @@ func (l *Lefthook) Add(args *AddArgs) error {
 		return fmt.Errorf("Skip adding, hook is unavailable: %s", args.Hook)
 	}
 
-	err := l.cleanHook(args.Hook, args.Force || l.Options.Force)
+	err := l.cleanHook(args.Hook, args.Force || l.Force)
 	if err != nil {
 		return err
 	}
