@@ -120,7 +120,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 			return nil
 		}
 
-		return fmt.Errorf("Hook %s doesn't exist in the config", hookName)
+		return fmt.Errorf("hook %s doesn't exist in the config", hookName)
 	}
 
 	if hook.Parallel && hook.Piped {

@@ -32,9 +32,9 @@ const (
 )
 
 var (
-	errNoAsset        = errors.New("Couldn't find an asset to download. Please submit an issue to https://github.com/evilmartians/lefthook")
+	errNoAsset        = errors.New("couldn't find an asset to download. Please submit an issue to https://github.com/evilmartians/lefthook")
 	errInvalidHashsum = errors.New("SHA256 sums differ, it's not safe to use the downloaded binary.\nIf you have problems upgrading lefthook please submit an issue to https://github.com/evilmartians/lefthook")
-	errUpdateFailed   = errors.New("Update failed")
+	errUpdateFailed   = errors.New("update failed")
 
 	osNames = map[string]string{
 		"windows": "Windows",

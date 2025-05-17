@@ -122,7 +122,7 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 		if force {
 			log.Infof("\nFile %s.old already exists, overwriting\n", hook)
 		} else {
-			return fmt.Errorf("Can't rename %s to %s.old - file already exists", hook, hook)
+			return fmt.Errorf("can't rename %s to %s.old - file already exists", hook, hook)
 		}
 	}
 
