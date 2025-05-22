@@ -100,7 +100,7 @@ func TestUpdater_SelfUpdate(t *testing.T) {
 			assert := assert.New(t)
 			file, err := os.Create(tt.opts.ExePath)
 			assert.NoError(err)
-			file.Close()
+			assert.NoError(file.Close())
 
 			checksumServer := httptest.NewServer(
 				http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

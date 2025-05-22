@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -145,7 +146,13 @@ func (u *Updater) SelfUpdate(ctx context.Context, opts Options) error {
 	}
 
 	destPath := lefthookExePath + "." + latestVersion
-	defer os.Remove(destPath)
+	defer func() {
+		if _, dErr := os.Stat(destPath); !errors.Is(dErr, fs.ErrNotExist) {
+			if dErr = os.Remove(destPath); dErr != nil {
+				log.Warnf("Could not remove %s: %s", destPath, dErr)
+			}
+		}
+	}()
 
 	ok, err := u.download(ctx, wantedAsset, downloadURL, checksumURL, destPath)
 	if err != nil {
@@ -156,7 +163,13 @@ func (u *Updater) SelfUpdate(ctx context.Context, opts Options) error {
 	}
 
 	backupPath := lefthookExePath + ".bak"
-	defer os.Remove(backupPath)
+	defer func() {
+		if _, dErr := os.Stat(backupPath); !errors.Is(dErr, fs.ErrNotExist) {
+			if dErr = os.Remove(backupPath); dErr != nil {
+				log.Warnf("Could not remove %s: %s", backupPath, dErr)
+			}
+		}
+	}()
 
 	log.Debugf("mv %s %s", lefthookExePath, backupPath)
 	if err = os.Rename(lefthookExePath, backupPath); err != nil {
@@ -199,10 +212,9 @@ func (u *Updater) fetchLatestRelease(ctx context.Context) (*release, error) {
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
-	defer resp.Body.Close()
 
 	var rel release
-	if err = json.NewDecoder(resp.Body).Decode(&rel); err != nil {
+	if err = errors.Join(json.NewDecoder(resp.Body).Decode(&rel), resp.Body.Close()); err != nil {
 		return nil, fmt.Errorf("failed to parse the Github response: %w", err)
 	}
 
@@ -222,28 +234,36 @@ func (u *Updater) download(ctx context.Context, name, fileURL, checksumURL, path
 		return false, fmt.Errorf("failed to build checksum download request: %w", err)
 	}
 
-	file, err := os.Create(path)
-	if err != nil {
-		return false, fmt.Errorf("failed to create destination path (%s): %w", path, err)
-	}
-	defer file.Close()
-
 	resp, err := u.client.Do(filereq)
 	if err != nil {
 		return false, fmt.Errorf("download request failed: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if cErr := resp.Body.Close(); cErr != nil {
+			log.Warnf("Could not close %s response body: %s", resp.Request.URL, cErr)
+		}
+	}()
 
 	checksumResp, err := u.client.Do(sumreq)
 	if err != nil {
 		return false, fmt.Errorf("checksum download request failed: %w", err)
 	}
-	defer checksumResp.Body.Close()
+	defer func() {
+		if cErr := checksumResp.Body.Close(); cErr != nil {
+			log.Warnf("Could not close %s response body: %s", checksumResp.Request.URL, cErr)
+		}
+	}()
 
 	bar := progressbar.DefaultBytes(resp.ContentLength+checksumResp.ContentLength, name)
 
+	file, err := os.Create(path)
+	if err != nil {
+		return false, fmt.Errorf("failed to create destination path (%s): %w", path, err)
+	}
+
 	fileHasher := sha256.New()
-	if _, err = io.Copy(io.MultiWriter(file, fileHasher, bar), resp.Body); err != nil {
+	_, err = io.Copy(io.MultiWriter(file, fileHasher, bar), resp.Body)
+	if err = errors.Join(err, file.Close()); err != nil {
 		return false, fmt.Errorf("failed to download the file: %w", err)
 	}
 	log.Debug()

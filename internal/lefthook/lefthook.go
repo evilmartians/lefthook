@@ -83,7 +83,11 @@ func (l *Lefthook) isLefthookFile(path string) bool {
 	if err != nil {
 		return false
 	}
-	defer file.Close()
+	defer func() {
+		if cErr := file.Close(); cErr != nil {
+			log.Warnf("Could not close %s: %s", file.Name(), cErr)
+		}
+	}()
 
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)

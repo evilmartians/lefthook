@@ -31,7 +31,11 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 	if opts.Interactive && !isatty.IsTerminal(os.Stdin.Fd()) {
 		tty, err := os.Open("/dev/tty")
 		if err == nil {
-			defer tty.Close()
+			defer func() {
+				if cErr := tty.Close(); cErr != nil {
+					log.Warnf("Could not close TTY input: %s\n", cErr)
+				}
+			}()
 			in = tty
 		} else {
 			log.Errorf("Couldn't enable TTY input: %s\n", err)
