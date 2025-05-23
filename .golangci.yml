@@ -1,38 +1,7 @@
-linters-settings:
-  gocritic:
-    disabled-checks:
-      - hugeParam
-    enabled-tags:
-      - performance
-  govet:
-    enable:
-      - shadow
-  misspell:
-    locale: US
-  gci:
-    sections:
-      - standard
-      - default
-      - prefix(github.com/evilmartians/lefthook)
-  revive:
-    rules:
-      - name: unused-parameter
-        disabled: true
-  unused:
-    field-writes-are-uses: false
-    post-statements-are-reads: true
-    exported-fields-are-used: false
-    parameters-are-used: true
-    local-variables-are-used: false
-    generated-is-used: false
-
-issues:
-  exclude:
-    # https://github.com/catenacyber/perfsprint/issues/21
-    - "^fmt\\.Sprintf can be replaced with string concatenation$"
+version: "2"
 
 linters:
-  disable-all: true
+  default: none
   enable:
     - asasalint
     - asciicheck
@@ -51,18 +20,14 @@ linters:
     - errorlint
     - exhaustive
     - forbidigo
-    - gci
     - gochecknoinits
     - goconst
     - gocritic
     - gocyclo
     - godot
     - godox
-    - gofumpt
     - goheader
-    - goimports
     - goprintffuncname
-    - gosimple
     - govet
     - ineffassign
     - intrange
@@ -81,9 +46,43 @@ linters:
     - staticcheck
     - tagalign
     - usetesting
-    - typecheck
     - unconvert
     - unparam
     - unused
     - usestdlibvars
     - whitespace
+  settings:
+    gocritic:
+      disabled-checks:
+        - hugeParam
+      enabled-tags:
+        - performance
+    govet:
+      enable:
+        - shadow
+    misspell:
+      locale: US
+    perfsprint:
+      strconcat: false
+    revive:
+      rules:
+        - name: unused-parameter
+          disabled: true
+    unused:
+      field-writes-are-uses: false
+      post-statements-are-reads: true
+      exported-fields-are-used: false
+      local-variables-are-used: false
+      generated-is-used: false
+
+formatters:
+  enable:
+    - gci
+    - gofumpt
+    - goimports
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/evilmartians/lefthook)

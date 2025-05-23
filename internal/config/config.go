@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 
@@ -120,14 +121,9 @@ type yamlDumper struct{}
 func (yamlDumper) Dump(input map[string]interface{}, out io.Writer) error {
 	encoder := yaml.NewEncoder(out)
 	encoder.SetIndent(yamlIndent)
-	defer encoder.Close()
 
-	err := encoder.Encode(input)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	err := errors.Join(encoder.Encode(input), encoder.Close())
+	return err
 }
 
 type tomlDumper struct{}

@@ -83,7 +83,11 @@ func (l *Lefthook) isLefthookFile(path string) bool {
 	if err != nil {
 		return false
 	}
-	defer file.Close()
+	defer func() {
+		if cErr := file.Close(); cErr != nil {
+			log.Warnf("Could not close %s: %s", file.Name(), cErr)
+		}
+	}()
 
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
@@ -122,7 +126,7 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 		if force {
 			log.Infof("\nFile %s.old already exists, overwriting\n", hook)
 		} else {
-			return fmt.Errorf("Can't rename %s to %s.old - file already exists", hook, hook)
+			return fmt.Errorf("can't rename %s to %s.old - file already exists", hook, hook)
 		}
 	}
 

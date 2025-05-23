@@ -23,7 +23,7 @@ func Uninstall(opts *Options, args *UninstallArgs) error {
 }
 
 func (l *Lefthook) Uninstall(args *UninstallArgs) error {
-	if err := l.deleteHooks(args.Force || l.Options.Aggressive); err != nil {
+	if err := l.deleteHooks(args.Force || l.Aggressive); err != nil {
 		return err
 	}
 

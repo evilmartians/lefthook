@@ -36,7 +36,7 @@ func Validate(opts *Options) error {
 		details := result.ToList()
 		logValidationErrors(0, *details)
 
-		return errors.New("Validation failed for main config")
+		return errors.New("validation failed for main config")
 	}
 
 	result = schema.Validate(secondary.Raw())
@@ -44,7 +44,7 @@ func Validate(opts *Options) error {
 		details := result.ToList()
 		logValidationErrors(0, *details)
 
-		return errors.New("Validation failed for secondary config")
+		return errors.New("validation failed for secondary config")
 	}
 
 	log.Info("All good")

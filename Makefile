@@ -27,7 +27,7 @@ bench:
 
 bin/golangci-lint:
 	@test -x $$(go env GOPATH)/bin/golangci-lint || \
-		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH)/bin v1.64.8
+		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH)/bin v2.1.6
 
 lint: bin/golangci-lint
 	$$(go env GOPATH)/bin/golangci-lint run --fix

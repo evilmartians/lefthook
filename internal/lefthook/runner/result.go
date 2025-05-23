@@ -41,7 +41,7 @@ func failed(name, text string) Result {
 }
 
 func groupResult(name string, results []Result) Result {
-	var stat status = success
+	stat := success
 	for _, res := range results {
 		if res.status == failure {
 			stat = failure

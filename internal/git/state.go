@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/evilmartians/lefthook/internal/log"
 )
 
 type State struct {
@@ -79,7 +81,11 @@ func (r *Repository) Branch() string {
 	if err != nil {
 		return ""
 	}
-	defer file.Close()
+	defer func() {
+		if cErr := file.Close(); cErr != nil {
+			log.Warnf("Could not close %s: %s", headFile, cErr)
+		}
+	}()
 
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)

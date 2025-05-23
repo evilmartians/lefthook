@@ -4,7 +4,7 @@ import (
 	"errors"
 )
 
-var ErrFilesIncompatible = errors.New("One of your runners contains incompatible file types")
+var ErrFilesIncompatible = errors.New("one of your runners contains incompatible file types")
 
 type Command struct {
 	Run   string `json:"run"             mapstructure:"run"   toml:"run"             yaml:"run"`

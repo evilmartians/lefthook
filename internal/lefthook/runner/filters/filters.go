@@ -240,7 +240,7 @@ func checkIsText(fs afero.Fs, filepath string) bool {
 		return false
 	}
 
-	var buf []byte = make([]byte, detectBufSize)
+	buf := make([]byte, detectBufSize)
 	n, err := io.ReadFull(file, buf)
 	if err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, io.ErrUnexpectedEOF) {
 		log.Error("Couldn't read file for content detecting: ", err)
