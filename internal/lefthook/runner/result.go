@@ -1,5 +1,7 @@
 package runner
 
+import "time"
+
 type status int8
 
 const (
@@ -8,12 +10,13 @@ const (
 	skip
 )
 
-// Result contains name of a command/script and an optional fail string.
+// Result contains name of a command/script, an optional fail string, and execution duration.
 type Result struct {
-	Sub    []Result
-	Name   string
-	text   string
-	status status
+	Sub      []Result
+	Name     string
+	text     string
+	status   status
+	Duration time.Duration
 }
 
 func (r Result) Success() bool {
@@ -32,25 +35,26 @@ func skipped(name string) Result {
 	return Result{Name: name, status: skip}
 }
 
-func succeeded(name string) Result {
-	return Result{Name: name, status: success}
+func succeeded(name string, duration time.Duration) Result {
+	return Result{Name: name, status: success, Duration: duration}
 }
 
-func failed(name, text string) Result {
-	return Result{Name: name, status: failure, text: text}
+func failed(name, text string, duration time.Duration) Result {
+	return Result{Name: name, status: failure, text: text, Duration: duration}
 }
 
 func groupResult(name string, results []Result) Result {
 	stat := success
+	var totalDuration time.Duration
 	for _, res := range results {
 		if res.status == failure {
 			stat = failure
-			break
 		}
-		if res.status == skip {
+		if res.status == skip && stat != failure {
 			stat = skip
 		}
+		totalDuration += res.Duration
 	}
 
-	return Result{Name: name, status: stat, Sub: results}
+	return Result{Name: name, status: stat, Sub: results, Duration: totalDuration}
 }

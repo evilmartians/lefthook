@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/exec"
@@ -72,12 +73,14 @@ func (r *Runner) runJobs(ctx context.Context) []Result {
 }
 
 func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *config.Job) Result {
+	startTime := time.Now()
+
 	// Check if do job is properly configured
 	if len(job.Run) > 0 && len(job.Script) > 0 {
-		return failed(job.PrintableName(id), errJobContainsBothRunAndScript.Error())
+		return failed(job.PrintableName(id), errJobContainsBothRunAndScript.Error(), time.Since(startTime))
 	}
 	if len(job.Run) == 0 && len(job.Script) == 0 && job.Group == nil {
-		return failed(job.PrintableName(id), errEmptyJob.Error())
+		return failed(job.PrintableName(id), errEmptyJob.Error(), time.Since(startTime))
 	}
 
 	if job.Interactive && !r.DisableTTY && !r.Hook.Follow {
@@ -124,10 +127,12 @@ func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *con
 		return r.runGroup(ctx, groupName, &inheritedDomain, job.Group)
 	}
 
-	return failed(job.PrintableName(id), "don't know how to run job")
+	return failed(job.PrintableName(id), "don't know how to run job", time.Since(startTime))
 }
 
 func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, job *config.Job) Result {
+	startTime := time.Now()
+
 	name := job.PrintableName(id)
 
 	root := first(job.Root, domain.root)
@@ -163,7 +168,7 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, jo
 		}
 
 		domain.failed.Store(true)
-		return failed(name, err.Error())
+		return failed(name, err.Error(), time.Since(startTime))
 	}
 
 	ok := r.run(ctx, exec.Options{
@@ -175,9 +180,11 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, jo
 		Env:         job.Env,
 	}, r.Hook.Follow)
 
+	executionTime := time.Since(startTime)
+
 	if !ok {
 		domain.failed.Store(true)
-		return failed(name, job.FailText)
+		return failed(name, job.FailText, executionTime)
 	}
 
 	if config.HookUsesStagedFiles(r.HookName) && job.StageFixed {
@@ -188,7 +195,7 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, jo
 			files, err = r.Repo.StagedFiles()
 			if err != nil {
 				log.Warn("Couldn't stage fixed files:", err)
-				return succeeded(name)
+				return succeeded(name, executionTime)
 			}
 
 			files = filters.Apply(r.Repo.Fs, files, filters.Params{
@@ -208,12 +215,14 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, jo
 		r.addStagedFiles(files)
 	}
 
-	return succeeded(name)
+	return succeeded(name, executionTime)
 }
 
 func (r *Runner) runGroup(ctx context.Context, groupName string, domain *domain, group *config.Group) Result {
+	startTime := time.Now()
+
 	if len(group.Jobs) == 0 {
-		return failed(groupName, errEmptyGroup.Error())
+		return failed(groupName, errEmptyGroup.Error(), time.Since(startTime))
 	}
 
 	results := make([]Result, 0, len(group.Jobs))
