@@ -274,11 +274,10 @@ func unmarshalConfigs(main, secondary *koanf.Koanf, c *Config) error {
 	// This behavior may be deprecated in next versions.
 	// Notice that with append we're allowing extra hooks to be added in local config
 	for _, maybeHook := range append(main.Keys(), secondary.Keys()...) {
-		if !hookKeyRegexp.MatchString(maybeHook) {
+		matches := hookKeyRegexp.FindStringSubmatch(maybeHook)
+		if matches == nil {
 			continue
 		}
-
-		matches := hookKeyRegexp.FindStringSubmatch(maybeHook)
 		hookName := matches[hookKeyRegexp.SubexpIndex("hookName")]
 		if _, ok := c.Hooks[hookName]; ok {
 			continue

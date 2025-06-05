@@ -190,11 +190,10 @@ func (r *Repository) PushFiles() ([]string, error) {
 		}
 
 		for _, branch := range branches {
-			if !reHeadBranch.MatchString(branch) {
+			matches := reHeadBranch.FindStringSubmatch(branch)
+			if matches == nil {
 				continue
 			}
-
-			matches := reHeadBranch.FindStringSubmatch(branch)
 			r.headBranch = matches[reHeadBranch.SubexpIndex("name")]
 			break
 		}
