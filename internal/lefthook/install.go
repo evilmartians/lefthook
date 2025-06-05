@@ -294,7 +294,7 @@ func (l *Lefthook) hooksSynchronized(cfg *config.Config) bool {
 
 	for scanner.Scan() {
 		match := lefthookChecksumRegexp.FindStringSubmatch(scanner.Text())
-		if len(match) > 1 {
+		if match != nil {
 			storedChecksum = match[1]
 			storedTimestamp, err = strconv.ParseInt(match[2], timestampBase, timestampBitsize)
 			if err != nil {

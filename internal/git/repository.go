@@ -339,7 +339,7 @@ func (r *Repository) DropUnstagedStash() error {
 	for i := range lines {
 		line := lines[len(lines)-i-1]
 		matches := stashRegexp.FindStringSubmatch(line)
-		if len(matches) == 0 {
+		if matches == nil {
 			continue
 		}
 
