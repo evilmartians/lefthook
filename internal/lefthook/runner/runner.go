@@ -14,6 +14,7 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 	"unicode"
 
 	"github.com/charmbracelet/lipgloss"
@@ -340,6 +341,8 @@ func (r *Runner) runScripts(ctx context.Context, dir string) []Result {
 }
 
 func (r *Runner) runScript(ctx context.Context, script *config.Script, file os.FileInfo) Result {
+	startTime := time.Now()
+
 	job, err := jobs.New(file.Name(), &jobs.Params{
 		Repo:       r.Repo,
 		Hook:       r.Hook,
@@ -363,7 +366,7 @@ func (r *Runner) runScript(ctx context.Context, script *config.Script, file os.F
 		}
 
 		r.failed.Store(true)
-		return failed(file.Name(), err.Error())
+		return failed(file.Name(), err.Error(), time.Since(startTime))
 	}
 
 	if script.Interactive && !r.DisableTTY && !r.Hook.Follow {
@@ -380,12 +383,14 @@ func (r *Runner) runScript(ctx context.Context, script *config.Script, file os.F
 		Env:         script.Env,
 	}, r.Hook.Follow)
 
+	executionTime := time.Since(startTime)
+
 	if !ok {
 		r.failed.Store(true)
-		return failed(file.Name(), script.FailText)
+		return failed(file.Name(), script.FailText, executionTime)
 	}
 
-	result := succeeded(file.Name())
+	result := succeeded(file.Name(), executionTime)
 
 	if config.HookUsesStagedFiles(r.HookName) && script.StageFixed {
 		files, err := r.Repo.StagedFiles()
@@ -458,6 +463,8 @@ func (r *Runner) runCommands(ctx context.Context) []Result {
 }
 
 func (r *Runner) runCommand(ctx context.Context, name string, command *config.Command) Result {
+	startTime := time.Now()
+
 	job, err := jobs.New(name, &jobs.Params{
 		Repo:       r.Repo,
 		Hook:       r.Hook,
@@ -485,7 +492,7 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 		}
 
 		r.failed.Store(true)
-		return failed(name, err.Error())
+		return failed(name, err.Error(), time.Since(startTime))
 	}
 
 	if command.Interactive && !r.DisableTTY && !r.Hook.Follow {
@@ -502,12 +509,14 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 		Env:         command.Env,
 	}, r.Hook.Follow)
 
+	executionTime := time.Since(startTime)
+
 	if !ok {
 		r.failed.Store(true)
-		return failed(name, command.FailText)
+		return failed(name, command.FailText, executionTime)
 	}
 
-	result := succeeded(name)
+	result := succeeded(name, executionTime)
 
 	if config.HookUsesStagedFiles(r.HookName) && command.StageFixed {
 		files := job.Files

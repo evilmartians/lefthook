@@ -246,7 +246,7 @@ func logResults(indent int, results []runner.Result, logSettings log.Settings) {
 				continue
 			}
 
-			log.Success(indent, result.Name)
+			log.Success(indent, result.Name, result.Duration)
 		}
 	}
 
@@ -256,7 +256,7 @@ func logResults(indent int, results []runner.Result, logSettings log.Settings) {
 				continue
 			}
 
-			log.Failure(indent, result.Name, result.Text())
+			log.Failure(indent, result.Name, result.Text(), result.Duration)
 
 			if len(result.Sub) > 0 {
 				logResults(indent+1, result.Sub, logSettings)
