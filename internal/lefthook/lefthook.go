@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
+	"strings"
 
 	"github.com/spf13/afero"
 
@@ -16,14 +16,13 @@ import (
 )
 
 const (
-	EnvVerbose     = "LEFTHOOK_VERBOSE" // keep all output
-	envNoColor     = "NO_COLOR"
-	envForceColor  = "CLICOLOR_FORCE"
-	hookFileMode   = 0o755
-	oldHookPostfix = ".old"
+	EnvVerbose             = "LEFTHOOK_VERBOSE" // keep all output
+	envNoColor             = "NO_COLOR"
+	envForceColor          = "CLICOLOR_FORCE"
+	hookFileMode           = 0o755
+	oldHookPostfix         = ".old"
+	hookContentFingerprint = "LEFTHOOK"
 )
-
-var lefthookContentRegexp = regexp.MustCompile("LEFTHOOK")
 
 type Options struct {
 	Fs                afero.Fs
@@ -93,7 +92,7 @@ func (l *Lefthook) isLefthookFile(path string) bool {
 	scanner.Split(bufio.ScanLines)
 
 	for scanner.Scan() {
-		if lefthookContentRegexp.MatchString(scanner.Text()) {
+		if strings.Contains(scanner.Text(), hookContentFingerprint) {
 			return true
 		}
 	}

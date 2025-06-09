@@ -190,11 +190,10 @@ func (r *Repository) PushFiles() ([]string, error) {
 		}
 
 		for _, branch := range branches {
-			if !reHeadBranch.MatchString(branch) {
+			matches := reHeadBranch.FindStringSubmatch(branch)
+			if matches == nil {
 				continue
 			}
-
-			matches := reHeadBranch.FindStringSubmatch(branch)
 			r.headBranch = matches[reHeadBranch.SubexpIndex("name")]
 			break
 		}
@@ -340,7 +339,7 @@ func (r *Repository) DropUnstagedStash() error {
 	for i := range lines {
 		line := lines[len(lines)-i-1]
 		matches := stashRegexp.FindStringSubmatch(line)
-		if len(matches) == 0 {
+		if matches == nil {
 			continue
 		}
 

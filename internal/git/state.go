@@ -93,7 +93,7 @@ func (r *Repository) Branch() string {
 	for scanner.Scan() {
 		match := refBranchRegexp.FindStringSubmatch(scanner.Text())
 
-		if len(match) > 1 {
+		if match != nil {
 			return match[1]
 		}
 	}

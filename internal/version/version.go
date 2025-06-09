@@ -33,10 +33,6 @@ func Version(verbose bool) string {
 }
 
 func Check(wanted, given string) error {
-	if !versionRegexp.MatchString(given) {
-		return ErrInvalidVersion
-	}
-
 	major, minor, patch, err := parseVersion(given)
 	if err != nil {
 		return ErrInvalidVersion
@@ -90,6 +86,10 @@ func CheckCovered(targetVersion string) error {
 // returns the major, minor and patch versions accordingly.
 func parseVersion(version string) (major, minor, patch int, err error) {
 	matches := versionRegexp.FindStringSubmatch(version)
+	if matches == nil {
+		err = ErrInvalidVersion
+		return
+	}
 
 	majorID := versionRegexp.SubexpIndex("major")
 	minorID := versionRegexp.SubexpIndex("minor")
