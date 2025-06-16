@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
@@ -17,6 +18,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/exec"
+	"github.com/evilmartians/lefthook/internal/lefthook/runner/result"
 	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/evilmartians/lefthook/internal/system"
 )
@@ -29,6 +31,14 @@ type (
 		commands []string
 	}
 )
+
+func succeeded(name string) result.Result {
+	return result.Success(name, time.Second)
+}
+
+func failed(name, failText string) result.Result {
+	return result.Failure(name, failText, time.Second)
+}
 
 func (e executor) Execute(_ctx context.Context, opts exec.Options, _in io.Reader, _out io.Writer) (err error) {
 	if strings.HasPrefix(opts.Commands[0], "success") {
@@ -96,7 +106,7 @@ func TestRunAll(t *testing.T) {
 		sourceDirs       []string
 		existingFiles    []string
 		hook             *config.Hook
-		success, fail    []Result
+		success, fail    []result.Result
 		gitCommands      []string
 		force            bool
 		skipLFS          bool
@@ -119,7 +129,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{succeeded("test")},
+			success: []result.Result{succeeded("test")},
 		},
 		"with simple command in follow mode": {
 			hookName: "post-commit",
@@ -132,7 +142,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{succeeded("test")},
+			success: []result.Result{succeeded("test")},
 		},
 		"with multiple commands ran in parallel": {
 			hookName: "post-commit",
@@ -151,11 +161,11 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{
+			success: []result.Result{
 				succeeded("test"),
 				succeeded("lint"),
 			},
-			fail: []Result{failed("type-check", "")},
+			fail: []result.Result{failed("type-check", "")},
 		},
 		"with exclude tags": {
 			hookName: "post-commit",
@@ -176,7 +186,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{succeeded("lint")},
+			success: []result.Result{succeeded("lint")},
 		},
 		"with skip=true": {
 			hookName: "post-commit",
@@ -192,7 +202,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{succeeded("lint")},
+			success: []result.Result{succeeded("lint")},
 		},
 		"with skip=merge": {
 			hookName: "post-commit",
@@ -211,7 +221,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{succeeded("lint")},
+			success: []result.Result{succeeded("lint")},
 		},
 		"with only=merge match": {
 			hookName: "post-commit",
@@ -230,7 +240,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{
+			success: []result.Result{
 				succeeded("lint"),
 				succeeded("test"),
 			},
@@ -250,7 +260,7 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			gitCommands: []string{`git show --no-patch --format="%P"`},
-			success:     []Result{succeeded("lint")},
+			success:     []result.Result{succeeded("lint")},
 		},
 		"with hook's skip=merge match": {
 			hookName: "post-commit",
@@ -269,7 +279,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{},
+			success: []result.Result{},
 		},
 		"with hook's skip=merge no match": {
 			hookName: "post-commit",
@@ -286,7 +296,7 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			gitCommands: []string{`git show --no-patch --format="%P"`},
-			success:     []Result{},
+			success:     []result.Result{},
 		},
 		"with hook's only=merge match": {
 			hookName: "post-commit",
@@ -305,7 +315,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{
+			success: []result.Result{
 				succeeded("lint"),
 				succeeded("test"),
 			},
@@ -328,7 +338,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			success: []Result{succeeded("lint")},
+			success: []result.Result{succeeded("lint")},
 		},
 		"with skip=ref match": {
 			branch: "main",
@@ -349,7 +359,7 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			gitCommands: []string{`git show --no-patch --format="%P"`},
-			success:     []Result{},
+			success:     []result.Result{},
 		},
 		"with hook's only=ref match": {
 			branch: "main",
@@ -370,7 +380,7 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			gitCommands: []string{`git show --no-patch --format="%P"`},
-			success: []Result{
+			success: []result.Result{
 				succeeded("lint"),
 				succeeded("test"),
 			},
@@ -394,7 +404,7 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			gitCommands: []string{`git show --no-patch --format="%P"`},
-			success:     []Result{},
+			success:     []result.Result{},
 		},
 		"with hook's skip=ref no match": {
 			branch: "fix",
@@ -415,7 +425,7 @@ func TestRunAll(t *testing.T) {
 				Scripts: map[string]*config.Script{},
 			},
 			gitCommands: []string{`git show --no-patch --format="%P"`},
-			success: []Result{
+			success: []result.Result{
 				succeeded("test"),
 				succeeded("lint"),
 			},
@@ -431,7 +441,7 @@ func TestRunAll(t *testing.T) {
 				},
 				Scripts: map[string]*config.Script{},
 			},
-			fail: []Result{failed("test", "try 'success'")},
+			fail: []result.Result{failed("test", "try 'success'")},
 		},
 		"with simple scripts": {
 			sourceDirs: []string{filepath.Join(root, config.DefaultSourceDir)},
@@ -452,8 +462,8 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{succeeded("script.sh")},
-			fail:    []Result{failed("failing.js", "install node")},
+			success: []result.Result{succeeded("script.sh")},
+			fail:    []result.Result{failed("failing.js", "install node")},
 		},
 		"with simple scripts and only=merge match": {
 			sourceDirs: []string{filepath.Join(root, config.DefaultSourceDir)},
@@ -477,8 +487,8 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{succeeded("script.sh")},
-			fail:    []Result{failed("failing.js", "install node")},
+			success: []result.Result{succeeded("script.sh")},
+			fail:    []result.Result{failed("failing.js", "install node")},
 		},
 		"with simple scripts and only=merge no match": {
 			sourceDirs: []string{filepath.Join(root, config.DefaultSourceDir)},
@@ -502,8 +512,8 @@ func TestRunAll(t *testing.T) {
 				},
 			},
 			gitCommands: []string{`git show --no-patch --format="%P"`},
-			success:     []Result{},
-			fail:        []Result{},
+			success:     []result.Result{},
+			fail:        []result.Result{},
 		},
 		"with interactive=true, parallel=true": {
 			sourceDirs: []string{filepath.Join(root, config.DefaultSourceDir)},
@@ -533,8 +543,8 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{}, // script.sh and ok are skipped because of non-interactive cmd failure
-			fail:    []Result{failed("failing.js", ""), failed("fail", "")},
+			success: []result.Result{}, // script.sh and ok are skipped because of non-interactive cmd failure
+			fail:    []result.Result{failed("failing.js", ""), failed("fail", "")},
 		},
 		"with stage_fixed=true": {
 			sourceDirs: []string{filepath.Join(root, config.DefaultSourceDir)},
@@ -565,8 +575,8 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{succeeded("ok"), succeeded("success.sh")},
-			fail:    []Result{failed("fail", ""), failed("failing.js", "")},
+			success: []result.Result{succeeded("ok"), succeeded("success.sh")},
+			fail:    []result.Result{failed("fail", ""), failed("failing.js", "")},
 		},
 		"with simple pre-commit": {
 			hookName:   "pre-commit",
@@ -599,8 +609,8 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{succeeded("ok"), succeeded("success.sh")},
-			fail:    []Result{failed("fail", ""), failed("failing.js", "")},
+			success: []result.Result{succeeded("ok"), succeeded("success.sh")},
+			fail:    []result.Result{failed("fail", ""), failed("failing.js", "")},
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
@@ -628,7 +638,7 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{succeeded("ok")},
+			success: []result.Result{succeeded("ok")},
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMRD",
@@ -656,8 +666,8 @@ func TestRunAll(t *testing.T) {
 				},
 			},
 			force:   true,
-			success: []Result{succeeded("ok")},
-			fail:    []Result{failed("fail", "")},
+			success: []result.Result{succeeded("ok")},
+			fail:    []result.Result{failed("fail", "")},
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
@@ -679,7 +689,7 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{succeeded("ok")},
+			success: []result.Result{succeeded("ok")},
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
@@ -706,7 +716,7 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{succeeded("ok")},
+			success: []result.Result{succeeded("ok")},
 			gitCommands: []string{
 				"git diff --name-only HEAD @{push}",
 				"git diff --name-only HEAD @{push}",
@@ -725,7 +735,7 @@ func TestRunAll(t *testing.T) {
 					},
 				},
 			},
-			success: []Result{succeeded("ok")},
+			success: []result.Result{succeeded("ok")},
 		},
 	} {
 		fs := afero.NewMemMapFs()
@@ -762,12 +772,12 @@ func TestRunAll(t *testing.T) {
 			results, err := runner.RunAll(t.Context())
 			assert.NoError(err)
 
-			var success, fail []Result
+			var success, fail []result.Result
 			for _, result := range results {
 				if result.Success() {
-					success = append(success, result)
+					success = append(success, succeeded(result.Name))
 				} else if result.Failure() {
-					fail = append(fail, result)
+					fail = append(fail, failed(result.Name, result.Text()))
 				}
 			}
 

@@ -14,6 +14,7 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 	"unicode"
 
 	"github.com/charmbracelet/lipgloss"
@@ -24,6 +25,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/exec"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/filters"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/jobs"
+	"github.com/evilmartians/lefthook/internal/lefthook/runner/result"
 	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/evilmartians/lefthook/internal/system"
 )
@@ -78,8 +80,8 @@ type executable interface {
 
 // RunAll runs scripts and commands.
 // LFS hook is executed at first if needed.
-func (r *Runner) RunAll(ctx context.Context) ([]Result, error) {
-	results := make([]Result, 0, len(r.Hook.Commands)+len(r.Hook.Scripts))
+func (r *Runner) RunAll(ctx context.Context) ([]result.Result, error) {
+	results := make([]result.Result, 0, len(r.Hook.Commands)+len(r.Hook.Scripts))
 
 	if config.NewSkipChecker(system.Cmd).Check(r.Repo.State, r.Hook.Skip, r.Hook.Only) {
 		r.logSkip(r.HookName, "hook setting")
@@ -263,7 +265,7 @@ func (r *Runner) postHook() {
 	}
 }
 
-func (r *Runner) runScripts(ctx context.Context, dir string) []Result {
+func (r *Runner) runScripts(ctx context.Context, dir string) []result.Result {
 	files, err := afero.ReadDir(r.Repo.Fs, dir) // ReadDir already sorts files by .Name()
 	if err != nil || len(files) == 0 {
 		return nil
@@ -279,8 +281,8 @@ func (r *Runner) runScripts(ctx context.Context, dir string) []Result {
 
 	interactiveScripts := make([]os.FileInfo, 0)
 	var wg sync.WaitGroup
-	resChan := make(chan Result, len(r.Hook.Scripts))
-	results := make([]Result, 0, len(r.Hook.Scripts))
+	resChan := make(chan result.Result, len(r.Hook.Scripts))
+	results := make([]result.Result, 0, len(r.Hook.Scripts))
 
 	for _, name := range scripts {
 		file := filesMap[name]
@@ -307,7 +309,7 @@ func (r *Runner) runScripts(ctx context.Context, dir string) []Result {
 
 		if r.Hook.Parallel {
 			wg.Add(1)
-			go func(script *config.Script, file os.FileInfo, resChan chan Result) {
+			go func(script *config.Script, file os.FileInfo, resChan chan result.Result) {
 				defer wg.Done()
 				resChan <- r.runScript(ctx, script, file)
 			}(script, file, resChan)
@@ -339,7 +341,9 @@ func (r *Runner) runScripts(ctx context.Context, dir string) []Result {
 	return results
 }
 
-func (r *Runner) runScript(ctx context.Context, script *config.Script, file os.FileInfo) Result {
+func (r *Runner) runScript(ctx context.Context, script *config.Script, file os.FileInfo) result.Result {
+	startTime := time.Now()
+
 	job, err := jobs.New(file.Name(), &jobs.Params{
 		Repo:       r.Repo,
 		Hook:       r.Hook,
@@ -359,11 +363,11 @@ func (r *Runner) runScript(ctx context.Context, script *config.Script, file os.F
 
 		var skipErr jobs.SkipError
 		if errors.As(err, &skipErr) {
-			return skipped(file.Name())
+			return result.Skip(file.Name())
 		}
 
 		r.failed.Store(true)
-		return failed(file.Name(), err.Error())
+		return result.Failure(file.Name(), err.Error(), time.Since(startTime))
 	}
 
 	if script.Interactive && !r.DisableTTY && !r.Hook.Follow {
@@ -380,12 +384,14 @@ func (r *Runner) runScript(ctx context.Context, script *config.Script, file os.F
 		Env:         script.Env,
 	}, r.Hook.Follow)
 
+	executionTime := time.Since(startTime)
+
 	if !ok {
 		r.failed.Store(true)
-		return failed(file.Name(), script.FailText)
+		return result.Failure(file.Name(), script.FailText, executionTime)
 	}
 
-	result := succeeded(file.Name())
+	result := result.Success(file.Name(), executionTime)
 
 	if config.HookUsesStagedFiles(r.HookName) && script.StageFixed {
 		files, err := r.Repo.StagedFiles()
@@ -400,7 +406,7 @@ func (r *Runner) runScript(ctx context.Context, script *config.Script, file os.F
 	return result
 }
 
-func (r *Runner) runCommands(ctx context.Context) []Result {
+func (r *Runner) runCommands(ctx context.Context) []result.Result {
 	commands := make([]string, 0, len(r.Hook.Commands))
 	for name := range r.Hook.Commands {
 		if len(r.RunOnlyCommands) == 0 || slices.Contains(r.RunOnlyCommands, name) {
@@ -412,8 +418,8 @@ func (r *Runner) runCommands(ctx context.Context) []Result {
 
 	interactiveCommands := make([]string, 0)
 	var wg sync.WaitGroup
-	results := make([]Result, 0, len(r.Hook.Commands))
-	resChan := make(chan Result, len(r.Hook.Commands))
+	results := make([]result.Result, 0, len(r.Hook.Commands))
+	resChan := make(chan result.Result, len(r.Hook.Commands))
 
 	for _, name := range commands {
 		if r.failed.Load() && r.Hook.Piped {
@@ -428,7 +434,7 @@ func (r *Runner) runCommands(ctx context.Context) []Result {
 
 		if r.Hook.Parallel {
 			wg.Add(1)
-			go func(name string, command *config.Command, resChan chan Result) {
+			go func(name string, command *config.Command, resChan chan result.Result) {
 				defer wg.Done()
 				result := r.runCommand(ctx, name, command)
 				resChan <- result
@@ -457,7 +463,9 @@ func (r *Runner) runCommands(ctx context.Context) []Result {
 	return results
 }
 
-func (r *Runner) runCommand(ctx context.Context, name string, command *config.Command) Result {
+func (r *Runner) runCommand(ctx context.Context, name string, command *config.Command) result.Result {
+	startTime := time.Now()
+
 	job, err := jobs.New(name, &jobs.Params{
 		Repo:       r.Repo,
 		Hook:       r.Hook,
@@ -481,11 +489,11 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 
 		var skipErr jobs.SkipError
 		if errors.As(err, &skipErr) {
-			return skipped(name)
+			return result.Skip(name)
 		}
 
 		r.failed.Store(true)
-		return failed(name, err.Error())
+		return result.Failure(name, err.Error(), time.Since(startTime))
 	}
 
 	if command.Interactive && !r.DisableTTY && !r.Hook.Follow {
@@ -502,12 +510,14 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 		Env:         command.Env,
 	}, r.Hook.Follow)
 
+	executionTime := time.Since(startTime)
+
 	if !ok {
 		r.failed.Store(true)
-		return failed(name, command.FailText)
+		return result.Failure(name, command.FailText, executionTime)
 	}
 
-	result := succeeded(name)
+	result := result.Success(name, executionTime)
 
 	if config.HookUsesStagedFiles(r.HookName) && command.StageFixed {
 		files := job.Files

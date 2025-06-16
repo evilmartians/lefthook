@@ -12,6 +12,7 @@ import (
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner"
+	"github.com/evilmartians/lefthook/internal/lefthook/runner/result"
 	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/evilmartians/lefthook/internal/version"
 )
@@ -207,7 +208,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 
 func printSummary(
 	duration time.Duration,
-	results []runner.Result,
+	results []result.Result,
 	logSettings log.Settings,
 ) {
 	if logSettings.LogSummary() {
@@ -239,14 +240,14 @@ func printSummary(
 	logResults(0, results, logSettings)
 }
 
-func logResults(indent int, results []runner.Result, logSettings log.Settings) {
+func logResults(indent int, results []result.Result, logSettings log.Settings) {
 	if logSettings.LogSuccess() {
 		for _, result := range results {
 			if !result.Success() {
 				continue
 			}
 
-			log.Success(indent, result.Name)
+			log.Success(indent, result.Name, result.Duration)
 		}
 	}
 
@@ -256,7 +257,7 @@ func logResults(indent int, results []runner.Result, logSettings log.Settings) {
 				continue
 			}
 
-			log.Failure(indent, result.Name, result.Text())
+			log.Failure(indent, result.Name, result.Text(), result.Duration)
 
 			if len(result.Sub) > 0 {
 				logResults(indent+1, result.Sub, logSettings)

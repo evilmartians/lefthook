@@ -281,24 +281,35 @@ func LogMeta(hookName string) {
 	)
 }
 
-func Success(indent int, name string) {
-	format := "%s✔️ %s\n"
+func Success(indent int, name string, duration time.Duration) {
+	format := "%s✔️ %s %s\n"
 	if !Colorized() {
-		format = "%s✓ %s\n"
+		format = "%s✓ %s %s\n"
 	}
-	Infof(format, strings.Repeat("  ", indent), Green(name))
+	Infof(
+		format,
+		strings.Repeat("  ", indent),
+		Green(name),
+		Gray(fmt.Sprintf("(%.2f seconds)", duration.Seconds())),
+	)
 }
 
-func Failure(indent int, name, failText string) {
+func Failure(indent int, name, failText string, duration time.Duration) {
 	if len(failText) != 0 {
 		failText = fmt.Sprintf(": %s", failText)
 	}
 
-	format := "%s🥊 %s%s\n"
+	format := "%s🥊 %s%s %s\n"
 	if !Colorized() {
-		format = "%s✗ %s%s\n"
+		format = "%s✗ %s%s %s\n"
 	}
-	Infof(format, strings.Repeat("  ", indent), Red(name), Red(failText))
+	Infof(
+		format,
+		strings.Repeat("  ", indent),
+		Red(name),
+		Red(failText),
+		Gray(fmt.Sprintf("(%.2f seconds)", duration.Seconds())),
+	)
 }
 
 func box(left, right string) {

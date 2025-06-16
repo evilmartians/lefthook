@@ -9,11 +9,13 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/exec"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/filters"
 	"github.com/evilmartians/lefthook/internal/lefthook/runner/jobs"
+	"github.com/evilmartians/lefthook/internal/lefthook/runner/result"
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
@@ -33,11 +35,11 @@ type domain struct {
 	names    []string
 }
 
-func (r *Runner) runJobs(ctx context.Context) []Result {
+func (r *Runner) runJobs(ctx context.Context) []result.Result {
 	var wg sync.WaitGroup
 
-	results := make([]Result, 0, len(r.Hook.Jobs))
-	resultsChan := make(chan Result, len(r.Hook.Jobs))
+	results := make([]result.Result, 0, len(r.Hook.Jobs))
+	resultsChan := make(chan result.Result, len(r.Hook.Jobs))
 
 	var failed atomic.Bool
 	domain := &domain{failed: &failed, onlyJobs: r.RunOnlyJobs}
@@ -71,13 +73,15 @@ func (r *Runner) runJobs(ctx context.Context) []Result {
 	return results
 }
 
-func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *config.Job) Result {
+func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *config.Job) result.Result {
+	startTime := time.Now()
+
 	// Check if do job is properly configured
 	if len(job.Run) > 0 && len(job.Script) > 0 {
-		return failed(job.PrintableName(id), errJobContainsBothRunAndScript.Error())
+		return result.Failure(job.PrintableName(id), errJobContainsBothRunAndScript.Error(), time.Since(startTime))
 	}
 	if len(job.Run) == 0 && len(job.Script) == 0 && job.Group == nil {
-		return failed(job.PrintableName(id), errEmptyJob.Error())
+		return result.Failure(job.PrintableName(id), errEmptyJob.Error(), time.Since(startTime))
 	}
 
 	if job.Interactive && !r.DisableTTY && !r.Hook.Follow {
@@ -87,7 +91,7 @@ func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *con
 
 	if len(job.Run) != 0 || len(job.Script) != 0 {
 		if len(domain.onlyJobs) != 0 && !slices.Contains(domain.onlyJobs, job.Name) {
-			return skipped(job.PrintableName(id))
+			return result.Skip(job.PrintableName(id))
 		}
 
 		return r.runSingleJob(ctx, domain, id, job)
@@ -124,10 +128,12 @@ func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *con
 		return r.runGroup(ctx, groupName, &inheritedDomain, job.Group)
 	}
 
-	return failed(job.PrintableName(id), "don't know how to run job")
+	return result.Failure(job.PrintableName(id), "don't know how to run job", time.Since(startTime))
 }
 
-func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, job *config.Job) Result {
+func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, job *config.Job) result.Result {
+	startTime := time.Now()
+
 	name := job.PrintableName(id)
 
 	root := first(job.Root, domain.root)
@@ -159,11 +165,11 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, jo
 
 		var skipErr jobs.SkipError
 		if errors.As(err, &skipErr) {
-			return skipped(name)
+			return result.Skip(name)
 		}
 
 		domain.failed.Store(true)
-		return failed(name, err.Error())
+		return result.Failure(name, err.Error(), time.Since(startTime))
 	}
 
 	ok := r.run(ctx, exec.Options{
@@ -175,9 +181,11 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, jo
 		Env:         job.Env,
 	}, r.Hook.Follow)
 
+	executionTime := time.Since(startTime)
+
 	if !ok {
 		domain.failed.Store(true)
-		return failed(name, job.FailText)
+		return result.Failure(name, job.FailText, executionTime)
 	}
 
 	if config.HookUsesStagedFiles(r.HookName) && job.StageFixed {
@@ -188,7 +196,7 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, jo
 			files, err = r.Repo.StagedFiles()
 			if err != nil {
 				log.Warn("Couldn't stage fixed files:", err)
-				return succeeded(name)
+				return result.Success(name, executionTime)
 			}
 
 			files = filters.Apply(r.Repo.Fs, files, filters.Params{
@@ -208,16 +216,18 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, jo
 		r.addStagedFiles(files)
 	}
 
-	return succeeded(name)
+	return result.Success(name, executionTime)
 }
 
-func (r *Runner) runGroup(ctx context.Context, groupName string, domain *domain, group *config.Group) Result {
+func (r *Runner) runGroup(ctx context.Context, groupName string, domain *domain, group *config.Group) result.Result {
+	startTime := time.Now()
+
 	if len(group.Jobs) == 0 {
-		return failed(groupName, errEmptyGroup.Error())
+		return result.Failure(groupName, errEmptyGroup.Error(), time.Since(startTime))
 	}
 
-	results := make([]Result, 0, len(group.Jobs))
-	resultsChan := make(chan Result, len(group.Jobs))
+	results := make([]result.Result, 0, len(group.Jobs))
+	resultsChan := make(chan result.Result, len(group.Jobs))
 	var wg sync.WaitGroup
 
 	for i, job := range group.Jobs {
@@ -246,7 +256,7 @@ func (r *Runner) runGroup(ctx context.Context, groupName string, domain *domain,
 		results = append(results, result)
 	}
 
-	return groupResult(groupName, results)
+	return result.Group(groupName, results)
 }
 
 // first finds first non-empty string and returns it.
