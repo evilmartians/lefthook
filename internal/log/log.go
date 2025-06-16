@@ -286,7 +286,12 @@ func Success(indent int, name string, duration time.Duration) {
 	if !Colorized() {
 		format = "%s✓ %s %s\n"
 	}
-	Infof(format, strings.Repeat("  ", indent), Green(name), Gray(fmt.Sprintf("(%.2f seconds)", duration.Seconds())))
+	Infof(
+		format,
+		strings.Repeat("  ", indent),
+		Green(name),
+		Gray(fmt.Sprintf("(%.2f seconds)", duration.Seconds())),
+	)
 }
 
 func Failure(indent int, name, failText string, duration time.Duration) {
@@ -298,7 +303,13 @@ func Failure(indent int, name, failText string, duration time.Duration) {
 	if !Colorized() {
 		format = "%s✗ %s%s %s\n"
 	}
-	Infof(format, strings.Repeat("  ", indent), Red(name), Red(failText), Gray(fmt.Sprintf("(%.2f seconds)", duration.Seconds())))
+	Infof(
+		format,
+		strings.Repeat("  ", indent),
+		Red(name),
+		Red(failText),
+		Gray(fmt.Sprintf("(%.2f seconds)", duration.Seconds())),
+	)
 }
 
 func box(left, right string) {

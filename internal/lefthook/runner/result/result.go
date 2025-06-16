@@ -1,4 +1,4 @@
-package runner
+package result
 
 import "time"
 
@@ -31,19 +31,19 @@ func (r Result) Text() string {
 	return r.text
 }
 
-func skipped(name string) Result {
+func Skip(name string) Result {
 	return Result{Name: name, status: skip}
 }
 
-func succeeded(name string, duration time.Duration) Result {
+func Success(name string, duration time.Duration) Result {
 	return Result{Name: name, status: success, Duration: duration}
 }
 
-func failed(name, text string, duration time.Duration) Result {
+func Failure(name, text string, duration time.Duration) Result {
 	return Result{Name: name, status: failure, text: text, Duration: duration}
 }
 
-func groupResult(name string, results []Result) Result {
+func Group(name string, results []Result) Result {
 	stat := success
 	var totalDuration time.Duration
 	for _, res := range results {
