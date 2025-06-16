@@ -1,5 +1,13 @@
 # Change log
 
+## 1.11.14 (2025-06-16)
+
+- feat: show time for jobs ([#1044](https://github.com/evilmartians/lefthook/pull/1044)) by [@adeebshihadeh](https://github.com/adeebshihadeh)
+- ci: update GoReleaser configurations ([#1040](https://github.com/evilmartians/lefthook/pull/1040)) by [@emmanuel-ferdman](https://github.com/emmanuel-ferdman)
+- feat: support devbox ([#1031](https://github.com/evilmartians/lefthook/pull/1031)) by [@misogihagi](https://github.com/misogihagi)
+- chore: regexp use improvements ([#1034](https://github.com/evilmartians/lefthook/pull/1034)) by [@scop](https://github.com/scop)
+- chore: upgrade golangci-lint to v2, address findings ([#1027](https://github.com/evilmartians/lefthook/pull/1027)) by [@scop](https://github.com/scop)
+
 ## 1.11.13 (2025-05-16)
 
 - deps: May 2025 ([#1024](https://github.com/evilmartians/lefthook/pull/1024)) by [@mrexox](https://github.com/mrexox)
