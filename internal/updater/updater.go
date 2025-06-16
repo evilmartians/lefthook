@@ -15,6 +15,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -83,7 +84,7 @@ func New() *Updater {
 func (u *Updater) SelfUpdate(ctx context.Context, opts Options) error {
 	rel, ferr := u.fetchLatestRelease(ctx)
 	if ferr != nil {
-		return fmt.Errorf("latest release fetch failed: %w", ferr)
+		return fmt.Errorf("couldn't fetch latest release: %w", ferr)
 	}
 
 	latestVersion := strings.TrimPrefix(rel.TagName, "v")
@@ -211,6 +212,16 @@ func (u *Updater) fetchLatestRelease(ctx context.Context) (*release, error) {
 	resp, err := u.client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		httpErr := fmt.Errorf("response of the Github API was: %s", resp.Status)
+		ms, perr := strconv.ParseInt(resp.Header.Get("X-RateLimit-Reset"), 10, 64)
+		if perr != nil {
+			return nil, httpErr
+		}
+
+		return nil, errors.Join(httpErr, errors.New(time.Unix(ms, 0).Format("Try later on 02.01.2006, at 15:04:05")))
 	}
 
 	var rel release
