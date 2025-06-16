@@ -76,8 +76,8 @@ builds:
 
 archives:
   - id: lefthook
-    format: binary
-    builds:
+    formats: [binary]
+    ids:
       - lefthook
     files:
       - none*
@@ -91,8 +91,8 @@ archives:
       {{- else }}{{ .Arch }}{{ end }}
 
   - id: lefthook-gz
-    format: gz
-    builds:
+    formats: [gz]
+    ids:
       - lefthook
     files:
     - none*
@@ -106,8 +106,8 @@ archives:
       {{- else }}{{ .Arch }}{{ end }}
 
   - id: lefthook-linux-aarch64
-    format: binary
-    builds:
+    formats: [binary]
+    ids:
       - lefthook-linux-aarch64
     files:
       - none*
@@ -122,8 +122,8 @@ archives:
       {{- else }}{{ .Arch }}{{ end }}
 
   - id: lefthook-linux-aarch64-gz
-    format: gz
-    builds:
+    formats: [gz]
+    ids:
       - lefthook-linux-aarch64
     files:
       - none*
@@ -142,7 +142,7 @@ checksum:
   algorithm: sha256
 
 snapshot:
-  name_template: "{{ .Tag }}"
+  version_template: "{{ .Tag }}"
 
 changelog:
   sort: asc
@@ -163,7 +163,7 @@ snapcrafts:
     confinement: classic
     publish: true
     license: MIT
-    builds:
+    ids:
       - no_self_update
 
 nfpms:
@@ -173,7 +173,7 @@ nfpms:
     maintainer: Evil Martians <lefthook@evilmartians.com>
     license: MIT
     vendor: Evil Martians
-    builds:
+    ids:
       - no_self_update
     formats:
       - apk
