@@ -103,7 +103,8 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 
 	if !args.NoAutoInstall {
 		// This line controls updating the git hook if config has changed
-		newCfg, err := l.syncHooks(cfg, !isGhostHook)
+		all_hooks := make([]string, 0)
+		newCfg, err := l.syncHooks(cfg, all_hooks, !isGhostHook)
 		if err != nil {
 			log.Warnf(
 				"⚠️  There was a problem with synchronizing git hooks. Run 'lefthook install' manually.\n   Error: %s", err,
