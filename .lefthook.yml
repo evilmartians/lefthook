@@ -15,7 +15,7 @@ pre-commit:
 
     - name: check links
       run: lychee --max-concurrency 3 {staged_files}
-      glob: '*.md'
+      glob: "*.md"
       exclude:
         - CHANGELOG.md
 
@@ -26,9 +26,14 @@ pre-commit:
     - name: update JSON schema
       run: go generate internal/gen/jsonschema.go > schema.json && git add schema.json
       glob:
-        - 'internal/config/command.go'
-        - 'internal/config/config.go'
-        - 'internal/config/hook.go'
-        - 'internal/config/job.go'
-        - 'internal/config/remote.go'
-        - 'internal/config/script.go'
+        - "internal/config/command.go"
+        - "internal/config/config.go"
+        - "internal/config/hook.go"
+        - "internal/config/job.go"
+        - "internal/config/remote.go"
+        - "internal/config/script.go"
+
+pre-push:
+  jobs:
+    - name: foo
+      run: echo "bar"
