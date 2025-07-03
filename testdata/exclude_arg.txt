@@ -1,0 +1,29 @@
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+exec lefthook install
+exec lefthook run test --exclude file1.txt
+stdout '\s*file2.txt\s*file2.txt\s*'
+exec lefthook run test --exclude file2.txt
+stdout '\s*file1.txt\s*file1.txt\s*'
+
+-- lefthook.yml --
+output:
+  - execution_out
+test:
+  commands:
+    list:
+      run: echo {all_files}
+      exclude:
+        - lefthook.yml
+  jobs:
+    - run: echo {all_files}
+      exclude:
+        - lefthook.yml
+
+-- file1.txt --
+Hello
+
+-- file2.txt --
+Hi
