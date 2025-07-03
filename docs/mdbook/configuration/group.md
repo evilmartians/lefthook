@@ -21,6 +21,29 @@ pre-commit:
           - run: echo 3
 ```
 
+If you specify `env`, `root`, `glob`, or `exclude` on a group, they will be inherited to the underlying jobs.
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  jobs:
+    - env:
+        E1: hello
+      glob:
+        - "*.md"
+      exclude:
+        - "README.md"
+      root: "subdir/"
+      group:
+        parallel: true
+        jobs:
+          - run: echo $E1
+          - run: echo $E1
+            env:
+              E1: bonjour
+```
+
 > **Note:** To make a group mergeable with settings defined in local config or extends you have to specify the name of the job group belongs to:
 > ```yml
 > pre-commit:
