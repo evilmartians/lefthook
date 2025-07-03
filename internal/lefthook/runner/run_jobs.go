@@ -3,6 +3,7 @@ package runner
 import (
 	"context"
 	"errors"
+	"maps"
 	"path/filepath"
 	"slices"
 	"strconv"
@@ -25,7 +26,7 @@ var (
 	errEmptyGroup                  = errors.New("empty groups are not permitted")
 )
 
-type domain struct {
+type jobContext struct {
 	failed *atomic.Bool
 
 	glob     []string
@@ -33,6 +34,16 @@ type domain struct {
 	exclude  interface{}
 	onlyJobs []string
 	names    []string
+	env      map[string]string
+}
+
+func newJobContext(onlyJobs []string) *jobContext {
+	var failed atomic.Bool
+	return &jobContext{
+		failed:   &failed,
+		onlyJobs: onlyJobs,
+		env:      make(map[string]string),
+	}
 }
 
 func (r *Runner) runJobs(ctx context.Context) []result.Result {
@@ -41,26 +52,25 @@ func (r *Runner) runJobs(ctx context.Context) []result.Result {
 	results := make([]result.Result, 0, len(r.Hook.Jobs))
 	resultsChan := make(chan result.Result, len(r.Hook.Jobs))
 
-	var failed atomic.Bool
-	domain := &domain{failed: &failed, onlyJobs: r.RunOnlyJobs}
+	jobContext := newJobContext(r.RunOnlyJobs)
 
 	for i, job := range r.Hook.Jobs {
 		id := strconv.Itoa(i)
 
-		if domain.failed.Load() && r.Hook.Piped {
+		if jobContext.failed.Load() && r.Hook.Piped {
 			r.logSkip(job.PrintableName(id), "broken pipe")
 			continue
 		}
 
 		if !r.Hook.Parallel {
-			results = append(results, r.runJob(ctx, domain, id, job))
+			results = append(results, r.runJob(ctx, jobContext, id, job))
 			continue
 		}
 
 		wg.Add(1)
 		go func(job *config.Job) {
 			defer wg.Done()
-			resultsChan <- r.runJob(ctx, domain, id, job)
+			resultsChan <- r.runJob(ctx, jobContext, id, job)
 		}(job)
 	}
 
@@ -73,7 +83,7 @@ func (r *Runner) runJobs(ctx context.Context) []result.Result {
 	return results
 }
 
-func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *config.Job) result.Result {
+func (r *Runner) runJob(ctx context.Context, jobContext *jobContext, id string, job *config.Job) result.Result {
 	startTime := time.Now()
 
 	// Check if do job is properly configured
@@ -90,55 +100,57 @@ func (r *Runner) runJob(ctx context.Context, domain *domain, id string, job *con
 	}
 
 	if len(job.Run) != 0 || len(job.Script) != 0 {
-		if len(domain.onlyJobs) != 0 && !slices.Contains(domain.onlyJobs, job.Name) {
+		if len(jobContext.onlyJobs) != 0 && !slices.Contains(jobContext.onlyJobs, job.Name) {
 			return result.Skip(job.PrintableName(id))
 		}
 
-		return r.runSingleJob(ctx, domain, id, job)
+		return r.runSingleJob(ctx, jobContext, id, job)
 	}
 
 	if job.Group != nil {
-		inheritedDomain := *domain
-		inheritedDomain.glob = slices.Concat(inheritedDomain.glob, job.Glob)
-		inheritedDomain.root = first(job.Root, domain.root)
+		inheritedJobContext := *jobContext
+		inheritedJobContext.glob = slices.Concat(inheritedJobContext.glob, job.Glob)
+		inheritedJobContext.root = first(job.Root, jobContext.root)
 		switch list := job.Exclude.(type) {
 		case []interface{}:
-			switch inherited := inheritedDomain.exclude.(type) {
+			switch inherited := inheritedJobContext.exclude.(type) {
 			case []interface{}:
 				// List of globs get appended
 				inherited = append(inherited, list...)
-				inheritedDomain.exclude = inherited
+				inheritedJobContext.exclude = inherited
 			default:
 				// Regex value will be overwritten with a list of globs
-				inheritedDomain.exclude = job.Exclude
+				inheritedJobContext.exclude = job.Exclude
 			}
 		case string:
 			// Regex value always overwrites excludes
-			inheritedDomain.exclude = job.Exclude
+			inheritedJobContext.exclude = job.Exclude
 		default:
 			// Inherit
 		}
 		groupName := first(job.Name, "group ("+id+")")
-		inheritedDomain.names = append(inheritedDomain.names, groupName)
+		inheritedJobContext.names = append(inheritedJobContext.names, groupName)
 
-		if len(domain.onlyJobs) != 0 && slices.Contains(domain.onlyJobs, job.Name) {
-			inheritedDomain.onlyJobs = []string{}
+		if len(jobContext.onlyJobs) != 0 && slices.Contains(jobContext.onlyJobs, job.Name) {
+			inheritedJobContext.onlyJobs = []string{}
 		}
 
-		return r.runGroup(ctx, groupName, &inheritedDomain, job.Group)
+		maps.Copy(inheritedJobContext.env, job.Env)
+
+		return r.runGroup(ctx, groupName, &inheritedJobContext, job.Group)
 	}
 
 	return result.Failure(job.PrintableName(id), "don't know how to run job", time.Since(startTime))
 }
 
-func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, job *config.Job) result.Result {
+func (r *Runner) runSingleJob(ctx context.Context, jobContext *jobContext, id string, job *config.Job) result.Result {
 	startTime := time.Now()
 
 	name := job.PrintableName(id)
 
-	root := first(job.Root, domain.root)
-	glob := slices.Concat(domain.glob, job.Glob)
-	exclude := join(job.Exclude, domain.exclude)
+	root := first(job.Root, jobContext.root)
+	glob := slices.Concat(jobContext.glob, job.Glob)
+	exclude := join(job.Exclude, jobContext.exclude)
 	executionJob, err := jobs.New(name, &jobs.Params{
 		Repo:       r.Repo,
 		Hook:       r.Hook,
@@ -168,23 +180,25 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, jo
 			return result.Skip(name)
 		}
 
-		domain.failed.Store(true)
+		jobContext.failed.Store(true)
 		return result.Failure(name, err.Error(), time.Since(startTime))
 	}
 
+	env := maps.Clone(jobContext.env)
+	maps.Copy(env, job.Env)
 	ok := r.run(ctx, exec.Options{
-		Name:        strings.Join(append(domain.names, name), " ❯ "),
+		Name:        strings.Join(append(jobContext.names, name), " ❯ "),
 		Root:        filepath.Join(r.Repo.RootPath, root),
 		Commands:    executionJob.Execs,
 		Interactive: job.Interactive && !r.DisableTTY,
 		UseStdin:    job.UseStdin,
-		Env:         job.Env,
+		Env:         env,
 	}, r.Hook.Follow)
 
 	executionTime := time.Since(startTime)
 
 	if !ok {
-		domain.failed.Store(true)
+		jobContext.failed.Store(true)
 		return result.Failure(name, job.FailText, executionTime)
 	}
 
@@ -219,7 +233,7 @@ func (r *Runner) runSingleJob(ctx context.Context, domain *domain, id string, jo
 	return result.Success(name, executionTime)
 }
 
-func (r *Runner) runGroup(ctx context.Context, groupName string, domain *domain, group *config.Group) result.Result {
+func (r *Runner) runGroup(ctx context.Context, groupName string, jobContext *jobContext, group *config.Group) result.Result {
 	startTime := time.Now()
 
 	if len(group.Jobs) == 0 {
@@ -233,20 +247,20 @@ func (r *Runner) runGroup(ctx context.Context, groupName string, domain *domain,
 	for i, job := range group.Jobs {
 		id := strconv.Itoa(i)
 
-		if domain.failed.Load() && group.Piped {
+		if jobContext.failed.Load() && group.Piped {
 			r.logSkip(job.PrintableName(id), "broken pipe")
 			continue
 		}
 
 		if !group.Parallel {
-			results = append(results, r.runJob(ctx, domain, id, job))
+			results = append(results, r.runJob(ctx, jobContext, id, job))
 			continue
 		}
 
 		wg.Add(1)
 		go func(job *config.Job) {
 			defer wg.Done()
-			resultsChan <- r.runJob(ctx, domain, id, job)
+			resultsChan <- r.runJob(ctx, jobContext, id, job)
 		}(job)
 	}
 
