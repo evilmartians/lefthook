@@ -32,6 +32,7 @@ type RunArgs struct {
 	Force           bool
 	NoAutoInstall   bool
 	SkipLFS         bool
+	Exclude         []string
 	Files           []string
 	RunOnlyCommands []string
 	RunOnlyJobs     []string
@@ -177,6 +178,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 			DisableTTY:      cfg.NoTTY || args.NoTTY,
 			SkipLFS:         cfg.SkipLFS || args.SkipLFS,
 			Templates:       cfg.Templates,
+			Exclude:         args.Exclude,
 			Files:           args.Files,
 			Force:           args.Force,
 			RunOnlyCommands: args.RunOnlyCommands,

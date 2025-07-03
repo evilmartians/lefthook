@@ -41,6 +41,7 @@ type Options struct {
 	DisableTTY      bool
 	SkipLFS         bool
 	Force           bool
+	Exclude         []string
 	Files           []string
 	RunOnlyCommands []string
 	RunOnlyJobs     []string
@@ -465,6 +466,23 @@ func (r *Runner) runCommands(ctx context.Context) []result.Result {
 
 func (r *Runner) runCommand(ctx context.Context, name string, command *config.Command) result.Result {
 	startTime := time.Now()
+	exclude := command.Exclude
+	switch list := exclude.(type) {
+	case string:
+		// Can't merge with regexp exclude
+	case []interface{}:
+		for _, e := range r.Exclude {
+			list = append(list, e)
+		}
+		exclude = list
+	default:
+		// In case it's nil – simply replace
+		excludeList := make([]interface{}, len(r.Exclude))
+		for i, e := range r.Exclude {
+			excludeList[i] = e
+		}
+		exclude = excludeList
+	}
 
 	job, err := jobs.New(name, &jobs.Params{
 		Repo:       r.Repo,
@@ -479,7 +497,7 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 		Files:      command.Files,
 		FileTypes:  command.FileTypes,
 		Tags:       command.Tags,
-		Exclude:    command.Exclude,
+		Exclude:    exclude,
 		Only:       command.Only,
 		Skip:       command.Skip,
 		Templates:  r.Templates,
@@ -533,7 +551,7 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 			files = filters.Apply(r.Repo.Fs, files, filters.Params{
 				Glob:      command.Glob,
 				Root:      command.Root,
-				Exclude:   command.Exclude,
+				Exclude:   exclude,
 				FileTypes: command.FileTypes,
 			})
 		}

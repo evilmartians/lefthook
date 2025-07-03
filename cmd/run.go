@@ -98,6 +98,11 @@ func (run) New(opts *lefthook.Options) *cobra.Command {
 		"run on specified file (repeat for multiple files). takes precedence over --all-files",
 	)
 
+	runCmd.Flags().StringArrayVar(
+		&runArgs.Exclude, "exclude", nil,
+		"exclude specified file (repeat for multiple files)",
+	)
+
 	runCmd.Flags().StringSliceVar(
 		&runArgs.RunOnlyCommands, "commands", nil,
 		"run only specified commands",
