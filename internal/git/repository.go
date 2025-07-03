@@ -65,6 +65,7 @@ type Repository struct {
 	stagedFilesOnce            func() ([]string, error)
 	stagedFilesWithDeletedOnce func() ([]string, error)
 	statusShortOnce            func() ([]string, error)
+	stateOnce                  func() State
 }
 
 // NewRepository returns a Repository or an error, if git repository it not initialized.
@@ -158,6 +159,10 @@ func (r *Repository) Setup() {
 
 	r.statusShortOnce = sync.OnceValues(func() ([]string, error) {
 		return r.Git.CmdLines(cmdStatusShort)
+	})
+
+	r.stateOnce = sync.OnceValue(func() State {
+		return r.state()
 	})
 }
 

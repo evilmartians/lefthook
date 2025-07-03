@@ -26,22 +26,14 @@ var (
 	cmdParentCommits = []string{"git", "show", "--no-patch", `--format="%P"`}
 )
 
-var (
-	state            State
-	stateInitialized bool
-)
-
-func ResetState() {
-	stateInitialized = false
+func (r *Repository) State() State {
+	return r.stateOnce()
 }
 
-func (r *Repository) State() State {
-	if stateInitialized {
-		return state
-	}
+func (r *Repository) state() State {
+	var state State
 
-	stateInitialized = true
-	branch := r.Branch()
+	branch := r.branch()
 	if r.inMergeState() {
 		state = State{
 			Branch: branch,
@@ -68,10 +60,11 @@ func (r *Repository) State() State {
 		Branch: branch,
 		State:  Nil,
 	}
+
 	return state
 }
 
-func (r *Repository) Branch() string {
+func (r *Repository) branch() string {
 	headFile := filepath.Join(r.GitPath, "HEAD")
 	if _, err := r.Fs.Stat(headFile); os.IsNotExist(err) {
 		return ""

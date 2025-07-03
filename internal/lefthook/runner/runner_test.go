@@ -767,7 +767,6 @@ func TestRunAll(t *testing.T) {
 
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
-			git.ResetState()
 			repo.Setup()
 			results, err := runner.RunAll(t.Context())
 			assert.NoError(err)
