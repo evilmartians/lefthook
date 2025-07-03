@@ -36,17 +36,20 @@ func buildCommand(params *Params) (*Job, error) {
 	}
 
 	var stagedFiles func() ([]string, error)
+	var stagedFilesWithDeleted func() ([]string, error)
 	var pushFiles func() ([]string, error)
 	var allFiles func() ([]string, error)
 	var cmdFiles func() ([]string, error)
 
 	if len(params.ForceFiles) > 0 {
 		stagedFiles = func() ([]string, error) { return params.ForceFiles, nil }
+		stagedFilesWithDeleted = stagedFiles
 		pushFiles = stagedFiles
 		allFiles = stagedFiles
 		cmdFiles = stagedFiles
 	} else {
 		stagedFiles = params.Repo.StagedFiles
+		stagedFilesWithDeleted = params.Repo.StagedFilesWithDeleted
 		pushFiles = params.Repo.PushFiles
 		allFiles = params.Repo.AllFiles
 		cmdFiles = func() ([]string, error) {
@@ -128,7 +131,7 @@ func buildCommand(params *Params) (*Job, error) {
 	}
 
 	if config.HookUsesStagedFiles(params.HookName) {
-		ok, err := canSkipJob(params, filterParams, filesTemplates[config.SubStagedFiles], params.Repo.StagedFilesWithDeleted)
+		ok, err := canSkipJob(params, filterParams, filesTemplates[config.SubStagedFiles], stagedFilesWithDeleted)
 		if err != nil {
 			return nil, err
 		}
@@ -138,7 +141,7 @@ func buildCommand(params *Params) (*Job, error) {
 	}
 
 	if config.HookUsesPushFiles(params.HookName) {
-		ok, err := canSkipJob(params, filterParams, filesTemplates[config.SubPushFiles], params.Repo.PushFiles)
+		ok, err := canSkipJob(params, filterParams, filesTemplates[config.SubPushFiles], pushFiles)
 		if err != nil {
 			return nil, err
 		}
