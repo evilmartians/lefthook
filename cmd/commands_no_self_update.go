@@ -16,6 +16,7 @@ var commands = [...]command{
 	version{},
 	add{},
 	install{},
+	checkInstall{},
 	uninstall{},
 	run{},
 	dump{},
