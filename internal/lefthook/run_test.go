@@ -182,7 +182,6 @@ post-commit:
 				t.Setenv(env, value)
 			}
 
-			git.ResetState()
 			err = lefthook.Run(tt.hook, RunArgs{}, tt.gitArgs)
 			if tt.error {
 				assert.Error(err)
