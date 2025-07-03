@@ -1,5 +1,16 @@
 # Change log
 
+## 1.11.15 (2025-07-03)
+
+- feat: add exclude arg ([#1063](https://github.com/evilmartians/lefthook/pull/1063))
+- feat: inherit group envs ([#1061](https://github.com/evilmartians/lefthook/pull/1061))
+- fix: apply implicit staged files filter to all files when all files arg given ([#1062](https://github.com/evilmartians/lefthook/pull/1062))
+- deps: bump github.com/kaptinlin/jsonschema to 0.4.5
+- deps: bump github.com/knadh/koanf/parsers/yaml to 1.1.0
+- deps: bump github.com/knadh/koanf/v2 to 2.2.1 ([#1043](https://github.com/evilmartians/lefthook/pull/1043))
+- fix: friendlier updater error message
+- fix: bump goreleaser
+
 ## 1.11.14 (2025-06-16)
 
 - feat: show time for jobs ([#1044](https://github.com/evilmartians/lefthook/pull/1044)) by [@adeebshihadeh](https://github.com/adeebshihadeh)
