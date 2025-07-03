@@ -32,16 +32,16 @@ var (
 )
 
 // Install installs the hooks from config file to the .git/hooks.
-func Install(opts *Options, force bool) error {
+func Install(opts *Options, hooks []string, force bool) error {
 	lefthook, err := initialize(opts)
 	if err != nil {
 		return err
 	}
 
-	return lefthook.Install(force)
+	return lefthook.Install(hooks, force)
 }
 
-func (l *Lefthook) Install(force bool) error {
+func (l *Lefthook) Install(hooks []string, force bool) error {
 	cfg, err := l.readOrCreateConfig()
 	if err != nil {
 		return err
@@ -67,7 +67,7 @@ func (l *Lefthook) Install(force bool) error {
 		}
 	}
 
-	return l.createHooksIfNeeded(cfg, false, force)
+	return l.createHooksIfNeeded(cfg, false, hooks, force)
 }
 
 func (l *Lefthook) readOrCreateConfig() (*config.Config, error) {
@@ -116,7 +116,7 @@ func (l *Lefthook) createConfig(path string) error {
 	return nil
 }
 
-func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Config, error) {
+func (l *Lefthook) syncHooks(cfg *config.Config, hooks []string, fetchRemotes bool) (*config.Config, error) {
 	var remotesSynced bool
 	var err error
 
@@ -142,7 +142,7 @@ func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Con
 	}
 
 	// Don't rely on config checksum if remotes were refetched
-	return cfg, l.createHooksIfNeeded(cfg, true, false)
+	return cfg, l.createHooksIfNeeded(cfg, true, hooks, false)
 }
 
 func (l *Lefthook) shouldRefetch(remote *config.Remote) bool {
@@ -175,7 +175,7 @@ func (l *Lefthook) shouldRefetch(remote *config.Remote) bool {
 	return time.Now().After(lastFetchTime.Add(timedelta))
 }
 
-func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force bool) error {
+func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum bool, hooks []string, force bool) error {
 	if checkHashSum && l.hooksSynchronized(cfg) {
 		return nil
 	}
@@ -199,7 +199,21 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force b
 	}
 
 	rootsMap := make(map[string]struct{})
-	for _, hook := range cfg.Hooks {
+
+	filtered_hooks := make(map[string]*config.Hook)
+	if len(hooks) > 0 {
+		for _, key := range hooks {
+			if val, ok := cfg.Hooks[key]; ok {
+				filtered_hooks[key] = val
+			} else {
+				return fmt.Errorf("hook not defined: %s", key)
+			}
+		}
+	} else {
+		filtered_hooks = cfg.Hooks
+	}
+
+	for _, hook := range filtered_hooks {
 		for _, command := range hook.Commands {
 			if len(command.Root) > 0 {
 				root := strings.Trim(command.Root, "/")
@@ -216,8 +230,8 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force b
 		roots = append(roots, root)
 	}
 
-	hookNames := make([]string, 0, len(cfg.Hooks)+1)
-	for hook := range cfg.Hooks {
+	hookNames := make([]string, 0, len(filtered_hooks)+1)
+	for hook := range filtered_hooks {
 		hookNames = append(hookNames, hook)
 
 		if err = l.cleanHook(hook, force); err != nil {
