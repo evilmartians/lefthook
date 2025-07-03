@@ -469,13 +469,14 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 	exclude := command.Exclude
 	switch list := exclude.(type) {
 	case string:
-		// Ignorint regexp exclude
+		// Can't merge with regexp exclude
 	case []interface{}:
 		for _, e := range r.Exclude {
 			list = append(list, e)
 		}
 		exclude = list
 	default:
+		// In case it's nil – simply replace
 		excludeList := make([]interface{}, len(r.Exclude))
 		for i, e := range r.Exclude {
 			excludeList[i] = e
