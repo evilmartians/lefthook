@@ -41,6 +41,7 @@ type Options struct {
 	DisableTTY      bool
 	SkipLFS         bool
 	Force           bool
+	Exclude         []string
 	Files           []string
 	RunOnlyCommands []string
 	RunOnlyJobs     []string

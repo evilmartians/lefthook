@@ -37,11 +37,20 @@ type jobContext struct {
 	env      map[string]string
 }
 
-func newJobContext(onlyJobs []string) *jobContext {
+func newJobContext(onlyJobs []string, exclude []string) *jobContext {
 	var failed atomic.Bool
+	var excludeInterface []interface{}
+	if len(exclude) > 0 {
+		excludeInterface = make([]interface{}, len(exclude))
+		for i, e := range exclude {
+			excludeInterface[i] = e
+		}
+	}
+
 	return &jobContext{
 		failed:   &failed,
 		onlyJobs: onlyJobs,
+		exclude:  excludeInterface,
 		env:      make(map[string]string),
 	}
 }
@@ -52,7 +61,7 @@ func (r *Runner) runJobs(ctx context.Context) []result.Result {
 	results := make([]result.Result, 0, len(r.Hook.Jobs))
 	resultsChan := make(chan result.Result, len(r.Hook.Jobs))
 
-	jobContext := newJobContext(r.RunOnlyJobs)
+	jobContext := newJobContext(r.RunOnlyJobs, r.Exclude)
 
 	for i, job := range r.Hook.Jobs {
 		id := strconv.Itoa(i)
