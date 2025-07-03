@@ -15,8 +15,7 @@ func newRootCmd() *cobra.Command {
 		Use:   "lefthook",
 		Short: "CLI tool to manage Git hooks",
 		Long: heredoc.Doc(`
-				After installation go to your project directory
-				and execute the following command:
+				After installation go to your project directory and execute the following command:
 				lefthook install
 		`),
 		SilenceUsage:  true,
