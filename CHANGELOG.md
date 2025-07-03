@@ -1,5 +1,9 @@
 # Change log
 
+## 1.11.16 (2025-07-03)
+
+- fix: race condition on repo state ([#1066](https://github.com/evilmartians/lefthook/pull/1066))
+
 ## 1.11.15 (2025-07-03)
 
 - feat: add exclude arg ([#1063](https://github.com/evilmartians/lefthook/pull/1063))
