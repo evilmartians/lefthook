@@ -9,7 +9,8 @@ cmp stdout lefthook-dump.yml
 -- lefthook.yml --
 remotes:
   - git_url: https://github.com/evilmartians/lefthook
-    config: examples/with_scripts/lefthook.yml
+    configs:
+      - examples/with_scripts/lefthook.yml
     ref: v1.4.0
   - git_url: https://github.com/evilmartians/lefthook
     configs:
@@ -17,7 +18,6 @@ remotes:
       - examples/remote/ping.yml
 
 -- lefthook-dump.yml --
-│  DEPRECATED: "remotes"."config" option is deprecated and will be omitted in the next major release, use "configs" option instead
 pre-commit:
   parallel: true
   commands:

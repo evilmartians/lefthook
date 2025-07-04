@@ -92,17 +92,6 @@ func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.
 		return nil, nil, err
 	}
 
-	// Deprecated
-	var remote *Remote
-	if err := main.Unmarshal("remote", &remote); err != nil {
-		return nil, nil, err
-	}
-
-	// Backward compatibility for `remote`. Will be deleted in future major release
-	if remote != nil {
-		remotes = append(remotes, remote)
-	}
-
 	secondary := koanf.New(".")
 
 	// Load main `extends`
@@ -165,11 +154,6 @@ func loadRemotes(k *koanf.Koanf, filesystem afero.Fs, repo *git.Repository, remo
 	for _, remote := range remotes {
 		if !remote.Configured() {
 			continue
-		}
-
-		// Use for backward compatibility with "remote(s).config"
-		if remote.Config != "" {
-			remote.Configs = append(remote.Configs, remote.Config)
 		}
 
 		if len(remote.Configs) == 0 {
@@ -295,23 +279,6 @@ func unmarshalConfigs(main, secondary *koanf.Koanf, c *Config) error {
 
 	if err := main.Unmarshal("", c); err != nil {
 		return err
-	}
-
-	// Deprecation handling
-
-	if c.Remote != nil {
-		log.Warn("DEPRECATED: \"remote\" option is deprecated and will be omitted in the next major release, use \"remotes\" option instead")
-		c.Remotes = append(c.Remotes, c.Remote)
-	}
-	c.Remote = nil
-
-	for _, remote := range c.Remotes {
-		if remote.Config != "" {
-			log.Warn("DEPRECATED: \"remotes\".\"config\" option is deprecated and will be omitted in the next major release, use \"configs\" option instead")
-			remote.Configs = append(remote.Configs, remote.Config)
-		}
-
-		remote.Config = ""
 	}
 
 	return nil
