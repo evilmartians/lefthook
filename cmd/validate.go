@@ -5,12 +5,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/evilmartians/lefthook/internal/lefthook"
+	"github.com/evilmartians/lefthook/internal/command"
 )
 
 type validate struct{}
 
-func (validate) New(opts *lefthook.Options) *cobra.Command {
+func (validate) New(opts *command.Options) *cobra.Command {
 	return &cobra.Command{
 		Use:     "validate",
 		Short:   "Validate lefthook config",
@@ -18,7 +18,7 @@ func (validate) New(opts *lefthook.Options) *cobra.Command {
 		Example: "lefthook validate",
 		Args:    cobra.NoArgs,
 		RunE: func(_cmd *cobra.Command, _args []string) error {
-			return lefthook.Validate(opts)
+			return command.Validate(opts)
 		},
 	}
 }

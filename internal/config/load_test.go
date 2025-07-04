@@ -410,8 +410,8 @@ lints:
 		"with remote": {
 			files: map[string]string{
 				"lefthook.yml": `
-remote:
-  git_url: git@github.com:evilmartians/lefthook
+remotes:
+  - git_url: git@github.com:evilmartians/lefthook
 `,
 			},
 			remote: `
@@ -452,10 +452,11 @@ pre-commit:
 		"with remote and custom config name": {
 			files: map[string]string{
 				"lefthook.yml": `
-remote:
-  git_url: git@github.com:evilmartians/lefthook
-  ref: v1.0.0
-  config: examples/custom.yml
+remotes:
+  - git_url: git@github.com:evilmartians/lefthook
+    ref: v1.0.0
+    configs:
+      - examples/custom.yml
 
 pre-commit:
   only:
@@ -521,9 +522,10 @@ pre-commit:
 extends:
   - global-extend.yml
 
-remote:
-  git_url: https://github.com/evilmartians/lefthook
-  config: examples/config.yml
+remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    configs:
+      - examples/config.yml
 
 pre-push:
   commands:
@@ -1007,7 +1009,8 @@ pre-commit:
 remotes:
   - git_url: https://github.com/evilmartians/lefthook
     ref: v1.0.0
-    config: examples/custom.yml
+    configs:
+      - examples/custom.yml
   - git_url: https://github.com/evilmartians/lefthook
     configs:
       - examples/remote/ping.yml

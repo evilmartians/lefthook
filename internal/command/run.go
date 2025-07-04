@@ -1,4 +1,4 @@
-package lefthook
+package command
 
 import (
 	"context"
@@ -11,9 +11,9 @@ import (
 	"time"
 
 	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/lefthook/runner"
-	"github.com/evilmartians/lefthook/internal/lefthook/runner/result"
 	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/internal/run"
+	"github.com/evilmartians/lefthook/internal/run/result"
 	"github.com/evilmartians/lefthook/internal/version"
 )
 
@@ -32,6 +32,7 @@ type RunArgs struct {
 	Force           bool
 	NoAutoInstall   bool
 	SkipLFS         bool
+	Verbose         bool
 	Exclude         []string
 	Files           []string
 	RunOnlyCommands []string
@@ -43,6 +44,8 @@ func Run(opts *Options, args RunArgs, hookName string, gitArgs []string) error {
 	if err != nil {
 		return err
 	}
+
+	args.Verbose = opts.Verbose
 
 	return lefthook.Run(hookName, args, gitArgs)
 }
@@ -56,13 +59,13 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	defer waitPrecompute()
 
 	var verbose bool
-	if l.Verbose {
+	if args.Verbose {
 		log.SetLevel(log.DebugLevel)
 		verbose = true
 	}
 
 	// Load config
-	cfg, err := config.Load(l.Fs, l.repo)
+	cfg, err := config.Load(l.fs, l.repo)
 	if err != nil {
 		var errNotFound config.ConfigNotFoundError
 		if ok := errors.As(err, &errNotFound); ok {
@@ -168,24 +171,22 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
-	r := runner.New(
-		runner.Options{
-			Repo:            l.repo,
-			Hook:            hook,
-			HookName:        hookName,
-			GitArgs:         gitArgs,
-			LogSettings:     logSettings,
-			DisableTTY:      cfg.NoTTY || args.NoTTY,
-			SkipLFS:         cfg.SkipLFS || args.SkipLFS,
-			Templates:       cfg.Templates,
-			Exclude:         args.Exclude,
-			Files:           args.Files,
-			Force:           args.Force,
-			RunOnlyCommands: args.RunOnlyCommands,
-			RunOnlyJobs:     args.RunOnlyJobs,
-			SourceDirs:      sourceDirs,
-		},
-	)
+	r := run.New(run.Options{
+		Repo:            l.repo,
+		Hook:            hook,
+		HookName:        hookName,
+		GitArgs:         gitArgs,
+		LogSettings:     logSettings,
+		DisableTTY:      cfg.NoTTY || args.NoTTY,
+		SkipLFS:         cfg.SkipLFS || args.SkipLFS,
+		Templates:       cfg.Templates,
+		Exclude:         args.Exclude,
+		Files:           args.Files,
+		Force:           args.Force,
+		RunOnlyCommands: args.RunOnlyCommands,
+		RunOnlyJobs:     args.RunOnlyJobs,
+		SourceDirs:      sourceDirs,
+	})
 
 	startTime := time.Now()
 	results, runErr := r.RunAll(ctx)
@@ -277,7 +278,7 @@ func ConfigHookCompletions(opts *Options) []string {
 }
 
 func (l *Lefthook) configHookCompletions() []string {
-	cfg, err := config.Load(l.Fs, l.repo)
+	cfg, err := config.Load(l.fs, l.repo)
 	if err != nil {
 		return nil
 	}
@@ -305,7 +306,7 @@ func ConfigHookJobCompletions(opts *Options, hookName string) []string {
 }
 
 func (l *Lefthook) configHookCommandCompletions(hookName string) []string {
-	cfg, err := config.Load(l.Fs, l.repo)
+	cfg, err := config.Load(l.fs, l.repo)
 	if err != nil {
 		return nil
 	}
@@ -332,7 +333,7 @@ func findJobNames(jobs []*config.Job) []string {
 }
 
 func (l *Lefthook) configHookJobCompletions(hookName string) []string {
-	cfg, err := config.Load(l.Fs, l.repo)
+	cfg, err := config.Load(l.fs, l.repo)
 	if err != nil {
 		return nil
 	}

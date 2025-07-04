@@ -1,4 +1,4 @@
-package runner
+package run
 
 import (
 	"context"
@@ -17,9 +17,9 @@ import (
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
-	"github.com/evilmartians/lefthook/internal/lefthook/runner/exec"
-	"github.com/evilmartians/lefthook/internal/lefthook/runner/result"
 	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/internal/run/exec"
+	"github.com/evilmartians/lefthook/internal/run/result"
 	"github.com/evilmartians/lefthook/internal/system"
 )
 
@@ -740,7 +740,7 @@ func TestRunAll(t *testing.T) {
 	} {
 		fs := afero.NewMemMapFs()
 		repo.Fs = fs
-		runner := &Runner{
+		run := &Run{
 			Options: Options{
 				Repo:        repo,
 				Hook:        tt.hook,
@@ -768,7 +768,7 @@ func TestRunAll(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 			repo.Setup()
-			results, err := runner.RunAll(t.Context())
+			results, err := run.RunAll(t.Context())
 			assert.NoError(err)
 
 			var success, fail []result.Result

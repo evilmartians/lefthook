@@ -1,4 +1,4 @@
-package lefthook
+package command
 
 import (
 	"errors"
@@ -19,7 +19,7 @@ func Validate(opts *Options) error {
 		return fmt.Errorf("couldn't initialize lefthook: %w", err)
 	}
 
-	main, secondary, err := config.LoadKoanf(lefthook.Fs, lefthook.repo)
+	main, secondary, err := config.LoadKoanf(lefthook.fs, lefthook.repo)
 	if err != nil {
 		return err
 	}

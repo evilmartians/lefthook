@@ -1,4 +1,4 @@
-package lefthook
+package command
 
 import (
 	"fmt"
@@ -31,7 +31,7 @@ func (l *Lefthook) Add(args *AddArgs) error {
 		return fmt.Errorf("skip adding, hook is unavailable: %s", args.Hook)
 	}
 
-	err := l.cleanHook(args.Hook, args.Force || l.Force)
+	err := l.cleanHook(args.Hook, args.Force)
 	if err != nil {
 		return err
 	}
@@ -51,10 +51,10 @@ func (l *Lefthook) Add(args *AddArgs) error {
 		sourceDir := filepath.Join(l.repo.RootPath, global, args.Hook)
 		sourceDirLocal := filepath.Join(l.repo.RootPath, local, args.Hook)
 
-		if err = l.Fs.MkdirAll(sourceDir, defaultDirMode); err != nil {
+		if err = l.fs.MkdirAll(sourceDir, defaultDirMode); err != nil {
 			return err
 		}
-		if err = l.Fs.MkdirAll(sourceDirLocal, defaultDirMode); err != nil {
+		if err = l.fs.MkdirAll(sourceDirLocal, defaultDirMode); err != nil {
 			return err
 		}
 	}
@@ -66,7 +66,7 @@ func (l *Lefthook) getSourceDirs() (global, local string) {
 	global = config.DefaultSourceDir
 	local = config.DefaultSourceDirLocal
 
-	cfg, err := config.Load(l.Fs, l.repo)
+	cfg, err := config.Load(l.fs, l.repo)
 	if err == nil {
 		if len(cfg.SourceDir) > 0 {
 			global = cfg.SourceDir

@@ -1,4 +1,4 @@
-package lefthook
+package command
 
 import (
 	"fmt"
@@ -161,7 +161,7 @@ post-commit:
 			assert := assert.New(t)
 			fs := afero.NewMemMapFs()
 			lefthook := &Lefthook{
-				Options: &Options{Fs: fs},
+				fs: fs,
 				repo: &git.Repository{
 					Fs:        fs,
 					Git:       git.NewExecutor(gitCmd{}),

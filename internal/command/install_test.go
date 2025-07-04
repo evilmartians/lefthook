@@ -1,4 +1,4 @@
-package lefthook
+package command
 
 import (
 	"fmt"
@@ -195,8 +195,8 @@ post-commit:
 	} {
 		fs := afero.NewMemMapFs()
 		lefthook := &Lefthook{
-			Options: &Options{Fs: fs},
-			repo:    repo,
+			fs:   fs,
+			repo: repo,
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
@@ -321,8 +321,8 @@ post-commit:
 	} {
 		fs := afero.NewMemMapFs()
 		lefthook := &Lefthook{
-			Options: &Options{Fs: fs},
-			repo:    repo,
+			fs:   fs,
+			repo: repo,
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
@@ -346,7 +346,7 @@ post-commit:
 				assert.NoError(afero.WriteFile(fs, path, []byte(content), 0o755))
 			}
 
-			cfg, err := config.Load(lefthook.Fs, repo)
+			cfg, err := config.Load(lefthook.fs, repo)
 			assert.NoError(err)
 
 			// Create hooks
@@ -447,8 +447,8 @@ remotes:
 	} {
 		fs := afero.NewMemMapFs()
 		lefthook := &Lefthook{
-			Options: &Options{Fs: fs},
-			repo:    repo,
+			fs:   fs,
+			repo: repo,
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
@@ -461,7 +461,7 @@ remotes:
 				assert.NoError(fs.Chtimes(configPath, timestamp, timestamp))
 			}
 
-			cfg, err := config.Load(lefthook.Fs, repo)
+			cfg, err := config.Load(lefthook.fs, repo)
 			assert.NoError(err)
 
 			remote := cfg.Remotes[0]

@@ -3,14 +3,14 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/evilmartians/lefthook/internal/lefthook"
+	"github.com/evilmartians/lefthook/internal/command"
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
 type dump struct{}
 
-func (dump) New(opts *lefthook.Options) *cobra.Command {
-	dumpArgs := lefthook.DumpArgs{}
+func (dump) New(opts *command.Options) *cobra.Command {
+	dumpArgs := command.DumpArgs{}
 	dumpCmd := cobra.Command{
 		Use:               "dump",
 		Short:             "Prints config merged from all extensions (in YAML format by default)",
@@ -18,7 +18,7 @@ func (dump) New(opts *lefthook.Options) *cobra.Command {
 		ValidArgsFunction: cobra.NoFileCompletions,
 		Args:              cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			lefthook.Dump(opts, dumpArgs)
+			command.Dump(opts, dumpArgs)
 		},
 	}
 

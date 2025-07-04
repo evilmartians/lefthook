@@ -3,13 +3,13 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/evilmartians/lefthook/internal/lefthook"
+	"github.com/evilmartians/lefthook/internal/command"
 )
 
 type uninstall struct{}
 
-func (uninstall) New(opts *lefthook.Options) *cobra.Command {
-	args := lefthook.UninstallArgs{}
+func (uninstall) New(opts *command.Options) *cobra.Command {
+	args := command.UninstallArgs{}
 
 	uninstallCmd := cobra.Command{
 		Use:               "uninstall",
@@ -17,14 +17,9 @@ func (uninstall) New(opts *lefthook.Options) *cobra.Command {
 		ValidArgsFunction: cobra.NoFileCompletions,
 		Args:              cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _args []string) error {
-			return lefthook.Uninstall(opts, &args)
+			return command.Uninstall(opts, &args)
 		},
 	}
-
-	uninstallCmd.Flags().BoolVarP(
-		&args.Force, "aggressive", "a", false,
-		"DEPRECATED: will behave like -f/--force option",
-	)
 
 	uninstallCmd.Flags().BoolVarP(
 		&args.Force, "force", "f", false,

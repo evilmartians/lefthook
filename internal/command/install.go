@@ -1,4 +1,4 @@
-package lefthook
+package command
 
 import (
 	"bufio"
@@ -80,7 +80,7 @@ func (l *Lefthook) readOrCreateConfig() (*config.Config, error) {
 		}
 	}
 
-	return config.Load(l.Fs, l.repo)
+	return config.Load(l.fs, l.repo)
 }
 
 func (l *Lefthook) configExists(path string) bool {
@@ -94,7 +94,7 @@ func (l *Lefthook) findMainConfig(path string) (string, error) {
 			".yml", ".yaml", ".toml", ".json",
 		} {
 			configPath := filepath.Join(path, name+extension)
-			if ok, _ := afero.Exists(l.Fs, configPath); ok {
+			if ok, _ := afero.Exists(l.fs, configPath); ok {
 				return configPath, nil
 			}
 		}
@@ -106,7 +106,7 @@ func (l *Lefthook) findMainConfig(path string) (string, error) {
 func (l *Lefthook) createConfig(path string) error {
 	file := filepath.Join(path, config.DefaultConfigName)
 
-	err := afero.WriteFile(l.Fs, file, templates.Config(), configFileMode)
+	err := afero.WriteFile(l.fs, file, templates.Config(), configFileMode)
 	if err != nil {
 		return err
 	}
@@ -161,7 +161,7 @@ func (l *Lefthook) shouldRefetch(remote *config.Remote) bool {
 
 	var lastFetchTime time.Time
 	remotePath := l.repo.RemoteFolder(remote.GitURL, remote.Ref)
-	info, err := l.Fs.Stat(filepath.Join(remotePath, ".git", "FETCH_HEAD"))
+	info, err := l.fs.Stat(filepath.Join(remotePath, ".git", "FETCH_HEAD"))
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return true
@@ -276,7 +276,7 @@ func collectAllJobRoots(roots map[string]struct{}, jobs []*config.Job) {
 
 func (l *Lefthook) hooksSynchronized(cfg *config.Config) bool {
 	// Check checksum in a checksum file
-	file, err := l.Fs.Open(l.checksumFilePath())
+	file, err := l.fs.Open(l.checksumFilePath())
 	if err != nil {
 		return false
 	}
@@ -332,7 +332,7 @@ func (l *Lefthook) configLastUpdateTimestamp() (int64, error) {
 		return 0, err
 	}
 
-	config, err := l.Fs.Stat(configPath)
+	config, err := l.fs.Stat(configPath)
 	if err != nil {
 		return 0, err
 	}
@@ -347,7 +347,7 @@ func (l *Lefthook) addChecksumFile(checksum string) error {
 	}
 
 	return afero.WriteFile(
-		l.Fs, l.checksumFilePath(), templates.Checksum(checksum, timestamp), checksumFileMode,
+		l.fs, l.checksumFilePath(), templates.Checksum(checksum, timestamp), checksumFileMode,
 	)
 }
 
@@ -356,9 +356,9 @@ func (l *Lefthook) checksumFilePath() string {
 }
 
 func (l *Lefthook) ensureHooksDirExists() error {
-	exists, err := afero.Exists(l.Fs, l.repo.HooksPath)
+	exists, err := afero.Exists(l.fs, l.repo.HooksPath)
 	if !exists || err != nil {
-		err = l.Fs.MkdirAll(l.repo.HooksPath, hooksDirMode)
+		err = l.fs.MkdirAll(l.repo.HooksPath, hooksDirMode)
 		if err != nil {
 			return err
 		}

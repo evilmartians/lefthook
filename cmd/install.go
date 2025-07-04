@@ -3,14 +3,13 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/evilmartians/lefthook/internal/lefthook"
-	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/internal/command"
 )
 
 type install struct{}
 
-func (install) New(opts *lefthook.Options) *cobra.Command {
-	var a, force bool
+func (install) New(opts *command.Options) *cobra.Command {
+	var force bool
 
 	installCmd := cobra.Command{
 		Use:               "install",
@@ -18,7 +17,7 @@ func (install) New(opts *lefthook.Options) *cobra.Command {
 		ValidArgsFunction: cobra.NoFileCompletions,
 		Args:              cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _args []string) error {
-			return lefthook.Install(opts, force)
+			return command.Install(opts, force)
 		},
 	}
 
@@ -27,15 +26,6 @@ func (install) New(opts *lefthook.Options) *cobra.Command {
 		&force, "force", "f", false,
 		"overwrite .old hooks",
 	)
-	installCmd.Flags().BoolVarP(
-		&a, "aggressive", "a", false,
-		"use --force flag instead",
-	)
-
-	err := installCmd.Flags().MarkDeprecated("aggressive", "use --force flag instead")
-	if err != nil {
-		log.Warn("Unexpected error:", err)
-	}
 
 	return &installCmd
 }
