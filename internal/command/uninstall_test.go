@@ -1,4 +1,4 @@
-package lefthook
+package command
 
 import (
 	"fmt"
@@ -103,7 +103,7 @@ func TestLefthookUninstall(t *testing.T) {
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			fs := afero.NewMemMapFs()
 			lefthook := &Lefthook{
-				Options: &Options{Fs: fs},
+				fs: fs,
 				repo: &git.Repository{
 					Fs:        fs,
 					HooksPath: hooksPath,

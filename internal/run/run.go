@@ -1,4 +1,4 @@
-package runner
+package run
 
 import (
 	"bytes"
@@ -22,11 +22,11 @@ import (
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
-	"github.com/evilmartians/lefthook/internal/lefthook/runner/exec"
-	"github.com/evilmartians/lefthook/internal/lefthook/runner/filters"
-	"github.com/evilmartians/lefthook/internal/lefthook/runner/jobs"
-	"github.com/evilmartians/lefthook/internal/lefthook/runner/result"
 	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/internal/run/exec"
+	"github.com/evilmartians/lefthook/internal/run/filters"
+	"github.com/evilmartians/lefthook/internal/run/jobs"
+	"github.com/evilmartians/lefthook/internal/run/result"
 	"github.com/evilmartians/lefthook/internal/system"
 )
 
@@ -49,8 +49,8 @@ type Options struct {
 	Templates       map[string]string
 }
 
-// Runner responds for actual execution and handling the results.
-type Runner struct {
+// Run responds for actual execution and handling the results.
+type Run struct {
 	Options
 
 	stdin                io.Reader
@@ -62,8 +62,8 @@ type Runner struct {
 	didStash bool
 }
 
-func New(opts Options) *Runner {
-	return &Runner{
+func New(opts Options) *Run {
+	return &Run{
 		Options: opts,
 
 		// Some hooks use STDIN for parsing data from Git. To allow multiple commands
@@ -81,7 +81,7 @@ type executable interface {
 
 // RunAll runs scripts and commands.
 // LFS hook is executed at first if needed.
-func (r *Runner) RunAll(ctx context.Context) ([]result.Result, error) {
+func (r *Run) RunAll(ctx context.Context) ([]result.Result, error) {
 	results := make([]result.Result, 0, len(r.Hook.Commands)+len(r.Hook.Scripts))
 
 	if config.NewSkipChecker(system.Cmd).Check(r.Repo.State, r.Hook.Skip, r.Hook.Only) {
@@ -120,7 +120,7 @@ func (r *Runner) RunAll(ctx context.Context) ([]result.Result, error) {
 	return results, nil
 }
 
-func (r *Runner) runLFSHook(ctx context.Context) error {
+func (r *Run) runLFSHook(ctx context.Context) error {
 	if r.SkipLFS {
 		return nil
 	}
@@ -208,7 +208,7 @@ func (r *Runner) runLFSHook(ctx context.Context) error {
 	return nil
 }
 
-func (r *Runner) preHook() {
+func (r *Run) preHook() {
 	if !config.HookUsesStagedFiles(r.HookName) {
 		return
 	}
@@ -251,7 +251,7 @@ func (r *Runner) preHook() {
 	}
 }
 
-func (r *Runner) postHook() {
+func (r *Run) postHook() {
 	if !r.didStash {
 		return
 	}
@@ -266,7 +266,7 @@ func (r *Runner) postHook() {
 	}
 }
 
-func (r *Runner) runScripts(ctx context.Context, dir string) []result.Result {
+func (r *Run) runScripts(ctx context.Context, dir string) []result.Result {
 	files, err := afero.ReadDir(r.Repo.Fs, dir) // ReadDir already sorts files by .Name()
 	if err != nil || len(files) == 0 {
 		return nil
@@ -342,7 +342,7 @@ func (r *Runner) runScripts(ctx context.Context, dir string) []result.Result {
 	return results
 }
 
-func (r *Runner) runScript(ctx context.Context, script *config.Script, file os.FileInfo) result.Result {
+func (r *Run) runScript(ctx context.Context, script *config.Script, file os.FileInfo) result.Result {
 	startTime := time.Now()
 
 	job, err := jobs.New(file.Name(), &jobs.Params{
@@ -407,7 +407,7 @@ func (r *Runner) runScript(ctx context.Context, script *config.Script, file os.F
 	return result
 }
 
-func (r *Runner) runCommands(ctx context.Context) []result.Result {
+func (r *Run) runCommands(ctx context.Context) []result.Result {
 	commands := make([]string, 0, len(r.Hook.Commands))
 	for name := range r.Hook.Commands {
 		if len(r.RunOnlyCommands) == 0 || slices.Contains(r.RunOnlyCommands, name) {
@@ -464,7 +464,7 @@ func (r *Runner) runCommands(ctx context.Context) []result.Result {
 	return results
 }
 
-func (r *Runner) runCommand(ctx context.Context, name string, command *config.Command) result.Result {
+func (r *Run) runCommand(ctx context.Context, name string, command *config.Command) result.Result {
 	startTime := time.Now()
 	exclude := command.Exclude
 	switch list := exclude.(type) {
@@ -568,13 +568,13 @@ func (r *Runner) runCommand(ctx context.Context, name string, command *config.Co
 	return result
 }
 
-func (r *Runner) addStagedFiles(files []string) {
+func (r *Run) addStagedFiles(files []string) {
 	if err := r.Repo.AddFiles(files); err != nil {
 		log.Warn("Couldn't stage fixed files:", err)
 	}
 }
 
-func (r *Runner) run(ctx context.Context, opts exec.Options, follow bool) bool {
+func (r *Run) run(ctx context.Context, opts exec.Options, follow bool) bool {
 	log.SetName(opts.Name)
 	defer log.UnsetName(opts.Name)
 
@@ -608,7 +608,7 @@ func (r *Runner) run(ctx context.Context, opts exec.Options, follow bool) bool {
 	return err == nil
 }
 
-func (r *Runner) logSkip(name, reason string) {
+func (r *Run) logSkip(name, reason string) {
 	if !r.LogSettings.LogSkips() {
 		return
 	}
@@ -623,7 +623,7 @@ func (r *Runner) logSkip(name, reason string) {
 		)
 }
 
-func (r *Runner) logExecute(name string, err error, out io.Reader) {
+func (r *Run) logExecute(name string, err error, out io.Reader) {
 	if err == nil && !r.LogSettings.LogExecution() {
 		return
 	}

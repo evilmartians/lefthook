@@ -9,15 +9,15 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/evilmartians/lefthook/internal/lefthook"
+	"github.com/evilmartians/lefthook/internal/command"
 	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/evilmartians/lefthook/internal/updater"
 )
 
 type selfUpdate struct{}
 
-func (selfUpdate) New(opts *lefthook.Options) *cobra.Command {
-	var yes bool
+func (selfUpdate) New(opts *command.Options) *cobra.Command {
+	var yes, force bool
 	upgradeCmd := cobra.Command{
 		Use:               "self-update",
 		Short:             "Update lefthook executable",
@@ -25,19 +25,19 @@ func (selfUpdate) New(opts *lefthook.Options) *cobra.Command {
 		ValidArgsFunction: cobra.NoFileCompletions,
 		Args:              cobra.NoArgs,
 		RunE: func(_cmd *cobra.Command, _args []string) error {
-			return update(opts, yes)
+			return update(opts, yes, force)
 		},
 	}
 
 	upgradeCmd.Flags().BoolVarP(&yes, "yes", "y", false, "no prompt")
-	upgradeCmd.Flags().BoolVarP(&opts.Force, "force", "f", false, "force upgrade")
+	upgradeCmd.Flags().BoolVarP(&force, "force", "f", false, "force upgrade")
 	upgradeCmd.Flags().BoolVarP(&opts.Verbose, "verbose", "v", false, "show verbose logs")
 
 	return &upgradeCmd
 }
 
-func update(opts *lefthook.Options, yes bool) error {
-	if os.Getenv(lefthook.EnvVerbose) == "1" || os.Getenv(lefthook.EnvVerbose) == "true" {
+func update(opts *command.Options, yes, force bool) error {
+	if os.Getenv(command.EnvVerbose) == "1" || os.Getenv(command.EnvVerbose) == "true" {
 		opts.Verbose = true
 	}
 	if opts.Verbose {
@@ -67,7 +67,7 @@ func update(opts *lefthook.Options, yes bool) error {
 
 	return updater.New().SelfUpdate(ctx, updater.Options{
 		Yes:     yes,
-		Force:   opts.Force,
+		Force:   force,
 		ExePath: exePath,
 	})
 }

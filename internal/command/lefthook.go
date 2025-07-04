@@ -1,4 +1,4 @@
-package lefthook
+package command
 
 import (
 	"bufio"
@@ -25,24 +25,19 @@ const (
 )
 
 type Options struct {
-	Fs                afero.Fs
-	Verbose, NoColors bool
 	Colors            string
-
-	// DEPRECATED. Will be removed in 1.3.0.
-	Force, Aggressive bool
+	Verbose, NoColors bool
 }
 
 type Lefthook struct {
-	// Since we need to support deprecated global options Force and Aggressive
-	// we need to store these fields. After their removal we need just to copy fs.
-	*Options
-
+	fs   afero.Fs
 	repo *git.Repository
 }
 
 // New returns an instance of Lefthook.
 func initialize(opts *Options) (*Lefthook, error) {
+	fs := afero.NewOsFs()
+
 	if isEnvEnabled(EnvVerbose) {
 		opts.Verbose = true
 	}
@@ -68,17 +63,17 @@ func initialize(opts *Options) (*Lefthook, error) {
 
 	log.SetColors(opts.Colors)
 
-	repo, err := git.NewRepository(opts.Fs, git.NewExecutor(system.Cmd))
+	repo, err := git.NewRepository(fs, git.NewExecutor(system.Cmd))
 	if err != nil {
 		return nil, err
 	}
 
-	return &Lefthook{Options: opts, repo: repo}, nil
+	return &Lefthook{fs: fs, repo: repo}, nil
 }
 
 // Tests a file whether it is a lefthook-created file.
 func (l *Lefthook) isLefthookFile(path string) bool {
-	file, err := l.Fs.Open(path)
+	file, err := l.fs.Open(path)
 	if err != nil {
 		return false
 	}
@@ -103,7 +98,7 @@ func (l *Lefthook) isLefthookFile(path string) bool {
 // Removes the hook from hooks path, saving non-lefthook hooks with .old suffix.
 func (l *Lefthook) cleanHook(hook string, force bool) error {
 	hookPath := filepath.Join(l.repo.HooksPath, hook)
-	exists, err := afero.Exists(l.Fs, hookPath)
+	exists, err := afero.Exists(l.fs, hookPath)
 	if err != nil {
 		return err
 	}
@@ -113,11 +108,11 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 
 	// Just remove lefthook hook
 	if l.isLefthookFile(hookPath) {
-		return l.Fs.Remove(hookPath)
+		return l.fs.Remove(hookPath)
 	}
 
 	// Check if .old file already exists before renaming.
-	exists, err = afero.Exists(l.Fs, hookPath+oldHookPostfix)
+	exists, err = afero.Exists(l.fs, hookPath+oldHookPostfix)
 	if err != nil {
 		return err
 	}
@@ -129,7 +124,7 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 		}
 	}
 
-	err = l.Fs.Rename(hookPath, hookPath+oldHookPostfix)
+	err = l.fs.Rename(hookPath, hookPath+oldHookPostfix)
 	if err != nil {
 		return err
 	}
@@ -142,7 +137,7 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 func (l *Lefthook) addHook(hook string, args templates.Args) error {
 	hookPath := filepath.Join(l.repo.HooksPath, hook)
 	return afero.WriteFile(
-		l.Fs, hookPath, templates.Hook(hook, args), hookFileMode,
+		l.fs, hookPath, templates.Hook(hook, args), hookFileMode,
 	)
 }
 
