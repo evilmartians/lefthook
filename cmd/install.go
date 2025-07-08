@@ -15,9 +15,8 @@ func (install) New(opts *command.Options) *cobra.Command {
 		Use:               "install",
 		Short:             "Write a basic configuration file in your project repository, or initialize the existing configuration",
 		ValidArgsFunction: cobra.NoFileCompletions,
-		Args:              cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _args []string) error {
-			return command.Install(opts, force)
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return command.Install(opts, args, force)
 		},
 	}
 

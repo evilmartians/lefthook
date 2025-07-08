@@ -27,21 +27,21 @@ const (
 )
 
 var (
-	lefthookChecksumRegexp = regexp.MustCompile(`(\w+)\s+(\d+)`)
+	lefthookChecksumRegexp = regexp.MustCompile(`(\w+)\s+(\d+)(?:\s+([\w,-]+))?`)
 	errNoConfig            = errors.New("no lefthook config found")
 )
 
 // Install installs the hooks from config file to the .git/hooks.
-func Install(opts *Options, force bool) error {
+func Install(opts *Options, hooks []string, force bool) error {
 	lefthook, err := initialize(opts)
 	if err != nil {
 		return err
 	}
 
-	return lefthook.Install(force)
+	return lefthook.Install(hooks, force)
 }
 
-func (l *Lefthook) Install(force bool) error {
+func (l *Lefthook) Install(hooks []string, force bool) error {
 	cfg, err := l.readOrCreateConfig()
 	if err != nil {
 		return err
@@ -67,11 +67,11 @@ func (l *Lefthook) Install(force bool) error {
 		}
 	}
 
-	return l.createHooksIfNeeded(cfg, false, force)
+	return l.createHooksIfNeeded(cfg, hooks, force)
 }
 
 func (l *Lefthook) readOrCreateConfig() (*config.Config, error) {
-	log.Debug("Searching config in:", l.repo.RootPath)
+	log.Debug("config dir: ", l.repo.RootPath)
 
 	if !l.configExists(l.repo.RootPath) {
 		log.Info("Config not found, creating...")
@@ -120,6 +120,7 @@ func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Con
 	var remotesSynced bool
 	var err error
 
+	//nolint:nestif
 	if fetchRemotes {
 		for _, remote := range cfg.Remotes {
 			if remote.Configured() && l.shouldRefetch(remote) {
@@ -131,18 +132,23 @@ func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Con
 				remotesSynced = true
 			}
 		}
-	}
 
-	if remotesSynced {
-		// Reread the config file with synced remotes
-		cfg, err = l.readOrCreateConfig()
-		if err != nil {
-			return nil, fmt.Errorf("failed to reread the config: %w", err)
+		if remotesSynced {
+			// Reread the config file with synced remotes
+			cfg, err = l.readOrCreateConfig()
+			if err != nil {
+				return nil, fmt.Errorf("failed to reread the config: %w", err)
+			}
 		}
 	}
 
+	ok, hooks := l.checkHooksSynchronized(cfg)
+	if ok {
+		return cfg, nil
+	}
+
 	// Don't rely on config checksum if remotes were refetched
-	return cfg, l.createHooksIfNeeded(cfg, true, false)
+	return cfg, l.createHooksIfNeeded(cfg, hooks, false)
 }
 
 func (l *Lefthook) shouldRefetch(remote *config.Remote) bool {
@@ -175,17 +181,16 @@ func (l *Lefthook) shouldRefetch(remote *config.Remote) bool {
 	return time.Now().After(lastFetchTime.Add(timedelta))
 }
 
-func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force bool) error {
-	if checkHashSum && l.hooksSynchronized(cfg) {
-		return nil
+func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, hooks []string, force bool) error {
+	onlyHooks := make(map[string]struct{})
+	for _, hook := range hooks {
+		onlyHooks[hook] = struct{}{}
 	}
-
-	log.Infof("%s", log.Cyan("sync hooks"))
 
 	var success bool
 	defer func() {
 		if !success {
-			log.Info(log.Cyan(": ❌"))
+			log.Info(log.Cyan("sync hooks: ❌"))
 		}
 	}()
 
@@ -218,6 +223,11 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force b
 
 	hookNames := make([]string, 0, len(cfg.Hooks)+1)
 	for hook := range cfg.Hooks {
+		if _, ok := onlyHooks[hook]; len(onlyHooks) > 0 && !ok {
+			log.Debug("skip installing: ", hook)
+			continue
+		}
+
 		hookNames = append(hookNames, hook)
 
 		if err = l.cleanHook(hook, force); err != nil {
@@ -235,25 +245,27 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, checkHashSum, force b
 		}
 	}
 
-	templateArgs := templates.Args{
-		Rc:                      cfg.Rc,
-		AssertLefthookInstalled: cfg.AssertLefthookInstalled,
-		Roots:                   roots,
-		LefthookExe:             cfg.Lefthook,
-	}
-	if err = l.addHook(config.GhostHookName, templateArgs); err != nil {
-		return nil
+	if len(onlyHooks) == 0 {
+		templateArgs := templates.Args{
+			Rc:                      cfg.Rc,
+			AssertLefthookInstalled: cfg.AssertLefthookInstalled,
+			Roots:                   roots,
+			LefthookExe:             cfg.Lefthook,
+		}
+		if err = l.addHook(config.GhostHookName, templateArgs); err != nil {
+			return nil
+		}
 	}
 
-	if err = l.addChecksumFile(checksum); err != nil {
+	if err = l.addChecksumFile(checksum, hooks); err != nil {
 		return fmt.Errorf("could not create a checksum file: %w", err)
 	}
 
 	success = true
 	if len(hookNames) > 0 {
-		log.Info(log.Cyan(": ✔️"), log.Gray("("+strings.Join(hookNames, ", ")+")"))
+		log.Info(log.Cyan("sync hooks: ✔️"), log.Gray("("+strings.Join(hookNames, ", ")+")"))
 	} else {
-		log.Info(log.Cyan(": ✔️ "))
+		log.Info(log.Cyan("sync hooks: ✔️ "))
 	}
 
 	return nil
@@ -274,11 +286,13 @@ func collectAllJobRoots(roots map[string]struct{}, jobs []*config.Job) {
 	}
 }
 
-func (l *Lefthook) hooksSynchronized(cfg *config.Config) bool {
+// checkHooksSynchronized checks is config hooks synchronized and returns the
+// list of hooks which are synchronized.
+func (l *Lefthook) checkHooksSynchronized(cfg *config.Config) (bool, []string) {
 	// Check checksum in a checksum file
 	file, err := l.fs.Open(l.checksumFilePath())
 	if err != nil {
-		return false
+		return false, nil
 	}
 	defer func() {
 		if cErr := file.Close(); cErr != nil {
@@ -291,14 +305,20 @@ func (l *Lefthook) hooksSynchronized(cfg *config.Config) bool {
 
 	var storedChecksum string
 	var storedTimestamp int64
+	var storedHooks []string
 
+	// Checksum format:
+	// <md5sum> <timestamp> <hook1,hook2,hook3>
 	for scanner.Scan() {
 		match := lefthookChecksumRegexp.FindStringSubmatch(scanner.Text())
 		if match != nil {
 			storedChecksum = match[1]
 			storedTimestamp, err = strconv.ParseInt(match[2], timestampBase, timestampBitsize)
 			if err != nil {
-				return false
+				return false, nil
+			}
+			if len(match[3]) > 0 {
+				storedHooks = strings.Split(match[3], ",")
 			}
 
 			break
@@ -306,24 +326,24 @@ func (l *Lefthook) hooksSynchronized(cfg *config.Config) bool {
 	}
 
 	if len(storedChecksum) == 0 {
-		return false
+		return false, storedHooks
 	}
 
 	configTimestamp, err := l.configLastUpdateTimestamp()
 	if err != nil {
-		return false
+		return false, storedHooks
 	}
 
 	if storedTimestamp == configTimestamp {
-		return true
+		return true, storedHooks
 	}
 
 	configChecksum, err := cfg.Md5()
 	if err != nil {
-		return false
+		return false, storedHooks
 	}
 
-	return storedChecksum == configChecksum
+	return storedChecksum == configChecksum, storedHooks
 }
 
 func (l *Lefthook) configLastUpdateTimestamp() (int64, error) {
@@ -340,14 +360,14 @@ func (l *Lefthook) configLastUpdateTimestamp() (int64, error) {
 	return config.ModTime().Unix(), nil
 }
 
-func (l *Lefthook) addChecksumFile(checksum string) error {
+func (l *Lefthook) addChecksumFile(checksum string, hooks []string) error {
 	timestamp, err := l.configLastUpdateTimestamp()
 	if err != nil {
 		return fmt.Errorf("unable to get config update timestamp: %w", err)
 	}
 
 	return afero.WriteFile(
-		l.fs, l.checksumFilePath(), templates.Checksum(checksum, timestamp), checksumFileMode,
+		l.fs, l.checksumFilePath(), templates.Checksum(checksum, timestamp, hooks), checksumFileMode,
 	)
 }
 

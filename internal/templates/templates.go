@@ -9,7 +9,7 @@ import (
 	"text/template"
 )
 
-const checksumFormat = "%s %d\n"
+const checksumFormat = "%s %d %s\n"
 
 //go:embed *
 var templatesFS embed.FS
@@ -57,8 +57,8 @@ func Config() []byte {
 	return tmpl
 }
 
-func Checksum(checksum string, timestamp int64) []byte {
-	return []byte(fmt.Sprintf(checksumFormat, checksum, timestamp))
+func Checksum(checksum string, timestamp int64, hooks []string) []byte {
+	return []byte(fmt.Sprintf(checksumFormat, checksum, timestamp, strings.Join(hooks, ",")))
 }
 
 func getExtension() string {
