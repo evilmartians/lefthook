@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/evilmartians/lefthook/internal/command"
 	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/lefthook"
 )
 
 //go:embed add-doc.txt
@@ -16,8 +16,8 @@ var addDoc string
 
 type add struct{}
 
-func (add) New(opts *lefthook.Options) *cobra.Command {
-	args := lefthook.AddArgs{}
+func (add) New(opts *command.Options) *cobra.Command {
+	args := command.AddArgs{}
 
 	addHookCompletions := func(cmd *cobra.Command, args []string, toComplete string) (ret []string, compDir cobra.ShellCompDirective) {
 		compDir = cobra.ShellCompDirectiveNoFileComp
@@ -37,7 +37,7 @@ func (add) New(opts *lefthook.Options) *cobra.Command {
 		Args:              cobra.ExactArgs(1),
 		RunE: func(_cmd *cobra.Command, hooks []string) error {
 			args.Hook = hooks[0]
-			return lefthook.Add(opts, &args)
+			return command.Add(opts, &args)
 		},
 	}
 

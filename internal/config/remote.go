@@ -10,9 +10,6 @@ type Remote struct {
 	Refetch bool `json:"refetch,omitempty" jsonschema:"description=Set to true if you want to always refetch the remote" mapstructure:"refetch,omitempty" toml:"refetch,omitempty" yaml:",omitempty"`
 
 	RefetchFrequency string `json:"refetch_frequency,omitempty" jsonschema:"description=Provide a frequency for the remotes refetches,example=24h" koanf:"refetch_frequency" mapstructure:"refetch_frequency,omitempty" toml:"refetch_frequency,omitempty" yaml:",omitempty"`
-
-	// Deprecated: use `configs`
-	Config string `json:"config,omitempty" jsonschema:"description=Deprecated: use configs" mapstructure:"config,omitempty" toml:"config,omitempty" yaml:",omitempty"`
 }
 
 func (r *Remote) Configured() bool {

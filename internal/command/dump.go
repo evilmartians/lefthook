@@ -1,4 +1,4 @@
-package lefthook
+package command
 
 import (
 	"os"
@@ -20,7 +20,7 @@ func Dump(opts *Options, args DumpArgs) {
 		return
 	}
 
-	cfg, err := config.Load(lefthook.Fs, lefthook.repo)
+	cfg, err := config.Load(lefthook.fs, lefthook.repo)
 	if err != nil {
 		log.Errorf("couldn't load config: %s\n", err)
 		return

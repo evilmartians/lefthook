@@ -9,8 +9,8 @@ import (
 	"github.com/alessio/shellescape"
 
 	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/lefthook/runner/filters"
 	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/internal/run/filters"
 	"github.com/evilmartians/lefthook/internal/system"
 )
 

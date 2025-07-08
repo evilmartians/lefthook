@@ -1,4 +1,4 @@
-package runner
+package run
 
 import (
 	"context"
@@ -13,11 +13,11 @@ import (
 	"time"
 
 	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/lefthook/runner/exec"
-	"github.com/evilmartians/lefthook/internal/lefthook/runner/filters"
-	"github.com/evilmartians/lefthook/internal/lefthook/runner/jobs"
-	"github.com/evilmartians/lefthook/internal/lefthook/runner/result"
 	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/internal/run/exec"
+	"github.com/evilmartians/lefthook/internal/run/filters"
+	"github.com/evilmartians/lefthook/internal/run/jobs"
+	"github.com/evilmartians/lefthook/internal/run/result"
 )
 
 var (
@@ -55,7 +55,7 @@ func newJobContext(onlyJobs []string, exclude []string) *jobContext {
 	}
 }
 
-func (r *Runner) runJobs(ctx context.Context) []result.Result {
+func (r *Run) runJobs(ctx context.Context) []result.Result {
 	var wg sync.WaitGroup
 
 	results := make([]result.Result, 0, len(r.Hook.Jobs))
@@ -92,7 +92,7 @@ func (r *Runner) runJobs(ctx context.Context) []result.Result {
 	return results
 }
 
-func (r *Runner) runJob(ctx context.Context, jobContext *jobContext, id string, job *config.Job) result.Result {
+func (r *Run) runJob(ctx context.Context, jobContext *jobContext, id string, job *config.Job) result.Result {
 	startTime := time.Now()
 
 	// Check if do job is properly configured
@@ -152,7 +152,7 @@ func (r *Runner) runJob(ctx context.Context, jobContext *jobContext, id string, 
 	return result.Failure(job.PrintableName(id), "don't know how to run job", time.Since(startTime))
 }
 
-func (r *Runner) runSingleJob(ctx context.Context, jobContext *jobContext, id string, job *config.Job) result.Result {
+func (r *Run) runSingleJob(ctx context.Context, jobContext *jobContext, id string, job *config.Job) result.Result {
 	startTime := time.Now()
 
 	name := job.PrintableName(id)
@@ -242,7 +242,7 @@ func (r *Runner) runSingleJob(ctx context.Context, jobContext *jobContext, id st
 	return result.Success(name, executionTime)
 }
 
-func (r *Runner) runGroup(ctx context.Context, groupName string, jobContext *jobContext, group *config.Group) result.Result {
+func (r *Run) runGroup(ctx context.Context, groupName string, jobContext *jobContext, group *config.Group) result.Result {
 	startTime := time.Now()
 
 	if len(group.Jobs) == 0 {
