@@ -36,6 +36,7 @@ func TestLefthookInstall(t *testing.T) {
 	for n, tt := range [...]struct {
 		name, config, checksum  string
 		force                   bool
+		hooks                   []string
 		existingHooks           map[string]string
 		wantExist, wantNotExist []string
 		wantError               bool
@@ -63,6 +64,30 @@ post-commit:
 				hookPath("post-commit"),
 				hookPath(config.GhostHookName),
 				infoPath(config.ChecksumFileName),
+			},
+		},
+		{
+			name: "with given hook",
+			config: `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+
+post-commit:
+  commands:
+    notify:
+      run: echo 'Done!'
+`,
+			hooks: []string{"pre-commit"},
+			wantExist: []string{
+				configPath,
+				hookPath("pre-commit"),
+				infoPath(config.ChecksumFileName),
+			},
+			wantNotExist: []string{
+				hookPath("post-commit"),
+				hookPath(config.GhostHookName),
 			},
 		},
 		{
@@ -221,7 +246,7 @@ post-commit:
 			}
 
 			// Do install
-			err := lefthook.Install(tt.force)
+			err := lefthook.Install(tt.hooks, tt.force)
 			if tt.wantError {
 				assert.Error(err)
 			} else {
@@ -245,7 +270,7 @@ post-commit:
 	}
 }
 
-func TestCreateHooksIfNeeded(t *testing.T) {
+func Test_syncHooks(t *testing.T) {
 	root, err := filepath.Abs("src")
 	assert.NoError(t, err)
 
@@ -318,6 +343,63 @@ post-commit:
 				hookPath(config.GhostHookName),
 			},
 		},
+		{
+			name: "unsynchronized",
+			config: `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+
+post-commit:
+  commands:
+    notify:
+      run: echo 'Done!'
+
+commit-msg:
+  jobs:
+    - run: echo 'commit-msg'
+`,
+			checksum: "00000000f706df65f379a9ff5ce0119b 1555894311\n",
+			wantExist: []string{
+				configPath,
+				hookPath("pre-commit"),
+				hookPath("post-commit"),
+				hookPath("commit-msg"),
+				infoPath(config.ChecksumFileName),
+				hookPath(config.GhostHookName),
+			},
+			wantNotExist: []string{},
+		},
+		{
+			name: "unsynchronized with selected hooks",
+			config: `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+
+post-commit:
+  commands:
+    notify:
+      run: echo 'Done!'
+
+commit-msg:
+  jobs:
+    - run: echo 'commit-msg'
+`,
+			checksum: "00000000f706df65f379a9ff5ce0119b 1555894310 pre-commit,post-commit\n",
+			wantExist: []string{
+				configPath,
+				hookPath("pre-commit"),
+				hookPath("post-commit"),
+				infoPath(config.ChecksumFileName),
+			},
+			wantNotExist: []string{
+				hookPath("commit-msg"),
+				hookPath(config.GhostHookName),
+			},
+		},
 	} {
 		fs := afero.NewMemMapFs()
 		lefthook := &Lefthook{
@@ -350,7 +432,7 @@ post-commit:
 			assert.NoError(err)
 
 			// Create hooks
-			err = lefthook.createHooksIfNeeded(cfg, true, true)
+			_, err = lefthook.syncHooks(cfg, false)
 			if tt.wantError {
 				assert.Error(err)
 			} else {
@@ -361,14 +443,14 @@ post-commit:
 			for _, file := range tt.wantExist {
 				ok, err := afero.Exists(fs, file)
 				assert.NoError(err)
-				assert.Equal(ok, true)
+				assert.Equal(true, ok, file)
 			}
 
 			// Test files that should not exist
 			for _, file := range tt.wantNotExist {
 				ok, err := afero.Exists(fs, file)
 				assert.NoError(err)
-				assert.Equal(ok, false)
+				assert.Equal(false, ok, file)
 			}
 		})
 	}

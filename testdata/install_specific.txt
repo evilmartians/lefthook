@@ -1,0 +1,22 @@
+exec git init
+exec lefthook install pre-commit post-commit
+! stderr .
+
+exists lefthook.yml
+exists .git/hooks/pre-commit
+exists .git/hooks/post-commit
+! exists .git/hooks/pre-push
+
+-- lefthook.yml --
+pre-commit:
+  jobs:
+    - run: echo
+
+post-commit:
+  jobs:
+    - run: echo
+
+pre-push:
+  jobs:
+    - run: echo
+

@@ -1,6 +1,8 @@
 package command
 
 import (
+	"errors"
+	"os"
 	"path/filepath"
 
 	"github.com/spf13/afero"
@@ -27,9 +29,13 @@ func (l *Lefthook) Uninstall(args *UninstallArgs) error {
 		return err
 	}
 
-	if err := l.fs.Remove(l.checksumFilePath()); err == nil {
+	err := l.fs.Remove(l.checksumFilePath())
+	switch {
+	case err == nil:
 		log.Debugf("%s removed", l.checksumFilePath())
-	} else {
+	case errors.Is(err, os.ErrNotExist):
+		log.Debugf("%s not found, skipping\n", l.checksumFilePath())
+	default:
 		log.Errorf("Failed removing %s: %s\n", l.checksumFilePath(), err)
 	}
 
