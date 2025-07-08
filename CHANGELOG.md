@@ -1,5 +1,10 @@
 # Change log
 
+## 1.12.0 (2025-07-08)
+
+- feat: allow installing only specific hooks ([#1069](https://github.com/evilmartians/lefthook/pull/1069))
+- refactor: [**breaking**] restructure files and folders, remove deprecated options ([#1067](https://github.com/evilmartians/lefthook/pull/1067))
+
 ## 1.11.16 (2025-07-03)
 
 - fix: race condition on repo state ([#1066](https://github.com/evilmartians/lefthook/pull/1066))
