@@ -80,17 +80,24 @@ func loadOne(k *koanf.Koanf, filesystem afero.Fs, root string, names []string) e
 func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.Koanf, error) {
 	main := koanf.New(".")
 
-	// Load main (e.g. lefthook.yml)
-	mainConfigErr := loadOne(main, filesystem, repo.RootPath, MainConfigNames)
-	if mainConfigErr != nil {
-		// If main config doesn't exist, check if local config exists
-		// This allows using lefthook-local.yml without main config
-		localTest := koanf.New(".")
-		if localErr := loadOne(localTest, filesystem, repo.RootPath, LocalConfigNames); localErr != nil {
-			// Neither main nor local config exists
-			return nil, nil, mainConfigErr
+	// Load main (e.g. lefthook.yml) or fallback to local config (e.g. lefthook-local.yml)
+	err := loadOne(main, filesystem, repo.RootPath, MainConfigNames)
+	if ok := errors.As(err, &ConfigNotFoundError{}); ok {
+		var hasLocalConfig bool
+	OUT:
+		for _, extension := range extensions {
+			for _, name := range LocalConfigNames {
+				if ok, _ := afero.Exists(filesystem, filepath.Join(repo.RootPath, name+extension)); ok {
+					hasLocalConfig = true
+					break OUT
+				}
+			}
 		}
-		// Local config exists but main doesn't - continue with empty main
+		if !hasLocalConfig {
+			return nil, nil, err
+		}
+	} else if err != nil {
+		return nil, nil, err
 	}
 
 	// Save `extends` and `remotes`
@@ -118,8 +125,7 @@ func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.
 	// Load optional local config (e.g. lefthook-local.yml)
 	var noLocal bool
 	if err := loadOne(secondary, filesystem, repo.RootPath, LocalConfigNames); err != nil {
-		var configNotFoundErr ConfigNotFoundError
-		if ok := errors.As(err, &configNotFoundErr); !ok {
+		if ok := errors.As(err, &ConfigNotFoundError{}); !ok {
 			return nil, nil, err
 		}
 		noLocal = true
