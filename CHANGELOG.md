@@ -1,5 +1,11 @@
 # Change log
 
+## 1.12.1 (2025-07-09)
+
+- feat: add check-install command ([#1064](https://github.com/evilmartians/lefthook/pull/1064)) by [@mrexox](https://github.com/mrexox)
+- chore: only check if local configs exist by [@mrexox](https://github.com/mrexox)
+- feat: allow using local config only ([#1071](https://github.com/evilmartians/lefthook/pull/1071)) by [@sj26](https://github.com/sj26)
+
 ## 1.12.0 (2025-07-08)
 
 - feat: allow installing only specific hooks ([#1069](https://github.com/evilmartians/lefthook/pull/1069))
