@@ -6,6 +6,8 @@
 
 Use `lefthook-local.yml` to overwrite or extend options from the main config. (Don't forget to add this file to `.gitignore`)
 
+You can also use `lefthook-local.yml` without a main config file. This is useful when you want to use lefthook locally without imposing it on your teammates.
+
 ### Disable lefthook in CI
 
 When using NPM package `lefthook`, set `CI=true` in your CI (if it does not set it automatically) to prevent lefthook from installing hooks in the postinstall script.

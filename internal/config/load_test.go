@@ -871,6 +871,68 @@ pre-commit:
 				},
 			},
 		},
+		"with lefthook-local.yml only": {
+			files: map[string]string{
+				"lefthook-local.yml": `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+post-commit:
+  commands:
+    ping-done:
+      run: curl -x POST status.com/done
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         nil,
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Parallel: false,
+						Commands: map[string]*Command{
+							"tests": {
+								Run: "yarn test",
+							},
+						},
+					},
+					"post-commit": {
+						Parallel: false,
+						Commands: map[string]*Command{
+							"ping-done": {
+								Run: "curl -x POST status.com/done",
+							},
+						},
+					},
+				},
+			},
+		},
+		"with .lefthook-local.yml only": {
+			files: map[string]string{
+				".lefthook-local.yml": `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         nil,
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Parallel: false,
+						Commands: map[string]*Command{
+							"tests": {
+								Run: "yarn test",
+							},
+						},
+					},
+				},
+			},
+		},
 	} {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		repo := &git.Repository{

@@ -26,6 +26,8 @@ Filenames without the leading dot will also be looked up from the [`.config` sub
 
 Lefthook also merges an extra config with the name `lefthook-local`. All supported formats can be applied to this `-local` config. If you name your main config with the leading dot, like `.lefthook.json`, the `-local` config also must be named with the leading dot: `.lefthook-local.json`.
 
+The `-local` config can be used without a main config file. This is useful when you want to use lefthook locally without imposing it on your teammates – just create a `lefthook-local.yml` file and add it to your global `.gitignore`.
+
 ## Options
 
 - [`assert_lefthook_installed`](./assert_lefthook_installed.md)

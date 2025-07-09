@@ -81,8 +81,16 @@ func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.
 	main := koanf.New(".")
 
 	// Load main (e.g. lefthook.yml)
-	if err := loadOne(main, filesystem, repo.RootPath, MainConfigNames); err != nil {
-		return nil, nil, err
+	mainConfigErr := loadOne(main, filesystem, repo.RootPath, MainConfigNames)
+	if mainConfigErr != nil {
+		// If main config doesn't exist, check if local config exists
+		// This allows using lefthook-local.yml without main config
+		localTest := koanf.New(".")
+		if localErr := loadOne(localTest, filesystem, repo.RootPath, LocalConfigNames); localErr != nil {
+			// Neither main nor local config exists
+			return nil, nil, mainConfigErr
+		}
+		// Local config exists but main doesn't - continue with empty main
 	}
 
 	// Save `extends` and `remotes`
