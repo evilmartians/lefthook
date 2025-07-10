@@ -21,6 +21,7 @@ func TestLoad(t *testing.T) {
 		files            map[string]string
 		remote           string
 		remoteConfigPath string
+		pathOverride     string
 		result           *Config
 	}{
 		"with .lefthook.yml": {
@@ -841,7 +842,7 @@ pre-commit:
 				},
 			},
 		},
-		"with .cofig/lefthook.yml": {
+		"with .config/lefthook.yml": {
 			files: map[string]string{
 				filepath.Join(".config", "lefthook.yml"): `
 pre-commit:
@@ -933,6 +934,32 @@ pre-commit:
 				},
 			},
 		},
+		"custom config path": {
+			files: map[string]string{
+				"lefthook_custom.yml": `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+`,
+			},
+			pathOverride: "lefthook_custom.yml",
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         nil,
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Parallel: false,
+						Commands: map[string]*Command{
+							"tests": {
+								Run: "yarn test",
+							},
+						},
+					},
+				},
+			},
+		},
 	} {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		repo := &git.Repository{
@@ -959,6 +986,8 @@ pre-commit:
 				assert.NoError(fs.MkdirAll(filepath.Base(tt.remoteConfigPath), 0o755))
 				assert.NoError(fs.WriteFile(tt.remoteConfigPath, []byte(tt.remote), 0o644))
 			}
+
+			t.Setenv("LEFTHOOK_CONFIG", tt.pathOverride)
 
 			result, err := Load(fs.Fs, repo)
 			assert.NoError(err)
