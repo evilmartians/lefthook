@@ -168,6 +168,7 @@ func (r *Run) runSingleJob(ctx context.Context, jobContext *jobContext, id strin
 		Force:      r.Force,
 		SourceDirs: r.SourceDirs,
 		GitArgs:    r.GitArgs,
+		Name:       name,
 		Run:        job.Run,
 		Root:       root,
 		Runner:     job.Runner,

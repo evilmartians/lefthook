@@ -15,6 +15,7 @@ type Params struct {
 	ForceFiles []string
 	SourceDirs []string
 
+	Name      string
 	Run       string
 	Root      string
 	Runner    string

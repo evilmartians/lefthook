@@ -123,6 +123,8 @@ func buildCommand(params *Params) (*Job, error) {
 		runString = strings.ReplaceAll(runString, "{"+keyword+"}", replacement)
 	}
 
+	runString = strings.ReplaceAll(runString, "{lefthook_job_name}", shellescape.Quote(params.Name))
+
 	maxlen := system.MaxCmdLen()
 	result := replaceInChunks(runString, filesTemplates, maxlen)
 
