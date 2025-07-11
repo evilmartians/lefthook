@@ -259,7 +259,7 @@ end
 <div style="break-before: page; page-break-before: always;"></div><h2 id="swift"><a class="header" href="#swift">Swift</a></h2>
 <p>You can find the Swift wrapper plugin <a href="https://github.com/csjones/lefthook-plugin">here</a>.</p>
 <p>Utilize lefthook in your Swift project using Swift Package Manager:</p>
-<pre><code class="language-swift">.package(url: "https://github.com/csjones/lefthook-plugin.git", exact: "1.12.1"),
+<pre><code class="language-swift">.package(url: "https://github.com/csjones/lefthook-plugin.git", exact: "1.12.2"),
 </code></pre>
 <p>Or, with <a href="https://github.com/yonaskolb/Mint">mint</a>:</p>
 <pre><code class="language-bash">mint run csjones/lefthook-plugin
@@ -1523,6 +1523,7 @@ pre-commit:
 <li><code>{cmd}</code> - shorthand for the command from <code>lefthook.yml</code>.</li>
 <li><code>{0}</code> - shorthand for the single space-joint string of git hook arguments.</li>
 <li><code>{N}</code> - shorthand for the N-th git hook argument.</li>
+<li><code>{lefthook_job_name}</code> - current job/command/script name</li>
 </ul>
 <blockquote>
 <p><strong>Note:</strong> Command line length has a limit on every system. If your list of files is quite long, lefthook splits your files list to fit in the limit and runs few commands sequentially.</p>
@@ -2328,6 +2329,7 @@ pre-commit:
 <li><code>{cmd}</code> - shorthand for the command from <code>lefthook.yml</code>.</li>
 <li><code>{0}</code> - shorthand for the single space-joint string of git hook arguments.</li>
 <li><code>{N}</code> - shorthand for the N-th git hook argument.</li>
+<li><code>{lefthook_job_name}</code> - current job/command/script name</li>
 </ul>
 <blockquote>
 <p><strong>Note:</strong> Command line length has a limit on every system. If your list of files is quite long, lefthook splits your files list to fit in the limit and runs few commands sequentially.</p>
