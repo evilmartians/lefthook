@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Tips - Lefthook Documentation</title>
+        <title>Wrap commands locally - Lefthook Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -155,116 +155,35 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="tips"><a class="header" href="#tips">Tips</a></h2>
-<blockquote>
-<p>Small tips for better experience with lefthook</p>
-</blockquote>
-<h3 id="local-config"><a class="header" href="#local-config">Local config</a></h3>
-<p>Use <code>lefthook-local.yml</code> to overwrite or extend options from the main config. (Don't forget to add this file to <code>.gitignore</code>)</p>
-<p>You can also use <code>lefthook-local.yml</code> without a main config file. This is useful when you want to use lefthook locally without imposing it on your teammates.</p>
-<h3 id="disable-lefthook-in-ci"><a class="header" href="#disable-lefthook-in-ci">Disable lefthook in CI</a></h3>
-<p>When using NPM package <code>lefthook</code>, set <code>CI=true</code> in your CI (if it does not set it automatically) to prevent lefthook from installing hooks in the postinstall script.</p>
-<h3 id="enable-lefthook-in-ci"><a class="header" href="#enable-lefthook-in-ci">Enable lefthook in CI</a></h3>
-<p>When using NPM package <code>lefthook</code>, and your CI sets <code>CI=true</code> automatically, set <code>LEFTHOOK=1</code> to install the hooks in the postinstall script.</p>
-<h3 id="commitlint-example"><a class="header" href="#commitlint-example">Commitlint example</a></h3>
-<p>Let's create a bash script to check conventional commit status <code>.lefthook/commit-msg/commitlint.sh</code>:</p>
-<pre><code class="language-bash">echo $(head -n1 $1) | npx commitlint --color
-</code></pre>
-<p>Now we can ask lefthook to run our bash script by adding this code to
-<code>lefthook.yml</code> file:</p>
+                        <h1 id="wrap-commands-in-local-config"><a class="header" href="#wrap-commands-in-local-config">Wrap commands in local config</a></h1>
+<p>Wrapping some commands defined in a main config with <code>dip</code><sup class="footnote-reference"><a href="#1">1</a></sup>.</p>
 <pre><code class="language-yml"># lefthook.yml
 
-commit-msg:
-  scripts:
-    "commitlint.sh":
-      runner: bash
+pre-commit:
+  jobs:
+    - name: rubocop
+      run: bundle exec rubocop -A {staged_files}
 </code></pre>
-<p>When you try to commit <code>git commit -m "haha bad commit text"</code> script <code>commitlint.sh</code> will be executed. Since commit text doesn't match the default config or custom config that you setup for <code>commitlint</code>, the process will be interrupted.</p>
-<h3 id="parallel-execution"><a class="header" href="#parallel-execution">Parallel execution</a></h3>
-<p>You can enable parallel execution if you want to speed up your checks.
-Lets imagine we have the following rules to lint the whole project:</p>
-<pre><code>bundle exec rubocop --parallel &amp;&amp; \
-bundle exec danger &amp;&amp; \
-yarn eslint --ext .es6 app/assets/javascripts &amp;&amp; \
-yarn eslint --ext .es6 test/javascripts &amp;&amp; \
-yarn eslint --ext .es6 plugins/**/assets/javascripts &amp;&amp; \
-yarn eslint --ext .es6 plugins/**/test/javascripts &amp;&amp; \
-yarn eslint app/assets/javascripts test/javascripts
-</code></pre>
-<p>Rewrite it in lefthook custom group. We call it <code>lint</code>:</p>
-<pre><code class="language-yml"># lefthook.yml
+<pre><code class="language-yml"># lefthook-local.yml
 
-lint:
-  parallel: true
-  commands:
-    rubocop:
-      run: bundle exec rubocop --parallel
-    danger:
-      run: bundle exec danger
-    eslint-assets:
-      run: yarn eslint --ext .es6 app/assets/javascripts
-    eslint-test:
-      run: yarn eslint --ext .es6 test/javascripts
-    eslint-plugins-assets:
-      run: yarn eslint --ext .es6 plugins/**/assets/javascripts
-    eslint-plugins-test:
-      run: yarn eslint --ext .es6 plugins/**/test/javascripts
-    eslint-assets-tests:
-      run: yarn eslint app/assets/javascripts test/javascripts
+pre-commit:
+  jobs:
+    - name: rubocop
+      run: dip {cmd}
 </code></pre>
-<p>Then call this group directly:</p>
-<pre><code>lefthook run lint
-</code></pre>
-<h3 id="concurrent-files-overrides"><a class="header" href="#concurrent-files-overrides">Concurrent files overrides</a></h3>
-<p>To prevent concurrent problems with read/write files try <code>flock</code>
-utility.</p>
-<pre><code class="language-yml"># lefthook.yml
-
-graphql-schema:
-  glob: "{Gemfile.lock,app/graphql/**/*}"
-  run: flock webpack/application/typings/graphql-schema.json yarn typings:update &amp;&amp; git diff --exit-code --stat HEAD webpack/application/typings
-frontend-tests:
-  glob: "**/*.js"
-  run: flock -s webpack/application/typings/graphql-schema.json yarn test --findRelatedTests {files}
-frontend-typings:
-  glob: "**/*.js"
-  run: flock -s webpack/application/typings/graphql-schema.json yarn run flow focus-check {files}
-</code></pre>
-<h3 id="capture-args-from-git-in-the-script"><a class="header" href="#capture-args-from-git-in-the-script">Capture ARGS from git in the script</a></h3>
-<p>Example script for <code>prepare-commit-msg</code> hook:</p>
-<pre><code class="language-bash">COMMIT_MSG_FILE=$1
-COMMIT_SOURCE=$2
-SHA1=$3
-
-# ...
-</code></pre>
-<h3 id="git-lfs-support"><a class="header" href="#git-lfs-support">Git LFS support</a></h3>
-<blockquote>
-<p><strong>Note:</strong> If git-lfs binary is not installed and not required in your project, LFS hooks won't be executed, and you won't be warned about it.</p>
-</blockquote>
-<p>Lefthook runs LFS hooks internally for the following hooks:</p>
-<ul>
-<li>post-checkout</li>
-<li>post-commit</li>
-<li>post-merge</li>
-<li>pre-push</li>
-</ul>
-<p>Errors are suppressed if git LFS is not required for the project. You can use <a href="./env.html#lefthook_verbose"><code>LEFTHOOK_VERBOSE</code></a> ENV to make lefthook show git LFS output.</p>
-<p>To avoid using LFS set <a href="../configuration/skip_lfs.html"><code>skip_lfs: true</code></a> in lefthook.yml or lefthook-local.yml</p>
-<h3 id="pass-stdin-to-a-command-or-script"><a class="header" href="#pass-stdin-to-a-command-or-script">Pass stdin to a command or script</a></h3>
-<p>When you need to read the data from stdin – specify <a href="../configuration/use_stdin.html"><code>use_stdin: true</code></a>. This option is good when you write a command or script that receives data from git using stdin (for the <code>pre-push</code> hook, for example).</p>
-<h3 id="using-an-interactive-command-or-script"><a class="header" href="#using-an-interactive-command-or-script">Using an interactive command or script</a></h3>
-<p>When you need to interact with user – specify <a href="../configuration/interactive.html"><code>interactive: true</code></a>. Lefthook will connect to the current TTY and forward it to your command's or script's stdin.</p>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p><a href="https://github.com/bibendi/dip">dip</a> – dockerized dev experience with, similar to <code>docker-compose run</code></p>
+</div>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../usage/env.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../examples/lefthook-local.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../configuration/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../examples/stage_fixed.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -274,11 +193,11 @@ SHA1=$3
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../usage/env.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../examples/lefthook-local.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../configuration/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../examples/stage_fixed.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

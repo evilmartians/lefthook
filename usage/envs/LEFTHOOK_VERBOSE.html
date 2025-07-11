@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>With commitlint - Lefthook Documentation</title>
+        <title>LEFTHOOK_VERBOSE - Lefthook Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -12,32 +12,32 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="../favicon.svg">
-        <link rel="shortcut icon" href="../favicon.png">
-        <link rel="stylesheet" href="../css/variables.css">
-        <link rel="stylesheet" href="../css/general.css">
-        <link rel="stylesheet" href="../css/chrome.css">
-        <link rel="stylesheet" href="../css/print.css" media="print">
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
-        <link rel="stylesheet" href="../fonts/fonts.css">
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
-        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
-        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+        <link rel="stylesheet" id="highlight-css" href="../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
 
         <!-- Provide site root to javascript -->
         <script>
-            var path_to_root = "../";
+            var path_to_root = "../../";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc.js"></script>
+        <script src="../../toc.js"></script>
     </head>
     <body>
     <div id="body-container">
@@ -89,7 +89,7 @@
             <!-- populated by js -->
             <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
             <noscript>
-                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
             </noscript>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -123,7 +123,7 @@
                     <h1 class="menu-title">Lefthook Documentation</h1>
 
                     <div class="right-buttons">
-                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
                         <a href="https://github.com/evilmartians/lefthook" title="Git repository" aria-label="Git repository">
@@ -155,62 +155,18 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="commitlint-and-commitzen"><a class="header" href="#commitlint-and-commitzen">Commitlint and commitzen</a></h2>
-<p>Use lefthook to generate commit messages using commitzen and validate them with commitlint.</p>
-<h2 id="install-dependencies"><a class="header" href="#install-dependencies">Install dependencies</a></h2>
-<pre><code class="language-bash">yarn add -D @commitlint/cli @commitlint/config-conventional
-
-# For commitzen
-yarn add -D commitizen cz-conventional-changelog
-</code></pre>
-<h2 id="configure"><a class="header" href="#configure">Configure</a></h2>
-<p>Setup <code>commitlint.config.js</code>. Conventional configuration:</p>
-<pre><code class="language-js">// commitlint.config.js
-
-module.exports = {extends: ['@commitlint/config-conventional']};
-</code></pre>
-<p>If you are using commitzen, make sure to add this in <code>package.json</code>:</p>
-<pre><code class="language-json">"config": {
-  "commitizen": {
-    "path": "./node_modules/cz-conventional-changelog"
-  }
-}
-</code></pre>
-<p>Configure lefthook:</p>
-<pre><code class="language-yml"># lefthook.yml
-
-# Build commit messages
-prepare-commit-msg:
-  commands:
-    commitzen:
-      interactive: true
-      run: yarn run cz --hook # Or npx cz --hook
-      env:
-        LEFTHOOK: 0
-
-# Validate commit messages
-commit-msg:
-  commands:
-    "lint commit message":
-      run: yarn run commitlint --edit {1}
-</code></pre>
-<h2 id="test-it"><a class="header" href="#test-it">Test it</a></h2>
-<pre><code class="language-bash"># You can type it without message, if you are using commitzen
-git commit
-
-# Or provide a commit message is using only commitlint
-git commit -am 'fix: typo'
-</code></pre>
+                        <h2 id="lefthook_verbose"><a class="header" href="#lefthook_verbose"><code>LEFTHOOK_VERBOSE</code></a></h2>
+<p>Set <code>LEFTHOOK_VERBOSE=1</code> or <code>LEFTHOOK_VERBOSE=true</code> to enable verbose printing.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../examples/remotes.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../usage/envs/LEFTHOOK.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../misc/contributors.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../usage/envs/LEFTHOOK_OUTPUT.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -220,11 +176,11 @@ git commit -am 'fix: typo'
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../examples/remotes.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../usage/envs/LEFTHOOK.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../misc/contributors.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../usage/envs/LEFTHOOK_OUTPUT.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
@@ -239,13 +195,13 @@ git commit -am 'fix: typo'
         </script>
 
 
-        <script src="../elasticlunr.min.js"></script>
-        <script src="../mark.min.js"></script>
-        <script src="../searcher.js"></script>
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
 
-        <script src="../clipboard.min.js"></script>
-        <script src="../highlight.js"></script>
-        <script src="../book.js"></script>
+        <script src="../../clipboard.min.js"></script>
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
 
         <!-- Custom JS scripts -->
 

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>With commitlint - Lefthook Documentation</title>
+        <title>Features - Lefthook Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -155,62 +155,84 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="commitlint-and-commitzen"><a class="header" href="#commitlint-and-commitzen">Commitlint and commitzen</a></h2>
-<p>Use lefthook to generate commit messages using commitzen and validate them with commitlint.</p>
-<h2 id="install-dependencies"><a class="header" href="#install-dependencies">Install dependencies</a></h2>
-<pre><code class="language-bash">yarn add -D @commitlint/cli @commitlint/config-conventional
+                        <h2 id="features"><a class="header" href="#features">Features</a></h2>
+<blockquote>
+<p>Small features that make lefthook experience nicer</p>
+</blockquote>
+<h2 id="local-config"><a class="header" href="#local-config">Local config</a></h2>
+<p>You can extend and override options of your main configuration with <code>lefthook-local.yml</code>. Don't forge to add the file to <code>.girignore</code>.</p>
+<p>You can also use <code>lefthook-local.yml</code> without a main config file. This is useful when you want to use lefthook locally without imposing it on your teammates.</p>
+<pre><code class="language-yml"># lefthook.yml (committed into your repo)
 
-# For commitzen
-yarn add -D commitizen cz-conventional-changelog
+pre-commit:
+  jobs:
+    - name: linter
+      run: yarn lint
+    - name: tests
+      run: yarn test
 </code></pre>
-<h2 id="configure"><a class="header" href="#configure">Configure</a></h2>
-<p>Setup <code>commitlint.config.js</code>. Conventional configuration:</p>
-<pre><code class="language-js">// commitlint.config.js
+<pre><code class="language-yml"># lefthook-local.yml (ignored by git)
 
-module.exports = {extends: ['@commitlint/config-conventional']};
+pre-commit:
+  jobs:
+    - name: tests
+      skip: true # don't want to run tests on every commit
+    - name: linter
+      run: yarn lint {staged_files} # lint only staged files
 </code></pre>
-<p>If you are using commitzen, make sure to add this in <code>package.json</code>:</p>
-<pre><code class="language-json">"config": {
-  "commitizen": {
-    "path": "./node_modules/cz-conventional-changelog"
-  }
-}
+<h2 id="capture-args-from-git-in-the-script"><a class="header" href="#capture-args-from-git-in-the-script">Capture ARGS from git in the script</a></h2>
+<p>Lefthook passes Git arguments to your commands and scripts.</p>
+<pre><code>├── .lefthook
+│   └── prepare-commit-msg
+│       └── message.sh
+└── lefthook.yml
 </code></pre>
-<p>Configure lefthook:</p>
 <pre><code class="language-yml"># lefthook.yml
 
-# Build commit messages
 prepare-commit-msg:
-  commands:
-    commitzen:
-      interactive: true
-      run: yarn run cz --hook # Or npx cz --hook
-      env:
-        LEFTHOOK: 0
-
-# Validate commit messages
-commit-msg:
-  commands:
-    "lint commit message":
-      run: yarn run commitlint --edit {1}
+  jobs:
+    - script: "message.sh"
+      runner: bash
+    - run: echo "Git args: {1} {2} {3}"
 </code></pre>
-<h2 id="test-it"><a class="header" href="#test-it">Test it</a></h2>
-<pre><code class="language-bash"># You can type it without message, if you are using commitzen
-git commit
+<pre><code class="language-bash"># .lefthook/prepare-commit-msg/message.sh
 
-# Or provide a commit message is using only commitlint
-git commit -am 'fix: typo'
+# Arguments get passed from Git
+
+COMMIT_MSG_FILE=$1
+COMMIT_SOURCE=$2
+SHA1=$3
+
+# ...
 </code></pre>
+<h2 id="git-lfs-support"><a class="header" href="#git-lfs-support">Git LFS support</a></h2>
+<blockquote>
+<p><strong>Note:</strong> If git-lfs binary is not installed and not required in your project, LFS hooks won't be executed, and you won't be warned about it.</p>
+<p>Git LFS hooks may be slow. Disable them with the global <code>skip_lfs: true</code> setting.</p>
+</blockquote>
+<p>Lefthook runs LFS hooks internally for the following hooks:</p>
+<ul>
+<li>post-checkout</li>
+<li>post-commit</li>
+<li>post-merge</li>
+<li>pre-push</li>
+</ul>
+<p>Errors are suppressed if git LFS is not required for the project. You can use <a href="../envs/LEFTHOOK_VERBOSE.html"><code>LEFTHOOK_VERBOSE</code></a> ENV to make lefthook show git LFS output.</p>
+<p>To avoid calling LFS hooks set <a href="../../configuration/skip_lfs.html"><code>skip_lfs: true</code></a> in lefthook.yml or lefthook-local.yml</p>
+<h2 id="using-an-interactive-command-or-script"><a class="header" href="#using-an-interactive-command-or-script">Using an interactive command or script</a></h2>
+<p>When you need to interact with user – specify <a href="../../configuration/interactive.html"><code>interactive: true</code></a>. Lefthook will connect to the current TTY and forward it to your command's or script's stdin.</p>
+<h2 id="pass-stdin-to-a-command-or-script"><a class="header" href="#pass-stdin-to-a-command-or-script">Pass stdin to a command or script</a></h2>
+<p>When you need to read the data from stdin – specify <a href="../../configuration/use_stdin.html"><code>use_stdin: true</code></a>. This option is good when you write a command or script that receives data from git using stdin (for the <code>pre-push</code> hook, for example).</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../examples/remotes.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../usage/commands/self-update.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../misc/contributors.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../usage/features/local.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -220,11 +242,11 @@ git commit -am 'fix: typo'
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../examples/remotes.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../usage/commands/self-update.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../misc/contributors.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../usage/features/local.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>lefthook-local.yml - Lefthook Documentation</title>
+        <title>Using local only config - Lefthook Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -156,11 +156,10 @@
                 <div id="content" class="content">
                     <main>
                         <h2 id="lefthook-localyml"><a class="header" href="#lefthook-localyml">lefthook-local.yml</a></h2>
-<p><code>lefthook-local.yml</code> overrides and extends the configuration of your main <code>lefthook.yml</code> (or <code>lefthook.toml</code>, <a href="../configuration">etc.</a>) file.</p>
 <blockquote>
 <p><strong>Tip:</strong> You can put <code>lefthook-local.yml</code> into your <code>~/.gitignore</code>, so in every project you can have your local-only overrides.</p>
 </blockquote>
-<p><em>Special feature</em> of <code>lefthook-local.yml</code>: you can wrap the commands using <code>{cmd}</code> template.</p>
+<p><code>lefthook-local.yml</code> overrides and extends the configuration of your main <code>lefthook.yml</code>.</p>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
@@ -190,8 +189,8 @@ post-merge:
       run: docker-compose run backend bundle install
 </code></pre>
 <hr />
-<pre><code class="language-yml"># The resulting config would look like this
-
+<h3 id="the-merged-config-lefthook-will-use"><a class="header" href="#the-merged-config-lefthook-will-use">The merged config lefthook will use</a></h3>
+<pre><code class="language-yml">
 pre-commit:
   parallel: true
   commands:
@@ -214,11 +213,11 @@ post-merge:
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../examples/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../usage/envs/CI.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../examples/stage_fixed.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../examples/wrap-commands.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -228,11 +227,11 @@ post-merge:
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../examples/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../usage/envs/CI.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../examples/stage_fixed.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../examples/wrap-commands.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

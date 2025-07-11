@@ -323,46 +323,6 @@ yay -S lefthook-bin
 <p><strong>Note</strong>: The mise plugin for lefthook is maintained by the community. While we appreciate their contribution, the lefthook team cannot provide direct support for mise-specific installation issues.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="manual-installation-with-prebuilt-executable"><a class="header" href="#manual-installation-with-prebuilt-executable">Manual installation with prebuilt executable</a></h2>
 <p>Download binaries from <a href="https://github.com/evilmartians/lefthook/releases/latest">latest release</a> and install manually.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="usage"><a class="header" href="#usage">Usage</a></h1>
-<ul>
-<li><a href="usage/./commands.html">Commands</a>
-<ul>
-<li><a href="usage/./commands.html#lefthook-install"><code>lefthook install</code></a></li>
-<li><a href="usage/./commands.html#lefthook-uninstall"><code>lefthook uninstall</code></a></li>
-<li><a href="usage/./commands.html#lefthook-add"><code>lefthook add</code></a></li>
-<li><a href="usage/./commands.html#lefthook-run"><code>lefthook run</code></a></li>
-<li><a href="usage/./commands.html#lefthook-version"><code>lefthook version</code></a></li>
-<li><a href="usage/./commands.html#lefthook-self-update"><code>lefthook self-update</code></a></li>
-<li><a href="usage/./commands.html#lefthook-validate"><code>lefthook validate</code></a></li>
-<li><a href="usage/./commands.html#lefthook-dump"><code>lefthook dump</code></a></li>
-</ul>
-</li>
-<li><a href="usage/./env.html">ENV variables</a>
-<ul>
-<li><a href="usage/./env.html#lefthook"><code>LEFTHOOK</code></a></li>
-<li><a href="usage/./env.html#lefthook_exclude"><code>LEFTHOOK_EXCLUDE</code></a></li>
-<li><a href="usage/./env.html#lefthook_output"><code>LEFTHOOK_OUTPUT</code></a></li>
-<li><a href="usage/./env.html#lefthook_quiet"><code>LEFTHOOK_QUIET</code></a></li>
-<li><a href="usage/./env.html#lefthook_verbose"><code>LEFTHOOK_VERBOSE</code></a></li>
-<li><a href="usage/./env.html#lefthook_bin"><code>LEFTHOOK_BIN</code></a></li>
-<li><a href="usage/./env.html#no_color"><code>NO_COLOR</code></a></li>
-<li><a href="usage/./env.html#clicolor_force"><code>CLICOLOR_FORCE</code></a></li>
-</ul>
-</li>
-<li><a href="usage/./tips.html">Tips</a>
-<ul>
-<li><a href="usage/./tips.html#local-config">Local config</a></li>
-<li><a href="usage/./tips.html#disable-lefthook-in-ci">Disable lefthook in CI</a></li>
-<li><a href="usage/./tips.html#commitlint-example">Commitlint example</a></li>
-<li><a href="usage/./tips.html#parallel-execution">Parallel execution</a></li>
-<li><a href="usage/./tips.html#concurrent-files-overrides">Concurrent files overrides</a></li>
-<li><a href="usage/./tips.html#capture-args-from-git-in-the-script">Capture ARGS from git in the script</a></li>
-<li><a href="usage/./tips.html#git-lfs-support">Git LFS support</a></li>
-<li><a href="usage/./tips.html#pass-stdin-to-a-command-or-script">Pass stdin to a command or script</a></li>
-<li><a href="usage/./tips.html#using-an-interactive-command-or-script">Using an interactive command or script</a></li>
-</ul>
-</li>
-</ul>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="commands"><a class="header" href="#commands">Commands</a></h2>
 <blockquote>
 <p><strong>Tip:</strong> Use <code>lefthook help</code> or <code>lefthook &lt;command&gt; -h/--help</code> to discover available commands and their options</p>
@@ -377,24 +337,26 @@ yay -S lefthook-bin
 <li><a href="usage/commands.html#lefthook-validate"><code>lefthook validate</code></a></li>
 <li><a href="usage/commands.html#lefthook-dump"><code>lefthook dump</code></a></li>
 </ul>
-<h3 id="lefthook-install"><a class="header" href="#lefthook-install"><code>lefthook install</code></a></h3>
-<p><code>lefthook install</code> creates an empty <code>lefthook.yml</code> if a configuration file does not exist and updates git hooks to use lefthook. Run <code>lefthook install</code> after cloning the git repo.</p>
-<p>You can install only specific hooks by running <code>lefthook install pre-commit pre-push</code> (will install <code>pre-commit</code> and <code>pre-push</code> hooks even if you have more in your configuration).</p>
+<h2 id="lefthook-install"><a class="header" href="#lefthook-install"><code>lefthook install</code></a></h2>
+<p>Creates an empty <code>lefthook.yml</code> if a configuration file does not exist.</p>
+<p>Installs configured hooks to Git hooks.</p>
 <blockquote>
-<p><strong>Note:</strong> NPM package <code>lefthook</code> installs the hooks in a postinstall script automatically</p>
+<p><strong>Note:</strong> NPM package <code>lefthook</code> installs the hooks in a postinstall script automatically. For projects not using NPM package run <code>lefthook install</code> after cloning the repo.</p>
 </blockquote>
-<h3 id="lefthook-uninstall"><a class="header" href="#lefthook-uninstall"><code>lefthook uninstall</code></a></h3>
-<p><code>lefthook uninstall</code> clears git hooks affected by lefthook. If you have lefthook installed as an NPM package you should remove it manually.</p>
-<h3 id="lefthook-add"><a class="header" href="#lefthook-add"><code>lefthook add</code></a></h3>
-<p><code>lefthook add pre-commit</code> will create a file <code>.git/hooks/pre-commit</code>. This is the same lefthook does for <a href="usage/commands.html#lefthook-install"><code>install</code></a> command but you don't need to create a configuration first.</p>
-<p>To use custom scripts as hooks create the required directories with <code>lefthook add pre-commit --dirs</code>.</p>
+<h3 id="installing-specific-hooks"><a class="header" href="#installing-specific-hooks">Installing specific hooks</a></h3>
+<p>You can install only specific hooks by running <code>lefthook install &lt;hook-1&gt; &lt;hook-2&gt; ...</code>.</p>
+<h2 id="lefthook-uninstall"><a class="header" href="#lefthook-uninstall"><code>lefthook uninstall</code></a></h2>
+<p>Clears Git hooks installed by lefthook.</p>
+<h2 id="lefthook-add"><a class="header" href="#lefthook-add"><code>lefthook add</code></a></h2>
+<p>Installs the given hook to Git hook.</p>
+<p>With argument <code>--dirs</code> creates a directory <code>.git/hooks/&lt;hook name&gt;/</code> if it doesn't exist. Use it before adding a script to configuration.</p>
 <p><strong>Example</strong></p>
-<pre><code class="language-bash">$ lefthook add pre-push --dirs
+<pre><code class="language-bash">$ lefthook add pre-push  --dirs
 </code></pre>
 <p>Describe pre-push commands in <code>lefthook.yml</code>:</p>
 <pre><code class="language-yml">pre-push:
-  scripts:
-    "audit.sh":
+  jobs:
+    - script: "audit.sh"
       runner: bash
 </code></pre>
 <p>Edit the script:</p>
@@ -402,199 +364,183 @@ yay -S lefthook-bin
 ...
 </code></pre>
 <p>Run <code>git push</code> and lefthook will run <code>bash audit.sh</code> as a pre-push hook.</p>
-<h3 id="lefthook-run"><a class="header" href="#lefthook-run"><code>lefthook run</code></a></h3>
-<p><code>lefthook run</code> executes the commands and scripts configured for a given hook. Generated hooks call <code>lefthook run</code> implicitly.</p>
+<h2 id="lefthook-run"><a class="header" href="#lefthook-run"><code>lefthook run</code></a></h2>
+<p>Executes the commands and scripts configured for a given hook. Installed Git hooks call <code>lefthook run</code> implicitly.</p>
 <p><strong>Example</strong></p>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
-  commands:
-    lint:
-      run: yarn lint --fix
+  jobs:
+    - name: lint
+      run: yarn lint --fix {staged_files}
 
 test:
-  commands:
-    js-test:
+  jobs:
+    - name: test
       run: yarn test
 </code></pre>
 <p>Install the hook.</p>
 <pre><code class="language-bash">$ lefthook install
 </code></pre>
-<p>Run <code>test</code>.</p>
 <pre><code class="language-bash">$ lefthook run test # will run 'yarn test'
+$ git commit # will run pre-commit hook ('yarn lint --fix')
+$ lefthook run pre-commit # will run pre-commit hook (`yarn lint --fix`)
 </code></pre>
-<p>Commit changes.</p>
-<pre><code class="language-bash">$ git commit # will run pre-commit hook ('yarn lint --fix')
+<h3 id="run-specific-jobs"><a class="header" href="#run-specific-jobs">Run specific jobs</a></h3>
+<p>You can specify which jobs to run (also <code>--commands</code> and <code>--scripts</code> supported).</p>
+<pre><code class="language-bash">$ lefthook run pre-commit --jobs lint
 </code></pre>
-<p>Or run manually also</p>
-<pre><code class="language-bash">$ lefthook run pre-commit
-</code></pre>
-<p>You can also specify a flag to run only some commands:</p>
-<pre><code class="language-bash">$ lefthook run pre-commit --commands lint
-</code></pre>
-<p>and optionally run either on all files (any <code>{staged_files}</code> placeholder acts as <code>{all_files}</code>) or a list of files:</p>
+<h3 id="specify-files"><a class="header" href="#specify-files">Specify files</a></h3>
+<p>You can force replacing files templates (like <code>{staged_files}</code>) with either all files (will acts as <code>{all_files}</code> template) or a list of files.</p>
 <pre><code class="language-bash">$ lefthook run pre-commit --all-files
 $ lefthook run pre-commit --file file1.js --file file2.js
 </code></pre>
 <p>(if both are specified, <code>--all-files</code> is ignored)</p>
-<h3 id="lefthook-version"><a class="header" href="#lefthook-version"><code>lefthook version</code></a></h3>
+<h2 id="lefthook-version"><a class="header" href="#lefthook-version"><code>lefthook version</code></a></h2>
 <p><code>lefthook version</code> prints the current binary version. Print the commit hash with <code>lefthook version --full</code></p>
 <p><strong>Example</strong></p>
 <pre><code class="language-bash">$ lefthook version --full
 
 1.1.3 bb099d13c24114d2859815d9d23671a32932ffe2
 </code></pre>
-<h3 id="lefthook-self-update"><a class="header" href="#lefthook-self-update"><code>lefthook self-update</code></a></h3>
-<p><code>lefthook self-update</code> updates the binary with the latest lefthook release on Github. This command is available only if you install lefthook from sources or download the binary from the Github Releases. For other ways use package-specific commands to update lefthook.</p>
-<h3 id="lefthook-validate"><a class="header" href="#lefthook-validate"><code>lefthook validate</code></a></h3>
-<p><code>lefthook validate</code> loads JSON schema from the Github repo and validates you main lefthook config (e.g. <code>lefthook.yml</code>) and secondary configs (<code>lefthook-local.yml</code>, configs from <code>extends</code> and <code>remotes</code>). Use <code>lefthook dump</code> to get the full config and locate the issue.</p>
-<h3 id="lefthook-dump"><a class="header" href="#lefthook-dump"><code>lefthook dump</code></a></h3>
-<p><code>lefthook dump</code> prints the merged config. This is the actual config lefthook uses, it can be build from the main config (<code>lefthook.yml</code>), remotes, extends, and <code>lefthook-local.yml</code> overrides.</p>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="env-variables"><a class="header" href="#env-variables">ENV variables</a></h2>
+<h2 id="lefthook-self-update"><a class="header" href="#lefthook-self-update"><code>lefthook self-update</code></a></h2>
+<p>Updates the binary with the latest lefthook release on Github.</p>
+<p>This command is available only if you install lefthook from sources or download the binary from the Github Releases. For other ways use package-specific commands to update lefthook.</p>
+<h2 id="lefthook-validate"><a class="header" href="#lefthook-validate"><code>lefthook validate</code></a></h2>
+<p>Validates your lefthook configuration. Use <code>lefthook dump</code> to see it.</p>
+<p>It uses JSON schema from the lefthook Github repo.</p>
+<h2 id="lefthook-dump"><a class="header" href="#lefthook-dump"><code>lefthook dump</code></a></h2>
+<p>Prints the whole configuration after merging all secondary configs.</p>
+<p>This is the actual config lefthook uses, it can be build from the main config (<code>lefthook.yml</code>), remotes, extends, and <code>lefthook-local.yml</code> overrides.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook-install-1"><a class="header" href="#lefthook-install-1"><code>lefthook install</code></a></h2>
+<p>Creates an empty <code>lefthook.yml</code> if a configuration file does not exist.</p>
+<p>Installs configured hooks to Git hooks.</p>
 <blockquote>
-<p>ENV variables control some lefthook behavior. Most of them have the alternative CLI or config options.</p>
+<p><strong>Note:</strong> NPM package <code>lefthook</code> installs the hooks in a postinstall script automatically. For projects not using NPM package run <code>lefthook install</code> after cloning the repo.</p>
 </blockquote>
-<h3 id="lefthook"><a class="header" href="#lefthook"><code>LEFTHOOK</code></a></h3>
-<p>Use <code>LEFTHOOK=0 git ...</code> or <code>LEFTHOOK=false git ...</code> to disable lefthook when running git commands.</p>
+<h3 id="installing-specific-hooks-1"><a class="header" href="#installing-specific-hooks-1">Installing specific hooks</a></h3>
+<p>You can install only specific hooks by running <code>lefthook install &lt;hook-1&gt; &lt;hook-2&gt; ...</code>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook-uninstall-1"><a class="header" href="#lefthook-uninstall-1"><code>lefthook uninstall</code></a></h2>
+<p>Clears Git hooks installed by lefthook.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook-run-1"><a class="header" href="#lefthook-run-1"><code>lefthook run</code></a></h2>
+<p>Executes the commands and scripts configured for a given hook. Installed Git hooks call <code>lefthook run</code> implicitly.</p>
 <p><strong>Example</strong></p>
-<pre><code class="language-bash">LEFTHOOK=0 git commit -am "Lefthook skipped"
-</code></pre>
-<p>When using NPM package <code>lefthook</code> in CI, and your CI sets <code>CI=true</code> automatically, use <code>LEFTHOOK=1</code> or <code>LEFTHOOK=true</code> to install hooks in the postinstall script:</p>
-<p><strong>Example</strong></p>
-<pre><code class="language-bash">LEFTHOOK=1 npm install
-LEFTHOOK=1 yarn install
-LEFTHOOK=1 pnpm install
-</code></pre>
-<h3 id="lefthook_exclude"><a class="header" href="#lefthook_exclude"><code>LEFTHOOK_EXCLUDE</code></a></h3>
-<p>Use <code>LEFTHOOK_EXCLUDE={list of tags or command names to be excluded}</code> to skip some commands or scripts by tag or name (for commands only). See the <a href="usage/../configuration/exclude_tags.html"><code>exclude_tags</code></a> configuration option for more details.</p>
-<p><strong>Example</strong></p>
-<pre><code class="language-bash">LEFTHOOK_EXCLUDE=ruby,security,lint git commit -am "Skip some tag checks"
-</code></pre>
-<h3 id="lefthook_output"><a class="header" href="#lefthook_output"><code>LEFTHOOK_OUTPUT</code></a></h3>
-<p>Use <code>LEFTHOOK_OUTPUT={list of output values}</code> to specify what to print in your output. You can also set <code>LEFTHOOK_OUTPUT=false</code> to disable all output except for errors. Refer to the <a href="usage/../configuration/output.html"><code>output</code></a> configuration option for more details.</p>
-<p><strong>Example</strong></p>
-<pre><code class="language-bash">$ LEFTHOOK_OUTPUT=summary lefthook run pre-commit
-summary: (done in 0.52 seconds)
-✔️  lint
-</code></pre>
-<h3 id="lefthook_quiet"><a class="header" href="#lefthook_quiet"><code>LEFTHOOK_QUIET</code></a></h3>
-<p>You can skip some outputs printed by lefthook by setting the <code>LEFTHOOK_QUIET</code> environment variable. Provide a list of output types to be skipped. See the <a href="usage/../configuration/skip_output.html"><code>skip_output</code></a> configuration option for more details.</p>
-<p><strong>Example</strong></p>
-<pre><code class="language-bash">$ LEFTHOOK_QUIET=meta,execution lefthook run pre-commit
-
-  EXECUTE &gt; lint
-
-SUMMARY: (done in 0.01 seconds)
-🥊  lint
-</code></pre>
-<h3 id="lefthook_verbose"><a class="header" href="#lefthook_verbose"><code>LEFTHOOK_VERBOSE</code></a></h3>
-<p>Set <code>LEFTHOOK_VERBOSE=1</code> or <code>LEFTHOOK_VERBOSE=true</code> to enable verbose printing.</p>
-<h3 id="lefthook_bin"><a class="header" href="#lefthook_bin"><code>LEFTHOOK_BIN</code></a></h3>
-<p>Set <code>LEFTHOOK_BIN</code> to a location where lefthook is installed to use that instead of trying to detect from the it the PATH or from a package manager.</p>
-<p>Useful for cases when:</p>
-<ul>
-<li>lefthook is installed multiple ways, and you want to be explicit about which one is used (example: installed through homebrew, but also is in Gemfile but you are using a ruby version manager like rbenv that prepends it to the path)</li>
-<li>debugging and/or developing lefthook</li>
-</ul>
-<h3 id="no_color"><a class="header" href="#no_color"><code>NO_COLOR</code></a></h3>
-<p>Set <code>NO_COLOR=true</code> to disable colored output in lefthook and all subcommands that lefthook calls.</p>
-<h3 id="clicolor_force"><a class="header" href="#clicolor_force"><code>CLICOLOR_FORCE</code></a></h3>
-<p>Set <code>CLICOLOR_FORCE=true</code> to force colored output in lefthook and all subcommands.</p>
-<h3 id="ci"><a class="header" href="#ci"><code>CI</code></a></h3>
-<p>When using NPM package <code>lefthook</code>, set <code>CI=true</code> in your CI (if it does not set it automatically) to prevent lefthook from installing hooks in the postinstall script:</p>
-<pre><code class="language-bash">CI=true npm install
-CI=true yarn install
-CI=true pnpm install
-</code></pre>
-<blockquote>
-<p><strong>Note:</strong> Set <code>LEFTHOOK=1</code> or <code>LEFTHOOK=true</code> to override this behavior and install hooks in the postinstall script (despite <code>CI=true</code>).</p>
-</blockquote>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="tips"><a class="header" href="#tips">Tips</a></h2>
-<blockquote>
-<p>Small tips for better experience with lefthook</p>
-</blockquote>
-<h3 id="local-config"><a class="header" href="#local-config">Local config</a></h3>
-<p>Use <code>lefthook-local.yml</code> to overwrite or extend options from the main config. (Don't forget to add this file to <code>.gitignore</code>)</p>
-<p>You can also use <code>lefthook-local.yml</code> without a main config file. This is useful when you want to use lefthook locally without imposing it on your teammates.</p>
-<h3 id="disable-lefthook-in-ci"><a class="header" href="#disable-lefthook-in-ci">Disable lefthook in CI</a></h3>
-<p>When using NPM package <code>lefthook</code>, set <code>CI=true</code> in your CI (if it does not set it automatically) to prevent lefthook from installing hooks in the postinstall script.</p>
-<h3 id="enable-lefthook-in-ci"><a class="header" href="#enable-lefthook-in-ci">Enable lefthook in CI</a></h3>
-<p>When using NPM package <code>lefthook</code>, and your CI sets <code>CI=true</code> automatically, set <code>LEFTHOOK=1</code> to install the hooks in the postinstall script.</p>
-<h3 id="commitlint-example"><a class="header" href="#commitlint-example">Commitlint example</a></h3>
-<p>Let's create a bash script to check conventional commit status <code>.lefthook/commit-msg/commitlint.sh</code>:</p>
-<pre><code class="language-bash">echo $(head -n1 $1) | npx commitlint --color
-</code></pre>
-<p>Now we can ask lefthook to run our bash script by adding this code to
-<code>lefthook.yml</code> file:</p>
 <pre><code class="language-yml"># lefthook.yml
 
-commit-msg:
-  scripts:
-    "commitlint.sh":
+pre-commit:
+  jobs:
+    - name: lint
+      run: yarn lint --fix {staged_files}
+
+test:
+  jobs:
+    - name: test
+      run: yarn test
+</code></pre>
+<p>Install the hook.</p>
+<pre><code class="language-bash">$ lefthook install
+</code></pre>
+<pre><code class="language-bash">$ lefthook run test # will run 'yarn test'
+$ git commit # will run pre-commit hook ('yarn lint --fix')
+$ lefthook run pre-commit # will run pre-commit hook (`yarn lint --fix`)
+</code></pre>
+<h3 id="run-specific-jobs-1"><a class="header" href="#run-specific-jobs-1">Run specific jobs</a></h3>
+<p>You can specify which jobs to run (also <code>--commands</code> and <code>--scripts</code> supported).</p>
+<pre><code class="language-bash">$ lefthook run pre-commit --jobs lint
+</code></pre>
+<h3 id="specify-files-1"><a class="header" href="#specify-files-1">Specify files</a></h3>
+<p>You can force replacing files templates (like <code>{staged_files}</code>) with either all files (will acts as <code>{all_files}</code> template) or a list of files.</p>
+<pre><code class="language-bash">$ lefthook run pre-commit --all-files
+$ lefthook run pre-commit --file file1.js --file file2.js
+</code></pre>
+<p>(if both are specified, <code>--all-files</code> is ignored)</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook-add-1"><a class="header" href="#lefthook-add-1"><code>lefthook add</code></a></h2>
+<p>Installs the given hook to Git hook.</p>
+<p>With argument <code>--dirs</code> creates a directory <code>.git/hooks/&lt;hook name&gt;/</code> if it doesn't exist. Use it before adding a script to configuration.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-bash">$ lefthook add pre-push  --dirs
+</code></pre>
+<p>Describe pre-push commands in <code>lefthook.yml</code>:</p>
+<pre><code class="language-yml">pre-push:
+  jobs:
+    - script: "audit.sh"
       runner: bash
 </code></pre>
-<p>When you try to commit <code>git commit -m "haha bad commit text"</code> script <code>commitlint.sh</code> will be executed. Since commit text doesn't match the default config or custom config that you setup for <code>commitlint</code>, the process will be interrupted.</p>
-<h3 id="parallel-execution"><a class="header" href="#parallel-execution">Parallel execution</a></h3>
-<p>You can enable parallel execution if you want to speed up your checks.
-Lets imagine we have the following rules to lint the whole project:</p>
-<pre><code>bundle exec rubocop --parallel &amp;&amp; \
-bundle exec danger &amp;&amp; \
-yarn eslint --ext .es6 app/assets/javascripts &amp;&amp; \
-yarn eslint --ext .es6 test/javascripts &amp;&amp; \
-yarn eslint --ext .es6 plugins/**/assets/javascripts &amp;&amp; \
-yarn eslint --ext .es6 plugins/**/test/javascripts &amp;&amp; \
-yarn eslint app/assets/javascripts test/javascripts
+<p>Edit the script:</p>
+<pre><code class="language-bash">$ vim .lefthook/pre-push/audit.sh
+...
 </code></pre>
-<p>Rewrite it in lefthook custom group. We call it <code>lint</code>:</p>
+<p>Run <code>git push</code> and lefthook will run <code>bash audit.sh</code> as a pre-push hook.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook-validate-1"><a class="header" href="#lefthook-validate-1"><code>lefthook validate</code></a></h2>
+<p>Validates your lefthook configuration. Use <code>lefthook dump</code> to see it.</p>
+<p>It uses JSON schema from the lefthook Github repo.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook-dump-1"><a class="header" href="#lefthook-dump-1"><code>lefthook dump</code></a></h2>
+<p>Prints the whole configuration after merging all secondary configs.</p>
+<p>This is the actual config lefthook uses, it can be build from the main config (<code>lefthook.yml</code>), remotes, extends, and <code>lefthook-local.yml</code> overrides.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook-check-install"><a class="header" href="#lefthook-check-install"><code>lefthook check-install</code></a></h2>
+<p>Checks if Git hooks are installed and synchronized.</p>
+<p>Returns:</p>
+<ul>
+<li><code>0</code> if hooks installed and synchronized</li>
+<li><code>1</code> if hooks not installed or need a sync</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook-self-update-1"><a class="header" href="#lefthook-self-update-1"><code>lefthook self-update</code></a></h2>
+<p>Updates the binary with the latest lefthook release on Github.</p>
+<p>This command is available only if you install lefthook from sources or download the binary from the Github Releases. For other ways use package-specific commands to update lefthook.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="features"><a class="header" href="#features">Features</a></h2>
+<blockquote>
+<p>Small features that make lefthook experience nicer</p>
+</blockquote>
+<h2 id="local-config"><a class="header" href="#local-config">Local config</a></h2>
+<p>You can extend and override options of your main configuration with <code>lefthook-local.yml</code>. Don't forge to add the file to <code>.girignore</code>.</p>
+<p>You can also use <code>lefthook-local.yml</code> without a main config file. This is useful when you want to use lefthook locally without imposing it on your teammates.</p>
+<pre><code class="language-yml"># lefthook.yml (committed into your repo)
+
+pre-commit:
+  jobs:
+    - name: linter
+      run: yarn lint
+    - name: tests
+      run: yarn test
+</code></pre>
+<pre><code class="language-yml"># lefthook-local.yml (ignored by git)
+
+pre-commit:
+  jobs:
+    - name: tests
+      skip: true # don't want to run tests on every commit
+    - name: linter
+      run: yarn lint {staged_files} # lint only staged files
+</code></pre>
+<h2 id="capture-args-from-git-in-the-script"><a class="header" href="#capture-args-from-git-in-the-script">Capture ARGS from git in the script</a></h2>
+<p>Lefthook passes Git arguments to your commands and scripts.</p>
+<pre><code>├── .lefthook
+│   └── prepare-commit-msg
+│       └── message.sh
+└── lefthook.yml
+</code></pre>
 <pre><code class="language-yml"># lefthook.yml
 
-lint:
-  parallel: true
-  commands:
-    rubocop:
-      run: bundle exec rubocop --parallel
-    danger:
-      run: bundle exec danger
-    eslint-assets:
-      run: yarn eslint --ext .es6 app/assets/javascripts
-    eslint-test:
-      run: yarn eslint --ext .es6 test/javascripts
-    eslint-plugins-assets:
-      run: yarn eslint --ext .es6 plugins/**/assets/javascripts
-    eslint-plugins-test:
-      run: yarn eslint --ext .es6 plugins/**/test/javascripts
-    eslint-assets-tests:
-      run: yarn eslint app/assets/javascripts test/javascripts
+prepare-commit-msg:
+  jobs:
+    - script: "message.sh"
+      runner: bash
+    - run: echo "Git args: {1} {2} {3}"
 </code></pre>
-<p>Then call this group directly:</p>
-<pre><code>lefthook run lint
-</code></pre>
-<h3 id="concurrent-files-overrides"><a class="header" href="#concurrent-files-overrides">Concurrent files overrides</a></h3>
-<p>To prevent concurrent problems with read/write files try <code>flock</code>
-utility.</p>
-<pre><code class="language-yml"># lefthook.yml
+<pre><code class="language-bash"># .lefthook/prepare-commit-msg/message.sh
 
-graphql-schema:
-  glob: "{Gemfile.lock,app/graphql/**/*}"
-  run: flock webpack/application/typings/graphql-schema.json yarn typings:update &amp;&amp; git diff --exit-code --stat HEAD webpack/application/typings
-frontend-tests:
-  glob: "**/*.js"
-  run: flock -s webpack/application/typings/graphql-schema.json yarn test --findRelatedTests {files}
-frontend-typings:
-  glob: "**/*.js"
-  run: flock -s webpack/application/typings/graphql-schema.json yarn run flow focus-check {files}
-</code></pre>
-<h3 id="capture-args-from-git-in-the-script"><a class="header" href="#capture-args-from-git-in-the-script">Capture ARGS from git in the script</a></h3>
-<p>Example script for <code>prepare-commit-msg</code> hook:</p>
-<pre><code class="language-bash">COMMIT_MSG_FILE=$1
+# Arguments get passed from Git
+
+COMMIT_MSG_FILE=$1
 COMMIT_SOURCE=$2
 SHA1=$3
 
 # ...
 </code></pre>
-<h3 id="git-lfs-support"><a class="header" href="#git-lfs-support">Git LFS support</a></h3>
+<h2 id="git-lfs-support"><a class="header" href="#git-lfs-support">Git LFS support</a></h2>
 <blockquote>
 <p><strong>Note:</strong> If git-lfs binary is not installed and not required in your project, LFS hooks won't be executed, and you won't be warned about it.</p>
+<p>Git LFS hooks may be slow. Disable them with the global <code>skip_lfs: true</code> setting.</p>
 </blockquote>
 <p>Lefthook runs LFS hooks internally for the following hooks:</p>
 <ul>
@@ -603,12 +549,76 @@ SHA1=$3
 <li>post-merge</li>
 <li>pre-push</li>
 </ul>
-<p>Errors are suppressed if git LFS is not required for the project. You can use <a href="usage/./env.html#lefthook_verbose"><code>LEFTHOOK_VERBOSE</code></a> ENV to make lefthook show git LFS output.</p>
-<p>To avoid using LFS set <a href="usage/../configuration/skip_lfs.html"><code>skip_lfs: true</code></a> in lefthook.yml or lefthook-local.yml</p>
-<h3 id="pass-stdin-to-a-command-or-script"><a class="header" href="#pass-stdin-to-a-command-or-script">Pass stdin to a command or script</a></h3>
-<p>When you need to read the data from stdin – specify <a href="usage/../configuration/use_stdin.html"><code>use_stdin: true</code></a>. This option is good when you write a command or script that receives data from git using stdin (for the <code>pre-push</code> hook, for example).</p>
-<h3 id="using-an-interactive-command-or-script"><a class="header" href="#using-an-interactive-command-or-script">Using an interactive command or script</a></h3>
-<p>When you need to interact with user – specify <a href="usage/../configuration/interactive.html"><code>interactive: true</code></a>. Lefthook will connect to the current TTY and forward it to your command's or script's stdin.</p>
+<p>Errors are suppressed if git LFS is not required for the project. You can use <a href="usage/../envs/LEFTHOOK_VERBOSE.html"><code>LEFTHOOK_VERBOSE</code></a> ENV to make lefthook show git LFS output.</p>
+<p>To avoid calling LFS hooks set <a href="usage/../../configuration/skip_lfs.html"><code>skip_lfs: true</code></a> in lefthook.yml or lefthook-local.yml</p>
+<h2 id="using-an-interactive-command-or-script"><a class="header" href="#using-an-interactive-command-or-script">Using an interactive command or script</a></h2>
+<p>When you need to interact with user – specify <a href="usage/../../configuration/interactive.html"><code>interactive: true</code></a>. Lefthook will connect to the current TTY and forward it to your command's or script's stdin.</p>
+<h2 id="pass-stdin-to-a-command-or-script"><a class="header" href="#pass-stdin-to-a-command-or-script">Pass stdin to a command or script</a></h2>
+<p>When you need to read the data from stdin – specify <a href="usage/../../configuration/use_stdin.html"><code>use_stdin: true</code></a>. This option is good when you write a command or script that receives data from git using stdin (for the <code>pre-push</code> hook, for example).</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="local-config-1"><a class="header" href="#local-config-1">Local config</a></h2>
+<p>You can extend and override options of your main configuration with <code>lefthook-local.yml</code>. Don't forge to add the file to <code>.girignore</code>.</p>
+<p>You can also use <code>lefthook-local.yml</code> without a main config file. This is useful when you want to use lefthook locally without imposing it on your teammates.</p>
+<pre><code class="language-yml"># lefthook.yml (committed into your repo)
+
+pre-commit:
+  jobs:
+    - name: linter
+      run: yarn lint
+    - name: tests
+      run: yarn test
+</code></pre>
+<pre><code class="language-yml"># lefthook-local.yml (ignored by git)
+
+pre-commit:
+  jobs:
+    - name: tests
+      skip: true # don't want to run tests on every commit
+    - name: linter
+      run: yarn lint {staged_files} # lint only staged files
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="capture-args-from-git-in-the-script-1"><a class="header" href="#capture-args-from-git-in-the-script-1">Capture ARGS from git in the script</a></h2>
+<p>Lefthook passes Git arguments to your commands and scripts.</p>
+<pre><code>├── .lefthook
+│   └── prepare-commit-msg
+│       └── message.sh
+└── lefthook.yml
+</code></pre>
+<pre><code class="language-yml"># lefthook.yml
+
+prepare-commit-msg:
+  jobs:
+    - script: "message.sh"
+      runner: bash
+    - run: echo "Git args: {1} {2} {3}"
+</code></pre>
+<pre><code class="language-bash"># .lefthook/prepare-commit-msg/message.sh
+
+# Arguments get passed from Git
+
+COMMIT_MSG_FILE=$1
+COMMIT_SOURCE=$2
+SHA1=$3
+
+# ...
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="git-lfs-support-1"><a class="header" href="#git-lfs-support-1">Git LFS support</a></h2>
+<blockquote>
+<p><strong>Note:</strong> If git-lfs binary is not installed and not required in your project, LFS hooks won't be executed, and you won't be warned about it.</p>
+<p>Git LFS hooks may be slow. Disable them with the global <code>skip_lfs: true</code> setting.</p>
+</blockquote>
+<p>Lefthook runs LFS hooks internally for the following hooks:</p>
+<ul>
+<li>post-checkout</li>
+<li>post-commit</li>
+<li>post-merge</li>
+<li>pre-push</li>
+</ul>
+<p>Errors are suppressed if git LFS is not required for the project. You can use <a href="usage/features/../envs/LEFTHOOK_VERBOSE.html"><code>LEFTHOOK_VERBOSE</code></a> ENV to make lefthook show git LFS output.</p>
+<p>To avoid calling LFS hooks set <a href="usage/features/../../configuration/skip_lfs.html"><code>skip_lfs: true</code></a> in lefthook.yml or lefthook-local.yml</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="using-an-interactive-command-or-script-1"><a class="header" href="#using-an-interactive-command-or-script-1">Using an interactive command or script</a></h2>
+<p>When you need to interact with user – specify <a href="usage/features/../../configuration/interactive.html"><code>interactive: true</code></a>. Lefthook will connect to the current TTY and forward it to your command's or script's stdin.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="pass-stdin-to-a-command-or-script-1"><a class="header" href="#pass-stdin-to-a-command-or-script-1">Pass stdin to a command or script</a></h2>
+<p>When you need to read the data from stdin – specify <a href="usage/features/../../configuration/use_stdin.html"><code>use_stdin: true</code></a>. This option is good when you write a command or script that receives data from git using stdin (for the <code>pre-push</code> hook, for example).</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="config-file-name"><a class="header" href="#config-file-name">Config file name</a></h2>
 <p>Lefthook supports the following file names for the main config:</p>
 <div class="table-wrapper"><table><thead><tr><th>Format</th><th>File name</th></tr></thead><tbody>
@@ -775,7 +785,7 @@ extends:
 </ul>
 <p>So, <code>extends</code> override settings from <code>lefthook.yml</code>, <code>remotes</code> override <code>extends</code>, and <code>lefthook-local.yml</code> can override everything.</p>
 </blockquote>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook-1"><a class="header" href="#lefthook-1"><code>lefthook</code></a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook"><a class="header" href="#lefthook"><code>lefthook</code></a></h2>
 <p><strong>Default:</strong> <code>null</code></p>
 <blockquote>
 <p>Added in lefthook <code>1.10.5</code></p>
@@ -3277,21 +3287,95 @@ post-checkout:
       runner: ruby
       priority: 2
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="examples-1"><a class="header" href="#examples-1">Examples</a></h1>
-<ul>
-<li><a href="examples/./lefthook-local.html">lefthook-local.yml (with extensions and overrides)</a></li>
-<li><a href="examples/./stage_fixed.html">Apply fixes on pre-commit hook</a></li>
-<li><a href="examples/./filters.html">Filter files for commands</a></li>
-<li><a href="examples/./skip.html">Skip or run on condition</a></li>
-<li><a href="examples/./remotes.html">Use remote config</a></li>
-<li><a href="examples/./commitlint.html">Use with commitlint</a></li>
-</ul>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="env-variables"><a class="header" href="#env-variables">ENV variables</a></h2>
+<blockquote>
+<p>ENV variables control some lefthook behavior. Most of them have the alternative CLI or config options.</p>
+</blockquote>
+<h2 id="lefthook-1"><a class="header" href="#lefthook-1"><code>LEFTHOOK</code></a></h2>
+<p>Use <code>LEFTHOOK=0 git ...</code> or <code>LEFTHOOK=false git ...</code> to disable lefthook when running git commands.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-bash">LEFTHOOK=0 git commit -am "Lefthook skipped"
+</code></pre>
+<p>When using NPM package <code>lefthook</code> in CI, and your CI sets <code>CI=true</code> automatically, use <code>LEFTHOOK=1</code> or <code>LEFTHOOK=true</code> to install hooks in the postinstall script:</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-bash">LEFTHOOK=1 npm install
+LEFTHOOK=1 yarn install
+LEFTHOOK=1 pnpm install
+</code></pre>
+<h2 id="lefthook_output"><a class="header" href="#lefthook_output"><code>LEFTHOOK_OUTPUT</code></a></h2>
+<p>Use <code>LEFTHOOK_OUTPUT={list of output values}</code> to specify what to print in your output. You can also set <code>LEFTHOOK_OUTPUT=false</code> to disable all output except for errors. Refer to the <a href="usage/../../configuration/output.html"><code>output</code></a> configuration option for more details.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-bash">$ LEFTHOOK_OUTPUT=summary lefthook run pre-commit
+summary: (done in 0.52 seconds)
+✔️  lint
+</code></pre>
+<h2 id="lefthook_verbose"><a class="header" href="#lefthook_verbose"><code>LEFTHOOK_VERBOSE</code></a></h2>
+<p>Set <code>LEFTHOOK_VERBOSE=1</code> or <code>LEFTHOOK_VERBOSE=true</code> to enable verbose printing.</p>
+<h2 id="lefthook_config"><a class="header" href="#lefthook_config"><code>LEFTHOOK_CONFIG</code></a></h2>
+<p>Override the main lefthook config with <code>LEFTHOOK_CONFIG=~/global_lefthook.yml</code>. Note: local config, specified extends, and remotes will still be loaded.</p>
+<h2 id="lefthook_exclude"><a class="header" href="#lefthook_exclude"><code>LEFTHOOK_EXCLUDE</code></a></h2>
+<p>Use <code>LEFTHOOK_EXCLUDE={list of tags or command names to be excluded}</code> to skip some commands or scripts by tag or name (for commands only). See the <a href="usage/../../configuration/exclude_tags.html"><code>exclude_tags</code></a> configuration option for more details.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-bash">LEFTHOOK_EXCLUDE=ruby,security,lint git commit -am "Skip some tag checks"
+</code></pre>
+<h2 id="no_color"><a class="header" href="#no_color"><code>NO_COLOR</code></a></h2>
+<p>Set <code>NO_COLOR=true</code> to disable colored output in lefthook and all subcommands that lefthook calls.</p>
+<h2 id="clicolor_force"><a class="header" href="#clicolor_force"><code>CLICOLOR_FORCE</code></a></h2>
+<p>Set <code>CLICOLOR_FORCE=true</code> to force colored output in lefthook and all subcommands.</p>
+<h2 id="ci"><a class="header" href="#ci"><code>CI</code></a></h2>
+<p>When using NPM package <code>lefthook</code>, set <code>CI=true</code> in your CI (if it does not set it automatically) to prevent lefthook from installing hooks in the postinstall script:</p>
+<pre><code class="language-bash">CI=true npm install
+CI=true yarn install
+CI=true pnpm install
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> Set <code>LEFTHOOK=1</code> or <code>LEFTHOOK=true</code> to override this behavior and install hooks in the postinstall script (despite <code>CI=true</code>).</p>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook-2"><a class="header" href="#lefthook-2"><code>LEFTHOOK</code></a></h2>
+<p>Use <code>LEFTHOOK=0 git ...</code> or <code>LEFTHOOK=false git ...</code> to disable lefthook when running git commands.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-bash">LEFTHOOK=0 git commit -am "Lefthook skipped"
+</code></pre>
+<p>When using NPM package <code>lefthook</code> in CI, and your CI sets <code>CI=true</code> automatically, use <code>LEFTHOOK=1</code> or <code>LEFTHOOK=true</code> to install hooks in the postinstall script:</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-bash">LEFTHOOK=1 npm install
+LEFTHOOK=1 yarn install
+LEFTHOOK=1 pnpm install
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook_verbose-1"><a class="header" href="#lefthook_verbose-1"><code>LEFTHOOK_VERBOSE</code></a></h2>
+<p>Set <code>LEFTHOOK_VERBOSE=1</code> or <code>LEFTHOOK_VERBOSE=true</code> to enable verbose printing.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook_output-1"><a class="header" href="#lefthook_output-1"><code>LEFTHOOK_OUTPUT</code></a></h2>
+<p>Use <code>LEFTHOOK_OUTPUT={list of output values}</code> to specify what to print in your output. You can also set <code>LEFTHOOK_OUTPUT=false</code> to disable all output except for errors. Refer to the <a href="usage/envs/../../configuration/output.html"><code>output</code></a> configuration option for more details.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-bash">$ LEFTHOOK_OUTPUT=summary lefthook run pre-commit
+summary: (done in 0.52 seconds)
+✔️  lint
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook_config-1"><a class="header" href="#lefthook_config-1"><code>LEFTHOOK_CONFIG</code></a></h2>
+<p>Override the main lefthook config with <code>LEFTHOOK_CONFIG=~/global_lefthook.yml</code>. Note: local config, specified extends, and remotes will still be loaded.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook_exclude-1"><a class="header" href="#lefthook_exclude-1"><code>LEFTHOOK_EXCLUDE</code></a></h2>
+<p>Use <code>LEFTHOOK_EXCLUDE={list of tags or command names to be excluded}</code> to skip some commands or scripts by tag or name (for commands only). See the <a href="usage/envs/../../configuration/exclude_tags.html"><code>exclude_tags</code></a> configuration option for more details.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-bash">LEFTHOOK_EXCLUDE=ruby,security,lint git commit -am "Skip some tag checks"
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="clicolor_force-1"><a class="header" href="#clicolor_force-1"><code>CLICOLOR_FORCE</code></a></h2>
+<p>Set <code>CLICOLOR_FORCE=true</code> to force colored output in lefthook and all subcommands.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="no_color-1"><a class="header" href="#no_color-1"><code>NO_COLOR</code></a></h2>
+<p>Set <code>NO_COLOR=true</code> to disable colored output in lefthook and all subcommands that lefthook calls.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="ci-1"><a class="header" href="#ci-1"><code>CI</code></a></h2>
+<p>When using NPM package <code>lefthook</code>, set <code>CI=true</code> in your CI (if it does not set it automatically) to prevent lefthook from installing hooks in the postinstall script:</p>
+<pre><code class="language-bash">CI=true npm install
+CI=true yarn install
+CI=true pnpm install
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> Set <code>LEFTHOOK=1</code> or <code>LEFTHOOK=true</code> to override this behavior and install hooks in the postinstall script (despite <code>CI=true</code>).</p>
+</blockquote>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook-localyml"><a class="header" href="#lefthook-localyml">lefthook-local.yml</a></h2>
-<p><code>lefthook-local.yml</code> overrides and extends the configuration of your main <code>lefthook.yml</code> (or <code>lefthook.toml</code>, <a href="examples/../configuration">etc.</a>) file.</p>
 <blockquote>
 <p><strong>Tip:</strong> You can put <code>lefthook-local.yml</code> into your <code>~/.gitignore</code>, so in every project you can have your local-only overrides.</p>
 </blockquote>
-<p><em>Special feature</em> of <code>lefthook-local.yml</code>: you can wrap the commands using <code>{cmd}</code> template.</p>
+<p><code>lefthook-local.yml</code> overrides and extends the configuration of your main <code>lefthook.yml</code>.</p>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
@@ -3321,8 +3405,8 @@ post-merge:
       run: docker-compose run backend bundle install
 </code></pre>
 <hr />
-<pre><code class="language-yml"># The resulting config would look like this
-
+<h3 id="the-merged-config-lefthook-will-use"><a class="header" href="#the-merged-config-lefthook-will-use">The merged config lefthook will use</a></h3>
+<pre><code class="language-yml">
 pre-commit:
   parallel: true
   commands:
@@ -3340,6 +3424,25 @@ post-merge:
       glob: "Gemfile*"
       run: docker-compose run backend bundle install
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="wrap-commands-in-local-config"><a class="header" href="#wrap-commands-in-local-config">Wrap commands in local config</a></h1>
+<p>Wrapping some commands defined in a main config with <code>dip</code><sup class="footnote-reference"><a href="#1">1</a></sup>.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  jobs:
+    - name: rubocop
+      run: bundle exec rubocop -A {staged_files}
+</code></pre>
+<pre><code class="language-yml"># lefthook-local.yml
+
+pre-commit:
+  jobs:
+    - name: rubocop
+      run: dip {cmd}
+</code></pre>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p><a href="https://github.com/bibendi/dip">dip</a> – dockerized dev experience with, similar to <code>docker-compose run</code></p>
+</div>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="stage-fixed-files"><a class="header" href="#stage-fixed-files">Stage fixed files</a></h2>
 <blockquote>
 <p>Works only for <code>pre-commit</code> Git hook</p>
