@@ -57,28 +57,19 @@ func (err ConfigNotFoundError) Error() string {
 	return err.message
 }
 
-func loadConfig(k *koanf.Koanf, filesystem afero.Fs, config string) error {
-	extension := filepath.Ext(config)
-	log.Debug("loading config: ", config)
-	if err := k.Load(kfs.Provider(newIOFS(filesystem), config), parsers[extension], mergeJobsOption); err != nil {
+// loadConfig loads the config at the given path.
+func loadConfig(k *koanf.Koanf, filesystem afero.Fs, path string) error {
+	extension := filepath.Ext(path)
+	log.Debug("loading config: ", path)
+	if err := k.Load(kfs.Provider(newIOFS(filesystem), path), parsers[extension], mergeJobsOption); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func loadOne(k *koanf.Koanf, filesystem afero.Fs, root string, names []string) error {
-	configPathOverride := os.Getenv("LEFTHOOK_CONFIG")
-	if configPathOverride != "" {
-		if !filepath.IsAbs(configPathOverride) {
-			configPathOverride = filepath.Join(root, configPathOverride)
-		}
-		if ok, _ := afero.Exists(filesystem, configPathOverride); !ok {
-			return ConfigNotFoundError{fmt.Sprintf("Config file \"%s\" not found!", configPathOverride)}
-		}
-		return loadConfig(k, filesystem, configPathOverride)
-	}
-
+// loadFirst loads the first existing config from given names and supported extensions.
+func loadFirst(k *koanf.Koanf, filesystem afero.Fs, root string, names []string) error {
 	for _, extension := range extensions {
 		for _, name := range names {
 			config := filepath.Join(root, name+extension)
@@ -93,26 +84,51 @@ func loadOne(k *koanf.Koanf, filesystem afero.Fs, root string, names []string) e
 	return ConfigNotFoundError{fmt.Sprintf("No config files with names %q have been found in \"%s\"", names, root)}
 }
 
-func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.Koanf, error) {
-	main := koanf.New(".")
-
-	// Load main (e.g. lefthook.yml) or fallback to local config (e.g. lefthook-local.yml)
-	err := loadOne(main, filesystem, repo.RootPath, MainConfigNames)
+// loadFirstMain loads the main config (e.g. lefthook.yml) or fallbacks to local config (e.g. lefthook-local.yml).
+func loadFirstMain(k *koanf.Koanf, filesystem afero.Fs, root string) error {
+	err := loadFirst(k, filesystem, root, MainConfigNames)
 	if ok := errors.As(err, &ConfigNotFoundError{}); ok {
 		var hasLocalConfig bool
 	OUT:
 		for _, extension := range extensions {
 			for _, name := range LocalConfigNames {
-				if ok, _ := afero.Exists(filesystem, filepath.Join(repo.RootPath, name+extension)); ok {
+				if ok, _ := afero.Exists(filesystem, filepath.Join(root, name+extension)); ok {
 					hasLocalConfig = true
 					break OUT
 				}
 			}
 		}
 		if !hasLocalConfig {
-			return nil, nil, err
+			return err
 		}
 	} else if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func loadMain(k *koanf.Koanf, filesystem afero.Fs, root string) error {
+	configOverride := os.Getenv("LEFTHOOK_CONFIG")
+	if len(configOverride) == 0 {
+		return loadFirstMain(k, filesystem, root)
+	}
+
+	if !filepath.IsAbs(configOverride) {
+		configOverride = filepath.Join(root, configOverride)
+	}
+	if ok, _ := afero.Exists(filesystem, configOverride); !ok {
+		return ConfigNotFoundError{fmt.Sprintf("Config file \"%s\" not found!", configOverride)}
+	}
+
+	return loadConfig(k, filesystem, configOverride)
+}
+
+func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.Koanf, error) {
+	main := koanf.New(".")
+
+	// Load main config
+	if err := loadMain(main, filesystem, repo.RootPath); err != nil {
 		return nil, nil, err
 	}
 
@@ -140,7 +156,7 @@ func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.
 
 	// Load optional local config (e.g. lefthook-local.yml)
 	var noLocal bool
-	if err := loadOne(secondary, filesystem, repo.RootPath, LocalConfigNames); err != nil {
+	if err := loadFirst(secondary, filesystem, repo.RootPath, LocalConfigNames); err != nil {
 		if ok := errors.As(err, &ConfigNotFoundError{}); !ok {
 			return nil, nil, err
 		}
