@@ -1,5 +1,11 @@
 # Change log
 
+## 1.12.2 (2025-07-11)
+
+- feat: add implicit template lefthook_job_name ([#1074](https://github.com/evilmartians/lefthook/pull/1074))
+- docs: restructure documentation ([#1075](https://github.com/evilmartians/lefthook/pull/1075)) by [@mrexox](https://github.com/mrexox)
+- feat: allow overriding config path using LEFTHOOK_CONFIG env ([#1072](https://github.com/evilmartians/lefthook/pull/1072)) by [@TECHNOFAB11](https://github.com/TECHNOFAB11)
+
 ## 1.12.1 (2025-07-09)
 
 - feat: add check-install command ([#1064](https://github.com/evilmartians/lefthook/pull/1064)) by [@mrexox](https://github.com/mrexox)
