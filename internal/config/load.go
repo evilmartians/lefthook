@@ -57,7 +57,28 @@ func (err ConfigNotFoundError) Error() string {
 	return err.message
 }
 
+func loadConfig(k *koanf.Koanf, filesystem afero.Fs, config string) error {
+	extension := filepath.Ext(config)
+	log.Debug("loading config: ", config)
+	if err := k.Load(kfs.Provider(newIOFS(filesystem), config), parsers[extension], mergeJobsOption); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func loadOne(k *koanf.Koanf, filesystem afero.Fs, root string, names []string) error {
+	configPathOverride := os.Getenv("LEFTHOOK_CONFIG")
+	if configPathOverride != "" {
+		if !filepath.IsAbs(configPathOverride) {
+			configPathOverride = filepath.Join(root, configPathOverride)
+		}
+		if ok, _ := afero.Exists(filesystem, configPathOverride); !ok {
+			return ConfigNotFoundError{fmt.Sprintf("Config file \"%s\" not found!", configPathOverride)}
+		}
+		return loadConfig(k, filesystem, configPathOverride)
+	}
+
 	for _, extension := range extensions {
 		for _, name := range names {
 			config := filepath.Join(root, name+extension)
@@ -65,12 +86,7 @@ func loadOne(k *koanf.Koanf, filesystem afero.Fs, root string, names []string) e
 				continue
 			}
 
-			log.Debug("loading config: ", config)
-			if err := k.Load(kfs.Provider(newIOFS(filesystem), config), parsers[extension], mergeJobsOption); err != nil {
-				return err
-			}
-
-			return nil
+			return loadConfig(k, filesystem, config)
 		}
 	}
 
