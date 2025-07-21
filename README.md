@@ -277,4 +277,4 @@ Check [examples][examples]
 [config-tags]: https://lefthook.dev/configuration/tags.html
 [config-skip_output]: https://lefthook.dev/configuration/skip_output.html
 [config-output]: https://lefthook.dev/configuration/output.html
-[usage-local-config]: https://lefthook.dev/usage/tips.html#local-config
+[usage-local-config]: https://lefthook.dev/examples/lefthook-local.html
