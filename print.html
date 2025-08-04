@@ -1187,7 +1187,7 @@ pre-commit:
 </li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="files-global"><a class="header" href="#files-global"><code>files</code> (global)</a></h2>
-<p>A custom git command for files to be referenced in <code>{files}</code> template. See <a href="configuration/files-global.html#run"><code>run</code></a> and <a href="configuration/files-global.html#files"><code>files</code></a>.</p>
+<p>A custom command executed by the <code>sh</code> shell that returns the files or directories to be referenced in <code>{files}</code> template. See <a href="configuration/files-global.html#run"><code>run</code></a> and <a href="configuration/files-global.html#files"><code>files</code></a>.</p>
 <p>If the result of this command is empty, the execution of commands will be skipped.</p>
 <p><strong>Example</strong></p>
 <pre><code class="language-yml"># lefthook.yml
@@ -1511,7 +1511,7 @@ pre-commit:
       run: yarn run eslint --fix {staged_files}
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="run"><a class="header" href="#run"><code>run</code></a></h2>
-<p>This is a mandatory option for a command. This is actually a command that is executed for the hook.</p>
+<p>This is a mandatory option for a command, which specifies the actual command to be run using the <code>sh</code> shell.</p>
 <p>You can use files templates that will be substituted with the appropriate files on execution:</p>
 <ul>
 <li><code>{files}</code> - custom <a href="configuration/./files.html"><code>files</code></a> command result.</li>
@@ -2035,7 +2035,7 @@ pre-commit:
       glob: "*.js"
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="files"><a class="header" href="#files"><code>files</code></a></h2>
-<p>A custom git command for files or directories to be referenced in <code>{files}</code> template for <a href="configuration/./run.html"><code>run</code></a> setting.</p>
+<p>A custom command executed by the <code>sh</code> shell that returns the files or directories to be referenced in <code>{files}</code> template for <a href="configuration/./run.html"><code>run</code></a> setting.</p>
 <p>If the result of this command is empty, the execution of commands will be skipped.</p>
 <p>This option overwrites the <a href="configuration/./files-global.html">hook-level <code>files</code></a> option.</p>
 <p><strong>Example</strong></p>
@@ -2317,7 +2317,7 @@ pre-commit:
 <li><a href="configuration/./priority.html"><code>priority</code></a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="run-1"><a class="header" href="#run-1"><code>run</code></a></h2>
-<p>This is a mandatory option for a command. This is actually a command that is executed for the hook.</p>
+<p>This is a mandatory option for a command, which specifies the actual command to be run using the <code>sh</code> shell.</p>
 <p>You can use files templates that will be substituted with the appropriate files on execution:</p>
 <ul>
 <li><code>{files}</code> - custom <a href="configuration/./files.html"><code>files</code></a> command result.</li>
@@ -2656,7 +2656,7 @@ pre-commit:
       glob: "*.js"
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="files-1"><a class="header" href="#files-1"><code>files</code></a></h2>
-<p>A custom git command for files or directories to be referenced in <code>{files}</code> template for <a href="configuration/./run.html"><code>run</code></a> setting.</p>
+<p>A custom command executed by the <code>sh</code> shell that returns the files or directories to be referenced in <code>{files}</code> template for <a href="configuration/./run.html"><code>run</code></a> setting.</p>
 <p>If the result of this command is empty, the execution of commands will be skipped.</p>
 <p>This option overwrites the <a href="configuration/./files-global.html">hook-level <code>files</code></a> option.</p>
 <p><strong>Example</strong></p>
