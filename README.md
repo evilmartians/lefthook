@@ -71,7 +71,7 @@ git add -A && git commit -m '...'
 #### More details
 
 - [**Configuration**][configuration] for `lefthook.yml` config options.
-- [**Usage**][usage] for **lefthook** CLI options, supported ENVs, and usage tips.
+- [**Usage**][usage] for **lefthook** CLI options, and features.
 - [**Discussions**][discussion] for questions, ideas, suggestions.
 <!-- - [**Wiki**](https://github.com/evilmartians/lefthook/wiki) for guides, examples, and benchmarks. -->
 
@@ -257,9 +257,9 @@ Check [examples][examples]
 
 [documentation]: https://lefthook.dev/
 [configuration]: https://lefthook.dev/configuration/index.html
-[examples]: https://lefthook.dev/examples/index.html
+[examples]: https://lefthook.dev/examples/lefthook-local.html
 [installation]: https://lefthook.dev/installation/
-[usage]: https://lefthook.dev/usage/index.html
+[usage]: https://lefthook.dev/usage/commands.html
 [discussion]: https://github.com/evilmartians/lefthook/discussions
 [install-apt]: https://lefthook.dev/installation/deb.html
 [install-ruby]: https://lefthook.dev/installation/ruby.html
