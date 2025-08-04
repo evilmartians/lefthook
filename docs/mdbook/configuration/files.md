@@ -1,6 +1,6 @@
 ## `files`
 
-A custom git command for files or directories to be referenced in `{files}` template for [`run`](./run.md) setting.
+A custom command executed by the `sh` shell that returns the files or directories to be referenced in `{files}` template for [`run`](./run.md) setting.
 
 If the result of this command is empty, the execution of commands will be skipped.
 

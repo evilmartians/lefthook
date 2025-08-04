@@ -1,6 +1,6 @@
 ## `run`
 
-This is a mandatory option for a command. This is actually a command that is executed for the hook.
+This is a mandatory option for a command, which specifies the actual command to be run using the `sh` shell.
 
 You can use files templates that will be substituted with the appropriate files on execution:
 
