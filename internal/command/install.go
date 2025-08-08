@@ -89,6 +89,17 @@ func (l *Lefthook) configExists(path string) bool {
 }
 
 func (l *Lefthook) findMainConfig(path string) (string, error) {
+	configOverride := os.Getenv("LEFTHOOK_CONFIG")
+	if len(configOverride) != 0 {
+		if !filepath.IsAbs(configOverride) {
+			configOverride = filepath.Join(path, configOverride)
+		}
+		if ok, _ := afero.Exists(l.fs, configOverride); !ok {
+			return "", fmt.Errorf("Couldn't find config from LEFTHOOK_CONFIG: %s", configOverride)
+		}
+		return configOverride, nil
+	}
+
 	for _, name := range config.MainConfigNames {
 		for _, extension := range []string{
 			".yml", ".yaml", ".toml", ".json",
