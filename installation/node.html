@@ -163,7 +163,7 @@
 <pre><code class="language-bash">pnpm add -D lefthook
 </code></pre>
 <blockquote>
-<p><strong>Note:</strong> If you use <code>pnpm</code> package manager make sure you set <code>side-effects-cache = false</code> in your .npmrc, otherwise the postinstall script of the lefthook package won't be executed and hooks won't be installed.</p>
+<p><strong>Note:</strong> If you use <code>pnpm</code> package manager make sure to update <code>pnpm-workspace.yaml</code>s <code>onlyBuiltDependencies</code> with <code>lefthook</code> and add <code>lefthook</code> to <code>pnpm.onlyBuiltDependencies</code> in your root <code>package.json</code>, otherwise the <code>postinstall</code> script of the <code>lefthook</code> package won't be executed and hooks won't be installed.</p>
 </blockquote>
 <p><strong>Note</strong>: lefthook has three NPM packages with different ways to deliver the executables</p>
 <ol>
