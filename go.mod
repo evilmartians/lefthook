@@ -9,7 +9,7 @@ require (
 	github.com/briandowns/spinner v1.23.2
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/creack/pty v1.1.24
-	github.com/gabriel-vasile/mimetype v1.4.9
+	github.com/gabriel-vasile/mimetype v1.4.10-rc1
 	github.com/gobwas/glob v0.2.3
 	github.com/invopop/jsonschema v0.13.0
 	github.com/kaptinlin/jsonschema v0.4.5
