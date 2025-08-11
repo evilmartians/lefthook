@@ -95,7 +95,7 @@ func (l *Lefthook) findMainConfig(path string) (string, error) {
 			configOverride = filepath.Join(path, configOverride)
 		}
 		if ok, _ := afero.Exists(l.fs, configOverride); !ok {
-			return "", fmt.Errorf("Couldn't find config from LEFTHOOK_CONFIG: %s", configOverride)
+			return "", fmt.Errorf("couldn't find config from LEFTHOOK_CONFIG: %s", configOverride)
 		}
 		return configOverride, nil
 	}
