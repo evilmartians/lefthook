@@ -7,16 +7,20 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/gobwas/glob"
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
-type typeMask int
+type fileTypeFilter struct {
+	simpleTypes int
+	mimeTypes   []string
+}
 
 const (
-	typeExecutable typeMask = 1 << iota
+	typeExecutable int = 1 << iota
 	typeNotExecutable
 	typeSymlink
 	typeNotSymlink
@@ -154,7 +158,7 @@ func byType(fs afero.Fs, vs []string, types []string) []string {
 		return vs
 	}
 
-	mask := fillTypeMask(types)
+	filter := parseFileTypeFilter(types)
 
 	vsf := make([]string, 0)
 	for _, v := range vs {
@@ -173,20 +177,20 @@ func byType(fs afero.Fs, vs []string, types []string) []string {
 
 		isSymlink := fileInfo.Mode()&os.ModeSymlink != 0
 		isExecutable := fileInfo.Mode().Perm()&executableMask != 0
-		if mask&typeSymlink != 0 && !isSymlink {
+		if filter.simpleTypes&typeSymlink != 0 && !isSymlink {
 			continue
 		}
-		if mask&typeNotSymlink != 0 && isSymlink {
+		if filter.simpleTypes&typeNotSymlink != 0 && isSymlink {
 			continue
 		}
-		if mask&typeExecutable != 0 && (!isExecutable || isSymlink) {
+		if filter.simpleTypes&typeExecutable != 0 && (!isExecutable || isSymlink) {
 			continue
 		}
-		if mask&typeNotExecutable != 0 && (isExecutable && !isSymlink) {
+		if filter.simpleTypes&typeNotExecutable != 0 && (isExecutable && !isSymlink) {
 			continue
 		}
 
-		if mask&detectTypes != 0 {
+		if filter.simpleTypes&detectTypes != 0 {
 			if !fileInfo.Mode().IsRegular() {
 				continue
 			}
@@ -194,10 +198,31 @@ func byType(fs afero.Fs, vs []string, types []string) []string {
 			text := checkIsText(fs, v)
 			binary := !text
 
-			if mask&typeText != 0 && binary {
+			if filter.simpleTypes&typeText != 0 && binary {
 				continue
 			}
-			if mask&typeBinary != 0 && text {
+			if filter.simpleTypes&typeBinary != 0 && text {
+				continue
+			}
+		}
+
+		if len(filter.mimeTypes) != 0 {
+			if !fileInfo.Mode().IsRegular() {
+				continue
+			}
+
+			var found bool
+			fileMimeType, err := mimetype.DetectFile(v)
+			if err != nil {
+				log.Errorf("Couldn't check mime type of file %s: %s", v, err)
+				continue
+			}
+			for _, mime := range filter.mimeTypes {
+				if fileMimeType.Is(mime) {
+					found = true
+				}
+			}
+			if !found {
 				continue
 			}
 		}
@@ -208,29 +233,47 @@ func byType(fs afero.Fs, vs []string, types []string) []string {
 	return vsf
 }
 
-func fillTypeMask(types []string) typeMask {
-	var mask typeMask
+func parseFileTypeFilter(types []string) fileTypeFilter {
+	var filter fileTypeFilter
 
 	for _, t := range types {
 		switch t {
 		case "executable":
-			mask |= typeExecutable
+			filter.simpleTypes |= typeExecutable
 		case "symlink":
-			mask |= typeSymlink
+			filter.simpleTypes |= typeSymlink
 		case "not executable":
-			mask |= typeNotExecutable
+			filter.simpleTypes |= typeNotExecutable
 		case "not symlink":
-			mask |= typeNotSymlink
+			filter.simpleTypes |= typeNotSymlink
 		case "binary":
-			mask |= typeBinary
+			filter.simpleTypes |= typeBinary
 		case "text":
-			mask |= typeText
+			filter.simpleTypes |= typeText
+		case "text/plain",
+			"text/html",
+			"text/xml",
+			"text/x-php",
+			"text/javascript",
+			"text/x-lua",
+			"text/x-perl",
+			"text/x-python",
+			"text/rtf",
+			"text/x-tcl",
+			"text/csv",
+			"text/tab-separated-values",
+			"text/vcard",
+			"text/calendar",
+			"text/vtt",
+			"text/x-shellscript",
+			"text/x-sh":
+			filter.mimeTypes = append(filter.mimeTypes, t)
 		default:
 			log.Warn("Unknown filter type: ", t)
 		}
 	}
 
-	return mask
+	return filter
 }
 
 func checkIsText(fs afero.Fs, filepath string) bool {
