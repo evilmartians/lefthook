@@ -266,7 +266,8 @@ func parseFileTypeFilter(types []string) fileTypeFilter {
 			"text/calendar",
 			"text/vtt",
 			"text/x-shellscript",
-			"text/x-sh":
+			"text/x-sh",
+			"application/json":
 			filter.mimeTypes = append(filter.mimeTypes, t)
 		default:
 			log.Warn("Unknown filter type: ", t)
