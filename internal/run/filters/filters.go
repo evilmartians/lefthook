@@ -237,37 +237,20 @@ func parseFileTypeFilter(types []string) fileTypeFilter {
 	var filter fileTypeFilter
 
 	for _, t := range types {
-		switch t {
-		case "executable":
+		switch {
+		case t == "executable":
 			filter.simpleTypes |= typeExecutable
-		case "symlink":
+		case t == "symlink":
 			filter.simpleTypes |= typeSymlink
-		case "not executable":
+		case t == "not executable":
 			filter.simpleTypes |= typeNotExecutable
-		case "not symlink":
+		case t == "not symlink":
 			filter.simpleTypes |= typeNotSymlink
-		case "binary":
+		case t == "binary":
 			filter.simpleTypes |= typeBinary
-		case "text":
+		case t == "text":
 			filter.simpleTypes |= typeText
-		case "text/plain",
-			"text/html",
-			"text/xml",
-			"text/x-php",
-			"text/javascript",
-			"text/x-lua",
-			"text/x-perl",
-			"text/x-python",
-			"text/rtf",
-			"text/x-tcl",
-			"text/csv",
-			"text/tab-separated-values",
-			"text/vcard",
-			"text/calendar",
-			"text/vtt",
-			"text/x-shellscript",
-			"text/x-sh",
-			"application/json":
+		case (strings.HasPrefix(t, "text/") || strings.HasPrefix(t, "application/")) && mimetype.Lookup(t) != nil:
 			filter.mimeTypes = append(filter.mimeTypes, t)
 		default:
 			log.Warn("Unknown filter type: ", t)
