@@ -156,7 +156,7 @@
                 <div id="content" class="content">
                     <main>
                         <h2 id="file_types"><a class="header" href="#file_types"><code>file_types</code></a></h2>
-<p>Filter files in a <a href="./run.html"><code>run</code></a> templates by their type. Supported types:</p>
+<p>Filter files in a <a href="./run.html"><code>run</code></a> templates by their type. Special file types and MIME types are supported<sup class="footnote-reference"><a href="#1">1</a></sup>:</p>
 <div class="table-wrapper"><table><thead><tr><th>File type</th><th>Exlanation</th></tr></thead><tbody>
 <tr><td><code>text</code></td><td>Any file that contains text. Symlinks are not followed.</td></tr>
 <tr><td><code>binary</code></td><td>Any file that contains non-text bytes. Symlinks are not followed.</td></tr>
@@ -164,10 +164,30 @@
 <tr><td><code>not executable</code></td><td>Any file without executable bits in file mode. Symlinks included.</td></tr>
 <tr><td><code>symlink</code></td><td>A symlink file.</td></tr>
 <tr><td><code>not symlink</code></td><td>Any non-symlink file.</td></tr>
+<tr><td><code>text/html</code></td><td>An HTML file.</td></tr>
+<tr><td><code>text/xml</code></td><td>An XML file.</td></tr>
+<tr><td><code>text/javascript</code></td><td>A Javascript file.</td></tr>
+<tr><td><code>text/x-php</code></td><td>A PHP file.</td></tr>
+<tr><td><code>text/x-lua</code></td><td>A Lua file.</td></tr>
+<tr><td><code>text/x-perl</code></td><td>A Perl file.</td></tr>
+<tr><td><code>text/x-python</code></td><td>A Python file.</td></tr>
+<tr><td><code>text/x-shellscript</code></td><td>Shell script file.</td></tr>
+<tr><td><code>text/x-sh</code></td><td>Also shell script file.</td></tr>
+<tr><td><code>application/json</code></td><td>JSON file.</td></tr>
 </tbody></table>
 </div>
 <blockquote>
-<p><strong>Important:</strong> When passed multiple file types all constraints will be applied to the resulting list of files</p>
+<p><strong>Important</strong>
+The following types are applied using AND logic:</p>
+<ul>
+<li>text</li>
+<li>binary</li>
+<li>executable</li>
+<li>not executable</li>
+<li>symlink</li>
+<li>not symlink</li>
+</ul>
+<p>The mime types are applied using OR logic. So, you can have both <code>text/x-lua</code> and <code>text/x-sh</code>, but you can't specify both <code>symlink</code> and <code>not symlink</code>.</p>
 </blockquote>
 <p><strong>Examples</strong></p>
 <p>Apply some different linters on text and binary files.</p>
@@ -203,6 +223,22 @@ pre-commit:
         - executable
         - text
 </code></pre>
+<p>Check typos in scripts.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  jobs:
+    - run: typos -w {staged_files}
+      file_types:
+        - text/x-perl
+        - text/x-python
+        - text/x-php
+        - text/x-lua
+        - text/x-sh
+</code></pre>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p>All supported MIME types can be found here: <a href="https://github.com/gabriel-vasile/mimetype/blob/2f0854be3b9bbae4d449f8994d133f1c743f1885/supported_mimes.md">supported_mimes.md</a></p>
+</div>
 
                     </main>
 
