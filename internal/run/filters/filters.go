@@ -250,7 +250,7 @@ func parseFileTypeFilter(types []string) fileTypeFilter {
 			filter.simpleTypes |= typeBinary
 		case t == "text":
 			filter.simpleTypes |= typeText
-		case (strings.HasPrefix(t, "text/") || strings.HasPrefix(t, "application/")) && mimetype.Lookup(t) != nil:
+		case strings.Contains(t, "/") && mimetype.Lookup(t) != nil:
 			filter.mimeTypes = append(filter.mimeTypes, t)
 		default:
 			log.Warn("Unknown filter type: ", t)
