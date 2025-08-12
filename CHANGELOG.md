@@ -1,5 +1,14 @@
 # Change log
 
+## 1.12.3 (2025-08-12)
+
+- feat: add MIME types to file_types filters ([#1092](https://github.com/evilmartians/lefthook/pull/1092))
+- fix: respect LEFTHOOK_CONFIG in lefthook install ([#1090](https://github.com/evilmartians/lefthook/pull/1090)) by [@TECHNOFAB11](https://github.com/TECHNOFAB11)
+- docs: update pnpm installation note ([#1089](https://github.com/evilmartians/lefthook/pull/1089)) by [@skoch13](https://github.com/skoch13)
+- docs: improve wording of `run`, `files`, and `files-global` config descriptions, document that the `sh` shell is used ([#1086](https://github.com/evilmartians/lefthook/pull/1086)) by [@ItsHarper](https://github.com/ItsHarper)
+- docs: 404 for local-config ([#1082](https://github.com/evilmartians/lefthook/pull/1082)) by [@rammanoj](https://github.com/rammanoj)
+- docs: fix typo ([#1079](https://github.com/evilmartians/lefthook/pull/1079)) by [@eai04191](https://github.com/eai04191)
+
 ## 1.12.2 (2025-07-11)
 
 - feat: add implicit template lefthook_job_name ([#1074](https://github.com/evilmartians/lefthook/pull/1074))

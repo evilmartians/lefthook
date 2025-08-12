@@ -1,6 +1,6 @@
 {
   "name": "lefthook-freebsd-arm64",
-  "version": "1.12.2",
+  "version": "1.12.3",
   "description": "The FreeBSD ARM 64-bit binary for lefthook, git hooks manager.",
   "preferUnplugged": false,
   "repository": {
