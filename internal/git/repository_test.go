@@ -24,7 +24,7 @@ func (g gitCmd) Run(cmd []string, _root string, _in io.Reader, out io.Writer, _e
 		return errors.New("doesn't exist")
 	}
 
-	_, err := out.Write([]byte(strings.TrimSpace(res)))
+	_, err := out.Write([]byte(res))
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func TestChangeset(t *testing.T) {
 		},
 		{
 			name:         "modified file",
-			gitStatusOut: "M  modified.txt",
+			gitStatusOut: " M modified.txt",
 			gitHashOut:   "123456",
 			pathsToHash:  []string{"modified.txt"},
 			result: map[string]string{
@@ -114,7 +114,7 @@ func TestChangeset(t *testing.T) {
 		{
 			name: "mixed changes",
 			gitStatusOut: `M  modified.txt
-D  deleted.txt
+ D deleted.txt
 ?? new.txt
 RM old-file -> new-file`,
 			gitHashOut:  "123456\n654321\n758213",

@@ -158,7 +158,7 @@ func (r *Repository) Setup() {
 	})
 
 	r.statusShortOnce = sync.OnceValues(func() ([]string, error) {
-		return r.Git.CmdLines(cmdStatusShort)
+		return r.Git.CmdLinesNoTrim(cmdStatusShort)
 	})
 
 	r.stateOnce = sync.OnceValue(func() State {

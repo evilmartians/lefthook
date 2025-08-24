@@ -68,6 +68,16 @@ func (c CommandExecutor) CmdLines(cmd []string) ([]string, error) {
 	return strings.Split(strings.TrimSpace(out), "\n"), nil
 }
 
+// CmdLines runs plain string command, returns its output split by newline, without trimming leading & trailing spaces.
+func (c CommandExecutor) CmdLinesNoTrim(cmd []string) ([]string, error) {
+	out, err := c.execute(cmd, c.root)
+	if err != nil {
+		return nil, err
+	}
+
+	return strings.Split(out, "\n"), nil
+}
+
 // CmdLines runs plain string command, returns its output split by newline.
 func (c CommandExecutor) CmdLinesWithinFolder(cmd []string, folder string) ([]string, error) {
 	root := filepath.Join(c.root, folder)
