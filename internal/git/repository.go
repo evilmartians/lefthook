@@ -395,6 +395,10 @@ func (r *Repository) Changeset() (map[string]string, error) {
 
 		status := line[0:2]
 		path := line[3:]
+		idx := strings.Index(path, "->")
+		if idx != -1 {
+			path = path[idx+3:]
+		}
 
 		if strings.Contains(status, "D") {
 			changeset[path] = "deleted"
