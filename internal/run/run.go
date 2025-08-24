@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"os"
 	"path/filepath"
 	"slices"
@@ -30,6 +31,8 @@ import (
 	"github.com/evilmartians/lefthook/internal/system"
 )
 
+var ErrFailOnChanges = errors.New("files were modified by a hook, and fail_on_changes is enabled")
+
 const execLogPadding = 2
 
 type Options struct {
@@ -47,6 +50,7 @@ type Options struct {
 	RunOnlyJobs     []string
 	SourceDirs      []string
 	Templates       map[string]string
+	FailOnChanges   bool
 }
 
 // Run responds for actual execution and handling the results.
@@ -59,7 +63,8 @@ type Run struct {
 	executor             exec.Executor
 	cmd                  system.CommandWithContext
 
-	didStash bool
+	didStash        bool
+	changesetBefore map[string]string
 }
 
 func New(opts Options) *Run {
@@ -115,7 +120,9 @@ func (r *Run) RunAll(ctx context.Context) ([]result.Result, error) {
 
 	results = append(results, r.runCommands(ctx)...)
 
-	r.postHook()
+	if err := r.postHook(); err != nil {
+		return results, err
+	}
 
 	return results, nil
 }
@@ -209,6 +216,15 @@ func (r *Run) runLFSHook(ctx context.Context) error {
 }
 
 func (r *Run) preHook() {
+	if r.FailOnChanges {
+		changeset, err := r.Repo.Changeset()
+		if err != nil {
+			log.Warnf("Couldn't get changeset: %s\n", err)
+		} else {
+			r.changesetBefore = changeset
+		}
+	}
+
 	if !config.HookUsesStagedFiles(r.HookName) {
 		return
 	}
@@ -251,19 +267,32 @@ func (r *Run) preHook() {
 	}
 }
 
-func (r *Run) postHook() {
+func (r *Run) postHook() error {
+	if r.FailOnChanges && len(r.changesetBefore) > 0 {
+		changesetAfter, err := r.Repo.Changeset()
+		if err != nil {
+			log.Warnf("Couldn't get changeset: %s\n", err)
+		}
+		if !maps.Equal(r.changesetBefore, changesetAfter) {
+			return ErrFailOnChanges
+		}
+	}
+
 	if !r.didStash {
-		return
+		return nil
 	}
 
 	if err := r.Repo.RestoreUnstaged(); err != nil {
 		log.Warnf("Couldn't restore unstaged files: %s\n", err)
-		return
+		return nil
 	}
 
 	if err := r.Repo.DropUnstagedStash(); err != nil {
 		log.Warnf("Couldn't remove unstaged files backup: %s\n", err)
+		return nil
 	}
+
+	return nil
 }
 
 func (r *Run) runScripts(ctx context.Context, dir string) []result.Result {

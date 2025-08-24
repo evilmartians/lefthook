@@ -377,6 +377,49 @@ func (r *Repository) AddFiles(files []string) error {
 	return err
 }
 
+// Changeset returns a map of files and their hashes that are different from the index.
+// The hash for a deleted file is "deleted".
+func (r *Repository) Changeset() (map[string]string, error) {
+	lines, err := r.statusShortOnce()
+	if err != nil {
+		return nil, err
+	}
+
+	changeset := make(map[string]string)
+	pathsToHash := make([]string, 0, len(lines))
+
+	for _, line := range lines {
+		if len(line) < minStatusLen {
+			continue
+		}
+
+		status := line[0:2]
+		path := line[3:]
+
+		if strings.Contains(status, "D") {
+			changeset[path] = "deleted"
+			continue
+		}
+
+		pathsToHash = append(pathsToHash, path)
+	}
+
+	if len(pathsToHash) == 0 {
+		return changeset, nil
+	}
+
+	hashes, err := r.Git.CmdLines(append([]string{"git", "hash-object"}, pathsToHash...))
+	if err != nil {
+		return nil, err
+	}
+
+	for i, hash := range hashes {
+		changeset[pathsToHash[i]] = hash
+	}
+
+	return changeset, nil
+}
+
 // FindAllFiles accepts git command and returns its result as a list of filepaths.
 func (r *Repository) FindAllFiles(command []string, folder string) ([]string, error) {
 	lines, err := r.Git.CmdLinesWithinFolder(command, folder)

@@ -171,6 +171,13 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
+	failOnChanges := false
+	if cfg.FailOnChanges == nil {
+		_, failOnChanges = os.LookupEnv("CI")
+	} else {
+		failOnChanges = *cfg.FailOnChanges
+	}
+
 	r := run.New(run.Options{
 		Repo:            l.repo,
 		Hook:            hook,
@@ -186,11 +193,15 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		RunOnlyCommands: args.RunOnlyCommands,
 		RunOnlyJobs:     args.RunOnlyJobs,
 		SourceDirs:      sourceDirs,
+		FailOnChanges:   failOnChanges,
 	})
 
 	startTime := time.Now()
 	results, runErr := r.RunAll(ctx)
 	if runErr != nil {
+		if errors.Is(runErr, run.ErrFailOnChanges) {
+			return fmt.Errorf("%w", runErr)
+		}
 		return fmt.Errorf("failed to run the hook: %w", runErr)
 	}
 

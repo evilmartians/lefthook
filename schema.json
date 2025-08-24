@@ -496,6 +496,10 @@
       "type": "object",
       "description": "Custom templates for replacements in run commands."
     },
+    "fail_on_changes": {
+      "type": "boolean",
+      "description": "Exit with non-zero status if any files were modified."
+    },
     "$schema": {
       "type": "string"
     },
