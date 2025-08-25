@@ -24,7 +24,7 @@ func (g gitCmd) Run(cmd []string, _root string, _in io.Reader, out io.Writer, _e
 		return errors.New("doesn't exist")
 	}
 
-	_, err := out.Write([]byte(strings.TrimSpace(res)))
+	_, err := out.Write([]byte(res))
 	if err != nil {
 		return err
 	}
@@ -70,6 +70,94 @@ MM staged but changed
 			for j, file := range files {
 				if tt.result[j] != file {
 					t.Errorf("file at index %d don't match: %s - %s", j, tt.result[j], file)
+				}
+			}
+		})
+	}
+}
+
+func TestChangeset(t *testing.T) {
+	for i, tt := range [...]struct {
+		name, gitStatusOut, gitHashOut string
+		pathsToHash                    []string
+		result                         map[string]string
+	}{
+		{
+			name:   "no changes",
+			result: map[string]string{},
+		},
+		{
+			name:         "modified file",
+			gitStatusOut: " M modified.txt",
+			gitHashOut:   "123456",
+			pathsToHash:  []string{"modified.txt"},
+			result: map[string]string{
+				"modified.txt": "123456",
+			},
+		},
+		{
+			name:         "deleted file",
+			gitStatusOut: "D  deleted.txt",
+			result: map[string]string{
+				"deleted.txt": "deleted",
+			},
+		},
+		{
+			name:         "new file",
+			gitStatusOut: "?? new.txt",
+			gitHashOut:   "654321",
+			pathsToHash:  []string{"new.txt"},
+			result: map[string]string{
+				"new.txt": "654321",
+			},
+		},
+		{
+			name: "mixed changes",
+			gitStatusOut: `M  modified.txt
+ D deleted.txt
+?? new.txt
+RM old-file -> new-file`,
+			gitHashOut:  "123456\n654321\n758213",
+			pathsToHash: []string{"modified.txt", "new.txt", "new-file"},
+			result: map[string]string{
+				"modified.txt": "123456",
+				"deleted.txt":  "deleted",
+				"new.txt":      "654321",
+				"new-file":     "758213",
+			},
+		},
+	} {
+		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
+			gitCmds := map[string]string{
+				"git status --short --porcelain": tt.gitStatusOut,
+			}
+
+			if len(tt.pathsToHash) > 0 {
+				cmd := append([]string{"git", "hash-object"}, tt.pathsToHash...)
+				gitCmds[strings.Join(cmd, " ")] = tt.gitHashOut
+			}
+
+			repository := &Repository{
+				Git: &CommandExecutor{
+					cmd: gitCmd{
+						cases: gitCmds,
+					},
+				},
+			}
+			repository.Setup()
+
+			changeset, err := repository.Changeset()
+			if err != nil {
+				t.Errorf("unexpected error: %s", err)
+			}
+
+			if len(changeset) != len(tt.result) {
+				t.Errorf("expected %d files, but %d returned", len(tt.result), len(changeset))
+			}
+
+			for file, hash := range tt.result {
+				if changeset[file] != hash {
+					t.Errorf("expected hash %s for file %s, but got %s", hash, file, changeset[file])
 				}
 			}
 		})
