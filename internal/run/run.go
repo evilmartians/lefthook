@@ -27,6 +27,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/run/filters"
 	"github.com/evilmartians/lefthook/internal/run/jobs"
 	"github.com/evilmartians/lefthook/internal/run/result"
+	"github.com/evilmartians/lefthook/internal/run/utils"
 	"github.com/evilmartians/lefthook/internal/system"
 )
 
@@ -45,6 +46,7 @@ type Options struct {
 	Files           []string
 	RunOnlyCommands []string
 	RunOnlyJobs     []string
+	RunOnlyTags     []string
 	SourceDirs      []string
 	Templates       map[string]string
 }
@@ -345,20 +347,22 @@ func (r *Run) runScripts(ctx context.Context, dir string) []result.Result {
 func (r *Run) runScript(ctx context.Context, script *config.Script, file os.FileInfo) result.Result {
 	startTime := time.Now()
 
-	job, err := jobs.New(file.Name(), &jobs.Params{
+	job, err := jobs.Build(&jobs.Params{
+		Name:   file.Name(),
+		Runner: script.Runner,
+		Script: file.Name(),
+		Tags:   script.Tags,
+		Only:   script.Only,
+		Skip:   script.Skip,
+	}, &jobs.Settings{
 		Repo:       r.Repo,
 		Hook:       r.Hook,
 		HookName:   r.HookName,
-		Name:       file.Name(),
 		ForceFiles: r.Files,
 		Force:      r.Force,
 		GitArgs:    r.GitArgs,
 		SourceDirs: r.SourceDirs,
-		Runner:     script.Runner,
-		Script:     file.Name(),
-		Tags:       script.Tags,
-		Only:       script.Only,
-		Skip:       script.Skip,
+		OnlyTags:   r.RunOnlyTags,
 	})
 	if err != nil {
 		r.logSkip(file.Name(), err.Error())
@@ -410,10 +414,16 @@ func (r *Run) runScript(ctx context.Context, script *config.Script, file os.File
 
 func (r *Run) runCommands(ctx context.Context) []result.Result {
 	commands := make([]string, 0, len(r.Hook.Commands))
-	for name := range r.Hook.Commands {
-		if len(r.RunOnlyCommands) == 0 || slices.Contains(r.RunOnlyCommands, name) {
-			commands = append(commands, name)
+	for name, command := range r.Hook.Commands {
+		if len(r.RunOnlyCommands) != 0 && !slices.Contains(r.RunOnlyCommands, name) {
+			continue
 		}
+
+		if len(r.RunOnlyTags) != 0 && !utils.Intersect(r.RunOnlyTags, command.Tags) {
+			continue
+		}
+
+		commands = append(commands, name)
 	}
 
 	sortByPriority(commands, r.Hook.Commands)
@@ -485,23 +495,24 @@ func (r *Run) runCommand(ctx context.Context, name string, command *config.Comma
 		exclude = excludeList
 	}
 
-	job, err := jobs.New(name, &jobs.Params{
+	job, err := jobs.Build(&jobs.Params{
+		Name:      name,
+		Run:       command.Run,
+		Root:      command.Root,
+		Glob:      command.Glob,
+		Files:     command.Files,
+		FileTypes: command.FileTypes,
+		Tags:      command.Tags,
+		Exclude:   exclude,
+		Only:      command.Only,
+		Skip:      command.Skip,
+	}, &jobs.Settings{
 		Repo:       r.Repo,
 		Hook:       r.Hook,
 		HookName:   r.HookName,
 		ForceFiles: r.Files,
 		Force:      r.Force,
 		GitArgs:    r.GitArgs,
-		Name:       name,
-		Run:        command.Run,
-		Root:       command.Root,
-		Glob:       command.Glob,
-		Files:      command.Files,
-		FileTypes:  command.FileTypes,
-		Tags:       command.Tags,
-		Exclude:    exclude,
-		Only:       command.Only,
-		Skip:       command.Skip,
 		Templates:  r.Templates,
 	})
 	if err != nil {

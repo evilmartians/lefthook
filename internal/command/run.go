@@ -37,6 +37,7 @@ type RunArgs struct {
 	Files           []string
 	RunOnlyCommands []string
 	RunOnlyJobs     []string
+	RunOnlyTags     []string
 }
 
 func Run(opts *Options, args RunArgs, hookName string, gitArgs []string) error {
@@ -185,6 +186,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		Force:           args.Force,
 		RunOnlyCommands: args.RunOnlyCommands,
 		RunOnlyJobs:     args.RunOnlyJobs,
+		RunOnlyTags:     args.RunOnlyTags,
 		SourceDirs:      sourceDirs,
 	})
 

@@ -24,16 +24,16 @@ func (s scriptNotExistsError) Error() string {
 	return fmt.Sprintf("script does not exist: %s", s.scriptPath)
 }
 
-func buildScript(params *Params) (*Job, error) {
+func buildScript(params *Params, settings *Settings) (*Job, error) {
 	if err := params.validateScript(); err != nil {
 		return nil, err
 	}
 
 	var scriptExists bool
 	execs := make([]string, 0)
-	for _, sourceDir := range params.SourceDirs {
-		scriptPath := filepath.Join(sourceDir, params.HookName, params.Script)
-		fileInfo, err := params.Repo.Fs.Stat(scriptPath)
+	for _, sourceDir := range settings.SourceDirs {
+		scriptPath := filepath.Join(sourceDir, settings.HookName, params.Script)
+		fileInfo, err := settings.Repo.Fs.Stat(scriptPath)
 		if os.IsNotExist(err) {
 			log.Debugf("[lefthook] script doesn't exist: %s", scriptPath)
 			continue
@@ -52,7 +52,7 @@ func buildScript(params *Params) (*Job, error) {
 
 		// Make sure file is executable
 		if (fileInfo.Mode() & executableMask) == 0 {
-			if err := params.Repo.Fs.Chmod(scriptPath, executableFileMode); err != nil {
+			if err := settings.Repo.Fs.Chmod(scriptPath, executableFileMode); err != nil {
 				log.Errorf("Couldn't change file mode to make file executable: %s", err)
 				return nil, err
 			}
@@ -64,7 +64,7 @@ func buildScript(params *Params) (*Job, error) {
 		}
 
 		args = append(args, shellescape.Quote(scriptPath))
-		args = append(args, params.GitArgs...)
+		args = append(args, settings.GitArgs...)
 
 		execs = append(execs, strings.Join(args, " "))
 	}

@@ -29,15 +29,18 @@ var (
 type jobContext struct {
 	failed *atomic.Bool
 
-	glob     []string
-	root     string
-	exclude  interface{}
 	onlyJobs []string
-	names    []string
-	env      map[string]string
+	onlyTags []string
+
+	glob    []string
+	tags    []string
+	exclude interface{}
+	names   []string
+	env     map[string]string
+	root    string
 }
 
-func newJobContext(onlyJobs []string, exclude []string) *jobContext {
+func newJobContext(exclude, onlyJobs, onlyTags []string) *jobContext {
 	var failed atomic.Bool
 	var excludeInterface []interface{}
 	if len(exclude) > 0 {
@@ -50,6 +53,7 @@ func newJobContext(onlyJobs []string, exclude []string) *jobContext {
 	return &jobContext{
 		failed:   &failed,
 		onlyJobs: onlyJobs,
+		onlyTags: onlyTags,
 		exclude:  excludeInterface,
 		env:      make(map[string]string),
 	}
@@ -61,7 +65,7 @@ func (r *Run) runJobs(ctx context.Context) []result.Result {
 	results := make([]result.Result, 0, len(r.Hook.Jobs))
 	resultsChan := make(chan result.Result, len(r.Hook.Jobs))
 
-	jobContext := newJobContext(r.RunOnlyJobs, r.Exclude)
+	jobContext := newJobContext(r.Exclude, r.RunOnlyJobs, r.RunOnlyTags)
 
 	for i, job := range r.Hook.Jobs {
 		id := strconv.Itoa(i)
@@ -119,6 +123,7 @@ func (r *Run) runJob(ctx context.Context, jobContext *jobContext, id string, job
 	if job.Group != nil {
 		inheritedJobContext := *jobContext
 		inheritedJobContext.glob = slices.Concat(inheritedJobContext.glob, job.Glob)
+		inheritedJobContext.tags = slices.Concat(inheritedJobContext.tags, job.Tags)
 		inheritedJobContext.root = first(job.Root, jobContext.root)
 		switch list := job.Exclude.(type) {
 		case []interface{}:
@@ -160,7 +165,21 @@ func (r *Run) runSingleJob(ctx context.Context, jobContext *jobContext, id strin
 	root := first(job.Root, jobContext.root)
 	glob := slices.Concat(jobContext.glob, job.Glob)
 	exclude := join(job.Exclude, jobContext.exclude)
-	executionJob, err := jobs.New(name, &jobs.Params{
+	tags := slices.Concat(job.Tags, jobContext.tags)
+	executionJob, err := jobs.Build(&jobs.Params{
+		Name:      name,
+		Run:       job.Run,
+		Root:      root,
+		Runner:    job.Runner,
+		Script:    job.Script,
+		Glob:      glob,
+		Files:     job.Files,
+		FileTypes: job.FileTypes,
+		Tags:      tags,
+		Exclude:   exclude,
+		Only:      job.Only,
+		Skip:      job.Skip,
+	}, &jobs.Settings{
 		Repo:       r.Repo,
 		Hook:       r.Hook,
 		HookName:   r.HookName,
@@ -168,18 +187,7 @@ func (r *Run) runSingleJob(ctx context.Context, jobContext *jobContext, id strin
 		Force:      r.Force,
 		SourceDirs: r.SourceDirs,
 		GitArgs:    r.GitArgs,
-		Name:       name,
-		Run:        job.Run,
-		Root:       root,
-		Runner:     job.Runner,
-		Script:     job.Script,
-		Glob:       glob,
-		Files:      job.Files,
-		FileTypes:  job.FileTypes,
-		Tags:       job.Tags,
-		Exclude:    exclude,
-		Only:       job.Only,
-		Skip:       job.Skip,
+		OnlyTags:   jobContext.onlyTags,
 		Templates:  r.Templates,
 	})
 	if err != nil {

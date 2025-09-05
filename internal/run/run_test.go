@@ -1,6 +1,7 @@
 package run
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -12,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/goccy/go-yaml"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
@@ -113,54 +115,40 @@ func TestRunAll(t *testing.T) {
 	}{
 		"empty hook": {
 			hookName: "post-commit",
-			hook: &config.Hook{
-				Commands: map[string]*config.Command{},
-				Scripts:  map[string]*config.Script{},
-				Piped:    true,
-			},
+			hook: h(`
+        piped: true
+			`),
 		},
 		"with simple command": {
 			hookName: "post-commit",
-			hook: &config.Hook{
-				Commands: map[string]*config.Command{
-					"test": {
-						Run: "success",
-					},
-				},
-				Scripts: map[string]*config.Script{},
-			},
+			hook: h(`
+        commands:
+          test:
+            run: success
+      `),
 			success: []result.Result{succeeded("test")},
 		},
 		"with simple command in follow mode": {
 			hookName: "post-commit",
-			hook: &config.Hook{
-				Follow: true,
-				Commands: map[string]*config.Command{
-					"test": {
-						Run: "success",
-					},
-				},
-				Scripts: map[string]*config.Script{},
-			},
+			hook: h(`
+        follow: true
+        commands:
+          test:
+            run: "success"
+      `),
 			success: []result.Result{succeeded("test")},
 		},
 		"with multiple commands ran in parallel": {
 			hookName: "post-commit",
-			hook: &config.Hook{
-				Parallel: true,
-				Commands: map[string]*config.Command{
-					"test": {
-						Run: "success",
-					},
-					"lint": {
-						Run: "success",
-					},
-					"type-check": {
-						Run: "fail",
-					},
-				},
-				Scripts: map[string]*config.Script{},
-			},
+			hook: h(`
+        commands:
+          test:
+            run: success
+          lint:
+            run: success
+          type-check:
+            run: fail
+			`),
 			success: []result.Result{
 				succeeded("test"),
 				succeeded("lint"),
@@ -169,39 +157,28 @@ func TestRunAll(t *testing.T) {
 		},
 		"with exclude tags": {
 			hookName: "post-commit",
-			hook: &config.Hook{
-				ExcludeTags: []string{"tests", "formatter"},
-				Commands: map[string]*config.Command{
-					"test": {
-						Run:  "success",
-						Tags: []string{"tests"},
-					},
-					"formatter": {
-						Run: "success",
-					},
-					"lint": {
-						Run:  "success",
-						Tags: []string{"linters"},
-					},
-				},
-				Scripts: map[string]*config.Script{},
-			},
+			hook: h(`
+        exclude_tags: [test, formatter]
+        commands:
+          test:
+            run: success
+          formatter:
+            run: success
+          lint:
+            run: success
+      `),
 			success: []result.Result{succeeded("lint")},
 		},
 		"with skip=true": {
 			hookName: "post-commit",
-			hook: &config.Hook{
-				Commands: map[string]*config.Command{
-					"test": {
-						Run:  "success",
-						Skip: true,
-					},
-					"lint": {
-						Run: "success",
-					},
-				},
-				Scripts: map[string]*config.Script{},
-			},
+			hook: h(`
+        commands:
+          test:
+            run: success
+            skip: true
+          lint:
+            run: success
+      `),
 			success: []result.Result{succeeded("lint")},
 		},
 		"with skip=merge": {
@@ -209,18 +186,14 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(gitPath, "MERGE_HEAD"),
 			},
-			hook: &config.Hook{
-				Commands: map[string]*config.Command{
-					"test": {
-						Run:  "success",
-						Skip: "merge",
-					},
-					"lint": {
-						Run: "success",
-					},
-				},
-				Scripts: map[string]*config.Script{},
-			},
+			hook: h(`
+        commands:
+          test:
+            run: success
+            skip: merge
+          lint:
+            run: success
+      `),
 			success: []result.Result{succeeded("lint")},
 		},
 		"with only=merge match": {
@@ -228,37 +201,29 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(gitPath, "MERGE_HEAD"),
 			},
-			hook: &config.Hook{
-				Commands: map[string]*config.Command{
-					"test": {
-						Run:  "success",
-						Only: "merge",
-					},
-					"lint": {
-						Run: "success",
-					},
-				},
-				Scripts: map[string]*config.Script{},
-			},
+			hook: h(`
+        commands:
+          test:
+            run: success
+            only: merge
+          lint:
+            run: success
+            skip: merge
+      `),
 			success: []result.Result{
-				succeeded("lint"),
 				succeeded("test"),
 			},
 		},
 		"with only=merge no match": {
 			hookName: "post-commit",
-			hook: &config.Hook{
-				Commands: map[string]*config.Command{
-					"test": {
-						Run:  "success",
-						Only: "merge",
-					},
-					"lint": {
-						Run: "success",
-					},
-				},
-				Scripts: map[string]*config.Script{},
-			},
+			hook: h(`
+        commands:
+          test:
+            run: success
+            only: merge
+          lint:
+            run: success
+      `),
 			gitCommands: []string{`git show --no-patch --format="%P"`},
 			success:     []result.Result{succeeded("lint")},
 		},
@@ -267,34 +232,26 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(gitPath, "MERGE_HEAD"),
 			},
-			hook: &config.Hook{
-				Skip: "merge",
-				Commands: map[string]*config.Command{
-					"test": {
-						Run: "success",
-					},
-					"lint": {
-						Run: "success",
-					},
-				},
-				Scripts: map[string]*config.Script{},
-			},
+			hook: h(`
+        skip: merge
+        commands:
+          test:
+            run: success
+          lint:
+            run: success
+      `),
 			success: []result.Result{},
 		},
-		"with hook's skip=merge no match": {
+		"with hook's only=merge no match": {
 			hookName: "post-commit",
-			hook: &config.Hook{
-				Only: "merge",
-				Commands: map[string]*config.Command{
-					"test": {
-						Run: "success",
-					},
-					"lint": {
-						Run: "success",
-					},
-				},
-				Scripts: map[string]*config.Script{},
-			},
+			hook: h(`
+        only: merge
+        commands:
+          test:
+            run: success
+          lint:
+            run: success
+      `),
 			gitCommands: []string{`git show --no-patch --format="%P"`},
 			success:     []result.Result{},
 		},
@@ -303,18 +260,14 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(gitPath, "MERGE_HEAD"),
 			},
-			hook: &config.Hook{
-				Only: "merge",
-				Commands: map[string]*config.Command{
-					"test": {
-						Run: "success",
-					},
-					"lint": {
-						Run: "success",
-					},
-				},
-				Scripts: map[string]*config.Script{},
-			},
+			hook: h(`
+        only: merge
+        commands:
+          test:
+            run: success
+          lint:
+            run: success
+      `),
 			success: []result.Result{
 				succeeded("lint"),
 				succeeded("test"),
@@ -326,18 +279,16 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "rebase-merge"),
 				filepath.Join(gitPath, "rebase-apply"),
 			},
-			hook: &config.Hook{
-				Commands: map[string]*config.Command{
-					"test": {
-						Run:  "success",
-						Skip: []interface{}{"merge", "rebase"},
-					},
-					"lint": {
-						Run: "success",
-					},
-				},
-				Scripts: map[string]*config.Script{},
-			},
+			hook: h(`
+        commands:
+          test:
+            run: success
+            skip:
+              - merge
+              - rebase
+          lint:
+            run: success
+      `),
 			success: []result.Result{succeeded("lint")},
 		},
 		"with skip=ref match": {
@@ -346,18 +297,16 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "HEAD"),
 			},
 			hookName: "post-commit",
-			hook: &config.Hook{
-				Skip: []interface{}{"merge", map[string]interface{}{"ref": "main"}},
-				Commands: map[string]*config.Command{
-					"test": {
-						Run: "success",
-					},
-					"lint": {
-						Run: "success",
-					},
-				},
-				Scripts: map[string]*config.Script{},
-			},
+			hook: h(`
+        skip:
+          - merge
+          - ref: main
+        commands:
+          test:
+            run: success
+          lint:
+            run: success
+      `),
 			gitCommands: []string{`git show --no-patch --format="%P"`},
 			success:     []result.Result{},
 		},
@@ -367,18 +316,16 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "HEAD"),
 			},
 			hookName: "post-commit",
-			hook: &config.Hook{
-				Only: []interface{}{"merge", map[string]interface{}{"ref": "main"}},
-				Commands: map[string]*config.Command{
-					"test": {
-						Run: "success",
-					},
-					"lint": {
-						Run: "success",
-					},
-				},
-				Scripts: map[string]*config.Script{},
-			},
+			hook: h(`
+        only:
+          - merge
+          - ref: main
+        commands:
+          test:
+            run: success
+          lint:
+            run: success
+      `),
 			gitCommands: []string{`git show --no-patch --format="%P"`},
 			success: []result.Result{
 				succeeded("lint"),
@@ -391,18 +338,16 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "HEAD"),
 			},
 			hookName: "post-commit",
-			hook: &config.Hook{
-				Only: []interface{}{"merge", map[string]interface{}{"ref": "main"}},
-				Commands: map[string]*config.Command{
-					"test": {
-						Run: "success",
-					},
-					"lint": {
-						Run: "success",
-					},
-				},
-				Scripts: map[string]*config.Script{},
-			},
+			hook: h(`
+        only:
+          - merge
+          - ref: main
+        commands:
+          test:
+            run: success
+          lint:
+            run: success
+      `),
 			gitCommands: []string{`git show --no-patch --format="%P"`},
 			success:     []result.Result{},
 		},
@@ -412,18 +357,16 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "HEAD"),
 			},
 			hookName: "post-commit",
-			hook: &config.Hook{
-				Skip: []interface{}{"merge", map[string]interface{}{"ref": "main"}},
-				Commands: map[string]*config.Command{
-					"test": {
-						Run: "success",
-					},
-					"lint": {
-						Run: "success",
-					},
-				},
-				Scripts: map[string]*config.Script{},
-			},
+			hook: h(`
+        skip:
+          - merge
+          - ref: main
+        commands:
+          test:
+            run: success
+          lint:
+            run: success
+      `),
 			gitCommands: []string{`git show --no-patch --format="%P"`},
 			success: []result.Result{
 				succeeded("test"),
@@ -432,15 +375,12 @@ func TestRunAll(t *testing.T) {
 		},
 		"with fail": {
 			hookName: "post-commit",
-			hook: &config.Hook{
-				Commands: map[string]*config.Command{
-					"test": {
-						Run:      "fail",
-						FailText: "try 'success'",
-					},
-				},
-				Scripts: map[string]*config.Script{},
-			},
+			hook: h(`
+        commands:
+          test:
+            run: fail
+            fail_text: try 'success'
+      `),
 			fail: []result.Result{failed("test", "try 'success'")},
 		},
 		"with simple scripts": {
@@ -450,18 +390,14 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, config.DefaultSourceDir, "post-commit", "failing.js"),
 			},
 			hookName: "post-commit",
-			hook: &config.Hook{
-				Commands: map[string]*config.Command{},
-				Scripts: map[string]*config.Script{
-					"script.sh": {
-						Runner: "success",
-					},
-					"failing.js": {
-						Runner:   "fail",
-						FailText: "install node",
-					},
-				},
-			},
+			hook: h(`
+        scripts:
+          "script.sh":
+            runner: success
+          "failing.js":
+            runner: fail
+            fail_text: install node
+      `),
 			success: []result.Result{succeeded("script.sh")},
 			fail:    []result.Result{failed("failing.js", "install node")},
 		},
@@ -473,20 +409,16 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "MERGE_HEAD"),
 			},
 			hookName: "post-commit",
-			hook: &config.Hook{
-				Commands: map[string]*config.Command{},
-				Scripts: map[string]*config.Script{
-					"script.sh": {
-						Runner: "success",
-						Only:   "merge",
-					},
-					"failing.js": {
-						Only:     "merge",
-						Runner:   "fail",
-						FailText: "install node",
-					},
-				},
-			},
+			hook: h(`
+        scripts:
+          "script.sh":
+            runner: success
+            only: merge
+          "failing.js":
+            only: merge
+            runner: fail
+            fail_text: install node
+      `),
 			success: []result.Result{succeeded("script.sh")},
 			fail:    []result.Result{failed("failing.js", "install node")},
 		},
@@ -497,20 +429,16 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, config.DefaultSourceDir, "post-commit", "failing.js"),
 			},
 			hookName: "post-commit",
-			hook: &config.Hook{
-				Commands: map[string]*config.Command{},
-				Scripts: map[string]*config.Script{
-					"script.sh": {
-						Only:   "merge",
-						Runner: "success",
-					},
-					"failing.js": {
-						Only:     "merge",
-						Runner:   "fail",
-						FailText: "install node",
-					},
-				},
-			},
+			hook: h(`
+        scripts:
+          "script.sh":
+            runner: success
+            only: merge
+          "failing.js":
+            only: merge
+            runner: fail
+            fail_text: install node
+      `),
 			gitCommands: []string{`git show --no-patch --format="%P"`},
 			success:     []result.Result{},
 			fail:        []result.Result{},
@@ -522,27 +450,21 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, config.DefaultSourceDir, "post-commit", "failing.js"),
 			},
 			hookName: "post-commit",
-			hook: &config.Hook{
-				Parallel: true,
-				Commands: map[string]*config.Command{
-					"ok": {
-						Run:         "success",
-						Interactive: true,
-					},
-					"fail": {
-						Run: "fail",
-					},
-				},
-				Scripts: map[string]*config.Script{
-					"script.sh": {
-						Runner:      "success",
-						Interactive: true,
-					},
-					"failing.js": {
-						Runner: "fail",
-					},
-				},
-			},
+			hook: h(`
+        parallel: true
+        commands:
+          ok:
+            run: success
+            interactive: true
+          fail:
+            run: fail
+        scripts:
+          "script.sh":
+            runner: success
+            interactive: true
+          "failing.js":
+            runner: fail
+      `),
 			success: []result.Result{}, // script.sh and ok are skipped because of non-interactive cmd failure
 			fail:    []result.Result{failed("failing.js", ""), failed("fail", "")},
 		},
@@ -553,28 +475,22 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, config.DefaultSourceDir, "post-commit", "failing.js"),
 			},
 			hookName: "post-commit",
-			hook: &config.Hook{
-				Commands: map[string]*config.Command{
-					"ok": {
-						Run:        "success",
-						StageFixed: true,
-					},
-					"fail": {
-						Run:        "fail",
-						StageFixed: true,
-					},
-				},
-				Scripts: map[string]*config.Script{
-					"success.sh": {
-						Runner:     "success",
-						StageFixed: true,
-					},
-					"failing.js": {
-						Runner:     "fail",
-						StageFixed: true,
-					},
-				},
-			},
+			hook: h(`
+        commands:
+          ok:
+            run: success
+            stage_fixed: true
+          fail:
+            run: fail
+            stage_fixed: true
+        scripts:
+          "success.sh":
+            runner: success
+            stage_fixed: true
+          "failing.js":
+            runner: fail
+            stage_fixed: true
+      `),
 			success: []result.Result{succeeded("ok"), succeeded("success.sh")},
 			fail:    []result.Result{failed("fail", ""), failed("failing.js", "")},
 		},
@@ -587,28 +503,22 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, "scripts", "script.sh"),
 				filepath.Join(root, "README.md"),
 			},
-			hook: &config.Hook{
-				Commands: map[string]*config.Command{
-					"ok": {
-						Run:        "success",
-						StageFixed: true,
-					},
-					"fail": {
-						Run:        "fail",
-						StageFixed: true,
-					},
-				},
-				Scripts: map[string]*config.Script{
-					"success.sh": {
-						Runner:     "success",
-						StageFixed: true,
-					},
-					"failing.js": {
-						Runner:     "fail",
-						StageFixed: true,
-					},
-				},
-			},
+			hook: h(`
+        commands:
+          ok:
+            run: success
+            stage_fixed: true
+          fail:
+            run: fail
+            stage_fixed: true
+        scripts:
+          "success.sh":
+            runner: success
+            stage_fixed: true
+          "failing.js":
+            runner: fail
+            stage_fixed: true
+      `),
 			success: []result.Result{succeeded("ok"), succeeded("success.sh")},
 			fail:    []result.Result{failed("fail", ""), failed("failing.js", "")},
 			gitCommands: []string{
@@ -624,20 +534,19 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(root, "README.md"),
 			},
-			hook: &config.Hook{
-				Commands: map[string]*config.Command{
-					"ok": {
-						Run:        "success",
-						StageFixed: true,
-						Glob:       []string{"*.md"},
-					},
-					"fail": {
-						Run:        "fail",
-						StageFixed: true,
-						Glob:       []string{"*.txt"},
-					},
-				},
-			},
+			hook: h(`
+        commands:
+          ok:
+            run: success
+            stage_fixed: true
+            glob:
+              - "*.md"
+          fail:
+            run: fail
+            stage_fixed: true
+            glob:
+              - "*.txt"
+      `),
 			success: []result.Result{succeeded("ok")},
 			gitCommands: []string{
 				"git status --short",
@@ -651,20 +560,19 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(root, "README.md"),
 			},
-			hook: &config.Hook{
-				Commands: map[string]*config.Command{
-					"ok": {
-						Run:        "success",
-						StageFixed: true,
-						Glob:       []string{"*.md"},
-					},
-					"fail": {
-						Run:        "fail",
-						StageFixed: true,
-						Glob:       []string{"*.sh"},
-					},
-				},
-			},
+			hook: h(`
+        commands:
+          ok:
+            run: success
+            stage_fixed: true
+            glob:
+              - "*.md"
+          fail:
+            run: fail
+            stage_fixed: true
+            glob:
+              - "*.sh"
+      `),
 			force:   true,
 			success: []result.Result{succeeded("ok")},
 			fail:    []result.Result{failed("fail", "")},
@@ -702,20 +610,19 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(root, "README.md"),
 			},
-			hook: &config.Hook{
-				Commands: map[string]*config.Command{
-					"ok": {
-						Run:        "success",
-						StageFixed: true,
-						Glob:       []string{"*.md"},
-					},
-					"fail": {
-						Run:        "fail",
-						StageFixed: true,
-						Glob:       []string{"*.sh"},
-					},
-				},
-			},
+			hook: h(`
+        commands:
+          ok:
+            run: success
+            stage_fixed: true
+            glob:
+              - "*.md"
+          fail:
+            run: fail
+            stage_fixed: true
+            glob:
+              - "*.sh"
+      `),
 			success: []result.Result{succeeded("ok")},
 			gitCommands: []string{
 				"git diff --name-only HEAD @{push}",
@@ -728,13 +635,11 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(root, "README.md"),
 			},
-			hook: &config.Hook{
-				Commands: map[string]*config.Command{
-					"ok": {
-						Run: "success",
-					},
-				},
-			},
+			hook: h(`
+        commands:
+          ok:
+            run: success
+      `),
 			success: []result.Result{succeeded("ok")},
 		},
 	} {
@@ -856,4 +761,28 @@ func TestSortByPriorityScripts(t *testing.T) {
 			assert.Equal(t, tt.result, tt.names)
 		})
 	}
+}
+
+func h(str string) *config.Hook {
+	str = strings.TrimRight(strings.Trim(str, "\n"), " \t")
+	cleanBuffer := new(bytes.Buffer)
+	var padding int
+	var paddingSet bool
+	for line := range strings.Lines(str) {
+		var cleanLine string
+		if !paddingSet {
+			cleanLine = strings.TrimLeft(line, " \t")
+			padding = len(line) - len(cleanLine)
+			paddingSet = true
+		} else {
+			cleanLine = line[padding:]
+		}
+		cleanBuffer.WriteString(cleanLine)
+	}
+	hook := config.Hook{}
+	err := yaml.Unmarshal(cleanBuffer.Bytes(), &hook)
+	if err != nil {
+		panic("Failed to parse test data: " + err.Error())
+	}
+	return &hook
 }
