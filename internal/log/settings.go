@@ -29,26 +29,22 @@ const (
 	skipEmptySummary
 )
 
-type Settings interface {
-	Apply(enableTags, disableTags string, enable, disable interface{})
-	LogSuccess() bool
-	LogFailure() bool
-	LogSummary() bool
-	LogMeta() bool
-	LogExecution() bool
-	LogExecutionOutput() bool
-	LogExecutionInfo() bool
-	LogSkips() bool
-	LogEmptySummary() bool
-}
-
 type LogSettings struct {
 	bitmap int16
 }
 
-func NewSettings() Settings {
-	s := LogSettings{^disableAll}
-	return &s
+var Settings LogSettings
+
+func InitSettings() {
+	Settings = NewSettings()
+}
+
+func NewSettings() LogSettings {
+	return LogSettings{^disableAll}
+}
+
+func ApplySettings(enableTags, disableTags string, enable, disable interface{}) {
+	Settings.Apply(enableTags, disableTags, enable, disable)
 }
 
 func (s *LogSettings) Apply(enableTags, disableTags string, enable, disable interface{}) {

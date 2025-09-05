@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"maps"
 	"os"
@@ -18,7 +17,6 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/internal/config"
@@ -34,14 +32,11 @@ import (
 
 var ErrFailOnChanges = errors.New("files were modified by a hook, and fail_on_changes is enabled")
 
-const execLogPadding = 2
-
 type Options struct {
 	Repo            *git.Repository
 	Hook            *config.Hook
 	HookName        string
 	GitArgs         []string
-	LogSettings     log.Settings
 	DisableTTY      bool
 	SkipLFS         bool
 	Force           bool
@@ -55,11 +50,11 @@ type Options struct {
 	FailOnChanges   bool
 }
 
-// Run responds for actual execution and handling the results.
-type Run struct {
+// Controller responds for actual execution and handling the results.
+type Controller struct {
 	Options
 
-	stdin                io.Reader
+	cachedStdin          io.Reader
 	partiallyStagedFiles []string
 	failed               atomic.Bool
 	executor             exec.Executor
@@ -69,15 +64,15 @@ type Run struct {
 	changesetBefore map[string]string
 }
 
-func New(opts Options) *Run {
-	return &Run{
+func NewController(opts Options) *Controller {
+	return &Controller{
 		Options: opts,
 
 		// Some hooks use STDIN for parsing data from Git. To allow multiple commands
-		// and scripts access the same Git data STDIN is cached via cachedReader.
-		stdin:    NewCachedReader(os.Stdin),
-		executor: exec.CommandExecutor{},
-		cmd:      system.Cmd,
+		// and scripts access the same Git data STDIN is cached via CachedReadec.
+		cachedStdin: utils.NewCachedReader(os.Stdin),
+		executor:    exec.CommandExecutor{},
+		cmd:         system.Cmd,
 	}
 }
 
@@ -88,69 +83,69 @@ type executable interface {
 
 // RunAll runs scripts and commands.
 // LFS hook is executed at first if needed.
-func (r *Run) RunAll(ctx context.Context) ([]result.Result, error) {
-	results := make([]result.Result, 0, len(r.Hook.Commands)+len(r.Hook.Scripts))
+func (c *Controller) RunAll(ctx context.Context) ([]result.Result, error) {
+	results := make([]result.Result, 0, len(c.Hook.Commands)+len(c.Hook.Scripts))
 
-	if config.NewSkipChecker(system.Cmd).Check(r.Repo.State, r.Hook.Skip, r.Hook.Only) {
-		r.logSkip(r.HookName, "hook setting")
+	if config.NewSkipChecker(system.Cmd).Check(c.Repo.State, c.Hook.Skip, c.Hook.Only) {
+		log.Skip(c.HookName, "hook setting")
 		return results, nil
 	}
 
-	if err := r.runLFSHook(ctx); err != nil {
+	if err := c.runLFSHook(ctx); err != nil {
 		return results, err
 	}
 
-	if !r.DisableTTY && !r.Hook.Follow {
+	if !c.DisableTTY && !c.Hook.Follow {
 		log.StartSpinner()
 		defer log.StopSpinner()
 	}
 
-	scriptDirs := make([]string, 0, len(r.SourceDirs))
-	for _, sourceDir := range r.SourceDirs {
+	scriptDirs := make([]string, 0, len(c.SourceDirs))
+	for _, sourceDir := range c.SourceDirs {
 		scriptDirs = append(scriptDirs, filepath.Join(
-			sourceDir, r.HookName,
+			sourceDir, c.HookName,
 		))
 	}
 
-	r.preHook()
+	c.preHook()
 
-	results = append(results, r.runJobs(ctx)...)
+	results = append(results, c.runJobs(ctx)...)
 
 	for _, dir := range scriptDirs {
-		results = append(results, r.runScripts(ctx, dir)...)
+		results = append(results, c.runScripts(ctx, dir)...)
 	}
 
-	results = append(results, r.runCommands(ctx)...)
+	results = append(results, c.runCommands(ctx)...)
 
-	if err := r.postHook(); err != nil {
+	if err := c.postHook(); err != nil {
 		return results, err
 	}
 
 	return results, nil
 }
 
-func (r *Run) runLFSHook(ctx context.Context) error {
-	if r.SkipLFS {
+func (c *Controller) runLFSHook(ctx context.Context) error {
+	if c.SkipLFS {
 		return nil
 	}
 
-	if !git.IsLFSHook(r.HookName) {
+	if !git.IsLFSHook(c.HookName) {
 		return nil
 	}
 
 	// Skip running git-lfs for pre-push hook when triggered manually
-	if len(r.GitArgs) == 0 && r.HookName == "pre-push" {
+	if len(c.GitArgs) == 0 && c.HookName == "pre-push" {
 		return nil
 	}
 
-	lfsRequiredFile := filepath.Join(r.Repo.RootPath, git.LFSRequiredFile)
-	lfsConfigFile := filepath.Join(r.Repo.RootPath, git.LFSConfigFile)
+	lfsRequiredFile := filepath.Join(c.Repo.RootPath, git.LFSRequiredFile)
+	lfsConfigFile := filepath.Join(c.Repo.RootPath, git.LFSConfigFile)
 
-	requiredExists, err := afero.Exists(r.Repo.Fs, lfsRequiredFile)
+	requiredExists, err := afero.Exists(c.Repo.Fs, lfsRequiredFile)
 	if err != nil {
 		return err
 	}
-	configExists, err := afero.Exists(r.Repo.Fs, lfsConfigFile)
+	configExists, err := afero.Exists(c.Repo.Fs, lfsConfigFile)
 	if err != nil {
 		return err
 	}
@@ -171,18 +166,18 @@ func (r *Run) runLFSHook(ctx context.Context) error {
 	}
 
 	log.Debugf(
-		"[git-lfs] executing hook: git lfs %s %s", r.HookName, strings.Join(r.GitArgs, " "),
+		"[git-lfs] executing hook: git lfs %s %s", c.HookName, strings.Join(c.GitArgs, " "),
 	)
 	out := new(bytes.Buffer)
 	errOut := new(bytes.Buffer)
-	err = r.cmd.RunWithContext(
+	err = c.cmd.RunWithContext(
 		ctx,
 		append(
-			[]string{"git", "lfs", r.HookName},
-			r.GitArgs...,
+			[]string{"git", "lfs", c.HookName},
+			c.GitArgs...,
 		),
 		"",
-		r.stdin,
+		c.cachedStdin,
 		out,
 		errOut,
 	)
@@ -217,21 +212,21 @@ func (r *Run) runLFSHook(ctx context.Context) error {
 	return nil
 }
 
-func (r *Run) preHook() {
-	if r.FailOnChanges {
-		changeset, err := r.Repo.Changeset()
+func (c *Controller) preHook() {
+	if c.FailOnChanges {
+		changeset, err := c.Repo.Changeset()
 		if err != nil {
 			log.Warnf("Couldn't get changeset: %s\n", err)
 		} else {
-			r.changesetBefore = changeset
+			c.changesetBefore = changeset
 		}
 	}
 
-	if !config.HookUsesStagedFiles(r.HookName) {
+	if !config.HookUsesStagedFiles(c.HookName) {
 		return
 	}
 
-	partiallyStagedFiles, err := r.Repo.PartiallyStagedFiles()
+	partiallyStagedFiles, err := c.Repo.PartiallyStagedFiles()
 	if err != nil {
 		log.Warnf("Couldn't find partially staged files: %s\n", err)
 		return
@@ -241,55 +236,55 @@ func (r *Run) preHook() {
 		return
 	}
 
-	r.didStash = true
+	c.didStash = true
 
 	log.Debug("[lefthook] saving partially staged files")
 
-	r.partiallyStagedFiles = partiallyStagedFiles
-	err = r.Repo.SaveUnstaged(r.partiallyStagedFiles)
+	c.partiallyStagedFiles = partiallyStagedFiles
+	err = c.Repo.SaveUnstaged(c.partiallyStagedFiles)
 	if err != nil {
 		log.Warnf("Couldn't save unstaged changes: %s\n", err)
 		return
 	}
 
-	err = r.Repo.StashUnstaged()
+	err = c.Repo.StashUnstaged()
 	if err != nil {
 		log.Warnf("Couldn't stash partially staged files: %s\n", err)
 		return
 	}
 
 	log.Builder(log.DebugLevel, "[lefthook] ").
-		Add("hide partially staged files: ", r.partiallyStagedFiles).
+		Add("hide partially staged files: ", c.partiallyStagedFiles).
 		Log()
 
-	err = r.Repo.HideUnstaged(r.partiallyStagedFiles)
+	err = c.Repo.HideUnstaged(c.partiallyStagedFiles)
 	if err != nil {
 		log.Warnf("Couldn't hide unstaged files: %s\n", err)
 		return
 	}
 }
 
-func (r *Run) postHook() error {
-	if r.FailOnChanges {
-		changesetAfter, err := r.Repo.Changeset()
+func (c *Controller) postHook() error {
+	if c.FailOnChanges {
+		changesetAfter, err := c.Repo.Changeset()
 		if err != nil {
 			log.Warnf("Couldn't get changeset: %s\n", err)
 		}
-		if !maps.Equal(r.changesetBefore, changesetAfter) {
+		if !maps.Equal(c.changesetBefore, changesetAfter) {
 			return ErrFailOnChanges
 		}
 	}
 
-	if !r.didStash {
-		return nil
+	if !c.didStash {
+		return
 	}
 
-	if err := r.Repo.RestoreUnstaged(); err != nil {
+	if err := c.Repo.RestoreUnstaged(); err != nil {
 		log.Warnf("Couldn't restore unstaged files: %s\n", err)
 		return nil
 	}
 
-	if err := r.Repo.DropUnstagedStash(); err != nil {
+	if err := c.Repo.DropUnstagedStash(); err != nil {
 		log.Warnf("Couldn't remove unstaged files backup: %s\n", err)
 		return nil
 	}
@@ -297,8 +292,8 @@ func (r *Run) postHook() error {
 	return nil
 }
 
-func (r *Run) runScripts(ctx context.Context, dir string) []result.Result {
-	files, err := afero.ReadDir(r.Repo.Fs, dir) // ReadDir already sorts files by .Name()
+func (c *Controller) runScripts(ctx context.Context, dir string) []result.Result {
+	files, err := afero.ReadDir(c.Repo.Fs, dir) // ReadDir already sorts files by .Name()
 	if err != nil || len(files) == 0 {
 		return nil
 	}
@@ -309,12 +304,12 @@ func (r *Run) runScripts(ctx context.Context, dir string) []result.Result {
 		filesMap[file.Name()] = file
 		scripts = append(scripts, file.Name())
 	}
-	sortByPriority(scripts, r.Hook.Scripts)
+	sortByPriority(scripts, c.Hook.Scripts)
 
 	interactiveScripts := make([]os.FileInfo, 0)
 	var wg sync.WaitGroup
-	resChan := make(chan result.Result, len(r.Hook.Scripts))
-	results := make([]result.Result, 0, len(r.Hook.Scripts))
+	resChan := make(chan result.Result, len(c.Hook.Scripts))
+	results := make([]result.Result, 0, len(c.Hook.Scripts))
 
 	for _, name := range scripts {
 		file := filesMap[name]
@@ -323,30 +318,30 @@ func (r *Run) runScripts(ctx context.Context, dir string) []result.Result {
 			return nil
 		}
 
-		script, ok := r.Hook.Scripts[file.Name()]
+		script, ok := c.Hook.Scripts[file.Name()]
 		if !ok {
-			r.logSkip(file.Name(), "not specified in config file")
+			log.Skip(file.Name(), "not specified in config file")
 			continue
 		}
 
-		if r.failed.Load() && r.Hook.Piped {
-			r.logSkip(file.Name(), "broken pipe")
+		if c.failed.Load() && c.Hook.Piped {
+			log.Skip(file.Name(), "broken pipe")
 			continue
 		}
 
-		if script.Interactive && !r.Hook.Piped {
+		if script.Interactive && !c.Hook.Piped {
 			interactiveScripts = append(interactiveScripts, file)
 			continue
 		}
 
-		if r.Hook.Parallel {
+		if c.Hook.Parallel {
 			wg.Add(1)
 			go func(script *config.Script, file os.FileInfo, resChan chan result.Result) {
 				defer wg.Done()
-				resChan <- r.runScript(ctx, script, file)
+				resChan <- c.runScript(ctx, script, file)
 			}(script, file, resChan)
 		} else {
-			results = append(results, r.runScript(ctx, script, file))
+			results = append(results, c.runScript(ctx, script, file))
 		}
 	}
 
@@ -361,19 +356,19 @@ func (r *Run) runScripts(ctx context.Context, dir string) []result.Result {
 			return nil
 		}
 
-		script := r.Hook.Scripts[file.Name()]
-		if r.failed.Load() {
-			r.logSkip(file.Name(), "non-interactive scripts failed")
+		script := c.Hook.Scripts[file.Name()]
+		if c.failed.Load() {
+			log.Skip(file.Name(), "non-interactive scripts failed")
 			continue
 		}
 
-		results = append(results, r.runScript(ctx, script, file))
+		results = append(results, c.runScript(ctx, script, file))
 	}
 
 	return results
 }
 
-func (r *Run) runScript(ctx context.Context, script *config.Script, file os.FileInfo) result.Result {
+func (c *Controller) runScript(ctx context.Context, script *config.Script, file os.FileInfo) result.Result {
 	startTime := time.Now()
 
 	job, err := jobs.Build(&jobs.Params{
@@ -384,104 +379,108 @@ func (r *Run) runScript(ctx context.Context, script *config.Script, file os.File
 		Only:   script.Only,
 		Skip:   script.Skip,
 	}, &jobs.Settings{
-		Repo:       r.Repo,
-		Hook:       r.Hook,
-		HookName:   r.HookName,
-		ForceFiles: r.Files,
-		Force:      r.Force,
-		GitArgs:    r.GitArgs,
-		SourceDirs: r.SourceDirs,
-		OnlyTags:   r.RunOnlyTags,
+		Repo:       c.Repo,
+		Hook:       c.Hook,
+		HookName:   c.HookName,
+		ForceFiles: c.Files,
+		Force:      c.Force,
+		GitArgs:    c.GitArgs,
+		SourceDirs: c.SourceDirs,
+		OnlyTags:   c.RunOnlyTags,
 	})
 	if err != nil {
-		r.logSkip(file.Name(), err.Error())
+		log.Skip(file.Name(), err.Error())
 
 		var skipErr jobs.SkipError
 		if errors.As(err, &skipErr) {
 			return result.Skip(file.Name())
 		}
 
-		r.failed.Store(true)
+		c.failed.Store(true)
 		return result.Failure(file.Name(), err.Error(), time.Since(startTime))
 	}
 
-	if script.Interactive && !r.DisableTTY && !r.Hook.Follow {
+	if script.Interactive && !c.DisableTTY && !c.Hook.Follow {
 		log.StopSpinner()
 		defer log.StartSpinner()
 	}
 
-	ok := r.run(ctx, exec.Options{
-		Name:        file.Name(),
-		Root:        r.Repo.RootPath,
-		Commands:    job.Execs,
-		Interactive: script.Interactive && !r.DisableTTY,
-		UseStdin:    script.UseStdin,
-		Env:         script.Env,
-	}, r.Hook.Follow)
+	ok := exec.Run(ctx, c.executor, &exec.RunOptions{
+		Exec: exec.Options{
+			Name:        file.Name(),
+			Root:        c.Repo.RootPath,
+			Commands:    job.Execs,
+			Interactive: script.Interactive && !c.DisableTTY,
+			UseStdin:    script.UseStdin,
+			Env:         script.Env,
+		},
+		Follow:      c.Hook.Follow,
+		CachedStdin: c.cachedStdin,
+	})
 
 	executionTime := time.Since(startTime)
 
 	if !ok {
-		r.failed.Store(true)
+		c.failed.Store(true)
 		return result.Failure(file.Name(), script.FailText, executionTime)
 	}
 
 	result := result.Success(file.Name(), executionTime)
 
-	if config.HookUsesStagedFiles(r.HookName) && script.StageFixed {
-		files, err := r.Repo.StagedFiles()
+	if config.HookUsesStagedFiles(c.HookName) && script.StageFixed {
+		files, err := c.Repo.StagedFiles()
 		if err != nil {
 			log.Warn("Couldn't stage fixed files:", err)
 			return result
 		}
 
-		r.addStagedFiles(files)
+		c.addStagedFiles(files)
 	}
 
 	return result
 }
 
-func (r *Run) runCommands(ctx context.Context) []result.Result {
-	commands := make([]string, 0, len(r.Hook.Commands))
-	for name, command := range r.Hook.Commands {
-		if len(r.RunOnlyCommands) != 0 && !slices.Contains(r.RunOnlyCommands, name) {
+func (c *Controller) runCommands(ctx context.Context) []result.Result {
+	commands := make([]string, 0, len(c.Hook.Commands))
+	for name, command := range c.Hook.Commands {
+		if len(c.RunOnlyCommands) != 0 && !slices.Contains(c.RunOnlyCommands, name) {
 			continue
 		}
 
-		if len(r.RunOnlyTags) != 0 && !utils.Intersect(r.RunOnlyTags, command.Tags) {
+		if len(c.RunOnlyTags) != 0 && !utils.Intersect(c.RunOnlyTags, command.Tags) {
 			continue
 		}
 
 		commands = append(commands, name)
 	}
 
-	sortByPriority(commands, r.Hook.Commands)
+	sortByPriority(commands, c.Hook.Commands)
 
 	interactiveCommands := make([]string, 0)
 	var wg sync.WaitGroup
-	results := make([]result.Result, 0, len(r.Hook.Commands))
-	resChan := make(chan result.Result, len(r.Hook.Commands))
+	results := make([]result.Result, 0, len(c.Hook.Commands))
+	resChan := make(chan result.Result, len(c.Hook.Commands))
 
 	for _, name := range commands {
-		if r.failed.Load() && r.Hook.Piped {
-			r.logSkip(name, "broken pipe")
+		if c.failed.Load() && c.Hook.Piped {
+			log.Skip(name, "broken pipe")
 			continue
 		}
 
-		if r.Hook.Commands[name].Interactive && !r.Hook.Piped {
+		if c.Hook.Commands[name].Interactive && !c.Hook.Piped {
 			interactiveCommands = append(interactiveCommands, name)
 			continue
 		}
 
-		if r.Hook.Parallel {
+		if c.Hook.Parallel {
 			wg.Add(1)
 			go func(name string, command *config.Command, resChan chan result.Result) {
 				defer wg.Done()
-				result := r.runCommand(ctx, name, command)
+				result := c.runCommand(ctx, name, command)
 				resChan <- result
-			}(name, r.Hook.Commands[name], resChan)
+			}(name, c.Hook.Commands[name], resChan)
 		} else {
-			result := r.runCommand(ctx, name, r.Hook.Commands[name])
+			result := c.runCommand(ctx, name, c.Hook.Commands[name])
 			results = append(results, result)
 		}
 	}
@@ -493,32 +492,32 @@ func (r *Run) runCommands(ctx context.Context) []result.Result {
 	}
 
 	for _, name := range interactiveCommands {
-		if r.failed.Load() {
-			r.logSkip(name, "non-interactive commands failed")
+		if c.failed.Load() {
+			log.Skip(name, "non-interactive commands failed")
 			continue
 		}
 
-		results = append(results, r.runCommand(ctx, name, r.Hook.Commands[name]))
+		results = append(results, c.runCommand(ctx, name, c.Hook.Commands[name]))
 	}
 
 	return results
 }
 
-func (r *Run) runCommand(ctx context.Context, name string, command *config.Command) result.Result {
+func (c *Controller) runCommand(ctx context.Context, name string, command *config.Command) result.Result {
 	startTime := time.Now()
 	exclude := command.Exclude
 	switch list := exclude.(type) {
 	case string:
 		// Can't merge with regexp exclude
 	case []interface{}:
-		for _, e := range r.Exclude {
+		for _, e := range c.Exclude {
 			list = append(list, e)
 		}
 		exclude = list
 	default:
 		// In case it's nil – simply replace
-		excludeList := make([]interface{}, len(r.Exclude))
-		for i, e := range r.Exclude {
+		excludeList := make([]interface{}, len(c.Exclude))
+		for i, e := range c.Exclude {
 			excludeList[i] = e
 		}
 		exclude = excludeList
@@ -536,61 +535,65 @@ func (r *Run) runCommand(ctx context.Context, name string, command *config.Comma
 		Only:      command.Only,
 		Skip:      command.Skip,
 	}, &jobs.Settings{
-		Repo:       r.Repo,
-		Hook:       r.Hook,
-		HookName:   r.HookName,
-		ForceFiles: r.Files,
-		Force:      r.Force,
-		GitArgs:    r.GitArgs,
-		Templates:  r.Templates,
+		Repo:       c.Repo,
+		Hook:       c.Hook,
+		HookName:   c.HookName,
+		ForceFiles: c.Files,
+		Force:      c.Force,
+		GitArgs:    c.GitArgs,
+		Templates:  c.Templates,
 	})
 	if err != nil {
-		r.logSkip(name, err.Error())
+		log.Skip(name, err.Error())
 
 		var skipErr jobs.SkipError
 		if errors.As(err, &skipErr) {
 			return result.Skip(name)
 		}
 
-		r.failed.Store(true)
+		c.failed.Store(true)
 		return result.Failure(name, err.Error(), time.Since(startTime))
 	}
 
-	if command.Interactive && !r.DisableTTY && !r.Hook.Follow {
+	if command.Interactive && !c.DisableTTY && !c.Hook.Follow {
 		log.StopSpinner()
 		defer log.StartSpinner()
 	}
 
-	ok := r.run(ctx, exec.Options{
-		Name:        name,
-		Root:        filepath.Join(r.Repo.RootPath, command.Root),
-		Commands:    job.Execs,
-		Interactive: command.Interactive && !r.DisableTTY,
-		UseStdin:    command.UseStdin,
-		Env:         command.Env,
-	}, r.Hook.Follow)
+	ok := exec.Run(ctx, c.executor, &exec.RunOptions{
+		Exec: exec.Options{
+			Name:        name,
+			Root:        filepath.Join(c.Repo.RootPath, command.Root),
+			Commands:    job.Execs,
+			Interactive: command.Interactive && !c.DisableTTY,
+			UseStdin:    command.UseStdin,
+			Env:         command.Env,
+		},
+		Follow:      c.Hook.Follow,
+		CachedStdin: c.cachedStdin,
+	})
 
 	executionTime := time.Since(startTime)
 
 	if !ok {
-		r.failed.Store(true)
+		c.failed.Store(true)
 		return result.Failure(name, command.FailText, executionTime)
 	}
 
 	result := result.Success(name, executionTime)
 
-	if config.HookUsesStagedFiles(r.HookName) && command.StageFixed {
+	if config.HookUsesStagedFiles(c.HookName) && command.StageFixed {
 		files := job.Files
 
 		if len(files) == 0 {
 			var err error
-			files, err = r.Repo.StagedFiles()
+			files, err = c.Repo.StagedFiles()
 			if err != nil {
 				log.Warn("Couldn't stage fixed files:", err)
 				return result
 			}
 
-			files = filters.Apply(r.Repo.Fs, files, filters.Params{
+			files = filters.Apply(c.Repo.Fs, files, filters.Params{
 				Glob:      command.Glob,
 				Root:      command.Root,
 				Exclude:   exclude,
@@ -604,103 +607,15 @@ func (r *Run) runCommand(ctx context.Context, name string, command *config.Comma
 			}
 		}
 
-		r.addStagedFiles(files)
+		c.addStagedFiles(files)
 	}
 
 	return result
 }
 
-func (r *Run) addStagedFiles(files []string) {
-	if err := r.Repo.AddFiles(files); err != nil {
+func (c *Controller) addStagedFiles(files []string) {
+	if err := c.Repo.AddFiles(files); err != nil {
 		log.Warn("Couldn't stage fixed files:", err)
-	}
-}
-
-func (r *Run) run(ctx context.Context, opts exec.Options, follow bool) bool {
-	log.SetName(opts.Name)
-	defer log.UnsetName(opts.Name)
-
-	// If the command does not explicitly `use_stdin` no input will be provided.
-	var in io.Reader = system.NullReader
-	if opts.UseStdin {
-		in = r.stdin
-	}
-
-	if (follow || opts.Interactive) && r.LogSettings.LogExecution() {
-		r.logExecute(opts.Name, nil, nil)
-
-		var out io.Writer
-		if r.LogSettings.LogExecutionOutput() {
-			out = os.Stdout
-		} else {
-			out = io.Discard
-		}
-
-		err := r.executor.Execute(ctx, opts, in, out)
-
-		return err == nil
-	}
-
-	out := new(bytes.Buffer)
-
-	err := r.executor.Execute(ctx, opts, in, out)
-
-	r.logExecute(opts.Name, err, out)
-
-	return err == nil
-}
-
-func (r *Run) logSkip(name, reason string) {
-	if !r.LogSettings.LogSkips() {
-		return
-	}
-
-	log.Styled().
-		WithLeftBorder(lipgloss.NormalBorder(), log.ColorCyan).
-		WithPadding(execLogPadding).
-		Info(
-			log.Cyan(log.Bold(name)) + " " +
-				log.Gray("(skip)") + " " +
-				log.Yellow(reason),
-		)
-}
-
-func (r *Run) logExecute(name string, err error, out io.Reader) {
-	if err == nil && !r.LogSettings.LogExecution() {
-		return
-	}
-
-	var execLog string
-	var color lipgloss.TerminalColor
-	switch {
-	case !r.LogSettings.LogExecutionInfo():
-		execLog = ""
-	case err != nil:
-		execLog = log.Red(fmt.Sprintf("%s ❯ ", name))
-		color = log.ColorRed
-	default:
-		execLog = log.Cyan(fmt.Sprintf("%s ❯ ", name))
-		color = log.ColorCyan
-	}
-
-	if execLog != "" {
-		log.Styled().
-			WithLeftBorder(lipgloss.ThickBorder(), color).
-			WithPadding(execLogPadding).
-			Info(execLog)
-		log.Info()
-	}
-
-	if err == nil && !r.LogSettings.LogExecutionOutput() {
-		return
-	}
-
-	if out != nil {
-		log.Info(out)
-	}
-
-	if err != nil {
-		log.Infof("%s", err)
 	}
 }
 

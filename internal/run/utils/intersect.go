@@ -1,7 +1,8 @@
 package utils
 
-func Intersect(a, b []string) bool {
-	intersections := make(map[string]struct{}, len(a))
+// Intersect returns true if values of two slices have at least one similar value.
+func Intersect[K comparable](a, b []K) bool {
+	intersections := make(map[K]struct{}, len(a))
 
 	for _, v := range a {
 		intersections[v] = struct{}{}

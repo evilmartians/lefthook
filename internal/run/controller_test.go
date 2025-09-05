@@ -19,7 +19,6 @@ import (
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
-	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/evilmartians/lefthook/internal/run/exec"
 	"github.com/evilmartians/lefthook/internal/run/result"
 	"github.com/evilmartians/lefthook/internal/system"
@@ -664,12 +663,11 @@ func TestRunAll(t *testing.T) {
 	} {
 		fs := afero.NewMemMapFs()
 		repo.Fs = fs
-		run := &Run{
+		controller := &Controller{
 			Options: Options{
 				Repo:          repo,
 				Hook:          tt.hook,
 				HookName:      tt.hookName,
-				LogSettings:   log.NewSettings(),
 				GitArgs:       tt.args,
 				Force:         tt.force,
 				SkipLFS:       tt.skipLFS,
