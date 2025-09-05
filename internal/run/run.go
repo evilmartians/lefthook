@@ -347,20 +347,22 @@ func (r *Run) runScripts(ctx context.Context, dir string) []result.Result {
 func (r *Run) runScript(ctx context.Context, script *config.Script, file os.FileInfo) result.Result {
 	startTime := time.Now()
 
-	job, err := jobs.New(file.Name(), &jobs.Params{
+	job, err := jobs.New(&jobs.Params{
+		Name:   file.Name(),
+		Runner: script.Runner,
+		Script: file.Name(),
+		Tags:   script.Tags,
+		Only:   script.Only,
+		Skip:   script.Skip,
+	}, &jobs.Settings{
 		Repo:       r.Repo,
 		Hook:       r.Hook,
 		HookName:   r.HookName,
-		Name:       file.Name(),
 		ForceFiles: r.Files,
 		Force:      r.Force,
 		GitArgs:    r.GitArgs,
 		SourceDirs: r.SourceDirs,
-		Runner:     script.Runner,
-		Script:     file.Name(),
-		Tags:       script.Tags,
-		Only:       script.Only,
-		Skip:       script.Skip,
+		OnlyTags:   r.RunOnlyTags,
 	})
 	if err != nil {
 		r.logSkip(file.Name(), err.Error())
@@ -493,23 +495,24 @@ func (r *Run) runCommand(ctx context.Context, name string, command *config.Comma
 		exclude = excludeList
 	}
 
-	job, err := jobs.New(name, &jobs.Params{
+	job, err := jobs.New(&jobs.Params{
+		Name:      name,
+		Run:       command.Run,
+		Root:      command.Root,
+		Glob:      command.Glob,
+		Files:     command.Files,
+		FileTypes: command.FileTypes,
+		Tags:      command.Tags,
+		Exclude:   exclude,
+		Only:      command.Only,
+		Skip:      command.Skip,
+	}, &jobs.Settings{
 		Repo:       r.Repo,
 		Hook:       r.Hook,
 		HookName:   r.HookName,
 		ForceFiles: r.Files,
 		Force:      r.Force,
 		GitArgs:    r.GitArgs,
-		Name:       name,
-		Run:        command.Run,
-		Root:       command.Root,
-		Glob:       command.Glob,
-		Files:      command.Files,
-		FileTypes:  command.FileTypes,
-		Tags:       command.Tags,
-		Exclude:    exclude,
-		Only:       command.Only,
-		Skip:       command.Skip,
 		Templates:  r.Templates,
 	})
 	if err != nil {

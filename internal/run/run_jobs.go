@@ -18,7 +18,6 @@ import (
 	"github.com/evilmartians/lefthook/internal/run/filters"
 	"github.com/evilmartians/lefthook/internal/run/jobs"
 	"github.com/evilmartians/lefthook/internal/run/result"
-	"github.com/evilmartians/lefthook/internal/run/utils"
 )
 
 var (
@@ -117,9 +116,6 @@ func (r *Run) runJob(ctx context.Context, jobContext *jobContext, id string, job
 		if len(jobContext.onlyJobs) != 0 && !slices.Contains(jobContext.onlyJobs, job.Name) {
 			return result.Skip(job.PrintableName(id))
 		}
-		if len(jobContext.onlyTags) != 0 && (!utils.Intersect(jobContext.onlyTags, job.Tags) && !utils.Intersect(jobContext.onlyTags, jobContext.tags)) {
-			return result.Skip(job.PrintableName(id))
-		}
 
 		return r.runSingleJob(ctx, jobContext, id, job)
 	}
@@ -169,7 +165,21 @@ func (r *Run) runSingleJob(ctx context.Context, jobContext *jobContext, id strin
 	root := first(job.Root, jobContext.root)
 	glob := slices.Concat(jobContext.glob, job.Glob)
 	exclude := join(job.Exclude, jobContext.exclude)
-	executionJob, err := jobs.New(name, &jobs.Params{
+	tags := slices.Concat(job.Tags, jobContext.tags)
+	executionJob, err := jobs.New(&jobs.Params{
+		Name:      name,
+		Run:       job.Run,
+		Root:      root,
+		Runner:    job.Runner,
+		Script:    job.Script,
+		Glob:      glob,
+		Files:     job.Files,
+		FileTypes: job.FileTypes,
+		Tags:      tags,
+		Exclude:   exclude,
+		Only:      job.Only,
+		Skip:      job.Skip,
+	}, &jobs.Settings{
 		Repo:       r.Repo,
 		Hook:       r.Hook,
 		HookName:   r.HookName,
@@ -177,18 +187,7 @@ func (r *Run) runSingleJob(ctx context.Context, jobContext *jobContext, id strin
 		Force:      r.Force,
 		SourceDirs: r.SourceDirs,
 		GitArgs:    r.GitArgs,
-		Name:       name,
-		Run:        job.Run,
-		Root:       root,
-		Runner:     job.Runner,
-		Script:     job.Script,
-		Glob:       glob,
-		Files:      job.Files,
-		FileTypes:  job.FileTypes,
-		Tags:       job.Tags,
-		Exclude:    exclude,
-		Only:       job.Only,
-		Skip:       job.Skip,
+		OnlyTags:   jobContext.onlyTags,
 		Templates:  r.Templates,
 	})
 	if err != nil {
