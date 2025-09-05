@@ -18,6 +18,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/run/filters"
 	"github.com/evilmartians/lefthook/internal/run/jobs"
 	"github.com/evilmartians/lefthook/internal/run/result"
+	"github.com/evilmartians/lefthook/internal/run/utils"
 )
 
 var (
@@ -29,15 +30,18 @@ var (
 type jobContext struct {
 	failed *atomic.Bool
 
-	glob     []string
-	root     string
-	exclude  interface{}
 	onlyJobs []string
-	names    []string
-	env      map[string]string
+	onlyTags []string
+
+	glob    []string
+	tags    []string
+	exclude interface{}
+	names   []string
+	env     map[string]string
+	root    string
 }
 
-func newJobContext(onlyJobs []string, exclude []string) *jobContext {
+func newJobContext(exclude, onlyJobs, onlyTags []string) *jobContext {
 	var failed atomic.Bool
 	var excludeInterface []interface{}
 	if len(exclude) > 0 {
@@ -50,6 +54,7 @@ func newJobContext(onlyJobs []string, exclude []string) *jobContext {
 	return &jobContext{
 		failed:   &failed,
 		onlyJobs: onlyJobs,
+		onlyTags: onlyTags,
 		exclude:  excludeInterface,
 		env:      make(map[string]string),
 	}
@@ -61,7 +66,7 @@ func (r *Run) runJobs(ctx context.Context) []result.Result {
 	results := make([]result.Result, 0, len(r.Hook.Jobs))
 	resultsChan := make(chan result.Result, len(r.Hook.Jobs))
 
-	jobContext := newJobContext(r.RunOnlyJobs, r.Exclude)
+	jobContext := newJobContext(r.Exclude, r.RunOnlyJobs, r.RunOnlyTags)
 
 	for i, job := range r.Hook.Jobs {
 		id := strconv.Itoa(i)
@@ -112,6 +117,9 @@ func (r *Run) runJob(ctx context.Context, jobContext *jobContext, id string, job
 		if len(jobContext.onlyJobs) != 0 && !slices.Contains(jobContext.onlyJobs, job.Name) {
 			return result.Skip(job.PrintableName(id))
 		}
+		if len(jobContext.onlyTags) != 0 && (!utils.Intersect(jobContext.onlyTags, job.Tags) && !utils.Intersect(jobContext.onlyTags, jobContext.tags)) {
+			return result.Skip(job.PrintableName(id))
+		}
 
 		return r.runSingleJob(ctx, jobContext, id, job)
 	}
@@ -119,6 +127,7 @@ func (r *Run) runJob(ctx context.Context, jobContext *jobContext, id string, job
 	if job.Group != nil {
 		inheritedJobContext := *jobContext
 		inheritedJobContext.glob = slices.Concat(inheritedJobContext.glob, job.Glob)
+		inheritedJobContext.tags = slices.Concat(inheritedJobContext.tags, job.Tags)
 		inheritedJobContext.root = first(job.Root, jobContext.root)
 		switch list := job.Exclude.(type) {
 		case []interface{}:

@@ -27,6 +27,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/run/filters"
 	"github.com/evilmartians/lefthook/internal/run/jobs"
 	"github.com/evilmartians/lefthook/internal/run/result"
+	"github.com/evilmartians/lefthook/internal/run/utils"
 	"github.com/evilmartians/lefthook/internal/system"
 )
 
@@ -45,6 +46,7 @@ type Options struct {
 	Files           []string
 	RunOnlyCommands []string
 	RunOnlyJobs     []string
+	RunOnlyTags     []string
 	SourceDirs      []string
 	Templates       map[string]string
 }
@@ -410,10 +412,16 @@ func (r *Run) runScript(ctx context.Context, script *config.Script, file os.File
 
 func (r *Run) runCommands(ctx context.Context) []result.Result {
 	commands := make([]string, 0, len(r.Hook.Commands))
-	for name := range r.Hook.Commands {
-		if len(r.RunOnlyCommands) == 0 || slices.Contains(r.RunOnlyCommands, name) {
-			commands = append(commands, name)
+	for name, command := range r.Hook.Commands {
+		if len(r.RunOnlyCommands) != 0 && !slices.Contains(r.RunOnlyCommands, name) {
+			continue
 		}
+
+		if len(r.RunOnlyTags) != 0 && !utils.Intersect(r.RunOnlyTags, command.Tags) {
+			continue
+		}
+
+		commands = append(commands, name)
 	}
 
 	sortByPriority(commands, r.Hook.Commands)

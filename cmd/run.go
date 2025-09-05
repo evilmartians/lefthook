@@ -113,6 +113,11 @@ func (run) New(opts *command.Options) *cobra.Command {
 		"run only specified jobs",
 	)
 
+	runCmd.Flags().StringSliceVar(
+		&runArgs.RunOnlyTags, "tags", nil,
+		"run only jobs with specified tags",
+	)
+
 	err := runCmd.Flags().MarkDeprecated("files", "use --file flag instead")
 	if err != nil {
 		log.Warn("Unexpected error:", err)

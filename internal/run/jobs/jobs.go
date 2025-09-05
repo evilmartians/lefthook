@@ -3,6 +3,7 @@ package jobs
 import (
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
+	"github.com/evilmartians/lefthook/internal/run/utils"
 	"github.com/evilmartians/lefthook/internal/system"
 )
 
@@ -40,11 +41,11 @@ func New(name string, params *Params) (*Job, error) {
 		return nil, SkipError{"by condition"}
 	}
 
-	if intersect(params.Hook.ExcludeTags, params.Tags) {
+	if utils.Intersect(params.Hook.ExcludeTags, params.Tags) {
 		return nil, SkipError{"tags"}
 	}
 
-	if intersect(params.Hook.ExcludeTags, []string{name}) {
+	if utils.Intersect(params.Hook.ExcludeTags, []string{name}) {
 		return nil, SkipError{"name"}
 	}
 
@@ -78,20 +79,4 @@ func (p *Params) validateCommand() error {
 
 func (p *Params) validateScript() error {
 	return nil
-}
-
-func intersect(a, b []string) bool {
-	intersections := make(map[string]struct{}, len(a))
-
-	for _, v := range a {
-		intersections[v] = struct{}{}
-	}
-
-	for _, v := range b {
-		if _, ok := intersections[v]; ok {
-			return true
-		}
-	}
-
-	return false
 }
