@@ -1,5 +1,11 @@
 # Change log
 
+## 1.12.4 (2025-09-05)
+
+- deps: September 2025 ([#1102](https://github.com/evilmartians/lefthook/pull/1102)) by [@mrexox]()
+- feat: add tags argument ([#1101](https://github.com/evilmartians/lefthook/pull/1101)) by [@mrexox]()
+- chore: bump github.com/go-viper/mapstructure/v2 ([#1094](https://github.com/evilmartians/lefthook/pull/1094))
+
 ## 1.12.3 (2025-08-12)
 
 - feat: add MIME types to file_types filters ([#1092](https://github.com/evilmartians/lefthook/pull/1092))
@@ -948,3 +954,5 @@ Now it's possible to use Lefthook from Gemfile.
 
 gem 'lefthook'
 ```
+
+[@mrexox]: https://github.com/mrexox
