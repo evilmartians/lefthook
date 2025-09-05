@@ -138,6 +138,9 @@
         "follow": {
           "type": "boolean"
         },
+        "fail_on_changes": {
+          "type": "boolean"
+        },
         "files": {
           "type": "string"
         },
@@ -408,7 +411,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2025.07.04.",
+  "$comment": "Last updated on 2025.09.05.",
   "properties": {
     "min_version": {
       "type": "string",
@@ -495,10 +498,6 @@
       },
       "type": "object",
       "description": "Custom templates for replacements in run commands."
-    },
-    "fail_on_changes": {
-      "type": "boolean",
-      "description": "Exit with non-zero status if any files were modified."
     },
     "$schema": {
       "type": "string"

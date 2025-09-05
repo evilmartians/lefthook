@@ -268,7 +268,7 @@ func (r *Run) preHook() {
 }
 
 func (r *Run) postHook() error {
-	if r.FailOnChanges && len(r.changesetBefore) > 0 {
+	if r.FailOnChanges {
 		changesetAfter, err := r.Repo.Changeset()
 		if err != nil {
 			log.Warnf("Couldn't get changeset: %s\n", err)

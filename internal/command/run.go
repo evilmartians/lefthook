@@ -172,10 +172,10 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	defer stop()
 
 	failOnChanges := false
-	if cfg.FailOnChanges == nil {
+	if hook.FailOnChanges == nil {
 		_, failOnChanges = os.LookupEnv("CI")
 	} else {
-		failOnChanges = *cfg.FailOnChanges
+		failOnChanges = *hook.FailOnChanges
 	}
 
 	r := run.New(run.Options{

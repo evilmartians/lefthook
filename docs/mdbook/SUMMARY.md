@@ -61,6 +61,7 @@
     - [`parallel`](./configuration/parallel.md)
     - [`piped`](./configuration/piped.md)
     - [`follow`](./configuration/follow.md)
+    - [`fail_on_changes`](./configuration/fail_on_changes.md)
     - [`exclude_tags`](./configuration/exclude_tags.md)
     - [`skip`](./configuration/skip.md)
     - [`only`](./configuration/only.md)

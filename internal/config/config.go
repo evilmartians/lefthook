@@ -54,8 +54,6 @@ type Config struct {
 
 	Templates map[string]string `json:"templates,omitempty" jsonschema:"description=Custom templates for replacements in run commands." mapstructure:"templates,omitempty"`
 
-	FailOnChanges *bool `json:"fail_on_changes,omitempty" jsonschema:"description=Exit with non-zero status if any files were modified." koanf:"fail_on_changes" mapstructure:"fail_on_changes,omitempty"`
-
 	Hooks map[string]*Hook `jsonschema:"-" mapstructure:"-"`
 }
 
