@@ -6,6 +6,7 @@ package main_test
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/rogpeppe/go-internal/testscript"
@@ -13,7 +14,7 @@ import (
 
 func TestLefthookIntegrity(t *testing.T) {
 	testscript.Run(t, testscript.Params{
-		Dir: "testdata",
+		Dir: filepath.Join("tests", "integrity"),
 		Setup: func(env *testscript.Env) error {
 			env.Vars = append(env.Vars, fmt.Sprintf("GOCOVERDIR=%s", os.Getenv("GOCOVERDIR")))
 			return nil
