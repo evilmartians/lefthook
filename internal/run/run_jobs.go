@@ -166,7 +166,7 @@ func (r *Run) runSingleJob(ctx context.Context, jobContext *jobContext, id strin
 	glob := slices.Concat(jobContext.glob, job.Glob)
 	exclude := join(job.Exclude, jobContext.exclude)
 	tags := slices.Concat(job.Tags, jobContext.tags)
-	executionJob, err := jobs.New(&jobs.Params{
+	executionJob, err := jobs.Build(&jobs.Params{
 		Name:      name,
 		Run:       job.Run,
 		Root:      root,

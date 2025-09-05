@@ -347,7 +347,7 @@ func (r *Run) runScripts(ctx context.Context, dir string) []result.Result {
 func (r *Run) runScript(ctx context.Context, script *config.Script, file os.FileInfo) result.Result {
 	startTime := time.Now()
 
-	job, err := jobs.New(&jobs.Params{
+	job, err := jobs.Build(&jobs.Params{
 		Name:   file.Name(),
 		Runner: script.Runner,
 		Script: file.Name(),
@@ -495,7 +495,7 @@ func (r *Run) runCommand(ctx context.Context, name string, command *config.Comma
 		exclude = excludeList
 	}
 
-	job, err := jobs.New(&jobs.Params{
+	job, err := jobs.Build(&jobs.Params{
 		Name:      name,
 		Run:       command.Run,
 		Root:      command.Root,

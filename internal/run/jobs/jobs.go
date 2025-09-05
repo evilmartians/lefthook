@@ -39,7 +39,7 @@ type Job struct {
 	Files []string
 }
 
-func New(params *Params, settings *Settings) (*Job, error) {
+func Build(params *Params, settings *Settings) (*Job, error) {
 	if settings.skip(params) {
 		return nil, SkipError{"by condition"}
 	}
