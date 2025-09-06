@@ -33,6 +33,7 @@ type RunArgs struct {
 	NoAutoInstall   bool
 	SkipLFS         bool
 	Verbose         bool
+	FailOnChanges   bool
 	Exclude         []string
 	Files           []string
 	RunOnlyCommands []string
@@ -172,7 +173,9 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	defer stop()
 
 	failOnChanges := false
-	if hook.FailOnChanges == nil {
+	if args.FailOnChanges {
+		failOnChanges = true
+	} else if hook.FailOnChanges == nil {
 		_, failOnChanges = os.LookupEnv("CI")
 	} else {
 		failOnChanges = *hook.FailOnChanges
