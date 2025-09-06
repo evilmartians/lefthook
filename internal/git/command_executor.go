@@ -15,11 +15,12 @@ type CommandExecutor struct {
 	cmd           system.Command
 	root          string
 	onlyDebugLogs bool
+	trimOutput    bool
 }
 
 // NewExecutor returns an object that executes given commands in the OS.
 func NewExecutor(cmd system.Command) *CommandExecutor {
-	return &CommandExecutor{cmd: cmd}
+	return &CommandExecutor{cmd: cmd, trimOutput: true}
 }
 
 func (c CommandExecutor) WithoutEnvs(envs ...string) CommandExecutor {
@@ -30,6 +31,11 @@ func (c CommandExecutor) OnlyDebugLogs() CommandExecutor {
 	return CommandExecutor{cmd: c.cmd, root: c.root, onlyDebugLogs: true}
 }
 
+func (c CommandExecutor) WithoutTrim() CommandExecutor {
+	c.trimOutput = false
+	return c
+}
+
 // Cmd runs plain string command. Trims spaces around output.
 func (c CommandExecutor) Cmd(cmd []string) (string, error) {
 	out, err := c.execute(cmd, c.root)
@@ -37,7 +43,11 @@ func (c CommandExecutor) Cmd(cmd []string) (string, error) {
 		return "", err
 	}
 
-	return strings.TrimSpace(out), nil
+	if c.trimOutput {
+		out = strings.TrimSpace(out)
+	}
+
+	return out, nil
 }
 
 // BatchedCmd runs the command with any number of appended arguments batched in chunks to match the OS limits.
@@ -65,14 +75,8 @@ func (c CommandExecutor) CmdLines(cmd []string) ([]string, error) {
 		return nil, err
 	}
 
-	return strings.Split(strings.TrimSpace(out), "\n"), nil
-}
-
-// CmdLines runs plain string command, returns its output split by newline, without trimming leading & trailing spaces.
-func (c CommandExecutor) CmdLinesNoTrim(cmd []string) ([]string, error) {
-	out, err := c.execute(cmd, c.root)
-	if err != nil {
-		return nil, err
+	if c.trimOutput {
+		out = strings.TrimSpace(out)
 	}
 
 	return strings.Split(out, "\n"), nil
@@ -86,7 +90,11 @@ func (c CommandExecutor) CmdLinesWithinFolder(cmd []string, folder string) ([]st
 		return nil, err
 	}
 
-	return strings.Split(strings.TrimSpace(out), "\n"), nil
+	if c.trimOutput {
+		out = strings.TrimSpace(out)
+	}
+
+	return strings.Split(out, "\n"), nil
 }
 
 func (c CommandExecutor) execute(cmd []string, root string) (string, error) {
