@@ -66,6 +66,8 @@ type Repository struct {
 	stagedFilesWithDeletedOnce func() ([]string, error)
 	statusShortOnce            func() ([]string, error)
 	stateOnce                  func() State
+
+	ChangesetFn func() (map[string]string, error)
 }
 
 // NewRepository returns a Repository or an error, if git repository it not initialized.
@@ -365,6 +367,10 @@ func (r *Repository) AddFiles(files []string) error {
 // Changeset returns a map of files and their hashes that are different from the index.
 // The hash for a deleted file is "deleted".
 func (r *Repository) Changeset() (map[string]string, error) {
+	if r.ChangesetFn != nil {
+		return r.ChangesetFn()
+	}
+
 	changeset := make(map[string]string)
 	pathsToHash := make([]string, 0)
 
