@@ -1,14 +1,12 @@
 # fail_on_changes
 
-Exit with a non-zero status if any files were modified by the hook.
-This can be useful for hooks that automatically fix code.
+By default, lefthook exits with a non-zero status if any files (tracked by git) were modified by the hook if and only if a `CI` environment variable is set.
 
-Defaults to `true` if `CI` environment variable is `true`, otherwise `false`.
+This behaviour can be overridden by setting `fail_on_changes` to `true` or `false`. In that case, lefthook will always, or never, exit with a non-zero status if any files (tracked by git) were modified by the hook.
 
-Can be used in a hook definition.
-
-```yaml
+```yml
 pre-commit:
   fail_on_changes: true
   jobs:
     - run: yarn lint --fix
+```
