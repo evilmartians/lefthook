@@ -24,7 +24,7 @@ require (
 	github.com/schollz/progressbar/v3 v3.18.0
 	github.com/spf13/afero v1.14.0
 	github.com/spf13/cobra v1.9.1
-	github.com/stretchr/testify v1.11.0
+	github.com/stretchr/testify v1.11.1
 )
 
 require (
