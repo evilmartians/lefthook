@@ -253,6 +253,10 @@ func logResults(indent int, results []result.Result, logSettings log.Settings) {
 			}
 
 			log.Success(indent, result.Name, result.Duration)
+
+			if len(result.Sub) > 0 {
+				logResults(indent+1, result.Sub, logSettings)
+			}
 		}
 	}
 
