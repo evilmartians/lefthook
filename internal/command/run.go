@@ -95,11 +95,6 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	log.InitSettings()
 	log.ApplySettings(enableLogTags, disableLogTags, cfg.Output, cfg.SkipOutput)
 
-	// Deprecate skip_output in the future. Leaving as is to reduce noise in output.
-	// if outputSkipTags != "" || cfg.SkipOutput != nil {
-	// 	 log.Warn("skip_output is deprecated, please use output option")
-	// }
-
 	if log.Settings.LogMeta() {
 		log.LogMeta(hookName)
 	}
@@ -199,6 +194,7 @@ func getSourceDirs(repo *git.Repository, cfg *config.Config) []string {
 		}
 	}
 
+<<<<<<< HEAD
 	return sourceDirs
 }
 
@@ -224,10 +220,21 @@ func executeHook(
 	repo *git.Repository, cfg *config.Config, hook *config.Hook, hookName string, gitArgs []string, args RunArgs,
 	logSettings log.Settings, sourceDirs []string, failOnChanges bool,
 ) error {
+||||||| parent of f526f5c (fix: merge commands and scripts into jobs)
+=======
+	// Convert Commands and Scripts into Jobs
+	hook.Jobs = append(hook.Jobs, config.CommandsToJobs(hook.Commands)...)
+	hook.Commands = nil
+	hook.Jobs = append(hook.Jobs, config.ScriptsToJobs(hook.Scripts)...)
+	hook.Scripts = nil
+	args.RunOnlyJobs = append(args.RunOnlyJobs, args.RunOnlyCommands...)
+
+>>>>>>> f526f5c (fix: merge commands and scripts into jobs)
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
 	r := run.NewController(run.Options{
+<<<<<<< HEAD
 		Repo:            l.repo,
 		Hook:            hook,
 		HookName:        hookName,
@@ -243,6 +250,36 @@ func executeHook(
 		RunOnlyTags:     args.RunOnlyTags,
 		SourceDirs:      sourceDirs,
 		FailOnChanges:   failOnChanges,
+||||||| parent of f526f5c (fix: merge commands and scripts into jobs)
+		Repo:            l.repo,
+		Hook:            hook,
+		HookName:        hookName,
+		GitArgs:         gitArgs,
+		DisableTTY:      cfg.NoTTY || args.NoTTY,
+		SkipLFS:         cfg.SkipLFS || args.SkipLFS,
+		Templates:       cfg.Templates,
+		Exclude:         args.Exclude,
+		Files:           args.Files,
+		Force:           args.Force,
+		RunOnlyCommands: args.RunOnlyCommands,
+		RunOnlyJobs:     args.RunOnlyJobs,
+		RunOnlyTags:     args.RunOnlyTags,
+		SourceDirs:      sourceDirs,
+=======
+		Repo:        l.repo,
+		Hook:        hook,
+		HookName:    hookName,
+		GitArgs:     gitArgs,
+		DisableTTY:  cfg.NoTTY || args.NoTTY,
+		SkipLFS:     cfg.SkipLFS || args.SkipLFS,
+		Templates:   cfg.Templates,
+		Exclude:     args.Exclude,
+		Files:       args.Files,
+		Force:       args.Force,
+		RunOnlyJobs: args.RunOnlyJobs,
+		RunOnlyTags: args.RunOnlyTags,
+		SourceDirs:  sourceDirs,
+>>>>>>> f526f5c (fix: merge commands and scripts into jobs)
 	})
 
 	startTime := time.Now()

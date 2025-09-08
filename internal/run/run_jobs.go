@@ -295,6 +295,12 @@ func (c *Controller) runGroup(ctx context.Context, groupName string, jobContext 
 	return result.Group(groupName, results)
 }
 
+func (c *Controller) addStagedFiles(files []string) {
+	if err := c.Repo.AddFiles(files); err != nil {
+		log.Warn("Couldn't stage fixed files:", err)
+	}
+}
+
 // first finds first non-empty string and returns it.
 func first(args ...string) string {
 	for _, a := range args {
