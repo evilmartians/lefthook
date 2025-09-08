@@ -31,10 +31,6 @@ func (s Script) DoSkip(state func() git.State) bool {
 	return skipChecker.Check(state, s.Skip, s.Only)
 }
 
-func (s Script) ExecutionPriority() int {
-	return s.Priority
-}
-
 func ScriptsToJobs(scripts map[string]*Script) []*Job {
 	jobs := make([]*Job, 0, len(scripts))
 	for name, script := range scripts {

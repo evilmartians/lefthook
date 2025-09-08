@@ -31,10 +31,6 @@ type Command struct {
 	StageFixed  bool   `json:"stage_fixed,omitempty" koanf:"stage_fixed"        mapstructure:"stage_fixed"   toml:"stage_fixed,omitempty" yaml:"stage_fixed,omitempty"`
 }
 
-func (c Command) ExecutionPriority() int {
-	return c.Priority
-}
-
 func CommandsToJobs(commands map[string]*Command) []*Job {
 	jobs := make([]*Job, 0, len(commands))
 	for name, command := range commands {
