@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -243,6 +244,22 @@ func (r *Repository) PartiallyStagedFiles() ([]string, error) {
 	}
 
 	return partiallyStaged, nil
+}
+
+func (r *Repository) ExcludePartiallyStagedFiles(files []string) ([]string, error) {
+	partiallyStagedFiles, err := r.PartiallyStagedFiles()
+	if err != nil {
+		return nil, err
+	}
+
+	onlyStagedFiles := make([]string, 0)
+	for _, file := range files {
+		if !slices.Contains(partiallyStagedFiles, file) {
+			onlyStagedFiles = append(onlyStagedFiles, file)
+		}
+	}
+
+	return onlyStagedFiles, nil
 }
 
 func (r *Repository) SaveUnstaged(files []string) error {
