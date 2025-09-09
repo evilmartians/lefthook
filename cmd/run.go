@@ -79,6 +79,11 @@ func (run) New(opts *command.Options) *cobra.Command {
 	)
 
 	runCmd.Flags().BoolVar(
+		&runArgs.NoStashUnstaged, "no-stash-unstaged", false,
+		"skip stashing unstaged files",
+	)
+
+	runCmd.Flags().BoolVar(
 		&runArgs.SkipLFS, "skip-lfs", false,
 		"skip running git lfs",
 	)

@@ -222,9 +222,9 @@ func (r *Run) runSingleJob(ctx context.Context, jobContext *jobContext, id strin
 
 	if config.HookUsesStagedFiles(r.HookName) && job.StageFixed {
 		files := executionJob.Files
+		var err error
 
 		if len(files) == 0 {
-			var err error
 			files, err = r.Repo.StagedFiles()
 			if err != nil {
 				log.Warn("Couldn't stage fixed files:", err)
@@ -242,6 +242,17 @@ func (r *Run) runSingleJob(ctx context.Context, jobContext *jobContext, id strin
 		if len(root) > 0 {
 			for i, file := range files {
 				files[i] = filepath.Join(root, file)
+			}
+		}
+
+		// If files are partially staged, then automatically staging them
+		// could include additional changes that aren't related to fixes, so
+		// we only include the staged files that don't have unstaged changes.
+		if r.NoStashUnstaged {
+			files, err = r.Repo.ExcludePartiallyStagedFiles(files)
+			if err != nil {
+				log.Warn("Couldn't stage fixed files:", err)
+				return result.Success(name, executionTime)
 			}
 		}
 

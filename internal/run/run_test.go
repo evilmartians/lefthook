@@ -111,6 +111,7 @@ func TestRunAll(t *testing.T) {
 		success, fail    []result.Result
 		gitCommands      []string
 		force            bool
+		noStashUnstaged  bool
 		skipLFS          bool
 	}{
 		"empty hook": {
@@ -605,6 +606,22 @@ func TestRunAll(t *testing.T) {
 				"git add .*scripts.*script.sh",
 			},
 		},
+		"pre-commit with no-stash-unstaged": {
+			hookName: "pre-commit",
+			existingFiles: []string{
+				filepath.Join(root, "README.md"),
+			},
+			hook: h(`
+        commands:
+          ok:
+            run: success
+      `),
+			noStashUnstaged: true,
+			success:         []result.Result{succeeded("ok")},
+			gitCommands: []string{
+				"git diff --name-only --cached --diff-filter=ACMRD",
+			},
+		},
 		"with pre-push skip": {
 			hookName: "pre-push",
 			existingFiles: []string{
@@ -629,9 +646,8 @@ func TestRunAll(t *testing.T) {
 				"git diff --name-only HEAD @{push}",
 			},
 		},
-		"with LFS disabled": {
-			hookName: "post-checkout",
-			skipLFS:  true,
+		"pre-push with no-stash-unstaged": {
+			hookName: "pre-push",
 			existingFiles: []string{
 				filepath.Join(root, "README.md"),
 			},
@@ -640,21 +656,26 @@ func TestRunAll(t *testing.T) {
           ok:
             run: success
       `),
-			success: []result.Result{succeeded("ok")},
+			noStashUnstaged: true,
+			success:         []result.Result{succeeded("ok")},
+			gitCommands: []string{
+				"git diff --name-only HEAD @{push}",
+			},
 		},
 	} {
 		fs := afero.NewMemMapFs()
 		repo.Fs = fs
 		run := &Run{
 			Options: Options{
-				Repo:        repo,
-				Hook:        tt.hook,
-				HookName:    tt.hookName,
-				LogSettings: log.NewSettings(),
-				GitArgs:     tt.args,
-				Force:       tt.force,
-				SkipLFS:     tt.skipLFS,
-				SourceDirs:  tt.sourceDirs,
+				Repo:            repo,
+				Hook:            tt.hook,
+				HookName:        tt.hookName,
+				LogSettings:     log.NewSettings(),
+				GitArgs:         tt.args,
+				Force:           tt.force,
+				NoStashUnstaged: tt.noStashUnstaged,
+				SkipLFS:         tt.skipLFS,
+				SourceDirs:      tt.sourceDirs,
 			},
 			executor: executor{},
 			cmd:      cmd{},

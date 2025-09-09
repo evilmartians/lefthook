@@ -42,6 +42,7 @@ type Options struct {
 	DisableTTY      bool
 	SkipLFS         bool
 	Force           bool
+	NoStashUnstaged bool
 	Exclude         []string
 	Files           []string
 	RunOnlyCommands []string
@@ -211,7 +212,7 @@ func (r *Run) runLFSHook(ctx context.Context) error {
 }
 
 func (r *Run) preHook() {
-	if !config.HookUsesStagedFiles(r.HookName) {
+	if r.NoStashUnstaged || !config.HookUsesStagedFiles(r.HookName) {
 		return
 	}
 
@@ -406,6 +407,17 @@ func (r *Run) runScript(ctx context.Context, script *config.Script, file os.File
 			return result
 		}
 
+		// If files are partially staged, then automatically staging them
+		// could include additional changes that aren't related to fixes, so
+		// we only include the staged files that don't have unstaged changes.
+		if r.NoStashUnstaged {
+			files, err = r.Repo.ExcludePartiallyStagedFiles(files)
+			if err != nil {
+				log.Warn("Couldn't stage fixed files:", err)
+				return result
+			}
+		}
+
 		r.addStagedFiles(files)
 	}
 
@@ -552,9 +564,9 @@ func (r *Run) runCommand(ctx context.Context, name string, command *config.Comma
 
 	if config.HookUsesStagedFiles(r.HookName) && command.StageFixed {
 		files := job.Files
+		var err error
 
 		if len(files) == 0 {
-			var err error
 			files, err = r.Repo.StagedFiles()
 			if err != nil {
 				log.Warn("Couldn't stage fixed files:", err)
@@ -572,6 +584,17 @@ func (r *Run) runCommand(ctx context.Context, name string, command *config.Comma
 		if len(command.Root) > 0 {
 			for i, file := range files {
 				files[i] = filepath.Join(command.Root, file)
+			}
+		}
+
+		// If files are partially staged, then automatically staging them
+		// could include additional changes that aren't related to fixes, so
+		// we only include the staged files that don't have unstaged changes.
+		if r.NoStashUnstaged {
+			files, err = r.Repo.ExcludePartiallyStagedFiles(files)
+			if err != nil {
+				log.Warn("Couldn't stage fixed files:", err)
+				return result
 			}
 		}
 

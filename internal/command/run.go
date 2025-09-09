@@ -31,6 +31,7 @@ type RunArgs struct {
 	FilesFromStdin  bool
 	Force           bool
 	NoAutoInstall   bool
+	NoStashUnstaged bool
 	SkipLFS         bool
 	Verbose         bool
 	Exclude         []string
@@ -54,6 +55,10 @@ func Run(opts *Options, args RunArgs, hookName string, gitArgs []string) error {
 func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	if os.Getenv(envEnabled) == "0" || os.Getenv(envEnabled) == "false" {
 		return nil
+	}
+
+	if args.NoStashUnstaged && !config.HookUsesStagedFiles(hookName) {
+		return fmt.Errorf("hook %s doesn't use staged files and --no-stash-unstaged was provided", hookName)
 	}
 
 	waitPrecompute := l.repo.Precompute()
@@ -184,6 +189,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		Exclude:         args.Exclude,
 		Files:           args.Files,
 		Force:           args.Force,
+		NoStashUnstaged: args.NoStashUnstaged,
 		RunOnlyCommands: args.RunOnlyCommands,
 		RunOnlyJobs:     args.RunOnlyJobs,
 		RunOnlyTags:     args.RunOnlyTags,
