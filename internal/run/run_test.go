@@ -738,7 +738,7 @@ func TestRunAll(t *testing.T) {
 			},
 			success: []result.Result{succeeded("ok")},
 		},
-		"with fail_on_change=true and changes": {
+		"with fail_on_changes=always and changes": {
 			existingFiles: []string{
 				"internal/run/run.go",
 			},

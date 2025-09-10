@@ -132,7 +132,12 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 
 	sourceDirs := getSourceDirs(l.repo, cfg)
 
-	return executeHook(l.repo, cfg, hook, hookName, gitArgs, args, logSettings, sourceDirs)
+	failOnChanges, err := shouldFailOnChanges(args, hook)
+	if err != nil {
+		return err
+	}
+
+	return executeHook(l.repo, cfg, hook, hookName, gitArgs, args, logSettings, sourceDirs, failOnChanges)
 }
 
 func resolveHook(cfg *config.Config, hookName string) (*config.Hook, error) {
@@ -196,20 +201,27 @@ func getSourceDirs(repo *git.Repository, cfg *config.Config) []string {
 	return sourceDirs
 }
 
-func shouldFailOnChanges(args RunArgs, hook *config.Hook) bool {
+func shouldFailOnChanges(args RunArgs, hook *config.Hook) (bool, error) {
 	if args.FailOnChanges {
-		return true
+		return true, nil
 	}
-	if hook.FailOnChanges != nil {
-		return *hook.FailOnChanges
+
+	switch hook.FailOnChanges {
+	case "never", "":
+		return false, nil
+	case "always":
+		return true, nil
+	case "ci":
+		_, ok := os.LookupEnv("CI")
+		return ok, nil
+	default:
+		return false, fmt.Errorf("invalid value for fail_on_changes: %s", hook.FailOnChanges)
 	}
-	_, ok := os.LookupEnv("CI")
-	return ok
 }
 
 func executeHook(
 	repo *git.Repository, cfg *config.Config, hook *config.Hook, hookName string, gitArgs []string, args RunArgs,
-	logSettings log.Settings, sourceDirs []string,
+	logSettings log.Settings, sourceDirs []string, failOnChanges bool,
 ) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
@@ -229,7 +241,7 @@ func executeHook(
 		RunOnlyCommands: args.RunOnlyCommands,
 		RunOnlyJobs:     args.RunOnlyJobs,
 		SourceDirs:      sourceDirs,
-		FailOnChanges:   shouldFailOnChanges(args, hook),
+		FailOnChanges:   failOnChanges,
 	})
 
 	startTime := time.Now()

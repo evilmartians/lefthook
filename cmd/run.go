@@ -70,7 +70,7 @@ func (run) New(opts *command.Options) *cobra.Command {
 
 	runCmd.Flags().BoolVar(
 		&runArgs.FailOnChanges, "fail-on-changes", false,
-		"fail hook if it modifies any file ",
+		"fail hook if it modifies any file",
 	)
 
 	runCmd.Flags().BoolVar(
