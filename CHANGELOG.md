@@ -1,5 +1,15 @@
 # Change log
 
+## 1.13.0 (2025-09-11)
+
+- fix: use batched cmd for calculating git hashes ([#1116](https://github.com/evilmartians/lefthook/pull/1116)) by [@mrexox]()
+- fix: add mutex to prevent concurrent git adds ([#1115](https://github.com/evilmartians/lefthook/pull/1115)) by [@mrexox]()
+- refactor: improve structuring ([#1103](https://github.com/evilmartians/lefthook/pull/1103)) by [@mrexox]()
+- feat: fail on change ([#1095](https://github.com/evilmartians/lefthook/pull/1095)) by [@olivier-lacroix]()
+- fix: set --force for git add command ([#1104](https://github.com/evilmartians/lefthook/pull/1104)) by [@michaelm]()
+- feat: recursively log successful results in summary ([#1108](https://github.com/evilmartians/lefthook/pull/1108)) by [@siler]()
+- fix: groups with successes and skips are successful ([#1107](https://github.com/evilmartians/lefthook/pull/1107)) by [@siler]()
+
 ## 1.12.4 (2025-09-05)
 
 - deps: September 2025 ([#1102](https://github.com/evilmartians/lefthook/pull/1102)) by [@mrexox]()
@@ -956,3 +966,6 @@ gem 'lefthook'
 ```
 
 [@mrexox]: https://github.com/mrexox
+[@olivier-lacroix]: https://github.com/olivier-lacroix
+[@michael-pplx]: https://github.com/michael-pplx
+[@siler]: https://github.com/siler
