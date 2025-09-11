@@ -112,6 +112,7 @@ func TestRunAll(t *testing.T) {
 		gitCommands      []string
 		force            bool
 		skipLFS          bool
+		failOnChanges    bool
 	}{
 		"empty hook": {
 			hookName: "post-commit",
@@ -642,19 +643,38 @@ func TestRunAll(t *testing.T) {
       `),
 			success: []result.Result{succeeded("ok")},
 		},
+		"with fail_on_changes=always and changes": {
+			existingFiles: []string{
+				"internal/run/run.go",
+			},
+			hookName: "pre-commit",
+			hook: &config.Hook{
+				Commands: map[string]*config.Command{
+					"modify-and-stage": {
+						Run:        "success",
+						StageFixed: true,
+					},
+				},
+			},
+			success:       []result.Result{succeeded("modify-and-stage")},
+			fail:          []result.Result{},
+			failOnChanges: true,
+			gitCommands:   []string{},
+		},
 	} {
 		fs := afero.NewMemMapFs()
 		repo.Fs = fs
 		run := &Run{
 			Options: Options{
-				Repo:        repo,
-				Hook:        tt.hook,
-				HookName:    tt.hookName,
-				LogSettings: log.NewSettings(),
-				GitArgs:     tt.args,
-				Force:       tt.force,
-				SkipLFS:     tt.skipLFS,
-				SourceDirs:  tt.sourceDirs,
+				Repo:          repo,
+				Hook:          tt.hook,
+				HookName:      tt.hookName,
+				LogSettings:   log.NewSettings(),
+				GitArgs:       tt.args,
+				Force:         tt.force,
+				SkipLFS:       tt.skipLFS,
+				SourceDirs:    tt.sourceDirs,
+				FailOnChanges: tt.failOnChanges,
 			},
 			executor: executor{},
 			cmd:      cmd{},
@@ -673,8 +693,28 @@ func TestRunAll(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 			repo.Setup()
+			gitExec.reset()
+
+			if name == "with fail_on_change=true and changes" {
+				var changesetCallCount int
+				repo.ChangesetFn = func() (map[string]string, error) {
+					changesetCallCount++
+					if changesetCallCount > 1 {
+						return map[string]string{"internal/run/run.go": "dummyhash-modified"}, nil
+					}
+					return make(map[string]string), nil
+				}
+			} else {
+				repo.ChangesetFn = nil
+			}
+
 			results, err := run.RunAll(t.Context())
-			assert.NoError(err)
+
+			if tt.failOnChanges {
+				assert.ErrorIs(err, ErrFailOnChanges, "expected ErrFailOnChanges")
+			} else {
+				assert.NoError(err)
+			}
 
 			var success, fail []result.Result
 			for _, result := range results {
@@ -688,11 +728,13 @@ func TestRunAll(t *testing.T) {
 			assert.ElementsMatch(success, tt.success)
 			assert.ElementsMatch(fail, tt.fail)
 
-			assert.Len(gitExec.commands, len(tt.gitCommands))
-			for i, command := range gitExec.commands {
-				gitCommandRe := regexp.MustCompile(tt.gitCommands[i])
-				if !gitCommandRe.MatchString(command) {
-					t.Errorf("wrong git command regexp #%d\nExpected: %s\nWas: %s", i, tt.gitCommands[i], command)
+			if len(tt.gitCommands) > 0 {
+				assert.Len(gitExec.commands, len(tt.gitCommands))
+				for i, command := range gitExec.commands {
+					gitCommandRe := regexp.MustCompile(tt.gitCommands[i])
+					if !gitCommandRe.MatchString(command) {
+						t.Errorf("wrong git command regexp #%d\nExpected: %s\nWas: %s", i, tt.gitCommands[i], command)
+					}
 				}
 			}
 		})

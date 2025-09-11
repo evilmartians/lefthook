@@ -66,6 +66,8 @@ type Repository struct {
 	stagedFilesWithDeletedOnce func() ([]string, error)
 	statusShortOnce            func() ([]string, error)
 	stateOnce                  func() State
+
+	ChangesetFn func() (map[string]string, error)
 }
 
 // NewRepository returns a Repository or an error, if git repository it not initialized.
@@ -158,7 +160,7 @@ func (r *Repository) Setup() {
 	})
 
 	r.statusShortOnce = sync.OnceValues(func() ([]string, error) {
-		return r.Git.CmdLines(cmdStatusShort)
+		return r.Git.WithoutTrim().CmdLines(cmdStatusShort)
 	})
 
 	r.stateOnce = sync.OnceValue(func() State {
@@ -216,30 +218,15 @@ func (r *Repository) PushFiles() ([]string, error) {
 // unstaged changes.
 // See https://git-scm.com/docs/git-status#_short_format.
 func (r *Repository) PartiallyStagedFiles() ([]string, error) {
-	lines, err := r.statusShortOnce()
-	if err != nil {
-		return []string{}, err
-	}
-
 	partiallyStaged := make([]string, 0)
 
-	for _, line := range lines {
-		if len(line) < minStatusLen {
-			continue
+	err := r.parseStatusShort(func(status fileStatus) {
+		if status.index != ' ' && status.index != '?' && status.worktree != ' ' && status.worktree != '?' {
+			partiallyStaged = append(partiallyStaged, status.path)
 		}
-
-		index := line[0]
-		workingTree := line[1]
-
-		filename := line[3:]
-		idx := strings.Index(filename, "->")
-		if idx != -1 {
-			filename = filename[idx+3:]
-		}
-
-		if index != ' ' && index != '?' && workingTree != ' ' && workingTree != '?' && len(filename) > 0 {
-			partiallyStaged = append(partiallyStaged, filename)
-		}
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	return partiallyStaged, nil
@@ -375,6 +362,81 @@ func (r *Repository) AddFiles(files []string) error {
 	_, err := r.Git.BatchedCmd(cmdStageFiles, files)
 
 	return err
+}
+
+// Changeset returns a map of files and their hashes that are different from the index.
+// The hash for a deleted file is "deleted".
+func (r *Repository) Changeset() (map[string]string, error) {
+	if r.ChangesetFn != nil {
+		return r.ChangesetFn()
+	}
+
+	changeset := make(map[string]string)
+	pathsToHash := make([]string, 0)
+
+	err := r.parseStatusShort(func(status fileStatus) {
+		if status.index == 'D' || status.worktree == 'D' {
+			changeset[status.path] = "deleted"
+			return
+		}
+
+		pathsToHash = append(pathsToHash, status.path)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if len(pathsToHash) == 0 {
+		return changeset, nil
+	}
+
+	hashes, err := r.Git.CmdLines(append([]string{"git", "hash-object"}, pathsToHash...))
+	if err != nil {
+		return nil, err
+	}
+
+	for i, hash := range hashes {
+		changeset[pathsToHash[i]] = hash
+	}
+
+	return changeset, nil
+}
+
+type fileStatus struct {
+	path     string
+	index    byte
+	worktree byte
+}
+
+func (r *Repository) parseStatusShort(cb func(fileStatus)) error {
+	lines, err := r.statusShortOnce()
+	if err != nil {
+		return err
+	}
+
+	for _, line := range lines {
+		if len(line) < minStatusLen {
+			continue
+		}
+
+		path := line[3:]
+		idx := strings.Index(path, "->")
+		if idx != -1 {
+			path = path[idx+3:]
+		}
+
+		if len(path) == 0 {
+			continue
+		}
+
+		cb(fileStatus{
+			path:     path,
+			index:    line[0],
+			worktree: line[1],
+		})
+	}
+
+	return nil
 }
 
 // FindAllFiles accepts git command and returns its result as a list of filepaths.

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/evilmartians/lefthook/internal/config"
+	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/evilmartians/lefthook/internal/run"
 	"github.com/evilmartians/lefthook/internal/run/result"
@@ -33,6 +34,7 @@ type RunArgs struct {
 	NoAutoInstall   bool
 	SkipLFS         bool
 	Verbose         bool
+	FailOnChanges   bool
 	Exclude         []string
 	Files           []string
 	RunOnlyCommands []string
@@ -59,10 +61,8 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	waitPrecompute := l.repo.Precompute()
 	defer waitPrecompute()
 
-	var verbose bool
 	if args.Verbose {
 		log.SetLevel(log.DebugLevel)
-		verbose = true
 	}
 
 	// Load config
@@ -73,7 +73,6 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 			log.Warn(err.Error())
 			return nil
 		}
-
 		return err
 	}
 
@@ -85,9 +84,8 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	// prepare-commit-msg hook is used for seamless synchronization of hooks with config.
 	// See: internal/lefthook/install.go
 	_, ok := cfg.Hooks[hookName]
-	var isGhostHook bool
-	if hookName == config.GhostHookName && !ok && !verbose {
-		isGhostHook = true
+	isGhostHook := hookName == config.GhostHookName && !ok && !args.Verbose
+	if isGhostHook {
 		log.SetLevel(log.WarnLevel)
 	}
 
@@ -108,7 +106,8 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 
 	if !args.NoAutoInstall {
 		// This line controls updating the git hook if config has changed
-		newCfg, err := l.syncHooks(cfg, !isGhostHook)
+		var newCfg *config.Config
+		newCfg, err = l.syncHooks(cfg, !isGhostHook)
 		if err != nil {
 			log.Warnf(
 				"⚠️  There was a problem with synchronizing git hooks. Run 'lefthook install' manually.\n   Error: %s", err,
@@ -118,42 +117,73 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		}
 	}
 
-	// Find the hook
+	hook, err := resolveHook(cfg, hookName)
+	if err != nil {
+		return err
+	}
+	if hook == nil {
+		return nil
+	}
+
+	files, err := getFiles(l.repo, args)
+	if err != nil {
+		return err
+	}
+	args.Files = files
+
+	sourceDirs := getSourceDirs(l.repo, cfg)
+
+	failOnChanges, err := shouldFailOnChanges(args, hook)
+	if err != nil {
+		return err
+	}
+
+	return executeHook(l.repo, cfg, hook, hookName, gitArgs, args, logSettings, sourceDirs, failOnChanges)
+}
+
+func resolveHook(cfg *config.Config, hookName string) (*config.Hook, error) {
 	hook, ok := cfg.Hooks[hookName]
 	if !ok {
 		if config.KnownHook(hookName) {
 			log.Debugf("[lefthook] skip: Hook %s doesn't exist in the config", hookName)
-			return nil
+			return nil, nil
 		}
-
-		return fmt.Errorf("hook %s doesn't exist in the config", hookName)
+		return nil, fmt.Errorf("hook %s doesn't exist in the config", hookName)
 	}
 
 	if hook.Parallel && hook.Piped {
-		return errPipedAndParallelSet
+		return nil, errPipedAndParallelSet
 	}
 
+	return hook, nil
+}
+
+func getFiles(repo *git.Repository, args RunArgs) ([]string, error) {
 	if args.FilesFromStdin {
 		paths, err := io.ReadAll(os.Stdin)
 		if err != nil {
-			return fmt.Errorf("failed to read the files from standard input: %w", err)
+			return nil, fmt.Errorf("failed to read the files from standard input: %w", err)
 		}
-		args.Files = append(args.Files, parseFilesFromString(string(paths))...)
+		return append(args.Files, parseFilesFromString(string(paths))...), nil
 	} else if args.AllFiles {
-		files, err := l.repo.AllFiles()
+		files, err := repo.AllFiles()
 		if err != nil {
-			return fmt.Errorf("failed to get all files: %w", err)
+			return nil, fmt.Errorf("failed to get all files: %w", err)
 		}
-		args.Files = append(args.Files, files...)
+		return append(args.Files, files...), nil
 	}
 
+	return args.Files, nil
+}
+
+func getSourceDirs(repo *git.Repository, cfg *config.Config) []string {
 	sourceDirs := []string{
-		filepath.Join(l.repo.RootPath, cfg.SourceDir),
-		filepath.Join(l.repo.RootPath, cfg.SourceDirLocal),
+		filepath.Join(repo.RootPath, cfg.SourceDir),
+		filepath.Join(repo.RootPath, cfg.SourceDirLocal),
 
 		// Additional source dirs to support .config/
-		filepath.Join(l.repo.RootPath, ".config", "lefthook"),
-		filepath.Join(l.repo.RootPath, ".config", "lefthook-local"),
+		filepath.Join(repo.RootPath, ".config", "lefthook"),
+		filepath.Join(repo.RootPath, ".config", "lefthook-local"),
 	}
 
 	for _, remote := range cfg.Remotes {
@@ -162,18 +192,43 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 			sourceDirs = append(
 				sourceDirs,
 				filepath.Join(
-					l.repo.RemoteFolder(remote.GitURL, remote.Ref),
+					repo.RemoteFolder(remote.GitURL, remote.Ref),
 					cfg.SourceDir,
 				),
 			)
 		}
 	}
 
+	return sourceDirs
+}
+
+func shouldFailOnChanges(args RunArgs, hook *config.Hook) (bool, error) {
+	if args.FailOnChanges {
+		return true, nil
+	}
+
+	switch hook.FailOnChanges {
+	case "never", "":
+		return false, nil
+	case "always":
+		return true, nil
+	case "ci":
+		_, ok := os.LookupEnv("CI")
+		return ok, nil
+	default:
+		return false, fmt.Errorf("invalid value for fail_on_changes: %s", hook.FailOnChanges)
+	}
+}
+
+func executeHook(
+	repo *git.Repository, cfg *config.Config, hook *config.Hook, hookName string, gitArgs []string, args RunArgs,
+	logSettings log.Settings, sourceDirs []string, failOnChanges bool,
+) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
 	r := run.New(run.Options{
-		Repo:            l.repo,
+		Repo:            repo,
 		Hook:            hook,
 		HookName:        hookName,
 		GitArgs:         gitArgs,
@@ -188,11 +243,15 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		RunOnlyJobs:     args.RunOnlyJobs,
 		RunOnlyTags:     args.RunOnlyTags,
 		SourceDirs:      sourceDirs,
+		FailOnChanges:   failOnChanges,
 	})
 
 	startTime := time.Now()
 	results, runErr := r.RunAll(ctx)
 	if runErr != nil {
+		if errors.Is(runErr, run.ErrFailOnChanges) {
+			return fmt.Errorf("%w", runErr)
+		}
 		return fmt.Errorf("failed to run the hook: %w", runErr)
 	}
 

@@ -138,6 +138,14 @@
         "follow": {
           "type": "boolean"
         },
+        "fail_on_changes": {
+          "type": "string",
+          "enum": [
+            "never",
+            "always",
+            "ci"
+          ]
+        },
         "files": {
           "type": "string"
         },
@@ -408,7 +416,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2025.07.04.",
+  "$comment": "Last updated on 2025.09.10.",
   "properties": {
     "min_version": {
       "type": "string",
