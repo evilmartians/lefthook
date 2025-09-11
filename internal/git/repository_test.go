@@ -142,6 +142,7 @@ RM old-file -> new-file`,
 					cmd: gitCmd{
 						cases: gitCmds,
 					},
+					maxCmdLen: 7000,
 				},
 			}
 			repository.Setup()

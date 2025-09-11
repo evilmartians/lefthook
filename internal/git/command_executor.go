@@ -14,25 +14,28 @@ import (
 type CommandExecutor struct {
 	cmd           system.Command
 	root          string
+	maxCmdLen     int
 	onlyDebugLogs bool
-	trimOutput    bool
+	noTrimOut     bool
 }
 
 // NewExecutor returns an object that executes given commands in the OS.
 func NewExecutor(cmd system.Command) *CommandExecutor {
-	return &CommandExecutor{cmd: cmd, trimOutput: true}
+	return &CommandExecutor{cmd: cmd, maxCmdLen: system.MaxCmdLen()}
 }
 
 func (c CommandExecutor) WithoutEnvs(envs ...string) CommandExecutor {
-	return CommandExecutor{cmd: c.cmd.WithoutEnvs(envs...), root: c.root}
+	c.cmd = c.cmd.WithoutEnvs(envs...)
+	return c
 }
 
 func (c CommandExecutor) OnlyDebugLogs() CommandExecutor {
-	return CommandExecutor{cmd: c.cmd, root: c.root, onlyDebugLogs: true}
+	c.onlyDebugLogs = true
+	return c
 }
 
 func (c CommandExecutor) WithoutTrim() CommandExecutor {
-	c.trimOutput = false
+	c.noTrimOut = true
 	return c
 }
 
@@ -43,7 +46,7 @@ func (c CommandExecutor) Cmd(cmd []string) (string, error) {
 		return "", err
 	}
 
-	if c.trimOutput {
+	if !c.noTrimOut {
 		out = strings.TrimSpace(out)
 	}
 
@@ -52,16 +55,15 @@ func (c CommandExecutor) Cmd(cmd []string) (string, error) {
 
 // BatchedCmd runs the command with any number of appended arguments batched in chunks to match the OS limits.
 func (c CommandExecutor) BatchedCmd(cmd []string, args []string) (string, error) {
-	maxlen := system.MaxCmdLen()
 	result := strings.Builder{}
 
-	argsBatched := batchByLength(args, maxlen-len(cmd))
+	argsBatched := batchByLength(args, c.maxCmdLen-len(cmd))
 	for i, batch := range argsBatched {
 		out, err := c.Cmd(append(cmd, batch...))
 		if err != nil {
 			return "", fmt.Errorf("error in batch %d: %w", i, err)
 		}
-		result.WriteString(out)
+		result.WriteString(strings.TrimRight(out, "\n"))
 		result.WriteString("\n")
 	}
 
@@ -75,7 +77,7 @@ func (c CommandExecutor) CmdLines(cmd []string) ([]string, error) {
 		return nil, err
 	}
 
-	if c.trimOutput {
+	if !c.noTrimOut {
 		out = strings.TrimSpace(out)
 	}
 
@@ -90,7 +92,7 @@ func (c CommandExecutor) CmdLinesWithinFolder(cmd []string, folder string) ([]st
 		return nil, err
 	}
 
-	if c.trimOutput {
+	if !c.noTrimOut {
 		out = strings.TrimSpace(out)
 	}
 
