@@ -45,15 +45,21 @@ func Failure(name, text string, duration time.Duration) Result {
 
 func Group(name string, results []Result) Result {
 	stat := success
+	allSkip := true
 	var totalDuration time.Duration
 	for _, res := range results {
-		if res.status == failure {
+		switch res.status {
+		case success:
+			allSkip = false
+		case failure:
 			stat = failure
-		}
-		if res.status == skip && stat != failure {
-			stat = skip
+			allSkip = false
 		}
 		totalDuration += res.Duration
+	}
+
+	if allSkip {
+		stat = skip
 	}
 
 	return Result{Name: name, status: stat, Sub: results, Duration: totalDuration}

@@ -1,13 +1,9 @@
 Closes # (issue)
 
-<!-- Link to an issue(s) this PR fixes -->
+### Context
 
-#### :zap: Summary
+<!-- Brief description of what problem PR is solving -->
 
-<!-- Brief description of what was done -->
+### Changes
 
-#### :ballot_box_with_check: Checklist
-
-- [ ] Check locally
-- [ ] Add tests
-- [ ] Add documentation
+<!-- Summary for changes in the code -->

@@ -39,6 +39,7 @@ type RunArgs struct {
 	Files           []string
 	RunOnlyCommands []string
 	RunOnlyJobs     []string
+	RunOnlyTags     []string
 }
 
 func Run(opts *Options, args RunArgs, hookName string, gitArgs []string) error {
@@ -240,6 +241,7 @@ func executeHook(
 		Force:           args.Force,
 		RunOnlyCommands: args.RunOnlyCommands,
 		RunOnlyJobs:     args.RunOnlyJobs,
+		RunOnlyTags:     args.RunOnlyTags,
 		SourceDirs:      sourceDirs,
 		FailOnChanges:   failOnChanges,
 	})
@@ -310,6 +312,10 @@ func logResults(indent int, results []result.Result, logSettings log.Settings) {
 			}
 
 			log.Success(indent, result.Name, result.Duration)
+
+			if len(result.Sub) > 0 {
+				logResults(indent+1, result.Sub, logSettings)
+			}
 		}
 	}
 
