@@ -1239,6 +1239,23 @@ pre-push:
 <blockquote>
 <p><strong>Note:</strong> If used with <a href="configuration/follow.html#parallel"><code>parallel</code></a> the output can be a mess, so please avoid setting both options to <code>true</code></p>
 </blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="fail_on_changes"><a class="header" href="#fail_on_changes">fail_on_changes</a></h1>
+<p>The behaviour of lefthook when files (tracked by git) are modified can set by modifying the <code>fail_on_changes</code> configuration parameter. The possible values are:</p>
+<ul>
+<li><code>never</code>: never exit with a non-zero status if files were modified (default).</li>
+<li><code>always</code>: always exit with a non-zero status if files were modified.</li>
+<li><code>ci</code>: exit with a non-zero status only when <code>CI</code> environment variable is set. This can be useful when combined with <code>stage_fixed</code> to ensure a frictionless devX locally, and a robust CI.</li>
+</ul>
+<pre><code class="language-yml"># lefthook.yml
+pre-commit:
+  parallel: true
+  fail_on_changes: "always"
+  commands:
+    lint:
+      run: yarn lint
+    test:
+      run: yarn test
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="exclude_tags"><a class="header" href="#exclude_tags"><code>exclude_tags</code></a></h2>
 <p><a href="configuration/./tags.html">Tags</a> or command names that you want to exclude. This option can be overwritten with <code>LEFTHOOK_EXCLUDE</code> env variable.</p>
 <p><strong>Example</strong></p>

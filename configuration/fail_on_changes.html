@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>follow - Lefthook Documentation</title>
+        <title>fail_on_changes - Lefthook Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -155,33 +155,33 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="follow"><a class="header" href="#follow"><code>follow</code></a></h2>
-<p><strong>Default: <code>false</code></strong></p>
-<p>Follow the STDOUT of the running commands and scripts.</p>
-<p><strong>Example</strong></p>
+                        <h1 id="fail_on_changes"><a class="header" href="#fail_on_changes">fail_on_changes</a></h1>
+<p>The behaviour of lefthook when files (tracked by git) are modified can set by modifying the <code>fail_on_changes</code> configuration parameter. The possible values are:</p>
+<ul>
+<li><code>never</code>: never exit with a non-zero status if files were modified (default).</li>
+<li><code>always</code>: always exit with a non-zero status if files were modified.</li>
+<li><code>ci</code>: exit with a non-zero status only when <code>CI</code> environment variable is set. This can be useful when combined with <code>stage_fixed</code> to ensure a frictionless devX locally, and a robust CI.</li>
+</ul>
 <pre><code class="language-yml"># lefthook.yml
-
-pre-push:
-  follow: true
+pre-commit:
+  parallel: true
+  fail_on_changes: "always"
   commands:
-    backend-tests:
-      run: bundle exec rspec
-    frontend-tests:
+    lint:
+      run: yarn lint
+    test:
       run: yarn test
 </code></pre>
-<blockquote>
-<p><strong>Note:</strong> If used with <a href="#parallel"><code>parallel</code></a> the output can be a mess, so please avoid setting both options to <code>true</code></p>
-</blockquote>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../configuration/piped.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../configuration/follow.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../configuration/fail_on_changes.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../configuration/exclude_tags.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -191,11 +191,11 @@ pre-push:
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../configuration/piped.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../configuration/follow.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../configuration/fail_on_changes.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../configuration/exclude_tags.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
