@@ -790,7 +790,7 @@ func TestRunAll(t *testing.T) {
 			repo.Setup()
 			gitExec.reset()
 
-			if name == "with fail_on_change=true and changes" {
+			if name == "with fail_on_changes=always and changes" {
 				var changesetCallCount int
 				repo.ChangesetFn = func() (map[string]string, error) {
 					changesetCallCount++
