@@ -128,12 +128,34 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 
 	sourceDirs := getSourceDirs(l.repo, cfg)
 
-	failOnChanges, err := shouldFailOnChanges(args, hook)
+	failOnChanges, err := shouldFailOnChanges(args.FailOnChanges, hook.FailOnChanges)
 	if err != nil {
 		return err
 	}
 
-	return executeHook(l.repo, cfg, hook, hookName, gitArgs, args, logSettings, sourceDirs, failOnChanges)
+	// Convert Commands and Scripts into Jobs
+	hook.Jobs = append(hook.Jobs, config.CommandsToJobs(hook.Commands)...)
+	hook.Commands = nil
+	hook.Jobs = append(hook.Jobs, config.ScriptsToJobs(hook.Scripts)...)
+	hook.Scripts = nil
+	args.RunOnlyJobs = append(args.RunOnlyJobs, args.RunOnlyCommands...)
+
+	return runHook(run.Options{
+		Repo:          l.repo,
+		Hook:          hook,
+		HookName:      hookName,
+		GitArgs:       gitArgs,
+		DisableTTY:    cfg.NoTTY || args.NoTTY,
+		SkipLFS:       cfg.SkipLFS || args.SkipLFS,
+		Templates:     cfg.Templates,
+		Exclude:       args.Exclude,
+		Files:         args.Files,
+		Force:         args.Force,
+		RunOnlyJobs:   args.RunOnlyJobs,
+		RunOnlyTags:   args.RunOnlyTags,
+		SourceDirs:    sourceDirs,
+		FailOnChanges: failOnChanges,
+	})
 }
 
 func resolveHook(cfg *config.Config, hookName string) (*config.Hook, error) {
@@ -194,93 +216,32 @@ func getSourceDirs(repo *git.Repository, cfg *config.Config) []string {
 		}
 	}
 
-<<<<<<< HEAD
 	return sourceDirs
 }
 
-func shouldFailOnChanges(args RunArgs, hook *config.Hook) (bool, error) {
-	if args.FailOnChanges {
+func shouldFailOnChanges(fromArg bool, fromHook string) (bool, error) {
+	if fromArg {
 		return true, nil
 	}
 
-	switch hook.FailOnChanges {
-	case "never", "":
+	switch fromHook {
+	case "never", "false", "0", "":
 		return false, nil
-	case "always":
+	case "always", "true", "1":
 		return true, nil
 	case "ci":
 		_, ok := os.LookupEnv("CI")
 		return ok, nil
 	default:
-		return false, fmt.Errorf("invalid value for fail_on_changes: %s", hook.FailOnChanges)
+		return false, fmt.Errorf("invalid value for fail_on_changes: %s", fromHook)
 	}
 }
 
-func executeHook(
-	repo *git.Repository, cfg *config.Config, hook *config.Hook, hookName string, gitArgs []string, args RunArgs,
-	logSettings log.Settings, sourceDirs []string, failOnChanges bool,
-) error {
-||||||| parent of f526f5c (fix: merge commands and scripts into jobs)
-=======
-	// Convert Commands and Scripts into Jobs
-	hook.Jobs = append(hook.Jobs, config.CommandsToJobs(hook.Commands)...)
-	hook.Commands = nil
-	hook.Jobs = append(hook.Jobs, config.ScriptsToJobs(hook.Scripts)...)
-	hook.Scripts = nil
-	args.RunOnlyJobs = append(args.RunOnlyJobs, args.RunOnlyCommands...)
-
->>>>>>> f526f5c (fix: merge commands and scripts into jobs)
+func runHook(opts run.Options) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
-	r := run.NewController(run.Options{
-<<<<<<< HEAD
-		Repo:            l.repo,
-		Hook:            hook,
-		HookName:        hookName,
-		GitArgs:         gitArgs,
-		DisableTTY:      cfg.NoTTY || args.NoTTY,
-		SkipLFS:         cfg.SkipLFS || args.SkipLFS,
-		Templates:       cfg.Templates,
-		Exclude:         args.Exclude,
-		Files:           args.Files,
-		Force:           args.Force,
-		RunOnlyCommands: args.RunOnlyCommands,
-		RunOnlyJobs:     args.RunOnlyJobs,
-		RunOnlyTags:     args.RunOnlyTags,
-		SourceDirs:      sourceDirs,
-		FailOnChanges:   failOnChanges,
-||||||| parent of f526f5c (fix: merge commands and scripts into jobs)
-		Repo:            l.repo,
-		Hook:            hook,
-		HookName:        hookName,
-		GitArgs:         gitArgs,
-		DisableTTY:      cfg.NoTTY || args.NoTTY,
-		SkipLFS:         cfg.SkipLFS || args.SkipLFS,
-		Templates:       cfg.Templates,
-		Exclude:         args.Exclude,
-		Files:           args.Files,
-		Force:           args.Force,
-		RunOnlyCommands: args.RunOnlyCommands,
-		RunOnlyJobs:     args.RunOnlyJobs,
-		RunOnlyTags:     args.RunOnlyTags,
-		SourceDirs:      sourceDirs,
-=======
-		Repo:        l.repo,
-		Hook:        hook,
-		HookName:    hookName,
-		GitArgs:     gitArgs,
-		DisableTTY:  cfg.NoTTY || args.NoTTY,
-		SkipLFS:     cfg.SkipLFS || args.SkipLFS,
-		Templates:   cfg.Templates,
-		Exclude:     args.Exclude,
-		Files:       args.Files,
-		Force:       args.Force,
-		RunOnlyJobs: args.RunOnlyJobs,
-		RunOnlyTags: args.RunOnlyTags,
-		SourceDirs:  sourceDirs,
->>>>>>> f526f5c (fix: merge commands and scripts into jobs)
-	})
+	r := run.NewController(opts)
 
 	startTime := time.Now()
 	results, runErr := r.RunAll(ctx)

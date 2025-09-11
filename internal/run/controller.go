@@ -247,7 +247,7 @@ func (c *Controller) postHook() error {
 	}
 
 	if !c.didStash {
-		return
+		return nil
 	}
 
 	if err := c.Repo.RestoreUnstaged(); err != nil {

@@ -141,6 +141,10 @@
         "fail_on_changes": {
           "type": "string",
           "enum": [
+            "true",
+            "1",
+            "0",
+            "false",
             "never",
             "always",
             "ci"

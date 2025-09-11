@@ -110,7 +110,6 @@ func TestRunAll(t *testing.T) {
 		gitCommands      []string
 		force            bool
 		skipLFS          bool
-		failOnChanges    bool
 	}{
 		"empty hook": {
 			hookName: "post-commit",
@@ -521,8 +520,8 @@ func TestRunAll(t *testing.T) {
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git diff --name-only --cached --diff-filter=ACMR",
-				"git add .*script.sh.*README.md",
-				"git add .*script.sh.*README.md",
+				"git add --force .*script.sh.*README.md",
+				"git add --force .*script.sh.*README.md",
 			},
 		},
 		"with pre-commit skip": {
@@ -548,7 +547,7 @@ func TestRunAll(t *testing.T) {
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMRD",
 				"git diff --name-only --cached --diff-filter=ACMR",
-				"git add .*README.md",
+				"git add --force .*README.md",
 			},
 		},
 		"with pre-commit skip but forced": {
@@ -575,7 +574,7 @@ func TestRunAll(t *testing.T) {
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
-				"git add .*README.md",
+				"git add --force .*README.md",
 			},
 		},
 		"with pre-commit and stage_fixed=true under root": {
@@ -597,7 +596,7 @@ func TestRunAll(t *testing.T) {
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git diff --name-only --cached --diff-filter=ACMR",
-				"git add .*scripts.*script.sh",
+				"git add --force .*scripts.*script.sh",
 			},
 		},
 		"with pre-push skip": {
@@ -637,37 +636,18 @@ func TestRunAll(t *testing.T) {
       `),
 			success: []result.Result{succeeded("ok")},
 		},
-		"with fail_on_changes=always and changes": {
-			existingFiles: []string{
-				"internal/run/run.go",
-			},
-			hookName: "pre-commit",
-			hook: &config.Hook{
-				Commands: map[string]*config.Command{
-					"modify-and-stage": {
-						Run:        "success",
-						StageFixed: true,
-					},
-				},
-			},
-			success:       []result.Result{succeeded("modify-and-stage")},
-			fail:          []result.Result{},
-			failOnChanges: true,
-			gitCommands:   []string{},
-		},
 	} {
 		fs := afero.NewMemMapFs()
 		repo.Fs = fs
 		controller := &Controller{
 			Options: Options{
-				Repo:          repo,
-				Hook:          tt.hook,
-				HookName:      tt.hookName,
-				GitArgs:       tt.args,
-				Force:         tt.force,
-				SkipLFS:       tt.skipLFS,
-				SourceDirs:    tt.sourceDirs,
-				FailOnChanges: tt.failOnChanges,
+				Repo:       repo,
+				Hook:       tt.hook,
+				HookName:   tt.hookName,
+				GitArgs:    tt.args,
+				Force:      tt.force,
+				SkipLFS:    tt.skipLFS,
+				SourceDirs: tt.sourceDirs,
 			},
 			executor: executor{},
 			cmd:      cmd{},
@@ -688,26 +668,8 @@ func TestRunAll(t *testing.T) {
 			repo.Setup()
 			gitExec.reset()
 
-			if name == "with fail_on_change=true and changes" {
-				var changesetCallCount int
-				repo.ChangesetFn = func() (map[string]string, error) {
-					changesetCallCount++
-					if changesetCallCount > 1 {
-						return map[string]string{"internal/run/run.go": "dummyhash-modified"}, nil
-					}
-					return make(map[string]string), nil
-				}
-			} else {
-				repo.ChangesetFn = nil
-			}
-
-			results, err := run.RunAll(t.Context())
-
-			if tt.failOnChanges {
-				assert.ErrorIs(err, ErrFailOnChanges, "expected ErrFailOnChanges")
-			} else {
-				assert.NoError(err)
-			}
+			results, err := controller.RunAll(t.Context())
+			assert.NoError(err)
 
 			var success, fail []result.Result
 			for _, result := range results {
