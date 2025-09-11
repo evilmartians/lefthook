@@ -1,7 +1,10 @@
 package config
 
 import (
+	"cmp"
 	"errors"
+	"slices"
+	"strings"
 )
 
 var ErrFilesIncompatible = errors.New("one of your runners contains incompatible file types")
@@ -28,6 +31,62 @@ type Command struct {
 	StageFixed  bool   `json:"stage_fixed,omitempty" koanf:"stage_fixed"        mapstructure:"stage_fixed"   toml:"stage_fixed,omitempty" yaml:"stage_fixed,omitempty"`
 }
 
-func (c Command) ExecutionPriority() int {
-	return c.Priority
+func CommandsToJobs(commands map[string]*Command) []*Job {
+	jobs := make([]*Job, 0, len(commands))
+	for name, command := range commands {
+		jobs = append(jobs, &Job{
+			Name:        name,
+			Run:         command.Run,
+			Glob:        command.Glob,
+			Root:        command.Root,
+			Files:       command.Files,
+			FailText:    command.FailText,
+			Tags:        command.Tags,
+			FileTypes:   command.FileTypes,
+			Env:         command.Env,
+			Interactive: command.Interactive,
+			UseStdin:    command.UseStdin,
+			StageFixed:  command.StageFixed,
+			Exclude:     command.Exclude,
+			Skip:        command.Skip,
+			Only:        command.Only,
+		})
+	}
+
+	// ASC
+	slices.SortFunc(jobs, func(i, j *Job) int {
+		a := commands[i.Name]
+		b := commands[j.Name]
+
+		if a.Priority != 0 || b.Priority != 0 {
+			// Script without a priority must be the last
+			if a.Priority == 0 {
+				return 1
+			}
+			if b.Priority == 0 {
+				return -1
+			}
+
+			return cmp.Compare(a.Priority, b.Priority)
+		}
+
+		iNum := parseNum(i.Name)
+		jNum := parseNum(j.Name)
+
+		if iNum == -1 && jNum == -1 {
+			return strings.Compare(i.Name, j.Name)
+		}
+
+		if iNum == -1 {
+			return 1
+		}
+
+		if jNum == -1 {
+			return -1
+		}
+
+		return cmp.Compare(iNum, jNum)
+	})
+
+	return jobs
 }

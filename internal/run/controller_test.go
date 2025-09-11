@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"path/filepath"
 	"regexp"
@@ -19,7 +18,6 @@ import (
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
-	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/evilmartians/lefthook/internal/run/exec"
 	"github.com/evilmartians/lefthook/internal/run/result"
 	"github.com/evilmartians/lefthook/internal/system"
@@ -112,19 +110,18 @@ func TestRunAll(t *testing.T) {
 		gitCommands      []string
 		force            bool
 		skipLFS          bool
-		failOnChanges    bool
 	}{
 		"empty hook": {
 			hookName: "post-commit",
 			hook: h(`
         piped: true
-			`),
+      `),
 		},
 		"with simple command": {
 			hookName: "post-commit",
 			hook: h(`
-        commands:
-          test:
+        jobs:
+          - name: test
             run: success
       `),
 			success: []result.Result{succeeded("test")},
@@ -133,8 +130,8 @@ func TestRunAll(t *testing.T) {
 			hookName: "post-commit",
 			hook: h(`
         follow: true
-        commands:
-          test:
+        jobs:
+          - name: test
             run: "success"
       `),
 			success: []result.Result{succeeded("test")},
@@ -142,14 +139,14 @@ func TestRunAll(t *testing.T) {
 		"with multiple commands ran in parallel": {
 			hookName: "post-commit",
 			hook: h(`
-        commands:
-          test:
+        jobs:
+          - name: test
             run: success
-          lint:
+          - name: lint
             run: success
-          type-check:
+          - name: type-check
             run: fail
-			`),
+      `),
 			success: []result.Result{
 				succeeded("test"),
 				succeeded("lint"),
@@ -160,12 +157,12 @@ func TestRunAll(t *testing.T) {
 			hookName: "post-commit",
 			hook: h(`
         exclude_tags: [test, formatter]
-        commands:
-          test:
+        jobs:
+          - name: test
             run: success
-          formatter:
+          - name: formatter
             run: success
-          lint:
+          - name: lint
             run: success
       `),
 			success: []result.Result{succeeded("lint")},
@@ -173,11 +170,11 @@ func TestRunAll(t *testing.T) {
 		"with skip=true": {
 			hookName: "post-commit",
 			hook: h(`
-        commands:
-          test:
+        jobs:
+          - name: test
             run: success
             skip: true
-          lint:
+          - name: lint
             run: success
       `),
 			success: []result.Result{succeeded("lint")},
@@ -188,11 +185,11 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "MERGE_HEAD"),
 			},
 			hook: h(`
-        commands:
-          test:
+        jobs:
+          - name: test
             run: success
             skip: merge
-          lint:
+          - name: lint
             run: success
       `),
 			success: []result.Result{succeeded("lint")},
@@ -203,11 +200,11 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "MERGE_HEAD"),
 			},
 			hook: h(`
-        commands:
-          test:
+        jobs:
+          - name: test
             run: success
             only: merge
-          lint:
+          - name: lint
             run: success
             skip: merge
       `),
@@ -218,11 +215,11 @@ func TestRunAll(t *testing.T) {
 		"with only=merge no match": {
 			hookName: "post-commit",
 			hook: h(`
-        commands:
-          test:
+        jobs:
+          - name: test
             run: success
             only: merge
-          lint:
+          - name: lint
             run: success
       `),
 			gitCommands: []string{`git show --no-patch --format="%P"`},
@@ -235,10 +232,10 @@ func TestRunAll(t *testing.T) {
 			},
 			hook: h(`
         skip: merge
-        commands:
-          test:
+        jobs:
+          - name: test
             run: success
-          lint:
+          - name: lint
             run: success
       `),
 			success: []result.Result{},
@@ -247,10 +244,10 @@ func TestRunAll(t *testing.T) {
 			hookName: "post-commit",
 			hook: h(`
         only: merge
-        commands:
-          test:
+        jobs:
+          - name: test
             run: success
-          lint:
+          - name: lint
             run: success
       `),
 			gitCommands: []string{`git show --no-patch --format="%P"`},
@@ -263,10 +260,10 @@ func TestRunAll(t *testing.T) {
 			},
 			hook: h(`
         only: merge
-        commands:
-          test:
+        jobs:
+          - name: test
             run: success
-          lint:
+          - name: lint
             run: success
       `),
 			success: []result.Result{
@@ -281,13 +278,13 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "rebase-apply"),
 			},
 			hook: h(`
-        commands:
-          test:
+        jobs:
+          - name: test
             run: success
             skip:
               - merge
               - rebase
-          lint:
+          - name: lint
             run: success
       `),
 			success: []result.Result{succeeded("lint")},
@@ -302,10 +299,10 @@ func TestRunAll(t *testing.T) {
         skip:
           - merge
           - ref: main
-        commands:
-          test:
+        jobs:
+          - name: test
             run: success
-          lint:
+          - name: lint
             run: success
       `),
 			gitCommands: []string{`git show --no-patch --format="%P"`},
@@ -321,10 +318,10 @@ func TestRunAll(t *testing.T) {
         only:
           - merge
           - ref: main
-        commands:
-          test:
+        jobs:
+          - name: test
             run: success
-          lint:
+          - name: lint
             run: success
       `),
 			gitCommands: []string{`git show --no-patch --format="%P"`},
@@ -343,10 +340,10 @@ func TestRunAll(t *testing.T) {
         only:
           - merge
           - ref: main
-        commands:
-          test:
+        jobs:
+          - name: test
             run: success
-          lint:
+          - name: lint
             run: success
       `),
 			gitCommands: []string{`git show --no-patch --format="%P"`},
@@ -362,10 +359,10 @@ func TestRunAll(t *testing.T) {
         skip:
           - merge
           - ref: main
-        commands:
-          test:
+        jobs:
+          - name: test
             run: success
-          lint:
+          - name: lint
             run: success
       `),
 			gitCommands: []string{`git show --no-patch --format="%P"`},
@@ -377,8 +374,8 @@ func TestRunAll(t *testing.T) {
 		"with fail": {
 			hookName: "post-commit",
 			hook: h(`
-        commands:
-          test:
+        jobs:
+          - name: test
             run: fail
             fail_text: try 'success'
       `),
@@ -392,10 +389,10 @@ func TestRunAll(t *testing.T) {
 			},
 			hookName: "post-commit",
 			hook: h(`
-        scripts:
-          "script.sh":
+        jobs:
+          - script: "script.sh"
             runner: success
-          "failing.js":
+          - script: "failing.js"
             runner: fail
             fail_text: install node
       `),
@@ -411,11 +408,11 @@ func TestRunAll(t *testing.T) {
 			},
 			hookName: "post-commit",
 			hook: h(`
-        scripts:
-          "script.sh":
+        jobs:
+          - script: "script.sh"
             runner: success
             only: merge
-          "failing.js":
+          - script: "failing.js"
             only: merge
             runner: fail
             fail_text: install node
@@ -431,11 +428,11 @@ func TestRunAll(t *testing.T) {
 			},
 			hookName: "post-commit",
 			hook: h(`
-        scripts:
-          "script.sh":
+        jobs:
+          - script: "script.sh"
             runner: success
             only: merge
-          "failing.js":
+          - script: "failing.js"
             only: merge
             runner: fail
             fail_text: install node
@@ -453,20 +450,19 @@ func TestRunAll(t *testing.T) {
 			hookName: "post-commit",
 			hook: h(`
         parallel: true
-        commands:
-          ok:
+        jobs:
+          - name: ok
             run: success
             interactive: true
-          fail:
+          - name: fail
             run: fail
-        scripts:
-          "script.sh":
+          - script: "script.sh"
             runner: success
             interactive: true
-          "failing.js":
+          - script: "failing.js"
             runner: fail
       `),
-			success: []result.Result{}, // script.sh and ok are skipped because of non-interactive cmd failure
+			success: []result.Result{succeeded("ok"), succeeded("script.sh")},
 			fail:    []result.Result{failed("failing.js", ""), failed("fail", "")},
 		},
 		"with stage_fixed=true": {
@@ -477,18 +473,17 @@ func TestRunAll(t *testing.T) {
 			},
 			hookName: "post-commit",
 			hook: h(`
-        commands:
-          ok:
+        jobs:
+          - name: ok
             run: success
             stage_fixed: true
-          fail:
+          - name: fail
             run: fail
             stage_fixed: true
-        scripts:
-          "success.sh":
+          - script: "success.sh"
             runner: success
             stage_fixed: true
-          "failing.js":
+          - script: "failing.js"
             runner: fail
             stage_fixed: true
       `),
@@ -505,18 +500,17 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, "README.md"),
 			},
 			hook: h(`
-        commands:
-          ok:
+        jobs:
+          - name: ok
             run: success
             stage_fixed: true
-          fail:
+          - name: fail
             run: fail
             stage_fixed: true
-        scripts:
-          "success.sh":
+          - script: "success.sh"
             runner: success
             stage_fixed: true
-          "failing.js":
+          - script: "failing.js"
             runner: fail
             stage_fixed: true
       `),
@@ -525,9 +519,9 @@ func TestRunAll(t *testing.T) {
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
-				"git add .*script.sh.*README.md",
 				"git diff --name-only --cached --diff-filter=ACMR",
-				"git add .*script.sh.*README.md",
+				"git add --force .*script.sh.*README.md",
+				"git add --force .*script.sh.*README.md",
 			},
 		},
 		"with pre-commit skip": {
@@ -536,13 +530,13 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, "README.md"),
 			},
 			hook: h(`
-        commands:
-          ok:
+        jobs:
+          - name: ok
             run: success
             stage_fixed: true
             glob:
               - "*.md"
-          fail:
+          - name: fail
             run: fail
             stage_fixed: true
             glob:
@@ -553,7 +547,7 @@ func TestRunAll(t *testing.T) {
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMRD",
 				"git diff --name-only --cached --diff-filter=ACMR",
-				"git add .*README.md",
+				"git add --force .*README.md",
 			},
 		},
 		"with pre-commit skip but forced": {
@@ -562,13 +556,13 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, "README.md"),
 			},
 			hook: h(`
-        commands:
-          ok:
+        jobs:
+          - name: ok
             run: success
             stage_fixed: true
             glob:
               - "*.md"
-          fail:
+          - name: fail
             run: fail
             stage_fixed: true
             glob:
@@ -580,7 +574,7 @@ func TestRunAll(t *testing.T) {
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
-				"git add .*README.md",
+				"git add --force .*README.md",
 			},
 		},
 		"with pre-commit and stage_fixed=true under root": {
@@ -590,20 +584,19 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, "README.md"),
 			},
 			hook: &config.Hook{
-				Commands: map[string]*config.Command{
-					"ok": {
-						Run:        "success",
-						Root:       filepath.Join(root, "scripts"),
-						StageFixed: true,
-					},
-				},
+				Jobs: []*config.Job{{
+					Name:       "ok",
+					Run:        "success",
+					Root:       filepath.Join(root, "scripts"),
+					StageFixed: true,
+				}},
 			},
 			success: []result.Result{succeeded("ok")},
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git diff --name-only --cached --diff-filter=ACMR",
-				"git add .*scripts.*script.sh",
+				"git add --force .*scripts.*script.sh",
 			},
 		},
 		"with pre-push skip": {
@@ -612,13 +605,13 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, "README.md"),
 			},
 			hook: h(`
-        commands:
-          ok:
+        jobs:
+          - name: ok
             run: success
             stage_fixed: true
             glob:
               - "*.md"
-          fail:
+          - name: fail
             run: fail
             stage_fixed: true
             glob:
@@ -637,44 +630,24 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, "README.md"),
 			},
 			hook: h(`
-        commands:
-          ok:
+        jobs:
+          - name: ok
             run: success
       `),
 			success: []result.Result{succeeded("ok")},
 		},
-		"with fail_on_changes=always and changes": {
-			existingFiles: []string{
-				"internal/run/run.go",
-			},
-			hookName: "pre-commit",
-			hook: &config.Hook{
-				Commands: map[string]*config.Command{
-					"modify-and-stage": {
-						Run:        "success",
-						StageFixed: true,
-					},
-				},
-			},
-			success:       []result.Result{succeeded("modify-and-stage")},
-			fail:          []result.Result{},
-			failOnChanges: true,
-			gitCommands:   []string{},
-		},
 	} {
 		fs := afero.NewMemMapFs()
 		repo.Fs = fs
-		run := &Run{
+		controller := &Controller{
 			Options: Options{
-				Repo:          repo,
-				Hook:          tt.hook,
-				HookName:      tt.hookName,
-				LogSettings:   log.NewSettings(),
-				GitArgs:       tt.args,
-				Force:         tt.force,
-				SkipLFS:       tt.skipLFS,
-				SourceDirs:    tt.sourceDirs,
-				FailOnChanges: tt.failOnChanges,
+				Repo:       repo,
+				Hook:       tt.hook,
+				HookName:   tt.hookName,
+				GitArgs:    tt.args,
+				Force:      tt.force,
+				SkipLFS:    tt.skipLFS,
+				SourceDirs: tt.sourceDirs,
 			},
 			executor: executor{},
 			cmd:      cmd{},
@@ -695,26 +668,8 @@ func TestRunAll(t *testing.T) {
 			repo.Setup()
 			gitExec.reset()
 
-			if name == "with fail_on_change=true and changes" {
-				var changesetCallCount int
-				repo.ChangesetFn = func() (map[string]string, error) {
-					changesetCallCount++
-					if changesetCallCount > 1 {
-						return map[string]string{"internal/run/run.go": "dummyhash-modified"}, nil
-					}
-					return make(map[string]string), nil
-				}
-			} else {
-				repo.ChangesetFn = nil
-			}
-
-			results, err := run.RunAll(t.Context())
-
-			if tt.failOnChanges {
-				assert.ErrorIs(err, ErrFailOnChanges, "expected ErrFailOnChanges")
-			} else {
-				assert.NoError(err)
-			}
+			results, err := controller.RunAll(t.Context())
+			assert.NoError(err)
 
 			var success, fail []result.Result
 			for _, result := range results {
@@ -737,70 +692,6 @@ func TestRunAll(t *testing.T) {
 					}
 				}
 			}
-		})
-	}
-}
-
-//nolint:dupl
-func TestSortByPriorityCommands(t *testing.T) {
-	for i, tt := range [...]struct {
-		name     string
-		names    []string
-		commands map[string]*config.Command
-		result   []string
-	}{
-		{
-			name:     "alphanumeric sort",
-			names:    []string{"10_a", "1_a", "2_a", "5_a"},
-			commands: map[string]*config.Command{},
-			result:   []string{"1_a", "2_a", "5_a", "10_a"},
-		},
-		{
-			name:  "partial priority",
-			names: []string{"10_a", "1_a", "2_a", "5_a"},
-			commands: map[string]*config.Command{
-				"5_a":  {Priority: 10},
-				"2_a":  {Priority: 1},
-				"10_a": {},
-			},
-			result: []string{"2_a", "5_a", "1_a", "10_a"},
-		},
-	} {
-		t.Run(fmt.Sprintf("%d: %s", i+1, tt.name), func(t *testing.T) {
-			sortByPriority(tt.names, tt.commands)
-			assert.Equal(t, tt.result, tt.names)
-		})
-	}
-}
-
-//nolint:dupl
-func TestSortByPriorityScripts(t *testing.T) {
-	for i, tt := range [...]struct {
-		name    string
-		names   []string
-		scripts map[string]*config.Script
-		result  []string
-	}{
-		{
-			name:    "alphanumeric sort",
-			names:   []string{"10_a.sh", "1_a.sh", "2_a.sh", "5_b.sh"},
-			scripts: map[string]*config.Script{},
-			result:  []string{"1_a.sh", "2_a.sh", "5_b.sh", "10_a.sh"},
-		},
-		{
-			name:  "partial priority",
-			names: []string{"10.rb", "file.sh", "script.go", "5_a.sh"},
-			scripts: map[string]*config.Script{
-				"5_a.sh":    {Priority: 10},
-				"script.go": {Priority: 1},
-				"10.rb":     {},
-			},
-			result: []string{"script.go", "5_a.sh", "10.rb", "file.sh"},
-		},
-	} {
-		t.Run(fmt.Sprintf("%d: %s", i+1, tt.name), func(t *testing.T) {
-			sortByPriority(tt.names, tt.scripts)
-			assert.Equal(t, tt.result, tt.names)
 		})
 	}
 }

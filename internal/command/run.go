@@ -92,15 +92,10 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	enableLogTags := os.Getenv(envOutput)
 	disableLogTags := os.Getenv(envSkipOutput)
 
-	logSettings := log.NewSettings()
-	logSettings.Apply(enableLogTags, disableLogTags, cfg.Output, cfg.SkipOutput)
+	log.InitSettings()
+	log.ApplySettings(enableLogTags, disableLogTags, cfg.Output, cfg.SkipOutput)
 
-	// Deprecate skip_output in the future. Leaving as is to reduce noise in output.
-	// if outputSkipTags != "" || cfg.SkipOutput != nil {
-	// 	 log.Warn("skip_output is deprecated, please use output option")
-	// }
-
-	if logSettings.LogMeta() {
+	if log.Settings.LogMeta() {
 		log.LogMeta(hookName)
 	}
 
@@ -133,12 +128,34 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 
 	sourceDirs := getSourceDirs(l.repo, cfg)
 
-	failOnChanges, err := shouldFailOnChanges(args, hook)
+	failOnChanges, err := shouldFailOnChanges(args.FailOnChanges, hook.FailOnChanges)
 	if err != nil {
 		return err
 	}
 
-	return executeHook(l.repo, cfg, hook, hookName, gitArgs, args, logSettings, sourceDirs, failOnChanges)
+	// Convert Commands and Scripts into Jobs
+	hook.Jobs = append(hook.Jobs, config.CommandsToJobs(hook.Commands)...)
+	hook.Commands = nil
+	hook.Jobs = append(hook.Jobs, config.ScriptsToJobs(hook.Scripts)...)
+	hook.Scripts = nil
+	args.RunOnlyJobs = append(args.RunOnlyJobs, args.RunOnlyCommands...)
+
+	return runHook(run.Options{
+		Repo:          l.repo,
+		Hook:          hook,
+		HookName:      hookName,
+		GitArgs:       gitArgs,
+		DisableTTY:    cfg.NoTTY || args.NoTTY,
+		SkipLFS:       cfg.SkipLFS || args.SkipLFS,
+		Templates:     cfg.Templates,
+		Exclude:       args.Exclude,
+		Files:         args.Files,
+		Force:         args.Force,
+		RunOnlyJobs:   args.RunOnlyJobs,
+		RunOnlyTags:   args.RunOnlyTags,
+		SourceDirs:    sourceDirs,
+		FailOnChanges: failOnChanges,
+	})
 }
 
 func resolveHook(cfg *config.Config, hookName string) (*config.Hook, error) {
@@ -202,49 +219,29 @@ func getSourceDirs(repo *git.Repository, cfg *config.Config) []string {
 	return sourceDirs
 }
 
-func shouldFailOnChanges(args RunArgs, hook *config.Hook) (bool, error) {
-	if args.FailOnChanges {
+func shouldFailOnChanges(fromArg bool, fromHook string) (bool, error) {
+	if fromArg {
 		return true, nil
 	}
 
-	switch hook.FailOnChanges {
-	case "never", "":
+	switch fromHook {
+	case "never", "false", "0", "":
 		return false, nil
-	case "always":
+	case "always", "true", "1":
 		return true, nil
 	case "ci":
 		_, ok := os.LookupEnv("CI")
 		return ok, nil
 	default:
-		return false, fmt.Errorf("invalid value for fail_on_changes: %s", hook.FailOnChanges)
+		return false, fmt.Errorf("invalid value for fail_on_changes: %s", fromHook)
 	}
 }
 
-func executeHook(
-	repo *git.Repository, cfg *config.Config, hook *config.Hook, hookName string, gitArgs []string, args RunArgs,
-	logSettings log.Settings, sourceDirs []string, failOnChanges bool,
-) error {
+func runHook(opts run.Options) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
-	r := run.New(run.Options{
-		Repo:            repo,
-		Hook:            hook,
-		HookName:        hookName,
-		GitArgs:         gitArgs,
-		LogSettings:     logSettings,
-		DisableTTY:      cfg.NoTTY || args.NoTTY,
-		SkipLFS:         cfg.SkipLFS || args.SkipLFS,
-		Templates:       cfg.Templates,
-		Exclude:         args.Exclude,
-		Files:           args.Files,
-		Force:           args.Force,
-		RunOnlyCommands: args.RunOnlyCommands,
-		RunOnlyJobs:     args.RunOnlyJobs,
-		RunOnlyTags:     args.RunOnlyTags,
-		SourceDirs:      sourceDirs,
-		FailOnChanges:   failOnChanges,
-	})
+	r := run.NewController(opts)
 
 	startTime := time.Now()
 	results, runErr := r.RunAll(ctx)
@@ -259,7 +256,7 @@ func executeHook(
 		return errors.New("Interrupted")
 	}
 
-	printSummary(time.Since(startTime), results, logSettings)
+	printSummary(time.Since(startTime), results)
 
 	for _, result := range results {
 		if result.Failure() {
@@ -273,17 +270,16 @@ func executeHook(
 func printSummary(
 	duration time.Duration,
 	results []result.Result,
-	logSettings log.Settings,
 ) {
-	if logSettings.LogSummary() {
+	if log.Settings.LogSummary() {
 		summaryPrint := log.Separate
 
-		if !logSettings.LogExecution() {
+		if !log.Settings.LogExecution() {
 			summaryPrint = func(s string) { log.Info(s) }
 		}
 
 		if len(results) == 0 {
-			if logSettings.LogEmptySummary() {
+			if log.Settings.LogEmptySummary() {
 				summaryPrint(
 					fmt.Sprintf(
 						"%s %s %s",
@@ -301,11 +297,11 @@ func printSummary(
 		)
 	}
 
-	logResults(0, results, logSettings)
+	logResults(0, results)
 }
 
-func logResults(indent int, results []result.Result, logSettings log.Settings) {
-	if logSettings.LogSuccess() {
+func logResults(indent int, results []result.Result) {
+	if log.Settings.LogSuccess() {
 		for _, result := range results {
 			if !result.Success() {
 				continue
@@ -314,12 +310,12 @@ func logResults(indent int, results []result.Result, logSettings log.Settings) {
 			log.Success(indent, result.Name, result.Duration)
 
 			if len(result.Sub) > 0 {
-				logResults(indent+1, result.Sub, logSettings)
+				logResults(indent+1, result.Sub)
 			}
 		}
 	}
 
-	if logSettings.LogFailure() {
+	if log.Settings.LogFailure() {
 		for _, result := range results {
 			if !result.Failure() {
 				continue
@@ -328,7 +324,7 @@ func logResults(indent int, results []result.Result, logSettings log.Settings) {
 			log.Failure(indent, result.Name, result.Text(), result.Duration)
 
 			if len(result.Sub) > 0 {
-				logResults(indent+1, result.Sub, logSettings)
+				logResults(indent+1, result.Sub)
 			}
 		}
 	}

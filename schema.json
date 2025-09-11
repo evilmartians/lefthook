@@ -141,6 +141,10 @@
         "fail_on_changes": {
           "type": "string",
           "enum": [
+            "true",
+            "1",
+            "0",
+            "false",
             "never",
             "always",
             "ci"
@@ -416,7 +420,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2025.09.10.",
+  "$comment": "Last updated on 2025.09.11.",
   "properties": {
     "min_version": {
       "type": "string",

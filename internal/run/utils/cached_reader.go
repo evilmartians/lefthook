@@ -1,30 +1,30 @@
-package run
+package utils
 
 import (
 	"bytes"
 	"io"
 )
 
-// cachedReader reads from the provided `io.Reader` until `io.EOF` and saves
+// CachedReader reads from the provided `io.Reader` until `io.EOF` and saves
 // the read content into the inner buffer.
 //
 // After `io.EOF` it will be providing the read data again and again.
-type cachedReader struct {
+type CachedReader struct {
 	in        io.Reader
 	useBuffer bool
 	buf       []byte
 	reader    *bytes.Reader
 }
 
-func NewCachedReader(in io.Reader) *cachedReader {
-	return &cachedReader{
+func NewCachedReader(in io.Reader) *CachedReader {
+	return &CachedReader{
 		in:     in,
 		buf:    []byte{},
 		reader: bytes.NewReader([]byte{}),
 	}
 }
 
-func (r *cachedReader) Read(p []byte) (int, error) {
+func (r *CachedReader) Read(p []byte) (int, error) {
 	if r.useBuffer {
 		n, err := r.reader.Read(p)
 		if err == io.EOF {

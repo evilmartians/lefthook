@@ -59,31 +59,31 @@ func newJobContext(exclude, onlyJobs, onlyTags []string) *jobContext {
 	}
 }
 
-func (r *Run) runJobs(ctx context.Context) []result.Result {
+func (c *Controller) runJobs(ctx context.Context) []result.Result {
 	var wg sync.WaitGroup
 
-	results := make([]result.Result, 0, len(r.Hook.Jobs))
-	resultsChan := make(chan result.Result, len(r.Hook.Jobs))
+	results := make([]result.Result, 0, len(c.Hook.Jobs))
+	resultsChan := make(chan result.Result, len(c.Hook.Jobs))
 
-	jobContext := newJobContext(r.Exclude, r.RunOnlyJobs, r.RunOnlyTags)
+	jobContext := newJobContext(c.Exclude, c.RunOnlyJobs, c.RunOnlyTags)
 
-	for i, job := range r.Hook.Jobs {
+	for i, job := range c.Hook.Jobs {
 		id := strconv.Itoa(i)
 
-		if jobContext.failed.Load() && r.Hook.Piped {
-			r.logSkip(job.PrintableName(id), "broken pipe")
+		if jobContext.failed.Load() && c.Hook.Piped {
+			log.Skip(job.PrintableName(id), "broken pipe")
 			continue
 		}
 
-		if !r.Hook.Parallel {
-			results = append(results, r.runJob(ctx, jobContext, id, job))
+		if !c.Hook.Parallel {
+			results = append(results, c.runJob(ctx, jobContext, id, job))
 			continue
 		}
 
 		wg.Add(1)
 		go func(job *config.Job) {
 			defer wg.Done()
-			resultsChan <- r.runJob(ctx, jobContext, id, job)
+			resultsChan <- c.runJob(ctx, jobContext, id, job)
 		}(job)
 	}
 
@@ -96,7 +96,7 @@ func (r *Run) runJobs(ctx context.Context) []result.Result {
 	return results
 }
 
-func (r *Run) runJob(ctx context.Context, jobContext *jobContext, id string, job *config.Job) result.Result {
+func (c *Controller) runJob(ctx context.Context, jobContext *jobContext, id string, job *config.Job) result.Result {
 	startTime := time.Now()
 
 	// Check if do job is properly configured
@@ -107,7 +107,7 @@ func (r *Run) runJob(ctx context.Context, jobContext *jobContext, id string, job
 		return result.Failure(job.PrintableName(id), errEmptyJob.Error(), time.Since(startTime))
 	}
 
-	if job.Interactive && !r.DisableTTY && !r.Hook.Follow {
+	if job.Interactive && !c.DisableTTY && !c.Hook.Follow {
 		log.StopSpinner()
 		defer log.StartSpinner()
 	}
@@ -117,7 +117,7 @@ func (r *Run) runJob(ctx context.Context, jobContext *jobContext, id string, job
 			return result.Skip(job.PrintableName(id))
 		}
 
-		return r.runSingleJob(ctx, jobContext, id, job)
+		return c.runSingleJob(ctx, jobContext, id, job)
 	}
 
 	if job.Group != nil {
@@ -151,13 +151,13 @@ func (r *Run) runJob(ctx context.Context, jobContext *jobContext, id string, job
 
 		maps.Copy(inheritedJobContext.env, job.Env)
 
-		return r.runGroup(ctx, groupName, &inheritedJobContext, job.Group)
+		return c.runGroup(ctx, groupName, &inheritedJobContext, job.Group)
 	}
 
 	return result.Failure(job.PrintableName(id), "don't know how to run job", time.Since(startTime))
 }
 
-func (r *Run) runSingleJob(ctx context.Context, jobContext *jobContext, id string, job *config.Job) result.Result {
+func (c *Controller) runSingleJob(ctx context.Context, jobContext *jobContext, id string, job *config.Job) result.Result {
 	startTime := time.Now()
 
 	name := job.PrintableName(id)
@@ -180,18 +180,18 @@ func (r *Run) runSingleJob(ctx context.Context, jobContext *jobContext, id strin
 		Only:      job.Only,
 		Skip:      job.Skip,
 	}, &jobs.Settings{
-		Repo:       r.Repo,
-		Hook:       r.Hook,
-		HookName:   r.HookName,
-		ForceFiles: r.Files,
-		Force:      r.Force,
-		SourceDirs: r.SourceDirs,
-		GitArgs:    r.GitArgs,
+		Repo:       c.Repo,
+		Hook:       c.Hook,
+		HookName:   c.HookName,
+		ForceFiles: c.Files,
+		Force:      c.Force,
+		SourceDirs: c.SourceDirs,
+		GitArgs:    c.GitArgs,
 		OnlyTags:   jobContext.onlyTags,
-		Templates:  r.Templates,
+		Templates:  c.Templates,
 	})
 	if err != nil {
-		r.logSkip(name, err.Error())
+		log.Skip(name, err.Error())
 
 		var skipErr jobs.SkipError
 		if errors.As(err, &skipErr) {
@@ -204,14 +204,18 @@ func (r *Run) runSingleJob(ctx context.Context, jobContext *jobContext, id strin
 
 	env := maps.Clone(jobContext.env)
 	maps.Copy(env, job.Env)
-	ok := r.run(ctx, exec.Options{
-		Name:        strings.Join(append(jobContext.names, name), " ❯ "),
-		Root:        filepath.Join(r.Repo.RootPath, root),
-		Commands:    executionJob.Execs,
-		Interactive: job.Interactive && !r.DisableTTY,
-		UseStdin:    job.UseStdin,
-		Env:         env,
-	}, r.Hook.Follow)
+	ok := exec.Run(ctx, c.executor, &exec.RunOptions{
+		Exec: exec.Options{
+			Name:        strings.Join(append(jobContext.names, name), " ❯ "),
+			Root:        filepath.Join(c.Repo.RootPath, root),
+			Commands:    executionJob.Execs,
+			Interactive: job.Interactive && !c.DisableTTY,
+			UseStdin:    job.UseStdin,
+			Env:         env,
+		},
+		Follow:      c.Hook.Follow,
+		CachedStdin: c.cachedStdin,
+	})
 
 	executionTime := time.Since(startTime)
 
@@ -220,18 +224,18 @@ func (r *Run) runSingleJob(ctx context.Context, jobContext *jobContext, id strin
 		return result.Failure(name, job.FailText, executionTime)
 	}
 
-	if config.HookUsesStagedFiles(r.HookName) && job.StageFixed {
+	if config.HookUsesStagedFiles(c.HookName) && job.StageFixed {
 		files := executionJob.Files
 
 		if len(files) == 0 {
 			var err error
-			files, err = r.Repo.StagedFiles()
+			files, err = c.Repo.StagedFiles()
 			if err != nil {
 				log.Warn("Couldn't stage fixed files:", err)
 				return result.Success(name, executionTime)
 			}
 
-			files = filters.Apply(r.Repo.Fs, files, filters.Params{
+			files = filters.Apply(c.Repo.Fs, files, filters.Params{
 				Glob:      glob,
 				Root:      root,
 				Exclude:   exclude,
@@ -245,13 +249,13 @@ func (r *Run) runSingleJob(ctx context.Context, jobContext *jobContext, id strin
 			}
 		}
 
-		r.addStagedFiles(files)
+		c.addStagedFiles(files)
 	}
 
 	return result.Success(name, executionTime)
 }
 
-func (r *Run) runGroup(ctx context.Context, groupName string, jobContext *jobContext, group *config.Group) result.Result {
+func (c *Controller) runGroup(ctx context.Context, groupName string, jobContext *jobContext, group *config.Group) result.Result {
 	startTime := time.Now()
 
 	if len(group.Jobs) == 0 {
@@ -266,19 +270,19 @@ func (r *Run) runGroup(ctx context.Context, groupName string, jobContext *jobCon
 		id := strconv.Itoa(i)
 
 		if jobContext.failed.Load() && group.Piped {
-			r.logSkip(job.PrintableName(id), "broken pipe")
+			log.Skip(job.PrintableName(id), "broken pipe")
 			continue
 		}
 
 		if !group.Parallel {
-			results = append(results, r.runJob(ctx, jobContext, id, job))
+			results = append(results, c.runJob(ctx, jobContext, id, job))
 			continue
 		}
 
 		wg.Add(1)
 		go func(job *config.Job) {
 			defer wg.Done()
-			resultsChan <- r.runJob(ctx, jobContext, id, job)
+			resultsChan <- c.runJob(ctx, jobContext, id, job)
 		}(job)
 	}
 
@@ -289,6 +293,12 @@ func (r *Run) runGroup(ctx context.Context, groupName string, jobContext *jobCon
 	}
 
 	return result.Group(groupName, results)
+}
+
+func (c *Controller) addStagedFiles(files []string) {
+	if err := c.Repo.AddFiles(files); err != nil {
+		log.Warn("Couldn't stage fixed files:", err)
+	}
 }
 
 // first finds first non-empty string and returns it.

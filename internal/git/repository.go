@@ -66,8 +66,6 @@ type Repository struct {
 	stagedFilesWithDeletedOnce func() ([]string, error)
 	statusShortOnce            func() ([]string, error)
 	stateOnce                  func() State
-
-	ChangesetFn func() (map[string]string, error)
 }
 
 // NewRepository returns a Repository or an error, if git repository it not initialized.
@@ -220,9 +218,9 @@ func (r *Repository) PushFiles() ([]string, error) {
 func (r *Repository) PartiallyStagedFiles() ([]string, error) {
 	partiallyStaged := make([]string, 0)
 
-	err := r.parseStatusShort(func(status fileStatus) {
-		if status.index != ' ' && status.index != '?' && status.worktree != ' ' && status.worktree != '?' {
-			partiallyStaged = append(partiallyStaged, status.path)
+	err := r.parseStatusShort(func(path string, index, worktree byte) {
+		if index != ' ' && index != '?' && worktree != ' ' && worktree != '?' {
+			partiallyStaged = append(partiallyStaged, path)
 		}
 	})
 	if err != nil {
@@ -367,20 +365,16 @@ func (r *Repository) AddFiles(files []string) error {
 // Changeset returns a map of files and their hashes that are different from the index.
 // The hash for a deleted file is "deleted".
 func (r *Repository) Changeset() (map[string]string, error) {
-	if r.ChangesetFn != nil {
-		return r.ChangesetFn()
-	}
-
 	changeset := make(map[string]string)
 	pathsToHash := make([]string, 0)
 
-	err := r.parseStatusShort(func(status fileStatus) {
-		if status.index == 'D' || status.worktree == 'D' {
-			changeset[status.path] = "deleted"
+	err := r.parseStatusShort(func(path string, index, worktree byte) {
+		if index == 'D' || worktree == 'D' {
+			changeset[path] = "deleted"
 			return
 		}
 
-		pathsToHash = append(pathsToHash, status.path)
+		pathsToHash = append(pathsToHash, path)
 	})
 	if err != nil {
 		return nil, err
@@ -402,13 +396,7 @@ func (r *Repository) Changeset() (map[string]string, error) {
 	return changeset, nil
 }
 
-type fileStatus struct {
-	path     string
-	index    byte
-	worktree byte
-}
-
-func (r *Repository) parseStatusShort(cb func(fileStatus)) error {
+func (r *Repository) parseStatusShort(cb func(path string, index, worktree byte)) error {
 	lines, err := r.statusShortOnce()
 	if err != nil {
 		return err
@@ -429,11 +417,7 @@ func (r *Repository) parseStatusShort(cb func(fileStatus)) error {
 			continue
 		}
 
-		cb(fileStatus{
-			path:     path,
-			index:    line[0],
-			worktree: line[1],
-		})
+		cb(path, line[0], line[1])
 	}
 
 	return nil
