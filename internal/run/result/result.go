@@ -54,6 +54,8 @@ func Group(name string, results []Result) Result {
 		case failure:
 			stat = failure
 			allSkip = false
+		case skip:
+			// do nothing
 		}
 		totalDuration += res.Duration
 	}
