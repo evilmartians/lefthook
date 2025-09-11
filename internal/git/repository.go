@@ -390,11 +390,12 @@ func (r *Repository) Changeset() (map[string]string, error) {
 		return changeset, nil
 	}
 
-	hashes, err := r.Git.CmdLines(append([]string{"git", "hash-object"}, pathsToHash...))
+	out, err := r.Git.BatchedCmd([]string{"git", "hash-object"}, pathsToHash)
 	if err != nil {
 		return nil, err
 	}
 
+	hashes := strings.Split(strings.TrimSpace(out), "\n")
 	for i, hash := range hashes {
 		changeset[pathsToHash[i]] = hash
 	}
