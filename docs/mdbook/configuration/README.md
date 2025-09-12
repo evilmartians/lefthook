@@ -54,6 +54,7 @@ The `-local` config can be used without a main config file. This is useful when 
   - [`parallel`](./parallel.md)
   - [`piped`](./piped.md)
   - [`follow`](./follow.md)
+  - [`fail_on_changes`](./fail_on_changes.md)
   - [`exclude_tags`](./exclude_tags.md)
   - [`skip`](./skip.md)
   - [`only`](./only.md)
