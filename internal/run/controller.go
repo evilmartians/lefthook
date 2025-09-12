@@ -86,7 +86,7 @@ func (c *Controller) RunAll(ctx context.Context) ([]result.Result, error) {
 
 	c.preHook()
 
-	results = append(results, c.runJobs(ctx)...)
+	results = append(results, c.runJobs(ctx, c.newScope(), c.Hook.Jobs)...)
 
 	if err := c.postHook(); err != nil {
 		return results, err
