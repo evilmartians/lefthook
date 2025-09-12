@@ -39,7 +39,7 @@ func (c *Controller) runJobs(ctx context.Context, scope *scope, jobs []*config.J
 			continue
 		}
 
-		if !c.Hook.Parallel {
+		if !scope.parallel {
 			results = append(results, c.runJob(ctx, scope, id, job))
 			continue
 		}
@@ -85,40 +85,26 @@ func (c *Controller) runJob(ctx context.Context, scope *scope, id string, job *c
 	}
 
 	if job.Group != nil {
-		inheritedscope := *scope
-		inheritedscope.glob = slices.Concat(inheritedscope.glob, job.Glob)
-		inheritedscope.tags = slices.Concat(inheritedscope.tags, job.Tags)
-		inheritedscope.root = first(job.Root, scope.root)
-		switch list := job.Exclude.(type) {
-		case []interface{}:
-			switch inherited := inheritedscope.exclude.(type) {
-			case []interface{}:
-				// List of globs get appended
-				inherited = append(inherited, list...)
-				inheritedscope.exclude = inherited
-			default:
-				// Regex value will be overwritten with a list of globs
-				inheritedscope.exclude = job.Exclude
-			}
-		case string:
-			// Regex value always overwrites excludes
-			inheritedscope.exclude = job.Exclude
-		default:
-			// Inherit
-		}
+		inheritedScope := scope.withOverwrites(job)
 		groupName := first(job.Name, "group ("+id+")")
-		inheritedscope.names = append(inheritedscope.names, groupName)
+		inheritedScope.names = append(inheritedScope.names, groupName)
 
-		if len(scope.onlyJobs) != 0 && slices.Contains(scope.onlyJobs, job.Name) {
-			inheritedscope.onlyJobs = []string{}
-		}
-
-		maps.Copy(inheritedscope.env, job.Env)
-
-		return c.runGroup(ctx, groupName, &inheritedscope, job.Group)
+		return c.runGroup(ctx, groupName, &inheritedScope, job.Group)
 	}
 
 	return result.Failure(job.PrintableName(id), "don't know how to run job", time.Since(startTime))
+}
+
+func (c *Controller) runGroup(ctx context.Context, groupName string, scope *scope, group *config.Group) result.Result {
+	startTime := time.Now()
+
+	if len(group.Jobs) == 0 {
+		return result.Failure(groupName, errEmptyGroup.Error(), time.Since(startTime))
+	}
+
+	results := c.runJobs(ctx, scope, group.Jobs)
+
+	return result.Group(groupName, results)
 }
 
 func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, job *config.Job) result.Result {
@@ -217,18 +203,6 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 	}
 
 	return result.Success(name, executionTime)
-}
-
-func (c *Controller) runGroup(ctx context.Context, groupName string, scope *scope, group *config.Group) result.Result {
-	startTime := time.Now()
-
-	if len(group.Jobs) == 0 {
-		return result.Failure(groupName, errEmptyGroup.Error(), time.Since(startTime))
-	}
-
-	results := c.runJobs(ctx, scope, group.Jobs)
-
-	return result.Group(groupName, results)
 }
 
 func (c *Controller) addStagedFiles(files []string) {

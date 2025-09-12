@@ -28,15 +28,15 @@ type Options struct {
 	Hook          *config.Hook
 	HookName      string
 	GitArgs       []string
-	DisableTTY    bool
-	SkipLFS       bool
-	Force         bool
 	Exclude       []string
 	Files         []string
 	RunOnlyJobs   []string
 	RunOnlyTags   []string
 	SourceDirs    []string
 	Templates     map[string]string
+	DisableTTY    bool
+	SkipLFS       bool
+	Force         bool
 	FailOnChanges bool
 }
 
@@ -86,8 +86,7 @@ func (c *Controller) RunAll(ctx context.Context) ([]result.Result, error) {
 
 	c.preHook()
 
-	scope := c.newScope()
-	results = append(results, c.runJobs(ctx, scope, c.Hook.Jobs)...)
+	results = append(results, c.runJobs(ctx, c.newScope(), c.Hook.Jobs)...)
 
 	if err := c.postHook(); err != nil {
 		return results, err
