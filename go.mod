@@ -1,8 +1,6 @@
 module github.com/evilmartians/lefthook
 
-go 1.24
-
-toolchain go1.24.1
+go 1.24.7
 
 require (
 	github.com/MakeNowJust/heredoc v1.0.0
@@ -11,7 +9,7 @@ require (
 	github.com/creack/pty v1.1.24
 	github.com/gobwas/glob v0.2.3
 	github.com/invopop/jsonschema v0.13.0
-	github.com/kaptinlin/jsonschema v0.4.12
+	github.com/kaptinlin/jsonschema v0.4.13
 	github.com/knadh/koanf/maps v0.1.2
 	github.com/knadh/koanf/parsers/json v1.0.0
 	github.com/knadh/koanf/parsers/toml/v2 v2.2.0
@@ -40,9 +38,8 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.3.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/goccy/go-yaml v1.18.0 // indirect
-	github.com/gotnospirit/makeplural v0.0.0-20180622080156-a5f48d94d976 // indirect
-	github.com/gotnospirit/messageformat v0.0.0-20221001023931-dfe49f1eb092 // indirect
-	github.com/kaptinlin/go-i18n v0.1.4 // indirect
+	github.com/kaptinlin/go-i18n v0.1.6 // indirect
+	github.com/kaptinlin/messageformat-go v0.4.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
@@ -52,7 +49,7 @@ require (
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	go.yaml.in/yaml/v3 v3.0.3 // indirect
-	golang.org/x/tools v0.35.0 // indirect
+	golang.org/x/tools v0.36.0 // indirect
 )
 
 require (
@@ -67,8 +64,8 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/spf13/pflag v1.0.9 // indirect
-	golang.org/x/sys v0.34.0 // indirect
+	golang.org/x/sys v0.35.0 // indirect
 	golang.org/x/term v0.28.0 // indirect
-	golang.org/x/text v0.28.0 // indirect
+	golang.org/x/text v0.29.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1
 )
