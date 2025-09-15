@@ -47,7 +47,7 @@ func buildScript(params *Params, settings *Settings) (*Job, error) {
 
 		if !fileInfo.Mode().IsRegular() {
 			log.Debugf("[lefthook] script '%s' is not a regular file, skipping", scriptPath)
-			return nil, &SkipError{"not a regular file"}
+			return nil, SkipError{"not a regular file"}
 		}
 
 		// Make sure file is executable

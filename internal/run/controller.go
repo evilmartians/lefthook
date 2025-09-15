@@ -25,8 +25,6 @@ var ErrFailOnChanges = errors.New("files were modified by a hook, and fail_on_ch
 
 type Options struct {
 	Repo          *git.Repository
-	Hook          *config.Hook
-	HookName      string
 	GitArgs       []string
 	Exclude       []string
 	Files         []string
@@ -67,26 +65,26 @@ func NewController(opts Options) *Controller {
 
 // RunAll runs scripts and commands.
 // LFS hook is executed at first if needed.
-func (c *Controller) RunAll(ctx context.Context) ([]result.Result, error) {
-	results := make([]result.Result, 0, len(c.Hook.Commands)+len(c.Hook.Scripts))
+func (c *Controller) RunAll(ctx context.Context, hookName string, hook *config.Hook) ([]result.Result, error) {
+	results := make([]result.Result, 0, len(hook.Jobs))
 
-	if config.NewSkipChecker(system.Cmd).Check(c.Repo.State, c.Hook.Skip, c.Hook.Only) {
-		log.Skip(c.HookName, "hook setting")
+	if config.NewSkipChecker(system.Cmd).Check(c.Repo.State, hook.Skip, hook.Only) {
+		log.Skip(hookName, "hook setting")
 		return results, nil
 	}
 
-	if err := c.runLFSHook(ctx); err != nil {
+	if err := c.runLFSHook(ctx, hookName); err != nil {
 		return results, err
 	}
 
-	if !c.DisableTTY && !c.Hook.Follow {
+	if !c.DisableTTY && !hook.Follow {
 		log.StartSpinner()
 		defer log.StopSpinner()
 	}
 
-	c.preHook()
+	c.preHook(hookName)
 
-	results = append(results, c.runJobs(ctx, c.newScope(), c.Hook.Jobs)...)
+	results = append(results, c.runJobs(ctx, c.newScope(hookName, hook), hook.Jobs)...)
 
 	if err := c.postHook(); err != nil {
 		return results, err
@@ -95,17 +93,17 @@ func (c *Controller) RunAll(ctx context.Context) ([]result.Result, error) {
 	return results, nil
 }
 
-func (c *Controller) runLFSHook(ctx context.Context) error {
+func (c *Controller) runLFSHook(ctx context.Context, hookName string) error {
 	if c.SkipLFS {
 		return nil
 	}
 
-	if !git.IsLFSHook(c.HookName) {
+	if !git.IsLFSHook(hookName) {
 		return nil
 	}
 
 	// Skip running git-lfs for pre-push hook when triggered manually
-	if len(c.GitArgs) == 0 && c.HookName == "pre-push" {
+	if len(c.GitArgs) == 0 && hookName == "pre-push" {
 		return nil
 	}
 
@@ -137,14 +135,14 @@ func (c *Controller) runLFSHook(ctx context.Context) error {
 	}
 
 	log.Debugf(
-		"[git-lfs] executing hook: git lfs %s %s", c.HookName, strings.Join(c.GitArgs, " "),
+		"[git-lfs] executing hook: git lfs %s %s", hookName, strings.Join(c.GitArgs, " "),
 	)
 	out := new(bytes.Buffer)
 	errOut := new(bytes.Buffer)
 	err = c.cmd.RunWithContext(
 		ctx,
 		append(
-			[]string{"git", "lfs", c.HookName},
+			[]string{"git", "lfs", hookName},
 			c.GitArgs...,
 		),
 		"",
@@ -183,7 +181,7 @@ func (c *Controller) runLFSHook(ctx context.Context) error {
 	return nil
 }
 
-func (c *Controller) preHook() {
+func (c *Controller) preHook(hookName string) {
 	if c.FailOnChanges {
 		changeset, err := c.Repo.Changeset()
 		if err != nil {
@@ -193,7 +191,7 @@ func (c *Controller) preHook() {
 		}
 	}
 
-	if !config.HookUsesStagedFiles(c.HookName) {
+	if !config.HookUsesStagedFiles(hookName) {
 		return
 	}
 

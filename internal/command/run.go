@@ -140,10 +140,8 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	hook.Scripts = nil
 	args.RunOnlyJobs = append(args.RunOnlyJobs, args.RunOnlyCommands...)
 
-	return runHook(run.Options{
+	return runHook(hookName, hook, run.Options{
 		Repo:          l.repo,
-		Hook:          hook,
-		HookName:      hookName,
 		GitArgs:       gitArgs,
 		DisableTTY:    cfg.NoTTY || args.NoTTY,
 		SkipLFS:       cfg.SkipLFS || args.SkipLFS,
@@ -237,14 +235,14 @@ func shouldFailOnChanges(fromArg bool, fromHook string) (bool, error) {
 	}
 }
 
-func runHook(opts run.Options) error {
+func runHook(hookName string, hook *config.Hook, opts run.Options) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
 	r := run.NewController(opts)
 
 	startTime := time.Now()
-	results, runErr := r.RunAll(ctx)
+	results, runErr := r.RunAll(ctx, hookName, hook)
 	if runErr != nil {
 		if errors.Is(runErr, run.ErrFailOnChanges) {
 			return fmt.Errorf("%w", runErr)

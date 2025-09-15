@@ -13,7 +13,7 @@ type Params struct {
 	Root      string
 	Runner    string
 	Script    string
-	Files     string
+	FilesCmd  string
 	FileTypes []string
 	Tags      []string
 	Glob      []string
@@ -23,15 +23,15 @@ type Params struct {
 }
 
 type Settings struct {
-	Repo       *git.Repository
-	Hook       *config.Hook
-	Force      bool
-	HookName   string
-	GitArgs    []string
-	ForceFiles []string
-	SourceDirs []string
-	OnlyTags   []string
-	Templates  map[string]string
+	Repo        *git.Repository
+	HookName    string
+	ExcludeTags []string
+	GitArgs     []string
+	ForceFiles  []string
+	SourceDirs  []string
+	OnlyTags    []string
+	Templates   map[string]string
+	Force       bool
 }
 
 type Job struct {
@@ -40,20 +40,8 @@ type Job struct {
 }
 
 func Build(params *Params, settings *Settings) (*Job, error) {
-	if settings.skip(params) {
-		return nil, SkipError{"by condition"}
-	}
-
-	if utils.Intersect(settings.Hook.ExcludeTags, params.Tags) {
-		return nil, SkipError{"tags"}
-	}
-
-	if len(settings.OnlyTags) > 0 && !utils.Intersect(settings.OnlyTags, params.Tags) {
-		return nil, SkipError{"tags"}
-	}
-
-	if utils.Intersect(settings.Hook.ExcludeTags, []string{params.Name}) {
-		return nil, SkipError{"name"}
+	if reason := settings.skipReason(params); len(reason) > 0 {
+		return nil, SkipError{reason}
 	}
 
 	var err error
@@ -71,9 +59,25 @@ func Build(params *Params, settings *Settings) (*Job, error) {
 	return job, nil
 }
 
-func (s *Settings) skip(params *Params) bool {
+func (s *Settings) skipReason(params *Params) string {
 	skipChecker := config.NewSkipChecker(system.Cmd)
-	return skipChecker.Check(s.Repo.State, params.Skip, params.Only)
+	if skipChecker.Check(s.Repo.State, params.Skip, params.Only) {
+		return "by condition"
+	}
+
+	if len(s.OnlyTags) > 0 && !utils.Intersect(s.OnlyTags, params.Tags) {
+		return "tags"
+	}
+
+	if utils.Intersect(s.ExcludeTags, params.Tags) {
+		return "tags"
+	}
+
+	if utils.Intersect(s.ExcludeTags, []string{params.Name}) {
+		return "name"
+	}
+
+	return ""
 }
 
 func (p *Params) validateCommand() error {

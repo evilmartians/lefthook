@@ -17,6 +17,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/run/filters"
 	"github.com/evilmartians/lefthook/internal/run/jobs"
 	"github.com/evilmartians/lefthook/internal/run/result"
+	"github.com/evilmartians/lefthook/internal/run/utils"
 )
 
 var (
@@ -71,7 +72,7 @@ func (c *Controller) runJob(ctx context.Context, scope *scope, id string, job *c
 		return result.Failure(job.PrintableName(id), errEmptyJob.Error(), time.Since(startTime))
 	}
 
-	if job.Interactive && !c.DisableTTY && !c.Hook.Follow {
+	if job.Interactive && !c.DisableTTY && !scope.follow {
 		log.StopSpinner()
 		defer log.StartSpinner()
 	}
@@ -86,7 +87,7 @@ func (c *Controller) runJob(ctx context.Context, scope *scope, id string, job *c
 
 	if job.Group != nil {
 		inheritedScope := scope.withOverwrites(job)
-		groupName := first(job.Name, "group ("+id+")")
+		groupName := utils.FirstNonBlank(job.Name, "group ("+id+")")
 		inheritedScope.names = append(inheritedScope.names, groupName)
 
 		return c.runGroup(ctx, groupName, &inheritedScope, job.Group)
@@ -112,9 +113,9 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 
 	name := job.PrintableName(id)
 
-	root := first(job.Root, scope.root)
+	root := utils.FirstNonBlank(job.Root, scope.root)
 	glob := slices.Concat(scope.glob, job.Glob)
-	exclude := join(job.Exclude, scope.exclude)
+	exclude := joinInterfaces(job.Exclude, scope.exclude)
 	tags := slices.Concat(job.Tags, scope.tags)
 	executionJob, err := jobs.Build(&jobs.Params{
 		Name:      name,
@@ -123,22 +124,22 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 		Runner:    job.Runner,
 		Script:    job.Script,
 		Glob:      glob,
-		Files:     job.Files,
+		FilesCmd:  scope.filesCmd,
 		FileTypes: job.FileTypes,
 		Tags:      tags,
 		Exclude:   exclude,
 		Only:      job.Only,
 		Skip:      job.Skip,
 	}, &jobs.Settings{
-		Repo:       c.Repo,
-		Hook:       c.Hook,
-		HookName:   c.HookName,
-		ForceFiles: c.Files,
-		Force:      c.Force,
-		SourceDirs: c.SourceDirs,
-		GitArgs:    c.GitArgs,
-		OnlyTags:   scope.onlyTags,
-		Templates:  c.Templates,
+		Repo:        c.Repo,
+		HookName:    scope.hookName,
+		ExcludeTags: scope.excludeTags,
+		ForceFiles:  c.Files,
+		Force:       c.Force,
+		SourceDirs:  c.SourceDirs,
+		GitArgs:     c.GitArgs,
+		OnlyTags:    scope.onlyTags,
+		Templates:   c.Templates,
 	})
 	if err != nil {
 		log.Skip(name, err.Error())
@@ -163,7 +164,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 			UseStdin:    job.UseStdin,
 			Env:         env,
 		},
-		Follow:      c.Hook.Follow,
+		Follow:      scope.follow,
 		CachedStdin: c.cachedStdin,
 	})
 
@@ -174,7 +175,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 		return result.Failure(name, job.FailText, executionTime)
 	}
 
-	if config.HookUsesStagedFiles(c.HookName) && job.StageFixed {
+	if config.HookUsesStagedFiles(scope.hookName) && job.StageFixed {
 		files := executionJob.Files
 
 		if len(files) == 0 {
@@ -211,18 +212,7 @@ func (c *Controller) addStagedFiles(files []string) {
 	}
 }
 
-// first finds first non-empty string and returns it.
-func first(args ...string) string {
-	for _, a := range args {
-		if len(a) > 0 {
-			return a
-		}
-	}
-
-	return ""
-}
-
-func join(args ...interface{}) interface{} {
+func joinInterfaces(args ...interface{}) interface{} {
 	result := []interface{}{}
 	for _, a := range args {
 		switch list := a.(type) {

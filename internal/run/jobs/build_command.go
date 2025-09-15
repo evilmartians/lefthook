@@ -27,10 +27,7 @@ func buildCommand(params *Params, settings *Settings) (*Job, error) {
 		return nil, err
 	}
 
-	filesCmd := settings.Hook.Files
-	if len(params.Files) > 0 {
-		filesCmd = params.Files
-	}
+	filesCmd := params.FilesCmd
 	if len(filesCmd) > 0 {
 		filesCmd = replacePositionalArguments(filesCmd, settings.GitArgs)
 	}

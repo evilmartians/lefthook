@@ -6,25 +6,30 @@ import (
 	"sync/atomic"
 
 	"github.com/evilmartians/lefthook/internal/config"
+	"github.com/evilmartians/lefthook/internal/run/utils"
 )
 
 type scope struct {
 	failed   *atomic.Bool
 	parallel bool
 	piped    bool
+	follow   bool
 
 	onlyJobs []string
 	onlyTags []string
 
-	glob    []string
-	tags    []string
-	exclude interface{}
-	names   []string
-	env     map[string]string
-	root    string
+	glob        []string
+	tags        []string
+	excludeTags []string // Consider removing this setting
+	names       []string
+	exclude     interface{}
+	env         map[string]string
+	root        string
+	hookName    string
+	filesCmd    string
 }
 
-func (c *Controller) newScope() *scope {
+func (c *Controller) newScope(hookName string, hook *config.Hook) *scope {
 	var failed atomic.Bool
 	var exclude []interface{}
 	if len(c.Exclude) > 0 {
@@ -35,13 +40,17 @@ func (c *Controller) newScope() *scope {
 	}
 
 	return &scope{
-		failed:   &failed,
-		parallel: c.Hook.Parallel,
-		piped:    c.Hook.Piped,
-		onlyJobs: c.RunOnlyJobs,
-		onlyTags: c.RunOnlyTags,
-		exclude:  exclude,
-		env:      make(map[string]string),
+		hookName:    hookName,
+		follow:      hook.Follow,
+		failed:      &failed,
+		filesCmd:    hook.Files,
+		parallel:    hook.Parallel,
+		piped:       hook.Piped,
+		excludeTags: hook.ExcludeTags,
+		exclude:     exclude,
+		env:         make(map[string]string),
+		onlyJobs:    c.RunOnlyJobs,
+		onlyTags:    c.RunOnlyTags,
 	}
 }
 
@@ -51,7 +60,9 @@ func (s *scope) withOverwrites(job *config.Job) scope {
 	newScope.piped = job.Group.Piped
 	newScope.glob = slices.Concat(newScope.glob, job.Glob)
 	newScope.tags = slices.Concat(newScope.tags, job.Tags)
-	newScope.root = first(job.Root, s.root)
+	newScope.root = utils.FirstNonBlank(job.Root, s.root)
+
+	// Extend `exclude` list
 	switch list := job.Exclude.(type) {
 	case []interface{}:
 		switch inherited := newScope.exclude.(type) {
@@ -69,8 +80,15 @@ func (s *scope) withOverwrites(job *config.Job) scope {
 	default:
 		// Inherit
 	}
-	if len(s.onlyJobs) != 0 && slices.Contains(s.onlyJobs, job.Name) {
+
+	// Overwrite --jobs option for nested groups: if group name given, run all its jobs
+	if len(s.onlyJobs) != 0 && job.Group != nil && slices.Contains(s.onlyJobs, job.Name) {
 		newScope.onlyJobs = []string{}
+	}
+
+	// Overwrite `files` command if present
+	if len(job.Files) > 0 {
+		s.filesCmd = job.Files
 	}
 
 	maps.Copy(newScope.env, job.Env)
