@@ -1,4 +1,4 @@
-package run
+package controller
 
 import (
 	"context"
@@ -639,13 +639,7 @@ func TestRunAll(t *testing.T) {
 		fs := afero.NewMemMapFs()
 		repo.Fs = fs
 		controller := &Controller{
-			Options: Options{
-				Repo:       repo,
-				GitArgs:    tt.args,
-				Force:      tt.force,
-				SkipLFS:    tt.skipLFS,
-				SourceDirs: tt.sourceDirs,
-			},
+			git:      repo,
 			executor: executor{},
 			cmd:      cmd{},
 		}
@@ -665,7 +659,14 @@ func TestRunAll(t *testing.T) {
 			repo.Setup()
 			gitExec.reset()
 
-			results, err := controller.RunAll(t.Context(), tt.hookName, tt.hook)
+			opts := Options{
+				GitArgs:    tt.args,
+				Force:      tt.force,
+				SkipLFS:    tt.skipLFS,
+				SourceDirs: tt.sourceDirs,
+			}
+			tt.hook.Name = tt.hookName
+			results, err := controller.RunHook(t.Context(), opts, tt.hook)
 			assert.NoError(err)
 
 			var success, fail []result.Result

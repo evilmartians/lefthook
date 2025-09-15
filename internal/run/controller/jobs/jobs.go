@@ -3,23 +3,23 @@ package jobs
 import (
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
-	"github.com/evilmartians/lefthook/internal/run/utils"
+	"github.com/evilmartians/lefthook/internal/run/controller/utils"
 	"github.com/evilmartians/lefthook/internal/system"
 )
 
 type Params struct {
-	Name      string
-	Run       string
-	Root      string
-	Runner    string
-	Script    string
-	FilesCmd  string
-	FileTypes []string
-	Tags      []string
-	Glob      []string
-	Exclude   interface{}
-	Only      interface{}
-	Skip      interface{}
+	Name         string
+	Run          string
+	Root         string
+	Runner       string
+	Script       string
+	FilesCmd     string
+	FileTypes    []string
+	Tags         []string
+	Glob         []string
+	ExcludeFiles interface{}
+	Only         interface{}
+	Skip         interface{}
 }
 
 type Settings struct {

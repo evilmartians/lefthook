@@ -404,6 +404,8 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 	if err := mainHook.Unmarshal("", &hook); err != nil {
 		return err
 	}
+	// Assign custom hook name
+	hook.Name = name
 
 	if tags := os.Getenv("LEFTHOOK_EXCLUDE"); tags != "" {
 		hook.ExcludeTags = append(hook.ExcludeTags, strings.Split(tags, ",")...)

@@ -140,13 +140,12 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	hook.Scripts = nil
 	args.RunOnlyJobs = append(args.RunOnlyJobs, args.RunOnlyCommands...)
 
-	return runHook(hookName, hook, run.Options{
-		Repo:          l.repo,
+	return runHook(hook, l.repo, run.Options{
 		GitArgs:       gitArgs,
 		DisableTTY:    cfg.NoTTY || args.NoTTY,
 		SkipLFS:       cfg.SkipLFS || args.SkipLFS,
 		Templates:     cfg.Templates,
-		Exclude:       args.Exclude,
+		ExcludeFiles:  args.Exclude,
 		Files:         args.Files,
 		Force:         args.Force,
 		RunOnlyJobs:   args.RunOnlyJobs,
@@ -235,19 +234,17 @@ func shouldFailOnChanges(fromArg bool, fromHook string) (bool, error) {
 	}
 }
 
-func runHook(hookName string, hook *config.Hook, opts run.Options) error {
+func runHook(hook *config.Hook, repo *git.Repository, opts run.Options) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
-	r := run.NewController(opts)
-
 	startTime := time.Now()
-	results, runErr := r.RunAll(ctx, hookName, hook)
-	if runErr != nil {
-		if errors.Is(runErr, run.ErrFailOnChanges) {
-			return fmt.Errorf("%w", runErr)
+	results, err := run.Run(ctx, hook, repo, opts)
+	if err != nil {
+		if errors.Is(err, run.ErrFailOnChanges) {
+			return fmt.Errorf("%w", err)
 		}
-		return fmt.Errorf("failed to run the hook: %w", runErr)
+		return fmt.Errorf("failed to run the hook: %w", err)
 	}
 
 	if ctx.Err() != nil {

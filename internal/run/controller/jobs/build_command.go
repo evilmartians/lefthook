@@ -10,7 +10,7 @@ import (
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/log"
-	"github.com/evilmartians/lefthook/internal/run/filters"
+	"github.com/evilmartians/lefthook/internal/run/controller/filters"
 	"github.com/evilmartians/lefthook/internal/system"
 )
 
@@ -70,10 +70,10 @@ func buildCommand(params *Params, settings *Settings) (*Job, error) {
 	filesTemplates := make(map[string]*filesTemplate)
 
 	filterParams := filters.Params{
-		Glob:      params.Glob,
-		Exclude:   params.Exclude,
-		Root:      params.Root,
-		FileTypes: params.FileTypes,
+		Glob:         params.Glob,
+		ExcludeFiles: params.ExcludeFiles,
+		Root:         params.Root,
+		FileTypes:    params.FileTypes,
 	}
 	for filesType, fn := range filesFns {
 		cnt := strings.Count(params.Run, filesType)

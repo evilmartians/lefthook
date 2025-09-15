@@ -33,10 +33,10 @@ const (
 )
 
 type Params struct {
-	Glob      []string
-	Root      string
-	FileTypes []string
-	Exclude   interface{}
+	Glob         []string
+	Root         string
+	FileTypes    []string
+	ExcludeFiles interface{}
 }
 
 func Apply(fs afero.Fs, files []string, params Params) []string {
@@ -48,7 +48,7 @@ func Apply(fs afero.Fs, files []string, params Params) []string {
 		Add("filtered [ ]: ", files)
 
 	files = byGlob(files, params.Glob)
-	files = byExclude(files, params.Exclude)
+	files = byExclude(files, params.ExcludeFiles)
 	files = byRoot(files, params.Root)
 	files = byType(fs, files, params.FileTypes)
 
