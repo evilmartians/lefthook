@@ -4,34 +4,26 @@ about: Found something broken? Let us know! If it's not yet reproducible, please
 labels: 'bug'
 ---
 
-### :wrench: Summary
+### Description
 
-<!-- A brief summary of the problem. -->
+
+
+### `lefthook.yml`
+
+<!-- If the bug relates to some configuration options, please provide a config example -->
+
+### Commands to reproduce
+
+<!-- Don't forget to enable verbose logs. -->
+```bash
+export LEFTHOOK_VERBOSE=true
+```
 
 ### Lefthook version
 
-<!-- The result of `lefthook version -f` -->
+<!-- `lefthook version -f` -->
 
-### Steps to reproduce
+### Possible solution
 
-<!-- All bug reports should include detailed steps to reproduce -->
+<!-- Your ideas -->
 
-### Expected results
-
-<!-- Outline what you expected to see -->
-
-### Actual results
-
-<!-- Outline the actual results -->
-
-### Possible Solution
-
-<!--- Optionally suggest a fix or reason for the bug -->
-
-### Logs / Screenshots
-
-<!--- If the error can be reproduced via GUI or CLI command, please send the logs. Make sure you have set LEFTHOOK_VERBOSE=true before running the command -->
-
-```bash
-LEFTHOOK_VERBOSE=true git ...
-```
