@@ -1,4 +1,4 @@
-package jobs
+package command
 
 import (
 	"fmt"
@@ -22,14 +22,14 @@ type filesTemplate struct {
 	cnt   int
 }
 
-func buildCommand(params *Params, settings *Settings) ([]string, []string, error) {
+func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 	if err := params.validateCommand(); err != nil {
 		return nil, nil, err
 	}
 
 	filesCmd := params.FilesCmd
 	if len(filesCmd) > 0 {
-		filesCmd = replacePositionalArguments(filesCmd, settings.GitArgs)
+		filesCmd = replacePositionalArguments(filesCmd, b.opts.GitArgs)
 	}
 
 	var stagedFiles func() ([]string, error)
@@ -38,17 +38,17 @@ func buildCommand(params *Params, settings *Settings) ([]string, []string, error
 	var allFiles func() ([]string, error)
 	var cmdFiles func() ([]string, error)
 
-	if len(settings.ForceFiles) > 0 {
-		stagedFiles = func() ([]string, error) { return settings.ForceFiles, nil }
+	if len(b.opts.ForceFiles) > 0 {
+		stagedFiles = func() ([]string, error) { return b.opts.ForceFiles, nil }
 		stagedFilesWithDeleted = stagedFiles
 		pushFiles = stagedFiles
 		allFiles = stagedFiles
 		cmdFiles = stagedFiles
 	} else {
-		stagedFiles = settings.Repo.StagedFiles
-		stagedFilesWithDeleted = settings.Repo.StagedFilesWithDeleted
-		pushFiles = settings.Repo.PushFiles
-		allFiles = settings.Repo.AllFiles
+		stagedFiles = b.git.StagedFiles
+		stagedFilesWithDeleted = b.git.StagedFilesWithDeleted
+		pushFiles = b.git.PushFiles
+		allFiles = b.git.AllFiles
 		cmdFiles = func() ([]string, error) {
 			var cmd []string
 			if runtime.GOOS == "windows" {
@@ -56,7 +56,7 @@ func buildCommand(params *Params, settings *Settings) ([]string, []string, error
 			} else {
 				cmd = []string{"sh", "-c", filesCmd}
 			}
-			return settings.Repo.FindExistingFiles(cmd, params.Root)
+			return b.git.FindExistingFiles(cmd, params.Root)
 		}
 	}
 
@@ -89,8 +89,8 @@ func buildCommand(params *Params, settings *Settings) ([]string, []string, error
 			return nil, nil, fmt.Errorf("error replacing %s: %w", filesType, err)
 		}
 
-		files = filters.Apply(settings.Repo.Fs, files, filterParams)
-		if !settings.Force && len(files) == 0 {
+		files = filters.Apply(b.git.Fs, files, filterParams)
+		if !b.opts.Force && len(files) == 0 {
 			return nil, nil, SkipError{"no files for inspection"}
 		}
 
@@ -100,13 +100,13 @@ func buildCommand(params *Params, settings *Settings) ([]string, []string, error
 	// Checking substitutions and skipping execution if it is empty.
 	//
 	// Special case for `files` option: return if the result of files command is empty.
-	if !settings.Force && len(filesCmd) > 0 && filesTemplates[config.SubFiles] == nil {
+	if !b.opts.Force && len(filesCmd) > 0 && filesTemplates[config.SubFiles] == nil {
 		files, err := filesFns[config.SubFiles]()
 		if err != nil {
 			return nil, nil, fmt.Errorf("error calling replace command for %s: %w", config.SubFiles, err)
 		}
 
-		files = filters.Apply(settings.Repo.Fs, files, filterParams)
+		files = filters.Apply(b.git.Fs, files, filterParams)
 
 		if len(files) == 0 {
 			return nil, nil, SkipError{"no files for inspection"}
@@ -114,9 +114,9 @@ func buildCommand(params *Params, settings *Settings) ([]string, []string, error
 	}
 
 	runString := params.Run
-	runString = replacePositionalArguments(runString, settings.GitArgs)
+	runString = replacePositionalArguments(runString, b.opts.GitArgs)
 
-	for keyword, replacement := range settings.Templates {
+	for keyword, replacement := range b.opts.Templates {
 		runString = strings.ReplaceAll(runString, "{"+keyword+"}", replacement)
 	}
 
@@ -125,12 +125,12 @@ func buildCommand(params *Params, settings *Settings) ([]string, []string, error
 	maxlen := system.MaxCmdLen()
 	commands, files := replaceInChunks(runString, filesTemplates, maxlen)
 
-	if settings.Force || len(files) != 0 {
+	if b.opts.Force || len(files) != 0 {
 		return commands, files, nil
 	}
 
-	if config.HookUsesStagedFiles(settings.HookName) {
-		ok, err := canSkipJob(settings, filterParams, filesTemplates[config.SubStagedFiles], stagedFilesWithDeleted)
+	if config.HookUsesStagedFiles(b.opts.HookName) {
+		ok, err := b.canSkipJob(filterParams, filesTemplates[config.SubStagedFiles], stagedFilesWithDeleted)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -139,8 +139,8 @@ func buildCommand(params *Params, settings *Settings) ([]string, []string, error
 		}
 	}
 
-	if config.HookUsesPushFiles(settings.HookName) {
-		ok, err := canSkipJob(settings, filterParams, filesTemplates[config.SubPushFiles], pushFiles)
+	if config.HookUsesPushFiles(b.opts.HookName) {
+		ok, err := b.canSkipJob(filterParams, filesTemplates[config.SubPushFiles], pushFiles)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -152,7 +152,7 @@ func buildCommand(params *Params, settings *Settings) ([]string, []string, error
 	return commands, files, nil
 }
 
-func canSkipJob(settings *Settings, filterParams filters.Params, template *filesTemplate, filesFn func() ([]string, error)) (bool, error) {
+func (b *Builder) canSkipJob(filterParams filters.Params, template *filesTemplate, filesFn func() ([]string, error)) (bool, error) {
 	if template != nil {
 		return len(template.files) == 0, nil
 	}
@@ -161,7 +161,7 @@ func canSkipJob(settings *Settings, filterParams filters.Params, template *files
 	if err != nil {
 		return false, fmt.Errorf("error getting files: %w", err)
 	}
-	if len(filters.Apply(settings.Repo.Fs, files, filterParams)) == 0 {
+	if len(filters.Apply(b.git.Fs, files, filterParams)) == 0 {
 		return true, nil
 	}
 

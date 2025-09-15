@@ -1,4 +1,4 @@
-package jobs
+package command
 
 import (
 	"github.com/evilmartians/lefthook/internal/config"
@@ -7,7 +7,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/system"
 )
 
-type Params struct {
+type JobParams struct {
 	Name         string
 	Run          string
 	Root         string
@@ -22,8 +22,7 @@ type Params struct {
 	Skip         interface{}
 }
 
-type Settings struct {
-	Repo        *git.Repository
+type BuilderOptions struct {
 	HookName    string
 	ExcludeTags []string
 	GitArgs     []string
@@ -34,40 +33,53 @@ type Settings struct {
 	Force       bool
 }
 
-func Build(params *Params, settings *Settings) ([]string, []string, error) {
-	if reason := settings.skipReason(params); len(reason) > 0 {
+type Builder struct {
+	git  *git.Repository
+	opts BuilderOptions
+}
+
+func NewBuilder(repo *git.Repository, opts BuilderOptions) *Builder {
+	return &Builder{
+		git:  repo,
+		opts: opts,
+	}
+}
+
+// BuildCommands returns the list of commands and the list of files touched by the command.
+func (b *Builder) BuildCommands(params *JobParams) ([]string, []string, error) {
+	if reason := b.skipReason(params); len(reason) > 0 {
 		return nil, nil, SkipError{reason}
 	}
 
 	if len(params.Run) != 0 {
-		return buildCommand(params, settings)
+		return b.buildCommand(params)
 	} else {
-		return buildScript(params, settings)
+		return b.buildScript(params)
 	}
 }
 
-func (s *Settings) skipReason(params *Params) string {
+func (b *Builder) skipReason(params *JobParams) string {
 	skipChecker := config.NewSkipChecker(system.Cmd)
-	if skipChecker.Check(s.Repo.State, params.Skip, params.Only) {
+	if skipChecker.Check(b.git.State, params.Skip, params.Only) {
 		return "by condition"
 	}
 
-	if len(s.OnlyTags) > 0 && !utils.Intersect(s.OnlyTags, params.Tags) {
+	if len(b.opts.OnlyTags) > 0 && !utils.Intersect(b.opts.OnlyTags, params.Tags) {
 		return "tags"
 	}
 
-	if utils.Intersect(s.ExcludeTags, params.Tags) {
+	if utils.Intersect(b.opts.ExcludeTags, params.Tags) {
 		return "tags"
 	}
 
-	if utils.Intersect(s.ExcludeTags, []string{params.Name}) {
+	if utils.Intersect(b.opts.ExcludeTags, []string{params.Name}) {
 		return "name"
 	}
 
 	return ""
 }
 
-func (p *Params) validateCommand() error {
+func (p *JobParams) validateCommand() error {
 	if !config.IsRunFilesCompatible(p.Run) {
 		return config.ErrFilesIncompatible
 	}
@@ -75,6 +87,6 @@ func (p *Params) validateCommand() error {
 	return nil
 }
 
-func (p *Params) validateScript() error {
+func (p *JobParams) validateScript() error {
 	return nil
 }

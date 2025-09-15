@@ -1,4 +1,4 @@
-package jobs
+package command
 
 // SkipError implements error interface but indicates that the execution needs to be skipped.
 type SkipError struct {
