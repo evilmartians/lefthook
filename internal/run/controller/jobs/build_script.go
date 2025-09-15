@@ -24,9 +24,9 @@ func (s scriptNotExistsError) Error() string {
 	return fmt.Sprintf("script does not exist: %s", s.scriptPath)
 }
 
-func buildScript(params *Params, settings *Settings) (*Job, error) {
+func buildScript(params *Params, settings *Settings) ([]string, []string, error) {
 	if err := params.validateScript(); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	var scriptExists bool
@@ -40,21 +40,21 @@ func buildScript(params *Params, settings *Settings) (*Job, error) {
 		}
 		if err != nil {
 			log.Errorf("Failed to get info about a script: %s", params.Script)
-			return nil, err
+			return nil, nil, err
 		}
 
 		scriptExists = true
 
 		if !fileInfo.Mode().IsRegular() {
 			log.Debugf("[lefthook] script '%s' is not a regular file, skipping", scriptPath)
-			return nil, SkipError{"not a regular file"}
+			return nil, nil, SkipError{"not a regular file"}
 		}
 
 		// Make sure file is executable
 		if (fileInfo.Mode() & executableMask) == 0 {
 			if err := settings.Repo.Fs.Chmod(scriptPath, executableFileMode); err != nil {
 				log.Errorf("Couldn't change file mode to make file executable: %s", err)
-				return nil, err
+				return nil, nil, err
 			}
 		}
 
@@ -70,11 +70,8 @@ func buildScript(params *Params, settings *Settings) (*Job, error) {
 	}
 
 	if !scriptExists {
-		return nil, scriptNotExistsError{params.Script}
+		return nil, nil, scriptNotExistsError{params.Script}
 	}
 
-	return &Job{
-		Execs: execs,
-		Files: []string{},
-	}, nil
+	return execs, nil, nil
 }

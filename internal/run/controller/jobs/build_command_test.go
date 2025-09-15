@@ -66,11 +66,15 @@ func Test_getNChars(t *testing.T) {
 }
 
 func Test_replaceInChunks(t *testing.T) {
+	type result struct {
+		commands []string
+		files    []string
+	}
 	for i, tt := range [...]struct {
 		str       string
 		templates map[string]*filesTemplate
 		maxlen    int
-		job       *Job
+		result    result
 	}{
 		{
 			str: "echo {staged_files}",
@@ -81,9 +85,9 @@ func Test_replaceInChunks(t *testing.T) {
 				},
 			},
 			maxlen: 300,
-			job: &Job{
-				Execs: []string{"echo file1 file2 file3"},
-				Files: []string{"file1", "file2", "file3"},
+			result: result{
+				commands: []string{"echo file1 file2 file3"},
+				files:    []string{"file1", "file2", "file3"},
 			},
 		},
 		{
@@ -95,13 +99,13 @@ func Test_replaceInChunks(t *testing.T) {
 				},
 			},
 			maxlen: 10,
-			job: &Job{
-				Execs: []string{
+			result: result{
+				commands: []string{
 					"echo file1",
 					"echo file2",
 					"echo file3",
 				},
-				Files: []string{"file1", "file2", "file3"},
+				files: []string{"file1", "file2", "file3"},
 			},
 		},
 		{
@@ -113,12 +117,12 @@ func Test_replaceInChunks(t *testing.T) {
 				},
 			},
 			maxlen: 49, // (49 - 17(len of command without templates)) / 2 = 16, but we need 17 (3 words + 2 spaces)
-			job: &Job{
-				Execs: []string{
+			result: result{
+				commands: []string{
 					"echo file1 file2 && git add file1 file2",
 					"echo file3 && git add file3",
 				},
-				Files: []string{"file1", "file2", "file3"},
+				files: []string{"file1", "file2", "file3"},
 			},
 		},
 		{
@@ -130,11 +134,11 @@ func Test_replaceInChunks(t *testing.T) {
 				},
 			},
 			maxlen: 51,
-			job: &Job{
-				Execs: []string{
+			result: result{
+				commands: []string{
 					"echo file1 file2 file3 && git add file1 file2 file3",
 				},
-				Files: []string{"file1", "file2", "file3"},
+				files: []string{"file1", "file2", "file3"},
 			},
 		},
 		{
@@ -150,12 +154,12 @@ func Test_replaceInChunks(t *testing.T) {
 				},
 			},
 			maxlen: 10,
-			job: &Job{
-				Execs: []string{
+			result: result{
+				commands: []string{
 					"echo push-file && git add file1",
 					"echo push-file && git add file2",
 				},
-				Files: []string{"push-file", "file1", "file2"},
+				files: []string{"push-file", "file1", "file2"},
 			},
 		},
 		{
@@ -171,22 +175,22 @@ func Test_replaceInChunks(t *testing.T) {
 				},
 			},
 			maxlen: 27,
-			job: &Job{
-				Execs: []string{
+			result: result{
+				commands: []string{
 					"echo push1 && git add file1",
 					"echo push2 && git add file2",
 					"echo push3 && git add file2",
 				},
-				Files: []string{"push1", "push2", "push3", "file1", "file2"},
+				files: []string{"push1", "push2", "push3", "file1", "file2"},
 			},
 		},
 	} {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			assert := assert.New(t)
-			job := replaceInChunks(tt.str, tt.templates, tt.maxlen)
+			commands, files := replaceInChunks(tt.str, tt.templates, tt.maxlen)
 
-			assert.ElementsMatch(job.Files, tt.job.Files)
-			assert.Equal(job.Execs, tt.job.Execs)
+			assert.ElementsMatch(files, tt.result.files)
+			assert.Equal(commands, tt.result.commands)
 		})
 	}
 }

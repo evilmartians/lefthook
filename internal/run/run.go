@@ -14,6 +14,5 @@ var ErrFailOnChanges = controller.ErrFailOnChanges
 type Options = controller.Options
 
 func Run(ctx context.Context, hook *config.Hook, repo *git.Repository, opts Options) ([]result.Result, error) {
-	c := controller.NewController(repo)
-	return c.RunHook(ctx, opts, hook)
+	return controller.NewController(repo).RunHook(ctx, opts, hook)
 }

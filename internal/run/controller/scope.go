@@ -3,14 +3,12 @@ package controller
 import (
 	"maps"
 	"slices"
-	"sync/atomic"
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/run/controller/utils"
 )
 
 type scope struct {
-	failed *atomic.Bool
 	follow bool
 
 	glob         []string
@@ -26,7 +24,6 @@ type scope struct {
 }
 
 func newScope(hook *config.Hook, opts Options) *scope {
-	var failed atomic.Bool
 	var excludeFiles []interface{}
 	if len(opts.ExcludeFiles) > 0 {
 		excludeFiles = make([]interface{}, len(opts.ExcludeFiles))
@@ -41,7 +38,6 @@ func newScope(hook *config.Hook, opts Options) *scope {
 		filesCmd:     hook.Files,
 		excludeTags:  hook.ExcludeTags,
 		excludeFiles: excludeFiles,
-		failed:       &failed,
 		env:          make(map[string]string),
 		opts:         opts,
 	}

@@ -72,25 +72,25 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 	startTime := time.Now()
 
 	name := job.PrintableName(id)
-
 	root := utils.FirstNonBlank(job.Root, scope.root)
 	glob := slices.Concat(scope.glob, job.Glob)
 	excludeFiles := joinInterfaces(job.Exclude, scope.excludeFiles)
 	tags := slices.Concat(job.Tags, scope.tags)
 	filesCmd := utils.FirstNonBlank(job.Files, scope.filesCmd)
-	executionJob, err := jobs.Build(&jobs.Params{
+
+	commands, files, err := jobs.Build(&jobs.Params{
 		Name:         name,
 		Run:          job.Run,
-		Root:         root,
 		Runner:       job.Runner,
 		Script:       job.Script,
-		Glob:         glob,
-		FilesCmd:     filesCmd,
 		FileTypes:    job.FileTypes,
-		Tags:         tags,
-		ExcludeFiles: excludeFiles,
 		Only:         job.Only,
 		Skip:         job.Skip,
+		Root:         root,
+		Glob:         glob,
+		FilesCmd:     filesCmd,
+		Tags:         tags,
+		ExcludeFiles: excludeFiles,
 	}, &jobs.Settings{
 		Repo:        c.git,
 		HookName:    scope.hookName,
@@ -110,7 +110,6 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 			return result.Skip(name)
 		}
 
-		scope.failed.Store(true)
 		return result.Failure(name, err.Error(), time.Since(startTime))
 	}
 
@@ -120,7 +119,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 		Exec: exec.Options{
 			Name:        strings.Join(append(scope.names, name), " ❯ "),
 			Root:        filepath.Join(c.git.RootPath, root),
-			Commands:    executionJob.Execs,
+			Commands:    commands,
 			Interactive: job.Interactive && !scope.opts.DisableTTY,
 			UseStdin:    job.UseStdin,
 			Env:         env,
@@ -132,13 +131,10 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 	executionTime := time.Since(startTime)
 
 	if !ok {
-		scope.failed.Store(true)
 		return result.Failure(name, job.FailText, executionTime)
 	}
 
 	if config.HookUsesStagedFiles(scope.hookName) && job.StageFixed {
-		files := executionJob.Files
-
 		if len(files) == 0 {
 			var err error
 			files, err = c.git.StagedFiles()

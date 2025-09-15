@@ -34,29 +34,16 @@ type Settings struct {
 	Force       bool
 }
 
-type Job struct {
-	Execs []string
-	Files []string
-}
-
-func Build(params *Params, settings *Settings) (*Job, error) {
+func Build(params *Params, settings *Settings) ([]string, []string, error) {
 	if reason := settings.skipReason(params); len(reason) > 0 {
-		return nil, SkipError{reason}
+		return nil, nil, SkipError{reason}
 	}
 
-	var err error
-	var job *Job
 	if len(params.Run) != 0 {
-		job, err = buildCommand(params, settings)
+		return buildCommand(params, settings)
 	} else {
-		job, err = buildScript(params, settings)
+		return buildScript(params, settings)
 	}
-
-	if err != nil {
-		return nil, err
-	}
-
-	return job, nil
 }
 
 func (s *Settings) skipReason(params *Params) string {
