@@ -161,7 +161,7 @@ func (r *Repository) Setup() {
 	})
 
 	r.statusShortOnce = sync.OnceValues(func() ([]string, error) {
-		return r.Git.WithoutTrim().CmdLines(cmdStatusShort)
+		return r.statusShort()
 	})
 
 	r.stateOnce = sync.OnceValue(func() State {
@@ -221,14 +221,16 @@ func (r *Repository) PushFiles() ([]string, error) {
 func (r *Repository) PartiallyStagedFiles() ([]string, error) {
 	partiallyStaged := make([]string, 0)
 
-	err := r.parseStatusShort(func(path string, index, worktree byte) {
+	lines, err := r.statusShortOnce()
+	if err != nil {
+		return nil, err
+	}
+
+	r.parseStatusShort(lines, func(path string, index, worktree byte) {
 		if index != ' ' && index != '?' && worktree != ' ' && worktree != '?' {
 			partiallyStaged = append(partiallyStaged, path)
 		}
 	})
-	if err != nil {
-		return nil, err
-	}
 
 	return partiallyStaged, nil
 }
@@ -374,7 +376,12 @@ func (r *Repository) Changeset() (map[string]string, error) {
 	changeset := make(map[string]string)
 	pathsToHash := make([]string, 0)
 
-	err := r.parseStatusShort(func(path string, index, worktree byte) {
+	lines, err := r.statusShort()
+	if err != nil {
+		return nil, err
+	}
+
+	r.parseStatusShort(lines, func(path string, index, worktree byte) {
 		if index == 'D' || worktree == 'D' {
 			changeset[path] = "deleted"
 			return
@@ -382,9 +389,6 @@ func (r *Repository) Changeset() (map[string]string, error) {
 
 		pathsToHash = append(pathsToHash, path)
 	})
-	if err != nil {
-		return nil, err
-	}
 
 	if len(pathsToHash) == 0 {
 		return changeset, nil
@@ -403,12 +407,11 @@ func (r *Repository) Changeset() (map[string]string, error) {
 	return changeset, nil
 }
 
-func (r *Repository) parseStatusShort(cb func(path string, index, worktree byte)) error {
-	lines, err := r.statusShortOnce()
-	if err != nil {
-		return err
-	}
+func (r *Repository) statusShort() ([]string, error) {
+	return r.Git.WithoutTrim().CmdLines(cmdStatusShort)
+}
 
+func (r *Repository) parseStatusShort(lines []string, cb func(path string, index, worktree byte)) {
 	for _, line := range lines {
 		if len(line) < minStatusLen {
 			continue
@@ -426,8 +429,6 @@ func (r *Repository) parseStatusShort(cb func(path string, index, worktree byte)
 
 		cb(path, line[0], line[1])
 	}
-
-	return nil
 }
 
 // FindAllFiles accepts git command and returns its result as a list of filepaths.
