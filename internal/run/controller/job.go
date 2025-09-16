@@ -11,8 +11,8 @@ import (
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/internal/run/controller/command"
 	"github.com/evilmartians/lefthook/internal/run/controller/filters"
-	"github.com/evilmartians/lefthook/internal/run/controller/jobs"
 	"github.com/evilmartians/lefthook/internal/run/controller/utils"
 	"github.com/evilmartians/lefthook/internal/run/exec"
 	"github.com/evilmartians/lefthook/internal/run/result"
@@ -78,7 +78,17 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 	tags := slices.Concat(job.Tags, scope.tags)
 	filesCmd := utils.FirstNonBlank(job.Files, scope.filesCmd)
 
-	commands, files, err := jobs.Build(&jobs.Params{
+	builder := command.NewBuilder(c.git, command.BuilderOptions{
+		HookName:    scope.hookName,
+		ExcludeTags: scope.excludeTags,
+		ForceFiles:  scope.opts.Files,
+		Force:       scope.opts.Force,
+		SourceDirs:  scope.opts.SourceDirs,
+		GitArgs:     scope.opts.GitArgs,
+		OnlyTags:    scope.opts.RunOnlyTags,
+		Templates:   scope.opts.Templates,
+	})
+	commands, files, err := builder.BuildCommands(&command.JobParams{
 		Name:         name,
 		Run:          job.Run,
 		Runner:       job.Runner,
@@ -91,21 +101,11 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 		FilesCmd:     filesCmd,
 		Tags:         tags,
 		ExcludeFiles: excludeFiles,
-	}, &jobs.Settings{
-		Repo:        c.git,
-		HookName:    scope.hookName,
-		ExcludeTags: scope.excludeTags,
-		ForceFiles:  scope.opts.Files,
-		Force:       scope.opts.Force,
-		SourceDirs:  scope.opts.SourceDirs,
-		GitArgs:     scope.opts.GitArgs,
-		OnlyTags:    scope.opts.RunOnlyTags,
-		Templates:   scope.opts.Templates,
 	})
 	if err != nil {
 		log.Skip(name, err.Error())
 
-		var skipErr jobs.SkipError
+		var skipErr command.SkipError
 		if errors.As(err, &skipErr) {
 			return result.Skip(name)
 		}
