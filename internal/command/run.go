@@ -32,6 +32,7 @@ type RunArgs struct {
 	FilesFromStdin  bool
 	Force           bool
 	NoAutoInstall   bool
+	NoStageFixed    bool
 	SkipLFS         bool
 	Verbose         bool
 	FailOnChanges   bool
@@ -148,6 +149,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		ExcludeFiles:  args.Exclude,
 		Files:         args.Files,
 		Force:         args.Force,
+		NoStageFixed:  args.NoStageFixed,
 		RunOnlyJobs:   args.RunOnlyJobs,
 		RunOnlyTags:   args.RunOnlyTags,
 		SourceDirs:    sourceDirs,

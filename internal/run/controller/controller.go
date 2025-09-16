@@ -37,6 +37,7 @@ type Options struct {
 	FailOnChanges bool
 	Force         bool
 	SkipLFS       bool
+	NoStageFixed  bool
 }
 
 func NewController(repo *git.Repository) *Controller {
