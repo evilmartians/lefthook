@@ -1,7 +1,6 @@
-package run
+package controller
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"io"
@@ -12,7 +11,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/goccy/go-yaml"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
@@ -21,6 +19,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/run/exec"
 	"github.com/evilmartians/lefthook/internal/run/result"
 	"github.com/evilmartians/lefthook/internal/system"
+	"github.com/evilmartians/lefthook/tests/helpers"
 )
 
 type (
@@ -113,13 +112,13 @@ func TestRunAll(t *testing.T) {
 	}{
 		"empty hook": {
 			hookName: "post-commit",
-			hook: h(`
+			hook: helpers.ParseHook(`
         piped: true
       `),
 		},
 		"with simple command": {
 			hookName: "post-commit",
-			hook: h(`
+			hook: helpers.ParseHook(`
         jobs:
           - name: test
             run: success
@@ -128,7 +127,7 @@ func TestRunAll(t *testing.T) {
 		},
 		"with simple command in follow mode": {
 			hookName: "post-commit",
-			hook: h(`
+			hook: helpers.ParseHook(`
         follow: true
         jobs:
           - name: test
@@ -138,7 +137,7 @@ func TestRunAll(t *testing.T) {
 		},
 		"with multiple commands ran in parallel": {
 			hookName: "post-commit",
-			hook: h(`
+			hook: helpers.ParseHook(`
         jobs:
           - name: test
             run: success
@@ -155,7 +154,7 @@ func TestRunAll(t *testing.T) {
 		},
 		"with exclude tags": {
 			hookName: "post-commit",
-			hook: h(`
+			hook: helpers.ParseHook(`
         exclude_tags: [test, formatter]
         jobs:
           - name: test
@@ -169,7 +168,7 @@ func TestRunAll(t *testing.T) {
 		},
 		"with skip=true": {
 			hookName: "post-commit",
-			hook: h(`
+			hook: helpers.ParseHook(`
         jobs:
           - name: test
             run: success
@@ -184,7 +183,7 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(gitPath, "MERGE_HEAD"),
 			},
-			hook: h(`
+			hook: helpers.ParseHook(`
         jobs:
           - name: test
             run: success
@@ -199,7 +198,7 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(gitPath, "MERGE_HEAD"),
 			},
-			hook: h(`
+			hook: helpers.ParseHook(`
         jobs:
           - name: test
             run: success
@@ -214,7 +213,7 @@ func TestRunAll(t *testing.T) {
 		},
 		"with only=merge no match": {
 			hookName: "post-commit",
-			hook: h(`
+			hook: helpers.ParseHook(`
         jobs:
           - name: test
             run: success
@@ -230,7 +229,7 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(gitPath, "MERGE_HEAD"),
 			},
-			hook: h(`
+			hook: helpers.ParseHook(`
         skip: merge
         jobs:
           - name: test
@@ -242,7 +241,7 @@ func TestRunAll(t *testing.T) {
 		},
 		"with hook's only=merge no match": {
 			hookName: "post-commit",
-			hook: h(`
+			hook: helpers.ParseHook(`
         only: merge
         jobs:
           - name: test
@@ -258,7 +257,7 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(gitPath, "MERGE_HEAD"),
 			},
-			hook: h(`
+			hook: helpers.ParseHook(`
         only: merge
         jobs:
           - name: test
@@ -277,7 +276,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "rebase-merge"),
 				filepath.Join(gitPath, "rebase-apply"),
 			},
-			hook: h(`
+			hook: helpers.ParseHook(`
         jobs:
           - name: test
             run: success
@@ -295,7 +294,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "HEAD"),
 			},
 			hookName: "post-commit",
-			hook: h(`
+			hook: helpers.ParseHook(`
         skip:
           - merge
           - ref: main
@@ -314,7 +313,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "HEAD"),
 			},
 			hookName: "post-commit",
-			hook: h(`
+			hook: helpers.ParseHook(`
         only:
           - merge
           - ref: main
@@ -336,7 +335,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "HEAD"),
 			},
 			hookName: "post-commit",
-			hook: h(`
+			hook: helpers.ParseHook(`
         only:
           - merge
           - ref: main
@@ -355,7 +354,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "HEAD"),
 			},
 			hookName: "post-commit",
-			hook: h(`
+			hook: helpers.ParseHook(`
         skip:
           - merge
           - ref: main
@@ -373,7 +372,7 @@ func TestRunAll(t *testing.T) {
 		},
 		"with fail": {
 			hookName: "post-commit",
-			hook: h(`
+			hook: helpers.ParseHook(`
         jobs:
           - name: test
             run: fail
@@ -388,7 +387,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, config.DefaultSourceDir, "post-commit", "failing.js"),
 			},
 			hookName: "post-commit",
-			hook: h(`
+			hook: helpers.ParseHook(`
         jobs:
           - script: "script.sh"
             runner: success
@@ -407,7 +406,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "MERGE_HEAD"),
 			},
 			hookName: "post-commit",
-			hook: h(`
+			hook: helpers.ParseHook(`
         jobs:
           - script: "script.sh"
             runner: success
@@ -427,7 +426,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, config.DefaultSourceDir, "post-commit", "failing.js"),
 			},
 			hookName: "post-commit",
-			hook: h(`
+			hook: helpers.ParseHook(`
         jobs:
           - script: "script.sh"
             runner: success
@@ -448,7 +447,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, config.DefaultSourceDir, "post-commit", "failing.js"),
 			},
 			hookName: "post-commit",
-			hook: h(`
+			hook: helpers.ParseHook(`
         parallel: true
         jobs:
           - name: ok
@@ -472,7 +471,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, config.DefaultSourceDir, "post-commit", "failing.js"),
 			},
 			hookName: "post-commit",
-			hook: h(`
+			hook: helpers.ParseHook(`
         jobs:
           - name: ok
             run: success
@@ -499,7 +498,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, "scripts", "script.sh"),
 				filepath.Join(root, "README.md"),
 			},
-			hook: h(`
+			hook: helpers.ParseHook(`
         jobs:
           - name: ok
             run: success
@@ -529,7 +528,7 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(root, "README.md"),
 			},
-			hook: h(`
+			hook: helpers.ParseHook(`
         jobs:
           - name: ok
             run: success
@@ -555,7 +554,7 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(root, "README.md"),
 			},
-			hook: h(`
+			hook: helpers.ParseHook(`
         jobs:
           - name: ok
             run: success
@@ -604,7 +603,7 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(root, "README.md"),
 			},
-			hook: h(`
+			hook: helpers.ParseHook(`
         jobs:
           - name: ok
             run: success
@@ -629,7 +628,7 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(root, "README.md"),
 			},
-			hook: h(`
+			hook: helpers.ParseHook(`
         jobs:
           - name: ok
             run: success
@@ -640,15 +639,7 @@ func TestRunAll(t *testing.T) {
 		fs := afero.NewMemMapFs()
 		repo.Fs = fs
 		controller := &Controller{
-			Options: Options{
-				Repo:       repo,
-				Hook:       tt.hook,
-				HookName:   tt.hookName,
-				GitArgs:    tt.args,
-				Force:      tt.force,
-				SkipLFS:    tt.skipLFS,
-				SourceDirs: tt.sourceDirs,
-			},
+			git:      repo,
 			executor: executor{},
 			cmd:      cmd{},
 		}
@@ -668,7 +659,14 @@ func TestRunAll(t *testing.T) {
 			repo.Setup()
 			gitExec.reset()
 
-			results, err := controller.RunAll(t.Context())
+			opts := Options{
+				GitArgs:    tt.args,
+				Force:      tt.force,
+				SkipLFS:    tt.skipLFS,
+				SourceDirs: tt.sourceDirs,
+			}
+			tt.hook.Name = tt.hookName
+			results, err := controller.RunHook(t.Context(), opts, tt.hook)
 			assert.NoError(err)
 
 			var success, fail []result.Result
@@ -694,28 +692,4 @@ func TestRunAll(t *testing.T) {
 			}
 		})
 	}
-}
-
-func h(str string) *config.Hook {
-	str = strings.TrimRight(strings.Trim(str, "\n"), " \t")
-	cleanBuffer := new(bytes.Buffer)
-	var padding int
-	var paddingSet bool
-	for line := range strings.Lines(str) {
-		var cleanLine string
-		if !paddingSet {
-			cleanLine = strings.TrimLeft(line, " \t")
-			padding = len(line) - len(cleanLine)
-			paddingSet = true
-		} else {
-			cleanLine = line[padding:]
-		}
-		cleanBuffer.WriteString(cleanLine)
-	}
-	hook := config.Hook{}
-	err := yaml.Unmarshal(cleanBuffer.Bytes(), &hook)
-	if err != nil {
-		panic("Failed to parse test data: " + err.Error())
-	}
-	return &hook
 }

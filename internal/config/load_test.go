@@ -39,6 +39,7 @@ pre-commit:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name:     "pre-commit",
 						Parallel: false,
 						Commands: map[string]*Command{
 							"tests": {
@@ -64,6 +65,7 @@ pre-commit:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name:     "pre-commit",
 						Parallel: false,
 						Commands: map[string]*Command{
 							"tests": {
@@ -95,6 +97,7 @@ pre-commit:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name:     "pre-commit",
 						Parallel: false,
 						Commands: map[string]*Command{
 							"tests": {
@@ -126,6 +129,7 @@ post-commit:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name:     "pre-commit",
 						Parallel: false,
 						Commands: map[string]*Command{
 							"tests": {
@@ -134,6 +138,7 @@ post-commit:
 						},
 					},
 					"post-commit": {
+						Name:     "post-commit",
 						Parallel: false,
 						Commands: map[string]*Command{
 							"ping-done": {
@@ -194,6 +199,7 @@ pre-push:
 
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name:     "pre-commit",
 						Parallel: true,
 						Commands: map[string]*Command{
 							"tests": {
@@ -215,6 +221,7 @@ pre-push:
 						},
 					},
 					"pre-push": {
+						Name: "pre-push",
 						Commands: map[string]*Command{
 							"rubocop": {
 								Run:  "bundle exec rubocop",
@@ -246,6 +253,7 @@ pre-push:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"pre-push": {
+						Name: "pre-push",
 						Scripts: map[string]*Script{
 							"global-extend.sh": {
 								Runner: "bash",
@@ -279,6 +287,7 @@ pre-push:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"pre-push": {
+						Name: "pre-push",
 						Scripts: map[string]*Script{
 							"global-extend": {
 								Runner: "bash",
@@ -318,6 +327,7 @@ pre-push:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"pre-push": {
+						Name: "pre-push",
 						Scripts: map[string]*Script{
 							"global-extend": {
 								Runner: "bash",
@@ -350,6 +360,7 @@ lints:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"tests": {
+						Name:     "tests",
 						Parallel: false,
 						Commands: map[string]*Command{
 							"tests": {
@@ -358,6 +369,7 @@ lints:
 						},
 					},
 					"lints": {
+						Name: "lints",
 						Scripts: map[string]*Script{
 							"linter.sh": {
 								Runner: "bash",
@@ -391,6 +403,7 @@ lints:
 				Colors:         map[string]interface{}{"yellow": "#FFE4B5", "red": 196},
 				Hooks: map[string]*Hook{
 					"tests": {
+						Name:     "tests",
 						Parallel: false,
 						Commands: map[string]*Command{
 							"tests": {
@@ -399,6 +412,7 @@ lints:
 						},
 					},
 					"lints": {
+						Name: "lints",
 						Scripts: map[string]*Script{
 							"linter.sh": {
 								Runner: "bash",
@@ -436,6 +450,7 @@ pre-commit:
 				},
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name: "pre-commit",
 						Commands: map[string]*Command{
 							"lint": {
 								Run: "yarn lint",
@@ -497,6 +512,7 @@ pre-commit:
 				},
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name: "pre-commit",
 						Only: []interface{}{map[string]interface{}{"ref": "main"}},
 						Commands: map[string]*Command{
 							"lint": {
@@ -584,6 +600,7 @@ pre-push:
 				Extends: []string{"local-extend.yml"},
 				Hooks: map[string]*Hook{
 					"pre-push": {
+						Name: "pre-push",
 						Commands: map[string]*Command{
 							"global": {
 								Run: "echo global",
@@ -646,6 +663,7 @@ pre-commit:
 				Extends:        []string{"global-extend.yml"},
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name:        "pre-commit",
 						Parallel:    true,
 						ExcludeTags: []string{"backend"},
 						Commands: map[string]*Command{
@@ -699,6 +717,7 @@ pre-commit:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name:     "pre-commit",
 						Parallel: false,
 						Commands: map[string]*Command{
 							"a": {
@@ -734,6 +753,7 @@ pre-commit:
 				SourceDirLocal: ".lefthook-local",
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name: "pre-commit",
 						Jobs: []*Job{
 							{Run: "1"},
 							{Run: "local 2", Name: "second"},
@@ -783,6 +803,7 @@ pre-commit:
 				SourceDirLocal: ".lefthook-local",
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name: "pre-commit",
 						Jobs: []*Job{
 							{
 								Name: "group 1",
@@ -832,6 +853,7 @@ pre-commit:
 				SourceDirLocal: ".lefthook-local",
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name: "pre-commit",
 						Jobs: []*Job{
 							{
 								Name: "job 1",
@@ -862,6 +884,7 @@ pre-commit:
 				SourceDirLocal: ".lefthook-local",
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name: "pre-commit",
 						Jobs: []*Job{
 							{
 								Name: "job 1",
@@ -891,6 +914,7 @@ post-commit:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name:     "pre-commit",
 						Parallel: false,
 						Commands: map[string]*Command{
 							"tests": {
@@ -899,6 +923,7 @@ post-commit:
 						},
 					},
 					"post-commit": {
+						Name:     "post-commit",
 						Parallel: false,
 						Commands: map[string]*Command{
 							"ping-done": {
@@ -924,6 +949,7 @@ pre-commit:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name:     "pre-commit",
 						Parallel: false,
 						Commands: map[string]*Command{
 							"tests": {
@@ -950,6 +976,7 @@ pre-commit:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name:     "pre-commit",
 						Parallel: false,
 						Commands: map[string]*Command{
 							"tests": {
@@ -1025,6 +1052,7 @@ run = "echo 1"
 				SourceDirLocal: DefaultSourceDirLocal,
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name: "pre-commit",
 						Commands: map[string]*Command{
 							"echo": {
 								Run: "echo 1",
@@ -1156,6 +1184,7 @@ pre-commit:
 				},
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name: "pre-commit",
 						Only: []interface{}{map[string]interface{}{"ref": "main"}},
 						Commands: map[string]*Command{
 							"lint": {

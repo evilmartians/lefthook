@@ -8,6 +8,7 @@ import (
 const CMD = "{cmd}"
 
 type Hook struct {
+	Name          string      `json:"-"                         jsonschema:"-"                                                                 koanf:"-"                   mapstructure:"-"               toml:"-"                         yaml:"-"`
 	Parallel      bool        `json:"parallel,omitempty"        mapstructure:"parallel"                                                        toml:"parallel,omitempty"   yaml:",omitempty"`
 	Piped         bool        `json:"piped,omitempty"           mapstructure:"piped"                                                           toml:"piped,omitempty"      yaml:",omitempty"`
 	Follow        bool        `json:"follow,omitempty"          mapstructure:"follow"                                                          toml:"follow,omitempty"     yaml:",omitempty"`

@@ -10,7 +10,7 @@ import (
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/log"
-	"github.com/evilmartians/lefthook/internal/run/filters"
+	"github.com/evilmartians/lefthook/internal/run/controller/filters"
 	"github.com/evilmartians/lefthook/internal/system"
 )
 
@@ -22,15 +22,12 @@ type filesTemplate struct {
 	cnt   int
 }
 
-func buildCommand(params *Params, settings *Settings) (*Job, error) {
+func buildCommand(params *Params, settings *Settings) ([]string, []string, error) {
 	if err := params.validateCommand(); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	filesCmd := settings.Hook.Files
-	if len(params.Files) > 0 {
-		filesCmd = params.Files
-	}
+	filesCmd := params.FilesCmd
 	if len(filesCmd) > 0 {
 		filesCmd = replacePositionalArguments(filesCmd, settings.GitArgs)
 	}
@@ -73,10 +70,10 @@ func buildCommand(params *Params, settings *Settings) (*Job, error) {
 	filesTemplates := make(map[string]*filesTemplate)
 
 	filterParams := filters.Params{
-		Glob:      params.Glob,
-		Exclude:   params.Exclude,
-		Root:      params.Root,
-		FileTypes: params.FileTypes,
+		Glob:         params.Glob,
+		ExcludeFiles: params.ExcludeFiles,
+		Root:         params.Root,
+		FileTypes:    params.FileTypes,
 	}
 	for filesType, fn := range filesFns {
 		cnt := strings.Count(params.Run, filesType)
@@ -89,12 +86,12 @@ func buildCommand(params *Params, settings *Settings) (*Job, error) {
 
 		files, err := fn()
 		if err != nil {
-			return nil, fmt.Errorf("error replacing %s: %w", filesType, err)
+			return nil, nil, fmt.Errorf("error replacing %s: %w", filesType, err)
 		}
 
 		files = filters.Apply(settings.Repo.Fs, files, filterParams)
 		if !settings.Force && len(files) == 0 {
-			return nil, SkipError{"no files for inspection"}
+			return nil, nil, SkipError{"no files for inspection"}
 		}
 
 		templ.files = files
@@ -106,13 +103,13 @@ func buildCommand(params *Params, settings *Settings) (*Job, error) {
 	if !settings.Force && len(filesCmd) > 0 && filesTemplates[config.SubFiles] == nil {
 		files, err := filesFns[config.SubFiles]()
 		if err != nil {
-			return nil, fmt.Errorf("error calling replace command for %s: %w", config.SubFiles, err)
+			return nil, nil, fmt.Errorf("error calling replace command for %s: %w", config.SubFiles, err)
 		}
 
 		files = filters.Apply(settings.Repo.Fs, files, filterParams)
 
 		if len(files) == 0 {
-			return nil, SkipError{"no files for inspection"}
+			return nil, nil, SkipError{"no files for inspection"}
 		}
 	}
 
@@ -126,33 +123,33 @@ func buildCommand(params *Params, settings *Settings) (*Job, error) {
 	runString = strings.ReplaceAll(runString, "{lefthook_job_name}", shellescape.Quote(params.Name))
 
 	maxlen := system.MaxCmdLen()
-	result := replaceInChunks(runString, filesTemplates, maxlen)
+	commands, files := replaceInChunks(runString, filesTemplates, maxlen)
 
-	if settings.Force || len(result.Files) != 0 {
-		return result, nil
+	if settings.Force || len(files) != 0 {
+		return commands, files, nil
 	}
 
 	if config.HookUsesStagedFiles(settings.HookName) {
 		ok, err := canSkipJob(settings, filterParams, filesTemplates[config.SubStagedFiles], stagedFilesWithDeleted)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		if ok {
-			return nil, SkipError{"no matching staged files"}
+			return nil, nil, SkipError{"no matching staged files"}
 		}
 	}
 
 	if config.HookUsesPushFiles(settings.HookName) {
 		ok, err := canSkipJob(settings, filterParams, filesTemplates[config.SubPushFiles], pushFiles)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		if ok {
-			return nil, SkipError{"no matching push files"}
+			return nil, nil, SkipError{"no matching push files"}
 		}
 	}
 
-	return result, nil
+	return commands, files, nil
 }
 
 func canSkipJob(settings *Settings, filterParams filters.Params, template *filesTemplate, filesFn func() ([]string, error)) (bool, error) {
@@ -195,11 +192,9 @@ func escapeFiles(files []string) []string {
 	return filesEsc
 }
 
-func replaceInChunks(str string, templates map[string]*filesTemplate, maxlen int) *Job {
+func replaceInChunks(str string, templates map[string]*filesTemplate, maxlen int) ([]string, []string) {
 	if len(templates) == 0 {
-		return &Job{
-			Execs: []string{str},
-		}
+		return []string{str}, nil
 	}
 
 	var cnt int
@@ -243,10 +238,7 @@ func replaceInChunks(str string, templates map[string]*filesTemplate, maxlen int
 		}
 	}
 
-	return &Job{
-		Execs: commands,
-		Files: allFiles,
-	}
+	return commands, allFiles
 }
 
 func getNChars(s []string, n int) ([]string, []string) {
