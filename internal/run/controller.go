@@ -237,6 +237,7 @@ func (c *Controller) preHook() {
 
 func (c *Controller) postHook() error {
 	if c.FailOnChanges {
+		c.Repo.Setup() // Reset the cache to get an up-to-date git status
 		changesetAfter, err := c.Repo.Changeset()
 		if err != nil {
 			log.Warnf("Couldn't get changeset: %s\n", err)

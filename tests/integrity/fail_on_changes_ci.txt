@@ -1,0 +1,20 @@
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add .
+exec git commit -m "firstcommit"
+exec lefthook install
+
+# This should fail because README.md is modified and fail_on_changes is 'ci'
+! exec lefthook run pre-commit --all-files
+stdout '│  Error: files were modified by a hook, and fail_on_changes is enabled'
+
+-- README.md --
+This is a readme.
+
+-- lefthook.yml --
+pre-commit:
+  fail_on_changes: always
+  jobs:
+    - name: test-job
+      run: echo 123 >> README.md
