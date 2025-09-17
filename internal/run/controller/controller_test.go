@@ -16,7 +16,7 @@ import (
 
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
-	"github.com/evilmartians/lefthook/internal/run/exec"
+	"github.com/evilmartians/lefthook/internal/run/controller/exec"
 	"github.com/evilmartians/lefthook/internal/run/result"
 	"github.com/evilmartians/lefthook/internal/system"
 	"github.com/evilmartians/lefthook/tests/helpers"

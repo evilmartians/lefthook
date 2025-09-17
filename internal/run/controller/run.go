@@ -1,4 +1,4 @@
-package exec
+package controller
 
 import (
 	"bytes"
@@ -7,27 +7,21 @@ import (
 	"os"
 
 	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/internal/run/controller/exec"
 	"github.com/evilmartians/lefthook/internal/system"
 )
 
-type RunOptions struct {
-	Exec        Options
-	CachedStdin io.Reader
-	Follow      bool
-}
-
-func Run(ctx context.Context, executor Executor, opts *RunOptions) bool {
-	name := opts.Exec.Name
+func (c *Controller) run(ctx context.Context, name string, follow bool, opts exec.Options) bool {
 	log.SetName(name)
 	defer log.UnsetName(name)
 
 	// If the command does not explicitly `use_stdin` no input will be provided.
 	var in io.Reader = system.NullReader
-	if opts.Exec.UseStdin {
-		in = opts.CachedStdin
+	if opts.UseStdin {
+		in = c.cachedStdin
 	}
 
-	if (opts.Follow || opts.Exec.Interactive) && log.Settings.LogExecution() {
+	if (follow || opts.Interactive) && log.Settings.LogExecution() {
 		log.Execution(name, nil, nil)
 
 		var out io.Writer
@@ -37,14 +31,14 @@ func Run(ctx context.Context, executor Executor, opts *RunOptions) bool {
 			out = io.Discard
 		}
 
-		err := executor.Execute(ctx, opts.Exec, in, out)
+		err := c.executor.Execute(ctx, opts, in, out)
 
 		return err == nil
 	}
 
 	out := new(bytes.Buffer)
 
-	err := executor.Execute(ctx, opts.Exec, in, out)
+	err := c.executor.Execute(ctx, opts, in, out)
 
 	log.Execution(name, err, out)
 
