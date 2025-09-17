@@ -123,6 +123,11 @@ func (run) New(opts *command.Options) *cobra.Command {
 		"run only jobs with specified tags",
 	)
 
+	runCmd.Flags().BoolVar(
+		&runArgs.NoStageFixed, "no-stage-fixed", false,
+		"disable 'stage_fixed: true' setting",
+	)
+
 	err := runCmd.Flags().MarkDeprecated("files", "use --file flag instead")
 	if err != nil {
 		log.Warn("Unexpected error:", err)
