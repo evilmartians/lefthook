@@ -1,5 +1,16 @@
 # Change log
 
+## 1.13.1 (2025-09-17)
+
+- feat: add no stage fixed argument ([#1130](https://github.com/evilmartians/lefthook/pull/1130)) by [@mrexox]()
+- refactor: reduce the amount of code in a single file ([#1131](https://github.com/evilmartians/lefthook/pull/1131)) by [@mrexox]()
+- fix: re-evaluate status for changeset ([#1129](https://github.com/evilmartians/lefthook/pull/1129)) by [@mrexox]()
+- refactor: reduce the amount of code in a single file ([#1118](https://github.com/evilmartians/lefthook/pull/1118)) by [@mrexox]()
+- chore: update issue templates by [@mrexox](https://github.com/mrexox)
+- docs: add fail_on_changes to configuration/README.md ([#1119](https://github.com/evilmartians/lefthook/pull/1119)) by [@7crabs](https://github.com/7crabs)
+- docs: update go installation note ([#1117](https://github.com/evilmartians/lefthook/pull/1117)) by [@leakedmemory](https://github.com/leakedmemory)
+
+
 ## 1.13.0 (2025-09-11)
 
 - fix: use batched cmd for calculating git hashes ([#1116](https://github.com/evilmartians/lefthook/pull/1116)) by [@mrexox]()
