@@ -21,9 +21,9 @@ type guard struct {
 	changesetBefore      map[string]string
 }
 
-func newGuard(c *Controller, stashUnstagedChanges bool, failOnChanges bool) *guard {
+func newGuard(repo *git.Repository, stashUnstagedChanges bool, failOnChanges bool) *guard {
 	return &guard{
-		git:                  c.git,
+		git:                  repo,
 		stashUnstagedChanges: stashUnstagedChanges,
 		failOnChanges:        failOnChanges,
 	}

@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/git"
+	"github.com/evilmartians/lefthook/tests/helpers/git"
 )
 
 func TestLefthookUninstall(t *testing.T) {
@@ -18,13 +18,10 @@ func TestLefthookUninstall(t *testing.T) {
 	}
 
 	configPath := filepath.Join(root, "lefthook.yml")
-	gitPath := filepath.Join(root, ".git")
-	hooksPath := filepath.Join(gitPath, "hooks")
-	infoPath := filepath.Join(gitPath, "info")
-	checksumPath := filepath.Join(infoPath, config.ChecksumFileName)
+	checksumPath := filepath.Join(git.GitPath(root), "info", config.ChecksumFileName)
 
 	hookPath := func(hook string) string {
-		return filepath.Join(root, ".git", "hooks", hook)
+		return filepath.Join(git.GitPath(root), "hooks", hook)
 	}
 
 	for n, tt := range [...]struct {
@@ -103,14 +100,8 @@ func TestLefthookUninstall(t *testing.T) {
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			fs := afero.NewMemMapFs()
 			lefthook := &Lefthook{
-				fs: fs,
-				repo: &git.Repository{
-					Fs:        fs,
-					HooksPath: hooksPath,
-					RootPath:  root,
-					GitPath:   gitPath,
-					InfoPath:  infoPath,
-				},
+				fs:   fs,
+				repo: git.NewRepositoryBuilder().Fs(fs).Root(root).Build(),
 			}
 
 			// Create config and checksum file

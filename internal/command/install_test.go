@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/git"
+	"github.com/evilmartians/lefthook/tests/helpers/git"
 )
 
 func TestLefthookInstall(t *testing.T) {
@@ -20,17 +20,11 @@ func TestLefthookInstall(t *testing.T) {
 	configPath := filepath.Join(root, "lefthook.yml")
 
 	hookPath := func(hook string) string {
-		return filepath.Join(root, ".git", "hooks", hook)
+		return filepath.Join(git.GitPath(root), "hooks", hook)
 	}
 
 	infoPath := func(file string) string {
-		return filepath.Join(root, ".git", "info", file)
-	}
-
-	repo := &git.Repository{
-		HooksPath: filepath.Join(root, ".git", "hooks"),
-		RootPath:  root,
-		InfoPath:  filepath.Join(root, ".git", "info"),
+		return filepath.Join(git.GitPath(root), "info", file)
 	}
 
 	for n, tt := range [...]struct {
@@ -219,6 +213,7 @@ post-commit:
 		},
 	} {
 		fs := afero.NewMemMapFs()
+		repo := git.NewRepositoryBuilder().Root(root).Fs(fs).Build()
 		lefthook := &Lefthook{
 			fs:   fs,
 			repo: repo,
@@ -284,11 +279,6 @@ func Test_syncHooks(t *testing.T) {
 		return filepath.Join(root, ".git", "info", file)
 	}
 
-	repo := &git.Repository{
-		HooksPath: filepath.Join(root, ".git", "hooks"),
-		RootPath:  root,
-		InfoPath:  filepath.Join(root, ".git", "info"),
-	}
 	for n, tt := range [...]struct {
 		name, config, checksum  string
 		existingHooks           map[string]string
@@ -402,6 +392,7 @@ commit-msg:
 		},
 	} {
 		fs := afero.NewMemMapFs()
+		repo := git.NewRepositoryBuilder().Root(root).Fs(fs).Build()
 		lefthook := &Lefthook{
 			fs:   fs,
 			repo: repo,
@@ -466,11 +457,6 @@ func TestShouldRefetch(t *testing.T) {
 		return filepath.Join(remotePath, ".git", "FETCH_HEAD")
 	}
 
-	repo := &git.Repository{
-		HooksPath: filepath.Join(root, ".git", "hooks"),
-		RootPath:  root,
-		InfoPath:  filepath.Join(root, ".git", "info"),
-	}
 	for n, tt := range [...]struct {
 		name, config                                                    string
 		shouldRefetchInitially, shouldRefetchAfter, shouldRefetchBefore bool
@@ -528,6 +514,7 @@ remotes:
 		},
 	} {
 		fs := afero.NewMemMapFs()
+		repo := git.NewRepositoryBuilder().Root(root).Fs(fs).Build()
 		lefthook := &Lefthook{
 			fs:   fs,
 			repo: repo,

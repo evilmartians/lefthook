@@ -15,11 +15,11 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/run/controller/exec"
 	"github.com/evilmartians/lefthook/internal/run/result"
 	"github.com/evilmartians/lefthook/internal/system"
 	"github.com/evilmartians/lefthook/tests/helpers"
+	"github.com/evilmartians/lefthook/tests/helpers/git"
 )
 
 type (
@@ -90,14 +90,7 @@ func TestRunAll(t *testing.T) {
 	assert.NoError(t, err)
 
 	gitExec := &gitCmd{}
-	gitPath := filepath.Join(root, ".git")
-	repo := &git.Repository{
-		Git:       git.NewExecutor(gitExec),
-		HooksPath: filepath.Join(gitPath, "hooks"),
-		RootPath:  root,
-		GitPath:   gitPath,
-		InfoPath:  filepath.Join(gitPath, "info"),
-	}
+	gitPath := git.GitPath(root)
 
 	for name, tt := range map[string]struct {
 		branch, hookName string
@@ -637,7 +630,7 @@ func TestRunAll(t *testing.T) {
 		},
 	} {
 		fs := afero.NewMemMapFs()
-		repo.Fs = fs
+		repo := git.NewRepositoryBuilder().Root(root).Git(gitExec).Fs(fs).Build()
 		controller := &Controller{
 			git:      repo,
 			executor: executor{},
@@ -651,7 +644,7 @@ func TestRunAll(t *testing.T) {
 		}
 
 		if len(tt.branch) > 0 {
-			assert.NoError(t, afero.WriteFile(fs, filepath.Join(gitPath, "HEAD"), []byte("ref: refs/heads/"+tt.branch), 0o644))
+			assert.NoError(t, afero.WriteFile(fs, filepath.Join(repo.GitPath, "HEAD"), []byte("ref: refs/heads/"+tt.branch), 0o644))
 		}
 
 		t.Run(name, func(t *testing.T) {
