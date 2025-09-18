@@ -7,7 +7,7 @@ build-with-coverage:
 	go build -cover -ldflags "-s -w -X github.com/evilmartians/lefthook/internal/version.commit=$(COMMIT_HASH)" -o lefthook
 
 jsonschema:
-	go generate internal/gen/jsonschema.go > schema.json
+	go generate gen/jsonschema.go > schema.json
 
 install: build
 ifeq ($(shell go env GOOS),windows)
