@@ -19,7 +19,7 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Test
-        run: go test ./... -coverprofile coverage.out
+        run: go test $(go list ./... | grep -v '/gen$') -coverprofile coverage.out
       - name: Report coverage
         uses: coverallsapp/github-action@v2
         with:

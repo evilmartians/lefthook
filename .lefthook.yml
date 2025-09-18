@@ -29,8 +29,9 @@ pre-commit:
 
     - name: update JSON schema
       tags: docs
-      run: go generate internal/gen/jsonschema.go > schema.json && git add schema.json
+      run: go generate gen/jsonschema.go > schema.json && git add schema.json
       glob:
+        - 'gen/jsonschema.go'
         - 'internal/config/command.go'
         - 'internal/config/config.go'
         - 'internal/config/hook.go'

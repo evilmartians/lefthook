@@ -2,13 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"os"
 	"reflect"
 	"time"
 
 	"github.com/invopop/jsonschema"
 
 	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/log"
 )
 
 //go:generate go run jsonschema.go
@@ -57,9 +58,9 @@ func main() {
 	schema.Comments = "Last updated on " + time.Now().Format("2006.01.02") + "."
 	dumped, err := json.MarshalIndent(schema, "", "  ")
 	if err != nil {
-		log.Error(err)
-		return
+		_, _ = fmt.Fprintf(os.Stderr, "failed to generate json: %s", err)
+		os.Exit(1)
 	}
 
-	log.Info(string(dumped))
+	_, _ = os.Stdout.Write(dumped)
 }
