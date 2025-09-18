@@ -7,7 +7,7 @@ import (
 
 // Options contains the data that controls the execution.
 type Options struct {
-	Name, Root            string
+	Root                  string
 	Commands              []string
 	Env                   map[string]string
 	Interactive, UseStdin bool

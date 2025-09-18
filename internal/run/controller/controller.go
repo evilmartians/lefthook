@@ -12,8 +12,8 @@ import (
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/internal/run/controller/exec"
 	"github.com/evilmartians/lefthook/internal/run/controller/utils"
-	"github.com/evilmartians/lefthook/internal/run/exec"
 	"github.com/evilmartians/lefthook/internal/run/result"
 	"github.com/evilmartians/lefthook/internal/system"
 )
@@ -75,7 +75,7 @@ func (c *Controller) RunHook(ctx context.Context, opts Options, hook *config.Hoo
 		defer log.StopSpinner()
 	}
 
-	guard := newGuard(c, !opts.NoStageFixed && config.HookUsesStagedFiles(hook.Name), opts.FailOnChanges)
+	guard := newGuard(c.git, !opts.NoStageFixed && config.HookUsesStagedFiles(hook.Name), opts.FailOnChanges)
 	scope := newScope(hook, opts)
 	err := guard.wrap(func() {
 		if hook.Parallel {

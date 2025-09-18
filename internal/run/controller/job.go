@@ -12,9 +12,9 @@ import (
 	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/evilmartians/lefthook/internal/run/controller/command"
+	"github.com/evilmartians/lefthook/internal/run/controller/exec"
 	"github.com/evilmartians/lefthook/internal/run/controller/filters"
 	"github.com/evilmartians/lefthook/internal/run/controller/utils"
-	"github.com/evilmartians/lefthook/internal/run/exec"
 	"github.com/evilmartians/lefthook/internal/run/result"
 )
 
@@ -115,17 +115,12 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 
 	env := maps.Clone(scope.env)
 	maps.Copy(env, job.Env)
-	ok := exec.Run(ctx, c.executor, &exec.RunOptions{
-		Exec: exec.Options{
-			Name:        strings.Join(append(scope.names, name), " ❯ "),
-			Root:        filepath.Join(c.git.RootPath, root),
-			Commands:    commands,
-			Interactive: job.Interactive && !scope.opts.DisableTTY,
-			UseStdin:    job.UseStdin,
-			Env:         env,
-		},
-		Follow:      scope.follow,
-		CachedStdin: c.cachedStdin,
+	ok := c.run(ctx, strings.Join(append(scope.names, name), " ❯ "), scope.follow, exec.Options{
+		Root:        filepath.Join(c.git.RootPath, root),
+		Commands:    commands,
+		Interactive: job.Interactive && !scope.opts.DisableTTY,
+		UseStdin:    job.UseStdin,
+		Env:         env,
 	})
 
 	executionTime := time.Since(startTime)

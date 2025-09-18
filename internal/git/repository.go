@@ -106,13 +106,12 @@ func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
 	git.root = rootPath
 
 	r := &Repository{
-		Fs:                fs,
-		Git:               git,
-		HooksPath:         hooksPath,
-		RootPath:          rootPath,
-		GitPath:           gitPath,
-		InfoPath:          infoPath,
-		unstagedPatchPath: filepath.Join(infoPath, unstagedPatchName),
+		Fs:        fs,
+		Git:       git,
+		HooksPath: hooksPath,
+		RootPath:  rootPath,
+		GitPath:   gitPath,
+		InfoPath:  infoPath,
 	}
 
 	r.Setup()
@@ -167,6 +166,8 @@ func (r *Repository) Setup() {
 	r.stateOnce = sync.OnceValue(func() State {
 		return r.state()
 	})
+
+	r.unstagedPatchPath = filepath.Join(r.InfoPath, unstagedPatchName)
 }
 
 // StagedFiles returns a list of staged files which exist on file system.
