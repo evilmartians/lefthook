@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/evilmartians/lefthook/internal/system"
-	"github.com/evilmartians/lefthook/tests/helpers/git"
+	"github.com/evilmartians/lefthook/tests/helpers/gittest"
 )
 
 type gitCmd struct{}
@@ -29,7 +29,7 @@ func TestRun(t *testing.T) {
 		t.Errorf("unexpected error: %s", err)
 	}
 
-	gitPath := git.GitPath(root)
+	gitPath := gittest.GitPath(root)
 	configPath := filepath.Join(root, "lefthook.yml")
 
 	for i, tt := range [...]struct {
@@ -161,7 +161,7 @@ post-commit:
 			fs := afero.NewMemMapFs()
 			lefthook := &Lefthook{
 				fs:   fs,
-				repo: git.NewRepositoryBuilder().Git(gitCmd{}).Fs(fs).Root(root).Build(),
+				repo: gittest.NewRepositoryBuilder().Git(gitCmd{}).Fs(fs).Root(root).Build(),
 			}
 			lefthook.repo.Setup()
 

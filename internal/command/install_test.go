@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/tests/helpers/git"
+	"github.com/evilmartians/lefthook/tests/helpers/gittest"
 )
 
 func TestLefthookInstall(t *testing.T) {
@@ -20,11 +20,11 @@ func TestLefthookInstall(t *testing.T) {
 	configPath := filepath.Join(root, "lefthook.yml")
 
 	hookPath := func(hook string) string {
-		return filepath.Join(git.GitPath(root), "hooks", hook)
+		return filepath.Join(gittest.GitPath(root), "hooks", hook)
 	}
 
 	infoPath := func(file string) string {
-		return filepath.Join(git.GitPath(root), "info", file)
+		return filepath.Join(gittest.GitPath(root), "info", file)
 	}
 
 	for n, tt := range [...]struct {
@@ -213,7 +213,7 @@ post-commit:
 		},
 	} {
 		fs := afero.NewMemMapFs()
-		repo := git.NewRepositoryBuilder().Root(root).Fs(fs).Build()
+		repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Build()
 		lefthook := &Lefthook{
 			fs:   fs,
 			repo: repo,
@@ -392,7 +392,7 @@ commit-msg:
 		},
 	} {
 		fs := afero.NewMemMapFs()
-		repo := git.NewRepositoryBuilder().Root(root).Fs(fs).Build()
+		repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Build()
 		lefthook := &Lefthook{
 			fs:   fs,
 			repo: repo,
@@ -514,7 +514,7 @@ remotes:
 		},
 	} {
 		fs := afero.NewMemMapFs()
-		repo := git.NewRepositoryBuilder().Root(root).Fs(fs).Build()
+		repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Build()
 		lefthook := &Lefthook{
 			fs:   fs,
 			repo: repo,

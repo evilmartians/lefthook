@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/evilmartians/lefthook/internal/system"
-	"github.com/evilmartians/lefthook/tests/helpers/git"
+	"github.com/evilmartians/lefthook/tests/helpers/gittest"
 )
 
 type guardCmd struct {
@@ -122,7 +122,7 @@ func Test_guard_wrap(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 			fs := afero.NewMemMapFs()
-			repo := git.NewRepositoryBuilder().Git(&guardCmd{tt.commands}).Fs(fs).Root("root").Build()
+			repo := gittest.NewRepositoryBuilder().Git(&guardCmd{tt.commands}).Fs(fs).Root("root").Build()
 			repo.Setup()
 			g := newGuard(repo, tt.stashUnstagedChanges, tt.failOnChanges)
 

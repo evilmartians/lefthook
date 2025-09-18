@@ -18,8 +18,8 @@ import (
 	"github.com/evilmartians/lefthook/internal/run/controller/exec"
 	"github.com/evilmartians/lefthook/internal/run/result"
 	"github.com/evilmartians/lefthook/internal/system"
-	"github.com/evilmartians/lefthook/tests/helpers"
-	"github.com/evilmartians/lefthook/tests/helpers/git"
+	"github.com/evilmartians/lefthook/tests/helpers/configtest"
+	"github.com/evilmartians/lefthook/tests/helpers/gittest"
 )
 
 type (
@@ -90,7 +90,7 @@ func TestRunAll(t *testing.T) {
 	assert.NoError(t, err)
 
 	gitExec := &gitCmd{}
-	gitPath := git.GitPath(root)
+	gitPath := gittest.GitPath(root)
 
 	for name, tt := range map[string]struct {
 		branch, hookName string
@@ -105,13 +105,13 @@ func TestRunAll(t *testing.T) {
 	}{
 		"empty hook": {
 			hookName: "post-commit",
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         piped: true
       `),
 		},
 		"with simple command": {
 			hookName: "post-commit",
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         jobs:
           - name: test
             run: success
@@ -120,7 +120,7 @@ func TestRunAll(t *testing.T) {
 		},
 		"with simple command in follow mode": {
 			hookName: "post-commit",
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         follow: true
         jobs:
           - name: test
@@ -130,7 +130,7 @@ func TestRunAll(t *testing.T) {
 		},
 		"with multiple commands ran in parallel": {
 			hookName: "post-commit",
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         jobs:
           - name: test
             run: success
@@ -147,7 +147,7 @@ func TestRunAll(t *testing.T) {
 		},
 		"with exclude tags": {
 			hookName: "post-commit",
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         exclude_tags: [test, formatter]
         jobs:
           - name: test
@@ -161,7 +161,7 @@ func TestRunAll(t *testing.T) {
 		},
 		"with skip=true": {
 			hookName: "post-commit",
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         jobs:
           - name: test
             run: success
@@ -176,7 +176,7 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(gitPath, "MERGE_HEAD"),
 			},
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         jobs:
           - name: test
             run: success
@@ -191,7 +191,7 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(gitPath, "MERGE_HEAD"),
 			},
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         jobs:
           - name: test
             run: success
@@ -206,7 +206,7 @@ func TestRunAll(t *testing.T) {
 		},
 		"with only=merge no match": {
 			hookName: "post-commit",
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         jobs:
           - name: test
             run: success
@@ -222,7 +222,7 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(gitPath, "MERGE_HEAD"),
 			},
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         skip: merge
         jobs:
           - name: test
@@ -234,7 +234,7 @@ func TestRunAll(t *testing.T) {
 		},
 		"with hook's only=merge no match": {
 			hookName: "post-commit",
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         only: merge
         jobs:
           - name: test
@@ -250,7 +250,7 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(gitPath, "MERGE_HEAD"),
 			},
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         only: merge
         jobs:
           - name: test
@@ -269,7 +269,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "rebase-merge"),
 				filepath.Join(gitPath, "rebase-apply"),
 			},
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         jobs:
           - name: test
             run: success
@@ -287,7 +287,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "HEAD"),
 			},
 			hookName: "post-commit",
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         skip:
           - merge
           - ref: main
@@ -306,7 +306,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "HEAD"),
 			},
 			hookName: "post-commit",
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         only:
           - merge
           - ref: main
@@ -328,7 +328,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "HEAD"),
 			},
 			hookName: "post-commit",
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         only:
           - merge
           - ref: main
@@ -347,7 +347,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "HEAD"),
 			},
 			hookName: "post-commit",
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         skip:
           - merge
           - ref: main
@@ -365,7 +365,7 @@ func TestRunAll(t *testing.T) {
 		},
 		"with fail": {
 			hookName: "post-commit",
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         jobs:
           - name: test
             run: fail
@@ -380,7 +380,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, config.DefaultSourceDir, "post-commit", "failing.js"),
 			},
 			hookName: "post-commit",
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         jobs:
           - script: "script.sh"
             runner: success
@@ -399,7 +399,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(gitPath, "MERGE_HEAD"),
 			},
 			hookName: "post-commit",
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         jobs:
           - script: "script.sh"
             runner: success
@@ -419,7 +419,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, config.DefaultSourceDir, "post-commit", "failing.js"),
 			},
 			hookName: "post-commit",
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         jobs:
           - script: "script.sh"
             runner: success
@@ -440,7 +440,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, config.DefaultSourceDir, "post-commit", "failing.js"),
 			},
 			hookName: "post-commit",
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         parallel: true
         jobs:
           - name: ok
@@ -464,7 +464,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, config.DefaultSourceDir, "post-commit", "failing.js"),
 			},
 			hookName: "post-commit",
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         jobs:
           - name: ok
             run: success
@@ -491,7 +491,7 @@ func TestRunAll(t *testing.T) {
 				filepath.Join(root, "scripts", "script.sh"),
 				filepath.Join(root, "README.md"),
 			},
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         jobs:
           - name: ok
             run: success
@@ -521,7 +521,7 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(root, "README.md"),
 			},
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         jobs:
           - name: ok
             run: success
@@ -547,7 +547,7 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(root, "README.md"),
 			},
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         jobs:
           - name: ok
             run: success
@@ -596,7 +596,7 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(root, "README.md"),
 			},
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         jobs:
           - name: ok
             run: success
@@ -621,7 +621,7 @@ func TestRunAll(t *testing.T) {
 			existingFiles: []string{
 				filepath.Join(root, "README.md"),
 			},
-			hook: helpers.ParseHook(`
+			hook: configtest.ParseHook(`
         jobs:
           - name: ok
             run: success
@@ -630,7 +630,7 @@ func TestRunAll(t *testing.T) {
 		},
 	} {
 		fs := afero.NewMemMapFs()
-		repo := git.NewRepositoryBuilder().Root(root).Git(gitExec).Fs(fs).Build()
+		repo := gittest.NewRepositoryBuilder().Root(root).Git(gitExec).Fs(fs).Build()
 		controller := &Controller{
 			git:      repo,
 			executor: executor{},

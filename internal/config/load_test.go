@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/evilmartians/lefthook/tests/helpers/git"
+	"github.com/evilmartians/lefthook/tests/helpers/gittest"
 )
 
 //gocyclo:ignore
@@ -989,7 +989,7 @@ pre-commit:
 		},
 	} {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
-		repo := git.NewRepositoryBuilder().Fs(fs).Root(root).Build()
+		repo := gittest.NewRepositoryBuilder().Fs(fs).Root(root).Build()
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 
@@ -1059,7 +1059,7 @@ run = "echo 1"
 		},
 	} {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
-		repo := git.NewRepositoryBuilder().Root(root).Fs(fs).Build()
+		repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Build()
 
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
 			assert := assert.New(t)
@@ -1201,7 +1201,7 @@ pre-commit:
 		},
 	} {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
-		repo := git.NewRepositoryBuilder().Root(root).Fs(fs).Build()
+		repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Build()
 
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)

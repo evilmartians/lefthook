@@ -1,4 +1,4 @@
-package git
+package gittest
 
 import (
 	"path/filepath"
