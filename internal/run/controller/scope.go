@@ -15,6 +15,7 @@ type scope struct {
 	tags         []string
 	excludeTags  []string // Consider removing this setting
 	names        []string
+	fileTypes    []string
 	excludeFiles interface{}
 	env          map[string]string
 	root         string
@@ -48,6 +49,8 @@ func (s *scope) extend(job *config.Job) *scope {
 	newScope.glob = slices.Concat(newScope.glob, job.Glob)
 	newScope.tags = slices.Concat(newScope.tags, job.Tags)
 	newScope.root = utils.FirstNonBlank(job.Root, s.root)
+	newScope.filesCmd = utils.FirstNonBlank(job.Files, s.filesCmd)
+	newScope.fileTypes = slices.Concat(newScope.fileTypes, job.FileTypes)
 
 	// Extend `exclude` list
 	switch list := job.Exclude.(type) {
@@ -71,11 +74,6 @@ func (s *scope) extend(job *config.Job) *scope {
 	// Overwrite --jobs option for nested groups: if group name given, run all its jobs
 	if len(s.opts.RunOnlyJobs) != 0 && job.Group != nil && slices.Contains(s.opts.RunOnlyJobs, job.Name) {
 		newScope.opts.RunOnlyJobs = []string{}
-	}
-
-	// Overwrite `files` command if present
-	if len(job.Files) > 0 {
-		s.filesCmd = job.Files
 	}
 
 	maps.Copy(newScope.env, job.Env)
