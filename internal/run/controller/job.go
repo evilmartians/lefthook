@@ -72,11 +72,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 	startTime := time.Now()
 
 	name := job.PrintableName(id)
-	root := utils.FirstNonBlank(job.Root, scope.root)
-	glob := slices.Concat(scope.glob, job.Glob)
-	excludeFiles := joinInterfaces(job.Exclude, scope.excludeFiles)
-	tags := slices.Concat(job.Tags, scope.tags)
-	filesCmd := utils.FirstNonBlank(job.Files, scope.filesCmd)
+	scope = scope.extend(job)
 
 	builder := command.NewBuilder(c.git, command.BuilderOptions{
 		HookName:    scope.hookName,
@@ -93,14 +89,14 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 		Run:          job.Run,
 		Runner:       job.Runner,
 		Script:       job.Script,
-		FileTypes:    job.FileTypes,
 		Only:         job.Only,
 		Skip:         job.Skip,
-		Root:         root,
-		Glob:         glob,
-		FilesCmd:     filesCmd,
-		Tags:         tags,
-		ExcludeFiles: excludeFiles,
+		Root:         scope.root,
+		FileTypes:    scope.fileTypes,
+		Glob:         scope.glob,
+		FilesCmd:     scope.filesCmd,
+		Tags:         scope.tags,
+		ExcludeFiles: scope.excludeFiles,
 	})
 	if err != nil {
 		log.Skip(name, err.Error())
@@ -116,7 +112,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 	env := maps.Clone(scope.env)
 	maps.Copy(env, job.Env)
 	ok := c.run(ctx, strings.Join(append(scope.names, name), " ❯ "), scope.follow, exec.Options{
-		Root:        filepath.Join(c.git.RootPath, root),
+		Root:        filepath.Join(c.git.RootPath, scope.root),
 		Commands:    commands,
 		Interactive: job.Interactive && !scope.opts.DisableTTY,
 		UseStdin:    job.UseStdin,
@@ -139,16 +135,16 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 			}
 
 			files = filters.Apply(c.git.Fs, files, filters.Params{
-				Glob:         glob,
-				Root:         root,
-				ExcludeFiles: excludeFiles,
-				FileTypes:    job.FileTypes,
+				Glob:         scope.glob,
+				Root:         scope.root,
+				ExcludeFiles: scope.excludeFiles,
+				FileTypes:    scope.fileTypes,
 			})
 		}
 
-		if len(root) > 0 {
+		if len(scope.root) > 0 {
 			for i, file := range files {
-				files[i] = filepath.Join(root, file)
+				files[i] = filepath.Join(scope.root, file)
 			}
 		}
 
@@ -162,23 +158,4 @@ func (c *Controller) addStagedFiles(files []string) {
 	if err := c.git.AddFiles(files); err != nil {
 		log.Warn("Couldn't stage fixed files:", err)
 	}
-}
-
-func joinInterfaces(args ...interface{}) interface{} {
-	result := []interface{}{}
-	for _, a := range args {
-		switch list := a.(type) {
-		case []interface{}:
-			result = append(result, list...)
-		case interface{}:
-			if len(result) > 0 {
-				return result
-			} else {
-				return a
-			}
-		default:
-		}
-	}
-
-	return result
 }
