@@ -1,6 +1,6 @@
 module github.com/evilmartians/lefthook
 
-go 1.24.7
+go 1.25
 
 require (
 	github.com/MakeNowJust/heredoc v1.0.0
@@ -9,7 +9,7 @@ require (
 	github.com/creack/pty v1.1.24
 	github.com/gobwas/glob v0.2.3
 	github.com/invopop/jsonschema v0.13.0
-	github.com/kaptinlin/jsonschema v0.4.13
+	github.com/kaptinlin/jsonschema v0.4.14
 	github.com/knadh/koanf/maps v0.1.2
 	github.com/knadh/koanf/parsers/json v1.0.0
 	github.com/knadh/koanf/parsers/toml/v2 v2.2.0
@@ -34,11 +34,11 @@ require (
 	github.com/charmbracelet/x/cellbuf v0.0.13-0.20250311204145-2c3ea96c31dd // indirect
 	github.com/charmbracelet/x/term v0.2.1 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
-	github.com/go-json-experiment/json v0.0.0-20250813233538-9b1f9ea2e11b // indirect
+	github.com/go-json-experiment/json v0.0.0-20250910080747-cc2cfa0554c3 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/goccy/go-yaml v1.18.0 // indirect
-	github.com/kaptinlin/go-i18n v0.1.6 // indirect
+	github.com/kaptinlin/go-i18n v0.1.7 // indirect
 	github.com/kaptinlin/messageformat-go v0.4.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
