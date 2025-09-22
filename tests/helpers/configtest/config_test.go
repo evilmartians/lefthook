@@ -56,3 +56,40 @@ func TestParseHook(t *testing.T) {
 		})
 	}
 }
+
+func TestParseJob(t *testing.T) {
+	for i, tt := range [...]struct {
+		raw string
+		job *config.Job
+	}{
+		{
+			raw: `
+        name: test
+        run: echo
+        glob:
+          - "*.sh"
+          - "*.md"
+        exclude:
+          - "install.sh"
+          - "README.md"
+        root: docs/
+        use_stdin: true
+        stage_fixed: true
+      `,
+			job: &config.Job{
+				Name:       "test",
+				Run:        "echo",
+				Glob:       []string{"*.sh", "*.md"},
+				Exclude:    []interface{}{"install.sh", "README.md"},
+				Root:       "docs/",
+				UseStdin:   true,
+				StageFixed: true,
+			},
+		},
+	} {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			parsed := ParseJob(tt.raw)
+			assert.New(t).Equal(tt.job, parsed)
+		})
+	}
+}
