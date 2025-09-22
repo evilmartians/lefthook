@@ -11,6 +11,25 @@ import (
 
 // ParseHook simplifies config.Hook definition with YAML string.
 func ParseHook(str string) *config.Hook {
+	hook := config.Hook{}
+	err := yaml.Unmarshal(stripPadding(str), &hook)
+	if err != nil {
+		panic("Failed to parse hook: " + err.Error())
+	}
+	return &hook
+}
+
+// ParseJob simplifies config.Job definition with YAML string.
+func ParseJob(str string) *config.Job {
+	job := config.Job{}
+	err := yaml.Unmarshal(stripPadding(str), &job)
+	if err != nil {
+		panic("Failed to parse job: " + err.Error())
+	}
+	return &job
+}
+
+func stripPadding(str string) []byte {
 	str = strings.TrimRight(strings.Trim(str, "\n"), " \t")
 	cleanBuffer := new(bytes.Buffer)
 	var padding int
@@ -26,10 +45,6 @@ func ParseHook(str string) *config.Hook {
 		}
 		cleanBuffer.WriteString(cleanLine)
 	}
-	hook := config.Hook{}
-	err := yaml.Unmarshal(cleanBuffer.Bytes(), &hook)
-	if err != nil {
-		panic("Failed to parse test data: " + err.Error())
-	}
-	return &hook
+
+	return cleanBuffer.Bytes()
 }
