@@ -1,5 +1,11 @@
 # Change log
 
+## 1.13.2 (2025-09-22)
+
+- feat: inherit file_types from parent jobs ([#1135](https://github.com/evilmartians/lefthook/pull/1135)) by [@mrexox]()
+- fix: move gen at root ([#1133](https://github.com/evilmartians/lefthook/pull/1133)) by [@mrexox]()
+- refactor: better scope subpackages ([#1132](https://github.com/evilmartians/lefthook/pull/1132)) by [@mrexox]()
+
 ## 1.13.1 (2025-09-17)
 
 - feat: add no stage fixed argument ([#1130](https://github.com/evilmartians/lefthook/pull/1130)) by [@mrexox]()
