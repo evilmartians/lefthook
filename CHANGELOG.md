@@ -1,5 +1,10 @@
 # Change log
 
+## 1.13.4 (2025-09-23)
+
+- fix: add exclude option to hook level ([#1141](https://github.com/evilmartians/lefthook/pull/1141)) by [@mrexox]()
+- fix: allow skipping groups ([#1140](https://github.com/evilmartians/lefthook/pull/1140)) by [@mrexox]()
+
 ## 1.13.3 (2025-09-23)
 
 - deps: September 2025 ([#1139](https://github.com/evilmartians/lefthook/pull/1139)) by [@mrexox]()
