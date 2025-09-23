@@ -88,7 +88,7 @@ func parseVersion(version string) (major, minor, patch int, err error) {
 	matches := versionRegexp.FindStringSubmatch(version)
 	if matches == nil {
 		err = ErrInvalidVersion
-		return
+		return major, minor, patch, err
 	}
 
 	majorID := versionRegexp.SubexpIndex("major")
@@ -105,5 +105,5 @@ func parseVersion(version string) (major, minor, patch int, err error) {
 		patch, err = strconv.Atoi(matches[patchID])
 	}
 
-	return
+	return major, minor, patch, err
 }

@@ -19,30 +19,30 @@ func (run) New(opts *command.Options) *cobra.Command {
 	runHookCompletions := func(cmd *cobra.Command, args []string, toComplete string) (ret []string, compDir cobra.ShellCompDirective) {
 		compDir = cobra.ShellCompDirectiveNoFileComp
 		if len(args) != 0 {
-			return
+			return ret, compDir
 		}
 		ret = command.ConfigHookCompletions(opts)
 		other := slices.Sorted(maps.Keys(config.AvailableHooks))
 		ret = append(ret, other...)
-		return
+		return ret, compDir
 	}
 
 	runHookCommandCompletions := func(cmd *cobra.Command, args []string, toComplete string) (ret []string, compDir cobra.ShellCompDirective) {
 		compDir = cobra.ShellCompDirectiveNoFileComp
 		if len(args) == 0 {
-			return
+			return ret, compDir
 		}
 		ret = command.ConfigHookCommandCompletions(opts, args[0])
-		return
+		return ret, compDir
 	}
 
 	runHookJobCompletions := func(cmd *cobra.Command, args []string, toComplete string) (ret []string, compDir cobra.ShellCompDirective) {
 		compDir = cobra.ShellCompDirectiveNoFileComp
 		if len(args) == 0 {
-			return
+			return ret, compDir
 		}
 		ret = command.ConfigHookJobCompletions(opts, args[0])
-		return
+		return ret, compDir
 	}
 
 	runCmd := cobra.Command{

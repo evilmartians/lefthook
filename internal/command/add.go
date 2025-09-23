@@ -76,5 +76,5 @@ func (l *Lefthook) getSourceDirs() (global, local string) {
 		}
 	}
 
-	return
+	return global, local
 }

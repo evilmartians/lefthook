@@ -1,6 +1,6 @@
 ## Go
 
-The minimum Go version required is 1.24 and you can install
+The minimum Go version required is 1.25 and you can install
 
 - as global package
 

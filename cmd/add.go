@@ -22,10 +22,10 @@ func (add) New(opts *command.Options) *cobra.Command {
 	addHookCompletions := func(cmd *cobra.Command, args []string, toComplete string) (ret []string, compDir cobra.ShellCompDirective) {
 		compDir = cobra.ShellCompDirectiveNoFileComp
 		if len(args) != 0 {
-			return
+			return ret, compDir
 		}
 		ret = slices.Sorted(maps.Keys(config.AvailableHooks))
-		return
+		return ret, compDir
 	}
 
 	addCmd := cobra.Command{
