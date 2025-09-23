@@ -1,0 +1,30 @@
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+exec lefthook install
+exec lefthook run test
+
+-- lefthook.yml --
+output:
+  - execution_out
+test:
+  parallel: true
+  jobs:
+    - run: echo $E1
+      env:
+        E1: e1
+    - run: echo $E2
+      env:
+        E2: e2
+    - env:
+        E1: e1
+        E2: e2
+      group:
+        parallel: true
+        jobs:
+          - run: echo $E1
+          - run: echo $E2
+            env:
+              E2: new-e2
+
