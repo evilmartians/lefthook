@@ -2,6 +2,8 @@ module github.com/evilmartians/lefthook
 
 go 1.25
 
+toolchain go1.25.0
+
 require (
 	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/briandowns/spinner v1.23.2
@@ -9,6 +11,7 @@ require (
 	github.com/creack/pty v1.1.24
 	github.com/gabriel-vasile/mimetype v1.4.10-rc1
 	github.com/gobwas/glob v0.2.3
+	github.com/goccy/go-yaml v1.18.0
 	github.com/invopop/jsonschema v0.13.0
 	github.com/kaptinlin/jsonschema v0.4.14
 	github.com/knadh/koanf/maps v0.1.2
@@ -38,7 +41,6 @@ require (
 	github.com/go-json-experiment/json v0.0.0-20250910080747-cc2cfa0554c3 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
-	github.com/goccy/go-yaml v1.18.0 // indirect
 	github.com/kaptinlin/go-i18n v0.1.7 // indirect
 	github.com/kaptinlin/messageformat-go v0.4.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
