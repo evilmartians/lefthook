@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"maps"
 	"slices"
 
 	"github.com/evilmartians/lefthook/internal/config"
@@ -75,7 +74,20 @@ func (s *scope) extend(job *config.Job) *scope {
 		newScope.opts.RunOnlyJobs = []string{}
 	}
 
-	maps.Copy(newScope.env, job.Env)
+	if len(job.Env) > 0 {
+		if len(newScope.env) > 0 {
+			env := make(map[string]string)
+			for key, value := range newScope.env {
+				env[key] = value
+			}
+			for key, value := range job.Env {
+				env[key] = value
+			}
+			newScope.env = env
+		} else {
+			newScope.env = job.Env
+		}
+	}
 
 	return &newScope
 }
