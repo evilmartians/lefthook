@@ -1,5 +1,10 @@
 # Change log
 
+## 1.13.3 (2025-09-23)
+
+- deps: September 2025 ([#1139](https://github.com/evilmartians/lefthook/pull/1139)) by [@mrexox]()
+- fix: concurrent map access issue ([#1138](https://github.com/evilmartians/lefthook/pull/1138)) by [@mrexox]()
+
 ## 1.13.2 (2025-09-22)
 
 - feat: inherit file_types from parent jobs ([#1135](https://github.com/evilmartians/lefthook/pull/1135)) by [@mrexox]()

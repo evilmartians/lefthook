@@ -1,11 +1,14 @@
 COMMIT_HASH = $(shell git rev-parse HEAD)
 
+.PHONY: build
 build:
 	go build -ldflags "-s -w -X github.com/evilmartians/lefthook/internal/version.commit=$(COMMIT_HASH)" -o lefthook
 
+.PHONY: build-with-coverage
 build-with-coverage:
 	go build -cover -ldflags "-s -w -X github.com/evilmartians/lefthook/internal/version.commit=$(COMMIT_HASH)" -o lefthook
 
+.PHONY: jsonschema
 jsonschema:
 	go generate gen/jsonschema.go > schema.json
 
@@ -16,21 +19,24 @@ else
 	cp lefthook $$(go env GOPATH)/bin
 endif
 
+.PHONY: test
 test:
 	go test -cpu 24 -race -count=1 -timeout=30s ./...
 
+.PHONY: test-integrity
 test-integrity: install
 	go test -cpu 24 -race -count=1 -timeout=30s -tags=integrity integrity_test.go
 
+.PHONY: bench
 bench:
 	go test -cpu 24 -race -run=Bench -bench=. ./...
 
-bin/golangci-lint:
-	@test -x $$(go env GOPATH)/bin/golangci-lint || \
-		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH)/bin v2.5.0
-
+.PHONY: lint
 lint: bin/golangci-lint
-	$$(go env GOPATH)/bin/golangci-lint run --fix
+	bin/golangci-lint run --fix
+
+bin/golangci-lint:
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b bin/ v2.5.0
 
 .ONESHELL:
 version:
