@@ -19,7 +19,7 @@ A Git hooks manager for Node.js, Ruby, Python and many other types of projects.
 
 ## Install
 
-With **Go** (>= 1.24):
+With **Go** (>= 1.25):
 
 ```bash
 go install github.com/evilmartians/lefthook@latest
