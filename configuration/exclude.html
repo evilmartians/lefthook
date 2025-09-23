@@ -156,23 +156,14 @@
                 <div id="content" class="content">
                     <main>
                         <h2 id="exclude"><a class="header" href="#exclude"><code>exclude</code></a></h2>
-<p>For the <code>exclude</code> option two variants are supported:</p>
-<ul>
-<li>A list of globs to be excluded</li>
-<li>A single regular expression (deprecated)</li>
-</ul>
-<blockquote>
-<p><strong>Note:</strong> The regular expression is matched against full paths to files in the repo,
-relative to the repo root, using <code>/</code> as the directory separator on all platforms.
-File paths do not begin with the separator or any other prefix.</p>
-</blockquote>
+<p>This option allows to setup a list of globs for files to be excluded in files template.</p>
 <p><strong>Example</strong></p>
 <p>Run Rubocop on staged files with <code>.rb</code> extension except for <code>application.rb</code>, <code>routes.rb</code>, <code>rails_helper.rb</code>, and all Ruby files in <code>config/initializers/</code>.</p>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
-  commands:
-    lint:
+  jobs:
+    - name: lint
       glob: "*.rb"
       exclude:
         - config/routes.rb
@@ -181,37 +172,26 @@ pre-commit:
         - spec/rails_helper.rb
       run: bundle exec rubocop --force-exclusion {staged_files}
 </code></pre>
-<p>The same example using a regular expression.</p>
-<pre><code class="language-yml"># lefthook.yml
-
-pre-commit:
-  commands:
-    lint:
-      glob: "*.rb"
-      exclude: '(^|/)(application|routes|rails_helper|initializers/\w+)\.rb$'
-      run: bundle exec rubocop --force-exclusion {staged_files}
-</code></pre>
-<p><strong>Important</strong></p>
-<p>Be careful with the config file format's string quoting and escaping rules when writing regexps in it. For YAML, single quotes are often the simplest choice.</p>
 <p>If you've specified <code>exclude</code> but don't have a files template in <a href="./run.html"><code>run</code></a> option, lefthook will check <code>{staged_files}</code> for <code>pre-commit</code> hook and <code>{push_files}</code> for <code>pre-push</code> hook and apply filtering. If no files left, the command will be skipped.</p>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
-  commands:
-    lint:
-      exclude: '(^|/)application\.rb$'
-      run: bundle exec rubocop # skipped if only application.rb was staged
+  exclude:
+    - "*/application.rb"
+  jobs:
+    - name: lint
+      run: bundle exec rubocop # will skip if only application.rb was staged
 </code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../configuration/root.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../configuration/exclude_tags.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../configuration/fail_text.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../configuration/skip.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -221,11 +201,11 @@ pre-commit:
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../configuration/root.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../configuration/exclude_tags.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../configuration/fail_text.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../configuration/skip.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

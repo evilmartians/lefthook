@@ -682,6 +682,7 @@ SHA1=$3
 <li><a href="configuration/./follow.html"><code>follow</code></a></li>
 <li><a href="configuration/./fail_on_changes.html"><code>fail_on_changes</code></a></li>
 <li><a href="configuration/./exclude_tags.html"><code>exclude_tags</code></a></li>
+<li><a href="configuration/./exclude.html"><code>exclude</code></a></li>
 <li><a href="configuration/./skip.html"><code>skip</code></a></li>
 <li><a href="configuration/./only.html"><code>only</code></a></li>
 <li><a href="configuration/./jobs.html"><code>jobs</code></a>
@@ -1308,6 +1309,33 @@ pre-push:
 pre-push:
   exclude_tags:
     - frontend
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="exclude"><a class="header" href="#exclude"><code>exclude</code></a></h2>
+<p>This option allows to setup a list of globs for files to be excluded in files template.</p>
+<p><strong>Example</strong></p>
+<p>Run Rubocop on staged files with <code>.rb</code> extension except for <code>application.rb</code>, <code>routes.rb</code>, <code>rails_helper.rb</code>, and all Ruby files in <code>config/initializers/</code>.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  jobs:
+    - name: lint
+      glob: "*.rb"
+      exclude:
+        - config/routes.rb
+        - config/application.rb
+        - config/initializers/*.rb
+        - spec/rails_helper.rb
+      run: bundle exec rubocop --force-exclusion {staged_files}
+</code></pre>
+<p>If you've specified <code>exclude</code> but don't have a files template in <a href="configuration/./run.html"><code>run</code></a> option, lefthook will check <code>{staged_files}</code> for <code>pre-commit</code> hook and <code>{push_files}</code> for <code>pre-push</code> hook and apply filtering. If no files left, the command will be skipped.</p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  exclude:
+    - "*/application.rb"
+  jobs:
+    - name: lint
+      run: bundle exec rubocop # will skip if only application.rb was staged
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="skip"><a class="header" href="#skip"><code>skip</code></a></h2>
 <p>You can skip all or specific commands and scripts using <code>skip</code> option. You can also skip when merging, rebasing, or being on a specific branch. Globs are available for branches.</p>
@@ -2234,24 +2262,15 @@ pre-commit:
 <p><strong>Notes</strong></p>
 <p><em><strong>When using <code>root:</code></strong></em></p>
 <p>Globs are still calculated from the actual root of the git repo, <code>root</code> is ignored.</p>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="exclude"><a class="header" href="#exclude"><code>exclude</code></a></h2>
-<p>For the <code>exclude</code> option two variants are supported:</p>
-<ul>
-<li>A list of globs to be excluded</li>
-<li>A single regular expression (deprecated)</li>
-</ul>
-<blockquote>
-<p><strong>Note:</strong> The regular expression is matched against full paths to files in the repo,
-relative to the repo root, using <code>/</code> as the directory separator on all platforms.
-File paths do not begin with the separator or any other prefix.</p>
-</blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="exclude-1"><a class="header" href="#exclude-1"><code>exclude</code></a></h2>
+<p>This option allows to setup a list of globs for files to be excluded in files template.</p>
 <p><strong>Example</strong></p>
 <p>Run Rubocop on staged files with <code>.rb</code> extension except for <code>application.rb</code>, <code>routes.rb</code>, <code>rails_helper.rb</code>, and all Ruby files in <code>config/initializers/</code>.</p>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
-  commands:
-    lint:
+  jobs:
+    - name: lint
       glob: "*.rb"
       exclude:
         - config/routes.rb
@@ -2260,26 +2279,15 @@ pre-commit:
         - spec/rails_helper.rb
       run: bundle exec rubocop --force-exclusion {staged_files}
 </code></pre>
-<p>The same example using a regular expression.</p>
-<pre><code class="language-yml"># lefthook.yml
-
-pre-commit:
-  commands:
-    lint:
-      glob: "*.rb"
-      exclude: '(^|/)(application|routes|rails_helper|initializers/\w+)\.rb$'
-      run: bundle exec rubocop --force-exclusion {staged_files}
-</code></pre>
-<p><strong>Important</strong></p>
-<p>Be careful with the config file format's string quoting and escaping rules when writing regexps in it. For YAML, single quotes are often the simplest choice.</p>
 <p>If you've specified <code>exclude</code> but don't have a files template in <a href="configuration/./run.html"><code>run</code></a> option, lefthook will check <code>{staged_files}</code> for <code>pre-commit</code> hook and <code>{push_files}</code> for <code>pre-push</code> hook and apply filtering. If no files left, the command will be skipped.</p>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
-  commands:
-    lint:
-      exclude: '(^|/)application\.rb$'
-      run: bundle exec rubocop # skipped if only application.rb was staged
+  exclude:
+    - "*/application.rb"
+  jobs:
+    - name: lint
+      run: bundle exec rubocop # will skip if only application.rb was staged
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="fail_text"><a class="header" href="#fail_text"><code>fail_text</code></a></h2>
 <p>You can specify a text to show when the command or script fails.</p>
@@ -2891,24 +2899,15 @@ pre-commit:
 <p><strong>Notes</strong></p>
 <p><em><strong>When using <code>root:</code></strong></em></p>
 <p>Globs are still calculated from the actual root of the git repo, <code>root</code> is ignored.</p>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="exclude-1"><a class="header" href="#exclude-1"><code>exclude</code></a></h2>
-<p>For the <code>exclude</code> option two variants are supported:</p>
-<ul>
-<li>A list of globs to be excluded</li>
-<li>A single regular expression (deprecated)</li>
-</ul>
-<blockquote>
-<p><strong>Note:</strong> The regular expression is matched against full paths to files in the repo,
-relative to the repo root, using <code>/</code> as the directory separator on all platforms.
-File paths do not begin with the separator or any other prefix.</p>
-</blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="exclude-2"><a class="header" href="#exclude-2"><code>exclude</code></a></h2>
+<p>This option allows to setup a list of globs for files to be excluded in files template.</p>
 <p><strong>Example</strong></p>
 <p>Run Rubocop on staged files with <code>.rb</code> extension except for <code>application.rb</code>, <code>routes.rb</code>, <code>rails_helper.rb</code>, and all Ruby files in <code>config/initializers/</code>.</p>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
-  commands:
-    lint:
+  jobs:
+    - name: lint
       glob: "*.rb"
       exclude:
         - config/routes.rb
@@ -2917,26 +2916,15 @@ pre-commit:
         - spec/rails_helper.rb
       run: bundle exec rubocop --force-exclusion {staged_files}
 </code></pre>
-<p>The same example using a regular expression.</p>
-<pre><code class="language-yml"># lefthook.yml
-
-pre-commit:
-  commands:
-    lint:
-      glob: "*.rb"
-      exclude: '(^|/)(application|routes|rails_helper|initializers/\w+)\.rb$'
-      run: bundle exec rubocop --force-exclusion {staged_files}
-</code></pre>
-<p><strong>Important</strong></p>
-<p>Be careful with the config file format's string quoting and escaping rules when writing regexps in it. For YAML, single quotes are often the simplest choice.</p>
 <p>If you've specified <code>exclude</code> but don't have a files template in <a href="configuration/./run.html"><code>run</code></a> option, lefthook will check <code>{staged_files}</code> for <code>pre-commit</code> hook and <code>{push_files}</code> for <code>pre-push</code> hook and apply filtering. If no files left, the command will be skipped.</p>
 <pre><code class="language-yml"># lefthook.yml
 
 pre-commit:
-  commands:
-    lint:
-      exclude: '(^|/)application\.rb$'
-      run: bundle exec rubocop # skipped if only application.rb was staged
+  exclude:
+    - "*/application.rb"
+  jobs:
+    - name: lint
+      run: bundle exec rubocop # will skip if only application.rb was staged
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="fail_text-1"><a class="header" href="#fail_text-1"><code>fail_text</code></a></h2>
 <p>You can specify a text to show when the command or script fails.</p>
