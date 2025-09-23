@@ -46,7 +46,7 @@ func (e executor) Execute(_ctx context.Context, opts exec.Options, _in io.Reader
 		err = errors.New(opts.Commands[0])
 	}
 
-	return
+	return err
 }
 
 func (e cmd) RunWithContext(context.Context, []string, string, io.Reader, io.Writer, io.Writer) error {

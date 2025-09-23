@@ -62,17 +62,17 @@ func (c *Config) Md5() (checksum string, err error) {
 
 	err = c.Dump(JSONCompactFormat, configBytes)
 	if err != nil {
-		return
+		return checksum, err
 	}
 
 	hash := md5.New()
 	_, err = io.Copy(hash, configBytes)
 	if err != nil {
-		return
+		return checksum, err
 	}
 
 	checksum = hex.EncodeToString(hash.Sum(nil)[:16])
-	return
+	return checksum, err
 }
 
 func (c *Config) Dump(format DumpFormat, out io.Writer) error {
