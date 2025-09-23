@@ -159,6 +159,12 @@
           },
           "type": "array"
         },
+        "exclude": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
         "skip": {
           "oneOf": [
             {

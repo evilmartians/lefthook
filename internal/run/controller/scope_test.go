@@ -10,6 +10,58 @@ import (
 	"github.com/evilmartians/lefthook/tests/helpers/configtest"
 )
 
+func Test_newScope(t *testing.T) {
+	t.Run("with excluded files in hook and opts", func(t *testing.T) {
+		opts := Options{
+			ExcludeFiles: []string{
+				"file1.txt",
+				"file2.txt",
+			},
+		}
+		hook := &config.Hook{
+			Exclude: []string{
+				"file3.txt",
+				"file4.txt",
+				"file5.txt",
+			},
+		}
+
+		scope := newScope(hook, opts)
+		assert.Equal(t, scope.excludeFiles, []interface{}{
+			"file1.txt",
+			"file2.txt",
+			"file3.txt",
+			"file4.txt",
+			"file5.txt",
+		})
+		assert.NotEqual(t, scope.env, nil)
+	})
+
+	t.Run("without excluded files", func(t *testing.T) {
+		opts := Options{}
+		hook := &config.Hook{}
+
+		scope := newScope(hook, opts)
+		assert.Equal(t, scope.excludeFiles, []interface{}{})
+	})
+
+	t.Run("without excluded files from hook only", func(t *testing.T) {
+		opts := Options{}
+		hook := &config.Hook{
+			Exclude: []string{
+				"file1.txt",
+				"file2.txt",
+			},
+		}
+
+		scope := newScope(hook, opts)
+		assert.Equal(t, scope.excludeFiles, []interface{}{
+			"file1.txt",
+			"file2.txt",
+		})
+	})
+}
+
 func TestScope_extend(t *testing.T) {
 	for i, tt := range [...]struct {
 		initial *scope

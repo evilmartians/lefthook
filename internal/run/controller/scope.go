@@ -24,11 +24,16 @@ type scope struct {
 }
 
 func newScope(hook *config.Hook, opts Options) *scope {
-	excludeFiles := make([]interface{}, len(opts.ExcludeFiles))
-	if len(opts.ExcludeFiles) > 0 {
-		for i, e := range opts.ExcludeFiles {
-			excludeFiles[i] = e
-		}
+	excludeFiles := make([]interface{}, len(opts.ExcludeFiles)+len(hook.Exclude))
+
+	i := 0
+	for _, e := range opts.ExcludeFiles {
+		excludeFiles[i] = e
+		i += 1
+	}
+	for _, e := range hook.Exclude {
+		excludeFiles[i] = e
+		i += 1
 	}
 
 	return &scope{
