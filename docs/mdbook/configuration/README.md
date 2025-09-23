@@ -56,6 +56,7 @@ The `-local` config can be used without a main config file. This is useful when 
   - [`follow`](./follow.md)
   - [`fail_on_changes`](./fail_on_changes.md)
   - [`exclude_tags`](./exclude_tags.md)
+  - [`exclude`](./exclude.md)
   - [`skip`](./skip.md)
   - [`only`](./only.md)
   - [`jobs`](./jobs.md)

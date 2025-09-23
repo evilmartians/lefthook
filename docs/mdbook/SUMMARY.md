@@ -63,6 +63,7 @@
     - [`follow`](./configuration/follow.md)
     - [`fail_on_changes`](./configuration/fail_on_changes.md)
     - [`exclude_tags`](./configuration/exclude_tags.md)
+    - [`exclude`](./configuration/exclude.md)
     - [`skip`](./configuration/skip.md)
     - [`only`](./configuration/only.md)
     - [`jobs`](./configuration/jobs.md)
