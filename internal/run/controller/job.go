@@ -16,6 +16,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/run/controller/filters"
 	"github.com/evilmartians/lefthook/internal/run/controller/utils"
 	"github.com/evilmartians/lefthook/internal/run/result"
+	"github.com/evilmartians/lefthook/internal/system"
 )
 
 const (
@@ -43,12 +44,23 @@ func (c *Controller) runJob(ctx context.Context, scope *scope, id string, job *c
 			return result.Skip(job.PrintableName(id))
 		}
 
+		if len(scope.opts.RunOnlyTags) != 0 && (!utils.Intersect(scope.opts.RunOnlyTags, job.Tags) && !utils.Intersect(scope.opts.RunOnlyTags, scope.tags)) {
+			return result.Skip(job.PrintableName(id))
+		}
+
 		return c.runSingleJob(ctx, scope, id, job)
 	}
 
 	if job.Group != nil {
 		extendedScope := scope.extend(job)
 		groupName := utils.FirstNonBlank(job.Name, "group ("+id+")")
+
+		if reason := c.skipReason(extendedScope, job, groupName); len(reason) > 0 {
+			log.Skip(groupName, reason)
+
+			return result.Skip(groupName)
+		}
+
 		extendedScope.names = append(extendedScope.names, groupName)
 
 		if len(job.Group.Jobs) == 0 {
@@ -74,15 +86,19 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 	name := job.PrintableName(id)
 	scope = scope.extend(job)
 
+	if reason := c.skipReason(scope, job, name); len(reason) > 0 {
+		log.Skip(name, reason)
+
+		return result.Skip(name)
+	}
+
 	builder := command.NewBuilder(c.git, command.BuilderOptions{
-		HookName:    scope.hookName,
-		ExcludeTags: scope.excludeTags,
-		ForceFiles:  scope.opts.Files,
-		Force:       scope.opts.Force,
-		SourceDirs:  scope.opts.SourceDirs,
-		GitArgs:     scope.opts.GitArgs,
-		OnlyTags:    scope.opts.RunOnlyTags,
-		Templates:   scope.opts.Templates,
+		HookName:   scope.hookName,
+		ForceFiles: scope.opts.Files,
+		Force:      scope.opts.Force,
+		SourceDirs: scope.opts.SourceDirs,
+		GitArgs:    scope.opts.GitArgs,
+		Templates:  scope.opts.Templates,
 	})
 	commands, files, err := builder.BuildCommands(&command.JobParams{
 		Name:         name,
@@ -158,4 +174,21 @@ func (c *Controller) addStagedFiles(files []string) {
 	if err := c.git.AddFiles(files); err != nil {
 		log.Warn("Couldn't stage fixed files:", err)
 	}
+}
+
+func (c *Controller) skipReason(scope *scope, job *config.Job, name string) string {
+	skipChecker := config.NewSkipChecker(system.Cmd)
+	if skipChecker.Check(c.git.State, job.Skip, job.Only) {
+		return "by condition"
+	}
+
+	if utils.Intersect(scope.excludeTags, scope.tags) {
+		return "tags"
+	}
+
+	if utils.Intersect(scope.excludeTags, []string{name}) {
+		return "name"
+	}
+
+	return ""
 }
