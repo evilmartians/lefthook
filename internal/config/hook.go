@@ -15,6 +15,7 @@ type Hook struct {
 	FailOnChanges string      `json:"fail_on_changes,omitempty" jsonschema:"enum=true,enum=1,enum=0,enum=false,enum=never,enum=always,enum=ci" koanf:"fail_on_changes"     mapstructure:"fail_on_changes" toml:"fail_on_changes,omitempty" yaml:"fail_on_changes,omitempty"`
 	Files         string      `json:"files,omitempty"           mapstructure:"files"                                                           toml:"files,omitempty"      yaml:",omitempty"`
 	ExcludeTags   []string    `json:"exclude_tags,omitempty"    koanf:"exclude_tags"                                                           mapstructure:"exclude_tags" toml:"exclude_tags,omitempty"  yaml:"exclude_tags,omitempty"`
+	Exclude       []string    `json:"exclude,omitempty"         koanf:"exclude"                                                                mapstructure:"exclude"      toml:"exclude,omitempty"       yaml:"exclude,omitempty"`
 	Skip          interface{} `json:"skip,omitempty"            jsonschema:"oneof_type=boolean;array"                                          mapstructure:"skip"         toml:"skip,omitempty,inline"   yaml:",omitempty"`
 	Only          interface{} `json:"only,omitempty"            jsonschema:"oneof_type=boolean;array"                                          mapstructure:"only"         toml:"only,omitempty,inline"   yaml:",omitempty"`
 
