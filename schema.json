@@ -138,6 +138,18 @@
         "follow": {
           "type": "boolean"
         },
+        "fail_on_changes": {
+          "type": "string",
+          "enum": [
+            "true",
+            "1",
+            "0",
+            "false",
+            "never",
+            "always",
+            "ci"
+          ]
+        },
         "files": {
           "type": "string"
         },
@@ -339,10 +351,6 @@
           "examples": [
             "24h"
           ]
-        },
-        "config": {
-          "type": "string",
-          "description": "Deprecated: use configs"
         }
       },
       "additionalProperties": false,
@@ -412,7 +420,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2025.02.26.",
+  "$comment": "Last updated on 2025.09.22.",
   "properties": {
     "min_version": {
       "type": "string",
@@ -499,10 +507,6 @@
       },
       "type": "object",
       "description": "Custom templates for replacements in run commands."
-    },
-    "remote": {
-      "$ref": "#/$defs/Remote",
-      "description": "Deprecated: use remotes"
     },
     "$schema": {
       "type": "string"

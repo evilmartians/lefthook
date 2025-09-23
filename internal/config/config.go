@@ -54,9 +54,6 @@ type Config struct {
 
 	Templates map[string]string `json:"templates,omitempty" jsonschema:"description=Custom templates for replacements in run commands." mapstructure:"templates,omitempty"`
 
-	// Deprecated: use Remotes
-	Remote *Remote `json:"remote,omitempty" jsonschema:"description=Deprecated: use remotes" mapstructure:"-"`
-
 	Hooks map[string]*Hook `jsonschema:"-" mapstructure:"-"`
 }
 

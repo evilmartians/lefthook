@@ -1,0 +1,46 @@
+package controller
+
+import (
+	"bytes"
+	"context"
+	"io"
+	"os"
+
+	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/internal/run/controller/exec"
+	"github.com/evilmartians/lefthook/internal/system"
+)
+
+func (c *Controller) run(ctx context.Context, name string, follow bool, opts exec.Options) bool {
+	log.SetName(name)
+	defer log.UnsetName(name)
+
+	// If the command does not explicitly `use_stdin` no input will be provided.
+	var in io.Reader = system.NullReader
+	if opts.UseStdin {
+		in = c.cachedStdin
+	}
+
+	if (follow || opts.Interactive) && log.Settings.LogExecution() {
+		log.Execution(name, nil, nil)
+
+		var out io.Writer
+		if log.Settings.LogExecutionOutput() {
+			out = os.Stdout
+		} else {
+			out = io.Discard
+		}
+
+		err := c.executor.Execute(ctx, opts, in, out)
+
+		return err == nil
+	}
+
+	out := new(bytes.Buffer)
+
+	err := c.executor.Execute(ctx, opts, in, out)
+
+	log.Execution(name, err, out)
+
+	return err == nil
+}

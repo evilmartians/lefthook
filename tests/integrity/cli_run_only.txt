@@ -1,0 +1,43 @@
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+exec lefthook install
+exec lefthook run hook --jobs a --jobs c --jobs db --commands lint
+stdout '\s*a\s*ca\s*cb\s*db\s*lint\s*'
+exec lefthook run hook --tags red
+stdout '\s*a\s*ca\s*cb\s*db\s*lint\s*'
+
+-- lefthook.yml --
+output:
+  - execution_out
+hook:
+  jobs:
+    - name: a
+      tags: [red]
+      run: echo a
+    - name: b
+      tags: [blue]
+      run: echo b
+    - name: c
+      tags: [red]
+      group:
+        jobs:
+          - run: echo ca
+            tags: [blue]
+          - run: echo cb
+    - name: d
+      group:
+        jobs:
+          - name: da
+            run: echo da
+          - name: db
+            run: echo db
+            tags: [red]
+  commands:
+    lint:
+      run: echo lint
+      tags: [red, blue]
+    test:
+      run: echo test
+      tags: [blue]

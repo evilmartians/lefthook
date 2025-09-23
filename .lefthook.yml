@@ -9,23 +9,29 @@ pre-commit:
       group:
         jobs:
           - run: make lint
+            tags: lint
             stage_fixed: true
 
           - run: make test
+            tags: test
 
     - name: check links
+      tags: docs
       run: lychee --max-concurrency 3 {staged_files}
       glob: '*.md'
       exclude:
         - CHANGELOG.md
 
     - name: fix typos
+      tags: lint
       run: typos --write-changes {staged_files}
       stage_fixed: true
 
     - name: update JSON schema
-      run: go generate internal/gen/jsonschema.go > schema.json && git add schema.json
+      tags: docs
+      run: go generate gen/jsonschema.go > schema.json && git add schema.json
       glob:
+        - 'gen/jsonschema.go'
         - 'internal/config/command.go'
         - 'internal/config/config.go'
         - 'internal/config/hook.go'

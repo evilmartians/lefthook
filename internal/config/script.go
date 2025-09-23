@@ -1,6 +1,12 @@
 package config
 
 import (
+	"cmp"
+	"slices"
+	"strconv"
+	"strings"
+	"unicode"
+
 	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/system"
 )
@@ -25,6 +31,79 @@ func (s Script) DoSkip(state func() git.State) bool {
 	return skipChecker.Check(state, s.Skip, s.Only)
 }
 
-func (s Script) ExecutionPriority() int {
-	return s.Priority
+func ScriptsToJobs(scripts map[string]*Script) []*Job {
+	jobs := make([]*Job, 0, len(scripts))
+	for name, script := range scripts {
+		jobs = append(jobs, &Job{
+			Name:        name,
+			Script:      name,
+			Runner:      script.Runner,
+			FailText:    script.FailText,
+			Tags:        script.Tags,
+			Env:         script.Env,
+			Interactive: script.Interactive,
+			UseStdin:    script.UseStdin,
+			StageFixed:  script.StageFixed,
+			Skip:        script.Skip,
+			Only:        script.Only,
+		})
+	}
+
+	// ASC
+	slices.SortFunc(jobs, func(i, j *Job) int {
+		a := scripts[i.Name]
+		b := scripts[j.Name]
+
+		if a.Priority != 0 || b.Priority != 0 {
+			// Script without a priority must be the last
+			if a.Priority == 0 {
+				return 1
+			}
+			if b.Priority == 0 {
+				return -1
+			}
+
+			return cmp.Compare(a.Priority, b.Priority)
+		}
+
+		iNum := parseNum(i.Name)
+		jNum := parseNum(j.Name)
+
+		if iNum == -1 && jNum == -1 {
+			return strings.Compare(i.Name, j.Name)
+		}
+
+		if iNum == -1 {
+			return 1
+		}
+
+		if jNum == -1 {
+			return -1
+		}
+
+		return cmp.Compare(iNum, jNum)
+	})
+
+	return jobs
+}
+
+func parseNum(str string) int {
+	numEnds := -1
+	for idx, ch := range str {
+		if unicode.IsDigit(ch) {
+			numEnds = idx
+		} else {
+			break
+		}
+	}
+
+	if numEnds == -1 {
+		return -1
+	}
+	num, err := strconv.Atoi(str[:numEnds+1])
+	if err != nil {
+		return -1
+	}
+
+	return num
 }

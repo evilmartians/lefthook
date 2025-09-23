@@ -3,14 +3,14 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/evilmartians/lefthook/internal/lefthook"
+	"github.com/evilmartians/lefthook/internal/command"
 	"github.com/evilmartians/lefthook/internal/log"
 	ver "github.com/evilmartians/lefthook/internal/version"
 )
 
 type version struct{}
 
-func (version) New(_opts *lefthook.Options) *cobra.Command {
+func (version) New(_opts *command.Options) *cobra.Command {
 	var verbose bool
 
 	versionCmd := cobra.Command{

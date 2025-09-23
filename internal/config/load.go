@@ -57,7 +57,19 @@ func (err ConfigNotFoundError) Error() string {
 	return err.message
 }
 
-func loadOne(k *koanf.Koanf, filesystem afero.Fs, root string, names []string) error {
+// loadConfig loads the config at the given path.
+func loadConfig(k *koanf.Koanf, filesystem afero.Fs, path string) error {
+	extension := filepath.Ext(path)
+	log.Debug("loading config: ", path)
+	if err := k.Load(kfs.Provider(newIOFS(filesystem), path), parsers[extension], mergeJobsOption); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// loadFirst loads the first existing config from given names and supported extensions.
+func loadFirst(k *koanf.Koanf, filesystem afero.Fs, root string, names []string) error {
 	for _, extension := range extensions {
 		for _, name := range names {
 			config := filepath.Join(root, name+extension)
@@ -65,23 +77,58 @@ func loadOne(k *koanf.Koanf, filesystem afero.Fs, root string, names []string) e
 				continue
 			}
 
-			log.Debug("loading config: ", config)
-			if err := k.Load(kfs.Provider(newIOFS(filesystem), config), parsers[extension], mergeJobsOption); err != nil {
-				return err
-			}
-
-			return nil
+			return loadConfig(k, filesystem, config)
 		}
 	}
 
 	return ConfigNotFoundError{fmt.Sprintf("No config files with names %q have been found in \"%s\"", names, root)}
 }
 
+// loadFirstMain loads the main config (e.g. lefthook.yml) or fallbacks to local config (e.g. lefthook-local.yml).
+func loadFirstMain(k *koanf.Koanf, filesystem afero.Fs, root string) error {
+	err := loadFirst(k, filesystem, root, MainConfigNames)
+	if ok := errors.As(err, &ConfigNotFoundError{}); ok {
+		var hasLocalConfig bool
+	OUT:
+		for _, extension := range extensions {
+			for _, name := range LocalConfigNames {
+				if ok, _ := afero.Exists(filesystem, filepath.Join(root, name+extension)); ok {
+					hasLocalConfig = true
+					break OUT
+				}
+			}
+		}
+		if !hasLocalConfig {
+			return err
+		}
+	} else if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func loadMain(k *koanf.Koanf, filesystem afero.Fs, root string) error {
+	configOverride := os.Getenv("LEFTHOOK_CONFIG")
+	if len(configOverride) == 0 {
+		return loadFirstMain(k, filesystem, root)
+	}
+
+	if !filepath.IsAbs(configOverride) {
+		configOverride = filepath.Join(root, configOverride)
+	}
+	if ok, _ := afero.Exists(filesystem, configOverride); !ok {
+		return ConfigNotFoundError{fmt.Sprintf("Config file \"%s\" not found!", configOverride)}
+	}
+
+	return loadConfig(k, filesystem, configOverride)
+}
+
 func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.Koanf, error) {
 	main := koanf.New(".")
 
-	// Load main (e.g. lefthook.yml)
-	if err := loadOne(main, filesystem, repo.RootPath, MainConfigNames); err != nil {
+	// Load main config
+	if err := loadMain(main, filesystem, repo.RootPath); err != nil {
 		return nil, nil, err
 	}
 
@@ -90,17 +137,6 @@ func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.
 	var remotes []*Remote
 	if err := main.Unmarshal("remotes", &remotes); err != nil {
 		return nil, nil, err
-	}
-
-	// Deprecated
-	var remote *Remote
-	if err := main.Unmarshal("remote", &remote); err != nil {
-		return nil, nil, err
-	}
-
-	// Backward compatibility for `remote`. Will be deleted in future major release
-	if remote != nil {
-		remotes = append(remotes, remote)
 	}
 
 	secondary := koanf.New(".")
@@ -120,9 +156,8 @@ func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.
 
 	// Load optional local config (e.g. lefthook-local.yml)
 	var noLocal bool
-	if err := loadOne(secondary, filesystem, repo.RootPath, LocalConfigNames); err != nil {
-		var configNotFoundErr ConfigNotFoundError
-		if ok := errors.As(err, &configNotFoundErr); !ok {
+	if err := loadFirst(secondary, filesystem, repo.RootPath, LocalConfigNames); err != nil {
+		if ok := errors.As(err, &ConfigNotFoundError{}); !ok {
 			return nil, nil, err
 		}
 		noLocal = true
@@ -165,11 +200,6 @@ func loadRemotes(k *koanf.Koanf, filesystem afero.Fs, repo *git.Repository, remo
 	for _, remote := range remotes {
 		if !remote.Configured() {
 			continue
-		}
-
-		// Use for backward compatibility with "remote(s).config"
-		if remote.Config != "" {
-			remote.Configs = append(remote.Configs, remote.Config)
 		}
 
 		if len(remote.Configs) == 0 {
@@ -297,23 +327,6 @@ func unmarshalConfigs(main, secondary *koanf.Koanf, c *Config) error {
 		return err
 	}
 
-	// Deprecation handling
-
-	if c.Remote != nil {
-		log.Warn("DEPRECATED: \"remote\" option is deprecated and will be omitted in the next major release, use \"remotes\" option instead")
-		c.Remotes = append(c.Remotes, c.Remote)
-	}
-	c.Remote = nil
-
-	for _, remote := range c.Remotes {
-		if remote.Config != "" {
-			log.Warn("DEPRECATED: \"remotes\".\"config\" option is deprecated and will be omitted in the next major release, use \"configs\" option instead")
-			remote.Configs = append(remote.Configs, remote.Config)
-		}
-
-		remote.Config = ""
-	}
-
 	return nil
 }
 
@@ -391,6 +404,8 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 	if err := mainHook.Unmarshal("", &hook); err != nil {
 		return err
 	}
+	// Assign custom hook name
+	hook.Name = name
 
 	if tags := os.Getenv("LEFTHOOK_EXCLUDE"); tags != "" {
 		hook.ExcludeTags = append(hook.ExcludeTags, strings.Split(tags, ",")...)

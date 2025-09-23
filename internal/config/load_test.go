@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/evilmartians/lefthook/internal/git"
+	"github.com/evilmartians/lefthook/tests/helpers/gittest"
 )
 
 //gocyclo:ignore
@@ -21,6 +21,7 @@ func TestLoad(t *testing.T) {
 		files            map[string]string
 		remote           string
 		remoteConfigPath string
+		pathOverride     string
 		result           *Config
 	}{
 		"with .lefthook.yml": {
@@ -38,6 +39,7 @@ pre-commit:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name:     "pre-commit",
 						Parallel: false,
 						Commands: map[string]*Command{
 							"tests": {
@@ -63,6 +65,7 @@ pre-commit:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name:     "pre-commit",
 						Parallel: false,
 						Commands: map[string]*Command{
 							"tests": {
@@ -94,6 +97,7 @@ pre-commit:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name:     "pre-commit",
 						Parallel: false,
 						Commands: map[string]*Command{
 							"tests": {
@@ -125,6 +129,7 @@ post-commit:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name:     "pre-commit",
 						Parallel: false,
 						Commands: map[string]*Command{
 							"tests": {
@@ -133,6 +138,7 @@ post-commit:
 						},
 					},
 					"post-commit": {
+						Name:     "post-commit",
 						Parallel: false,
 						Commands: map[string]*Command{
 							"ping-done": {
@@ -193,6 +199,7 @@ pre-push:
 
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name:     "pre-commit",
 						Parallel: true,
 						Commands: map[string]*Command{
 							"tests": {
@@ -214,6 +221,7 @@ pre-push:
 						},
 					},
 					"pre-push": {
+						Name: "pre-push",
 						Commands: map[string]*Command{
 							"rubocop": {
 								Run:  "bundle exec rubocop",
@@ -245,6 +253,7 @@ pre-push:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"pre-push": {
+						Name: "pre-push",
 						Scripts: map[string]*Script{
 							"global-extend.sh": {
 								Runner: "bash",
@@ -278,6 +287,7 @@ pre-push:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"pre-push": {
+						Name: "pre-push",
 						Scripts: map[string]*Script{
 							"global-extend": {
 								Runner: "bash",
@@ -317,6 +327,7 @@ pre-push:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"pre-push": {
+						Name: "pre-push",
 						Scripts: map[string]*Script{
 							"global-extend": {
 								Runner: "bash",
@@ -349,6 +360,7 @@ lints:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"tests": {
+						Name:     "tests",
 						Parallel: false,
 						Commands: map[string]*Command{
 							"tests": {
@@ -357,6 +369,7 @@ lints:
 						},
 					},
 					"lints": {
+						Name: "lints",
 						Scripts: map[string]*Script{
 							"linter.sh": {
 								Runner: "bash",
@@ -390,6 +403,7 @@ lints:
 				Colors:         map[string]interface{}{"yellow": "#FFE4B5", "red": 196},
 				Hooks: map[string]*Hook{
 					"tests": {
+						Name:     "tests",
 						Parallel: false,
 						Commands: map[string]*Command{
 							"tests": {
@@ -398,6 +412,7 @@ lints:
 						},
 					},
 					"lints": {
+						Name: "lints",
 						Scripts: map[string]*Script{
 							"linter.sh": {
 								Runner: "bash",
@@ -410,8 +425,8 @@ lints:
 		"with remote": {
 			files: map[string]string{
 				"lefthook.yml": `
-remote:
-  git_url: git@github.com:evilmartians/lefthook
+remotes:
+  - git_url: git@github.com:evilmartians/lefthook
 `,
 			},
 			remote: `
@@ -435,6 +450,7 @@ pre-commit:
 				},
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name: "pre-commit",
 						Commands: map[string]*Command{
 							"lint": {
 								Run: "yarn lint",
@@ -452,10 +468,11 @@ pre-commit:
 		"with remote and custom config name": {
 			files: map[string]string{
 				"lefthook.yml": `
-remote:
-  git_url: git@github.com:evilmartians/lefthook
-  ref: v1.0.0
-  config: examples/custom.yml
+remotes:
+  - git_url: git@github.com:evilmartians/lefthook
+    ref: v1.0.0
+    configs:
+      - examples/custom.yml
 
 pre-commit:
   only:
@@ -495,6 +512,7 @@ pre-commit:
 				},
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name: "pre-commit",
 						Only: []interface{}{map[string]interface{}{"ref": "main"}},
 						Commands: map[string]*Command{
 							"lint": {
@@ -521,9 +539,10 @@ pre-commit:
 extends:
   - global-extend.yml
 
-remote:
-  git_url: https://github.com/evilmartians/lefthook
-  config: examples/config.yml
+remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    configs:
+      - examples/config.yml
 
 pre-push:
   commands:
@@ -581,6 +600,7 @@ pre-push:
 				Extends: []string{"local-extend.yml"},
 				Hooks: map[string]*Hook{
 					"pre-push": {
+						Name: "pre-push",
 						Commands: map[string]*Command{
 							"global": {
 								Run: "echo global",
@@ -643,6 +663,7 @@ pre-commit:
 				Extends:        []string{"global-extend.yml"},
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name:        "pre-commit",
 						Parallel:    true,
 						ExcludeTags: []string{"backend"},
 						Commands: map[string]*Command{
@@ -696,6 +717,7 @@ pre-commit:
 				Colors:         nil,
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name:     "pre-commit",
 						Parallel: false,
 						Commands: map[string]*Command{
 							"a": {
@@ -731,6 +753,7 @@ pre-commit:
 				SourceDirLocal: ".lefthook-local",
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name: "pre-commit",
 						Jobs: []*Job{
 							{Run: "1"},
 							{Run: "local 2", Name: "second"},
@@ -780,6 +803,7 @@ pre-commit:
 				SourceDirLocal: ".lefthook-local",
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name: "pre-commit",
 						Jobs: []*Job{
 							{
 								Name: "group 1",
@@ -829,6 +853,7 @@ pre-commit:
 				SourceDirLocal: ".lefthook-local",
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name: "pre-commit",
 						Jobs: []*Job{
 							{
 								Name: "job 1",
@@ -839,7 +864,7 @@ pre-commit:
 				},
 			},
 		},
-		"with .cofig/lefthook.yml": {
+		"with .config/lefthook.yml": {
 			files: map[string]string{
 				filepath.Join(".config", "lefthook.yml"): `
 pre-commit:
@@ -859,6 +884,7 @@ pre-commit:
 				SourceDirLocal: ".lefthook-local",
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name: "pre-commit",
 						Jobs: []*Job{
 							{
 								Name: "job 1",
@@ -869,14 +895,101 @@ pre-commit:
 				},
 			},
 		},
+		"with lefthook-local.yml only": {
+			files: map[string]string{
+				"lefthook-local.yml": `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+post-commit:
+  commands:
+    ping-done:
+      run: curl -x POST status.com/done
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         nil,
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Name:     "pre-commit",
+						Parallel: false,
+						Commands: map[string]*Command{
+							"tests": {
+								Run: "yarn test",
+							},
+						},
+					},
+					"post-commit": {
+						Name:     "post-commit",
+						Parallel: false,
+						Commands: map[string]*Command{
+							"ping-done": {
+								Run: "curl -x POST status.com/done",
+							},
+						},
+					},
+				},
+			},
+		},
+		"with .lefthook-local.yml only": {
+			files: map[string]string{
+				".lefthook-local.yml": `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         nil,
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Name:     "pre-commit",
+						Parallel: false,
+						Commands: map[string]*Command{
+							"tests": {
+								Run: "yarn test",
+							},
+						},
+					},
+				},
+			},
+		},
+		"custom config path": {
+			files: map[string]string{
+				"lefthook_custom.yml": `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+`,
+			},
+			pathOverride: "lefthook_custom.yml",
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Colors:         nil,
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Name:     "pre-commit",
+						Parallel: false,
+						Commands: map[string]*Command{
+							"tests": {
+								Run: "yarn test",
+							},
+						},
+					},
+				},
+			},
+		},
 	} {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
-		repo := &git.Repository{
-			Fs:       fs,
-			RootPath: root,
-			InfoPath: filepath.Join(root, ".git", "info"),
-		}
-
+		repo := gittest.NewRepositoryBuilder().Fs(fs).Root(root).Build()
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 
@@ -895,6 +1008,8 @@ pre-commit:
 				assert.NoError(fs.MkdirAll(filepath.Base(tt.remoteConfigPath), 0o755))
 				assert.NoError(fs.WriteFile(tt.remoteConfigPath, []byte(tt.remote), 0o644))
 			}
+
+			t.Setenv("LEFTHOOK_CONFIG", tt.pathOverride)
 
 			result, err := Load(fs.Fs, repo)
 			assert.NoError(err)
@@ -932,6 +1047,7 @@ run = "echo 1"
 				SourceDirLocal: DefaultSourceDirLocal,
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name: "pre-commit",
 						Commands: map[string]*Command{
 							"echo": {
 								Run: "echo 1",
@@ -943,11 +1059,7 @@ run = "echo 1"
 		},
 	} {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
-		repo := &git.Repository{
-			Fs:       fs,
-			RootPath: root,
-			InfoPath: filepath.Join(root, ".git", "info"),
-		}
+		repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Build()
 
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
 			assert := assert.New(t)
@@ -1007,7 +1119,8 @@ pre-commit:
 remotes:
   - git_url: https://github.com/evilmartians/lefthook
     ref: v1.0.0
-    config: examples/custom.yml
+    configs:
+      - examples/custom.yml
   - git_url: https://github.com/evilmartians/lefthook
     configs:
       - examples/remote/ping.yml
@@ -1062,6 +1175,7 @@ pre-commit:
 				},
 				Hooks: map[string]*Hook{
 					"pre-commit": {
+						Name: "pre-commit",
 						Only: []interface{}{map[string]interface{}{"ref": "main"}},
 						Commands: map[string]*Command{
 							"lint": {
@@ -1087,11 +1201,7 @@ pre-commit:
 		},
 	} {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
-		repo := &git.Repository{
-			Fs:       fs,
-			RootPath: root,
-			InfoPath: filepath.Join(root, ".git", "info"),
-		}
+		repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Build()
 
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)

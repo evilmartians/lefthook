@@ -1,5 +1,79 @@
 # Change log
 
+## 1.13.2 (2025-09-22)
+
+- feat: inherit file_types from parent jobs ([#1135](https://github.com/evilmartians/lefthook/pull/1135)) by [@mrexox]()
+- fix: move gen at root ([#1133](https://github.com/evilmartians/lefthook/pull/1133)) by [@mrexox]()
+- refactor: better scope subpackages ([#1132](https://github.com/evilmartians/lefthook/pull/1132)) by [@mrexox]()
+
+## 1.13.1 (2025-09-17)
+
+- feat: add no stage fixed argument ([#1130](https://github.com/evilmartians/lefthook/pull/1130)) by [@mrexox]()
+- refactor: reduce the amount of code in a single file ([#1131](https://github.com/evilmartians/lefthook/pull/1131)) by [@mrexox]()
+- fix: re-evaluate status for changeset ([#1129](https://github.com/evilmartians/lefthook/pull/1129)) by [@mrexox]()
+- refactor: reduce the amount of code in a single file ([#1118](https://github.com/evilmartians/lefthook/pull/1118)) by [@mrexox]()
+- chore: update issue templates by [@mrexox](https://github.com/mrexox)
+- docs: add fail_on_changes to configuration/README.md ([#1119](https://github.com/evilmartians/lefthook/pull/1119)) by [@7crabs](https://github.com/7crabs)
+- docs: update go installation note ([#1117](https://github.com/evilmartians/lefthook/pull/1117)) by [@leakedmemory](https://github.com/leakedmemory)
+
+
+## 1.13.0 (2025-09-11)
+
+- fix: use batched cmd for calculating git hashes ([#1116](https://github.com/evilmartians/lefthook/pull/1116)) by [@mrexox]()
+- fix: add mutex to prevent concurrent git adds ([#1115](https://github.com/evilmartians/lefthook/pull/1115)) by [@mrexox]()
+- refactor: improve structuring ([#1103](https://github.com/evilmartians/lefthook/pull/1103)) by [@mrexox]()
+- feat: fail on change ([#1095](https://github.com/evilmartians/lefthook/pull/1095)) by [@olivier-lacroix]()
+- fix: set --force for git add command ([#1104](https://github.com/evilmartians/lefthook/pull/1104)) by [@michaelm]()
+- feat: recursively log successful results in summary ([#1108](https://github.com/evilmartians/lefthook/pull/1108)) by [@siler]()
+- fix: groups with successes and skips are successful ([#1107](https://github.com/evilmartians/lefthook/pull/1107)) by [@siler]()
+
+## 1.12.4 (2025-09-05)
+
+- deps: September 2025 ([#1102](https://github.com/evilmartians/lefthook/pull/1102)) by [@mrexox]()
+- feat: add tags argument ([#1101](https://github.com/evilmartians/lefthook/pull/1101)) by [@mrexox]()
+- chore: bump github.com/go-viper/mapstructure/v2 ([#1094](https://github.com/evilmartians/lefthook/pull/1094))
+
+## 1.12.3 (2025-08-12)
+
+- feat: add MIME types to file_types filters ([#1092](https://github.com/evilmartians/lefthook/pull/1092))
+- fix: respect LEFTHOOK_CONFIG in lefthook install ([#1090](https://github.com/evilmartians/lefthook/pull/1090)) by [@TECHNOFAB11](https://github.com/TECHNOFAB11)
+- docs: update pnpm installation note ([#1089](https://github.com/evilmartians/lefthook/pull/1089)) by [@skoch13](https://github.com/skoch13)
+- docs: improve wording of `run`, `files`, and `files-global` config descriptions, document that the `sh` shell is used ([#1086](https://github.com/evilmartians/lefthook/pull/1086)) by [@ItsHarper](https://github.com/ItsHarper)
+- docs: 404 for local-config ([#1082](https://github.com/evilmartians/lefthook/pull/1082)) by [@rammanoj](https://github.com/rammanoj)
+- docs: fix typo ([#1079](https://github.com/evilmartians/lefthook/pull/1079)) by [@eai04191](https://github.com/eai04191)
+
+## 1.12.2 (2025-07-11)
+
+- feat: add implicit template lefthook_job_name ([#1074](https://github.com/evilmartians/lefthook/pull/1074))
+- docs: restructure documentation ([#1075](https://github.com/evilmartians/lefthook/pull/1075)) by [@mrexox](https://github.com/mrexox)
+- feat: allow overriding config path using LEFTHOOK_CONFIG env ([#1072](https://github.com/evilmartians/lefthook/pull/1072)) by [@TECHNOFAB11](https://github.com/TECHNOFAB11)
+
+## 1.12.1 (2025-07-09)
+
+- feat: add check-install command ([#1064](https://github.com/evilmartians/lefthook/pull/1064)) by [@mrexox](https://github.com/mrexox)
+- chore: only check if local configs exist by [@mrexox](https://github.com/mrexox)
+- feat: allow using local config only ([#1071](https://github.com/evilmartians/lefthook/pull/1071)) by [@sj26](https://github.com/sj26)
+
+## 1.12.0 (2025-07-08)
+
+- feat: allow installing only specific hooks ([#1069](https://github.com/evilmartians/lefthook/pull/1069))
+- refactor: [**breaking**] restructure files and folders, remove deprecated options ([#1067](https://github.com/evilmartians/lefthook/pull/1067))
+
+## 1.11.16 (2025-07-03)
+
+- fix: race condition on repo state ([#1066](https://github.com/evilmartians/lefthook/pull/1066))
+
+## 1.11.15 (2025-07-03)
+
+- feat: add exclude arg ([#1063](https://github.com/evilmartians/lefthook/pull/1063))
+- feat: inherit group envs ([#1061](https://github.com/evilmartians/lefthook/pull/1061))
+- fix: apply implicit staged files filter to all files when all files arg given ([#1062](https://github.com/evilmartians/lefthook/pull/1062))
+- deps: bump github.com/kaptinlin/jsonschema to 0.4.5
+- deps: bump github.com/knadh/koanf/parsers/yaml to 1.1.0
+- deps: bump github.com/knadh/koanf/v2 to 2.2.1 ([#1043](https://github.com/evilmartians/lefthook/pull/1043))
+- fix: friendlier updater error message
+- fix: bump goreleaser
+
 ## 1.11.14 (2025-06-16)
 
 - feat: show time for jobs ([#1044](https://github.com/evilmartians/lefthook/pull/1044)) by [@adeebshihadeh](https://github.com/adeebshihadeh)
@@ -907,3 +981,8 @@ Now it's possible to use Lefthook from Gemfile.
 
 gem 'lefthook'
 ```
+
+[@mrexox]: https://github.com/mrexox
+[@olivier-lacroix]: https://github.com/olivier-lacroix
+[@michael-pplx]: https://github.com/michael-pplx
+[@siler]: https://github.com/siler

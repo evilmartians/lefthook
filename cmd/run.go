@@ -6,22 +6,22 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/evilmartians/lefthook/internal/command"
 	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/lefthook"
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
 type run struct{}
 
-func (run) New(opts *lefthook.Options) *cobra.Command {
-	runArgs := lefthook.RunArgs{}
+func (run) New(opts *command.Options) *cobra.Command {
+	runArgs := command.RunArgs{}
 
 	runHookCompletions := func(cmd *cobra.Command, args []string, toComplete string) (ret []string, compDir cobra.ShellCompDirective) {
 		compDir = cobra.ShellCompDirectiveNoFileComp
 		if len(args) != 0 {
 			return
 		}
-		ret = lefthook.ConfigHookCompletions(opts)
+		ret = command.ConfigHookCompletions(opts)
 		other := slices.Sorted(maps.Keys(config.AvailableHooks))
 		ret = append(ret, other...)
 		return
@@ -32,7 +32,7 @@ func (run) New(opts *lefthook.Options) *cobra.Command {
 		if len(args) == 0 {
 			return
 		}
-		ret = lefthook.ConfigHookCommandCompletions(opts, args[0])
+		ret = command.ConfigHookCommandCompletions(opts, args[0])
 		return
 	}
 
@@ -41,7 +41,7 @@ func (run) New(opts *lefthook.Options) *cobra.Command {
 		if len(args) == 0 {
 			return
 		}
-		ret = lefthook.ConfigHookJobCompletions(opts, args[0])
+		ret = command.ConfigHookJobCompletions(opts, args[0])
 		return
 	}
 
@@ -54,7 +54,7 @@ func (run) New(opts *lefthook.Options) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// args[0] - hook name
 			// args[1:] - git hook arguments, number and value depends on the hook
-			return lefthook.Run(opts, runArgs, args[0], args[1:])
+			return command.Run(opts, runArgs, args[0], args[1:])
 		},
 	}
 
@@ -66,6 +66,11 @@ func (run) New(opts *lefthook.Options) *cobra.Command {
 	runCmd.Flags().BoolVarP(
 		&runArgs.NoTTY, "no-tty", "n", false,
 		"run hook non-interactively, disable spinner",
+	)
+
+	runCmd.Flags().BoolVar(
+		&runArgs.FailOnChanges, "fail-on-changes", false,
+		"fail hook if it modifies any file",
 	)
 
 	runCmd.Flags().BoolVar(
@@ -98,6 +103,11 @@ func (run) New(opts *lefthook.Options) *cobra.Command {
 		"run on specified file (repeat for multiple files). takes precedence over --all-files",
 	)
 
+	runCmd.Flags().StringArrayVar(
+		&runArgs.Exclude, "exclude", nil,
+		"exclude specified file (repeat for multiple files)",
+	)
+
 	runCmd.Flags().StringSliceVar(
 		&runArgs.RunOnlyCommands, "commands", nil,
 		"run only specified commands",
@@ -106,6 +116,16 @@ func (run) New(opts *lefthook.Options) *cobra.Command {
 	runCmd.Flags().StringSliceVar(
 		&runArgs.RunOnlyJobs, "jobs", nil,
 		"run only specified jobs",
+	)
+
+	runCmd.Flags().StringSliceVar(
+		&runArgs.RunOnlyTags, "tags", nil,
+		"run only jobs with specified tags",
+	)
+
+	runCmd.Flags().BoolVar(
+		&runArgs.NoStageFixed, "no-stage-fixed", false,
+		"disable 'stage_fixed: true' setting",
 	)
 
 	err := runCmd.Flags().MarkDeprecated("files", "use --file flag instead")

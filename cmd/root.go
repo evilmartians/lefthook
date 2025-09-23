@@ -2,24 +2,20 @@ package cmd
 
 import (
 	"github.com/MakeNowJust/heredoc"
-	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 
-	"github.com/evilmartians/lefthook/internal/lefthook"
+	"github.com/evilmartians/lefthook/internal/command"
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
 func newRootCmd() *cobra.Command {
-	options := lefthook.Options{
-		Fs: afero.NewOsFs(),
-	}
+	options := command.Options{}
 
 	rootCmd := &cobra.Command{
 		Use:   "lefthook",
 		Short: "CLI tool to manage Git hooks",
 		Long: heredoc.Doc(`
-				After installation go to your project directory
-				and execute the following command:
+				After installation go to your project directory and execute the following command:
 				lefthook install
 		`),
 		SilenceUsage:  true,
@@ -38,24 +34,7 @@ func newRootCmd() *cobra.Command {
 		&options.NoColors, "no-colors", false, "disable colored output",
 	)
 
-	// To be dropped in next releases.
-	rootCmd.Flags().BoolVarP(
-		&options.Force, "force", "f", false,
-		"use command-specific --force option",
-	)
-	rootCmd.Flags().BoolVarP(
-		&options.Aggressive, "aggressive", "a", false,
-		"use --force flag instead",
-	)
 	err := rootCmd.PersistentFlags().MarkDeprecated("no-colors", "use --colors")
-	if err != nil {
-		log.Warn("Unexpected error:", err)
-	}
-	err = rootCmd.Flags().MarkDeprecated("aggressive", "use command-specific --force option")
-	if err != nil {
-		log.Warn("Unexpected error:", err)
-	}
-	err = rootCmd.Flags().MarkDeprecated("force", "use command-specific --force option")
 	if err != nil {
 		log.Warn("Unexpected error:", err)
 	}

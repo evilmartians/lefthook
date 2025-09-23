@@ -1,6 +1,6 @@
 ## `run`
 
-This is a mandatory option for a command. This is actually a command that is executed for the hook.
+This is a mandatory option for a command, which specifies the actual command to be run using the `sh` shell.
 
 You can use files templates that will be substituted with the appropriate files on execution:
 
@@ -11,6 +11,7 @@ You can use files templates that will be substituted with the appropriate files 
 - `{cmd}` - shorthand for the command from `lefthook.yml`.
 - `{0}` - shorthand for the single space-joint string of git hook arguments.
 - `{N}` - shorthand for the N-th git hook argument.
+- `{lefthook_job_name}` - current job/command/script name
 
 > **Note:** Command line length has a limit on every system. If your list of files is quite long, lefthook splits your files list to fit in the limit and runs few commands sequentially.
 

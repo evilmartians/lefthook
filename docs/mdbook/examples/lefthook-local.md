@@ -1,10 +1,8 @@
 ## lefthook-local.yml
 
-`lefthook-local.yml` overrides and extends the configuration of your main `lefthook.yml` (or `lefthook.toml`, [etc.](../configuration)) file.
-
 > **Tip:** You can put `lefthook-local.yml` into your `~/.gitignore`, so in every project you can have your local-only overrides.
 
-*Special feature* of `lefthook-local.yml`: you can wrap the commands using `{cmd}` template.
+`lefthook-local.yml` overrides and extends the configuration of your main `lefthook.yml`.
 
 ```yml
 # lefthook.yml
@@ -40,8 +38,9 @@ post-merge:
 
 ---
 
+### The merged config lefthook will use
+
 ```yml
-# The resulting config would look like this
 
 pre-commit:
   parallel: true

@@ -5,17 +5,18 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/evilmartians/lefthook/internal/lefthook"
+	"github.com/evilmartians/lefthook/internal/command"
 )
 
-type command interface {
-	New(*lefthook.Options) *cobra.Command
+type cmd interface {
+	New(*command.Options) *cobra.Command
 }
 
-var commands = [...]command{
+var commands = [...]cmd{
 	version{},
 	add{},
 	install{},
+	checkInstall{},
 	uninstall{},
 	run{},
 	dump{},
