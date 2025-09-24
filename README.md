@@ -22,7 +22,7 @@ A Git hooks manager for Node.js, Ruby, Python and many other types of projects.
 With **Go** (>= 1.25):
 
 ```bash
-go install github.com/evilmartians/lefthook@latest
+go install github.com/evilmartians/lefthook@v1.13.4
 ```
 
 * or as a go tool
