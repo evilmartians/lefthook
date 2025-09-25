@@ -13,13 +13,13 @@ import (
 )
 
 const (
-	// Test constants for concurrent access
-	testConcurrentGoroutines = 10
+	// Test constants for concurrent access.
+	testConcurrentGoroutines   = 10
 	testOperationsPerGoroutine = 50
 
-	// Benchmark constants
+	// Benchmark constants.
 	benchmarkPrePopulationSize = 1000
-	benchmarkMixedOperations = 100
+	benchmarkMixedOperations   = 100
 )
 
 func TestLogger_SetName(t *testing.T) {
@@ -217,8 +217,8 @@ func TestLogger_LongHookNames(t *testing.T) {
 	assert := assert.New(t)
 	logger := createTestLogger()
 
-	// TODO: This test documents current behavior that causes terminal wrapping
-	// See issue #1144 for planned terminal width handling
+	// TODO: This test documents current behavior that causes terminal wrapping.
+	// See issue #1144 for planned terminal width handling.
 	// Test with very long hook names that would exceed typical terminal width
 	longNames := []string{
 		"very-long-hook-name-that-exceeds-normal-terminal-width-and-would-cause-wrapping-issues",
@@ -251,12 +251,12 @@ func TestLogger_ConcurrentAccess(t *testing.T) {
 	var wg sync.WaitGroup
 
 	// Start goroutines that concurrently add and remove names
-	for i := 0; i < testConcurrentGoroutines; i++ {
+	for i := range testConcurrentGoroutines {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
 
-			for j := 0; j < testOperationsPerGoroutine; j++ {
+			for j := range testOperationsPerGoroutine {
 				hookName := fmt.Sprintf("hook-%d-%d", id, j)
 
 				// Add name
@@ -332,13 +332,13 @@ func TestGlobalSetNameUnsetName(t *testing.T) {
 	assert.Equal(" waiting", std.spinner.Suffix)
 }
 
-// Helper function to create a test logger
+// Helper function to create a test logger.
 func createTestLogger() *Logger {
 	return &Logger{
-		level:   InfoLevel,
-		out:     &bytes.Buffer{},
-		colors:  ColorOff,
-		names:   []string{},
+		level:  InfoLevel,
+		out:    &bytes.Buffer{},
+		colors: ColorOff,
+		names:  []string{},
 		spinner: spinner.New(
 			spinner.CharSets[spinnerCharSet],
 			spinnerRefreshRate,
@@ -347,12 +347,12 @@ func createTestLogger() *Logger {
 	}
 }
 
-// Benchmark tests to understand performance characteristics
+// Benchmark tests to understand performance characteristics.
 func BenchmarkSetName(b *testing.B) {
 	logger := createTestLogger()
-	
+
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for i := range b.N {
 		logger.SetName(fmt.Sprintf("hook-%d", i))
 	}
 }
@@ -361,12 +361,12 @@ func BenchmarkUnsetName(b *testing.B) {
 	logger := createTestLogger()
 
 	// Pre-populate with names
-	for i := 0; i < benchmarkPrePopulationSize; i++ {
+	for i := range benchmarkPrePopulationSize {
 		logger.names = append(logger.names, fmt.Sprintf("hook-%d", i))
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for i := range b.N {
 		logger.UnsetName(fmt.Sprintf("hook-%d", i%benchmarkPrePopulationSize))
 	}
 }
@@ -375,7 +375,7 @@ func BenchmarkSetNameUnsetName(b *testing.B) {
 	logger := createTestLogger()
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for i := range b.N {
 		hookName := fmt.Sprintf("hook-%d", i)
 		logger.SetName(hookName)
 		logger.UnsetName(hookName)
@@ -386,12 +386,12 @@ func BenchmarkMixedOperations(b *testing.B) {
 	logger := createTestLogger()
 
 	// Pre-populate with some names to simulate realistic usage
-	for i := 0; i < benchmarkMixedOperations/2; i++ {
+	for i := range benchmarkMixedOperations / 2 {
 		logger.SetName(fmt.Sprintf("initial-hook-%d", i))
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for i := range b.N {
 		hookName := fmt.Sprintf("mixed-hook-%d", i)
 
 		// Add new name
