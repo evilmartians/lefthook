@@ -217,7 +217,7 @@ func TestLogger_LongHookNames(t *testing.T) {
 	assert := assert.New(t)
 	logger := createTestLogger()
 
-	// TODO: This test documents current behavior that causes terminal wrapping.
+	// This test documents current behavior that causes terminal wrapping.
 	// See issue #1144 for planned terminal width handling.
 	// Test with very long hook names that would exceed typical terminal width
 	longNames := []string{
