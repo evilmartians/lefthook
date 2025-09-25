@@ -19,6 +19,7 @@ const (
 
 	// Benchmark constants
 	benchmarkPrePopulationSize = 1000
+	benchmarkMixedOperations = 100
 )
 
 func TestLogger_SetName(t *testing.T) {
@@ -216,6 +217,8 @@ func TestLogger_LongHookNames(t *testing.T) {
 	assert := assert.New(t)
 	logger := createTestLogger()
 
+	// TODO: This test documents current behavior that causes terminal wrapping
+	// See issue #1144 for planned terminal width handling
 	// Test with very long hook names that would exceed typical terminal width
 	longNames := []string{
 		"very-long-hook-name-that-exceeds-normal-terminal-width-and-would-cause-wrapping-issues",
@@ -370,11 +373,36 @@ func BenchmarkUnsetName(b *testing.B) {
 
 func BenchmarkSetNameUnsetName(b *testing.B) {
 	logger := createTestLogger()
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		hookName := fmt.Sprintf("hook-%d", i)
 		logger.SetName(hookName)
+		logger.UnsetName(hookName)
+	}
+}
+
+func BenchmarkMixedOperations(b *testing.B) {
+	logger := createTestLogger()
+
+	// Pre-populate with some names to simulate realistic usage
+	for i := 0; i < benchmarkMixedOperations/2; i++ {
+		logger.SetName(fmt.Sprintf("initial-hook-%d", i))
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		hookName := fmt.Sprintf("mixed-hook-%d", i)
+
+		// Add new name
+		logger.SetName(hookName)
+
+		// Occasionally remove an existing name
+		if i%3 == 0 && len(logger.names) > 1 {
+			logger.UnsetName(logger.names[0])
+		}
+
+		// Remove the name we just added
 		logger.UnsetName(hookName)
 	}
 }
