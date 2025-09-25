@@ -11,6 +11,9 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mattn/go-isatty"
+	"github.com/mattn/go-runewidth"
+	"golang.org/x/term"
 
 	"github.com/evilmartians/lefthook/internal/version"
 )
@@ -454,7 +457,7 @@ func (l *Logger) SetName(name string) {
 	}
 
 	l.names = append(l.names, name)
-	l.spinner.Suffix = fmt.Sprintf("%s: %s", spinnerText, strings.Join(l.names, ", "))
+	l.spinner.Suffix = l.formatSpinnerSuffix(l.names)
 }
 
 func (l *Logger) UnsetName(name string) {
@@ -478,12 +481,7 @@ func (l *Logger) UnsetName(name string) {
 	}
 
 	l.names = newNames
-
-	if len(l.names) != 0 {
-		l.spinner.Suffix = fmt.Sprintf("%s: %s", spinnerText, strings.Join(l.names, ", "))
-	} else {
-		l.spinner.Suffix = spinnerText
-	}
+	l.spinner.Suffix = l.formatSpinnerSuffix(l.names)
 }
 
 func (l *Logger) Logf(level Level, format string, args ...interface{}) {
@@ -518,4 +516,119 @@ func (l *Logger) Printf(format string, args ...interface{}) {
 
 func (l *Logger) IsLevelEnabled(level Level) bool {
 	return l.level >= level
+}
+
+// formatSpinnerSuffix creates a spinner suffix that respects terminal width constraints.
+// It tries multiple strategies to fit the hook names within the available terminal width.
+func (l *Logger) formatSpinnerSuffix(names []string) string {
+	if len(names) == 0 {
+		return spinnerText
+	}
+
+	// Try to get terminal width
+	terminalWidth := l.getTerminalWidth()
+	if terminalWidth <= 0 {
+		// Fallback to current behavior if we can't detect terminal width
+		return fmt.Sprintf("%s: %s", spinnerText, strings.Join(names, ", "))
+	}
+
+	// Reserve space for spinner character (1) + space (1) + some padding (8)
+	// This accounts for the spinning character and reasonable margin
+	availableWidth := terminalWidth - 10
+
+	// Strategy 1: Try to fit all names with full formatting
+	fullSuffix := fmt.Sprintf("%s: %s", spinnerText, strings.Join(names, ", "))
+	if runewidth.StringWidth(fullSuffix) <= availableWidth {
+		return fullSuffix
+	}
+
+	// Strategy 2: Try showing just the count
+	countSuffix := fmt.Sprintf("%s: %d hook%s", spinnerText, len(names), pluralize(len(names)))
+	if runewidth.StringWidth(countSuffix) <= availableWidth {
+		return countSuffix
+	}
+
+	// Strategy 3: Show as many individual names as possible, then count
+	return l.formatWithPartialNames(names, availableWidth)
+}
+
+// getTerminalWidth attempts to detect the current terminal width
+func (l *Logger) getTerminalWidth() int {
+	// Check if we're writing to a TTY
+	if !isatty.IsTerminal(os.Stdout.Fd()) {
+		return 0 // Not a terminal, don't constrain
+	}
+
+	// Try to get terminal size
+	width, _, err := term.GetSize(int(os.Stdout.Fd()))
+	if err != nil {
+		return 0 // Can't determine size, don't constrain
+	}
+
+	return width
+}
+
+// formatWithPartialNames shows as many hook names as possible, then adds count for remaining
+func (l *Logger) formatWithPartialNames(names []string, availableWidth int) string {
+	if len(names) == 0 {
+		return spinnerText
+	}
+
+	baseText := spinnerText + ": "
+	baseWidth := runewidth.StringWidth(baseText)
+	remainingWidth := availableWidth - baseWidth
+
+	// Try to fit names one by one
+	var fittingNames []string
+	currentWidth := 0
+
+	for i, name := range names {
+		nameWidth := runewidth.StringWidth(name)
+		
+		// Add comma and space for all but first name
+		if i > 0 {
+			nameWidth += 2 // ", "
+		}
+
+		// Check if we need space for "... (N more)" suffix
+		remainingCount := len(names) - i
+		if remainingCount > 1 {
+			moreSuffix := fmt.Sprintf(", ... (%d more)", remainingCount-1)
+			moreSuffixWidth := runewidth.StringWidth(moreSuffix)
+			
+			if currentWidth+nameWidth+moreSuffixWidth > remainingWidth {
+				// Add the "more" suffix and break
+				if len(fittingNames) > 0 {
+					return fmt.Sprintf("%s%s, ... (%d more)", baseText, strings.Join(fittingNames, ", "), remainingCount)
+				}
+				// If we can't fit even one name, just show count
+				return fmt.Sprintf("%s%d hook%s", baseText, len(names), pluralize(len(names)))
+			}
+		}
+
+		if currentWidth+nameWidth <= remainingWidth {
+			fittingNames = append(fittingNames, name)
+			currentWidth += nameWidth
+		} else {
+			// This name doesn't fit
+			if len(fittingNames) == 0 {
+				// Can't fit any names, just show count
+				return fmt.Sprintf("%s%d hook%s", baseText, len(names), pluralize(len(names)))
+			}
+			// Show what we have plus count
+			remainingCount := len(names) - len(fittingNames)
+			return fmt.Sprintf("%s%s, ... (%d more)", baseText, strings.Join(fittingNames, ", "), remainingCount)
+		}
+	}
+
+	// All names fit
+	return fmt.Sprintf("%s%s", baseText, strings.Join(fittingNames, ", "))
+}
+
+// pluralize returns "s" for counts != 1, empty string otherwise
+func pluralize(count int) string {
+	if count == 1 {
+		return ""
+	}
+	return "s"
 }

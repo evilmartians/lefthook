@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/briandowns/spinner"
+	"github.com/mattn/go-runewidth"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -385,4 +386,343 @@ func BenchmarkSetNameUnsetName(b *testing.B) {
 		logger.SetName(hookName)
 		logger.UnsetName(hookName)
 	}
+}
+
+// Terminal width handling tests
+func TestLogger_FormatSpinnerSuffix(t *testing.T) {
+	tests := []struct {
+		name          string
+		names         []string
+		terminalWidth int
+		expected      string
+	}{
+		{
+			name:          "empty names",
+			names:         []string{},
+			terminalWidth: 80,
+			expected:      " waiting",
+		},
+		{
+			name:          "single short name fits",
+			names:         []string{"test"},
+			terminalWidth: 80,
+			expected:      " waiting: test",
+		},
+		{
+			name:          "multiple short names fit",
+			names:         []string{"hook1", "hook2", "hook3"},
+			terminalWidth: 80,
+			expected:      " waiting: hook1, hook2, hook3",
+		},
+		{
+			name:          "names too long, show count",
+			names:         []string{"very-long-hook-name-1", "very-long-hook-name-2", "very-long-hook-name-3"},
+			terminalWidth: 30,
+			expected:      " waiting: 3 hooks",
+		},
+		{
+			name:          "single hook, singular",
+			names:         []string{"hook1"},
+			terminalWidth: 20,
+			expected:      " waiting: 1 hook",
+		},
+		{
+			name:          "short names all fit in available width",
+			names:         []string{"a", "b", "c", "d", "e"},
+			terminalWidth: 35, // All short names fit
+			expected:      " waiting: a, b, c, d, e",
+		},
+		{
+			name:          "names too wide, fallback to count",
+			names:         []string{"hook", "test", "verylongname", "another", "final"},
+			terminalWidth: 30, // Too narrow, shows count instead
+			expected:      " waiting: 5 hooks",
+		},
+		{
+			name:          "unicode characters handled correctly",
+			names:         []string{"🥊-hook", "test"},
+			terminalWidth: 80,
+			expected:      " waiting: 🥊-hook, test",
+		},
+		{
+			name:          "no terminal width constraint (width 0)",
+			names:         []string{"hook1", "hook2", "very-long-name"},
+			terminalWidth: 0,
+			expected:      " waiting: hook1, hook2, very-long-name",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			logger := createTestLoggerWithWidth(tt.terminalWidth)
+			result := logger.formatSpinnerSuffix(tt.names)
+			
+			// Debug output for failing tests
+			if result != tt.expected {
+				t.Logf("Terminal width: %d", tt.terminalWidth)
+				t.Logf("Available width: %d", tt.terminalWidth-10)
+				t.Logf("Expected: %q", tt.expected)
+				t.Logf("Actual: %q", result)
+			}
+			
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func TestLogger_GetTerminalWidth(t *testing.T) {
+	logger := createTestLogger()
+	
+	// This test will vary based on the actual terminal, but we can test the basic functionality
+	width := logger.getTerminalWidth()
+	
+	// Width should be either 0 (not a TTY) or a positive number
+	assert.True(t, width >= 0, "Terminal width should be non-negative")
+	
+	// Log the detected width for debugging
+	t.Logf("Detected terminal width: %d", width)
+}
+
+func TestLogger_FormatWithPartialNames(t *testing.T) {
+	tests := []struct {
+		name           string
+		names          []string
+		availableWidth int
+		expectedResult string
+	}{
+		{
+			name:           "empty names",
+			names:          []string{},
+			availableWidth: 50,
+			expectedResult: " waiting",
+		},
+		{
+			name:           "all names fit",
+			names:          []string{"a", "b", "c"},
+			availableWidth: 50,
+			expectedResult: " waiting: a, b, c",
+		},
+		{
+			name:           "partial names fit",
+			names:          []string{"hook1", "hook2", "very-long-hook-name"},
+			availableWidth: 30,
+			expectedResult: " waiting: hook1, ... (2 more)",
+		},
+		{
+			name:           "very narrow width, show count only",
+			names:          []string{"hook1", "hook2"},
+			availableWidth: 15,
+			expectedResult: " waiting: 2 hooks",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			logger := createTestLogger()
+			result := logger.formatWithPartialNames(tt.names, tt.availableWidth)
+			assert.Equal(t, tt.expectedResult, result)
+		})
+	}
+}
+
+func TestPluralize(t *testing.T) {
+	tests := []struct {
+		count    int
+		expected string
+	}{
+		{0, "s"},
+		{1, ""},
+		{2, "s"},
+		{10, "s"},
+	}
+
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("count_%d", tt.count), func(t *testing.T) {
+			result := pluralize(tt.count)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func TestLogger_TerminalWidthIntegration(t *testing.T) {
+	// Test the integration of SetName/UnsetName with terminal width handling
+	logger := createTestLoggerWithWidth(50) // Simulate 50-character terminal
+	
+	// Add hooks that would exceed width
+	longHooks := []string{
+		"very-long-hook-name-1",
+		"very-long-hook-name-2", 
+		"very-long-hook-name-3",
+		"very-long-hook-name-4",
+	}
+	
+	for _, hook := range longHooks {
+		logger.SetName(hook)
+	}
+	
+	// Should show count instead of all names
+	assert.Contains(t, logger.spinner.Suffix, "hooks")
+	assert.NotContains(t, logger.spinner.Suffix, "very-long-hook-name-4")
+	
+	// Remove some hooks
+	logger.UnsetName("very-long-hook-name-1")
+	logger.UnsetName("very-long-hook-name-2")
+	
+	// Should still be truncated
+	assert.Contains(t, logger.spinner.Suffix, "waiting:")
+	
+	// Remove all hooks
+	logger.UnsetName("very-long-hook-name-3")
+	logger.UnsetName("very-long-hook-name-4")
+	
+	// Should be back to basic waiting
+	assert.Equal(t, " waiting", logger.spinner.Suffix)
+}
+
+// Helper function to create a test logger with simulated terminal width
+func createTestLoggerWithWidth(width int) *testLoggerWithWidth {
+	baseLogger := createTestLogger()
+	return &testLoggerWithWidth{
+		Logger:         baseLogger,
+		simulatedWidth: width,
+	}
+}
+
+// testLoggerWithWidth wraps Logger to simulate different terminal widths
+type testLoggerWithWidth struct {
+	*Logger
+	simulatedWidth int
+}
+
+// Override getTerminalWidth for testing
+func (t *testLoggerWithWidth) getTerminalWidth() int {
+	return t.simulatedWidth
+}
+
+// Override formatSpinnerSuffix to use our test width
+func (t *testLoggerWithWidth) formatSpinnerSuffix(names []string) string {
+	if len(names) == 0 {
+		return spinnerText
+	}
+
+	// Use simulated terminal width
+	terminalWidth := t.simulatedWidth
+	if terminalWidth <= 0 {
+		// Fallback to current behavior if we can't detect terminal width
+		return fmt.Sprintf("%s: %s", spinnerText, strings.Join(names, ", "))
+	}
+
+	// Reserve space for spinner character (1) + space (1) + some padding (8)
+	availableWidth := terminalWidth - 10
+
+	// Strategy 1: Try to fit all names with full formatting
+	fullSuffix := fmt.Sprintf("%s: %s", spinnerText, strings.Join(names, ", "))
+	if runewidth.StringWidth(fullSuffix) <= availableWidth {
+		return fullSuffix
+	}
+
+	// Strategy 2: Try showing just the count
+	countSuffix := fmt.Sprintf("%s: %d hook%s", spinnerText, len(names), pluralize(len(names)))
+	if runewidth.StringWidth(countSuffix) <= availableWidth {
+		return countSuffix
+	}
+
+	// Strategy 3: Show as many individual names as possible, then count
+	return t.formatWithPartialNames(names, availableWidth)
+}
+
+// Override SetName to use our custom formatSpinnerSuffix
+func (t *testLoggerWithWidth) SetName(name string) {
+	t.Logger.mu.Lock()
+	defer t.Logger.mu.Unlock()
+
+	if t.Logger.spinner.Active() {
+		t.Logger.spinner.Stop()
+		defer t.Logger.spinner.Start()
+	}
+
+	t.Logger.names = append(t.Logger.names, name)
+	t.Logger.spinner.Suffix = t.formatSpinnerSuffix(t.Logger.names)
+}
+
+// Override UnsetName to use our custom formatSpinnerSuffix
+func (t *testLoggerWithWidth) UnsetName(name string) {
+	t.Logger.mu.Lock()
+	defer t.Logger.mu.Unlock()
+
+	if t.Logger.spinner.Active() {
+		t.Logger.spinner.Stop()
+		defer t.Logger.spinner.Start()
+	}
+
+	capacity := len(t.Logger.names)
+	if capacity > 0 {
+		capacity--
+	}
+	newNames := make([]string, 0, capacity)
+	for _, n := range t.Logger.names {
+		if n != name {
+			newNames = append(newNames, n)
+		}
+	}
+
+	t.Logger.names = newNames
+	t.Logger.spinner.Suffix = t.formatSpinnerSuffix(t.Logger.names)
+}
+
+// formatWithPartialNames for the test logger
+func (t *testLoggerWithWidth) formatWithPartialNames(names []string, availableWidth int) string {
+	if len(names) == 0 {
+		return spinnerText
+	}
+
+	baseText := spinnerText + ": "
+	baseWidth := runewidth.StringWidth(baseText)
+	remainingWidth := availableWidth - baseWidth
+
+	// Try to fit names one by one
+	var fittingNames []string
+	currentWidth := 0
+
+	for i, name := range names {
+		nameWidth := runewidth.StringWidth(name)
+		
+		// Add comma and space for all but first name
+		if i > 0 {
+			nameWidth += 2 // ", "
+		}
+
+		// Check if we need space for "... (N more)" suffix
+		remainingCount := len(names) - i
+		if remainingCount > 1 {
+			moreSuffix := fmt.Sprintf(", ... (%d more)", remainingCount-1)
+			moreSuffixWidth := runewidth.StringWidth(moreSuffix)
+			
+			if currentWidth+nameWidth+moreSuffixWidth > remainingWidth {
+				// Add the "more" suffix and break
+				if len(fittingNames) > 0 {
+					return fmt.Sprintf("%s%s, ... (%d more)", baseText, strings.Join(fittingNames, ", "), remainingCount)
+				}
+				// If we can't fit even one name, just show count
+				return fmt.Sprintf("%s%d hook%s", baseText, len(names), pluralize(len(names)))
+			}
+		}
+
+		if currentWidth+nameWidth <= remainingWidth {
+			fittingNames = append(fittingNames, name)
+			currentWidth += nameWidth
+		} else {
+			// This name doesn't fit
+			if len(fittingNames) == 0 {
+				// Can't fit any names, just show count
+				return fmt.Sprintf("%s%d hook%s", baseText, len(names), pluralize(len(names)))
+			}
+			// Show what we have plus count
+			remainingCount := len(names) - len(fittingNames)
+			return fmt.Sprintf("%s%s, ... (%d more)", baseText, strings.Join(fittingNames, ", "), remainingCount)
+		}
+	}
+
+	// All names fit
+	return fmt.Sprintf("%s%s", baseText, strings.Join(fittingNames, ", "))
 }
