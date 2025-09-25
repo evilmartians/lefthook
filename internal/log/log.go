@@ -466,7 +466,11 @@ func (l *Logger) UnsetName(name string) {
 		defer l.spinner.Start()
 	}
 
-	newNames := make([]string, 0, len(l.names)-1)
+	capacity := len(l.names)
+	if capacity > 0 {
+		capacity--
+	}
+	newNames := make([]string, 0, capacity)
 	for _, n := range l.names {
 		if n != name {
 			newNames = append(newNames, n)
