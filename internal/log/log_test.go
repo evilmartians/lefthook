@@ -251,12 +251,12 @@ func TestLogger_ConcurrentAccess(t *testing.T) {
 	var wg sync.WaitGroup
 
 	// Start goroutines that concurrently add and remove names
-	for i := 0; i < testConcurrentGoroutines; i++ {
+	for i := range testConcurrentGoroutines {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
 
-			for j := 0; j < testOperationsPerGoroutine; j++ {
+			for j := range testOperationsPerGoroutine {
 				hookName := fmt.Sprintf("hook-%d-%d", id, j)
 
 				// Add name
@@ -352,7 +352,7 @@ func BenchmarkSetName(b *testing.B) {
 	logger := createTestLogger()
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for i := range b.N {
 		logger.SetName(fmt.Sprintf("hook-%d", i))
 	}
 }
@@ -361,12 +361,12 @@ func BenchmarkUnsetName(b *testing.B) {
 	logger := createTestLogger()
 
 	// Pre-populate with names
-	for i := 0; i < benchmarkPrePopulationSize; i++ {
+	for i := range benchmarkPrePopulationSize {
 		logger.names = append(logger.names, fmt.Sprintf("hook-%d", i))
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for i := range b.N {
 		logger.UnsetName(fmt.Sprintf("hook-%d", i%benchmarkPrePopulationSize))
 	}
 }
@@ -375,7 +375,7 @@ func BenchmarkSetNameUnsetName(b *testing.B) {
 	logger := createTestLogger()
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for i := range b.N {
 		hookName := fmt.Sprintf("hook-%d", i)
 		logger.SetName(hookName)
 		logger.UnsetName(hookName)
@@ -386,12 +386,12 @@ func BenchmarkMixedOperations(b *testing.B) {
 	logger := createTestLogger()
 
 	// Pre-populate with some names to simulate realistic usage
-	for i := 0; i < benchmarkMixedOperations/2; i++ {
+	for i := range benchmarkMixedOperations / 2 {
 		logger.SetName(fmt.Sprintf("initial-hook-%d", i))
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for i := range b.N {
 		hookName := fmt.Sprintf("mixed-hook-%d", i)
 
 		// Add new name
