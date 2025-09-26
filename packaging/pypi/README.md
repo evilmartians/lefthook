@@ -1,5 +1,5 @@
 ![Build Status](https://github.com/evilmartians/lefthook/actions/workflows/test.yml/badge.svg?branch=master)
-[![Coverage Status](https://coveralls.io/repos/github/evilmartians/lefthook/badge.svg?branch=master)](https://coveralls.io/github/evilmartians/lefthook?branch=master)
+[![codecov](https://codecov.io/gh/evilmartians/lefthook/graph/badge.svg?token=d93ya8MfmB)](https://codecov.io/gh/evilmartians/lefthook)
 
 # Lefthook
 
