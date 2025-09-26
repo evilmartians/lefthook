@@ -1,0 +1,9 @@
+exec git init
+! exec lefthook validate --schema $SCHEMAPATH
+
+-- lefthook.yml --
+pre-commit:
+  jobs:
+    - run: echo test
+      wait_what: emm
+
