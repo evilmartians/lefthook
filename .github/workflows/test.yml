@@ -21,12 +21,10 @@ jobs:
       - name: Test
         run: go test $(go list ./... | grep -v '/gen$') -coverprofile coverage.out
       - name: Report coverage
-        uses: codecov/codecov-action@v3
-        # uses: coverallsapp/github-action@v2
-        # with:
-        #   file: coverage.out
-        #   parallel: true
-        #   flag-name: ${{ join(matrix.*, ' ') }}
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: ${{ join(matrix.*, ' ') }}
 
   test-integrity:
     strategy:
@@ -56,13 +54,10 @@ jobs:
         run: |
           go tool covdata textfmt -i _icoverdir_ -o coverage.out
       - name: Report coverage
-        uses: codecov/codecov-action@v3
-        # uses: coverallsapp/github-action@v2
-        # with:
-        #   file: coverage.out
-        #   format: golang
-        #   parallel: true
-        #   flag-name: integration-${{ join(matrix.*, ' ') }}
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: integration-${{ join(matrix.*, ' ') }}
 
   build:
     runs-on: ubuntu-latest
@@ -87,13 +82,3 @@ jobs:
           name: Executables
           path: lefthook-binaries.tar
 
-  # coverage:
-  #   runs-on: ubuntu-latest
-  #   needs:
-  #     - test
-  #     - test-integrity
-  #   steps:
-  #     - uses: coverallsapp/github-action@v2
-  #       with:
-  #         carryforward: "integration-ubuntu-latest,integration-macos-latest,integration-windows-latest,ubuntu-latest,macos-latest,windows-latest"
-  #         parallel-finished: true
