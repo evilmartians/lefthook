@@ -26,7 +26,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: ${{ join(matrix.*, ' ') }}
 
-  test-integrity:
+  test-integration:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -44,12 +44,12 @@ jobs:
         run: |
           mkdir _icoverdir_
           go install -cover
-      - name: Run integrity tests
+      - name: Run integration tests
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 5
           max_attempts: 3
-          command: go test integrity_test.go -tags=integrity
+          command: go test integration_test.go -tags=integration
       - name: Collect coverage
         run: |
           go tool covdata textfmt -i _icoverdir_ -o coverage.out
@@ -81,4 +81,3 @@ jobs:
         with:
           name: Executables
           path: lefthook-binaries.tar
-
