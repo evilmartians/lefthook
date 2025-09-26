@@ -252,12 +252,12 @@ func TestLogger_ConcurrentAccess(t *testing.T) {
 	var wg sync.WaitGroup
 
 	// Start goroutines that concurrently add and remove names
-	for i := 0; i < testConcurrentGoroutines; i++ {
+	for i := range testConcurrentGoroutines {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
 
-			for j := 0; j < testOperationsPerGoroutine; j++ {
+			for j := range testOperationsPerGoroutine {
 				hookName := fmt.Sprintf("hook-%d-%d", id, j)
 
 				// Add name
@@ -578,7 +578,7 @@ func BenchmarkMixedOperations(b *testing.B) {
 	logger := createTestLogger()
 
 	// Pre-populate with some names to simulate realistic usage
-	for i := 0; i < benchmarkMixedOperations/2; i++ {
+	for i := range benchmarkMixedOperations / 2 {
 		logger.SetName(fmt.Sprintf("initial-hook-%d", i))
 	}
 
@@ -653,41 +653,41 @@ func (t *testLoggerWithWidth) formatSpinnerSuffix(names []string) string {
 
 // Override SetName to use our custom formatSpinnerSuffix
 func (t *testLoggerWithWidth) SetName(name string) {
-	t.Logger.mu.Lock()
-	defer t.Logger.mu.Unlock()
+	t.mu.Lock()
+	defer t.mu.Unlock()
 
-	if t.Logger.spinner.Active() {
-		t.Logger.spinner.Stop()
-		defer t.Logger.spinner.Start()
+	if t.spinner.Active() {
+		t.spinner.Stop()
+		defer t.spinner.Start()
 	}
 
-	t.Logger.names = append(t.Logger.names, name)
-	t.Logger.spinner.Suffix = t.formatSpinnerSuffix(t.Logger.names)
+	t.names = append(t.names, name)
+	t.spinner.Suffix = t.formatSpinnerSuffix(t.names)
 }
 
 // Override UnsetName to use our custom formatSpinnerSuffix
 func (t *testLoggerWithWidth) UnsetName(name string) {
-	t.Logger.mu.Lock()
-	defer t.Logger.mu.Unlock()
+	t.mu.Lock()
+	defer t.mu.Unlock()
 
-	if t.Logger.spinner.Active() {
-		t.Logger.spinner.Stop()
-		defer t.Logger.spinner.Start()
+	if t.spinner.Active() {
+		t.spinner.Stop()
+		defer t.spinner.Start()
 	}
 
-	capacity := len(t.Logger.names)
+	capacity := len(t.names)
 	if capacity > 0 {
 		capacity--
 	}
 	newNames := make([]string, 0, capacity)
-	for _, n := range t.Logger.names {
+	for _, n := range t.names {
 		if n != name {
 			newNames = append(newNames, n)
 		}
 	}
 
-	t.Logger.names = newNames
-	t.Logger.spinner.Suffix = t.formatSpinnerSuffix(t.Logger.names)
+	t.names = newNames
+	t.spinner.Suffix = t.formatSpinnerSuffix(t.names)
 }
 
 // formatWithPartialNames for the test logger

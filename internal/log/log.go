@@ -534,7 +534,8 @@ func (l *Logger) formatSpinnerSuffix(names []string) string {
 
 	// Reserve space for spinner character (1) + space (1) + some padding (8)
 	// This accounts for the spinning character and reasonable margin
-	availableWidth := terminalWidth - 10
+	const spinnerReservedWidth = 10
+	availableWidth := terminalWidth - spinnerReservedWidth
 
 	// Strategy 1: Try to fit all names with full formatting
 	fullSuffix := fmt.Sprintf("%s: %s", spinnerText, strings.Join(names, ", "))
@@ -552,7 +553,7 @@ func (l *Logger) formatSpinnerSuffix(names []string) string {
 	return l.formatWithPartialNames(names, availableWidth)
 }
 
-// getTerminalWidth attempts to detect the current terminal width
+// getTerminalWidth attempts to detect the current terminal width.
 func (l *Logger) getTerminalWidth() int {
 	// Check if we're writing to a TTY
 	if !isatty.IsTerminal(os.Stdout.Fd()) {
@@ -568,7 +569,7 @@ func (l *Logger) getTerminalWidth() int {
 	return width
 }
 
-// formatWithPartialNames shows as many hook names as possible, then adds count for remaining
+// formatWithPartialNames shows as many hook names as possible, then adds count for remaining.
 func (l *Logger) formatWithPartialNames(names []string, availableWidth int) string {
 	if len(names) == 0 {
 		return spinnerText
@@ -625,7 +626,7 @@ func (l *Logger) formatWithPartialNames(names []string, availableWidth int) stri
 	return fmt.Sprintf("%s%s", baseText, strings.Join(fittingNames, ", "))
 }
 
-// pluralize returns "s" for counts != 1, empty string otherwise
+// pluralize returns "s" for counts != 1, empty string otherwise.
 func pluralize(count int) string {
 	if count == 1 {
 		return ""
