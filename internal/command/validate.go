@@ -3,6 +3,7 @@ package command
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/kaptinlin/jsonschema"
@@ -13,7 +14,7 @@ import (
 
 const schemaUrl = "https://raw.githubusercontent.com/evilmartians/lefthook/master/schema.json"
 
-func Validate(opts *Options) error {
+func Validate(opts *Options, schemaPath string) error {
 	lefthook, err := initialize(opts)
 	if err != nil {
 		return fmt.Errorf("couldn't initialize lefthook: %w", err)
@@ -25,10 +26,23 @@ func Validate(opts *Options) error {
 	}
 
 	compiler := jsonschema.NewCompiler()
+	var schema *jsonschema.Schema
 
-	schema, err := compiler.GetSchema(schemaUrl)
-	if err != nil {
-		return err
+	if len(schemaPath) > 0 {
+		var schemaRaw []byte
+		schemaRaw, err = os.ReadFile(schemaPath)
+		if err != nil {
+			return err
+		}
+		schema, err = compiler.Compile(schemaRaw)
+		if err != nil {
+			return err
+		}
+	} else {
+		schema, err = compiler.GetSchema(schemaUrl)
+		if err != nil {
+			return err
+		}
 	}
 
 	result := schema.Validate(main.Raw())

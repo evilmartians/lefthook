@@ -24,6 +24,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unit
           name: ${{ join(matrix.*, ' ') }}
 
   test-integration:
@@ -57,6 +58,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          flags: integration
           name: integration-${{ join(matrix.*, ' ') }}
 
   build:
