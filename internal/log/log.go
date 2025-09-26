@@ -585,7 +585,7 @@ func (l *Logger) formatWithPartialNames(names []string, availableWidth int) stri
 
 	for i, name := range names {
 		nameWidth := runewidth.StringWidth(name)
-		
+
 		// Add comma and space for all but first name
 		if i > 0 {
 			nameWidth += 2 // ", "
@@ -596,7 +596,7 @@ func (l *Logger) formatWithPartialNames(names []string, availableWidth int) stri
 		if remainingCount > 1 {
 			moreSuffix := fmt.Sprintf(", ... (%d more)", remainingCount-1)
 			moreSuffixWidth := runewidth.StringWidth(moreSuffix)
-			
+
 			if currentWidth+nameWidth+moreSuffixWidth > remainingWidth {
 				// Add the "more" suffix and break
 				if len(fittingNames) > 0 {
