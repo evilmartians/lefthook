@@ -6,4 +6,3 @@ pre-commit:
   jobs:
     - run: echo test
       wait_what: emm
-

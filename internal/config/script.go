@@ -6,9 +6,6 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
-
-	"github.com/evilmartians/lefthook/internal/git"
-	"github.com/evilmartians/lefthook/internal/system"
 )
 
 type Script struct {
@@ -24,11 +21,6 @@ type Script struct {
 	Interactive bool   `json:"interactive,omitempty" mapstructure:"interactive" toml:"interactive,omitempty" yaml:",omitempty"`
 	UseStdin    bool   `json:"use_stdin,omitempty"   koanf:"use_stdin"          mapstructure:"use_stdin"     toml:"use_stdin,omitempty"   yaml:"use_stdin,omitempty"`
 	StageFixed  bool   `json:"stage_fixed,omitempty" koanf:"stage_fixed"        mapstructure:"stage_fixed"   toml:"stage_fixed,omitempty" yaml:"stage_fixed,omitempty"`
-}
-
-func (s Script) DoSkip(state func() git.State) bool {
-	skipChecker := NewSkipChecker(system.Cmd)
-	return skipChecker.Check(state, s.Skip, s.Only)
 }
 
 func ScriptsToJobs(scripts map[string]*Script) []*Job {

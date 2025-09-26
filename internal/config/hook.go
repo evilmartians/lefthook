@@ -1,10 +1,5 @@
 package config
 
-import (
-	"github.com/evilmartians/lefthook/internal/git"
-	"github.com/evilmartians/lefthook/internal/system"
-)
-
 const CMD = "{cmd}"
 
 type Hook struct {
@@ -23,9 +18,4 @@ type Hook struct {
 
 	Commands map[string]*Command `json:"commands,omitempty" mapstructure:"-" toml:"commands,omitempty" yaml:",omitempty"`
 	Scripts  map[string]*Script  `json:"scripts,omitempty"  mapstructure:"-" toml:"scripts,omitempty"  yaml:",omitempty"`
-}
-
-func (h *Hook) DoSkip(state func() git.State) bool {
-	skipChecker := NewSkipChecker(system.Cmd)
-	return skipChecker.Check(state, h.Skip, h.Only)
 }
