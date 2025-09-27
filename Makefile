@@ -23,9 +23,9 @@ endif
 test:
 	go test -cpu 24 -race -count=1 -timeout=30s ./...
 
-.PHONY: test-integrity
-test-integrity: install
-	go test -cpu 24 -race -count=1 -timeout=30s -tags=integrity integrity_test.go
+.PHONY: test-integration
+test-integration: install
+	go test -cpu 24 -race -count=1 -timeout=30s -tags=integration integration_test.go
 
 .PHONY: bench
 bench:

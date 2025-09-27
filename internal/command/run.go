@@ -77,7 +77,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		return err
 	}
 
-	if err = version.CheckCovered(cfg.MinVersion); err != nil {
+	if err = checkVersion(cfg.MinVersion); err != nil {
 		return err
 	}
 
@@ -414,4 +414,25 @@ func parseFilesFromString(paths string) []string {
 	}
 	result = append(result, paths[start:])
 	return result
+}
+
+func checkVersion(minVersion string) error {
+	if len(minVersion) == 0 {
+		return nil
+	}
+
+	if err := version.Check(minVersion, version.Version(false)); err != nil {
+		if errors.Is(err, version.ErrInvalidVersion) {
+			return errors.New("format of 'min_version' setting is incorrect")
+		}
+
+		execPath, oserr := os.Executable()
+		if oserr != nil {
+			execPath = "<unknown>"
+		}
+
+		return fmt.Errorf("required lefthook version (%s) is higher than current (%s) at %s", minVersion, version.Version(false), execPath)
+	}
+
+	return nil
 }
