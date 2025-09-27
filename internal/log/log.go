@@ -520,6 +520,22 @@ func (l *Logger) IsLevelEnabled(level Level) bool {
 
 // formatSpinnerSuffix creates a spinner suffix that respects terminal width constraints.
 // It tries multiple strategies to fit the hook names within the available terminal width.
+//
+// Width Calculation Strategy:
+// 1. Detect terminal width using golang.org/x/term (returns 0 for non-TTY)
+// 2. Reserve space for spinner UI elements:
+//   - Spinning character: ~1 char (e.g., ⠋)
+//   - Base spacing: ~1 char
+//   - Text padding/margin: ~8 chars for comfortable display
+//     Total reserved: 10 chars (spinnerReservedWidth constant)
+//
+// 3. Available width = terminal_width - 10
+// 4. Use runewidth.StringWidth() for Unicode-aware width calculation
+//
+// Display Strategies (attempted in order):
+// 1. Full display: Show all hook names if they fit
+// 2. Count display: Show "N hooks" if individual names are too long
+// 3. Partial display: Show as many names as possible with "... (N more)" indicator.
 func (l *Logger) formatSpinnerSuffix(names []string) string {
 	if len(names) == 0 {
 		return spinnerText
@@ -532,8 +548,8 @@ func (l *Logger) formatSpinnerSuffix(names []string) string {
 		return fmt.Sprintf("%s: %s", spinnerText, strings.Join(names, ", "))
 	}
 
-	// Reserve space for spinner character (1) + space (1) + some padding (8)
-	// This accounts for the spinning character and reasonable margin
+	// Width calculation: Reserve space for spinner character (1) + space (1) + padding (8)
+	// This accounts for the spinning character and reasonable display margin
 	const spinnerReservedWidth = 10
 	availableWidth := terminalWidth - spinnerReservedWidth
 
