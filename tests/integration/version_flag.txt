@@ -1,0 +1,36 @@
+# Test --version flag functionality
+
+# Test basic --version flag
+exec lefthook --version
+stdout \d+\.\d+\.\d+
+! stderr .
+
+# Test short form -V
+exec lefthook -V
+stdout \d+\.\d+\.\d+
+! stderr .
+
+# Test --version=full
+exec lefthook --version=full
+stdout '\d+\.\d+\.\d+ '
+! stderr .
+
+# Test -V=full
+exec lefthook -V=full
+stdout '\d+\.\d+\.\d+ '
+! stderr .
+
+# Test that --version works with other global flags
+exec lefthook --verbose --version
+stdout \d+\.\d+\.\d+
+! stderr .
+
+# Verify existing version subcommand still works
+exec lefthook version
+stdout \d+\.\d+\.\d+
+! stderr .
+
+# Verify existing version subcommand with --full still works
+exec lefthook version --full
+stdout '\d+\.\d+\.\d+ '
+! stderr .

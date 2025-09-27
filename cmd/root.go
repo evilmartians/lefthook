@@ -1,15 +1,21 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
 
 	"github.com/evilmartians/lefthook/internal/command"
 	"github.com/evilmartians/lefthook/internal/log"
+	ver "github.com/evilmartians/lefthook/internal/version"
 )
+
+const fullVersionFlag = "full"
 
 func newRootCmd() *cobra.Command {
 	options := command.Options{}
+	var versionFlag string
 
 	rootCmd := &cobra.Command{
 		Use:   "lefthook",
@@ -20,6 +26,19 @@ func newRootCmd() *cobra.Command {
 		`),
 		SilenceUsage:  true,
 		SilenceErrors: true,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if versionFlag != "" {
+				verbose := versionFlag == fullVersionFlag
+				log.Println(ver.Version(verbose))
+				os.Exit(0)
+			}
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+			// If no subcommand is provided and --version is not set, show help
+			if versionFlag == "" {
+				_ = cmd.Help()
+			}
+		},
 	}
 
 	rootCmd.PersistentFlags().BoolVarP(
@@ -38,6 +57,11 @@ func newRootCmd() *cobra.Command {
 	if err != nil {
 		log.Warn("Unexpected error:", err)
 	}
+
+	rootCmd.Flags().StringVarP(
+		&versionFlag, "version", "V", "", "show lefthook version (use 'full' for version with commit hash)",
+	)
+	rootCmd.Flags().Lookup("version").NoOptDefVal = "short"
 
 	for _, subcommand := range commands {
 		rootCmd.AddCommand(subcommand.New(&options))
