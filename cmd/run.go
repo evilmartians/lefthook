@@ -19,6 +19,8 @@ func run() *cli.Command {
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:        "verbose",
+				Aliases:     []string{"v"},
+				Usage:       "enable debug logs",
 				Destination: &args.Verbose,
 			},
 			&cli.StringFlag{
@@ -27,57 +29,69 @@ func run() *cli.Command {
 				Destination: &colors,
 			},
 			&cli.StringSliceFlag{
-				Name:        "jobs",
+				Name:        "job",
+				Usage:       "run only jobs with names",
 				Destination: &args.RunOnlyJobs,
 			},
 			&cli.StringSliceFlag{
-				Name:        "tags",
+				Name:        "tag",
+				Usage:       "run only jobs with tag names",
 				Destination: &args.RunOnlyTags,
 			},
 			&cli.StringSliceFlag{
-				Name:        "commands",
+				Name:        "command",
+				Usage:       "run only commands",
 				Destination: &args.RunOnlyCommands,
 			},
 			&cli.StringSliceFlag{
 				Name:        "exclude",
+				Usage:       "exclude files from all templates",
 				Destination: &args.Exclude,
 			},
 			&cli.StringSliceFlag{
 				Name:        "file",
-				Aliases:     []string{"files"},
+				Usage:       "overwrite file templates with files",
 				Destination: &args.Files,
 			},
 			&cli.BoolFlag{
 				Name:        "force",
 				Aliases:     []string{"f"},
+				Usage:       "do not skip if no files changed",
 				Destination: &args.Force,
 			},
 			&cli.BoolFlag{
 				Name:        "all-files",
+				Usage:       "replace files templates with {all_files}",
 				Destination: &args.AllFiles,
 			},
 			&cli.BoolFlag{
 				Name:        "no-auto-install",
+				Usage:       "do not implicitly install hooks",
 				Destination: &args.NoAutoInstall,
 			},
 			&cli.BoolFlag{
 				Name:        "no-stage-fixed",
+				Usage:       "ignore 'stage_fixed: true' setting",
 				Destination: &args.NoStageFixed,
 			},
 			&cli.BoolFlag{
 				Name:        "no-tty",
+				Usage:       "act as if no TTY is connected",
 				Destination: &args.NoTTY,
 			},
 			&cli.BoolFlag{
 				Name:        "skip-lfs",
+				Usage:       "do not run LFS hooks",
 				Destination: &args.SkipLFS,
 			},
 			&cli.BoolFlag{
 				Name:        "fail-on-changes",
+				Usage:       "exit with 1 if some of the files were changed",
 				Destination: &args.FailOnChanges,
 			},
 			&cli.BoolFlag{
 				Name:        "files-from-stdin",
+				Usage:       "parse filelist from STDIN",
 				Destination: &args.FilesFromStdin,
 			},
 		},
