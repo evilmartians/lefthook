@@ -11,6 +11,7 @@ build-with-coverage:
 .PHONY: jsonschema
 jsonschema:
 	go generate gen/jsonschema.go > schema.json
+	go generate gen/jsonschema.go > internal/config/jsonschema.json
 
 install: build
 ifeq ($(shell go env GOOS),windows)
