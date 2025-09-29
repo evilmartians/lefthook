@@ -13,8 +13,9 @@ func run() *cli.Command {
 	var colors string
 
 	return &cli.Command{
-		Name:  "run",
-		Usage: "Execute a group of hooks",
+		Name:      "run",
+		Usage:     "Execute a group of hooks",
+		UsageText: "lefthook run <hook-name> [args...] [options]",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:        "verbose",
@@ -22,7 +23,7 @@ func run() *cli.Command {
 			},
 			&cli.StringFlag{
 				Name:        "colors",
-				Usage:       "on, off, or auto (default)",
+				Usage:       "on, off, or auto (default: auto)",
 				Destination: &colors,
 			},
 			&cli.StringSliceFlag{

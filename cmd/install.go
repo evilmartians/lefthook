@@ -13,8 +13,9 @@ func install() *cli.Command {
 	var verbose bool
 
 	return &cli.Command{
-		Name:  "install",
-		Usage: "install [hook-names...]",
+		Name:      "install",
+		Usage:     "installs Git hook from the configuration",
+		UsageText: "lefthook install [hook-names...] [options]",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:        "force",
