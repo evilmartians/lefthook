@@ -1,52 +1,50 @@
 package cmd
 
 import (
+	"context"
 	_ "embed"
-	"maps"
-	"slices"
 
-	"github.com/spf13/cobra"
+	"github.com/urfave/cli/v3"
 
 	"github.com/evilmartians/lefthook/internal/command"
-	"github.com/evilmartians/lefthook/internal/config"
 )
 
 //go:embed add-doc.txt
-var addDoc string
+var addUsageText string
 
-type add struct{}
+func add() *cli.Command {
+	var args command.AddArgs
+	var verbose bool
 
-func (add) New(opts *command.Options) *cobra.Command {
-	args := command.AddArgs{}
+	return &cli.Command{
+		Name:      "add",
+		Usage:     "Create script hook directory",
+		UsageText: addUsageText,
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:        "force",
+				Aliases:     []string{"f"},
+				Destination: &args.Force,
+			},
+			&cli.BoolFlag{
+				Name:        "create-dirs",
+				Aliases:     []string{"dirs"},
+				Destination: &args.CreateDirs,
+			},
+			&cli.BoolFlag{
+				Name:        "verbose",
+				Aliases:     []string{"v"},
+				Destination: &verbose,
+			},
+		},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			l, err := command.NewLefthook(verbose, "auto")
+			if err != nil {
+				return err
+			}
 
-	addHookCompletions := func(cmd *cobra.Command, args []string, toComplete string) (ret []string, compDir cobra.ShellCompDirective) {
-		compDir = cobra.ShellCompDirectiveNoFileComp
-		if len(args) != 0 {
-			return ret, compDir
-		}
-		ret = slices.Sorted(maps.Keys(config.AvailableHooks))
-		return ret, compDir
-	}
-
-	addCmd := cobra.Command{
-		Use:               "add hook-name",
-		Short:             "This command adds a hook directory to a repository",
-		Long:              addDoc,
-		Example:           "lefthook add pre-commit",
-		ValidArgsFunction: addHookCompletions,
-		Args:              cobra.ExactArgs(1),
-		RunE: func(_cmd *cobra.Command, hooks []string) error {
-			args.Hook = hooks[0]
-			return command.Add(opts, &args)
+			args.Hook = cmd.Args().Get(0)
+			return l.Add(ctx, args)
 		},
 	}
-
-	addCmd.Flags().BoolVarP(
-		&args.CreateDirs, "dirs", "d", false, "create directory for scripts",
-	)
-	addCmd.Flags().BoolVarP(
-		&args.Force, "force", "f", false, "overwrite .old hooks",
-	)
-
-	return &addCmd
 }

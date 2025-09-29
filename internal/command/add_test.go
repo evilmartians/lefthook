@@ -25,7 +25,7 @@ func TestLefthookAdd(t *testing.T) {
 
 	for n, tt := range [...]struct {
 		name                    string
-		args                    *AddArgs
+		args                    AddArgs
 		existingHooks           map[string]string
 		config                  string
 		wantExist, wantNotExist []string
@@ -33,7 +33,7 @@ func TestLefthookAdd(t *testing.T) {
 	}{
 		{
 			name: "default empty repository",
-			args: &AddArgs{Hook: "pre-commit"},
+			args: AddArgs{Hook: "pre-commit"},
 			wantExist: []string{
 				hookPath("pre-commit"),
 			},
@@ -44,7 +44,7 @@ func TestLefthookAdd(t *testing.T) {
 		},
 		{
 			name:      "unavailable hook",
-			args:      &AddArgs{Hook: "super-star"},
+			args:      AddArgs{Hook: "super-star"},
 			wantError: true,
 			wantNotExist: []string{
 				hookPath("super-star"),
@@ -54,7 +54,7 @@ func TestLefthookAdd(t *testing.T) {
 		},
 		{
 			name: "with create dirs arg",
-			args: &AddArgs{Hook: "post-commit", CreateDirs: true},
+			args: AddArgs{Hook: "post-commit", CreateDirs: true},
 			wantExist: []string{
 				hookPath("post-commit"),
 				filepath.Join(root, ".lefthook"),
@@ -63,7 +63,7 @@ func TestLefthookAdd(t *testing.T) {
 		},
 		{
 			name: "with configured source dirs",
-			args: &AddArgs{Hook: "post-commit", CreateDirs: true},
+			args: AddArgs{Hook: "post-commit", CreateDirs: true},
 			config: `
 source_dir: .source_dir
 source_dir_local: .source_dir_local
@@ -76,7 +76,7 @@ source_dir_local: .source_dir_local
 		},
 		{
 			name: "with existing hook",
-			args: &AddArgs{Hook: "post-commit"},
+			args: AddArgs{Hook: "post-commit"},
 			existingHooks: map[string]string{
 				"post-commit": "custom script",
 			},
@@ -87,7 +87,7 @@ source_dir_local: .source_dir_local
 		},
 		{
 			name: "with existing lefthook hook",
-			args: &AddArgs{Hook: "post-commit"},
+			args: AddArgs{Hook: "post-commit"},
 			existingHooks: map[string]string{
 				"post-commit": "LEFTHOOK file",
 			},
@@ -100,7 +100,7 @@ source_dir_local: .source_dir_local
 		},
 		{
 			name: "with existing .old hook",
-			args: &AddArgs{Hook: "post-commit"},
+			args: AddArgs{Hook: "post-commit"},
 			existingHooks: map[string]string{
 				"post-commit":     "custom hook",
 				"post-commit.old": "custom old hook",
@@ -113,7 +113,7 @@ source_dir_local: .source_dir_local
 		},
 		{
 			name: "with existing .old hook, forced",
-			args: &AddArgs{Hook: "post-commit", Force: true},
+			args: AddArgs{Hook: "post-commit", Force: true},
 			existingHooks: map[string]string{
 				"post-commit":     "custom hook",
 				"post-commit.old": "custom old hook",
@@ -152,7 +152,7 @@ source_dir_local: .source_dir_local
 				}
 			}
 
-			err := lefthook.Add(tt.args)
+			err := lefthook.Add(t.Context(), tt.args)
 			if tt.wantError && err == nil {
 				t.Errorf("expected an error")
 			} else if !tt.wantError && err != nil {

@@ -24,44 +24,34 @@ const (
 	hookContentFingerprint = "LEFTHOOK"
 )
 
-type Options struct {
-	Colors            string
-	Verbose, NoColors bool
-}
-
 type Lefthook struct {
 	fs   afero.Fs
 	repo *git.Repository
 }
 
 // New returns an instance of Lefthook.
-func initialize(opts *Options) (*Lefthook, error) {
+func NewLefthook(verbose bool, colors string) (*Lefthook, error) {
 	fs := afero.NewOsFs()
 
 	if isEnvEnabled(EnvVerbose) {
-		opts.Verbose = true
+		verbose = true
 	}
 
-	if opts.Verbose {
+	if verbose {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	if opts.Colors == "auto" {
+	if colors == "auto" {
 		if isEnvEnabled(envForceColor) {
-			opts.Colors = "on"
+			colors = "on"
 		}
 
 		if isEnvEnabled(envNoColor) {
-			opts.Colors = "off"
-		}
-
-		// DEPRECATED: Will be removed with a --no-colors option
-		if opts.NoColors {
-			opts.Colors = "off"
+			colors = "off"
 		}
 	}
 
-	log.SetColors(opts.Colors)
+	log.SetColors(colors)
 
 	repo, err := git.NewRepository(fs, git.NewExecutor(system.Cmd))
 	if err != nil {

@@ -1,30 +1,40 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
+	"context"
+
+	"github.com/urfave/cli/v3"
 
 	"github.com/evilmartians/lefthook/internal/command"
 )
 
-type install struct{}
+func install() *cli.Command {
+	var args command.InstallArgs
+	var verbose bool
 
-func (install) New(opts *command.Options) *cobra.Command {
-	var force bool
+	return &cli.Command{
+		Name:  "install",
+		Usage: "install [hook-names...]",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:        "force",
+				Usage:       "overwrite .old files",
+				Aliases:     []string{"f"},
+				Destination: &args.Force,
+			},
+			&cli.BoolFlag{
+				Name:        "verbose",
+				Aliases:     []string{"v"},
+				Destination: &verbose,
+			},
+		},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			l, err := command.NewLefthook(verbose, "auto")
+			if err != nil {
+				return err
+			}
 
-	installCmd := cobra.Command{
-		Use:               "install [hook-names...]",
-		Short:             "Install Git hooks from the configuration, or initialize the default lefthook.yml",
-		ValidArgsFunction: cobra.NoFileCompletions,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return command.Install(opts, args, force)
+			return l.Install(ctx, args, cmd.Args().Slice())
 		},
 	}
-
-	// To be dropped in next releases.
-	installCmd.Flags().BoolVarP(
-		&force, "force", "f", false,
-		"overwrite .old hooks",
-	)
-
-	return &installCmd
 }

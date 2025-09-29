@@ -126,7 +126,7 @@ func TestLefthookUninstall(t *testing.T) {
 			}
 
 			// Do uninstall
-			err = lefthook.Uninstall(&tt.args)
+			err = lefthook.Uninstall(t.Context(), tt.args)
 			if err != nil {
 				t.Errorf("unexpected error: %s", err)
 			}

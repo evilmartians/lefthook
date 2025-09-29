@@ -36,25 +36,16 @@ type RunArgs struct {
 	SkipLFS         bool
 	Verbose         bool
 	FailOnChanges   bool
+	Hook            string
 	Exclude         []string
 	Files           []string
 	RunOnlyCommands []string
 	RunOnlyJobs     []string
 	RunOnlyTags     []string
+	GitArgs         []string
 }
 
-func Run(opts *Options, args RunArgs, hookName string, gitArgs []string) error {
-	lefthook, err := initialize(opts)
-	if err != nil {
-		return err
-	}
-
-	args.Verbose = opts.Verbose
-
-	return lefthook.Run(hookName, args, gitArgs)
-}
-
-func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
+func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	if os.Getenv(envEnabled) == "0" || os.Getenv(envEnabled) == "false" {
 		return nil
 	}
@@ -84,8 +75,8 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	// Suppress prepare-commit-msg output if the hook doesn't exist in config.
 	// prepare-commit-msg hook is used for seamless synchronization of hooks with config.
 	// See: internal/lefthook/install.go
-	_, ok := cfg.Hooks[hookName]
-	isGhostHook := hookName == config.GhostHookName && !ok && !args.Verbose
+	_, ok := cfg.Hooks[args.Hook]
+	isGhostHook := args.Hook == config.GhostHookName && !ok && !args.Verbose
 	if isGhostHook {
 		log.SetLevel(log.WarnLevel)
 	}
@@ -97,7 +88,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	log.ApplySettings(enableLogTags, disableLogTags, cfg.Output, cfg.SkipOutput)
 
 	if log.Settings.LogMeta() {
-		log.LogMeta(hookName)
+		log.LogMeta(args.Hook)
 	}
 
 	if !args.NoAutoInstall {
@@ -113,7 +104,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		}
 	}
 
-	hook, err := resolveHook(cfg, hookName)
+	hook, err := resolveHook(cfg, args.Hook)
 	if err != nil {
 		return err
 	}
@@ -141,11 +132,11 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	hook.Scripts = nil
 	args.RunOnlyJobs = append(args.RunOnlyJobs, args.RunOnlyCommands...)
 
-	return runHook(hook, l.repo, run.Options{
-		GitArgs:       gitArgs,
+	return runHook(ctx, hook, l.repo, run.Options{
 		DisableTTY:    cfg.NoTTY || args.NoTTY,
 		SkipLFS:       cfg.SkipLFS || args.SkipLFS,
 		Templates:     cfg.Templates,
+		GitArgs:       args.GitArgs,
 		ExcludeFiles:  args.Exclude,
 		Files:         args.Files,
 		Force:         args.Force,
@@ -236,8 +227,8 @@ func shouldFailOnChanges(fromArg bool, fromHook string) (bool, error) {
 	}
 }
 
-func runHook(hook *config.Hook, repo *git.Repository, opts run.Options) error {
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+func runHook(ctx context.Context, hook *config.Hook, repo *git.Repository, opts run.Options) error {
+	ctx, stop := signal.NotifyContext(ctx, os.Interrupt)
 	defer stop()
 
 	startTime := time.Now()
@@ -327,80 +318,80 @@ func logResults(indent int, results []result.Result) {
 	}
 }
 
-func ConfigHookCompletions(opts *Options) []string {
-	lefthook, err := initialize(opts)
-	if err != nil {
-		return nil
-	}
-	return lefthook.configHookCompletions()
-}
+// func ConfigHookCompletions(opts Options) []string {
+// 	lefthook, err := initialize(opts)
+// 	if err != nil {
+// 		return nil
+// 	}
+// 	return lefthook.configHookCompletions()
+// }
+//
+// func (l *Lefthook) configHookCompletions() []string {
+// 	cfg, err := config.Load(l.fs, l.repo)
+// 	if err != nil {
+// 		return nil
+// 	}
+// 	hooks := make([]string, 0, len(cfg.Hooks))
+// 	for hook := range cfg.Hooks {
+// 		hooks = append(hooks, hook)
+// 	}
+// 	return hooks
+// }
 
-func (l *Lefthook) configHookCompletions() []string {
-	cfg, err := config.Load(l.fs, l.repo)
-	if err != nil {
-		return nil
-	}
-	hooks := make([]string, 0, len(cfg.Hooks))
-	for hook := range cfg.Hooks {
-		hooks = append(hooks, hook)
-	}
-	return hooks
-}
-
-func ConfigHookCommandCompletions(opts *Options, hookName string) []string {
-	lefthook, err := initialize(opts)
-	if err != nil {
-		return nil
-	}
-	return lefthook.configHookCommandCompletions(hookName)
-}
-
-func ConfigHookJobCompletions(opts *Options, hookName string) []string {
-	lefthook, err := initialize(opts)
-	if err != nil {
-		return nil
-	}
-	return lefthook.configHookJobCompletions(hookName)
-}
-
-func (l *Lefthook) configHookCommandCompletions(hookName string) []string {
-	cfg, err := config.Load(l.fs, l.repo)
-	if err != nil {
-		return nil
-	}
-	if hook, found := cfg.Hooks[hookName]; !found {
-		return nil
-	} else {
-		commands := make([]string, 0, len(hook.Commands))
-		for command := range hook.Commands {
-			commands = append(commands, command)
-		}
-		return commands
-	}
-}
-
-func findJobNames(jobs []*config.Job) []string {
-	jobNames := make([]string, 0, len(jobs))
-	for _, job := range jobs {
-		jobNames = append(jobNames, job.Name)
-		if job.Group != nil {
-			jobNames = append(jobNames, findJobNames(job.Group.Jobs)...)
-		}
-	}
-	return jobNames
-}
-
-func (l *Lefthook) configHookJobCompletions(hookName string) []string {
-	cfg, err := config.Load(l.fs, l.repo)
-	if err != nil {
-		return nil
-	}
-	if hook, found := cfg.Hooks[hookName]; !found {
-		return nil
-	} else {
-		return findJobNames(hook.Jobs)
-	}
-}
+// func ConfigHookCommandCompletions(opts Options, args.Hook string) []string {
+// 	lefthook, err := initialize(opts)
+// 	if err != nil {
+// 		return nil
+// 	}
+// 	return lefthook.configHookCommandCompletions(args.Hook)
+// }
+//
+// func ConfigHookJobCompletions(opts Options, args.Hook string) []string {
+// 	lefthook, err := initialize(opts)
+// 	if err != nil {
+// 		return nil
+// 	}
+// 	return lefthook.configHookJobCompletions(args.Hook)
+// }
+//
+// func (l *Lefthook) configHookCommandCompletions(args.Hook string) []string {
+// 	cfg, err := config.Load(l.fs, l.repo)
+// 	if err != nil {
+// 		return nil
+// 	}
+// 	if hook, found := cfg.Hooks[args.Hook]; !found {
+// 		return nil
+// 	} else {
+// 		commands := make([]string, 0, len(hook.Commands))
+// 		for command := range hook.Commands {
+// 			commands = append(commands, command)
+// 		}
+// 		return commands
+// 	}
+// }
+//
+// func findJobNames(jobs []*config.Job) []string {
+// 	jobNames := make([]string, 0, len(jobs))
+// 	for _, job := range jobs {
+// 		jobNames = append(jobNames, job.Name)
+// 		if job.Group != nil {
+// 			jobNames = append(jobNames, findJobNames(job.Group.Jobs)...)
+// 		}
+// 	}
+// 	return jobNames
+// }
+//
+// func (l *Lefthook) configHookJobCompletions(args.Hook string) []string {
+// 	cfg, err := config.Load(l.fs, l.repo)
+// 	if err != nil {
+// 		return nil
+// 	}
+// 	if hook, found := cfg.Hooks[args.Hook]; !found {
+// 		return nil
+// 	} else {
+// 		return findJobNames(hook.Jobs)
+// 	}
+// }
 
 // parseFilesFromString parses both `\0`-separated files.
 func parseFilesFromString(paths string) []string {

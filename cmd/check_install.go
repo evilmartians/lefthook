@@ -1,22 +1,23 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
+	"context"
+
+	"github.com/urfave/cli/v3"
 
 	"github.com/evilmartians/lefthook/internal/command"
 )
 
-type checkInstall struct{}
+func checkInstall() *cli.Command {
+	return &cli.Command{
+		Name: "check-install",
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			l, err := command.NewLefthook(false, "auto")
+			if err != nil {
+				return err
+			}
 
-func (checkInstall) New(opts *command.Options) *cobra.Command {
-	checkInstallCmd := cobra.Command{
-		Use:   "check-install",
-		Short: "Check if lefthook is installed. Return codes: 0 - installed, 1 - not installed / needs reinstall.",
-		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _args []string) error {
-			return command.CheckInstall(opts)
+			return l.CheckInstall(ctx)
 		},
 	}
-
-	return &checkInstallCmd
 }

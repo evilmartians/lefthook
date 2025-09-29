@@ -2,6 +2,7 @@ package command
 
 import (
 	"bufio"
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -31,17 +32,11 @@ var (
 	errNoConfig            = errors.New("no lefthook config found")
 )
 
-// Install installs the hooks from config file to the .git/hooks.
-func Install(opts *Options, hooks []string, force bool) error {
-	lefthook, err := initialize(opts)
-	if err != nil {
-		return err
-	}
-
-	return lefthook.Install(hooks, force)
+type InstallArgs struct {
+	Force bool
 }
 
-func (l *Lefthook) Install(hooks []string, force bool) error {
+func (l *Lefthook) Install(ctx context.Context, args InstallArgs, hooks []string) error {
 	cfg, err := l.readOrCreateConfig()
 	if err != nil {
 		return err
@@ -50,7 +45,7 @@ func (l *Lefthook) Install(hooks []string, force bool) error {
 	var remotesSynced bool
 	for _, remote := range cfg.Remotes {
 		if remote.Configured() {
-			if err = l.repo.SyncRemote(remote.GitURL, remote.Ref, force); err != nil {
+			if err = l.repo.SyncRemote(remote.GitURL, remote.Ref, args.Force); err != nil {
 				log.Warnf("Couldn't sync from %s. Will continue anyway: %s", remote.GitURL, err)
 				continue
 			}
@@ -67,7 +62,7 @@ func (l *Lefthook) Install(hooks []string, force bool) error {
 		}
 	}
 
-	return l.createHooksIfNeeded(cfg, hooks, force)
+	return l.createHooksIfNeeded(cfg, hooks, args.Force)
 }
 
 func (l *Lefthook) readOrCreateConfig() (*config.Config, error) {

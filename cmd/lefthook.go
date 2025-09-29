@@ -1,16 +1,13 @@
 package cmd
 
-import "github.com/evilmartians/lefthook/internal/log"
+import (
+	"github.com/urfave/cli/v3"
+)
 
-func Lefthook() int {
-	rootCmd := newRootCmd()
-
-	if err := rootCmd.Execute(); err != nil {
-		if err.Error() != "" {
-			log.Errorf("Error: %s", err)
-		}
-		return 1
+func Lefthook() *cli.Command {
+	return &cli.Command{
+		Name:                  "lefthook",
+		Commands:              commands,
+		EnableShellCompletion: true,
 	}
-
-	return 0
 }

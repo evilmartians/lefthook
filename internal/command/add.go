@@ -1,6 +1,7 @@
 package command
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 
@@ -16,17 +17,8 @@ type AddArgs struct {
 	CreateDirs, Force bool
 }
 
-func Add(opts *Options, args *AddArgs) error {
-	lefthook, err := initialize(opts)
-	if err != nil {
-		return err
-	}
-
-	return lefthook.Add(args)
-}
-
 // Creates a hook, given in args. The hook is a Lefthook hook.
-func (l *Lefthook) Add(args *AddArgs) error {
+func (l *Lefthook) Add(_ctx context.Context, args AddArgs) error {
 	if !config.KnownHook(args.Hook) {
 		return fmt.Errorf("skip adding, hook is unavailable: %s", args.Hook)
 	}

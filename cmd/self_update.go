@@ -5,69 +5,58 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"syscall"
 
-	"github.com/spf13/cobra"
+	"github.com/urfave/cli/v3"
 
 	"github.com/evilmartians/lefthook/internal/command"
 	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/evilmartians/lefthook/internal/updater"
 )
 
-type selfUpdate struct{}
+func selfUpdate() *cli.Command {
+	var yes, force, verbose bool
 
-func (selfUpdate) New(opts *command.Options) *cobra.Command {
-	var yes, force bool
-	upgradeCmd := cobra.Command{
-		Use:               "self-update",
-		Short:             "Update lefthook executable",
-		Example:           "lefthook self-update",
-		ValidArgsFunction: cobra.NoFileCompletions,
-		Args:              cobra.NoArgs,
-		RunE: func(_cmd *cobra.Command, _args []string) error {
-			return update(opts, yes, force)
+	return &cli.Command{
+		Name: "self-update",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:        "yes",
+				Aliases:     []string{"y"},
+				Destination: &yes,
+			},
+			&cli.BoolFlag{
+				Name:        "force",
+				Aliases:     []string{"f"},
+				Destination: &force,
+			},
+			&cli.BoolFlag{
+				Name:        "verbose",
+				Aliases:     []string{"v"},
+				Destination: &verbose,
+			},
+		},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			if os.Getenv(command.EnvVerbose) == "1" || os.Getenv(command.EnvVerbose) == "true" {
+				verbose = true
+			}
+			if verbose {
+				log.SetLevel(log.DebugLevel)
+				log.Debug("Verbose mode enabled")
+			}
+
+			exePath, err := os.Executable()
+			if err != nil {
+				return fmt.Errorf("failed to determine the binary path: %w", err)
+			}
+
+			ctxCancel, stop := signal.NotifyContext(ctx, os.Interrupt)
+			defer stop()
+
+			return updater.New().SelfUpdate(ctxCancel, updater.Options{
+				Yes:     yes,
+				Force:   force,
+				ExePath: exePath,
+			})
 		},
 	}
-
-	upgradeCmd.Flags().BoolVarP(&yes, "yes", "y", false, "no prompt")
-	upgradeCmd.Flags().BoolVarP(&force, "force", "f", false, "force upgrade")
-	upgradeCmd.Flags().BoolVarP(&opts.Verbose, "verbose", "v", false, "show verbose logs")
-
-	return &upgradeCmd
-}
-
-func update(opts *command.Options, yes, force bool) error {
-	if os.Getenv(command.EnvVerbose) == "1" || os.Getenv(command.EnvVerbose) == "true" {
-		opts.Verbose = true
-	}
-	if opts.Verbose {
-		log.SetLevel(log.DebugLevel)
-		log.Debug("Verbose mode enabled")
-	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// Handle interrupts
-	signalChan := make(chan os.Signal, 1)
-	signal.Notify(
-		signalChan,
-		syscall.SIGINT,
-		syscall.SIGTERM,
-	)
-	go func() {
-		<-signalChan
-		cancel()
-	}()
-
-	exePath, err := os.Executable()
-	if err != nil {
-		return fmt.Errorf("failed to determine the binary path: %w", err)
-	}
-
-	return updater.New().SelfUpdate(ctx, updater.Options{
-		Yes:     yes,
-		Force:   force,
-		ExePath: exePath,
-	})
 }
