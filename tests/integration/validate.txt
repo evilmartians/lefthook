@@ -1,5 +1,5 @@
 exec git init
-exec lefthook validate --schema $SCHEMAPATH
+exec lefthook validate
 
 -- lefthook.yml --
 pre-commit:
