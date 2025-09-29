@@ -17,16 +17,19 @@ func selfUpdate() *cli.Command {
 	var yes, force, verbose bool
 
 	return &cli.Command{
-		Name: "self-update",
+		Name:  "self-update",
+		Usage: "update lefthook executable",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:        "yes",
 				Aliases:     []string{"y"},
+				Usage:       "do not prompt y/n",
 				Destination: &yes,
 			},
 			&cli.BoolFlag{
 				Name:        "force",
 				Aliases:     []string{"f"},
+				Usage:       "force reinstall",
 				Destination: &force,
 			},
 			&cli.BoolFlag{

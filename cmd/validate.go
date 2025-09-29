@@ -13,12 +13,9 @@ func validate() *cli.Command {
 	var verbose bool
 
 	return &cli.Command{
-		Name: "validate",
+		Name:  "validate",
+		Usage: "validate lefthook config",
 		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:        "schema",
-				Destination: &args.SchemaPath,
-			},
 			&cli.BoolFlag{
 				Name:        "verbose",
 				Aliases:     []string{"v"},

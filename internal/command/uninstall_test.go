@@ -62,7 +62,7 @@ func TestLefthookUninstall(t *testing.T) {
 			},
 		},
 		{
-			name: "with --remove-config option",
+			name: "with --remove-configs option",
 			args: UninstallArgs{RemoveConfig: true},
 			existingHooks: map[string]string{
 				"pre-commit":  "not a lefthook hook",

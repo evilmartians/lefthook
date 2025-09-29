@@ -13,7 +13,8 @@ func version() *cli.Command {
 	var verbose bool
 
 	return &cli.Command{
-		Name: "version",
+		Name:  "version",
+		Usage: "print version",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:        "verbose",

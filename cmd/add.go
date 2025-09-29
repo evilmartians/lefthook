@@ -9,7 +9,7 @@ import (
 	"github.com/evilmartians/lefthook/internal/command"
 )
 
-//go:embed add-doc.txt
+//go:embed add-usage.txt
 var addUsageText string
 
 func add() *cli.Command {
@@ -18,7 +18,7 @@ func add() *cli.Command {
 
 	return &cli.Command{
 		Name:      "add",
-		Usage:     "Create script hook directory",
+		Usage:     "add scripts directory and install the hook",
 		UsageText: addUsageText,
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
@@ -29,6 +29,7 @@ func add() *cli.Command {
 			&cli.BoolFlag{
 				Name:        "create-dirs",
 				Aliases:     []string{"dirs"},
+				Usage:       "create directories for scripts",
 				Destination: &args.CreateDirs,
 			},
 			&cli.BoolFlag{

@@ -17,11 +17,12 @@ func dump() *cli.Command {
 	}
 
 	return &cli.Command{
-		Name: "dump",
+		Name:  "dump",
+		Usage: "print config merged from all extensions",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:        "format",
-				Usage:       "'yaml', 'toml', or 'json'",
+				Usage:       "'yaml', 'toml', or 'json' (default: 'yaml')",
 				Aliases:     []string{"f"},
 				Destination: &args.Format,
 				Validator: func(format string) error {

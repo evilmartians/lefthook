@@ -14,7 +14,7 @@ func run() *cli.Command {
 
 	return &cli.Command{
 		Name:      "run",
-		Usage:     "Execute a group of hooks",
+		Usage:     "execute a group of hooks",
 		UsageText: "lefthook run <hook-name> [args...] [options]",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{

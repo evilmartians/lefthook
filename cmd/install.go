@@ -14,7 +14,7 @@ func install() *cli.Command {
 
 	return &cli.Command{
 		Name:      "install",
-		Usage:     "installs Git hook from the configuration",
+		Usage:     "install Git hook from the config or create a blank lefthook.yml",
 		UsageText: "lefthook install [hook-names...] [options]",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{

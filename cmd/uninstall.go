@@ -13,7 +13,8 @@ func uninstall() *cli.Command {
 	var verbose bool
 
 	return &cli.Command{
-		Name: "uninstall",
+		Name:  "uninstall",
+		Usage: "delete installed hooks",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:        "verbose",
@@ -23,10 +24,12 @@ func uninstall() *cli.Command {
 			&cli.BoolFlag{
 				Name:        "force",
 				Aliases:     []string{"f"},
+				Usage:       "remove all Git hooks",
 				Destination: &args.Force,
 			},
 			&cli.BoolFlag{
-				Name:        "remove-config",
+				Name:        "remove-configs",
+				Usage:       "remove lefthook configs",
 				Destination: &args.RemoveConfig,
 			},
 		},
