@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/briandowns/spinner"
-	"github.com/mattn/go-runewidth"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,10 +16,6 @@ const (
 	// Test constants for concurrent access.
 	testConcurrentGoroutines   = 10
 	testOperationsPerGoroutine = 50
-
-	// Benchmark constants.
-	benchmarkPrePopulationSize = 1000
-	benchmarkMixedOperations   = 100
 )
 
 func TestLogger_SetName(t *testing.T) {
@@ -348,41 +343,6 @@ func createTestLogger() *Logger {
 	}
 }
 
-// Benchmark tests to understand performance characteristics.
-func BenchmarkSetName(b *testing.B) {
-	logger := createTestLogger()
-
-	b.ResetTimer()
-	for i := range b.N {
-		logger.SetName(fmt.Sprintf("hook-%d", i))
-	}
-}
-
-func BenchmarkUnsetName(b *testing.B) {
-	logger := createTestLogger()
-
-	// Pre-populate with names
-	for i := range benchmarkPrePopulationSize {
-		logger.names = append(logger.names, fmt.Sprintf("hook-%d", i))
-	}
-
-	b.ResetTimer()
-	for i := range b.N {
-		logger.UnsetName(fmt.Sprintf("hook-%d", i%benchmarkPrePopulationSize))
-	}
-}
-
-func BenchmarkSetNameUnsetName(b *testing.B) {
-	logger := createTestLogger()
-
-	b.ResetTimer()
-	for i := range b.N {
-		hookName := fmt.Sprintf("hook-%d", i)
-		logger.SetName(hookName)
-		logger.UnsetName(hookName)
-	}
-}
-
 // Terminal width handling tests.
 func TestLogger_FormatSpinnerSuffix(t *testing.T) {
 	tests := []struct {
@@ -465,19 +425,6 @@ func TestLogger_FormatSpinnerSuffix(t *testing.T) {
 	}
 }
 
-func TestLogger_GetTerminalWidth(t *testing.T) {
-	logger := createTestLogger()
-
-	// This test will vary based on the actual terminal, but we can test the basic functionality
-	width := logger.getTerminalWidth()
-
-	// Width should be either 0 (not a TTY) or a positive number
-	assert.True(t, width >= 0, "Terminal width should be non-negative")
-
-	// Log the detected width for debugging
-	t.Logf("Detected terminal width: %d", width)
-}
-
 func TestLogger_FormatWithPartialNames(t *testing.T) {
 	tests := []struct {
 		name           string
@@ -513,15 +460,14 @@ func TestLogger_FormatWithPartialNames(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			logger := createTestLogger()
-			result := logger.formatWithPartialNames(tt.names, tt.availableWidth)
+			result := formatWithPartialNames(tt.names, tt.availableWidth)
 			assert.Equal(t, tt.expectedResult, result)
 		})
 	}
 }
 
 func TestPluralize(t *testing.T) {
-	tests := []struct {
+	tests := [...]struct {
 		count    int
 		expected string
 	}{
@@ -532,7 +478,7 @@ func TestPluralize(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(fmt.Sprintf("count_%d", tt.count), func(t *testing.T) {
+		t.Run(fmt.Sprintf("pluralize_%d", tt.count), func(t *testing.T) {
 			result := pluralize(tt.count)
 			assert.Equal(t, tt.expected, result)
 		})
@@ -574,118 +520,18 @@ func TestLogger_TerminalWidthIntegration(t *testing.T) {
 	assert.Equal(t, " waiting", logger.spinner.Suffix)
 }
 
-func BenchmarkMixedOperations(b *testing.B) {
-	logger := createTestLogger()
-
-	// Pre-populate with some names to simulate realistic usage
-	for i := range benchmarkMixedOperations / 2 {
-		logger.SetName(fmt.Sprintf("initial-hook-%d", i))
-	}
-
-	b.ResetTimer()
-	for i := range b.N {
-		hookName := fmt.Sprintf("mixed-hook-%d", i)
-
-		// Add new name
-		logger.SetName(hookName)
-
-		// Occasionally remove an existing name
-		if i%3 == 0 && len(logger.names) > 1 {
-			logger.UnsetName(logger.names[0])
-		}
-
-		// Remove the name we just added
-		logger.UnsetName(hookName)
-	}
-}
-
 // Helper function to create a test logger with simulated terminal width.
-func createTestLoggerWithWidth(width int) *testLoggerWithWidth {
-	baseLogger := createTestLogger()
-	return &testLoggerWithWidth{
-		Logger:         baseLogger,
-		simulatedWidth: width,
+func createTestLoggerWithWidth(width int) *Logger {
+	return &Logger{
+		level:         InfoLevel,
+		out:           &bytes.Buffer{},
+		colors:        ColorOff,
+		terminalWidth: width,
+		names:         []string{},
+		spinner: spinner.New(
+			spinner.CharSets[spinnerCharSet],
+			spinnerRefreshRate,
+			spinner.WithSuffix(spinnerText),
+		),
 	}
-}
-
-// testLoggerWithWidth wraps Logger to simulate different terminal widths.
-type testLoggerWithWidth struct {
-	*Logger
-	simulatedWidth int
-}
-
-// Override formatSpinnerSuffix to use our test width.
-func (t *testLoggerWithWidth) formatSpinnerSuffix(names []string) string {
-	if len(names) == 0 {
-		return spinnerText
-	}
-
-	// Use simulated terminal width
-	terminalWidth := t.simulatedWidth
-	if terminalWidth <= 0 {
-		// Fallback to current behavior if we can't detect terminal width
-		return fmt.Sprintf("%s: %s", spinnerText, strings.Join(names, ", "))
-	}
-
-	// Reserve space for spinner character (1) + space (1) + some padding (8)
-	availableWidth := terminalWidth - 10
-
-	// Strategy 1: Try to fit all names with full formatting
-	fullSuffix := fmt.Sprintf("%s: %s", spinnerText, strings.Join(names, ", "))
-	if runewidth.StringWidth(fullSuffix) <= availableWidth {
-		return fullSuffix
-	}
-
-	// Strategy 2: Try showing just the count
-	countSuffix := fmt.Sprintf("%s: %d hook%s", spinnerText, len(names), pluralize(len(names)))
-	if runewidth.StringWidth(countSuffix) <= availableWidth {
-		return countSuffix
-	}
-
-	// Strategy 3: Show as many individual names as possible, then count
-	return t.formatWithPartialNames(names, availableWidth)
-}
-
-// Override SetName to use our custom formatSpinnerSuffix.
-func (t *testLoggerWithWidth) SetName(name string) {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	if t.spinner.Active() {
-		t.spinner.Stop()
-		defer t.spinner.Start()
-	}
-
-	t.names = append(t.names, name)
-	t.spinner.Suffix = t.formatSpinnerSuffix(t.names)
-}
-
-// Override UnsetName to use our custom formatSpinnerSuffix.
-func (t *testLoggerWithWidth) UnsetName(name string) {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	if t.spinner.Active() {
-		t.spinner.Stop()
-		defer t.spinner.Start()
-	}
-
-	capacity := len(t.names)
-	if capacity > 0 {
-		capacity--
-	}
-	newNames := make([]string, 0, capacity)
-	for _, n := range t.names {
-		if n != name {
-			newNames = append(newNames, n)
-		}
-	}
-
-	t.names = newNames
-	t.spinner.Suffix = t.formatSpinnerSuffix(t.names)
-}
-
-// formatWithPartialNames for the test logger delegates to the main Logger implementation.
-func (t *testLoggerWithWidth) formatWithPartialNames(names []string, availableWidth int) string {
-	return t.Logger.formatWithPartialNames(names, availableWidth)
 }

@@ -55,19 +55,21 @@ type StyleLogger struct {
 }
 
 type Logger struct {
-	level   Level
-	out     io.Writer
-	mu      sync.Mutex
-	colors  int
-	names   []string
-	spinner *spinner.Spinner
+	level         Level
+	out           io.Writer
+	mu            sync.Mutex
+	colors        int
+	terminalWidth int
+	names         []string
+	spinner       *spinner.Spinner
 }
 
 func New() *Logger {
 	return &Logger{
-		level:  InfoLevel,
-		out:    os.Stdout,
-		colors: ColorAuto,
+		level:         InfoLevel,
+		out:           os.Stdout,
+		colors:        ColorAuto,
+		terminalWidth: terminalWidth(),
 		spinner: spinner.New(
 			spinner.CharSets[spinnerCharSet],
 			spinnerRefreshRate,
@@ -519,32 +521,13 @@ func (l *Logger) IsLevelEnabled(level Level) bool {
 }
 
 // formatSpinnerSuffix creates a spinner suffix that respects terminal width constraints.
-// It tries multiple strategies to fit the hook names within the available terminal width.
-//
-// Width Calculation Strategy:
-// 1. Detect terminal width using golang.org/x/term (returns 0 for non-TTY)
-// 2. Reserve space for spinner UI elements:
-//   - Spinning character: ~1 char (e.g., ⠋)
-//   - Base spacing: ~1 char
-//   - Text padding/margin: ~8 chars for comfortable display
-//     Total reserved: 10 chars (spinnerReservedWidth constant)
-//
-// 3. Available width = terminal_width - 10
-// 4. Use runewidth.StringWidth() for Unicode-aware width calculation
-//
-// Display Strategies (attempted in order):
-// 1. Full display: Show all hook names if they fit
-// 2. Count display: Show "N hooks" if individual names are too long
-// 3. Partial display: Show as many names as possible with "... (N more)" indicator.
 func (l *Logger) formatSpinnerSuffix(names []string) string {
 	if len(names) == 0 {
 		return spinnerText
 	}
 
-	// Try to get terminal width
-	terminalWidth := l.getTerminalWidth()
+	terminalWidth := l.terminalWidth
 	if terminalWidth <= 0 {
-		// Fallback to current behavior if we can't detect terminal width
 		return fmt.Sprintf("%s: %s", spinnerText, strings.Join(names, ", "))
 	}
 
@@ -565,12 +548,12 @@ func (l *Logger) formatSpinnerSuffix(names []string) string {
 		return countSuffix
 	}
 
-	// Strategy 3: Show as many individual names as possible, then count
-	return l.formatWithPartialNames(names, availableWidth)
+	// Strategy 3: Show as many individual names as possible
+	return formatWithPartialNames(names, availableWidth)
 }
 
-// getTerminalWidth attempts to detect the current terminal width.
-func (l *Logger) getTerminalWidth() int {
+// terminalWidth attempts to detect the current terminal width.
+func terminalWidth() int {
 	// Check if we're writing to a TTY
 	if !isatty.IsTerminal(os.Stdout.Fd()) {
 		return 0 // Not a terminal, don't constrain
@@ -586,7 +569,7 @@ func (l *Logger) getTerminalWidth() int {
 }
 
 // formatWithPartialNames shows as many hook names as possible, then adds count for remaining.
-func (l *Logger) formatWithPartialNames(names []string, availableWidth int) string {
+func formatWithPartialNames(names []string, availableWidth int) string {
 	if len(names) == 0 {
 		return spinnerText
 	}
