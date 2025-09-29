@@ -13,7 +13,7 @@ require (
 	github.com/gobwas/glob v0.2.3
 	github.com/goccy/go-yaml v1.18.0
 	github.com/invopop/jsonschema v0.13.0
-	github.com/kaptinlin/jsonschema v0.4.14
+	github.com/kaptinlin/jsonschema v0.4.15
 	github.com/knadh/koanf/maps v0.1.2
 	github.com/knadh/koanf/parsers/json v1.0.0
 	github.com/knadh/koanf/parsers/toml/v2 v2.2.0
@@ -42,7 +42,7 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/kaptinlin/go-i18n v0.1.7 // indirect
-	github.com/kaptinlin/messageformat-go v0.4.0 // indirect
+	github.com/kaptinlin/messageformat-go v0.4.4 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
