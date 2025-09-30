@@ -44,7 +44,6 @@ The `-local` config can be used without a main config file. This is useful when 
   - [`refetch`](./refetch.md)
   - [`refetch_frequency`](./refetch_frequency.md)
   - [`configs`](./configs.md)
-- [`skip_output`](./skip_output.md)
 - [`source_dir`](./source_dir.md)
 - [`source_dir_local`](./source_dir_local.md)
 - [`skip_lfs`](./skip_lfs.md)

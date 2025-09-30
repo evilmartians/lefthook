@@ -36,8 +36,6 @@ type Config struct {
 
 	Rc string `json:"rc,omitempty" jsonschema:"description=Provide an rc file - a simple sh script" mapstructure:"rc,omitempty"`
 
-	SkipOutput interface{} `json:"skip_output,omitempty" jsonschema:"oneof_type=boolean;array" koanf:"skip_output" mapstructure:"skip_output,omitempty"`
-
 	Output interface{} `json:"output,omitempty" jsonschema:"oneof_type=boolean;array,description=Manage verbosity by skipping the printing of output of some steps" mapstructure:"output,omitempty"`
 
 	Extends []string `json:"extends,omitempty" jsonschema:"description=Specify files to extend config with" mapstructure:"extends,omitempty"`

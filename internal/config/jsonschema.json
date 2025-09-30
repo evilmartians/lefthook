@@ -426,7 +426,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2025.09.29.",
+  "$comment": "Last updated on 2025.09.30.",
   "properties": {
     "min_version": {
       "type": "string",
@@ -449,16 +449,6 @@
     "rc": {
       "type": "string",
       "description": "Provide an rc file - a simple sh script"
-    },
-    "skip_output": {
-      "oneOf": [
-        {
-          "type": "boolean"
-        },
-        {
-          "type": "array"
-        }
-      ]
     },
     "output": {
       "oneOf": [
