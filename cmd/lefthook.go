@@ -9,6 +9,7 @@ import (
 func Lefthook() *cli.Command {
 	return &cli.Command{
 		Name:                  "lefthook",
+		Usage:                 "Git hooks manager",
 		Version:               ver.Version(true),
 		Commands:              commands,
 		EnableShellCompletion: true,

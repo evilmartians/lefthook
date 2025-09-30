@@ -58,7 +58,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	}
 
 	// Load config
-	cfg, err := config.Load(l.fs, l.repo)
+	cfg, err := l.LoadConfig()
 	if err != nil {
 		var errNotFound config.ConfigNotFoundError
 		if ok := errors.As(err, &errNotFound); ok {
@@ -317,81 +317,6 @@ func logResults(indent int, results []result.Result) {
 		}
 	}
 }
-
-// func ConfigHookCompletions(opts Options) []string {
-// 	lefthook, err := initialize(opts)
-// 	if err != nil {
-// 		return nil
-// 	}
-// 	return lefthook.configHookCompletions()
-// }
-//
-// func (l *Lefthook) configHookCompletions() []string {
-// 	cfg, err := config.Load(l.fs, l.repo)
-// 	if err != nil {
-// 		return nil
-// 	}
-// 	hooks := make([]string, 0, len(cfg.Hooks))
-// 	for hook := range cfg.Hooks {
-// 		hooks = append(hooks, hook)
-// 	}
-// 	return hooks
-// }
-
-// func ConfigHookCommandCompletions(opts Options, args.Hook string) []string {
-// 	lefthook, err := initialize(opts)
-// 	if err != nil {
-// 		return nil
-// 	}
-// 	return lefthook.configHookCommandCompletions(args.Hook)
-// }
-//
-// func ConfigHookJobCompletions(opts Options, args.Hook string) []string {
-// 	lefthook, err := initialize(opts)
-// 	if err != nil {
-// 		return nil
-// 	}
-// 	return lefthook.configHookJobCompletions(args.Hook)
-// }
-//
-// func (l *Lefthook) configHookCommandCompletions(args.Hook string) []string {
-// 	cfg, err := config.Load(l.fs, l.repo)
-// 	if err != nil {
-// 		return nil
-// 	}
-// 	if hook, found := cfg.Hooks[args.Hook]; !found {
-// 		return nil
-// 	} else {
-// 		commands := make([]string, 0, len(hook.Commands))
-// 		for command := range hook.Commands {
-// 			commands = append(commands, command)
-// 		}
-// 		return commands
-// 	}
-// }
-//
-// func findJobNames(jobs []*config.Job) []string {
-// 	jobNames := make([]string, 0, len(jobs))
-// 	for _, job := range jobs {
-// 		jobNames = append(jobNames, job.Name)
-// 		if job.Group != nil {
-// 			jobNames = append(jobNames, findJobNames(job.Group.Jobs)...)
-// 		}
-// 	}
-// 	return jobNames
-// }
-//
-// func (l *Lefthook) configHookJobCompletions(args.Hook string) []string {
-// 	cfg, err := config.Load(l.fs, l.repo)
-// 	if err != nil {
-// 		return nil
-// 	}
-// 	if hook, found := cfg.Hooks[args.Hook]; !found {
-// 		return nil
-// 	} else {
-// 		return findJobNames(hook.Jobs)
-// 	}
-// }
 
 // parseFilesFromString parses both `\0`-separated files.
 func parseFilesFromString(paths string) []string {

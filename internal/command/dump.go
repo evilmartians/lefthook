@@ -13,7 +13,7 @@ type DumpArgs struct {
 }
 
 func (l *Lefthook) Dump(_ctx context.Context, args DumpArgs) error {
-	cfg, err := config.Load(l.fs, l.repo)
+	cfg, err := l.LoadConfig()
 	if err != nil {
 		return fmt.Errorf("couldn't load config: %w", err)
 	}

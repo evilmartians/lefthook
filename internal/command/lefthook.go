@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/afero"
 
+	"github.com/evilmartians/lefthook/internal/config"
 	"github.com/evilmartians/lefthook/internal/git"
 	"github.com/evilmartians/lefthook/internal/log"
 	"github.com/evilmartians/lefthook/internal/system"
@@ -59,6 +60,10 @@ func NewLefthook(verbose bool, colors string) (*Lefthook, error) {
 	}
 
 	return &Lefthook{fs: fs, repo: repo}, nil
+}
+
+func (l *Lefthook) LoadConfig() (*config.Config, error) {
+	return config.Load(l.fs, l.repo)
 }
 
 // Tests a file whether it is a lefthook-created file.

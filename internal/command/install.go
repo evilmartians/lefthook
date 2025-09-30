@@ -75,7 +75,7 @@ func (l *Lefthook) readOrCreateConfig() (*config.Config, error) {
 		}
 	}
 
-	return config.Load(l.fs, l.repo)
+	return l.LoadConfig()
 }
 
 func (l *Lefthook) configExists(path string) bool {

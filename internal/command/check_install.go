@@ -3,8 +3,6 @@ package command
 import (
 	"context"
 	"os"
-
-	"github.com/evilmartians/lefthook/internal/config"
 )
 
 type installationStatus int
@@ -35,7 +33,7 @@ func (l *Lefthook) checkInstall() (installationStatus, error) {
 		return notInstalled, nil
 	}
 
-	cfg, err := config.Load(l.fs, l.repo)
+	cfg, err := l.LoadConfig()
 	if err != nil {
 		return notInstalled, err
 	}

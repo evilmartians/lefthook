@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/urfave/cli/v3"
 
@@ -101,9 +103,28 @@ func run() *cli.Command {
 				return err
 			}
 
+			if cmd.Args().Len() < 1 {
+				return errors.New("hook name missing")
+			}
+
 			args.Hook = cmd.Args().Get(0)
 			args.GitArgs = cmd.Args().Slice()[1:]
 			return l.Run(ctx, args)
+		},
+		ShellComplete: func(ctx context.Context, cmd *cli.Command) {
+			l, err := command.NewLefthook(args.Verbose, colors)
+			if err != nil {
+				return
+			}
+
+			cfg, err := l.LoadConfig()
+			if err != nil {
+				return
+			}
+
+			for hook := range cfg.Hooks {
+				fmt.Println(hook) //nolint:forbidigo
+			}
 		},
 	}
 }
