@@ -1,5 +1,9 @@
 # Change log
 
+## 1.13.6 (2025-09-30)
+
+- fix: embed jsonschema into binary ([#1158](https://github.com/evilmartians/lefthook/pull/1158)) by [@mrexox]()
+
 ## 1.13.5 (2025-09-29)
 
 - chore: a small cleanup by [@mrexox]()
