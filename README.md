@@ -110,7 +110,9 @@ pre-commit:
   jobs:
     - name: lint backend
       glob: "*.rb" # glob filter
-      exclude: '(^|/)(application|routes)\.rb$' # regexp filter
+      exclude:
+        - "*/application.rb"
+        - "*/routes.rb"
       run: bundle exec rubocop --force-exclusion {all_files}
 ```
 
