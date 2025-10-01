@@ -241,7 +241,7 @@ post-commit:
 			}
 
 			// Do install
-			err := lefthook.Install(tt.hooks, tt.force)
+			err := lefthook.Install(t.Context(), InstallArgs{Force: tt.force}, tt.hooks)
 			if tt.wantError {
 				assert.Error(err)
 			} else {

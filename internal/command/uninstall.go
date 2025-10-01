@@ -1,6 +1,7 @@
 package command
 
 import (
+	"context"
 	"errors"
 	"os"
 	"path/filepath"
@@ -15,16 +16,7 @@ type UninstallArgs struct {
 	Force, RemoveConfig bool
 }
 
-func Uninstall(opts *Options, args *UninstallArgs) error {
-	lefthook, err := initialize(opts)
-	if err != nil {
-		return err
-	}
-
-	return lefthook.Uninstall(args)
-}
-
-func (l *Lefthook) Uninstall(args *UninstallArgs) error {
+func (l *Lefthook) Uninstall(_ctx context.Context, args UninstallArgs) error {
 	if err := l.deleteHooks(args.Force); err != nil {
 		return err
 	}

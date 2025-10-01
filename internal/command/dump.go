@@ -1,29 +1,21 @@
 package command
 
 import (
+	"context"
+	"fmt"
 	"os"
 
 	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/log"
 )
 
 type DumpArgs struct {
-	JSON   bool
-	TOML   bool
 	Format string
 }
 
-func Dump(opts *Options, args DumpArgs) {
-	lefthook, err := initialize(opts)
+func (l *Lefthook) Dump(_ctx context.Context, args DumpArgs) error {
+	cfg, err := l.LoadConfig()
 	if err != nil {
-		log.Errorf("couldn't initialize lefthook: %s\n", err)
-		return
-	}
-
-	cfg, err := config.Load(lefthook.fs, lefthook.repo)
-	if err != nil {
-		log.Errorf("couldn't load config: %s\n", err)
-		return
+		return fmt.Errorf("couldn't load config: %w", err)
 	}
 
 	var format config.DumpFormat
@@ -39,16 +31,9 @@ func Dump(opts *Options, args DumpArgs) {
 		format = config.YAMLFormat
 	}
 
-	if args.JSON {
-		format = config.JSONFormat
-	}
-
-	if args.TOML {
-		format = config.TOMLFormat
-	}
-
 	if err := cfg.Dump(format, os.Stdout); err != nil {
-		log.Errorf("couldn't dump config: %s\n", err)
-		return
+		return fmt.Errorf("couldn't dump config: %w", err)
 	}
+
+	return nil
 }
