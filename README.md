@@ -275,6 +275,5 @@ Check [examples][examples]
 [config-run]: https://lefthook.dev/configuration/run.html
 [config-scripts]: https://lefthook.dev/configuration/Scripts.html
 [config-tags]: https://lefthook.dev/configuration/tags.html
-[config-skip_output]: https://lefthook.dev/configuration/skip_output.html
 [config-output]: https://lefthook.dev/configuration/output.html
 [usage-local-config]: https://lefthook.dev/examples/lefthook-local.html

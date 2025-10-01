@@ -19,9 +19,8 @@ import (
 )
 
 const (
-	envEnabled    = "LEFTHOOK"        // "0", "false"
-	envSkipOutput = "LEFTHOOK_QUIET"  // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
-	envOutput     = "LEFTHOOK_OUTPUT" // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
+	envEnabled = "LEFTHOOK"        // "0", "false"
+	envOutput  = "LEFTHOOK_OUTPUT" // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
 )
 
 var errPipedAndParallelSet = errors.New("conflicting options 'piped' and 'parallel' are set to 'true', remove one of this option from hook group")
@@ -82,10 +81,9 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	}
 
 	enableLogTags := os.Getenv(envOutput)
-	disableLogTags := os.Getenv(envSkipOutput)
 
 	log.InitSettings()
-	log.ApplySettings(enableLogTags, disableLogTags, cfg.Output, cfg.SkipOutput)
+	log.ApplySettings(enableLogTags, cfg.Output)
 
 	if log.Settings.LogMeta() {
 		log.LogMeta(args.Hook)

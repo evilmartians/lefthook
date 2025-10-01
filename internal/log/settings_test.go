@@ -7,9 +7,9 @@ import (
 
 func TestSetting(t *testing.T) {
 	for i, tt := range [...]struct {
-		enableTags, disableTags         string
-		enableSettings, disableSettings interface{}
-		results                         map[string]bool
+		enableTags     string
+		enableSettings interface{}
+		results        map[string]bool
 	}{
 		{
 			enableTags:     "",
@@ -129,161 +129,10 @@ func TestSetting(t *testing.T) {
 				"empty_summary": true,
 			},
 		},
-		{
-			disableTags:     "",
-			disableSettings: []interface{}{},
-			results: map[string]bool{
-				"meta":           true,
-				"summary":        true,
-				"success":        true,
-				"failure":        true,
-				"skips":          true,
-				"execution":      true,
-				"execution_out":  true,
-				"execution_info": true,
-				"empty_summary":  true,
-			},
-		},
-		{
-			disableTags:     "",
-			disableSettings: false,
-			results: map[string]bool{
-				"meta":           true,
-				"summary":        true,
-				"success":        true,
-				"failure":        true,
-				"skips":          true,
-				"execution":      true,
-				"execution_out":  true,
-				"execution_info": true,
-				"empty_summary":  true,
-			},
-		},
-		{
-			disableTags:     "",
-			disableSettings: []interface{}{"failure", "execution"},
-			results: map[string]bool{
-				"meta":           true,
-				"summary":        true,
-				"success":        true,
-				"failure":        false,
-				"skips":          true,
-				"execution":      false,
-				"execution_out":  false,
-				"execution_info": false,
-				"empty_summary":  true,
-			},
-		},
-		{
-			disableTags: "",
-			disableSettings: []interface{}{
-				"meta",
-				"summary",
-				"skips",
-				"execution",
-				"execution_out",
-				"execution_info",
-				"empty_summary",
-			},
-			results: map[string]bool{},
-		},
-		{
-			disableTags:     "",
-			disableSettings: true,
-			results: map[string]bool{
-				"failure": true,
-			},
-		},
-		{
-			disableTags:     "meta,summary,success,skips,empty_summary",
-			disableSettings: nil,
-			results: map[string]bool{
-				"execution":      true,
-				"execution_out":  true,
-				"execution_info": true,
-			},
-		},
-		{
-			disableTags:     "meta,success,skips,empty_summary",
-			disableSettings: nil,
-			results: map[string]bool{
-				"summary":        true,
-				"failure":        true,
-				"execution":      true,
-				"execution_out":  true,
-				"execution_info": true,
-			},
-		},
-		{
-			enableSettings:  true, // this takes precedence
-			disableSettings: true,
-			results: map[string]bool{
-				"meta":           true,
-				"summary":        true,
-				"success":        true,
-				"failure":        true,
-				"skips":          true,
-				"execution":      true,
-				"execution_out":  true,
-				"execution_info": true,
-				"empty_summary":  true,
-			},
-		},
-		{
-			enableSettings:  []interface{}{"meta"},
-			disableSettings: true, // this takes precedence
-			results: map[string]bool{
-				"failure": true,
-			},
-		},
-		{
-			enableSettings:  true,
-			disableSettings: []interface{}{"meta"},
-			results: map[string]bool{
-				"meta":           true,
-				"summary":        true,
-				"success":        true,
-				"failure":        true,
-				"skips":          true,
-				"execution":      true,
-				"execution_out":  true,
-				"execution_info": true,
-				"empty_summary":  true,
-			},
-		},
-		{
-			enableSettings:  []interface{}{"summary", "execution"},
-			disableSettings: []interface{}{"failure", "execution_out"},
-			results: map[string]bool{
-				"summary":        true,
-				"success":        true,
-				"execution":      true,
-				"execution_info": true,
-			},
-		},
-		{
-			enableTags:      "summary,execution", // takes precedence
-			disableSettings: []interface{}{"failure", "execution_out"},
-			results: map[string]bool{
-				"summary":        true,
-				"success":        true,
-				"failure":        true,
-				"execution":      true,
-				"execution_info": true,
-				"execution_out":  true,
-			},
-		},
-		{
-			disableTags:    "summary,execution",
-			enableSettings: []interface{}{"meta", "summary", "execution_info"},
-			results: map[string]bool{
-				"meta": true,
-			},
-		},
 	} {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			settings := NewSettings()
-			settings.Apply(tt.enableTags, tt.disableTags, tt.enableSettings, tt.disableSettings)
+			settings.Apply(tt.enableTags, tt.enableSettings)
 
 			if settings.LogMeta() != tt.results["meta"] {
 				t.Errorf("expected LogMeta to be %v", tt.results["meta"])

@@ -15,11 +15,9 @@ exec lefthook run skip-var
 stdout 'Ha-ha!'
 
 -- lefthook.yml --
-skip_output:
-  - skips
-  - meta
-  - summary
-  - execution_info
+output:
+  - execution_out
+
 skip:
   skip:
     - run: if (1 -eq 1) { exit 0 } else { exit 1 }
