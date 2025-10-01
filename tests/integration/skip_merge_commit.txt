@@ -24,11 +24,8 @@ exec lefthook run pre-commit --force
 ! stdout 'skip-merge-commit'
 
 -- lefthook.yml --
-skip_output:
-  - skips
-  - meta
-  - summary
-  - execution_info
+output:
+  - execution_out
 
 pre-commit:
   commands:

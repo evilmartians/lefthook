@@ -51,7 +51,6 @@
     - [`refetch`](./configuration/refetch.md)
     - [`refetch_frequency`](./configuration/refetch_frequency.md)
     - [`configs`](./configuration/configs.md)
-  - [`skip_output`](./configuration/skip_output.md)
   - [`source_dir`](./configuration/source_dir.md)
   - [`source_dir_local`](./configuration/source_dir_local.md)
   - [`skip_lfs`](./configuration/skip_lfs.md)

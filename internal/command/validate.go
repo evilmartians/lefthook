@@ -1,8 +1,8 @@
 package command
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/kaptinlin/jsonschema"
@@ -11,13 +11,12 @@ import (
 	"github.com/evilmartians/lefthook/internal/log"
 )
 
-func Validate(opts *Options, schemaPath string) error {
-	lefthook, err := initialize(opts)
-	if err != nil {
-		return fmt.Errorf("couldn't initialize lefthook: %w", err)
-	}
+type ValidateArgs struct {
+	SchemaPath string
+}
 
-	main, secondary, err := config.LoadKoanf(lefthook.fs, lefthook.repo)
+func (l *Lefthook) Validate(_ctx context.Context, args ValidateArgs) error {
+	main, secondary, err := config.LoadKoanf(l.fs, l.repo)
 	if err != nil {
 		return err
 	}

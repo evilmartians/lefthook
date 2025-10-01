@@ -32,10 +32,10 @@ $ lefthook run pre-commit # will run pre-commit hook (`yarn lint --fix`)
 
 ### Run specific jobs
 
-You can specify which jobs to run (also `--commands`, `--scripts`, and `--tags` supported).
+You can specify which jobs to run (also `--tag` supported).
 
 ```bash
-$ lefthook run pre-commit --jobs lints --tags checks
+$ lefthook run pre-commit --job lints --job pretty --tag checks
 ```
 
 ### Specify files

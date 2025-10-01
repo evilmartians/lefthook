@@ -1,141 +1,130 @@
 package cmd
 
 import (
-	"maps"
-	"slices"
+	"context"
+	"errors"
+	"fmt"
 
-	"github.com/spf13/cobra"
+	"github.com/urfave/cli/v3"
 
 	"github.com/evilmartians/lefthook/internal/command"
-	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/log"
 )
 
-type run struct{}
+func run() *cli.Command {
+	var args command.RunArgs
+	var colors string
 
-func (run) New(opts *command.Options) *cobra.Command {
-	runArgs := command.RunArgs{}
+	return &cli.Command{
+		Name:      "run",
+		Usage:     "execute a group of hooks",
+		UsageText: "lefthook run <hook-name> [args...] [options]",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:        "verbose",
+				Aliases:     []string{"v"},
+				Usage:       "enable debug logs",
+				Destination: &args.Verbose,
+			},
+			&cli.StringFlag{
+				Name:        "colors",
+				Usage:       "on, off, or auto (default: auto)",
+				Destination: &colors,
+			},
+			&cli.StringSliceFlag{
+				Name:        "job",
+				Usage:       "run only jobs with names",
+				Destination: &args.RunOnlyJobs,
+			},
+			&cli.StringSliceFlag{
+				Name:        "tag",
+				Usage:       "run only jobs with tag names",
+				Destination: &args.RunOnlyTags,
+			},
+			&cli.StringSliceFlag{
+				Name:        "command",
+				Usage:       "run only commands",
+				Destination: &args.RunOnlyCommands,
+			},
+			&cli.StringSliceFlag{
+				Name:        "exclude",
+				Usage:       "exclude files from all templates",
+				Destination: &args.Exclude,
+			},
+			&cli.StringSliceFlag{
+				Name:        "file",
+				Usage:       "overwrite file templates with files",
+				Destination: &args.Files,
+			},
+			&cli.BoolFlag{
+				Name:        "force",
+				Aliases:     []string{"f"},
+				Usage:       "do not skip if no files changed",
+				Destination: &args.Force,
+			},
+			&cli.BoolFlag{
+				Name:        "all-files",
+				Usage:       "replace files templates with {all_files}",
+				Destination: &args.AllFiles,
+			},
+			&cli.BoolFlag{
+				Name:        "no-auto-install",
+				Usage:       "do not implicitly install hooks",
+				Destination: &args.NoAutoInstall,
+			},
+			&cli.BoolFlag{
+				Name:        "no-stage-fixed",
+				Usage:       "ignore 'stage_fixed: true' setting",
+				Destination: &args.NoStageFixed,
+			},
+			&cli.BoolFlag{
+				Name:        "no-tty",
+				Usage:       "act as if no TTY is connected",
+				Destination: &args.NoTTY,
+			},
+			&cli.BoolFlag{
+				Name:        "skip-lfs",
+				Usage:       "do not run LFS hooks",
+				Destination: &args.SkipLFS,
+			},
+			&cli.BoolFlag{
+				Name:        "fail-on-changes",
+				Usage:       "exit with 1 if some of the files were changed",
+				Destination: &args.FailOnChanges,
+			},
+			&cli.BoolFlag{
+				Name:        "files-from-stdin",
+				Usage:       "parse filelist from STDIN",
+				Destination: &args.FilesFromStdin,
+			},
+		},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			l, err := command.NewLefthook(args.Verbose, colors)
+			if err != nil {
+				return err
+			}
 
-	runHookCompletions := func(cmd *cobra.Command, args []string, toComplete string) (ret []string, compDir cobra.ShellCompDirective) {
-		compDir = cobra.ShellCompDirectiveNoFileComp
-		if len(args) != 0 {
-			return ret, compDir
-		}
-		ret = command.ConfigHookCompletions(opts)
-		other := slices.Sorted(maps.Keys(config.AvailableHooks))
-		ret = append(ret, other...)
-		return ret, compDir
-	}
+			if cmd.Args().Len() < 1 {
+				return errors.New("hook name missing")
+			}
 
-	runHookCommandCompletions := func(cmd *cobra.Command, args []string, toComplete string) (ret []string, compDir cobra.ShellCompDirective) {
-		compDir = cobra.ShellCompDirectiveNoFileComp
-		if len(args) == 0 {
-			return ret, compDir
-		}
-		ret = command.ConfigHookCommandCompletions(opts, args[0])
-		return ret, compDir
-	}
+			args.Hook = cmd.Args().Get(0)
+			args.GitArgs = cmd.Args().Slice()[1:]
+			return l.Run(ctx, args)
+		},
+		ShellComplete: func(ctx context.Context, cmd *cli.Command) {
+			l, err := command.NewLefthook(args.Verbose, colors)
+			if err != nil {
+				return
+			}
 
-	runHookJobCompletions := func(cmd *cobra.Command, args []string, toComplete string) (ret []string, compDir cobra.ShellCompDirective) {
-		compDir = cobra.ShellCompDirectiveNoFileComp
-		if len(args) == 0 {
-			return ret, compDir
-		}
-		ret = command.ConfigHookJobCompletions(opts, args[0])
-		return ret, compDir
-	}
+			cfg, err := l.LoadConfig()
+			if err != nil {
+				return
+			}
 
-	runCmd := cobra.Command{
-		Use:               "run hook-name [git args...]",
-		Short:             "Execute group of hooks",
-		Example:           "lefthook run pre-commit",
-		ValidArgsFunction: runHookCompletions,
-		Args:              cobra.MinimumNArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			// args[0] - hook name
-			// args[1:] - git hook arguments, number and value depends on the hook
-			return command.Run(opts, runArgs, args[0], args[1:])
+			for hook := range cfg.Hooks {
+				fmt.Println(hook) //nolint:forbidigo
+			}
 		},
 	}
-
-	runCmd.Flags().BoolVarP(
-		&runArgs.Force, "force", "f", false,
-		"force execution of commands that can be skipped",
-	)
-
-	runCmd.Flags().BoolVarP(
-		&runArgs.NoTTY, "no-tty", "n", false,
-		"run hook non-interactively, disable spinner",
-	)
-
-	runCmd.Flags().BoolVar(
-		&runArgs.FailOnChanges, "fail-on-changes", false,
-		"fail hook if it modifies any file",
-	)
-
-	runCmd.Flags().BoolVar(
-		&runArgs.AllFiles, "all-files", false,
-		"run hooks on all files",
-	)
-
-	runCmd.Flags().BoolVar(
-		&runArgs.NoAutoInstall, "no-auto-install", false,
-		"skip updating git hooks",
-	)
-
-	runCmd.Flags().BoolVar(
-		&runArgs.SkipLFS, "skip-lfs", false,
-		"skip running git lfs",
-	)
-
-	runCmd.Flags().BoolVar(
-		&runArgs.FilesFromStdin, "files-from-stdin", false,
-		"get files from standard input, null-separated",
-	)
-
-	runCmd.Flags().StringSliceVar(
-		&runArgs.Files, "files", nil,
-		"run on specified files, comma-separated",
-	)
-
-	runCmd.Flags().StringArrayVar(
-		&runArgs.Files, "file", nil,
-		"run on specified file (repeat for multiple files). takes precedence over --all-files",
-	)
-
-	runCmd.Flags().StringArrayVar(
-		&runArgs.Exclude, "exclude", nil,
-		"exclude specified file (repeat for multiple files)",
-	)
-
-	runCmd.Flags().StringSliceVar(
-		&runArgs.RunOnlyCommands, "commands", nil,
-		"run only specified commands",
-	)
-
-	runCmd.Flags().StringSliceVar(
-		&runArgs.RunOnlyJobs, "jobs", nil,
-		"run only specified jobs",
-	)
-
-	runCmd.Flags().StringSliceVar(
-		&runArgs.RunOnlyTags, "tags", nil,
-		"run only jobs with specified tags",
-	)
-
-	runCmd.Flags().BoolVar(
-		&runArgs.NoStageFixed, "no-stage-fixed", false,
-		"disable 'stage_fixed: true' setting",
-	)
-
-	err := runCmd.Flags().MarkDeprecated("files", "use --file flag instead")
-	if err != nil {
-		log.Warn("Unexpected error:", err)
-	}
-
-	_ = runCmd.RegisterFlagCompletionFunc("commands", runHookCommandCompletions)
-
-	_ = runCmd.RegisterFlagCompletionFunc("jobs", runHookJobCompletions)
-
-	return &runCmd
 }

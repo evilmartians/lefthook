@@ -8,10 +8,8 @@ stderr '\s*Hi there from Lefthook\s*'
 
 -- lefthook.json --
 {
-  "skip_output": [
-    "meta",
-    "summary",
-    "execution_info"
+  "output": [
+    "execution"
   ],
   "pre-commit": {
     "commands": {

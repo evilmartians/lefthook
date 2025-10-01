@@ -301,7 +301,6 @@ func unmarshalConfigs(main, secondary *koanf.Koanf, c *Config) error {
 	}
 
 	// For extra non-git hooks.
-	// This behavior may be deprecated in next versions.
 	// Notice that with append we're allowing extra hooks to be added in local config
 	for _, maybeHook := range append(main.Keys(), secondary.Keys()...) {
 		matches := hookKeyRegexp.FindStringSubmatch(maybeHook)

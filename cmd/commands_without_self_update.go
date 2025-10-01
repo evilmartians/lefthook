@@ -1,4 +1,4 @@
-//go:build !no_self_update && !jsonschema
+//go:build no_self_update && !jsonschema
 
 package cmd
 
@@ -13,5 +13,5 @@ var commands = []*cli.Command{
 	add(),
 	validate(),
 	version(),
-	selfUpdate(),
+	// selfUpdate(),
 }

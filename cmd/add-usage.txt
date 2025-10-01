@@ -1,3 +1,5 @@
+lefthook add pre-commit
+
 This command will try to build the following structure in repository:
 ├───.git
 │   └───hooks

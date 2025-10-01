@@ -3,9 +3,9 @@ exec git config user.email "you@example.com"
 exec git config user.name "Your Name"
 exec git add -A
 exec lefthook install
-exec lefthook run hook --jobs a --jobs c --jobs db --commands lint
+exec lefthook run hook --job a --job c --job db --job lint
 stdout '\s*a\s*ca\s*cb\s*db\s*lint\s*'
-exec lefthook run hook --tags red
+exec lefthook run hook --tag red
 stdout '\s*a\s*ca\s*cb\s*db\s*lint\s*'
 
 -- lefthook.yml --
