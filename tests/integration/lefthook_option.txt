@@ -10,7 +10,7 @@ stdout '[lefthook]'
 -- lefthook.yml --
 lefthook: |
   echo 'injected'
-  lefthook -v
+  lefthook
 
 output:
   - execution

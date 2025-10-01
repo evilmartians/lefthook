@@ -74,7 +74,7 @@ func (s *scope) extend(job *config.Job) *scope {
 		// Inherit
 	}
 
-	// Overwrite --jobs option for nested groups: if group name given, run all its jobs
+	// Overwrite --job option for nested groups: if group name given, run all its jobs
 	if len(s.opts.RunOnlyJobs) != 0 && job.Group != nil && slices.Contains(s.opts.RunOnlyJobs, job.Name) {
 		newScope.opts.RunOnlyJobs = []string{}
 	}

@@ -1,32 +1,35 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
+	"context"
 
-	"github.com/evilmartians/lefthook/internal/command"
+	"github.com/urfave/cli/v3"
+
 	"github.com/evilmartians/lefthook/internal/log"
 	ver "github.com/evilmartians/lefthook/internal/version"
 )
 
-type version struct{}
-
-func (version) New(_opts *command.Options) *cobra.Command {
+func version() *cli.Command {
 	var verbose bool
 
-	versionCmd := cobra.Command{
-		Use:               "version",
-		Short:             "Show lefthook version",
-		ValidArgsFunction: cobra.NoFileCompletions,
-		Args:              cobra.NoArgs,
-		Run: func(cmd *cobra.Command, args []string) {
+	return &cli.Command{
+		Name:  "version",
+		Usage: "print version",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:        "verbose",
+				Aliases:     []string{"v"},
+				Destination: &verbose,
+			},
+			&cli.BoolFlag{
+				Name:        "full",
+				Aliases:     []string{"f"},
+				Destination: &verbose,
+			},
+		},
+		Action: func(_ctx context.Context, cmd *cli.Command) error {
 			log.Println(ver.Version(verbose))
+			return nil
 		},
 	}
-
-	versionCmd.Flags().BoolVarP(
-		&verbose, "full", "f", false,
-		"full version with commit hash",
-	)
-
-	return &versionCmd
 }
