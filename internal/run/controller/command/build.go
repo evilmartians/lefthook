@@ -15,7 +15,7 @@ type JobParams struct {
 	FileTypes    []string
 	Tags         []string
 	Glob         []string
-	ExcludeFiles interface{}
+	ExcludeFiles []string
 	Only         interface{}
 	Skip         interface{}
 }

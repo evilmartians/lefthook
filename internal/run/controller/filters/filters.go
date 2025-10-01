@@ -4,7 +4,6 @@ import (
 	"errors"
 	"io"
 	"os"
-	"regexp"
 	"strings"
 
 	"github.com/gabriel-vasile/mimetype"
@@ -33,10 +32,10 @@ const (
 )
 
 type Params struct {
-	Glob         []string
 	Root         string
+	Glob         []string
 	FileTypes    []string
-	ExcludeFiles interface{}
+	ExcludeFiles []string
 }
 
 func Apply(fs afero.Fs, files []string, params Params) []string {
@@ -88,55 +87,33 @@ func byGlob(vs []string, matchers []string) []string {
 	return vsf
 }
 
-func byExclude(vs []string, matcher interface{}) []string {
-	switch exclude := matcher.(type) {
-	case nil:
+func byExclude(vs []string, exclude []string) []string {
+	if len(exclude) == 0 {
 		return vs
-	case string:
-		if len(exclude) == 0 {
-			return vs
-		}
-
-		vsf := make([]string, 0)
-		for _, v := range vs {
-			if res, _ := regexp.MatchString(exclude, v); !res {
-				vsf = append(vsf, v)
-			}
-		}
-
-		return vsf
-	case []interface{}:
-		if len(exclude) == 0 {
-			return vs
-		}
-
-		globs := make([]glob.Glob, 0, len(exclude))
-		for _, name := range exclude {
-			globs = append(globs, glob.MustCompile(name.(string)))
-		}
-
-		var foundMatch bool
-		vsf := make([]string, 0)
-		for _, v := range vs {
-			for _, g := range globs {
-				if ok := g.Match(v); ok {
-					foundMatch = true
-					break
-				}
-			}
-
-			if !foundMatch {
-				vsf = append(vsf, v)
-			}
-			foundMatch = false
-		}
-
-		return vsf
 	}
 
-	log.Warn("invalid value for exclude option")
+	globs := make([]glob.Glob, 0, len(exclude))
+	for _, name := range exclude {
+		globs = append(globs, glob.MustCompile(name))
+	}
 
-	return vs
+	var foundMatch bool
+	vsf := make([]string, 0)
+	for _, v := range vs {
+		for _, g := range globs {
+			if ok := g.Match(v); ok {
+				foundMatch = true
+				break
+			}
+		}
+
+		if !foundMatch {
+			vsf = append(vsf, v)
+		}
+		foundMatch = false
+	}
+
+	return vsf
 }
 
 func byRoot(vs []string, matcher string) []string {
