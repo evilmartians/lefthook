@@ -68,36 +68,16 @@ func TestByGlob(t *testing.T) {
 func TestByExclude(t *testing.T) {
 	for i, tt := range [...]struct {
 		source, result []string
-		exclude        interface{}
+		exclude        []string
 	}{
 		{
 			source:  []string{"folder/subfolder/0.rb", "1.txt", "2.RB", "3.rb"},
-			exclude: "",
+			exclude: []string{},
 			result:  []string{"folder/subfolder/0.rb", "1.txt", "2.RB", "3.rb"},
 		},
 		{
-			source:  []string{"folder/subfolder/0.rb", "1.txt", "2.RB", "3.rb"},
-			exclude: "^[^/]*\\.rb$",
-			result:  []string{"folder/subfolder/0.rb", "1.txt", "2.RB"},
-		},
-		{
-			source:  []string{"folder/subfolder/0.rb", "1.rb"},
-			exclude: "^.+/.+.*\\.rb$",
-			result:  []string{"1.rb"},
-		},
-		{
-			source:  []string{"folder/0.rb", "1.rBs", "2.rbv"},
-			exclude: ".*\\.rb.?$",
-			result:  []string{"1.rBs"},
-		},
-		{
 			source:  []string{"f.a", "f.b", "f.c", "f.cn"},
-			exclude: ".*\\.(a|b|cn)$",
-			result:  []string{"f.c"},
-		},
-		{
-			source:  []string{"f.a", "f.b", "f.c", "f.cn"},
-			exclude: []interface{}{"*.a", "*.b", "*.cn"},
+			exclude: []string{"*.a", "*.b", "*.cn"},
 			result:  []string{"f.c"},
 		},
 	} {

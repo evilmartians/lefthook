@@ -5,8 +5,8 @@ exec git config user.name "Your Name"
 exec git add -A
 exec lefthook run -f all
 stdout '^a.txt b.txt dir/a.txt dir/b.txt lefthook.yml\s*$'
-exec lefthook run -f regexp
-stdout '^dir/a.txt dir/b.txt lefthook.yml\s*$'
+exec lefthook run -f oneline
+stdout '^lefthook.yml\s*$'
 exec lefthook run -f array
 stdout '^dir/a.txt dir/b.txt\s*$'
 exec lefthook run -f nested
@@ -21,11 +21,11 @@ all:
     echo:
       run: echo {staged_files}
 
-regexp:
+oneline:
   commands:
     echo:
       run: echo {staged_files}
-      exclude: '^(a.txt|b.txt)'
+      exclude: '*.txt'
 
 array:
   jobs:

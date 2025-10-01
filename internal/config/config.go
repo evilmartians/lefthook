@@ -38,13 +38,13 @@ type Config struct {
 
 	Output interface{} `json:"output,omitempty" jsonschema:"oneof_type=boolean;array,description=Manage verbosity by skipping the printing of output of some steps" mapstructure:"output,omitempty"`
 
+	Colors interface{} `json:"colors,omitempty" jsonschema:"description=Enable disable or set your own colors for lefthook output,default=true,oneof_type=boolean;object" mapstructure:"colors,omitempty"`
+
 	Extends []string `json:"extends,omitempty" jsonschema:"description=Specify files to extend config with" mapstructure:"extends,omitempty"`
 
 	NoTTY bool `json:"no_tty,omitempty" jsonschema:"description=Whether hide spinner and other interactive things" koanf:"no_tty" mapstructure:"no_tty,omitempty"`
 
 	AssertLefthookInstalled bool `json:"assert_lefthook_installed,omitempty" koanf:"assert_lefthook_installed" mapstructure:"assert_lefthook_installed,omitempty"`
-
-	Colors interface{} `json:"colors,omitempty" jsonschema:"description=Enable disable or set your own colors for lefthook output,default=true,oneof_type=boolean;object" mapstructure:"colors,omitempty"`
 
 	SkipLFS bool `json:"skip_lfs,omitempty" jsonschema:"description=Skip running Git LFS hooks (enabled by default)" koanf:"skip_lfs" mapstructure:"skip_lfs,omitempty"`
 

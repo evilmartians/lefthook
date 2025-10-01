@@ -10,6 +10,12 @@
         "files": {
           "type": "string"
         },
+        "root": {
+          "type": "string"
+        },
+        "fail_text": {
+          "type": "string"
+        },
         "skip": {
           "oneOf": [
             {
@@ -43,12 +49,6 @@
             "type": "string"
           }
         },
-        "env": {
-          "additionalProperties": {
-            "type": "string"
-          },
-          "type": "object"
-        },
         "file_types": {
           "items": {
             "type": "string"
@@ -68,9 +68,6 @@
             "type": "string"
           }
         },
-        "root": {
-          "type": "string"
-        },
         "exclude": {
           "oneOf": [
             {
@@ -79,13 +76,19 @@
             {
               "type": "array"
             }
-          ]
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "env": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
         },
         "priority": {
           "type": "integer"
-        },
-        "fail_text": {
-          "type": "string"
         },
         "interactive": {
           "type": "boolean"
@@ -241,6 +244,15 @@
         "runner": {
           "type": "string"
         },
+        "root": {
+          "type": "string"
+        },
+        "files": {
+          "type": "string"
+        },
+        "fail_text": {
+          "type": "string"
+        },
         "glob": {
           "oneOf": [
             {
@@ -254,14 +266,18 @@
             "type": "string"
           }
         },
-        "root": {
-          "type": "string"
-        },
-        "files": {
-          "type": "string"
-        },
-        "fail_text": {
-          "type": "string"
+        "exclude": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array"
+            }
+          ],
+          "items": {
+            "type": "string"
+          }
         },
         "tags": {
           "items": {
@@ -289,16 +305,6 @@
         },
         "stage_fixed": {
           "type": "boolean"
-        },
-        "exclude": {
-          "oneOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "array"
-            }
-          ]
         },
         "skip": {
           "oneOf": [
@@ -426,7 +432,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2025.09.30.",
+  "$comment": "Last updated on 2025.10.01.",
   "properties": {
     "min_version": {
       "type": "string",
@@ -461,6 +467,17 @@
       ],
       "description": "Manage verbosity by skipping the printing of output of some steps"
     },
+    "colors": {
+      "oneOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "description": "Enable disable or set your own colors for lefthook output"
+    },
     "extends": {
       "items": {
         "type": "string"
@@ -474,17 +491,6 @@
     },
     "assert_lefthook_installed": {
       "type": "boolean"
-    },
-    "colors": {
-      "oneOf": [
-        {
-          "type": "boolean"
-        },
-        {
-          "type": "object"
-        }
-      ],
-      "description": "Enable disable or set your own colors for lefthook output"
     },
     "skip_lfs": {
       "type": "boolean",

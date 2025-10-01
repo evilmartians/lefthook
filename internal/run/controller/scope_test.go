@@ -27,7 +27,7 @@ func Test_newScope(t *testing.T) {
 		}
 
 		scope := newScope(hook, opts)
-		assert.Equal(t, scope.excludeFiles, []interface{}{
+		assert.Equal(t, scope.excludeFiles, []string{
 			"file1.txt",
 			"file2.txt",
 			"file3.txt",
@@ -42,7 +42,7 @@ func Test_newScope(t *testing.T) {
 		hook := &config.Hook{}
 
 		scope := newScope(hook, opts)
-		assert.Equal(t, scope.excludeFiles, []interface{}{})
+		assert.Equal(t, scope.excludeFiles, []string{})
 	})
 
 	t.Run("without excluded files from hook only", func(t *testing.T) {
@@ -55,7 +55,7 @@ func Test_newScope(t *testing.T) {
 		}
 
 		scope := newScope(hook, opts)
-		assert.Equal(t, scope.excludeFiles, []interface{}{
+		assert.Equal(t, scope.excludeFiles, []string{
 			"file1.txt",
 			"file2.txt",
 		})
@@ -69,7 +69,22 @@ func TestScope_extend(t *testing.T) {
 		result  *scope
 	}{
 		{
-			initial: newScope(&config.Hook{}, Options{}),
+			initial: &scope{},
+			job: configtest.ParseJob(`
+        run: echo
+        glob:
+          - "*.js"
+          - "*.jsx"
+        exclude:
+          - "folder/*.sh"
+      `),
+			result: &scope{
+				glob:         []string{"*.js", "*.jsx"},
+				excludeFiles: []string{"folder/*.sh"},
+			},
+		},
+		{
+			initial: &scope{},
 			job: configtest.ParseJob(`
         run: echo
         glob:
@@ -83,8 +98,7 @@ func TestScope_extend(t *testing.T) {
         root: subdir/
       `),
 			result: &scope{
-				excludeFiles: []interface{}{},
-				glob:         []string{"*.js", "*.jsx"},
+				glob: []string{"*.js", "*.jsx"},
 				env: map[string]string{
 					"VERSION":       "1",
 					"UI_ENABLE":     "false",
