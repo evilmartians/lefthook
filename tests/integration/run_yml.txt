@@ -7,10 +7,9 @@ exec git commit -m 'test'
 stderr '\s*Hi there from Lefthook\s*'
 
 -- lefthook.yml --
-skip_output:
-  - meta
-  - summary
-  - execution_info
+output:
+  - execution_out
+
 pre-commit:
   commands:
     echo:

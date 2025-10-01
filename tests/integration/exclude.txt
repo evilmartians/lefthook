@@ -13,11 +13,9 @@ exec lefthook run -f nested
 stdout '^lefthook.yml\s+dir/b.txt lefthook.yml\s+b.txt dir/b.txt lefthook.yml\s+b.txt dir/b.txt\s*$'
 
 -- lefthook.yml --
-skip_output:
-  - skips
-  - meta
-  - summary
-  - execution_info
+output:
+  - execution_out
+
 all:
   commands:
     echo:

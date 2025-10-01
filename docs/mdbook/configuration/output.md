@@ -9,8 +9,6 @@ You can also disable all output with setting `output: false`. In this case only 
 
 This config quiets all outputs except for errors.
 
-`output` is enabled if there is no `skip_output` and `LEFTHOOK_QUIET`.
-
 **Example**
 
 ```yml

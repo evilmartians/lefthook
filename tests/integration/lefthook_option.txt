@@ -13,7 +13,8 @@ lefthook: |
   lefthook
 
 output:
-  - execution
+  - execution_out
+
 pre-commit:
   jobs:
     - run: echo {all_files}

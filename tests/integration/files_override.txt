@@ -12,10 +12,8 @@ exec lefthook run echo --file a-file.js --file ghost.file
 stdout 'a-file\.js ghost\.file'
 
 -- lefthook.yml --
-skip_output:
-  - meta
-  - execution_info
-  - summary
+output:
+  - execution_out
 
 echo:
   commands:
