@@ -1,5 +1,3 @@
-[windows] skip
-
 exec git init
 exec git add -A
 exec lefthook run skip
