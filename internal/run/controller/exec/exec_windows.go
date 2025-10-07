@@ -7,40 +7,14 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"sync"
 	"syscall"
 
 	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/internal/system"
 
 	"github.com/mattn/go-isatty"
 	"github.com/mattn/go-tty"
 )
-
-const plainSh = "sh"
-const shDefaultPath = `C:\Program Files\Git\bin\sh.exe`
-
-var getShFullPath = sync.OnceValues(func() (string, error) {
-	if _, err := os.Stat(shDefaultPath); err == nil {
-		return shDefaultPath, nil
-	}
-
-	path, err := exec.LookPath("sh")
-	if len(path) > 0 {
-		return path, nil
-	}
-
-	gitPath, err := exec.LookPath("git")
-	if err != nil {
-		return "", err
-	}
-
-	shPath := filepath.Join(gitPath, "..", "..", "bin", "sh.exe")
-	if _, err := os.Stat(shPath); err != nil {
-		return "", err
-	}
-
-	return shPath, nil
-})
 
 type CommandExecutor struct{}
 type executeArgs struct {
@@ -93,19 +67,10 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 }
 
 func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *executeArgs) error {
-	var sh string
-	var err error
-	// Git hooks always setup GIT_INDEX env variable so here we check if we are in
-	// a Git hook and can use `sh` without specifying the full path. This should cover most use cases.
-	if len(os.Getenv("GIT_INDEX_FILE")) != 0 {
-		sh = plainSh
-	} else {
-		// In case you call `lefthook run ...` from the terminal
-		sh, err = getShFullPath()
-		if err != nil {
-			log.Errorf("Couldn't find sh.exe: %s\n", err)
-			return err
-		}
+	sh, err := system.Sh()
+	if err != nil {
+		log.Errorf("Couldn't find sh.exe: %s\n", err)
+		return err
 	}
 
 	// This change is breaking but might be useful. Consider quoting if it fixes all possible

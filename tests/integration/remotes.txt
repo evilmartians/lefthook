@@ -34,10 +34,10 @@ pre-commit:
         - '*.rb'
     ruby-test:
       run: bundle exec rspec
+      fail_text: Run bundle install
       skip:
         - merge
         - rebase
-      fail_text: Run bundle install
   scripts:
     good_job.js:
       runner: node

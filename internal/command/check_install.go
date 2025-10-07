@@ -1,9 +1,8 @@
 package command
 
 import (
+	"context"
 	"os"
-
-	"github.com/evilmartians/lefthook/internal/config"
 )
 
 type installationStatus int
@@ -13,13 +12,8 @@ const (
 	notInstalled
 )
 
-func CheckInstall(opts *Options) error {
-	lefthook, err := initialize(opts)
-	if err != nil {
-		return err
-	}
-
-	check, err := lefthook.checkInstall()
+func (l *Lefthook) CheckInstall(_ctx context.Context) error {
+	check, err := l.checkInstall()
 	if err != nil {
 		return err
 	}
@@ -39,7 +33,7 @@ func (l *Lefthook) checkInstall() (installationStatus, error) {
 		return notInstalled, nil
 	}
 
-	cfg, err := config.Load(l.fs, l.repo)
+	cfg, err := l.LoadConfig()
 	if err != nil {
 		return notInstalled, err
 	}

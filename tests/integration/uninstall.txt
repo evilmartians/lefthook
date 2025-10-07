@@ -8,7 +8,7 @@ exists .lefthook-local.toml
 
 exec lefthook install
 exists .git/hooks/pre-push
-exec lefthook uninstall -c
+exec lefthook uninstall --remove-configs
 ! exists .git/hooks-pre-push
 ! exists lefthook.yml
 ! exists .lefthook-local.toml

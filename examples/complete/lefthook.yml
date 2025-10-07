@@ -13,7 +13,9 @@ pre-commit:
     rubocop:
       tags: backend style
       glob: "*.rb"
-      exclude: '(^|/)(application|routes)\.rb$'
+      exclude:
+        - "*/application.rb"
+        - "*/routes.rb"
       run: bundle exec rubocop --force-exclusion {all_files}
       stage_fixed: true
   scripts:

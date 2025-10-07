@@ -2,7 +2,6 @@ package config
 
 import (
 	"bytes"
-	"runtime"
 	"strings"
 
 	"github.com/evilmartians/lefthook/internal/log"
@@ -20,17 +19,18 @@ func (c *commandExecutor) execute(commandLine string) bool {
 		return false
 	}
 
-	var args []string
-	if runtime.GOOS == "windows" {
-		args = []string{"powershell", "-Command", commandLine}
-	} else {
-		args = []string{"sh", "-c", commandLine}
+	sh, err := system.Sh()
+	if err != nil {
+		log.Errorf("`sh` executable not found: %s\n", err)
+		return false
 	}
+
+	args := []string{sh, "-c", commandLine}
 
 	stdout := new(bytes.Buffer)
 	stderr := new(bytes.Buffer)
 
-	err := c.cmd.Run(args, "", system.NullReader, stdout, stderr)
+	err = c.cmd.Run(args, "", system.NullReader, stdout, stderr)
 
 	b := log.Builder(log.DebugLevel, "[lefthook] ").
 		Add("run: ", strings.Join(args, " ")).

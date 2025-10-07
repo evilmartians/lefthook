@@ -10,14 +10,8 @@ exec lefthook run echo_files
 stdout '1.txt 10.txt'
 
 -- lefthook.yml --
-skip_output:
-  - meta           # Skips lefthook version printing
-  - summary        # Skips summary block (successful and failed steps) printing
-  - empty_summary  # Skips summary heading when there are no steps to run
-  - success        # Skips successful steps printing
-  - failure        # Skips failed steps printing
-  - execution_info # Skips printing `EXECUTE > ...` logging
-  - skips
+output:
+  - execution_out
 
 echo_files:
   commands:
