@@ -13,6 +13,10 @@ import (
 func run() *cli.Command {
 	var args command.RunArgs
 	var colors string
+	failOnChanges := &cli.BoolWithInverseFlag{
+		Name:  "fail-on-changes",
+		Usage: "exit with 1 if some of the files were changed",
+	}
 
 	return &cli.Command{
 		Name:      "run",
@@ -86,11 +90,7 @@ func run() *cli.Command {
 				Usage:       "do not run LFS hooks",
 				Destination: &args.SkipLFS,
 			},
-			&cli.BoolFlag{
-				Name:        "fail-on-changes",
-				Usage:       "exit with 1 if some of the files were changed",
-				Destination: &args.FailOnChanges,
-			},
+			failOnChanges,
 			&cli.BoolFlag{
 				Name:        "files-from-stdin",
 				Usage:       "parse filelist from STDIN",
@@ -101,6 +101,11 @@ func run() *cli.Command {
 			l, err := command.NewLefthook(args.Verbose, colors)
 			if err != nil {
 				return err
+			}
+
+			if failOnChanges.IsSet() {
+				value := cmd.Bool("fail-on-changes")
+				args.FailOnChanges = &value
 			}
 
 			if cmd.Args().Len() < 1 {
