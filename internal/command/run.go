@@ -34,7 +34,7 @@ type RunArgs struct {
 	NoStageFixed    bool
 	SkipLFS         bool
 	Verbose         bool
-	FailOnChanges   bool
+	FailOnChanges   *bool
 	Hook            string
 	Exclude         []string
 	Files           []string
@@ -207,9 +207,9 @@ func getSourceDirs(repo *git.Repository, cfg *config.Config) []string {
 	return sourceDirs
 }
 
-func shouldFailOnChanges(fromArg bool, fromHook string) (bool, error) {
-	if fromArg {
-		return true, nil
+func shouldFailOnChanges(fromArg *bool, fromHook string) (bool, error) {
+	if fromArg != nil {
+		return *fromArg, nil
 	}
 
 	switch fromHook {
