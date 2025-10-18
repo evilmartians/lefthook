@@ -10,6 +10,8 @@ stdout '│  Error: files were modified by a hook, and fail_on_changes is enable
 ! exec lefthook run hook-setting
 stdout '│  Error: files were modified by a hook, and fail_on_changes is enabled'
 
+exec lefthook run hook-setting --fail-on-changes=false
+
 -- lefthook.yml --
 pre-commit:
   commands:
