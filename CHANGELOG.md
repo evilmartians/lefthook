@@ -1,5 +1,22 @@
 # Change log
 
+## 2.0.0 (2025-10-20)
+
+**Breaking changes**
+
+- `exclude` option no longer accepts regexp, only globs.
+- `skip_output` option is dropped, use `output` instead.
+- Some CLI arguments have changed their names to make it more consistent. See `lefthook run -h` for details.
+- for `only` and `skip` options with `- run: '...'` values the command executer was changed to Bourne Shell.
+
+**Commits**
+
+- fix: accept --fail-on-changes=false as override value ([#1168](https://github.com/evilmartians/lefthook/pull/1168)) by [@mrexox]()
+- feat: [**breaking**] use sh as command executor on Windows ([#1166](https://github.com/evilmartians/lefthook/pull/1166)) by [@mrexox]()
+- refactor: [**breaking**] drop support for exclude regexp ([#1162](https://github.com/evilmartians/lefthook/pull/1162)) by [@mrexox]()
+- refactor: [**breaking**] drop deprecated skip_output option ([#1159](https://github.com/evilmartians/lefthook/pull/1159)) by [@mrexox]()
+- refactor: [**breaking**] use another cli framework ([#1155](https://github.com/evilmartians/lefthook/pull/1155)) by [@mrexox]()
+
 ## 1.13.6 (2025-09-30)
 
 - fix: embed jsonschema into binary ([#1158](https://github.com/evilmartians/lefthook/pull/1158)) by [@mrexox]()
