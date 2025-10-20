@@ -394,8 +394,8 @@ $ git commit # will run pre-commit hook ('yarn lint --fix')
 $ lefthook run pre-commit # will run pre-commit hook (`yarn lint --fix`)
 </code></pre>
 <h3 id="run-specific-jobs"><a class="header" href="#run-specific-jobs">Run specific jobs</a></h3>
-<p>You can specify which jobs to run (also <code>--commands</code>, <code>--scripts</code>, and <code>--tags</code> supported).</p>
-<pre><code class="language-bash">$ lefthook run pre-commit --jobs lints --tags checks
+<p>You can specify which jobs to run (also <code>--tag</code> supported).</p>
+<pre><code class="language-bash">$ lefthook run pre-commit --job lints --job pretty --tag checks
 </code></pre>
 <h3 id="specify-files"><a class="header" href="#specify-files">Specify files</a></h3>
 <p>You can force replacing files templates (like <code>{staged_files}</code>) with either all files (will acts as <code>{all_files}</code> template) or a list of files.</p>
@@ -452,8 +452,8 @@ $ git commit # will run pre-commit hook ('yarn lint --fix')
 $ lefthook run pre-commit # will run pre-commit hook (`yarn lint --fix`)
 </code></pre>
 <h3 id="run-specific-jobs-1"><a class="header" href="#run-specific-jobs-1">Run specific jobs</a></h3>
-<p>You can specify which jobs to run (also <code>--commands</code>, <code>--scripts</code>, and <code>--tags</code> supported).</p>
-<pre><code class="language-bash">$ lefthook run pre-commit --jobs lints --tags checks
+<p>You can specify which jobs to run (also <code>--tag</code> supported).</p>
+<pre><code class="language-bash">$ lefthook run pre-commit --job lints --job pretty --tag checks
 </code></pre>
 <h3 id="specify-files-1"><a class="header" href="#specify-files-1">Specify files</a></h3>
 <p>You can force replacing files templates (like <code>{staged_files}</code>) with either all files (will acts as <code>{all_files}</code> template) or a list of files.</p>
@@ -669,7 +669,6 @@ SHA1=$3
 <li><a href="configuration/./configs.html"><code>configs</code></a></li>
 </ul>
 </li>
-<li><a href="configuration/./skip_output.html"><code>skip_output</code></a></li>
 <li><a href="configuration/./source_dir.html"><code>source_dir</code></a></li>
 <li><a href="configuration/./source_dir_local.html"><code>source_dir_local</code></a></li>
 <li><a href="configuration/./skip_lfs.html"><code>skip_lfs</code></a></li>
@@ -866,7 +865,6 @@ no_tty: true
 By default, all output values are enabled</p>
 <p>You can also disable all output with setting <code>output: false</code>. In this case only errors will be printed.</p>
 <p>This config quiets all outputs except for errors.</p>
-<p><code>output</code> is enabled if there is no <code>skip_output</code> and <code>LEFTHOOK_QUIET</code>.</p>
 <p><strong>Example</strong></p>
 <pre><code class="language-yml"># lefthook.yml
 
@@ -1035,31 +1033,6 @@ remotes:
     configs:
       - configs/pre-push.yml
 
-</code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="skip_output"><a class="header" href="#skip_output"><code>skip_output</code></a></h2>
-<blockquote>
-<p><strong>DEPRECATED</strong> This feature is deprecated and might be removed in future versions. Please, use <a href="configuration/./output.html"><code>output</code></a> instead for managing verbosity.</p>
-</blockquote>
-<p>You can manage the verbosity using the <code>skip_output</code> config. You can set whether lefthook should print some parts of its output.</p>
-<p>Possible values are <code>meta,summary,success,failure,execution,execution_out,execution_info,skips</code>.</p>
-<p>You can also disable all output with setting <code>skip_output: true</code>. In this case only errors will be printed.</p>
-<p>This config quiets all outputs except for errors.</p>
-<p><strong>Example</strong></p>
-<pre><code class="language-yml"># lefthook.yml
-
-skip_output:
-  - meta           # Skips lefthook version printing
-  - summary        # Skips summary block (successful and failed steps) printing
-  - empty_summary  # Skips summary heading when there are no steps to run
-  - success        # Skips successful steps printing
-  - failure        # Skips failed steps printing
-  - execution      # Skips printing any execution logs (but prints if the execution failed)
-  - execution_out  # Skips printing execution output (but still prints failed commands output)
-  - execution_info # Skips printing `EXECUTE &gt; ...` logging
-  - skips          # Skips "skip" printing (i.e. no files matched)
-</code></pre>
-<p>You can also <em>extend</em> this list with an environment variable <code>LEFTHOOK_QUIET</code>:</p>
-<pre><code class="language-bash">LEFTHOOK_QUIET="meta,success,summary" lefthook run pre-commit
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="source_dir"><a class="header" href="#source_dir"><code>source_dir</code></a></h2>
 <p><strong>Default: <code>.lefthook/</code></strong></p>

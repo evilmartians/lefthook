@@ -219,8 +219,8 @@ $ git commit # will run pre-commit hook ('yarn lint --fix')
 $ lefthook run pre-commit # will run pre-commit hook (`yarn lint --fix`)
 </code></pre>
 <h3 id="run-specific-jobs"><a class="header" href="#run-specific-jobs">Run specific jobs</a></h3>
-<p>You can specify which jobs to run (also <code>--commands</code>, <code>--scripts</code>, and <code>--tags</code> supported).</p>
-<pre><code class="language-bash">$ lefthook run pre-commit --jobs lints --tags checks
+<p>You can specify which jobs to run (also <code>--tag</code> supported).</p>
+<pre><code class="language-bash">$ lefthook run pre-commit --job lints --job pretty --tag checks
 </code></pre>
 <h3 id="specify-files"><a class="header" href="#specify-files">Specify files</a></h3>
 <p>You can force replacing files templates (like <code>{staged_files}</code>) with either all files (will acts as <code>{all_files}</code> template) or a list of files.</p>
