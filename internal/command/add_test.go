@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/evilmartians/lefthook/internal/git"
+	"github.com/evilmartians/lefthook/v2/internal/git"
 )
 
 func TestLefthookAdd(t *testing.T) {

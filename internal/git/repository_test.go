@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/evilmartians/lefthook/internal/system"
+	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
 type gitCmd struct {

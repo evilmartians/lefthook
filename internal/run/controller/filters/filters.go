@@ -10,7 +10,7 @@ import (
 	"github.com/gobwas/glob"
 	"github.com/spf13/afero"
 
-	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/log"
 )
 
 type fileTypeFilter struct {

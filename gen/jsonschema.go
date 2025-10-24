@@ -9,7 +9,7 @@ import (
 
 	"github.com/invopop/jsonschema"
 
-	"github.com/evilmartians/lefthook/internal/config"
+	"github.com/evilmartians/lefthook/v2/internal/config"
 )
 
 //go:generate go run jsonschema.go

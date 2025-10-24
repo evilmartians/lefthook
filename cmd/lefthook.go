@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/urfave/cli/v3"
 
-	ver "github.com/evilmartians/lefthook/internal/version"
+	ver "github.com/evilmartians/lefthook/v2/internal/version"
 )
 
 func Lefthook() *cli.Command {

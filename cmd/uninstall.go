@@ -5,7 +5,7 @@ import (
 
 	"github.com/urfave/cli/v3"
 
-	"github.com/evilmartians/lefthook/internal/command"
+	"github.com/evilmartians/lefthook/v2/internal/command"
 )
 
 func uninstall() *cli.Command {
