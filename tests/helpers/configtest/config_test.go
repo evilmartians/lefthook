@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/evilmartians/lefthook/internal/config"
+	"github.com/evilmartians/lefthook/v2/internal/config"
 )
 
 func TestParseHook(t *testing.T) {

@@ -15,7 +15,7 @@ import (
 	"github.com/mattn/go-runewidth"
 	"golang.org/x/term"
 
-	"github.com/evilmartians/lefthook/internal/version"
+	"github.com/evilmartians/lefthook/v2/internal/version"
 )
 
 var (

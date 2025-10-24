@@ -5,8 +5,8 @@ import (
 
 	"github.com/urfave/cli/v3"
 
-	"github.com/evilmartians/lefthook/internal/log"
-	ver "github.com/evilmartians/lefthook/internal/version"
+	"github.com/evilmartians/lefthook/v2/internal/log"
+	ver "github.com/evilmartians/lefthook/v2/internal/version"
 )
 
 func version() *cli.Command {

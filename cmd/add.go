@@ -6,7 +6,7 @@ import (
 
 	"github.com/urfave/cli/v3"
 
-	"github.com/evilmartians/lefthook/internal/command"
+	"github.com/evilmartians/lefthook/v2/internal/command"
 )
 
 //go:embed add-usage.txt

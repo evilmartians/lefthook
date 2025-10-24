@@ -9,14 +9,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/log"
-	"github.com/evilmartians/lefthook/internal/run/controller/command"
-	"github.com/evilmartians/lefthook/internal/run/controller/exec"
-	"github.com/evilmartians/lefthook/internal/run/controller/filters"
-	"github.com/evilmartians/lefthook/internal/run/controller/utils"
-	"github.com/evilmartians/lefthook/internal/run/result"
-	"github.com/evilmartians/lefthook/internal/system"
+	"github.com/evilmartians/lefthook/v2/internal/config"
+	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/run/controller/command"
+	"github.com/evilmartians/lefthook/v2/internal/run/controller/exec"
+	"github.com/evilmartians/lefthook/v2/internal/run/controller/filters"
+	"github.com/evilmartians/lefthook/v2/internal/run/controller/utils"
+	"github.com/evilmartians/lefthook/v2/internal/run/result"
+	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
 const (

@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/evilmartians/lefthook/internal/log"
-	"github.com/evilmartians/lefthook/internal/system"
+	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
 // commandExecutor implements execution of a skip checks passed in a `run` option.

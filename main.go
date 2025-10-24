@@ -4,8 +4,8 @@ import (
 	"context"
 	"os"
 
-	"github.com/evilmartians/lefthook/cmd"
-	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/v2/cmd"
+	"github.com/evilmartians/lefthook/v2/internal/log"
 )
 
 func main() {

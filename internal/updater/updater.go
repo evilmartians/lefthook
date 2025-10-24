@@ -21,8 +21,8 @@ import (
 
 	"github.com/schollz/progressbar/v3"
 
-	"github.com/evilmartians/lefthook/internal/log"
-	"github.com/evilmartians/lefthook/internal/version"
+	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/version"
 )
 
 const (

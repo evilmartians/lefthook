@@ -12,8 +12,8 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/evilmartians/lefthook/internal/log"
-	"github.com/evilmartians/lefthook/internal/version"
+	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/version"
 )
 
 const (

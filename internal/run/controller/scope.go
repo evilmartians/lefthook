@@ -3,8 +3,8 @@ package controller
 import (
 	"slices"
 
-	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/run/controller/utils"
+	"github.com/evilmartians/lefthook/v2/internal/config"
+	"github.com/evilmartians/lefthook/v2/internal/run/controller/utils"
 )
 
 type scope struct {

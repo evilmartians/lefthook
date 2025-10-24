@@ -5,8 +5,8 @@ import (
 	"io"
 	"testing"
 
-	"github.com/evilmartians/lefthook/internal/git"
-	"github.com/evilmartians/lefthook/internal/system"
+	"github.com/evilmartians/lefthook/v2/internal/git"
+	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
 type mockCmd struct{}

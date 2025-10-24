@@ -4,8 +4,8 @@ import (
 	"errors"
 	"maps"
 
-	"github.com/evilmartians/lefthook/internal/git"
-	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/git"
+	"github.com/evilmartians/lefthook/v2/internal/log"
 )
 
 var ErrFailOnChanges = errors.New("files were modified by a hook, and fail_on_changes is enabled")

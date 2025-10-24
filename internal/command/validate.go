@@ -7,8 +7,8 @@ import (
 
 	"github.com/kaptinlin/jsonschema"
 
-	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/config"
+	"github.com/evilmartians/lefthook/v2/internal/log"
 )
 
 type ValidateArgs struct {

@@ -18,8 +18,8 @@ import (
 	"github.com/knadh/koanf/v2"
 	"github.com/spf13/afero"
 
-	"github.com/evilmartians/lefthook/internal/git"
-	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/git"
+	"github.com/evilmartians/lefthook/v2/internal/log"
 )
 
 const (
