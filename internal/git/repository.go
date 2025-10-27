@@ -53,9 +53,6 @@ var (
 
 // Repository represents a git repository.
 type Repository struct {
-	// Mutex helps syncing Git commands which can't be run concurrently, e.g. `git add`.
-	mu sync.Mutex
-
 	Fs                afero.Fs
 	Git               *CommandExecutor
 	HooksPath         string
@@ -362,9 +359,6 @@ func (r *Repository) AddFiles(files []string) error {
 	if len(files) == 0 {
 		return nil
 	}
-
-	r.mu.Lock()
-	defer r.mu.Unlock()
 
 	_, err := r.Git.BatchedCmd(cmdStageFiles, files)
 
