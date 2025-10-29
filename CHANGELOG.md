@@ -1,5 +1,9 @@
 # Change log
 
+## 2.0.2 (2025-10-29)
+
+- fix: add mutex lock before all git commands ([#1178](https://github.com/evilmartians/lefthook/pull/1178)) by [@mrexox]()
+
 ## 2.0.0 (2025-10-20)
 
 **Breaking changes**
