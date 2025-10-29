@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/evilmartians/lefthook/v2/internal/system"
@@ -49,6 +50,7 @@ MM staged but changed
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
 			repository := &Repository{
 				Git: &CommandExecutor{
+					mu: new(sync.Mutex),
 					cmd: gitCmd{
 						cases: map[string]string{
 							"git status --short --porcelain": tt.gitOut,
@@ -139,6 +141,7 @@ RM old-file -> new-file`,
 
 			repository := &Repository{
 				Git: &CommandExecutor{
+					mu: new(sync.Mutex),
 					cmd: gitCmd{
 						cases: gitCmds,
 					},
