@@ -20,15 +20,16 @@ import (
 type CommandExecutor struct{}
 
 type executeArgs struct {
-	in                    io.Reader
-	out                   io.Writer
-	envs                  []string
-	root                  string
-	interactive, useStdin bool
+	in                            io.Reader
+	out                           io.Writer
+	envs                          []string
+	root                          string
+	interactive, stream, useStdin bool
 }
 
 func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader, out io.Writer) error {
-	if opts.Interactive && !isatty.IsTerminal(os.Stdin.Fd()) {
+	// Only try to open TTY for interactive mode (user input needed), not for stream mode
+	if opts.Interactive && !opts.Stream && !isatty.IsTerminal(os.Stdin.Fd()) {
 		tty, err := os.Open("/dev/tty")
 		if err == nil {
 			defer func() {
@@ -63,6 +64,7 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 		envs:        envs,
 		root:        root,
 		interactive: opts.Interactive,
+		stream:      opts.Stream,
 		useStdin:    opts.UseStdin,
 	}
 
@@ -83,7 +85,7 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 	command.Dir = args.root
 	command.Env = append(os.Environ(), args.envs...)
 
-	if args.interactive || args.useStdin {
+	if args.interactive || args.stream || args.useStdin {
 		command.Stdout = args.out
 		command.Stdin = args.in
 		command.Stderr = os.Stderr

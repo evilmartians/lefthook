@@ -27,6 +27,7 @@ type Command struct {
 
 	Priority    int  `json:"priority,omitempty"    mapstructure:"priority"    toml:"priority,omitempty"    yaml:",omitempty"`
 	Interactive bool `json:"interactive,omitempty" mapstructure:"interactive" toml:"interactive,omitempty" yaml:",omitempty"`
+	Stream      bool `json:"stream,omitempty"      mapstructure:"stream"      toml:"stream,omitempty"      yaml:",omitempty"`
 	UseStdin    bool `json:"use_stdin,omitempty"   koanf:"use_stdin"          mapstructure:"use_stdin"     toml:"use_stdin,omitempty"   yaml:"use_stdin,omitempty"`
 	StageFixed  bool `json:"stage_fixed,omitempty" koanf:"stage_fixed"        mapstructure:"stage_fixed"   toml:"stage_fixed,omitempty" yaml:"stage_fixed,omitempty"`
 }
@@ -45,6 +46,7 @@ func CommandsToJobs(commands map[string]*Command) []*Job {
 			FileTypes:   command.FileTypes,
 			Env:         command.Env,
 			Interactive: command.Interactive,
+			Stream:      command.Stream,
 			UseStdin:    command.UseStdin,
 			StageFixed:  command.StageFixed,
 			Exclude:     command.Exclude,

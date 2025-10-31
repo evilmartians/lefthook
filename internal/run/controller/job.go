@@ -131,6 +131,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 		Root:        filepath.Join(c.git.RootPath, scope.root),
 		Commands:    commands,
 		Interactive: job.Interactive && !scope.opts.DisableTTY,
+		Stream:      job.Stream,
 		UseStdin:    job.UseStdin,
 		Env:         env,
 	})

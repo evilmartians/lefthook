@@ -93,6 +93,9 @@
         "interactive": {
           "type": "boolean"
         },
+        "stream": {
+          "type": "boolean"
+        },
         "use_stdin": {
           "type": "boolean"
         },
@@ -300,6 +303,9 @@
         "interactive": {
           "type": "boolean"
         },
+        "stream": {
+          "type": "boolean"
+        },
         "use_stdin": {
           "type": "boolean"
         },
@@ -421,6 +427,9 @@
         "interactive": {
           "type": "boolean"
         },
+        "stream": {
+          "type": "boolean"
+        },
         "use_stdin": {
           "type": "boolean"
         },
@@ -432,7 +441,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2025.10.24.",
+  "$comment": "Last updated on 2025.10.31.",
   "properties": {
     "min_version": {
       "type": "string",

@@ -25,7 +25,8 @@ type executeArgs struct {
 }
 
 func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader, out io.Writer) error {
-	if opts.Interactive && !isatty.IsTerminal(os.Stdin.Fd()) {
+	// Only try to open TTY for interactive mode (user input needed), not for stream mode
+	if opts.Interactive && !opts.Stream && !isatty.IsTerminal(os.Stdin.Fd()) {
 		tty, err := tty.Open()
 		if err == nil {
 			defer tty.Close()
