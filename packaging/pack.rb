@@ -9,6 +9,10 @@ VERSION = "2.0.15"
 ROOT = File.join(__dir__, "..")
 DIST = File.join(ROOT, "dist")
 
+OPERATING_SYSTEMS = ["linux", "darwin", "freebsd", "openbsd", "windows"]
+ARCHITECTURES = ["x86_64", "arm64"]
+PLATFORMS = OPERATING_SYSTEMS.product(ARCHITECTURES).map { |os, arch| { os: os, arch: arch } }
+
 module Pack
   extend FileUtils
 
@@ -164,8 +168,24 @@ module Pack
 
   def publish_pypi
     puts "Publishing to PyPI..."
-    cd(File.join(__dir__, "pypi"))
-    system("python setup.py sdist bdist_wheel", exception: true)
+    pypi_dir = File.join(__dir__, "pypi")
+
+    puts "Building source distribution..."
+    cd(pypi_dir)
+    system("python setup.py sdist", exception: true)
+
+    PLATFORMS.each do |platform|
+      puts "Building wheel for #{platform[:os]}-#{platform[:arch]}..."
+      env = {
+        "LEFTHOOK_TARGET_PLATFORM" => platform[:os],
+        "LEFTHOOK_TARGET_ARCH" => platform[:arch]
+      }
+
+      cd(pypi_dir)
+      system(env, "python setup.py bdist_wheel", exception: true)
+    end
+
+    cd(pypi_dir)
     system("python -m twine upload --verbose --repository lefthook dist/*", exception: true)
   end
 
