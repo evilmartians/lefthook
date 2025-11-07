@@ -119,7 +119,7 @@ func TestUpdater_SelfUpdate(t *testing.T) {
 
 			releaseServer := httptest.NewServer(
 				http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					assert.NoError(json.NewEncoder(w).Encode(map[string]interface{}{
+					assert.NoError(json.NewEncoder(w).Encode(map[string]any{
 						"tag_name": tt.latestRelease,
 						"assets": []map[string]string{
 							{

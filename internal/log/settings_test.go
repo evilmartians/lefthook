@@ -8,12 +8,12 @@ import (
 func TestSetting(t *testing.T) {
 	for i, tt := range [...]struct {
 		enableTags     string
-		enableSettings interface{}
+		enableSettings any
 		results        map[string]bool
 	}{
 		{
 			enableTags:     "",
-			enableSettings: []interface{}{},
+			enableSettings: []any{},
 			results: map[string]bool{
 				"meta":           true,
 				"summary":        true,
@@ -35,14 +35,14 @@ func TestSetting(t *testing.T) {
 		},
 		{
 			enableTags:     "",
-			enableSettings: []interface{}{"success"},
+			enableSettings: []any{"success"},
 			results: map[string]bool{
 				"success": true,
 			},
 		},
 		{
 			enableTags:     "",
-			enableSettings: []interface{}{"summary"},
+			enableSettings: []any{"summary"},
 			results: map[string]bool{
 				"summary": true,
 				"success": true,
@@ -51,7 +51,7 @@ func TestSetting(t *testing.T) {
 		},
 		{
 			enableTags:     "",
-			enableSettings: []interface{}{"failure", "execution"},
+			enableSettings: []any{"failure", "execution"},
 			results: map[string]bool{
 				"failure":        true,
 				"execution":      true,
@@ -61,7 +61,7 @@ func TestSetting(t *testing.T) {
 		},
 		{
 			enableTags:     "",
-			enableSettings: []interface{}{"failure", "execution_out"},
+			enableSettings: []any{"failure", "execution_out"},
 			results: map[string]bool{
 				"failure":       true,
 				"execution":     true,
@@ -70,7 +70,7 @@ func TestSetting(t *testing.T) {
 		},
 		{
 			enableTags:     "",
-			enableSettings: []interface{}{"failure", "execution_info"},
+			enableSettings: []any{"failure", "execution_info"},
 			results: map[string]bool{
 				"failure":        true,
 				"execution":      true,
@@ -79,7 +79,7 @@ func TestSetting(t *testing.T) {
 		},
 		{
 			enableTags: "",
-			enableSettings: []interface{}{
+			enableSettings: []any{
 				"meta",
 				"summary",
 				"success",

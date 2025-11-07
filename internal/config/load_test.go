@@ -400,7 +400,7 @@ lints:
 			result: &Config{
 				SourceDir:      DefaultSourceDir,
 				SourceDirLocal: DefaultSourceDirLocal,
-				Colors:         map[string]interface{}{"yellow": "#FFE4B5", "red": 196},
+				Colors:         map[string]any{"yellow": "#FFE4B5", "red": 196},
 				Hooks: map[string]*Hook{
 					"tests": {
 						Name:     "tests",
@@ -513,11 +513,11 @@ pre-commit:
 				Hooks: map[string]*Hook{
 					"pre-commit": {
 						Name: "pre-commit",
-						Only: []interface{}{map[string]interface{}{"ref": "main"}},
+						Only: []any{map[string]any{"ref": "main"}},
 						Commands: map[string]*Command{
 							"lint": {
 								Run:  "yarn lint",
-								Only: []interface{}{"merge", "rebase"},
+								Only: []any{"merge", "rebase"},
 							},
 							"global": {
 								Run: "echo 'Global!'",
@@ -526,7 +526,7 @@ pre-commit:
 						Scripts: map[string]*Script{
 							"test.sh": {
 								Runner: "bash",
-								Skip:   []interface{}{"merge"},
+								Skip:   []any{"merge"},
 							},
 						},
 					},
@@ -1176,11 +1176,11 @@ pre-commit:
 				Hooks: map[string]*Hook{
 					"pre-commit": {
 						Name: "pre-commit",
-						Only: []interface{}{map[string]interface{}{"ref": "main"}},
+						Only: []any{map[string]any{"ref": "main"}},
 						Commands: map[string]*Command{
 							"lint": {
 								Run:  "yarn lint",
-								Only: []interface{}{"merge", "rebase"},
+								Only: []any{"merge", "rebase"},
 							},
 							"ping": {
 								Run: "echo pong",
@@ -1192,7 +1192,7 @@ pre-commit:
 						Scripts: map[string]*Script{
 							"test.sh": {
 								Runner: "bash",
-								Skip:   []interface{}{"merge"},
+								Skip:   []any{"merge"},
 							},
 						},
 					},

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"maps"
 	"slices"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
@@ -68,12 +69,8 @@ func (s *scope) extend(job *config.Job) *scope {
 	if len(job.Env) > 0 {
 		if len(newScope.env) > 0 {
 			env := make(map[string]string)
-			for key, value := range newScope.env {
-				env[key] = value
-			}
-			for key, value := range job.Env {
-				env[key] = value
-			}
+			maps.Copy(env, newScope.env)
+			maps.Copy(env, job.Env)
 			newScope.env = env
 		} else {
 			newScope.env = job.Env

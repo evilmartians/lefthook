@@ -35,6 +35,7 @@ linters:
     - mirror
     - misspell
     - mnd
+    - modernize
     - nestif
     - noctx
     - nolintlint

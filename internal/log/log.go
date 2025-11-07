@@ -121,16 +121,16 @@ func (s StyleLogger) Info(str string) {
 	)
 }
 
-func Debug(args ...interface{}) {
+func Debug(args ...any) {
 	res := strings.TrimSpace(fmt.Sprint(args...))
 	std.Debug(color(GolorGray).Render(res))
 }
 
-func Debugf(format string, args ...interface{}) {
+func Debugf(format string, args ...any) {
 	Debug(fmt.Sprintf(format, args...))
 }
 
-func Info(args ...interface{}) {
+func Info(args ...any) {
 	std.Info(args...)
 }
 
@@ -144,33 +144,33 @@ func InfoPad(s string) {
 	)
 }
 
-func Infof(format string, args ...interface{}) {
+func Infof(format string, args ...any) {
 	std.Infof(format, args...)
 }
 
-func Error(args ...interface{}) {
+func Error(args ...any) {
 	res := fmt.Sprint(args...)
 	std.Error(Red(res))
 }
 
-func Errorf(format string, args ...interface{}) {
+func Errorf(format string, args ...any) {
 	Error(fmt.Sprintf(format, args...))
 }
 
-func Warn(args ...interface{}) {
+func Warn(args ...any) {
 	res := fmt.Sprint(args...)
 	std.Warn(Yellow(res))
 }
 
-func Warnf(format string, args ...interface{}) {
+func Warnf(format string, args ...any) {
 	Warn(fmt.Sprintf(format, args...))
 }
 
-func Println(args ...interface{}) {
+func Println(args ...any) {
 	std.Println(args...)
 }
 
-func Printf(format string, args ...interface{}) {
+func Printf(format string, args ...any) {
 	std.Printf(format, args...)
 }
 
@@ -178,7 +178,7 @@ func SetLevel(level Level) {
 	std.SetLevel(level)
 }
 
-func SetColors(colors interface{}) {
+func SetColors(colors any) {
 	if colors == nil {
 		return
 	}
@@ -212,7 +212,7 @@ func SetColors(colors interface{}) {
 		setColor(lipgloss.NoColor{}, &ColorCyan)
 		setColor(lipgloss.NoColor{}, &GolorGray)
 		setColor(lipgloss.NoColor{}, &colorBorder)
-	case map[string]interface{}:
+	case map[string]any:
 		std.colors = ColorOn
 		setColor(typedColors["red"], &ColorRed)
 		setColor(typedColors["green"], &ColorGreen)
@@ -225,7 +225,7 @@ func SetColors(colors interface{}) {
 	}
 }
 
-func setColor(colorCode interface{}, adaptiveColor *lipgloss.TerminalColor) {
+func setColor(colorCode any, adaptiveColor *lipgloss.TerminalColor) {
 	var code string
 	switch typedCode := colorCode.(type) {
 	case int:
@@ -385,7 +385,7 @@ func (l *Logger) SetOutput(out io.Writer) {
 	l.out = out
 }
 
-func (l *Logger) Info(args ...interface{}) {
+func (l *Logger) Info(args ...any) {
 	l.Log(InfoLevel, args...)
 }
 
@@ -419,23 +419,23 @@ func (l *Logger) Warn(args ...string) {
 	l.Log(WarnLevel, leftBorder)
 }
 
-func (l *Logger) Infof(format string, args ...interface{}) {
+func (l *Logger) Infof(format string, args ...any) {
 	l.Logf(InfoLevel, format, args...)
 }
 
-func (l *Logger) Debugf(format string, args ...interface{}) {
+func (l *Logger) Debugf(format string, args ...any) {
 	l.Logf(DebugLevel, format, args...)
 }
 
-func (l *Logger) Errorf(format string, args ...interface{}) {
+func (l *Logger) Errorf(format string, args ...any) {
 	l.Logf(ErrorLevel, format, args...)
 }
 
-func (l *Logger) Warnf(format string, args ...interface{}) {
+func (l *Logger) Warnf(format string, args ...any) {
 	l.Logf(WarnLevel, format, args...)
 }
 
-func (l *Logger) Log(level Level, args ...interface{}) {
+func (l *Logger) Log(level Level, args ...any) {
 	if l.IsLevelEnabled(level) {
 		l.Println(args...)
 	}
@@ -486,13 +486,13 @@ func (l *Logger) UnsetName(name string) {
 	l.spinner.Suffix = l.formatSpinnerSuffix(l.names)
 }
 
-func (l *Logger) Logf(level Level, format string, args ...interface{}) {
+func (l *Logger) Logf(level Level, format string, args ...any) {
 	if l.IsLevelEnabled(level) {
 		l.Printf(format, args...)
 	}
 }
 
-func (l *Logger) Println(args ...interface{}) {
+func (l *Logger) Println(args ...any) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
@@ -504,7 +504,7 @@ func (l *Logger) Println(args ...interface{}) {
 	_, _ = fmt.Fprintln(l.out, args...)
 }
 
-func (l *Logger) Printf(format string, args ...interface{}) {
+func (l *Logger) Printf(format string, args ...any) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 

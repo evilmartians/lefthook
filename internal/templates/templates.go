@@ -58,7 +58,7 @@ func Config() []byte {
 }
 
 func Checksum(checksum string, timestamp int64, hooks []string) []byte {
-	return []byte(fmt.Sprintf(checksumFormat, checksum, timestamp, strings.Join(hooks, ",")))
+	return fmt.Appendf(nil, checksumFormat, checksum, timestamp, strings.Join(hooks, ","))
 }
 
 func getExtension() string {

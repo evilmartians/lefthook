@@ -16,8 +16,8 @@ type JobParams struct {
 	Tags         []string
 	Glob         []string
 	ExcludeFiles []string
-	Only         interface{}
-	Skip         interface{}
+	Only         any
+	Skip         any
 }
 
 type BuilderOptions struct {
