@@ -92,4 +92,4 @@ pre-commit:
         - text/x-sh
 ```
 
-[^1]: All supported MIME types can be found here: [supported_mimes.md](https://github.com/gabriel-vasile/mimetype/blob/2f0854be3b9bbae4d449f8994d133f1c743f1885/supported_mimes.md)
+[^1]: All supported MIME types can be found here: [supported_mimes.md](https://github.com/gabriel-vasile/mimetype/blob/v1.4.11/supported_mimes.md)
