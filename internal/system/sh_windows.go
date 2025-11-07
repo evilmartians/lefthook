@@ -1,5 +1,4 @@
 //go:build windows
-// +build windows
 
 package system
 
@@ -11,8 +10,10 @@ import (
 	"sync"
 )
 
-const sh = "sh"
-const defaultShPath = `C:\Program Files\Git\bin\sh.exe`
+const (
+	sh            = "sh"
+	defaultShPath = `C:\Program Files\Git\bin\sh.exe`
+)
 
 var fullPath = sync.OnceValues(func() (string, error) {
 	if _, err := os.Stat(defaultShPath); err == nil {
