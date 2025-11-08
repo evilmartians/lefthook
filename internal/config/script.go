@@ -19,6 +19,7 @@ type Script struct {
 
 	FailText    string `json:"fail_text,omitempty"   koanf:"fail_text"          mapstructure:"fail_text"     toml:"fail_text,omitempty"   yaml:"fail_text,omitempty"`
 	Interactive bool   `json:"interactive,omitempty" mapstructure:"interactive" toml:"interactive,omitempty" yaml:",omitempty"`
+	Stream      bool   `json:"stream,omitempty"      mapstructure:"stream"      toml:"stream,omitempty"      yaml:",omitempty"`
 	UseStdin    bool   `json:"use_stdin,omitempty"   koanf:"use_stdin"          mapstructure:"use_stdin"     toml:"use_stdin,omitempty"   yaml:"use_stdin,omitempty"`
 	StageFixed  bool   `json:"stage_fixed,omitempty" koanf:"stage_fixed"        mapstructure:"stage_fixed"   toml:"stage_fixed,omitempty" yaml:"stage_fixed,omitempty"`
 }
@@ -34,6 +35,7 @@ func ScriptsToJobs(scripts map[string]*Script) []*Job {
 			Tags:        script.Tags,
 			Env:         script.Env,
 			Interactive: script.Interactive,
+			Stream:      script.Stream,
 			UseStdin:    script.UseStdin,
 			StageFixed:  script.StageFixed,
 			Skip:        script.Skip,
