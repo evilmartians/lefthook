@@ -220,6 +220,9 @@ func shouldFailOnChanges(fromArg *bool, fromHook string) (bool, error) {
 	case "ci":
 		_, ok := os.LookupEnv("CI")
 		return ok, nil
+	case "non-ci":
+		_, ok := os.LookupEnv("CI")
+		return !ok, nil
 	default:
 		return false, fmt.Errorf("invalid value for fail_on_changes: %s", fromHook)
 	}

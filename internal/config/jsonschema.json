@@ -150,7 +150,8 @@
             "false",
             "never",
             "always",
-            "ci"
+            "ci",
+            "non-ci"
           ]
         },
         "files": {
@@ -432,7 +433,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2025.10.24.",
+  "$comment": "Last updated on 2025.11.07.",
   "properties": {
     "min_version": {
       "type": "string",
