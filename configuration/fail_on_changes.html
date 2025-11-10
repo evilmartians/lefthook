@@ -160,7 +160,8 @@
 <ul>
 <li><code>never</code>: never exit with a non-zero status if files were modified (default).</li>
 <li><code>always</code>: always exit with a non-zero status if files were modified.</li>
-<li><code>ci</code>: exit with a non-zero status only when <code>CI</code> environment variable is set. This can be useful when combined with <code>stage_fixed</code> to ensure a frictionless devX locally, and a robust CI.</li>
+<li><code>ci</code>: exit with a non-zero status only when the <code>CI</code> environment variable is set. This can be useful when combined with <code>stage_fixed</code> to ensure a frictionless devX locally, and a robust CI.</li>
+<li><code>non-ci</code>: exit with a non-zero status only when the <code>CI</code> environment variable is <em>not</em> set. This can be useful in setups where the CI pipeline commits changes automatically, such as <a href="https://autofix.ci">autofix.ci</a>.</li>
 </ul>
 <pre><code class="language-yml"># lefthook.yml
 pre-commit:
