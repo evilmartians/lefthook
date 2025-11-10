@@ -1,5 +1,10 @@
 # Change log
 
+## 2.0.3 (2025-11-10)
+
+- feat: fail_on_changes non-ci option ([#1186](https://github.com/evilmartians/lefthook/pull/1186)) by [@scop](https://github.com/scop)
+- deps: update mimetypes ([#1185](https://github.com/evilmartians/lefthook/pull/1185)) by [@mrexox](https://github.com/mrexox)
+
 ## 2.0.2 (2025-10-29)
 
 - fix: add mutex lock before all git commands ([#1178](https://github.com/evilmartians/lefthook/pull/1178)) by [@mrexox]()
