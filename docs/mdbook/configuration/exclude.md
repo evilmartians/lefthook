@@ -2,6 +2,8 @@
 
 This option allows to setup a list of globs for files to be excluded in files template.
 
+> **Note:** The glob patterns used in `exclude` are affected by the [`glob_matcher`](./glob_matcher.md) setting. See the glob_matcher documentation for details on how `**` patterns behave.
+
 **Example**
 
 Run Rubocop on staged files with `.rb` extension except for `application.rb`, `routes.rb`, `rails_helper.rb`, and all Ruby files in `config/initializers/`.

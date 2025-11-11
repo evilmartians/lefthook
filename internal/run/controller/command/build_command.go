@@ -74,6 +74,7 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 		ExcludeFiles: params.ExcludeFiles,
 		Root:         params.Root,
 		FileTypes:    params.FileTypes,
+		GlobMatcher:  b.opts.GlobMatcher,
 	}
 	for filesType, fn := range filesFns {
 		cnt := strings.Count(params.Run, filesType)

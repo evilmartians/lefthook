@@ -134,6 +134,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 		DisableTTY:    cfg.NoTTY || args.NoTTY,
 		SkipLFS:       cfg.SkipLFS || args.SkipLFS,
 		Templates:     cfg.Templates,
+		GlobMatcher:   cfg.GlobMatcher,
 		GitArgs:       args.GitArgs,
 		ExcludeFiles:  args.Exclude,
 		Files:         args.Files,

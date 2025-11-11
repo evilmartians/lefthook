@@ -54,6 +54,7 @@
   - [`source_dir`](./configuration/source_dir.md)
   - [`source_dir_local`](./configuration/source_dir_local.md)
   - [`skip_lfs`](./configuration/skip_lfs.md)
+  - [`glob_matcher`](./configuration/glob_matcher.md)
   - [`templates`](./configuration/templates.md)
   - [{Git hook name}](./configuration/Hook.md)
     - [`files`](./configuration/files-global.md)
