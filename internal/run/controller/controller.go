@@ -33,6 +33,7 @@ type Options struct {
 	RunOnlyTags   []string
 	SourceDirs    []string
 	Templates     map[string]string
+	GlobMatcher   string
 	DisableTTY    bool
 	FailOnChanges bool
 	Force         bool

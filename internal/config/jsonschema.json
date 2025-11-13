@@ -433,7 +433,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2025.11.07.",
+  "$comment": "Last updated on 2025.11.11.",
   "properties": {
     "min_version": {
       "type": "string",
@@ -496,6 +496,14 @@
     "skip_lfs": {
       "type": "boolean",
       "description": "Skip running Git LFS hooks (enabled by default)"
+    },
+    "glob_matcher": {
+      "type": "string",
+      "enum": [
+        "gobwas;doublestar"
+      ],
+      "description": "Choose the glob matching engine: 'gobwas' (default) or 'doublestar' (standard ** behavior)",
+      "default": "gobwas"
     },
     "remotes": {
       "items": {

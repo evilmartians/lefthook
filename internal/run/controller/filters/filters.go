@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/bmatcuk/doublestar/v4"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gobwas/glob"
 	"github.com/spf13/afero"
@@ -36,6 +37,7 @@ type Params struct {
 	Glob         []string
 	FileTypes    []string
 	ExcludeFiles []string
+	GlobMatcher  string
 }
 
 func Apply(fs afero.Fs, files []string, params Params) []string {
@@ -46,8 +48,8 @@ func Apply(fs afero.Fs, files []string, params Params) []string {
 	b := log.Builder(log.DebugLevel, "[lefthook] ").
 		Add("filtered [ ]: ", files)
 
-	files = byGlob(files, params.Glob)
-	files = byExclude(files, params.ExcludeFiles)
+	files = byGlob(files, params.Glob, params.GlobMatcher)
+	files = byExclude(files, params.ExcludeFiles, params.GlobMatcher)
 	files = byRoot(files, params.Root)
 	files = byType(fs, files, params.FileTypes)
 
@@ -57,7 +59,7 @@ func Apply(fs afero.Fs, files []string, params Params) []string {
 	return files
 }
 
-func byGlob(vs []string, matchers []string) []string {
+func byGlob(vs []string, matchers []string, globMatcher string) []string {
 	if len(matchers) == 0 {
 		return vs
 	}
@@ -70,14 +72,7 @@ func byGlob(vs []string, matchers []string) []string {
 		}
 
 		hasNonEmpty = true
-
-		g := glob.MustCompile(strings.ToLower(matcher))
-
-		for _, v := range vs {
-			if res := g.Match(strings.ToLower(v)); res {
-				vsf = append(vsf, v)
-			}
-		}
+		vsf = append(vsf, matchFiles(vs, matcher, globMatcher)...)
 	}
 
 	if !hasNonEmpty {
@@ -87,33 +82,94 @@ func byGlob(vs []string, matchers []string) []string {
 	return vsf
 }
 
-func byExclude(vs []string, exclude []string) []string {
+func matchFiles(vs []string, matcher string, globMatcher string) []string {
+	var matched []string
+	lowerMatcher := strings.ToLower(matcher)
+
+	if globMatcher == "doublestar" {
+		matched = matchFilesDoublestar(vs, lowerMatcher)
+	} else {
+		matched = matchFilesGobwas(vs, lowerMatcher)
+	}
+
+	return matched
+}
+
+func matchFilesDoublestar(vs []string, lowerMatcher string) []string {
+	var matched []string
+	for _, v := range vs {
+		isMatched, err := doublestar.Match(lowerMatcher, strings.ToLower(v))
+		if err == nil && isMatched {
+			matched = append(matched, v)
+		}
+	}
+	return matched
+}
+
+func matchFilesGobwas(vs []string, lowerMatcher string) []string {
+	var matched []string
+	g := glob.MustCompile(lowerMatcher)
+	for _, v := range vs {
+		if g.Match(strings.ToLower(v)) {
+			matched = append(matched, v)
+		}
+	}
+	return matched
+}
+
+func byExclude(vs []string, exclude []string, globMatcher string) []string {
 	if len(exclude) == 0 {
 		return vs
 	}
 
+	if globMatcher == "doublestar" {
+		return byExcludeDoublestar(vs, exclude)
+	}
+	return byExcludeGobwas(vs, exclude)
+}
+
+func byExcludeDoublestar(vs []string, exclude []string) []string {
+	vsf := make([]string, 0)
+	for _, v := range vs {
+		if !matchesAnyDoublestar(v, exclude) {
+			vsf = append(vsf, v)
+		}
+	}
+	return vsf
+}
+
+func byExcludeGobwas(vs []string, exclude []string) []string {
 	globs := make([]glob.Glob, 0, len(exclude))
 	for _, name := range exclude {
 		globs = append(globs, glob.MustCompile(name))
 	}
 
-	var foundMatch bool
 	vsf := make([]string, 0)
 	for _, v := range vs {
-		for _, g := range globs {
-			if ok := g.Match(v); ok {
-				foundMatch = true
-				break
-			}
-		}
-
-		if !foundMatch {
+		if !matchesAnyGobwas(v, globs) {
 			vsf = append(vsf, v)
 		}
-		foundMatch = false
 	}
-
 	return vsf
+}
+
+func matchesAnyDoublestar(path string, patterns []string) bool {
+	for _, pattern := range patterns {
+		matched, err := doublestar.Match(pattern, path)
+		if err == nil && matched {
+			return true
+		}
+	}
+	return false
+}
+
+func matchesAnyGobwas(path string, globs []glob.Glob) bool {
+	for _, g := range globs {
+		if g.Match(path) {
+			return true
+		}
+	}
+	return false
 }
 
 func byRoot(vs []string, matcher string) []string {
