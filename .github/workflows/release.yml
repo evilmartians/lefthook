@@ -6,7 +6,9 @@ on:
       - "*"
 
 permissions:
+  attestations: write
   contents: write
+  id-token: write
 
 jobs:
   build:
@@ -42,6 +44,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+
+      - name: Generate artifact attestations
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-checksums: dist/lefthook_checksums.txt
 
       - name: Preserve artifacts permissions with tar
         run: tar -cvf dist.tar dist/
