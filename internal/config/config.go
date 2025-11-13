@@ -48,7 +48,7 @@ type Config struct {
 
 	SkipLFS bool `json:"skip_lfs,omitempty" jsonschema:"description=Skip running Git LFS hooks (enabled by default)" koanf:"skip_lfs" mapstructure:"skip_lfs,omitempty"`
 
-	GlobMatcher string `json:"glob_matcher,omitempty" jsonschema:"description=Choose the glob matching engine: 'gobwas' (default) or 'doublestar' (standard ** behavior),enum=gobwas;doublestar,default=gobwas" koanf:"glob_matcher" mapstructure:"glob_matcher,omitempty"`
+	GlobMatcher string `json:"glob_matcher,omitempty" jsonschema:"description=Choose the glob matching engine: 'gobwas' (default) or 'doublestar' (standard ** behavior),enum=gobwas,enum=doublestar,default=gobwas" koanf:"glob_matcher" mapstructure:"glob_matcher,omitempty"`
 
 	Remotes []*Remote `json:"remotes,omitempty" jsonschema:"description=Provide multiple remote configs to use lefthook configurations shared across projects. Lefthook will automatically download and merge configurations into main config." mapstructure:"remotes,omitempty"`
 

@@ -433,7 +433,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2025.11.11.",
+  "$comment": "Last updated on 2025.11.13.",
   "properties": {
     "min_version": {
       "type": "string",
@@ -500,7 +500,8 @@
     "glob_matcher": {
       "type": "string",
       "enum": [
-        "gobwas;doublestar"
+        "gobwas",
+        "doublestar"
       ],
       "description": "Choose the glob matching engine: 'gobwas' (default) or 'doublestar' (standard ** behavior)",
       "default": "gobwas"
