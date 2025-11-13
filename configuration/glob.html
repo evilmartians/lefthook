@@ -190,6 +190,7 @@ If you want to match <em>both</em> files at the top level and nested, then rathe
 <p>You'll need:</p>
 <pre><code class="language-yaml">glob: "src/*.js"
 </code></pre>
+<p>Alternatively, you can opt-in to standard glob behavior by setting <a href="./glob_matcher.html"><code>glob_matcher: doublestar</code></a> at the top level of your configuration. With this setting, <code>**</code> will match 0 or more directories, making it consistent with most other glob implementations.</p>
 <p><em><strong>Using <code>glob</code> without a files template in<code>run</code></strong></em></p>
 <p>If you've specified <code>glob</code> but don't have a files template in <a href="./run.html"><code>run</code></a> option, lefthook will check <code>{staged_files}</code> for <code>pre-commit</code> hook and <code>{push_files}</code> for <code>pre-push</code> hook and apply filtering. If no files left, the command will be skipped.</p>
 <pre><code class="language-yml"># lefthook.yml

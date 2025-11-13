@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>templates - Lefthook Documentation</title>
+        <title>glob_matcher - Lefthook Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -155,51 +155,92 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="templates"><a class="header" href="#templates"><code>templates</code></a></h2>
-<blockquote>
-<p>Added in lefthook <code>1.10.8</code></p>
-</blockquote>
-<p>Provide custom replacement for templates in <code>run</code> values.</p>
-<p>With <code>templates</code> you can specify what can be overridden via <code>lefthook-local.yml</code> without a need to overwrite every jobs in your configuration.</p>
-<h2 id="example"><a class="header" href="#example">Example</a></h2>
-<h3 id="override-with-lefthook-localyml"><a class="header" href="#override-with-lefthook-localyml">Override with lefthook-local.yml</a></h3>
+                        <h2 id="glob_matcher"><a class="header" href="#glob_matcher"><code>glob_matcher</code></a></h2>
+<p>You can configure which glob matching engine lefthook uses to filter files. By default, lefthook uses <code>gobwas/glob</code>, but you can opt-in to use <code>doublestar</code> for standard glob behavior.</p>
+<p><strong>Values:</strong></p>
+<ul>
+<li><code>gobwas</code> (default): The current glob implementation</li>
+<li><code>doublestar</code>: Standard glob behavior where <code>**</code> matches 0 or more directories</li>
+</ul>
+<p><strong>Example:</strong></p>
 <pre><code class="language-yml"># lefthook.yml
 
-templates:
-  dip: # empty
+glob_matcher: doublestar
 
 pre-commit:
   jobs:
-    # Will run: `bundle exec rubocop file1 file2 file3 ...`
-    - run: {dip} bundle exec rubocop {staged_files}
+    - name: lint
+      run: yarn eslint {staged_files}
+      glob: "**/*.{js,ts}"
 </code></pre>
-<pre><code class="language-yml"># lefthook-local.yml
-
-templates:
-  dip: dip # Will run: `dip bundle exec rubocop file1 file2 file3 ...`
-</code></pre>
-<h3 id="reduce-redundancy"><a class="header" href="#reduce-redundancy">Reduce redundancy</a></h3>
-<pre><code class="language-yml"># lefthook.yml
-
-templates:
-  wrapper: docker-compose run --rm -v $(pwd):/app service
+<h3 id="key-differences"><a class="header" href="#key-differences">Key Differences</a></h3>
+<p>The main difference between the two matchers is how they handle <code>**</code>:</p>
+<h4 id="default-behavior-gobwas"><a class="header" href="#default-behavior-gobwas">Default behavior (<code>gobwas</code>)</a></h4>
+<p>The <code>**</code> pattern matches <strong>1 or more</strong> directories:</p>
+<ul>
+<li><code>**/*.js</code> matches <code>folder/file.js</code>, <code>a/b/c/file.js</code></li>
+<li><code>**/*.js</code> does <strong>NOT</strong> match <code>file.js</code> at the root level</li>
+</ul>
+<h4 id="standard-behavior-doublestar"><a class="header" href="#standard-behavior-doublestar">Standard behavior (<code>doublestar</code>)</a></h4>
+<p>The <code>**</code> pattern matches <strong>0 or more</strong> directories:</p>
+<ul>
+<li><code>**/*.js</code> matches <code>file.js</code>, <code>folder/file.js</code>, <code>a/b/c/file.js</code></li>
+<li>This is consistent with most glob implementations</li>
+</ul>
+<h3 id="when-to-use"><a class="header" href="#when-to-use">When to Use</a></h3>
+<p><strong>Use <code>glob_matcher: doublestar</code> when:</strong></p>
+<ul>
+<li>You want standard glob behavior consistent with other tools</li>
+<li>You need <code>**</code> to match files at any level including the root</li>
+<li>You're migrating from other tools that use standard glob patterns</li>
+</ul>
+<p><strong>Keep the default (<code>gobwas</code>) when:</strong></p>
+<ul>
+<li>You want to maintain existing behavior</li>
+<li>You specifically need <code>**</code> to require at least one directory level</li>
+<li>You have existing patterns that depend on the current behavior</li>
+</ul>
+<h3 id="example-comparison"><a class="header" href="#example-comparison">Example Comparison</a></h3>
+<pre><code class="language-yml"># With default (gobwas)
+glob_matcher: gobwas  # or omit this line
 
 pre-commit:
   jobs:
-    - run: {wrapper} yarn format
-    - run: {wrapper} yarn lint
-    - run: {wrapper} yarn test
+    - run: eslint {staged_files}
+      glob: "**/*.js"
+      # Matches: src/app.js, lib/util.js
+      # Does NOT match: app.js
+
+    - run: eslint {staged_files}
+      glob: "*.js"
+      # Matches: app.js
+      # Does NOT match: src/app.js
 </code></pre>
+<pre><code class="language-yml"># With doublestar
+glob_matcher: doublestar
+
+pre-commit:
+  jobs:
+    - run: eslint {staged_files}
+      glob: "**/*.js"
+      # Matches: app.js, src/app.js, lib/util.js
+</code></pre>
+<h3 id="notes"><a class="header" href="#notes">Notes</a></h3>
+<ul>
+<li>The <code>glob_matcher</code> setting is global and applies to all <code>glob</code> and <code>exclude</code> patterns in your configuration</li>
+<li>This setting does not affect <code>root</code> or other path-related options</li>
+<li>The setting is fully backward compatible - existing configurations continue to work without modification</li>
+</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../configuration/glob_matcher.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../configuration/skip_lfs.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../configuration/Hook.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../configuration/templates.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -209,11 +250,11 @@ pre-commit:
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../configuration/glob_matcher.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../configuration/skip_lfs.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../configuration/Hook.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../configuration/templates.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

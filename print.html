@@ -1062,6 +1062,82 @@ pre-push:
     test:
       run: yarn test
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="glob_matcher"><a class="header" href="#glob_matcher"><code>glob_matcher</code></a></h2>
+<p>You can configure which glob matching engine lefthook uses to filter files. By default, lefthook uses <code>gobwas/glob</code>, but you can opt-in to use <code>doublestar</code> for standard glob behavior.</p>
+<p><strong>Values:</strong></p>
+<ul>
+<li><code>gobwas</code> (default): The current glob implementation</li>
+<li><code>doublestar</code>: Standard glob behavior where <code>**</code> matches 0 or more directories</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-yml"># lefthook.yml
+
+glob_matcher: doublestar
+
+pre-commit:
+  jobs:
+    - name: lint
+      run: yarn eslint {staged_files}
+      glob: "**/*.{js,ts}"
+</code></pre>
+<h3 id="key-differences"><a class="header" href="#key-differences">Key Differences</a></h3>
+<p>The main difference between the two matchers is how they handle <code>**</code>:</p>
+<h4 id="default-behavior-gobwas"><a class="header" href="#default-behavior-gobwas">Default behavior (<code>gobwas</code>)</a></h4>
+<p>The <code>**</code> pattern matches <strong>1 or more</strong> directories:</p>
+<ul>
+<li><code>**/*.js</code> matches <code>folder/file.js</code>, <code>a/b/c/file.js</code></li>
+<li><code>**/*.js</code> does <strong>NOT</strong> match <code>file.js</code> at the root level</li>
+</ul>
+<h4 id="standard-behavior-doublestar"><a class="header" href="#standard-behavior-doublestar">Standard behavior (<code>doublestar</code>)</a></h4>
+<p>The <code>**</code> pattern matches <strong>0 or more</strong> directories:</p>
+<ul>
+<li><code>**/*.js</code> matches <code>file.js</code>, <code>folder/file.js</code>, <code>a/b/c/file.js</code></li>
+<li>This is consistent with most glob implementations</li>
+</ul>
+<h3 id="when-to-use"><a class="header" href="#when-to-use">When to Use</a></h3>
+<p><strong>Use <code>glob_matcher: doublestar</code> when:</strong></p>
+<ul>
+<li>You want standard glob behavior consistent with other tools</li>
+<li>You need <code>**</code> to match files at any level including the root</li>
+<li>You're migrating from other tools that use standard glob patterns</li>
+</ul>
+<p><strong>Keep the default (<code>gobwas</code>) when:</strong></p>
+<ul>
+<li>You want to maintain existing behavior</li>
+<li>You specifically need <code>**</code> to require at least one directory level</li>
+<li>You have existing patterns that depend on the current behavior</li>
+</ul>
+<h3 id="example-comparison"><a class="header" href="#example-comparison">Example Comparison</a></h3>
+<pre><code class="language-yml"># With default (gobwas)
+glob_matcher: gobwas  # or omit this line
+
+pre-commit:
+  jobs:
+    - run: eslint {staged_files}
+      glob: "**/*.js"
+      # Matches: src/app.js, lib/util.js
+      # Does NOT match: app.js
+
+    - run: eslint {staged_files}
+      glob: "*.js"
+      # Matches: app.js
+      # Does NOT match: src/app.js
+</code></pre>
+<pre><code class="language-yml"># With doublestar
+glob_matcher: doublestar
+
+pre-commit:
+  jobs:
+    - run: eslint {staged_files}
+      glob: "**/*.js"
+      # Matches: app.js, src/app.js, lib/util.js
+</code></pre>
+<h3 id="notes"><a class="header" href="#notes">Notes</a></h3>
+<ul>
+<li>The <code>glob_matcher</code> setting is global and applies to all <code>glob</code> and <code>exclude</code> patterns in your configuration</li>
+<li>This setting does not affect <code>root</code> or other path-related options</li>
+<li>The setting is fully backward compatible - existing configurations continue to work without modification</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="templates"><a class="header" href="#templates"><code>templates</code></a></h2>
 <blockquote>
 <p>Added in lefthook <code>1.10.8</code></p>
@@ -1286,6 +1362,9 @@ pre-push:
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="exclude"><a class="header" href="#exclude"><code>exclude</code></a></h2>
 <p>This option allows to setup a list of globs for files to be excluded in files template.</p>
+<blockquote>
+<p><strong>Note:</strong> The glob patterns used in <code>exclude</code> are affected by the <a href="configuration/./glob_matcher.html"><code>glob_matcher</code></a> setting. See the glob_matcher documentation for details on how <code>**</code> patterns behave.</p>
+</blockquote>
 <p><strong>Example</strong></p>
 <p>Run Rubocop on staged files with <code>.rb</code> extension except for <code>application.rb</code>, <code>routes.rb</code>, <code>rails_helper.rb</code>, and all Ruby files in <code>config/initializers/</code>.</p>
 <pre><code class="language-yml"># lefthook.yml
@@ -2053,6 +2132,7 @@ If you want to match <em>both</em> files at the top level and nested, then rathe
 <p>You'll need:</p>
 <pre><code class="language-yaml">glob: "src/*.js"
 </code></pre>
+<p>Alternatively, you can opt-in to standard glob behavior by setting <a href="configuration/./glob_matcher.html"><code>glob_matcher: doublestar</code></a> at the top level of your configuration. With this setting, <code>**</code> will match 0 or more directories, making it consistent with most other glob implementations.</p>
 <p><em><strong>Using <code>glob</code> without a files template in<code>run</code></strong></em></p>
 <p>If you've specified <code>glob</code> but don't have a files template in <a href="configuration/./run.html"><code>run</code></a> option, lefthook will check <code>{staged_files}</code> for <code>pre-commit</code> hook and <code>{push_files}</code> for <code>pre-push</code> hook and apply filtering. If no files left, the command will be skipped.</p>
 <pre><code class="language-yml"># lefthook.yml
@@ -2238,6 +2318,9 @@ pre-commit:
 <p>Globs are still calculated from the actual root of the git repo, <code>root</code> is ignored.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="exclude-1"><a class="header" href="#exclude-1"><code>exclude</code></a></h2>
 <p>This option allows to setup a list of globs for files to be excluded in files template.</p>
+<blockquote>
+<p><strong>Note:</strong> The glob patterns used in <code>exclude</code> are affected by the <a href="configuration/./glob_matcher.html"><code>glob_matcher</code></a> setting. See the glob_matcher documentation for details on how <code>**</code> patterns behave.</p>
+</blockquote>
 <p><strong>Example</strong></p>
 <p>Run Rubocop on staged files with <code>.rb</code> extension except for <code>application.rb</code>, <code>routes.rb</code>, <code>rails_helper.rb</code>, and all Ruby files in <code>config/initializers/</code>.</p>
 <pre><code class="language-yml"># lefthook.yml
@@ -2690,6 +2773,7 @@ If you want to match <em>both</em> files at the top level and nested, then rathe
 <p>You'll need:</p>
 <pre><code class="language-yaml">glob: "src/*.js"
 </code></pre>
+<p>Alternatively, you can opt-in to standard glob behavior by setting <a href="configuration/./glob_matcher.html"><code>glob_matcher: doublestar</code></a> at the top level of your configuration. With this setting, <code>**</code> will match 0 or more directories, making it consistent with most other glob implementations.</p>
 <p><em><strong>Using <code>glob</code> without a files template in<code>run</code></strong></em></p>
 <p>If you've specified <code>glob</code> but don't have a files template in <a href="configuration/./run.html"><code>run</code></a> option, lefthook will check <code>{staged_files}</code> for <code>pre-commit</code> hook and <code>{push_files}</code> for <code>pre-push</code> hook and apply filtering. If no files left, the command will be skipped.</p>
 <pre><code class="language-yml"># lefthook.yml
@@ -2875,6 +2959,9 @@ pre-commit:
 <p>Globs are still calculated from the actual root of the git repo, <code>root</code> is ignored.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="exclude-2"><a class="header" href="#exclude-2"><code>exclude</code></a></h2>
 <p>This option allows to setup a list of globs for files to be excluded in files template.</p>
+<blockquote>
+<p><strong>Note:</strong> The glob patterns used in <code>exclude</code> are affected by the <a href="configuration/./glob_matcher.html"><code>glob_matcher</code></a> setting. See the glob_matcher documentation for details on how <code>**</code> patterns behave.</p>
+</blockquote>
 <p><strong>Example</strong></p>
 <p>Run Rubocop on staged files with <code>.rb</code> extension except for <code>application.rb</code>, <code>routes.rb</code>, <code>rails_helper.rb</code>, and all Ruby files in <code>config/initializers/</code>.</p>
 <pre><code class="language-yml"># lefthook.yml

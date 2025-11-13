@@ -157,6 +157,9 @@
                     <main>
                         <h2 id="exclude"><a class="header" href="#exclude"><code>exclude</code></a></h2>
 <p>This option allows to setup a list of globs for files to be excluded in files template.</p>
+<blockquote>
+<p><strong>Note:</strong> The glob patterns used in <code>exclude</code> are affected by the <a href="./glob_matcher.html"><code>glob_matcher</code></a> setting. See the glob_matcher documentation for details on how <code>**</code> patterns behave.</p>
+</blockquote>
 <p><strong>Example</strong></p>
 <p>Run Rubocop on staged files with <code>.rb</code> extension except for <code>application.rb</code>, <code>routes.rb</code>, <code>rails_helper.rb</code>, and all Ruby files in <code>config/initializers/</code>.</p>
 <pre><code class="language-yml"># lefthook.yml
