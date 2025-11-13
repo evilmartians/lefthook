@@ -1,5 +1,10 @@
 # Change log
 
+## 2.0.4 (2025-11-13)
+
+- fix: glob_matcher jsonschema values
+- feat: add optional standard glob matcher (doublestar) ([#1188](https://github.com/evilmartians/lefthook/pull/1188)) by [@jasonwbarnett]()
+
 ## 2.0.3 (2025-11-10)
 
 - feat: fail_on_changes non-ci option ([#1186](https://github.com/evilmartians/lefthook/pull/1186)) by [@scop](https://github.com/scop)
@@ -1040,3 +1045,4 @@ gem 'lefthook'
 [@michael-pplx]: https://github.com/michael-pplx
 [@siler]: https://github.com/siler
 [@technicalpickles]: https://github.com/technicalpickles
+[@jasonwbarnett]: https://github.com/jasonwbarnett

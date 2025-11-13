@@ -1,6 +1,6 @@
 {
   "name": "lefthook",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Simple git hooks manager",
   "repository": {
     "type": "git",
@@ -28,16 +28,16 @@
   },
   "homepage": "https://github.com/evilmartians/lefthook#readme",
   "optionalDependencies": {
-    "lefthook-darwin-arm64": "2.0.3",
-    "lefthook-darwin-x64": "2.0.3",
-    "lefthook-linux-arm64": "2.0.3",
-    "lefthook-linux-x64": "2.0.3",
-    "lefthook-freebsd-arm64": "2.0.3",
-    "lefthook-freebsd-x64": "2.0.3",
-    "lefthook-openbsd-arm64": "2.0.3",
-    "lefthook-openbsd-x64": "2.0.3",
-    "lefthook-windows-arm64": "2.0.3",
-    "lefthook-windows-x64": "2.0.3"
+    "lefthook-darwin-arm64": "2.0.4",
+    "lefthook-darwin-x64": "2.0.4",
+    "lefthook-linux-arm64": "2.0.4",
+    "lefthook-linux-x64": "2.0.4",
+    "lefthook-freebsd-arm64": "2.0.4",
+    "lefthook-freebsd-x64": "2.0.4",
+    "lefthook-openbsd-arm64": "2.0.4",
+    "lefthook-openbsd-x64": "2.0.4",
+    "lefthook-windows-arm64": "2.0.4",
+    "lefthook-windows-x64": "2.0.4"
   },
   "scripts": {
     "postinstall": "node postinstall.js"
