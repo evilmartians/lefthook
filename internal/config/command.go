@@ -15,8 +15,8 @@ type Command struct {
 	Root     string `json:"root,omitempty"      mapstructure:"root"  toml:"root,omitempty"    yaml:",omitempty"`
 	FailText string `json:"fail_text,omitempty" koanf:"fail_text"    mapstructure:"fail_text" toml:"fail_text,omitempty" yaml:"fail_text,omitempty"`
 
-	Skip interface{} `json:"skip,omitempty" jsonschema:"oneof_type=boolean;array" mapstructure:"skip" toml:"skip,omitempty,inline" yaml:",omitempty"`
-	Only interface{} `json:"only,omitempty" jsonschema:"oneof_type=boolean;array" mapstructure:"only" toml:"only,omitempty,inline" yaml:",omitempty"`
+	Skip any `json:"skip,omitempty" jsonschema:"oneof_type=boolean;array" mapstructure:"skip" toml:"skip,omitempty,inline" yaml:",omitempty"`
+	Only any `json:"only,omitempty" jsonschema:"oneof_type=boolean;array" mapstructure:"only" toml:"only,omitempty,inline" yaml:",omitempty"`
 
 	Tags      []string `json:"tags,omitempty"       jsonschema:"oneof_type=string;array" mapstructure:"tags"       toml:"tags,omitempty"       yaml:",omitempty"`
 	FileTypes []string `json:"file_types,omitempty" koanf:"file_types"                   mapstructure:"file_types" toml:"file_types,omitempty" yaml:"file_types,omitempty"`

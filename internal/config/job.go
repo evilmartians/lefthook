@@ -20,8 +20,8 @@ type Job struct {
 	UseStdin    bool `json:"use_stdin,omitempty"   koanf:"use_stdin"          mapstructure:"use_stdin"     toml:"use_stdin,omitempty"   yaml:"use_stdin,omitempty"`
 	StageFixed  bool `json:"stage_fixed,omitempty" koanf:"stage_fixed"        mapstructure:"stage_fixed"   toml:"stage_fixed,omitempty" yaml:"stage_fixed,omitempty"`
 
-	Skip interface{} `json:"skip,omitempty" jsonschema:"oneof_type=boolean;array" mapstructure:"skip" toml:"skip,omitempty,inline" yaml:",omitempty"`
-	Only interface{} `json:"only,omitempty" jsonschema:"oneof_type=boolean;array" mapstructure:"only" toml:"only,omitempty,inline" yaml:",omitempty"`
+	Skip any `json:"skip,omitempty" jsonschema:"oneof_type=boolean;array" mapstructure:"skip" toml:"skip,omitempty,inline" yaml:",omitempty"`
+	Only any `json:"only,omitempty" jsonschema:"oneof_type=boolean;array" mapstructure:"only" toml:"only,omitempty,inline" yaml:",omitempty"`
 
 	Group *Group `json:"group,omitempty" jsonschema:"oneof_required=Run a group" mapstructure:"group" toml:"group,omitempty" yaml:",omitempty"`
 }

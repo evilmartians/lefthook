@@ -43,11 +43,11 @@ func NewSettings() LogSettings {
 	return LogSettings{^disableAll}
 }
 
-func ApplySettings(enableTags string, enable interface{}) {
+func ApplySettings(enableTags string, enable any) {
 	Settings.Apply(enableTags, enable)
 }
 
-func (s *LogSettings) Apply(enableTags string, enable interface{}) {
+func (s *LogSettings) Apply(enableTags string, enable any) {
 	if enableTags == "" && (enable == nil || enable == "") {
 		s.enableAll()
 		return
@@ -62,7 +62,7 @@ func (s *LogSettings) Apply(enableTags string, enable interface{}) {
 		return
 	}
 
-	if enableOptions, ok := enable.([]interface{}); ok {
+	if enableOptions, ok := enable.([]any); ok {
 		if len(enableOptions) != 0 {
 			s.bitmap = disableAll
 		}
@@ -77,7 +77,7 @@ func (s *LogSettings) Apply(enableTags string, enable interface{}) {
 	if enableTags != "" {
 		s.bitmap = disableAll
 
-		for _, tag := range strings.Split(enableTags, ",") {
+		for tag := range strings.SplitSeq(enableTags, ",") {
 			s.enable(tag)
 		}
 	}

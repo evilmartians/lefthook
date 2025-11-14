@@ -334,15 +334,15 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 	overrideHook := secondary.Cut(name)
 
 	// Special merge func to support merging {cmd} templates
-	options := koanf.WithMergeFunc(func(src, dest map[string]interface{}) error {
+	options := koanf.WithMergeFunc(func(src, dest map[string]any) error {
 		var destCommands map[string]string
 
 		switch commands := dest["commands"].(type) {
-		case map[string]interface{}:
+		case map[string]any:
 			destCommands = make(map[string]string, len(commands))
 			for cmdName, command := range commands {
 				switch cmd := command.(type) {
-				case map[string]interface{}:
+				case map[string]any:
 					switch run := cmd["run"].(type) {
 					case string:
 						destCommands[cmdName] = run
@@ -354,14 +354,14 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 		default:
 		}
 
-		var destJobs, srcJobs []interface{}
+		var destJobs, srcJobs []any
 		switch jobs := dest["jobs"].(type) {
-		case []interface{}:
+		case []any:
 			destJobs = jobs
 		default:
 		}
 		switch jobs := src["jobs"].(type) {
-		case []interface{}:
+		case []any:
 			srcJobs = jobs
 		default:
 		}
@@ -372,14 +372,14 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 
 		if len(destCommands) > 0 {
 			switch commands := dest["commands"].(type) {
-			case map[string]interface{}:
+			case map[string]any:
 				for cmdName, command := range commands {
 					switch cmd := command.(type) {
-					case map[string]interface{}:
+					case map[string]any:
 						switch run := cmd["run"].(type) {
 						case string:
 							newRun := strings.ReplaceAll(run, CMD, destCommands[cmdName])
-							command.(map[string]interface{})["run"] = newRun
+							command.(map[string]any)["run"] = newRun
 						default:
 						}
 					default:
@@ -437,7 +437,7 @@ type koanfProvider struct {
 	k *koanf.Koanf
 }
 
-func (k koanfProvider) Read() (map[string]interface{}, error) {
+func (k koanfProvider) Read() (map[string]any, error) {
 	return k.k.Raw(), nil
 }
 
@@ -445,14 +445,14 @@ func (k koanfProvider) ReadBytes() ([]byte, error) {
 	panic("not implemented")
 }
 
-func mergeJobs(src, dest map[string]interface{}) error {
-	srcJobs := make(map[string][]interface{})
+func mergeJobs(src, dest map[string]any) error {
+	srcJobs := make(map[string][]any)
 
 	for name, maybeHook := range src {
 		switch hook := maybeHook.(type) {
-		case map[string]interface{}:
+		case map[string]any:
 			switch jobs := hook["jobs"].(type) {
-			case []interface{}:
+			case []any:
 				srcJobs[name] = jobs
 			default:
 			}
@@ -460,12 +460,12 @@ func mergeJobs(src, dest map[string]interface{}) error {
 		}
 	}
 
-	destJobs := make(map[string][]interface{})
+	destJobs := make(map[string][]any)
 	for name, maybeHook := range dest {
 		switch hook := maybeHook.(type) {
-		case map[string]interface{}:
+		case map[string]any:
 			switch jobs := hook["jobs"].(type) {
-			case []interface{}:
+			case []any:
 				destJobs[name] = jobs
 			default:
 			}
@@ -493,7 +493,7 @@ func mergeJobs(src, dest map[string]interface{}) error {
 	for name, maybeHook := range dest {
 		if jobs, ok := destJobs[name]; ok {
 			switch hook := maybeHook.(type) {
-			case map[string]interface{}:
+			case map[string]any:
 				hook["jobs"] = jobs
 			default:
 			}
@@ -503,13 +503,13 @@ func mergeJobs(src, dest map[string]interface{}) error {
 	return nil
 }
 
-func mergeJobsSlice(src, dest []interface{}) []interface{} {
-	mergeable := make(map[string]map[string]interface{})
-	result := make([]interface{}, 0, len(dest))
+func mergeJobsSlice(src, dest []any) []any {
+	mergeable := make(map[string]map[string]any)
+	result := make([]any, 0, len(dest))
 
 	for _, maybeJob := range dest {
 		switch destJob := maybeJob.(type) {
-		case map[string]interface{}:
+		case map[string]any:
 			switch name := destJob["name"].(type) {
 			case string:
 				mergeable[name] = destJob
@@ -523,27 +523,27 @@ func mergeJobsSlice(src, dest []interface{}) []interface{} {
 
 	for _, maybeJob := range src {
 		switch srcJob := maybeJob.(type) {
-		case map[string]interface{}:
+		case map[string]any:
 			switch name := srcJob["name"].(type) {
 			case string:
 				destJob, ok := mergeable[name]
 				if ok {
-					var srcSubJobs []interface{}
-					var destSubJobs []interface{}
+					var srcSubJobs []any
+					var destSubJobs []any
 
 					switch srcGroup := srcJob["group"].(type) {
-					case map[string]interface{}:
+					case map[string]any:
 						switch subJobs := srcGroup["jobs"].(type) {
-						case []interface{}:
+						case []any:
 							srcSubJobs = subJobs
 						default:
 						}
 					default:
 					}
 					switch destGroup := destJob["group"].(type) {
-					case map[string]interface{}:
+					case map[string]any:
 						switch subJobs := destGroup["jobs"].(type) {
-						case []interface{}:
+						case []any:
 							destSubJobs = subJobs
 						default:
 						}
@@ -570,9 +570,9 @@ func mergeJobsSlice(src, dest []interface{}) []interface{} {
 
 					if len(destSubJobs) != 0 {
 						switch destGroup := destJob["group"].(type) {
-						case map[string]interface{}:
+						case map[string]any:
 							switch destGroup["jobs"].(type) {
-							case []interface{}:
+							case []any:
 								destGroup["jobs"] = destSubJobs
 							default:
 							}

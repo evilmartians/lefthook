@@ -122,23 +122,17 @@ func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
 func (r *Repository) Precompute() func() {
 	var wg sync.WaitGroup
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		_, _ = r.stagedFilesOnce()
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		_, _ = r.stagedFilesWithDeletedOnce()
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		_, _ = r.statusShortOnce()
-	}()
+	})
 
 	return wg.Wait
 }
