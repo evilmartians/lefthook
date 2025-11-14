@@ -1,7 +1,61 @@
+import os
+import sys
+import platform
 from setuptools import setup, find_packages
+from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
+
+PLATFORM_MAPPING = {
+    'linux': 'linux',
+    'darwin': 'darwin',
+    'win32': 'windows',
+    'freebsd': 'freebsd',
+    'openbsd': 'openbsd',
+}
+
+ARCH_MAPPING = {
+    'x86_64': 'x86_64',
+    'AMD64': 'x86_64',
+    'amd64': 'x86_64',
+    'aarch64': 'arm64',
+    'arm64': 'arm64',
+}
+
+def get_platform_info():
+    """Determine the platform and architecture from environment or system."""
+    target_platform, target_architecture = os.environ.get('LEFTHOOK_TARGET_PLATFORM'), os.environ.get('LEFTHOOK_TARGET_ARCH')
+
+    if target_platform and target_architecture:
+        return target_platform, target_architecture
+
+    system, machine = platform.system().lower(), platform.machine().lower()
+    return PLATFORM_MAPPING.get(sys.platform, system), ARCH_MAPPING.get(machine, machine)
+
+class CustomBdistWheel(_bdist_wheel):
+    """Custom bdist_wheel that generates platform-specific wheels."""
+
+    def finalize_options(self):
+        """Initialize platform-specific options."""
+        super().finalize_options()
+        platform, architecture = get_platform_info()
+        self.plat_name = f"{platform}_{architecture}"
+
+    def get_tag(self):
+        """Override to return platform-specific tag."""
+        platform, architecture = get_platform_info()
+        return ('py3', 'none', f'{platform}_{architecture}')
+
+def get_package_data():
+    """Get only the binary for the current/target platform."""
+    platform, architecture = get_platform_info()
+    binary_name = 'lefthook'
+    if platform == 'windows':
+        binary_name = 'lefthook.exe'
+    return {
+        'lefthook': [f'bin/lefthook-{platform}-{architecture}/{binary_name}']
+    }
 
 setup(
     name='lefthook',
@@ -18,22 +72,12 @@ setup(
             'lefthook=lefthook.main:main'
         ],
     },
-    package_data={
-        'lefthook':[
-            'bin/lefthook-linux-x86_64/lefthook',
-            'bin/lefthook-linux-arm64/lefthook',
-            'bin/lefthook-freebsd-x86_64/lefthook',
-            'bin/lefthook-freebsd-arm64/lefthook',
-            'bin/lefthook-openbsd-x86_64/lefthook',
-            'bin/lefthook-openbsd-arm64/lefthook',
-            'bin/lefthook-windows-x86_64/lefthook.exe',
-            'bin/lefthook-windows-arm64/lefthook.exe',
-            'bin/lefthook-darwin-x86_64/lefthook',
-            'bin/lefthook-darwin-arm64/lefthook',
-        ]
+    package_data=get_package_data(),
+    license_files=['LICENSE'],
+    cmdclass={
+        'bdist_wheel': CustomBdistWheel,
     },
     classifiers=[
-        'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Topic :: Software Development :: Version Control :: Git'
     ],
