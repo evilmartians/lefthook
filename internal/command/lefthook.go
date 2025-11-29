@@ -9,10 +9,11 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/evilmartians/lefthook/internal/git"
-	"github.com/evilmartians/lefthook/internal/log"
-	"github.com/evilmartians/lefthook/internal/system"
-	"github.com/evilmartians/lefthook/internal/templates"
+	"github.com/evilmartians/lefthook/v2/internal/config"
+	"github.com/evilmartians/lefthook/v2/internal/git"
+	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/system"
+	"github.com/evilmartians/lefthook/v2/internal/templates"
 )
 
 const (
@@ -24,44 +25,34 @@ const (
 	hookContentFingerprint = "LEFTHOOK"
 )
 
-type Options struct {
-	Colors            string
-	Verbose, NoColors bool
-}
-
 type Lefthook struct {
 	fs   afero.Fs
 	repo *git.Repository
 }
 
 // New returns an instance of Lefthook.
-func initialize(opts *Options) (*Lefthook, error) {
+func NewLefthook(verbose bool, colors string) (*Lefthook, error) {
 	fs := afero.NewOsFs()
 
 	if isEnvEnabled(EnvVerbose) {
-		opts.Verbose = true
+		verbose = true
 	}
 
-	if opts.Verbose {
+	if verbose {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	if opts.Colors == "auto" {
+	if colors == "auto" {
 		if isEnvEnabled(envForceColor) {
-			opts.Colors = "on"
+			colors = "on"
 		}
 
 		if isEnvEnabled(envNoColor) {
-			opts.Colors = "off"
-		}
-
-		// DEPRECATED: Will be removed with a --no-colors option
-		if opts.NoColors {
-			opts.Colors = "off"
+			colors = "off"
 		}
 	}
 
-	log.SetColors(opts.Colors)
+	log.SetColors(colors)
 
 	repo, err := git.NewRepository(fs, git.NewExecutor(system.Cmd))
 	if err != nil {
@@ -69,6 +60,10 @@ func initialize(opts *Options) (*Lefthook, error) {
 	}
 
 	return &Lefthook{fs: fs, repo: repo}, nil
+}
+
+func (l *Lefthook) LoadConfig() (*config.Config, error) {
+	return config.Load(l.fs, l.repo)
 }
 
 // Tests a file whether it is a lefthook-created file.

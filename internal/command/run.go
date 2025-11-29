@@ -10,18 +10,17 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/git"
-	"github.com/evilmartians/lefthook/internal/log"
-	"github.com/evilmartians/lefthook/internal/run"
-	"github.com/evilmartians/lefthook/internal/run/result"
-	"github.com/evilmartians/lefthook/internal/version"
+	"github.com/evilmartians/lefthook/v2/internal/config"
+	"github.com/evilmartians/lefthook/v2/internal/git"
+	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/run"
+	"github.com/evilmartians/lefthook/v2/internal/run/result"
+	"github.com/evilmartians/lefthook/v2/internal/version"
 )
 
 const (
-	envEnabled    = "LEFTHOOK"        // "0", "false"
-	envSkipOutput = "LEFTHOOK_QUIET"  // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
-	envOutput     = "LEFTHOOK_OUTPUT" // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
+	envEnabled = "LEFTHOOK"        // "0", "false"
+	envOutput  = "LEFTHOOK_OUTPUT" // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
 )
 
 var errPipedAndParallelSet = errors.New("conflicting options 'piped' and 'parallel' are set to 'true', remove one of this option from hook group")
@@ -35,26 +34,17 @@ type RunArgs struct {
 	NoStageFixed    bool
 	SkipLFS         bool
 	Verbose         bool
-	FailOnChanges   bool
+	FailOnChanges   *bool
+	Hook            string
 	Exclude         []string
 	Files           []string
 	RunOnlyCommands []string
 	RunOnlyJobs     []string
 	RunOnlyTags     []string
+	GitArgs         []string
 }
 
-func Run(opts *Options, args RunArgs, hookName string, gitArgs []string) error {
-	lefthook, err := initialize(opts)
-	if err != nil {
-		return err
-	}
-
-	args.Verbose = opts.Verbose
-
-	return lefthook.Run(hookName, args, gitArgs)
-}
-
-func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
+func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	if os.Getenv(envEnabled) == "0" || os.Getenv(envEnabled) == "false" {
 		return nil
 	}
@@ -67,7 +57,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	}
 
 	// Load config
-	cfg, err := config.Load(l.fs, l.repo)
+	cfg, err := l.LoadConfig()
 	if err != nil {
 		var errNotFound config.ConfigNotFoundError
 		if ok := errors.As(err, &errNotFound); ok {
@@ -77,27 +67,26 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		return err
 	}
 
-	if err = version.CheckCovered(cfg.MinVersion); err != nil {
+	if err = checkVersion(cfg.MinVersion); err != nil {
 		return err
 	}
 
 	// Suppress prepare-commit-msg output if the hook doesn't exist in config.
 	// prepare-commit-msg hook is used for seamless synchronization of hooks with config.
 	// See: internal/lefthook/install.go
-	_, ok := cfg.Hooks[hookName]
-	isGhostHook := hookName == config.GhostHookName && !ok && !args.Verbose
+	_, ok := cfg.Hooks[args.Hook]
+	isGhostHook := args.Hook == config.GhostHookName && !ok && !args.Verbose
 	if isGhostHook {
 		log.SetLevel(log.WarnLevel)
 	}
 
 	enableLogTags := os.Getenv(envOutput)
-	disableLogTags := os.Getenv(envSkipOutput)
 
 	log.InitSettings()
-	log.ApplySettings(enableLogTags, disableLogTags, cfg.Output, cfg.SkipOutput)
+	log.ApplySettings(enableLogTags, cfg.Output)
 
 	if log.Settings.LogMeta() {
-		log.LogMeta(hookName)
+		log.LogMeta(args.Hook)
 	}
 
 	if !args.NoAutoInstall {
@@ -113,7 +102,7 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 		}
 	}
 
-	hook, err := resolveHook(cfg, hookName)
+	hook, err := resolveHook(cfg, args.Hook)
 	if err != nil {
 		return err
 	}
@@ -141,11 +130,12 @@ func (l *Lefthook) Run(hookName string, args RunArgs, gitArgs []string) error {
 	hook.Scripts = nil
 	args.RunOnlyJobs = append(args.RunOnlyJobs, args.RunOnlyCommands...)
 
-	return runHook(hook, l.repo, run.Options{
-		GitArgs:       gitArgs,
+	return runHook(ctx, hook, l.repo, run.Options{
 		DisableTTY:    cfg.NoTTY || args.NoTTY,
 		SkipLFS:       cfg.SkipLFS || args.SkipLFS,
 		Templates:     cfg.Templates,
+		GlobMatcher:   cfg.GlobMatcher,
+		GitArgs:       args.GitArgs,
 		ExcludeFiles:  args.Exclude,
 		Files:         args.Files,
 		Force:         args.Force,
@@ -218,9 +208,9 @@ func getSourceDirs(repo *git.Repository, cfg *config.Config) []string {
 	return sourceDirs
 }
 
-func shouldFailOnChanges(fromArg bool, fromHook string) (bool, error) {
-	if fromArg {
-		return true, nil
+func shouldFailOnChanges(fromArg *bool, fromHook string) (bool, error) {
+	if fromArg != nil {
+		return *fromArg, nil
 	}
 
 	switch fromHook {
@@ -231,13 +221,16 @@ func shouldFailOnChanges(fromArg bool, fromHook string) (bool, error) {
 	case "ci":
 		_, ok := os.LookupEnv("CI")
 		return ok, nil
+	case "non-ci":
+		_, ok := os.LookupEnv("CI")
+		return !ok, nil
 	default:
 		return false, fmt.Errorf("invalid value for fail_on_changes: %s", fromHook)
 	}
 }
 
-func runHook(hook *config.Hook, repo *git.Repository, opts run.Options) error {
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+func runHook(ctx context.Context, hook *config.Hook, repo *git.Repository, opts run.Options) error {
+	ctx, stop := signal.NotifyContext(ctx, os.Interrupt)
 	defer stop()
 
 	startTime := time.Now()
@@ -327,81 +320,6 @@ func logResults(indent int, results []result.Result) {
 	}
 }
 
-func ConfigHookCompletions(opts *Options) []string {
-	lefthook, err := initialize(opts)
-	if err != nil {
-		return nil
-	}
-	return lefthook.configHookCompletions()
-}
-
-func (l *Lefthook) configHookCompletions() []string {
-	cfg, err := config.Load(l.fs, l.repo)
-	if err != nil {
-		return nil
-	}
-	hooks := make([]string, 0, len(cfg.Hooks))
-	for hook := range cfg.Hooks {
-		hooks = append(hooks, hook)
-	}
-	return hooks
-}
-
-func ConfigHookCommandCompletions(opts *Options, hookName string) []string {
-	lefthook, err := initialize(opts)
-	if err != nil {
-		return nil
-	}
-	return lefthook.configHookCommandCompletions(hookName)
-}
-
-func ConfigHookJobCompletions(opts *Options, hookName string) []string {
-	lefthook, err := initialize(opts)
-	if err != nil {
-		return nil
-	}
-	return lefthook.configHookJobCompletions(hookName)
-}
-
-func (l *Lefthook) configHookCommandCompletions(hookName string) []string {
-	cfg, err := config.Load(l.fs, l.repo)
-	if err != nil {
-		return nil
-	}
-	if hook, found := cfg.Hooks[hookName]; !found {
-		return nil
-	} else {
-		commands := make([]string, 0, len(hook.Commands))
-		for command := range hook.Commands {
-			commands = append(commands, command)
-		}
-		return commands
-	}
-}
-
-func findJobNames(jobs []*config.Job) []string {
-	jobNames := make([]string, 0, len(jobs))
-	for _, job := range jobs {
-		jobNames = append(jobNames, job.Name)
-		if job.Group != nil {
-			jobNames = append(jobNames, findJobNames(job.Group.Jobs)...)
-		}
-	}
-	return jobNames
-}
-
-func (l *Lefthook) configHookJobCompletions(hookName string) []string {
-	cfg, err := config.Load(l.fs, l.repo)
-	if err != nil {
-		return nil
-	}
-	if hook, found := cfg.Hooks[hookName]; !found {
-		return nil
-	} else {
-		return findJobNames(hook.Jobs)
-	}
-}
-
 // parseFilesFromString parses both `\0`-separated files.
 func parseFilesFromString(paths string) []string {
 	var result []string
@@ -414,4 +332,25 @@ func parseFilesFromString(paths string) []string {
 	}
 	result = append(result, paths[start:])
 	return result
+}
+
+func checkVersion(minVersion string) error {
+	if len(minVersion) == 0 {
+		return nil
+	}
+
+	if err := version.Check(minVersion, version.Version(false)); err != nil {
+		if errors.Is(err, version.ErrInvalidVersion) {
+			return errors.New("format of 'min_version' setting is incorrect")
+		}
+
+		execPath, oserr := os.Executable()
+		if oserr != nil {
+			execPath = "<unknown>"
+		}
+
+		return fmt.Errorf("required lefthook version (%s) is higher than current (%s) at %s", minVersion, version.Version(false), execPath)
+	}
+
+	return nil
 }

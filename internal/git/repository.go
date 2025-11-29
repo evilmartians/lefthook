@@ -12,8 +12,8 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/evilmartians/lefthook/internal/log"
-	"github.com/evilmartians/lefthook/internal/version"
+	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/version"
 )
 
 const (
@@ -53,9 +53,6 @@ var (
 
 // Repository represents a git repository.
 type Repository struct {
-	// Mutex helps syncing Git commands which can't be run concurrently, e.g. `git add`.
-	mu sync.Mutex
-
 	Fs                afero.Fs
 	Git               *CommandExecutor
 	HooksPath         string
@@ -125,23 +122,17 @@ func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
 func (r *Repository) Precompute() func() {
 	var wg sync.WaitGroup
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		_, _ = r.stagedFilesOnce()
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		_, _ = r.stagedFilesWithDeletedOnce()
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		_, _ = r.statusShortOnce()
-	}()
+	})
 
 	return wg.Wait
 }
@@ -362,9 +353,6 @@ func (r *Repository) AddFiles(files []string) error {
 	if len(files) == 0 {
 		return nil
 	}
-
-	r.mu.Lock()
-	defer r.mu.Unlock()
 
 	_, err := r.Git.BatchedCmd(cmdStageFiles, files)
 

@@ -50,6 +50,8 @@ You'll need:
 glob: "src/*.js"
 ```
 
+Alternatively, you can opt-in to standard glob behavior by setting [`glob_matcher: doublestar`](./glob_matcher.md) at the top level of your configuration. With this setting, `**` will match 0 or more directories, making it consistent with most other glob implementations.
+
 ***Using `glob` without a files template in`run`***
 
 If you've specified `glob` but don't have a files template in [`run`](./run.md) option, lefthook will check `{staged_files}` for `pre-commit` hook and `{push_files}` for `pre-push` hook and apply filtering. If no files left, the command will be skipped.

@@ -9,8 +9,8 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/evilmartians/lefthook/internal/system"
-	"github.com/evilmartians/lefthook/tests/helpers/gittest"
+	"github.com/evilmartians/lefthook/v2/internal/system"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/gittest"
 )
 
 type gitCmd struct{}
@@ -33,13 +33,11 @@ func TestRun(t *testing.T) {
 	configPath := filepath.Join(root, "lefthook.yml")
 
 	for i, tt := range [...]struct {
-		name, hook, config     string
-		gitArgs                []string
-		envs                   map[string]string
-		existingDirs           []string
-		hookNameCompletions    []string
-		hookCommandCompletions []string
-		error                  bool
+		name, hook, config string
+		gitArgs            []string
+		envs               map[string]string
+		existingDirs       []string
+		error              bool
 	}{
 		{
 			name: "Skip case",
@@ -81,8 +79,7 @@ pre-commit:
   parallel: true
   piped: true
 `,
-			hookNameCompletions: []string{"pre-commit"},
-			error:               true,
+			error: true,
 		},
 		{
 			name: "Valid hook",
@@ -92,8 +89,7 @@ pre-commit:
   parallel: false
   piped: true
 `,
-			hookNameCompletions: []string{"pre-commit"},
-			error:               false,
+			error: false,
 		},
 		{
 			name: "When in git rebase-merge flow",
@@ -112,9 +108,7 @@ pre-commit:
 			existingDirs: []string{
 				filepath.Join(gitPath, "rebase-merge"),
 			},
-			hookNameCompletions:    []string{"pre-commit"},
-			hookCommandCompletions: []string{"echo"},
-			error:                  false,
+			error: false,
 		},
 		{
 			name: "When in git rebase-apply flow",
@@ -133,9 +127,7 @@ pre-commit:
 			existingDirs: []string{
 				filepath.Join(gitPath, "rebase-apply"),
 			},
-			hookNameCompletions:    []string{"pre-commit"},
-			hookCommandCompletions: []string{"echo"},
-			error:                  false,
+			error: false,
 		},
 		{
 			name: "When not in rebase flow",
@@ -151,9 +143,7 @@ post-commit:
         - merge
       run: echo 'SHOULD RUN'
 `,
-			hookNameCompletions:    []string{"post-commit"},
-			hookCommandCompletions: []string{"echo"},
-			error:                  true,
+			error: true,
 		},
 	} {
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
@@ -175,18 +165,12 @@ post-commit:
 				t.Setenv(env, value)
 			}
 
-			err = lefthook.Run(tt.hook, RunArgs{}, tt.gitArgs)
+			err = lefthook.Run(t.Context(), RunArgs{Hook: tt.hook, GitArgs: tt.gitArgs})
 			if tt.error {
 				assert.Error(err)
 			} else {
 				assert.NoError(err)
 			}
-
-			hookNameCompletions := lefthook.configHookCompletions()
-			assert.ElementsMatch(tt.hookNameCompletions, hookNameCompletions)
-
-			hookCommandCompletions := lefthook.configHookCommandCompletions(tt.hook)
-			assert.ElementsMatch(tt.hookCommandCompletions, hookCommandCompletions)
 		})
 	}
 }

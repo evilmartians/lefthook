@@ -8,10 +8,10 @@ import (
 
 	"github.com/alessio/shellescape"
 
-	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/log"
-	"github.com/evilmartians/lefthook/internal/run/controller/filters"
-	"github.com/evilmartians/lefthook/internal/system"
+	"github.com/evilmartians/lefthook/v2/internal/config"
+	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/run/controller/filters"
+	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
 var surroundingQuotesRegexp = regexp.MustCompile(`^'(.*)'$`)
@@ -74,6 +74,7 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 		ExcludeFiles: params.ExcludeFiles,
 		Root:         params.Root,
 		FileTypes:    params.FileTypes,
+		GlobMatcher:  b.opts.GlobMatcher,
 	}
 	for filesType, fn := range filesFns {
 		cnt := strings.Count(params.Run, filesType)

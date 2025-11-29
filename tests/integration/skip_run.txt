@@ -1,5 +1,3 @@
-[windows] skip
-
 exec git init
 exec git add -A
 exec lefthook run skip
@@ -15,11 +13,8 @@ exec lefthook run skip-var
 stdout 'Ha-ha!'
 
 -- lefthook.yml --
-skip_output:
-  - skips
-  - meta
-  - summary
-  - execution_info
+output:
+  - execution_out
 skip:
   skip:
     - run: test 1 -eq 1

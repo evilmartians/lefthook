@@ -1,10 +1,11 @@
 package controller
 
 import (
+	"maps"
 	"slices"
 
-	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/run/controller/utils"
+	"github.com/evilmartians/lefthook/v2/internal/config"
+	"github.com/evilmartians/lefthook/v2/internal/run/controller/utils"
 )
 
 type scope struct {
@@ -15,7 +16,7 @@ type scope struct {
 	excludeTags  []string // Consider removing this setting
 	names        []string
 	fileTypes    []string
-	excludeFiles interface{}
+	excludeFiles []string
 	env          map[string]string
 	root         string
 	hookName     string
@@ -24,11 +25,16 @@ type scope struct {
 }
 
 func newScope(hook *config.Hook, opts Options) *scope {
-	excludeFiles := make([]interface{}, len(opts.ExcludeFiles))
-	if len(opts.ExcludeFiles) > 0 {
-		for i, e := range opts.ExcludeFiles {
-			excludeFiles[i] = e
-		}
+	excludeFiles := make([]string, len(opts.ExcludeFiles)+len(hook.Exclude))
+
+	i := 0
+	for _, e := range opts.ExcludeFiles {
+		excludeFiles[i] = e
+		i += 1
+	}
+	for _, e := range hook.Exclude {
+		excludeFiles[i] = e
+		i += 1
 	}
 
 	return &scope{
@@ -50,39 +56,21 @@ func (s *scope) extend(job *config.Job) *scope {
 	newScope.filesCmd = utils.FirstNonBlank(job.Files, s.filesCmd)
 	newScope.fileTypes = slices.Concat(newScope.fileTypes, job.FileTypes)
 
-	// Extend `exclude` list
-	switch list := job.Exclude.(type) {
-	case []interface{}:
-		switch inherited := newScope.excludeFiles.(type) {
-		case []interface{}:
-			// List of globs get appended
-			inherited = append(inherited, list...)
-			newScope.excludeFiles = inherited
-		default:
-			// Regex value will be overwritten with a list of globs
-			newScope.excludeFiles = job.Exclude
-		}
-	case string:
-		// Regex value always overwrites excludes
-		newScope.excludeFiles = job.Exclude
-	default:
-		// Inherit
+	if len(job.Exclude) > 0 {
+		newScope.excludeFiles = append(newScope.excludeFiles, job.Exclude...)
 	}
 
-	// Overwrite --jobs option for nested groups: if group name given, run all its jobs
+	// Overwrite --job option for nested groups: if group name given, run all its jobs
 	if len(s.opts.RunOnlyJobs) != 0 && job.Group != nil && slices.Contains(s.opts.RunOnlyJobs, job.Name) {
 		newScope.opts.RunOnlyJobs = []string{}
 	}
 
+	// Copy env, avoid race conditions
 	if len(job.Env) > 0 {
 		if len(newScope.env) > 0 {
 			env := make(map[string]string)
-			for key, value := range newScope.env {
-				env[key] = value
-			}
-			for key, value := range job.Env {
-				env[key] = value
-			}
+			maps.Copy(env, newScope.env)
+			maps.Copy(env, job.Env)
 			newScope.env = env
 		} else {
 			newScope.env = job.Env

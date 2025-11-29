@@ -6,7 +6,7 @@ import (
 )
 
 type builder interface {
-	Add(string, interface{}) builder
+	Add(string, any) builder
 	String() string
 	Log()
 }
@@ -31,7 +31,7 @@ func Builder(level Level, prefix string) builder {
 	}
 }
 
-func (b *logBuilder) Add(prefix string, data interface{}) builder {
+func (b *logBuilder) Add(prefix string, data any) builder {
 	var lines []string
 	switch v := data.(type) {
 	case string:
@@ -77,6 +77,6 @@ func (b *logBuilder) String() string {
 	return b.builder.String()
 }
 
-func (d dummyBuilder) Add(_ string, _ interface{}) builder { return d }
-func (dummyBuilder) Log()                                  {}
-func (dummyBuilder) String() string                        { return "" }
+func (d dummyBuilder) Add(_ string, _ any) builder { return d }
+func (dummyBuilder) Log()                          {}
+func (dummyBuilder) String() string                { return "" }

@@ -9,7 +9,7 @@ import (
 
 	"github.com/invopop/jsonschema"
 
-	"github.com/evilmartians/lefthook/internal/config"
+	"github.com/evilmartians/lefthook/v2/internal/config"
 )
 
 //go:generate go run jsonschema.go
@@ -17,7 +17,7 @@ func main() {
 	r := new(jsonschema.Reflector)
 	r.ExpandedStruct = true
 	r.AdditionalFields = func(t reflect.Type) []reflect.StructField {
-		if t == reflect.TypeOf(config.Config{}) {
+		if t == reflect.TypeFor[config.Config]() {
 			return reflect.VisibleFields(reflect.TypeOf(struct {
 				Schema               string       `json:"$schema,omitempty"`
 				PreCommit            *config.Hook `json:"pre-commit,omitempty"`

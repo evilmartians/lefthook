@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/evilmartians/lefthook/internal/config"
+	"github.com/evilmartians/lefthook/v2/internal/config"
 )
 
 func TestParseHook(t *testing.T) {
@@ -80,7 +80,7 @@ func TestParseJob(t *testing.T) {
 				Name:       "test",
 				Run:        "echo",
 				Glob:       []string{"*.sh", "*.md"},
-				Exclude:    []interface{}{"install.sh", "README.md"},
+				Exclude:    []string{"install.sh", "README.md"},
 				Root:       "docs/",
 				UseStdin:   true,
 				StageFixed: true,

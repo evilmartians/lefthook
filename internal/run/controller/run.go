@@ -6,9 +6,9 @@ import (
 	"io"
 	"os"
 
-	"github.com/evilmartians/lefthook/internal/log"
-	"github.com/evilmartians/lefthook/internal/run/controller/exec"
-	"github.com/evilmartians/lefthook/internal/system"
+	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/run/controller/exec"
+	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
 func (c *Controller) run(ctx context.Context, name string, follow bool, opts exec.Options) bool {

@@ -5,8 +5,8 @@ import (
 	"io"
 	"testing"
 
-	"github.com/evilmartians/lefthook/internal/git"
-	"github.com/evilmartians/lefthook/internal/system"
+	"github.com/evilmartians/lefthook/v2/internal/git"
+	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
 type mockCmd struct{}
@@ -29,7 +29,7 @@ func TestSkipChecker_Check(t *testing.T) {
 	for _, tt := range [...]struct {
 		name       string
 		state      func() git.State
-		skip, only interface{}
+		skip, only any
 		skipped    bool
 	}{
 		{
@@ -65,93 +65,93 @@ func TestSkipChecker_Check(t *testing.T) {
 		{
 			name:    "when rebase",
 			state:   func() git.State { return git.State{State: "rebase"} },
-			skip:    []interface{}{"rebase"},
+			skip:    []any{"rebase"},
 			skipped: true,
 		},
 		{
 			name:    "when rebase (but want merge)",
 			state:   func() git.State { return git.State{State: "rebase"} },
-			skip:    []interface{}{"merge"},
+			skip:    []any{"merge"},
 			skipped: false,
 		},
 		{
 			name:    "when branch",
 			state:   func() git.State { return git.State{Branch: "feat/skipme"} },
-			skip:    []interface{}{map[string]interface{}{"ref": "feat/skipme"}},
+			skip:    []any{map[string]any{"ref": "feat/skipme"}},
 			skipped: true,
 		},
 		{
 			name:    "when branch doesn't match",
 			state:   func() git.State { return git.State{Branch: "feat/important"} },
-			skip:    []interface{}{map[string]interface{}{"ref": "feat/skipme"}},
+			skip:    []any{map[string]any{"ref": "feat/skipme"}},
 			skipped: false,
 		},
 		{
 			name:    "when branch glob",
 			state:   func() git.State { return git.State{Branch: "feat/important"} },
-			skip:    []interface{}{map[string]interface{}{"ref": "feat/*"}},
+			skip:    []any{map[string]any{"ref": "feat/*"}},
 			skipped: true,
 		},
 		{
 			name:    "when branch glob doesn't match",
 			state:   func() git.State { return git.State{Branch: "feat"} },
-			skip:    []interface{}{map[string]interface{}{"ref": "feat/*"}},
+			skip:    []any{map[string]any{"ref": "feat/*"}},
 			skipped: false,
 		},
 		{
 			name:    "when only specified",
 			state:   func() git.State { return git.State{Branch: "feat"} },
-			only:    []interface{}{map[string]interface{}{"ref": "feat"}},
+			only:    []any{map[string]any{"ref": "feat"}},
 			skipped: false,
 		},
 		{
 			name:    "when only branch doesn't match",
 			state:   func() git.State { return git.State{Branch: "dev"} },
-			only:    []interface{}{map[string]interface{}{"ref": "feat"}},
+			only:    []any{map[string]any{"ref": "feat"}},
 			skipped: true,
 		},
 		{
 			name:    "when only branch with glob",
 			state:   func() git.State { return git.State{Branch: "feat/important"} },
-			only:    []interface{}{map[string]interface{}{"ref": "feat/*"}},
+			only:    []any{map[string]any{"ref": "feat/*"}},
 			skipped: false,
 		},
 		{
 			name:    "when only merge",
 			state:   func() git.State { return git.State{State: "merge"} },
-			only:    []interface{}{"merge"},
+			only:    []any{"merge"},
 			skipped: false,
 		},
 		{
 			name:    "when only and skip",
 			state:   func() git.State { return git.State{State: "rebase"} },
-			skip:    []interface{}{map[string]interface{}{"ref": "feat/*"}},
+			skip:    []any{map[string]any{"ref": "feat/*"}},
 			only:    "rebase",
 			skipped: false,
 		},
 		{
 			name:    "when only and skip applies skip",
 			state:   func() git.State { return git.State{State: "rebase"} },
-			skip:    []interface{}{"rebase"},
+			skip:    []any{"rebase"},
 			only:    "rebase",
 			skipped: true,
 		},
 		{
 			name:    "when skip with run command",
 			state:   func() git.State { return git.State{} },
-			skip:    []interface{}{map[string]interface{}{"run": "success"}},
+			skip:    []any{map[string]any{"run": "success"}},
 			skipped: true,
 		},
 		{
 			name:    "when skip with multi-run command",
 			state:   func() git.State { return git.State{Branch: "feat"} },
-			skip:    []interface{}{map[string]interface{}{"run": "success", "ref": "feat"}},
+			skip:    []any{map[string]any{"run": "success", "ref": "feat"}},
 			skipped: true,
 		},
 		{
 			name:    "when only with run command",
 			state:   func() git.State { return git.State{} },
-			only:    []interface{}{map[string]interface{}{"run": "fail"}},
+			only:    []any{map[string]any{"run": "fail"}},
 			skipped: true,
 		},
 	} {

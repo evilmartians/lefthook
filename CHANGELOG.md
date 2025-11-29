@@ -1,5 +1,63 @@
 # Change log
 
+## 2.0.4 (2025-11-13)
+
+- fix: glob_matcher jsonschema values
+- feat: add optional standard glob matcher (doublestar) ([#1188](https://github.com/evilmartians/lefthook/pull/1188)) by [@jasonwbarnett]()
+
+## 2.0.3 (2025-11-10)
+
+- feat: fail_on_changes non-ci option ([#1186](https://github.com/evilmartians/lefthook/pull/1186)) by [@scop](https://github.com/scop)
+- deps: update mimetypes ([#1185](https://github.com/evilmartians/lefthook/pull/1185)) by [@mrexox](https://github.com/mrexox)
+
+## 2.0.2 (2025-10-29)
+
+- fix: add mutex lock before all git commands ([#1178](https://github.com/evilmartians/lefthook/pull/1178)) by [@mrexox]()
+
+## 2.0.0 (2025-10-20)
+
+**Breaking changes**
+
+- `exclude` option no longer accepts regexp, only globs.
+- `skip_output` option is dropped, use `output` instead.
+- Some CLI arguments have changed their names to make it more consistent. See `lefthook run -h` for details.
+- for `only` and `skip` options with `- run: '...'` values the command executer was changed to Bourne Shell.
+
+**Commits**
+
+- fix: accept --fail-on-changes=false as override value ([#1168](https://github.com/evilmartians/lefthook/pull/1168)) by [@mrexox]()
+- feat: [**breaking**] use sh as command executor on Windows ([#1166](https://github.com/evilmartians/lefthook/pull/1166)) by [@mrexox]()
+- refactor: [**breaking**] drop support for exclude regexp ([#1162](https://github.com/evilmartians/lefthook/pull/1162)) by [@mrexox]()
+- refactor: [**breaking**] drop deprecated skip_output option ([#1159](https://github.com/evilmartians/lefthook/pull/1159)) by [@mrexox]()
+- refactor: [**breaking**] use another cli framework ([#1155](https://github.com/evilmartians/lefthook/pull/1155)) by [@mrexox]()
+
+## 1.13.6 (2025-09-30)
+
+- fix: embed jsonschema into binary ([#1158](https://github.com/evilmartians/lefthook/pull/1158)) by [@mrexox]()
+
+## 1.13.5 (2025-09-29)
+
+- chore: a small cleanup by [@mrexox]()
+- refactor: use semver to check versions ([#1152](https://github.com/evilmartians/lefthook/pull/1152)) by [@mrexox]()
+- fix: add comprehensive tests for spinner name formatting ([#1145](https://github.com/evilmartians/lefthook/pull/1145)) [@technicalpickles]()
+- docs: add LEFTHOOK_BIN environment variable to documentation ([#1151](https://github.com/evilmartians/lefthook/pull/1151)) [@technicalpickles]()
+- chore: tests improvements ([#1148](https://github.com/evilmartians/lefthook/pull/1148)) by [@mrexox]()
+- chore: fix naming for integration tests ([#1146](https://github.com/evilmartians/lefthook/pull/1146)) by [@mrexox]()
+- docs: use codecov coverage badge by [@mrexox]()
+- ci: codecov ([#1147](https://github.com/evilmartians/lefthook/pull/1147)) by [@mrexox]()
+- docs: use actual latest version ([#1143](https://github.com/evilmartians/lefthook/pull/1143)) by [@mrexox]()
+- docs: add exclude to hook-level settings by [@mrexox]()
+
+## 1.13.4 (2025-09-23)
+
+- fix: add exclude option to hook level ([#1141](https://github.com/evilmartians/lefthook/pull/1141)) by [@mrexox]()
+- fix: allow skipping groups ([#1140](https://github.com/evilmartians/lefthook/pull/1140)) by [@mrexox]()
+
+## 1.13.3 (2025-09-23)
+
+- deps: September 2025 ([#1139](https://github.com/evilmartians/lefthook/pull/1139)) by [@mrexox]()
+- fix: concurrent map access issue ([#1138](https://github.com/evilmartians/lefthook/pull/1138)) by [@mrexox]()
+
 ## 1.13.2 (2025-09-22)
 
 - feat: inherit file_types from parent jobs ([#1135](https://github.com/evilmartians/lefthook/pull/1135)) by [@mrexox]()
@@ -986,3 +1044,5 @@ gem 'lefthook'
 [@olivier-lacroix]: https://github.com/olivier-lacroix
 [@michael-pplx]: https://github.com/michael-pplx
 [@siler]: https://github.com/siler
+[@technicalpickles]: https://github.com/technicalpickles
+[@jasonwbarnett]: https://github.com/jasonwbarnett

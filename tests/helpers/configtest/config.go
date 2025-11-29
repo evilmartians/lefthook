@@ -6,7 +6,7 @@ import (
 
 	"github.com/goccy/go-yaml"
 
-	"github.com/evilmartians/lefthook/internal/config"
+	"github.com/evilmartians/lefthook/v2/internal/config"
 )
 
 // ParseHook simplifies config.Hook definition with YAML string.

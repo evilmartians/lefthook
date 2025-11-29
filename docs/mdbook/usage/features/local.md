@@ -1,6 +1,6 @@
 ## Local config
 
-You can extend and override options of your main configuration with `lefthook-local.yml`. Don't forge to add the file to `.gitignore`.
+You can extend and override options of your main configuration with `lefthook-local.yml`. Don't forget to add the file to `.gitignore`.
 
 You can also use `lefthook-local.yml` without a main config file. This is useful when you want to use lefthook locally without imposing it on your teammates.
 

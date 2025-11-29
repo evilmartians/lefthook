@@ -1,50 +1,50 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
+	"context"
+	"errors"
 
-	"github.com/evilmartians/lefthook/internal/command"
-	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/urfave/cli/v3"
+
+	"github.com/evilmartians/lefthook/v2/internal/command"
 )
 
-type dump struct{}
+var errInvalidFormat = errors.New("invalid 'format' value, supported: 'toml', 'yaml', 'json'")
 
-func (dump) New(opts *command.Options) *cobra.Command {
-	dumpArgs := command.DumpArgs{}
-	dumpCmd := cobra.Command{
-		Use:               "dump",
-		Short:             "Prints config merged from all extensions (in YAML format by default)",
-		Example:           "lefthook dump",
-		ValidArgsFunction: cobra.NoFileCompletions,
-		Args:              cobra.NoArgs,
-		Run: func(cmd *cobra.Command, args []string) {
-			command.Dump(opts, dumpArgs)
+func dump() *cli.Command {
+	args := command.DumpArgs{
+		Format: "yaml",
+	}
+
+	return &cli.Command{
+		Name:  "dump",
+		Usage: "print config merged from all extensions",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:        "format",
+				Usage:       "'yaml', 'toml', or 'json' (default: 'yaml')",
+				Aliases:     []string{"f"},
+				Destination: &args.Format,
+				Validator: func(format string) error {
+					switch format {
+					case "":
+					case "yaml":
+					case "toml":
+					case "json":
+					default:
+						return errInvalidFormat
+					}
+					return nil
+				},
+			},
+		},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			l, err := command.NewLefthook(false, "no")
+			if err != nil {
+				return err
+			}
+
+			return l.Dump(ctx, args)
 		},
 	}
-
-	dumpCmd.Flags().StringVarP(
-		&dumpArgs.Format, "format", "f", "yaml", "'yaml', 'toml', or 'json'",
-	)
-
-	dumpCmd.Flags().BoolVarP(
-		&dumpArgs.JSON, "json", "j", false,
-		"dump in JSON format",
-	)
-
-	dumpCmd.Flags().BoolVarP(
-		&dumpArgs.TOML, "toml", "t", false,
-		"dump in TOML format",
-	)
-
-	err := dumpCmd.Flags().MarkDeprecated("json", "use --format=json")
-	if err != nil {
-		log.Warn("Unexpected error:", err)
-	}
-
-	err = dumpCmd.Flags().MarkDeprecated("toml", "use --format=toml")
-	if err != nil {
-		log.Warn("Unexpected error:", err)
-	}
-
-	return &dumpCmd
 }

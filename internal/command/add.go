@@ -1,11 +1,12 @@
 package command
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 
-	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/templates"
+	"github.com/evilmartians/lefthook/v2/internal/config"
+	"github.com/evilmartians/lefthook/v2/internal/templates"
 )
 
 const defaultDirMode = 0o755
@@ -16,17 +17,8 @@ type AddArgs struct {
 	CreateDirs, Force bool
 }
 
-func Add(opts *Options, args *AddArgs) error {
-	lefthook, err := initialize(opts)
-	if err != nil {
-		return err
-	}
-
-	return lefthook.Add(args)
-}
-
 // Creates a hook, given in args. The hook is a Lefthook hook.
-func (l *Lefthook) Add(args *AddArgs) error {
+func (l *Lefthook) Add(_ctx context.Context, args AddArgs) error {
 	if !config.KnownHook(args.Hook) {
 		return fmt.Errorf("skip adding, hook is unavailable: %s", args.Hook)
 	}
@@ -66,7 +58,7 @@ func (l *Lefthook) getSourceDirs() (global, local string) {
 	global = config.DefaultSourceDir
 	local = config.DefaultSourceDirLocal
 
-	cfg, err := config.Load(l.fs, l.repo)
+	cfg, err := l.LoadConfig()
 	if err == nil {
 		if len(cfg.SourceDir) > 0 {
 			global = cfg.SourceDir

@@ -1,5 +1,4 @@
 //go:build !windows
-// +build !windows
 
 package exec
 
@@ -14,7 +13,7 @@ import (
 	"github.com/creack/pty"
 	"github.com/mattn/go-isatty"
 
-	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/log"
 )
 
 type CommandExecutor struct{}

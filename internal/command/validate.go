@@ -1,32 +1,28 @@
 package command
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/kaptinlin/jsonschema"
 
-	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/config"
+	"github.com/evilmartians/lefthook/v2/internal/log"
 )
 
-const schemaUrl = "https://raw.githubusercontent.com/evilmartians/lefthook/master/schema.json"
+type ValidateArgs struct {
+	SchemaPath string
+}
 
-func Validate(opts *Options) error {
-	lefthook, err := initialize(opts)
-	if err != nil {
-		return fmt.Errorf("couldn't initialize lefthook: %w", err)
-	}
-
-	main, secondary, err := config.LoadKoanf(lefthook.fs, lefthook.repo)
+func (l *Lefthook) Validate(_ctx context.Context, args ValidateArgs) error {
+	main, secondary, err := config.LoadKoanf(l.fs, l.repo)
 	if err != nil {
 		return err
 	}
 
 	compiler := jsonschema.NewCompiler()
-
-	schema, err := compiler.GetSchema(schemaUrl)
+	schema, err := compiler.Compile(config.JsonSchema)
 	if err != nil {
 		return err
 	}

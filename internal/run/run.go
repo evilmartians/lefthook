@@ -3,10 +3,10 @@ package run
 import (
 	"context"
 
-	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/internal/git"
-	"github.com/evilmartians/lefthook/internal/run/controller"
-	"github.com/evilmartians/lefthook/internal/run/result"
+	"github.com/evilmartians/lefthook/v2/internal/config"
+	"github.com/evilmartians/lefthook/v2/internal/git"
+	"github.com/evilmartians/lefthook/v2/internal/run/controller"
+	"github.com/evilmartians/lefthook/v2/internal/run/result"
 )
 
 var ErrFailOnChanges = controller.ErrFailOnChanges

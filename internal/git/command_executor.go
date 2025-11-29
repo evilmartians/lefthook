@@ -5,13 +5,15 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+	"sync"
 
-	"github.com/evilmartians/lefthook/internal/log"
-	"github.com/evilmartians/lefthook/internal/system"
+	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
 // CommandExecutor provides some methods that take some effect on execution and/or result data.
 type CommandExecutor struct {
+	mu            *sync.Mutex
 	cmd           system.Command
 	root          string
 	maxCmdLen     int
@@ -21,7 +23,11 @@ type CommandExecutor struct {
 
 // NewExecutor returns an object that executes given commands in the OS.
 func NewExecutor(cmd system.Command) *CommandExecutor {
-	return &CommandExecutor{cmd: cmd, maxCmdLen: system.MaxCmdLen()}
+	return &CommandExecutor{
+		mu:        new(sync.Mutex),
+		cmd:       cmd,
+		maxCmdLen: system.MaxCmdLen(),
+	}
 }
 
 func (c CommandExecutor) WithoutEnvs(envs ...string) CommandExecutor {
@@ -100,6 +106,11 @@ func (c CommandExecutor) CmdLinesWithinFolder(cmd []string, folder string) ([]st
 }
 
 func (c CommandExecutor) execute(cmd []string, root string) (string, error) {
+	if len(cmd) > 0 && cmd[0] == "git" {
+		// Preventing Git lock issues for all Git commands
+		c.mu.Lock()
+		defer c.mu.Unlock()
+	}
 	stdout := new(bytes.Buffer)
 	stderr := new(bytes.Buffer)
 	err := c.cmd.Run(cmd, root, system.NullReader, stdout, stderr)

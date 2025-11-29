@@ -1,14 +1,8 @@
 ## `exclude`
 
-For the `exclude` option two variants are supported:
+This option allows to setup a list of globs for files to be excluded in files template.
 
-- A list of globs to be excluded
-- A single regular expression (deprecated)
-
-
-> **Note:** The regular expression is matched against full paths to files in the repo,
-> relative to the repo root, using `/` as the directory separator on all platforms.
-> File paths do not begin with the separator or any other prefix.
+> **Note:** The glob patterns used in `exclude` are affected by the [`glob_matcher`](./glob_matcher.md) setting. See the glob_matcher documentation for details on how `**` patterns behave.
 
 **Example**
 
@@ -18,8 +12,8 @@ Run Rubocop on staged files with `.rb` extension except for `application.rb`, `r
 # lefthook.yml
 
 pre-commit:
-  commands:
-    lint:
+  jobs:
+    - name: lint
       glob: "*.rb"
       exclude:
         - config/routes.rb
@@ -29,31 +23,15 @@ pre-commit:
       run: bundle exec rubocop --force-exclusion {staged_files}
 ```
 
-The same example using a regular expression.
-
-```yml
-# lefthook.yml
-
-pre-commit:
-  commands:
-    lint:
-      glob: "*.rb"
-      exclude: '(^|/)(application|routes|rails_helper|initializers/\w+)\.rb$'
-      run: bundle exec rubocop --force-exclusion {staged_files}
-```
-
-**Important**
-
-Be careful with the config file format's string quoting and escaping rules when writing regexps in it. For YAML, single quotes are often the simplest choice.
-
 If you've specified `exclude` but don't have a files template in [`run`](./run.md) option, lefthook will check `{staged_files}` for `pre-commit` hook and `{push_files}` for `pre-push` hook and apply filtering. If no files left, the command will be skipped.
 
 ```yml
 # lefthook.yml
 
 pre-commit:
-  commands:
-    lint:
-      exclude: '(^|/)application\.rb$'
-      run: bundle exec rubocop # skipped if only application.rb was staged
+  exclude:
+    - "*/application.rb"
+  jobs:
+    - name: lint
+      run: bundle exec rubocop # will skip if only application.rb was staged
 ```

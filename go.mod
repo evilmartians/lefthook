@@ -1,11 +1,10 @@
-module github.com/evilmartians/lefthook
+module github.com/evilmartians/lefthook/v2
 
 go 1.25
 
 toolchain go1.25.0
 
 require (
-	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/briandowns/spinner v1.23.2
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/creack/pty v1.1.24
@@ -25,13 +24,15 @@ require (
 	github.com/rogpeppe/go-internal v1.14.1
 	github.com/schollz/progressbar/v3 v3.18.0
 	github.com/spf13/afero v1.15.0
-	github.com/spf13/cobra v1.10.1
 	github.com/stretchr/testify v1.11.1
+	github.com/urfave/cli/v3 v3.4.1
+	golang.org/x/mod v0.27.0
 )
 
 require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
+	github.com/bmatcuk/doublestar/v4 v4.9.1 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/charmbracelet/colorprofile v0.2.3-0.20250311203215-f60798e515dc // indirect
 	github.com/charmbracelet/x/ansi v0.8.0 // indirect
@@ -58,11 +59,10 @@ require (
 require (
 	github.com/alessio/shellescape v1.4.1
 	github.com/fatih/color v1.18.0 // indirect
-	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20
-	github.com/mattn/go-runewidth v0.0.16 // indirect
+	github.com/mattn/go-runewidth v0.0.16
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/rivo/uniseg v0.4.7 // indirect

@@ -43,17 +43,17 @@ func NewSettings() LogSettings {
 	return LogSettings{^disableAll}
 }
 
-func ApplySettings(enableTags, disableTags string, enable, disable interface{}) {
-	Settings.Apply(enableTags, disableTags, enable, disable)
+func ApplySettings(enableTags string, enable any) {
+	Settings.Apply(enableTags, enable)
 }
 
-func (s *LogSettings) Apply(enableTags, disableTags string, enable, disable interface{}) {
-	if enableTags == "" && disableTags == "" && (enable == nil || enable == "") && (disable == nil || disable == "") {
+func (s *LogSettings) Apply(enableTags string, enable any) {
+	if enableTags == "" && (enable == nil || enable == "") {
 		s.enableAll()
 		return
 	}
 
-	if enableOutput, ok := enable.(bool); ok && enableTags == "" && disableTags == "" {
+	if enableOutput, ok := enable.(bool); ok && enableTags == "" {
 		if enableOutput {
 			s.enableAll()
 		} else {
@@ -62,14 +62,7 @@ func (s *LogSettings) Apply(enableTags, disableTags string, enable, disable inte
 		return
 	}
 
-	if disableOutput, ok := disable.(bool); ok && enableTags == "" && disableTags == "" {
-		if disableOutput {
-			s.disableAll()
-			return
-		}
-	}
-
-	if enableOptions, ok := enable.([]interface{}); ok {
+	if enableOptions, ok := enable.([]any); ok {
 		if len(enableOptions) != 0 {
 			s.bitmap = disableAll
 		}
@@ -81,25 +74,11 @@ func (s *LogSettings) Apply(enableTags, disableTags string, enable, disable inte
 		}
 	}
 
-	if disableOptions, ok := disable.([]interface{}); ok {
-		for _, option := range disableOptions {
-			if value, ok := option.(string); ok {
-				s.disable(value)
-			}
-		}
-	}
-
 	if enableTags != "" {
 		s.bitmap = disableAll
 
-		for _, tag := range strings.Split(enableTags, ",") {
+		for tag := range strings.SplitSeq(enableTags, ",") {
 			s.enable(tag)
-		}
-	}
-
-	if disableTags != "" {
-		for _, tag := range strings.Split(disableTags, ",") {
-			s.disable(tag)
 		}
 	}
 }
@@ -124,29 +103,6 @@ func (s *LogSettings) enable(setting string) {
 		s.bitmap |= executionInfo | execution
 	case "empty_summary":
 		s.bitmap |= emptySummary
-	}
-}
-
-func (s *LogSettings) disable(setting string) {
-	switch setting {
-	case "meta":
-		s.bitmap &= ^meta
-	case "success":
-		s.bitmap &= ^success
-	case "failure":
-		s.bitmap &= ^failure
-	case "summary":
-		s.bitmap &= ^summary & ^success & ^failure
-	case "skips":
-		s.bitmap &= ^skips
-	case "execution":
-		s.bitmap &= ^execution & ^executionOutput & ^executionInfo
-	case "execution_out":
-		s.bitmap &= ^executionOutput
-	case "execution_info":
-		s.bitmap &= ^executionInfo
-	case "empty_summary":
-		s.bitmap &= ^emptySummary
 	}
 }
 

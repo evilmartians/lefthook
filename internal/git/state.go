@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/evilmartians/lefthook/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/log"
 )
 
 type State struct {

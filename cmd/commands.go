@@ -2,24 +2,16 @@
 
 package cmd
 
-import (
-	"github.com/spf13/cobra"
+import "github.com/urfave/cli/v3"
 
-	"github.com/evilmartians/lefthook/internal/command"
-)
-
-type cmd interface {
-	New(*command.Options) *cobra.Command
-}
-
-var commands = [...]cmd{
-	version{},
-	add{},
-	install{},
-	checkInstall{},
-	uninstall{},
-	run{},
-	dump{},
-	selfUpdate{},
-	validate{},
+var commands = []*cli.Command{
+	run(),
+	install(),
+	uninstall(),
+	checkInstall(),
+	dump(),
+	add(),
+	validate(),
+	version(),
+	selfUpdate(),
 }

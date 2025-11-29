@@ -1,35 +1,45 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
+	"context"
 
-	"github.com/evilmartians/lefthook/internal/command"
+	"github.com/urfave/cli/v3"
+
+	"github.com/evilmartians/lefthook/v2/internal/command"
 )
 
-type uninstall struct{}
+func uninstall() *cli.Command {
+	var args command.UninstallArgs
+	var verbose bool
 
-func (uninstall) New(opts *command.Options) *cobra.Command {
-	args := command.UninstallArgs{}
+	return &cli.Command{
+		Name:  "uninstall",
+		Usage: "delete installed hooks",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:        "verbose",
+				Aliases:     []string{"v"},
+				Destination: &verbose,
+			},
+			&cli.BoolFlag{
+				Name:        "force",
+				Aliases:     []string{"f"},
+				Usage:       "remove all Git hooks",
+				Destination: &args.Force,
+			},
+			&cli.BoolFlag{
+				Name:        "remove-configs",
+				Usage:       "remove lefthook configs",
+				Destination: &args.RemoveConfig,
+			},
+		},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			l, err := command.NewLefthook(verbose, "auto")
+			if err != nil {
+				return err
+			}
 
-	uninstallCmd := cobra.Command{
-		Use:               "uninstall",
-		Short:             "Revert install command",
-		ValidArgsFunction: cobra.NoFileCompletions,
-		Args:              cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _args []string) error {
-			return command.Uninstall(opts, &args)
+			return l.Uninstall(ctx, args)
 		},
 	}
-
-	uninstallCmd.Flags().BoolVarP(
-		&args.Force, "force", "f", false,
-		"remove all git hooks even not lefthook-related",
-	)
-
-	uninstallCmd.Flags().BoolVarP(
-		&args.RemoveConfig, "remove-configs", "c", false,
-		"remove lefthook main and secondary config files",
-	)
-
-	return &uninstallCmd
 }

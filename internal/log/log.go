@@ -11,8 +11,11 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mattn/go-isatty"
+	"github.com/mattn/go-runewidth"
+	"golang.org/x/term"
 
-	"github.com/evilmartians/lefthook/internal/version"
+	"github.com/evilmartians/lefthook/v2/internal/version"
 )
 
 var (
@@ -52,19 +55,21 @@ type StyleLogger struct {
 }
 
 type Logger struct {
-	level   Level
-	out     io.Writer
-	mu      sync.Mutex
-	colors  int
-	names   []string
-	spinner *spinner.Spinner
+	level         Level
+	out           io.Writer
+	mu            sync.Mutex
+	colors        int
+	terminalWidth int
+	names         []string
+	spinner       *spinner.Spinner
 }
 
 func New() *Logger {
 	return &Logger{
-		level:  InfoLevel,
-		out:    os.Stdout,
-		colors: ColorAuto,
+		level:         InfoLevel,
+		out:           os.Stdout,
+		colors:        ColorAuto,
+		terminalWidth: terminalWidth(),
 		spinner: spinner.New(
 			spinner.CharSets[spinnerCharSet],
 			spinnerRefreshRate,
@@ -116,16 +121,16 @@ func (s StyleLogger) Info(str string) {
 	)
 }
 
-func Debug(args ...interface{}) {
+func Debug(args ...any) {
 	res := strings.TrimSpace(fmt.Sprint(args...))
 	std.Debug(color(GolorGray).Render(res))
 }
 
-func Debugf(format string, args ...interface{}) {
+func Debugf(format string, args ...any) {
 	Debug(fmt.Sprintf(format, args...))
 }
 
-func Info(args ...interface{}) {
+func Info(args ...any) {
 	std.Info(args...)
 }
 
@@ -139,33 +144,33 @@ func InfoPad(s string) {
 	)
 }
 
-func Infof(format string, args ...interface{}) {
+func Infof(format string, args ...any) {
 	std.Infof(format, args...)
 }
 
-func Error(args ...interface{}) {
+func Error(args ...any) {
 	res := fmt.Sprint(args...)
 	std.Error(Red(res))
 }
 
-func Errorf(format string, args ...interface{}) {
+func Errorf(format string, args ...any) {
 	Error(fmt.Sprintf(format, args...))
 }
 
-func Warn(args ...interface{}) {
+func Warn(args ...any) {
 	res := fmt.Sprint(args...)
 	std.Warn(Yellow(res))
 }
 
-func Warnf(format string, args ...interface{}) {
+func Warnf(format string, args ...any) {
 	Warn(fmt.Sprintf(format, args...))
 }
 
-func Println(args ...interface{}) {
+func Println(args ...any) {
 	std.Println(args...)
 }
 
-func Printf(format string, args ...interface{}) {
+func Printf(format string, args ...any) {
 	std.Printf(format, args...)
 }
 
@@ -173,7 +178,7 @@ func SetLevel(level Level) {
 	std.SetLevel(level)
 }
 
-func SetColors(colors interface{}) {
+func SetColors(colors any) {
 	if colors == nil {
 		return
 	}
@@ -207,7 +212,7 @@ func SetColors(colors interface{}) {
 		setColor(lipgloss.NoColor{}, &ColorCyan)
 		setColor(lipgloss.NoColor{}, &GolorGray)
 		setColor(lipgloss.NoColor{}, &colorBorder)
-	case map[string]interface{}:
+	case map[string]any:
 		std.colors = ColorOn
 		setColor(typedColors["red"], &ColorRed)
 		setColor(typedColors["green"], &ColorGreen)
@@ -220,7 +225,7 @@ func SetColors(colors interface{}) {
 	}
 }
 
-func setColor(colorCode interface{}, adaptiveColor *lipgloss.TerminalColor) {
+func setColor(colorCode any, adaptiveColor *lipgloss.TerminalColor) {
 	var code string
 	switch typedCode := colorCode.(type) {
 	case int:
@@ -380,7 +385,7 @@ func (l *Logger) SetOutput(out io.Writer) {
 	l.out = out
 }
 
-func (l *Logger) Info(args ...interface{}) {
+func (l *Logger) Info(args ...any) {
 	l.Log(InfoLevel, args...)
 }
 
@@ -414,23 +419,23 @@ func (l *Logger) Warn(args ...string) {
 	l.Log(WarnLevel, leftBorder)
 }
 
-func (l *Logger) Infof(format string, args ...interface{}) {
+func (l *Logger) Infof(format string, args ...any) {
 	l.Logf(InfoLevel, format, args...)
 }
 
-func (l *Logger) Debugf(format string, args ...interface{}) {
+func (l *Logger) Debugf(format string, args ...any) {
 	l.Logf(DebugLevel, format, args...)
 }
 
-func (l *Logger) Errorf(format string, args ...interface{}) {
+func (l *Logger) Errorf(format string, args ...any) {
 	l.Logf(ErrorLevel, format, args...)
 }
 
-func (l *Logger) Warnf(format string, args ...interface{}) {
+func (l *Logger) Warnf(format string, args ...any) {
 	l.Logf(WarnLevel, format, args...)
 }
 
-func (l *Logger) Log(level Level, args ...interface{}) {
+func (l *Logger) Log(level Level, args ...any) {
 	if l.IsLevelEnabled(level) {
 		l.Println(args...)
 	}
@@ -454,7 +459,7 @@ func (l *Logger) SetName(name string) {
 	}
 
 	l.names = append(l.names, name)
-	l.spinner.Suffix = fmt.Sprintf("%s: %s", spinnerText, strings.Join(l.names, ", "))
+	l.spinner.Suffix = l.formatSpinnerSuffix(l.names)
 }
 
 func (l *Logger) UnsetName(name string) {
@@ -466,7 +471,11 @@ func (l *Logger) UnsetName(name string) {
 		defer l.spinner.Start()
 	}
 
-	newNames := make([]string, 0, len(l.names)-1)
+	capacity := len(l.names)
+	if capacity > 0 {
+		capacity--
+	}
+	newNames := make([]string, 0, capacity)
 	for _, n := range l.names {
 		if n != name {
 			newNames = append(newNames, n)
@@ -474,21 +483,16 @@ func (l *Logger) UnsetName(name string) {
 	}
 
 	l.names = newNames
-
-	if len(l.names) != 0 {
-		l.spinner.Suffix = fmt.Sprintf("%s: %s", spinnerText, strings.Join(l.names, ", "))
-	} else {
-		l.spinner.Suffix = spinnerText
-	}
+	l.spinner.Suffix = l.formatSpinnerSuffix(l.names)
 }
 
-func (l *Logger) Logf(level Level, format string, args ...interface{}) {
+func (l *Logger) Logf(level Level, format string, args ...any) {
 	if l.IsLevelEnabled(level) {
 		l.Printf(format, args...)
 	}
 }
 
-func (l *Logger) Println(args ...interface{}) {
+func (l *Logger) Println(args ...any) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
@@ -500,7 +504,7 @@ func (l *Logger) Println(args ...interface{}) {
 	_, _ = fmt.Fprintln(l.out, args...)
 }
 
-func (l *Logger) Printf(format string, args ...interface{}) {
+func (l *Logger) Printf(format string, args ...any) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
@@ -514,4 +518,117 @@ func (l *Logger) Printf(format string, args ...interface{}) {
 
 func (l *Logger) IsLevelEnabled(level Level) bool {
 	return l.level >= level
+}
+
+// formatSpinnerSuffix creates a spinner suffix that respects terminal width constraints.
+func (l *Logger) formatSpinnerSuffix(names []string) string {
+	if len(names) == 0 {
+		return spinnerText
+	}
+
+	terminalWidth := l.terminalWidth
+	if terminalWidth <= 0 {
+		return fmt.Sprintf("%s: %s", spinnerText, strings.Join(names, ", "))
+	}
+
+	// Width calculation: Reserve space for spinner character (1) + space (1) + padding (8)
+	// This accounts for the spinning character and reasonable display margin
+	const spinnerReservedWidth = 10
+	availableWidth := terminalWidth - spinnerReservedWidth
+
+	// Strategy 1: Try to fit all names with full formatting
+	fullSuffix := fmt.Sprintf("%s: %s", spinnerText, strings.Join(names, ", "))
+	if runewidth.StringWidth(fullSuffix) <= availableWidth {
+		return fullSuffix
+	}
+
+	// Strategy 2: Try showing just the count
+	countSuffix := fmt.Sprintf("%s: %d hook%s", spinnerText, len(names), pluralize(len(names)))
+	if runewidth.StringWidth(countSuffix) <= availableWidth {
+		return countSuffix
+	}
+
+	// Strategy 3: Show as many individual names as possible
+	return formatWithPartialNames(names, availableWidth)
+}
+
+// terminalWidth attempts to detect the current terminal width.
+func terminalWidth() int {
+	// Check if we're writing to a TTY
+	if !isatty.IsTerminal(os.Stdout.Fd()) {
+		return 0 // Not a terminal, don't constrain
+	}
+
+	// Try to get terminal size
+	width, _, err := term.GetSize(int(os.Stdout.Fd()))
+	if err != nil {
+		return 0 // Can't determine size, don't constrain
+	}
+
+	return width
+}
+
+// formatWithPartialNames shows as many hook names as possible, then adds count for remaining.
+func formatWithPartialNames(names []string, availableWidth int) string {
+	if len(names) == 0 {
+		return spinnerText
+	}
+
+	baseText := spinnerText + ": "
+	baseWidth := runewidth.StringWidth(baseText)
+	remainingWidth := availableWidth - baseWidth
+
+	// Try to fit names one by one
+	var fittingNames []string
+	currentWidth := 0
+
+	for i, name := range names {
+		nameWidth := runewidth.StringWidth(name)
+
+		// Add comma and space for all but first name
+		if i > 0 {
+			nameWidth += 2 // ", "
+		}
+
+		// Check if we need space for "... (N more)" suffix
+		remainingCount := len(names) - i
+		if remainingCount > 1 {
+			moreSuffix := fmt.Sprintf(", ... (%d more)", remainingCount-1)
+			moreSuffixWidth := runewidth.StringWidth(moreSuffix)
+
+			if currentWidth+nameWidth+moreSuffixWidth > remainingWidth {
+				// Add the "more" suffix and break
+				if len(fittingNames) > 0 {
+					return fmt.Sprintf("%s%s, ... (%d more)", baseText, strings.Join(fittingNames, ", "), remainingCount)
+				}
+				// If we can't fit even one name, just show count
+				return fmt.Sprintf("%s%d hook%s", baseText, len(names), pluralize(len(names)))
+			}
+		}
+
+		if currentWidth+nameWidth <= remainingWidth {
+			fittingNames = append(fittingNames, name)
+			currentWidth += nameWidth
+		} else {
+			// This name doesn't fit
+			if len(fittingNames) == 0 {
+				// Can't fit any names, just show count
+				return fmt.Sprintf("%s%d hook%s", baseText, len(names), pluralize(len(names)))
+			}
+			// Show what we have plus count
+			remainingCount := len(names) - len(fittingNames)
+			return fmt.Sprintf("%s%s, ... (%d more)", baseText, strings.Join(fittingNames, ", "), remainingCount)
+		}
+	}
+
+	// All names fit
+	return fmt.Sprintf("%s%s", baseText, strings.Join(fittingNames, ", "))
+}
+
+// pluralize returns "s" for counts != 1, empty string otherwise.
+func pluralize(count int) string {
+	if count == 1 {
+		return ""
+	}
+	return "s"
 }

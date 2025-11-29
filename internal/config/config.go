@@ -36,9 +36,9 @@ type Config struct {
 
 	Rc string `json:"rc,omitempty" jsonschema:"description=Provide an rc file - a simple sh script" mapstructure:"rc,omitempty"`
 
-	SkipOutput interface{} `json:"skip_output,omitempty" jsonschema:"oneof_type=boolean;array" koanf:"skip_output" mapstructure:"skip_output,omitempty"`
+	Output any `json:"output,omitempty" jsonschema:"oneof_type=boolean;array,description=Manage verbosity by skipping the printing of output of some steps" mapstructure:"output,omitempty"`
 
-	Output interface{} `json:"output,omitempty" jsonschema:"oneof_type=boolean;array,description=Manage verbosity by skipping the printing of output of some steps" mapstructure:"output,omitempty"`
+	Colors any `json:"colors,omitempty" jsonschema:"description=Enable disable or set your own colors for lefthook output,default=true,oneof_type=boolean;object" mapstructure:"colors,omitempty"`
 
 	Extends []string `json:"extends,omitempty" jsonschema:"description=Specify files to extend config with" mapstructure:"extends,omitempty"`
 
@@ -46,9 +46,9 @@ type Config struct {
 
 	AssertLefthookInstalled bool `json:"assert_lefthook_installed,omitempty" koanf:"assert_lefthook_installed" mapstructure:"assert_lefthook_installed,omitempty"`
 
-	Colors interface{} `json:"colors,omitempty" jsonschema:"description=Enable disable or set your own colors for lefthook output,default=true,oneof_type=boolean;object" mapstructure:"colors,omitempty"`
-
 	SkipLFS bool `json:"skip_lfs,omitempty" jsonschema:"description=Skip running Git LFS hooks (enabled by default)" koanf:"skip_lfs" mapstructure:"skip_lfs,omitempty"`
+
+	GlobMatcher string `json:"glob_matcher,omitempty" jsonschema:"description=Choose the glob matching engine: 'gobwas' (default) or 'doublestar' (standard ** behavior),enum=gobwas,enum=doublestar,default=gobwas" koanf:"glob_matcher" mapstructure:"glob_matcher,omitempty"`
 
 	Remotes []*Remote `json:"remotes,omitempty" jsonschema:"description=Provide multiple remote configs to use lefthook configurations shared across projects. Lefthook will automatically download and merge configurations into main config." mapstructure:"remotes,omitempty"`
 
@@ -76,7 +76,7 @@ func (c *Config) Md5() (checksum string, err error) {
 }
 
 func (c *Config) Dump(format DumpFormat, out io.Writer) error {
-	res := make(map[string]interface{})
+	res := make(map[string]any)
 	if err := mapstructure.Decode(c, &res); err != nil {
 		return err
 	}
@@ -110,12 +110,12 @@ func (c *Config) Dump(format DumpFormat, out io.Writer) error {
 }
 
 type dumper interface {
-	Dump(map[string]interface{}, io.Writer) error
+	Dump(map[string]any, io.Writer) error
 }
 
 type yamlDumper struct{}
 
-func (yamlDumper) Dump(input map[string]interface{}, out io.Writer) error {
+func (yamlDumper) Dump(input map[string]any, out io.Writer) error {
 	encoder := yaml.NewEncoder(out)
 	encoder.SetIndent(yamlIndent)
 
@@ -125,7 +125,7 @@ func (yamlDumper) Dump(input map[string]interface{}, out io.Writer) error {
 
 type tomlDumper struct{}
 
-func (tomlDumper) Dump(input map[string]interface{}, out io.Writer) error {
+func (tomlDumper) Dump(input map[string]any, out io.Writer) error {
 	encoder := toml.NewEncoder(out)
 	err := encoder.Encode(input)
 	if err != nil {
@@ -139,7 +139,7 @@ type jsonDumper struct {
 	pretty bool
 }
 
-func (j jsonDumper) Dump(input map[string]interface{}, out io.Writer) error {
+func (j jsonDumper) Dump(input map[string]any, out io.Writer) error {
 	var res []byte
 	var err error
 	if j.pretty {

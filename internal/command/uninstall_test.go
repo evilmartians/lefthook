@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/evilmartians/lefthook/internal/config"
-	"github.com/evilmartians/lefthook/tests/helpers/gittest"
+	"github.com/evilmartians/lefthook/v2/internal/config"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/gittest"
 )
 
 func TestLefthookUninstall(t *testing.T) {
@@ -62,7 +62,7 @@ func TestLefthookUninstall(t *testing.T) {
 			},
 		},
 		{
-			name: "with --remove-config option",
+			name: "with --remove-configs option",
 			args: UninstallArgs{RemoveConfig: true},
 			existingHooks: map[string]string{
 				"pre-commit":  "not a lefthook hook",
@@ -126,7 +126,7 @@ func TestLefthookUninstall(t *testing.T) {
 			}
 
 			// Do uninstall
-			err = lefthook.Uninstall(&tt.args)
+			err = lefthook.Uninstall(t.Context(), tt.args)
 			if err != nil {
 				t.Errorf("unexpected error: %s", err)
 			}

@@ -1,0 +1,11 @@
+exec git init
+exec lefthook validate
+
+-- lefthook.yml --
+pre-commit:
+  jobs:
+    - run: echo test
+      tags:
+        - echo
+        - test
+        - integration
