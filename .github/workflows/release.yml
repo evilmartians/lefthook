@@ -129,27 +129,17 @@ jobs:
           name: dist
       - run: tar -xvf dist.tar
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Setup uv with python
+        uses: astral-sh/setup-uv@v7
         with:
-          python-version: '3.12'
-      - run: python -m pip install --upgrade pip twine wheel setuptools
+          enable-cache: false
+          python-version: "3.12"
+          version: "latest"
 
       - name: Publish to PyPI
         env:
-          PYPI_API_KEY: ${{ secrets.PYPI_API_KEY }}
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_KEY }}
         run: |
-          cat << EOF > ~/.pypirc
-          [distutils]
-            index-servers =
-              lefthook
-
-          [lefthook]
-            repository = https://upload.pypi.org/legacy/
-            username = __token__
-            password = ${PYPI_API_KEY}
-          EOF
-          chmod 0600 ~/.pypirc
           cd packaging/
           ruby pack.rb prepare
           ruby pack.rb publish_pypi
