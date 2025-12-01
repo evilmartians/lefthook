@@ -5,6 +5,7 @@ type Job struct {
 	Run      string `json:"run,omitempty"       jsonschema:"oneof_required=Run a command" mapstructure:"run"       toml:"run,omitempty"       yaml:",omitempty"`
 	Script   string `json:"script,omitempty"    jsonschema:"oneof_required=Run a script"  mapstructure:"script"    toml:"script,omitempty"    yaml:",omitempty"`
 	Runner   string `json:"runner,omitempty"    mapstructure:"runner"                     toml:"runner,omitempty"  yaml:",omitempty"`
+	Args     string `json:"args,omitempty"    mapstructure:"args" toml:"args,omitempty" yaml:",omitempty"`
 	Root     string `json:"root,omitempty"      mapstructure:"root"                       toml:"root,omitempty"    yaml:",omitempty"`
 	Files    string `json:"files,omitempty"     mapstructure:"files"                      toml:"files,omitempty"   yaml:",omitempty"`
 	FailText string `json:"fail_text,omitempty" koanf:"fail_text"                         mapstructure:"fail_text" toml:"fail_text,omitempty" yaml:"fail_text,omitempty"`

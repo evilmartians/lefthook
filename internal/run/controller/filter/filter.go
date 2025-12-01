@@ -1,4 +1,4 @@
-package filters
+package filter
 
 import (
 	"errors"
@@ -40,7 +40,17 @@ type Params struct {
 	GlobMatcher  string
 }
 
-func Apply(fs afero.Fs, files []string, params Params) []string {
+type Filter struct {
+	Params
+
+	fs afero.Fs
+}
+
+func New(fs afero.Fs, params Params) *Filter {
+	return &Filter{fs: fs, Params: params}
+}
+
+func (f *Filter) Apply(files []string) []string {
 	if len(files) == 0 {
 		return nil
 	}
@@ -48,10 +58,10 @@ func Apply(fs afero.Fs, files []string, params Params) []string {
 	b := log.Builder(log.DebugLevel, "[lefthook] ").
 		Add("filtered [ ]: ", files)
 
-	files = byGlob(files, params.Glob, params.GlobMatcher)
-	files = byExclude(files, params.ExcludeFiles, params.GlobMatcher)
-	files = byRoot(files, params.Root)
-	files = byType(fs, files, params.FileTypes)
+	files = byGlob(files, f.Params.Glob, f.Params.GlobMatcher)
+	files = byExclude(files, f.Params.ExcludeFiles, f.Params.GlobMatcher)
+	files = byRoot(files, f.Params.Root)
+	files = byType(f.fs, files, f.Params.FileTypes)
 
 	b.Add("filtered [x]: ", files).
 		Log()
