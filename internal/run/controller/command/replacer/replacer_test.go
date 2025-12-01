@@ -1,10 +1,12 @@
-package command
+package replacer
 
 import (
 	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/evilmartians/lefthook/v2/internal/config"
 )
 
 func Test_getNChars(t *testing.T) {
@@ -65,22 +67,22 @@ func Test_getNChars(t *testing.T) {
 	}
 }
 
-func Test_replaceInChunks(t *testing.T) {
+func Test_ReplaceAndSplit(t *testing.T) {
 	type result struct {
 		commands []string
 		files    []string
 	}
 	for i, tt := range [...]struct {
-		str       string
-		templates map[string]*filesTemplate
-		maxlen    int
-		result    result
+		command string
+		maxlen  int
+		cache   map[string]*entry
+		result  result
 	}{
 		{
-			str: "echo {staged_files}",
-			templates: map[string]*filesTemplate{
+			command: "echo {staged_files}",
+			cache: map[string]*entry{
 				"{staged_files}": {
-					files: []string{"file1", "file2", "file3"},
+					items: []string{"file1", "file2", "file3"},
 					cnt:   1,
 				},
 			},
@@ -91,10 +93,10 @@ func Test_replaceInChunks(t *testing.T) {
 			},
 		},
 		{
-			str: "echo {staged_files}",
-			templates: map[string]*filesTemplate{
+			command: "echo {staged_files}",
+			cache: map[string]*entry{
 				"{staged_files}": {
-					files: []string{"file1", "file2", "file3"},
+					items: []string{"file1", "file2", "file3"},
 					cnt:   1,
 				},
 			},
@@ -109,10 +111,10 @@ func Test_replaceInChunks(t *testing.T) {
 			},
 		},
 		{
-			str: "echo {files} && git add {files}",
-			templates: map[string]*filesTemplate{
+			command: "echo {files} && git add {files}",
+			cache: map[string]*entry{
 				"{files}": {
-					files: []string{"file1", "file2", "file3"},
+					items: []string{"file1", "file2", "file3"},
 					cnt:   2,
 				},
 			},
@@ -126,10 +128,10 @@ func Test_replaceInChunks(t *testing.T) {
 			},
 		},
 		{
-			str: "echo {files} && git add {files}",
-			templates: map[string]*filesTemplate{
+			command: "echo {files} && git add {files}",
+			cache: map[string]*entry{
 				"{files}": {
-					files: []string{"file1", "file2", "file3"},
+					items: []string{"file1", "file2", "file3"},
 					cnt:   2,
 				},
 			},
@@ -142,14 +144,14 @@ func Test_replaceInChunks(t *testing.T) {
 			},
 		},
 		{
-			str: "echo {push_files} && git add {files}",
-			templates: map[string]*filesTemplate{
+			command: "echo {push_files} && git add {files}",
+			cache: map[string]*entry{
 				"{push_files}": {
-					files: []string{"push-file"},
+					items: []string{"push-file"},
 					cnt:   1,
 				},
 				"{files}": {
-					files: []string{"file1", "file2"},
+					items: []string{"file1", "file2"},
 					cnt:   1,
 				},
 			},
@@ -163,14 +165,14 @@ func Test_replaceInChunks(t *testing.T) {
 			},
 		},
 		{
-			str: "echo {push_files} && git add {files}",
-			templates: map[string]*filesTemplate{
+			command: "echo {push_files} && git add {files}",
+			cache: map[string]*entry{
 				"{push_files}": {
-					files: []string{"push1", "push2", "push3"},
+					items: []string{"push1", "push2", "push3"},
 					cnt:   1,
 				},
 				"{files}": {
-					files: []string{"file1", "file2"},
+					items: []string{"file1", "file2"},
 					cnt:   1,
 				},
 			},
@@ -187,7 +189,16 @@ func Test_replaceInChunks(t *testing.T) {
 	} {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			assert := assert.New(t)
-			commands, files := replaceInChunks(tt.str, tt.templates, tt.maxlen)
+			r := Replacer{
+				cache: tt.cache,
+				files: map[string]func() ([]string, error){
+					config.SubStagedFiles: func() ([]string, error) { return nil, nil },
+					config.SubPushFiles:   func() ([]string, error) { return nil, nil },
+					config.SubAllFiles:    func() ([]string, error) { return nil, nil },
+					config.SubFiles:       func() ([]string, error) { return nil, nil },
+				},
+			}
+			commands, files := r.ReplaceAndSplit(tt.command, tt.maxlen)
 
 			assert.ElementsMatch(files, tt.result.files)
 			assert.Equal(commands, tt.result.commands)

@@ -245,6 +245,9 @@
         "runner": {
           "type": "string"
         },
+        "args": {
+          "type": "string"
+        },
         "root": {
           "type": "string"
         },
@@ -374,6 +377,9 @@
         "runner": {
           "type": "string"
         },
+        "args": {
+          "type": "string"
+        },
         "skip": {
           "oneOf": [
             {
@@ -433,7 +439,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2025.11.13.",
+  "$comment": "Last updated on 2025.12.01.",
   "properties": {
     "min_version": {
       "type": "string",

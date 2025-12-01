@@ -1,39 +1,38 @@
-package command
+package replacer
 
 import (
 	"fmt"
+	"regexp"
 	"runtime"
 	"strings"
 
 	"github.com/alessio/shellescape"
+
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/git"
 	"github.com/evilmartians/lefthook/v2/internal/log"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/filter"
-	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
-// 1. Cache and remember how many entries each template has
-// 2. Calculate the string length based on N and each item length
-// 3. Split the command into multiple different if too long
+var surroundingQuotesRegexp = regexp.MustCompile(`^'(.*)'$`)
 
 type entry struct {
 	items []string
 	cnt   int
 }
 
-type patterns struct {
+type Replacer struct {
 	cache     map[string]*entry
 	files     map[string]func() ([]string, error)
 	templates map[string]string
 }
 
-func newPatterns(
+func New(
 	git *git.Repository,
 	root string,
 	filesCmd string,
 	templates map[string]string,
-) patterns {
+) Replacer {
 	var (
 		staged = git.StagedFiles
 		push   = git.PushFiles
@@ -49,7 +48,7 @@ func newPatterns(
 		}
 	)
 
-	return patterns{
+	return Replacer{
 		cache: make(map[string]*entry),
 		files: map[string]func() ([]string, error){
 			config.SubStagedFiles: staged,
@@ -61,10 +60,10 @@ func newPatterns(
 	}
 }
 
-func newMockedPatterns(files []string, templates map[string]string) patterns {
+func NewMocked(files []string, templates map[string]string) Replacer {
 	forceFilesFn := func() ([]string, error) { return files, nil }
 
-	return patterns{
+	return Replacer{
 		cache: make(map[string]*entry),
 		files: map[string]func() ([]string, error){
 			config.SubStagedFiles: forceFilesFn,
@@ -77,8 +76,8 @@ func newMockedPatterns(files []string, templates map[string]string) patterns {
 }
 
 // Discover finds patterns in `source` and caches the results.
-func (p patterns) Discover(source string, filter *filter.Filter) error {
-	for template, fn := range p.files {
+func (r Replacer) Discover(source string, filter *filter.Filter) error {
+	for template, fn := range r.files {
 		cnt := strings.Count(source, template)
 		if cnt == 0 {
 			continue
@@ -91,33 +90,33 @@ func (p patterns) Discover(source string, filter *filter.Filter) error {
 
 		files = filter.Apply(files)
 
-		p.cache[template] = &entry{items: files, cnt: cnt}
+		r.cache[template] = &entry{items: files, cnt: cnt}
 	}
 
-	for template, replacement := range p.templates {
+	for template, replacement := range r.templates {
 		cnt := strings.Count(source, template)
 		if cnt == 0 {
 			continue
 		}
 
-		p.cache[template] = &entry{items: []string{replacement}, cnt: cnt}
+		r.cache[template] = &entry{items: []string{replacement}, cnt: cnt}
 	}
 
 	return nil
 }
 
-func (p patterns) Empty(key string) bool {
-	_, ok := p.cache[key]
+func (r Replacer) Empty(key string) bool {
+	_, ok := r.cache[key]
 	return !ok
 }
 
-func (p patterns) Files(template string, filter *filter.Filter) ([]string, error) {
-	entry, ok := p.cache[template]
+func (r Replacer) Files(template string, filter *filter.Filter) ([]string, error) {
+	entry, ok := r.cache[template]
 	if ok {
 		return entry.items, nil
 	}
 
-	fn, ok := p.files[template]
+	fn, ok := r.files[template]
 	if !ok {
 		panic("filtering: no such files template: " + template)
 	}
@@ -130,23 +129,25 @@ func (p patterns) Files(template string, filter *filter.Filter) ([]string, error
 	return filter.Apply(files), nil
 }
 
-func (p patterns) ReplaceAndSplit(command string) ([]string, []string) {
-	maxlen := system.MaxCmdLen()
-	if len(p.cache) == 0 {
+func (r Replacer) ReplaceAndSplit(command string, maxlen int) ([]string, []string) {
+	if len(r.cache) == 0 {
 		return []string{command}, nil
 	}
 
 	var cnt int
 
 	allFiles := make([]string, 0)
-	for template, entry := range p.cache {
+	for template, entry := range r.cache {
 		if entry.cnt == 0 {
 			continue
 		}
 
 		cnt += entry.cnt
 		maxlen += entry.cnt * len(template)
-		allFiles = append(allFiles, entry.items...)
+		if _, ok := r.files[template]; ok {
+			allFiles = append(allFiles, entry.items...)
+		}
+
 		entry.items = escapeFiles(entry.items)
 	}
 
@@ -160,7 +161,7 @@ func (p patterns) ReplaceAndSplit(command string) ([]string, []string) {
 	commands := make([]string, 0)
 	for {
 		result := command
-		for template, entry := range p.cache {
+		for template, entry := range r.cache {
 			added, rest := getNChars(entry.items, maxlen)
 			if len(rest) == 0 {
 				exhausted += 1
@@ -172,7 +173,7 @@ func (p patterns) ReplaceAndSplit(command string) ([]string, []string) {
 
 		log.Debug("[lefthook] job: ", result)
 		commands = append(commands, result)
-		if exhausted >= len(p.cache) {
+		if exhausted >= len(r.cache) {
 			break
 		}
 	}

@@ -58,10 +58,10 @@ func (f *Filter) Apply(files []string) []string {
 	b := log.Builder(log.DebugLevel, "[lefthook] ").
 		Add("filtered [ ]: ", files)
 
-	files = byGlob(files, f.Params.Glob, f.Params.GlobMatcher)
-	files = byExclude(files, f.Params.ExcludeFiles, f.Params.GlobMatcher)
-	files = byRoot(files, f.Params.Root)
-	files = byType(f.fs, files, f.Params.FileTypes)
+	files = byGlob(files, f.Glob, f.GlobMatcher)
+	files = byExclude(files, f.ExcludeFiles, f.GlobMatcher)
+	files = byRoot(files, f.Root)
+	files = byType(f.fs, files, f.FileTypes)
 
 	b.Add("filtered [x]: ", files).
 		Log()

@@ -9,6 +9,9 @@ import (
 	"github.com/alessio/shellescape"
 
 	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/run/controller/command/replacer"
+	"github.com/evilmartians/lefthook/v2/internal/run/controller/filter"
+	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
 const (
@@ -27,6 +30,23 @@ func (s scriptNotExistsError) Error() string {
 func (b *Builder) buildScript(params *JobParams) ([]string, []string, error) {
 	if err := params.validateScript(); err != nil {
 		return nil, nil, err
+	}
+
+	var replacer replacer.Replacer
+	if len(params.Args) > 0 {
+		replacer = b.buildReplacer(params)
+		// TODO(mrexox): Duplicate filter creation is not fancy
+		filter := filter.New(b.git.Fs, filter.Params{
+			Glob:         params.Glob,
+			ExcludeFiles: params.ExcludeFiles,
+			Root:         params.Root,
+			FileTypes:    params.FileTypes,
+			GlobMatcher:  b.opts.GlobMatcher,
+		})
+		err := replacer.Discover(params.Args, filter)
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 
 	var scriptExists bool
@@ -64,9 +84,15 @@ func (b *Builder) buildScript(params *JobParams) ([]string, []string, error) {
 		}
 
 		args = append(args, shellescape.Quote(scriptPath))
-		args = append(args, b.opts.GitArgs...)
-
-		execs = append(execs, strings.Join(args, " "))
+		if len(params.Args) > 0 {
+			args = append(args, params.Args)
+			command := strings.Join(args, " ")
+			commands, _ := replacer.ReplaceAndSplit(command, system.MaxCmdLen())
+			execs = append(execs, commands...)
+		} else {
+			args = append(args, b.opts.GitArgs...)
+			execs = append(execs, strings.Join(args, " "))
+		}
 	}
 
 	if !scriptExists {

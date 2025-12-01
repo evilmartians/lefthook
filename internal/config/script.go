@@ -10,7 +10,7 @@ import (
 
 type Script struct {
 	Runner string `json:"runner,omitempty" mapstructure:"runner" toml:"runner,omitempty" yaml:"runner,omitempty"`
-	Args   string `json:"args,omitempty"    mapstructure:"args" toml:"args,omitempty" yaml:",omitempty"`
+	Args   string `json:"args,omitempty"   mapstructure:"args"   toml:"args,omitempty"   yaml:",omitempty"`
 
 	Skip     any               `json:"skip,omitempty"     jsonschema:"oneof_type=boolean;array" mapstructure:"skip"       toml:"skip,omitempty,inline" yaml:",omitempty"`
 	Only     any               `json:"only,omitempty"     jsonschema:"oneof_type=boolean;array" mapstructure:"only"       toml:"only,omitempty,inline" yaml:",omitempty"`
