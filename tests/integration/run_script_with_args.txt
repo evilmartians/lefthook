@@ -1,0 +1,23 @@
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+exec lefthook install
+exec git commit -m 'test'
+stderr '\s*Args: lefthook.yml\s*'
+
+-- lefthook.yml --
+output:
+  - execution_out
+
+pre-commit:
+  jobs:
+    - script: file.sh
+      runner: sh
+      args: "{files}"
+      files: echo lefthook.yml
+
+-- .lefthook/pre-commit/file.sh --
+#!/usr/bin/env sh
+
+echo "Args: $@"

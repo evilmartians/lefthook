@@ -10,7 +10,6 @@ import (
 
 	"github.com/evilmartians/lefthook/v2/internal/log"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/command/replacer"
-	"github.com/evilmartians/lefthook/v2/internal/run/controller/filter"
 	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
@@ -35,14 +34,7 @@ func (b *Builder) buildScript(params *JobParams) ([]string, []string, error) {
 	var replacer replacer.Replacer
 	if len(params.Args) > 0 {
 		replacer = b.buildReplacer(params)
-		// TODO(mrexox): Duplicate filter creation is not fancy
-		filter := filter.New(b.git.Fs, filter.Params{
-			Glob:         params.Glob,
-			ExcludeFiles: params.ExcludeFiles,
-			Root:         params.Root,
-			FileTypes:    params.FileTypes,
-			GlobMatcher:  b.opts.GlobMatcher,
-		})
+		filter := b.buildFilter(params)
 		err := replacer.Discover(params.Args, filter)
 		if err != nil {
 			return nil, nil, err

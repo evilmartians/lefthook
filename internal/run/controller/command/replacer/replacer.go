@@ -61,7 +61,7 @@ func New(
 }
 
 func NewMocked(files []string, templates map[string]string) Replacer {
-	forceFilesFn := func() ([]string, error) { return files, nil }
+	forceFilesFn := func() ([]string, error) { return files, nil } //nolint:unparam
 
 	return Replacer{
 		cache: make(map[string]*entry),

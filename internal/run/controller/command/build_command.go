@@ -1,7 +1,6 @@
 package command
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -18,15 +17,8 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 		return nil, nil, err
 	}
 
-	// TODO(mrexox): Port this logic to buildScript and add tests
 	replacer := b.buildReplacer(params)
-	filter := filter.New(b.git.Fs, filter.Params{
-		Glob:         params.Glob,
-		ExcludeFiles: params.ExcludeFiles,
-		Root:         params.Root,
-		FileTypes:    params.FileTypes,
-		GlobMatcher:  b.opts.GlobMatcher,
-	})
+	filter := b.buildFilter(params)
 
 	command := strings.Join([]string{params.Run, params.Args}, " ")
 	err := replacer.Discover(command, filter)
@@ -55,6 +47,7 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 	}
 
 	// Skip if no files were staged (including deleted)
+	//nolint:nestif
 	if config.HookUsesStagedFiles(b.opts.HookName) {
 		files, err := replacer.Files(config.SubStagedFiles, filter)
 		if err != nil {
@@ -88,14 +81,7 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 	return commands, replacedFiles, nil
 }
 
-func replacePositionalArguments(str string, args []string) string {
-	str = strings.ReplaceAll(str, "{0}", strings.Join(args, " "))
-	for i, arg := range args {
-		str = strings.ReplaceAll(str, fmt.Sprintf("{%d}", i+1), arg)
-	}
-	return str
-}
-
+// buildReplacer creates the replacer with all supported templates for files and arguments.
 func (b *Builder) buildReplacer(params *JobParams) replacer.Replacer {
 	predefined := make(map[string]string)
 	predefined["{0}"] = strings.Join(b.opts.GitArgs, " ")
@@ -112,4 +98,14 @@ func (b *Builder) buildReplacer(params *JobParams) replacer.Replacer {
 	}
 
 	return replacer.New(b.git, params.Root, params.FilesCmd, predefined)
+}
+
+func (b *Builder) buildFilter(params *JobParams) *filter.Filter {
+	return filter.New(b.git.Fs, filter.Params{
+		Glob:         params.Glob,
+		ExcludeFiles: params.ExcludeFiles,
+		Root:         params.Root,
+		FileTypes:    params.FileTypes,
+		GlobMatcher:  b.opts.GlobMatcher,
+	})
 }
