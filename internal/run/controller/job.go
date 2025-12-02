@@ -13,7 +13,7 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/log"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/command"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/exec"
-	"github.com/evilmartians/lefthook/v2/internal/run/controller/filters"
+	"github.com/evilmartians/lefthook/v2/internal/run/controller/filter"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/utils"
 	"github.com/evilmartians/lefthook/v2/internal/run/result"
 	"github.com/evilmartians/lefthook/v2/internal/system"
@@ -105,6 +105,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 		Name:         name,
 		Run:          job.Run,
 		Runner:       job.Runner,
+		Args:         job.Args,
 		Script:       job.Script,
 		Only:         job.Only,
 		Skip:         job.Skip,
@@ -151,13 +152,13 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 				return result.Success(name, executionTime)
 			}
 
-			files = filters.Apply(c.git.Fs, files, filters.Params{
+			files = filter.New(c.git.Fs, filter.Params{
 				Glob:         scope.glob,
 				Root:         scope.root,
 				ExcludeFiles: scope.excludeFiles,
 				FileTypes:    scope.fileTypes,
 				GlobMatcher:  scope.opts.GlobMatcher,
-			})
+			}).Apply(files)
 		}
 
 		if len(scope.root) > 0 {

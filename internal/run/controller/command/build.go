@@ -10,6 +10,7 @@ type JobParams struct {
 	Run          string
 	Root         string
 	Runner       string
+	Args         string
 	Script       string
 	FilesCmd     string
 	FileTypes    []string

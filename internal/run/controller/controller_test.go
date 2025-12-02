@@ -511,7 +511,6 @@ func TestRunAll(t *testing.T) {
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
-				"git diff --name-only --cached --diff-filter=ACMR",
 				"git add --force .*script.sh.*README.md",
 				"git add --force .*script.sh.*README.md",
 			},
@@ -537,9 +536,9 @@ func TestRunAll(t *testing.T) {
 			success: []result.Result{succeeded("ok")},
 			gitCommands: []string{
 				"git status --short",
-				"git diff --name-only --cached --diff-filter=ACMRD",
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git add --force .*README.md",
+				"git diff --name-only --cached --diff-filter=ACMRD",
 			},
 		},
 		"with pre-commit skip but forced": {
@@ -586,7 +585,6 @@ func TestRunAll(t *testing.T) {
 			success: []result.Result{succeeded("ok")},
 			gitCommands: []string{
 				"git status --short",
-				"git diff --name-only --cached --diff-filter=ACMR",
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git add --force .*scripts.*script.sh",
 			},

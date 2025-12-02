@@ -10,6 +10,7 @@ import (
 
 type Script struct {
 	Runner string `json:"runner,omitempty" mapstructure:"runner" toml:"runner,omitempty" yaml:"runner,omitempty"`
+	Args   string `json:"args,omitempty"   mapstructure:"args"   toml:"args,omitempty"   yaml:",omitempty"`
 
 	Skip     any               `json:"skip,omitempty"     jsonschema:"oneof_type=boolean;array" mapstructure:"skip"       toml:"skip,omitempty,inline" yaml:",omitempty"`
 	Only     any               `json:"only,omitempty"     jsonschema:"oneof_type=boolean;array" mapstructure:"only"       toml:"only,omitempty,inline" yaml:",omitempty"`
@@ -30,6 +31,7 @@ func ScriptsToJobs(scripts map[string]*Script) []*Job {
 			Name:        name,
 			Script:      name,
 			Runner:      script.Runner,
+			Args:        script.Args,
 			FailText:    script.FailText,
 			Tags:        script.Tags,
 			Env:         script.Env,
