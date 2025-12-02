@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Configuration - Lefthook Documentation</title>
+        <title>args - Lefthook Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -155,140 +155,39 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="config-file-name"><a class="header" href="#config-file-name">Config file name</a></h2>
-<p>Lefthook supports the following file names for the main config:</p>
-<div class="table-wrapper"><table><thead><tr><th>Format</th><th>File name</th></tr></thead><tbody>
-<tr><td>YAML</td><td><code>lefthook.yml</code></td></tr>
-<tr><td>YAML</td><td><code>.lefthook.yml</code></td></tr>
-<tr><td>YAML</td><td><code>.config/lefthook.yml</code></td></tr>
-<tr><td></td><td></td></tr>
-<tr><td>YAML</td><td><code>lefthook.yaml</code></td></tr>
-<tr><td>YAML</td><td><code>.lefthook.yaml</code></td></tr>
-<tr><td>YAML</td><td><code>.config/lefthook.yaml</code></td></tr>
-<tr><td></td><td></td></tr>
-<tr><td>TOML</td><td><code>lefthook.toml</code></td></tr>
-<tr><td>TOML</td><td><code>.lefthook.toml</code></td></tr>
-<tr><td>TOML</td><td><code>.config/lefthook.toml</code></td></tr>
-<tr><td></td><td></td></tr>
-<tr><td>JSON</td><td><code>lefthook.json</code></td></tr>
-<tr><td>JSON</td><td><code>.lefthook.json</code></td></tr>
-<tr><td>JSON</td><td><code>.config/lefthook.json</code></td></tr>
-</tbody></table>
-</div>
-<p>If there are more than 1 file in the project, only one will be used, and you'll never know which one. So, please, use one format in a project.</p>
-<p>Filenames without the leading dot will also be looked up from the <a href="https://github.com/pi0/config-dir"><code>.config</code> subdirectory</a>.</p>
-<p>Lefthook also merges an extra config with the name <code>lefthook-local</code>. All supported formats can be applied to this <code>-local</code> config. If you name your main config with the leading dot, like <code>.lefthook.json</code>, the <code>-local</code> config also must be named with the leading dot: <code>.lefthook-local.json</code>.</p>
-<p>The <code>-local</code> config can be used without a main config file. This is useful when you want to use lefthook locally without imposing it on your teammates – just create a <code>lefthook-local.yml</code> file and add it to your global <code>.gitignore</code>.</p>
-<h2 id="options"><a class="header" href="#options">Options</a></h2>
-<ul>
-<li><a href="./assert_lefthook_installed.html"><code>assert_lefthook_installed</code></a></li>
-<li><a href="./colors.html"><code>colors</code></a></li>
-<li><a href="./extends.html"><code>extends</code></a></li>
-<li><a href="./lefthook.html"><code>lefthook</code></a></li>
-<li><a href="./min_version.html"><code>min_version</code></a></li>
-<li><a href="./no_tty.html"><code>no_tty</code></a></li>
-<li><a href="./output.html"><code>output</code></a></li>
-<li><a href="./rc.html"><code>rc</code></a></li>
-<li><a href="./remotes.html"><code>remotes</code></a>
-<ul>
-<li><a href="./git_url.html"><code>git_url</code></a></li>
-<li><a href="./ref.html"><code>ref</code></a></li>
-<li><a href="./refetch.html"><code>refetch</code></a></li>
-<li><a href="./refetch_frequency.html"><code>refetch_frequency</code></a></li>
-<li><a href="./configs.html"><code>configs</code></a></li>
-</ul>
-</li>
-<li><a href="./source_dir.html"><code>source_dir</code></a></li>
-<li><a href="./source_dir_local.html"><code>source_dir_local</code></a></li>
-<li><a href="./skip_lfs.html"><code>skip_lfs</code></a></li>
-<li><a href="./templates.html"><code>templates</code></a></li>
-<li><a href="./Hook.html">{Git hook name}</a> (e.g. <code>pre-commit</code>)
-<ul>
-<li><a href="./files-global.html"><code>files</code> (global)</a></li>
-<li><a href="./parallel.html"><code>parallel</code></a></li>
-<li><a href="./piped.html"><code>piped</code></a></li>
-<li><a href="./follow.html"><code>follow</code></a></li>
-<li><a href="./fail_on_changes.html"><code>fail_on_changes</code></a></li>
-<li><a href="./exclude_tags.html"><code>exclude_tags</code></a></li>
-<li><a href="./exclude.html"><code>exclude</code></a></li>
-<li><a href="./skip.html"><code>skip</code></a></li>
-<li><a href="./only.html"><code>only</code></a></li>
-<li><a href="./jobs.html"><code>jobs</code></a>
-<ul>
-<li><a href="./name.html"><code>name</code></a></li>
-<li><a href="./run.html"><code>run</code></a></li>
-<li><a href="./script.html"><code>script</code></a></li>
-<li><a href="./runner.html"><code>runner</code></a></li>
-<li><a href="./args.html"><code>args</code></a></li>
-<li><a href="./group.html"><code>group</code></a>
-<ul>
-<li><a href="./parallel.html"><code>parallel</code></a></li>
-<li><a href="./piped.html"><code>piped</code></a></li>
-<li><a href="./jobs.html"><code>jobs</code></a></li>
-</ul>
-</li>
-<li><a href="./skip.html"><code>skip</code></a></li>
-<li><a href="./only.html"><code>only</code></a></li>
-<li><a href="./tags.html"><code>tags</code></a></li>
-<li><a href="./glob.html"><code>glob</code></a></li>
-<li><a href="./files.html"><code>files</code></a></li>
-<li><a href="./file_types.html"><code>file_types</code></a></li>
-<li><a href="./env.html"><code>env</code></a></li>
-<li><a href="./root.html"><code>root</code></a></li>
-<li><a href="./exclude.html"><code>exclude</code></a></li>
-<li><a href="./fail_text.html"><code>fail_text</code></a></li>
-<li><a href="./stage_fixed.html"><code>stage_fixed</code></a></li>
-<li><a href="./interactive.html"><code>interactive</code></a></li>
-<li><a href="./use_stdin.html"><code>use_stdin</code></a></li>
-</ul>
-</li>
-<li><a href="./Commands.html"><code>commands</code></a>
-<ul>
-<li><a href="./run.html"><code>run</code></a></li>
-<li><a href="./skip.html"><code>skip</code></a></li>
-<li><a href="./only.html"><code>only</code></a></li>
-<li><a href="./tags.html"><code>tags</code></a></li>
-<li><a href="./glob.html"><code>glob</code></a></li>
-<li><a href="./files.html"><code>files</code></a></li>
-<li><a href="./file_types.html"><code>file_types</code></a></li>
-<li><a href="./env.html"><code>env</code></a></li>
-<li><a href="./root.html"><code>root</code></a></li>
-<li><a href="./exclude.html"><code>exclude</code></a></li>
-<li><a href="./fail_text.html"><code>fail_text</code></a></li>
-<li><a href="./stage_fixed.html"><code>stage_fixed</code></a></li>
-<li><a href="./interactive.html"><code>interactive</code></a></li>
-<li><a href="./use_stdin.html"><code>use_stdin</code></a></li>
-<li><a href="./priority.html"><code>priority</code></a></li>
-</ul>
-</li>
-<li><a href="./Scripts.html"><code>scripts</code></a>
-<ul>
-<li><a href="./runner.html"><code>runner</code></a></li>
-<li><a href="./args.html"><code>args</code></a></li>
-<li><a href="./skip.html"><code>skip</code></a></li>
-<li><a href="./only.html"><code>only</code></a></li>
-<li><a href="./tags.html"><code>tags</code></a></li>
-<li><a href="./env.html"><code>env</code></a></li>
-<li><a href="./fail_text.html"><code>fail_text</code></a></li>
-<li><a href="./stage_fixed.html"><code>stage_fixed</code></a></li>
-<li><a href="./interactive.html"><code>interactive</code></a></li>
-<li><a href="./use_stdin.html"><code>use_stdin</code></a></li>
-<li><a href="./priority.html"><code>priority</code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
+                        <h2 id="args"><a class="header" href="#args"><code>args</code></a></h2>
+<blockquote>
+<p>Support added in lefthook version <code>2.0.5</code></p>
+</blockquote>
+<p>Sometimes you want to pass arguments to the scripts or be able to overwrite arguments to the commands in <code>lefthook-local.yml</code>. For this you can use <code>args</code> option which will simply be appended to the command. You can use the same templates as in <a href="./run.html"><code>run</code></a>.</p>
+<p>Arguments passed by Git will be omitted if you specify <code>args</code> in the config. Providing no <code>args</code> or providing <code>args: "{0}"</code> works the same way.</p>
+<p>See <a href="./run.html"><code>run</code></a> for supported templates.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  jobs:
+    - script: check-python-files.sh
+      runner: bash
+      args: "{staged_files}"
+      glob: "*.py"
+
+    - run: yarn lint
+      args: "{staged_files}"
+      glob:
+        - "*.ts"
+        - "*.js"
+</code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../usage/features/pass-stdin.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../configuration/runner.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../configuration/assert_lefthook_installed.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../configuration/group.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -298,11 +197,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../usage/features/pass-stdin.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../configuration/runner.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../configuration/assert_lefthook_installed.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../configuration/group.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

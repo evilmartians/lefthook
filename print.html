@@ -690,6 +690,7 @@ SHA1=$3
 <li><a href="configuration/./run.html"><code>run</code></a></li>
 <li><a href="configuration/./script.html"><code>script</code></a></li>
 <li><a href="configuration/./runner.html"><code>runner</code></a></li>
+<li><a href="configuration/./args.html"><code>args</code></a></li>
 <li><a href="configuration/./group.html"><code>group</code></a>
 <ul>
 <li><a href="configuration/./parallel.html"><code>parallel</code></a></li>
@@ -734,6 +735,7 @@ SHA1=$3
 <li><a href="configuration/./Scripts.html"><code>scripts</code></a>
 <ul>
 <li><a href="configuration/./runner.html"><code>runner</code></a></li>
+<li><a href="configuration/./args.html"><code>args</code></a></li>
 <li><a href="configuration/./skip.html"><code>skip</code></a></li>
 <li><a href="configuration/./only.html"><code>only</code></a></li>
 <li><a href="configuration/./tags.html"><code>tags</code></a></li>
@@ -1628,7 +1630,7 @@ pre-commit:
 <li><code>{all_files}</code> - all files tracked by git.</li>
 <li><code>{cmd}</code> - shorthand for the command from <code>lefthook.yml</code>.</li>
 <li><code>{0}</code> - shorthand for the single space-joint string of git hook arguments.</li>
-<li><code>{N}</code> - shorthand for the N-th git hook argument.</li>
+<li><code>{1}</code> - shorthand for the 1-st git hook argument (and so on for <code>{2}</code>, <code>{3}</code>, etc.)</li>
 <li><code>{lefthook_job_name}</code> - current job/command/script name</li>
 </ul>
 <blockquote>
@@ -1783,6 +1785,29 @@ pre-commit:
       runner: node
     "check.go":
       runner: go run
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="args"><a class="header" href="#args"><code>args</code></a></h2>
+<blockquote>
+<p>Support added in lefthook version <code>2.0.5</code></p>
+</blockquote>
+<p>Sometimes you want to pass arguments to the scripts or be able to overwrite arguments to the commands in <code>lefthook-local.yml</code>. For this you can use <code>args</code> option which will simply be appended to the command. You can use the same templates as in <a href="configuration/./run.html"><code>run</code></a>.</p>
+<p>Arguments passed by Git will be omitted if you specify <code>args</code> in the config. Providing no <code>args</code> or providing <code>args: "{0}"</code> works the same way.</p>
+<p>See <a href="configuration/./run.html"><code>run</code></a> for supported templates.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  jobs:
+    - script: check-python-files.sh
+      runner: bash
+      args: "{staged_files}"
+      glob: "*.py"
+
+    - run: yarn lint
+      args: "{staged_files}"
+      glob:
+        - "*.ts"
+        - "*.js"
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="group"><a class="header" href="#group"><code>group</code></a></h2>
 <p>You can define a group of jobs and configure how they should execute using the following options:</p>
@@ -2454,7 +2479,7 @@ pre-commit:
 <li><code>{all_files}</code> - all files tracked by git.</li>
 <li><code>{cmd}</code> - shorthand for the command from <code>lefthook.yml</code>.</li>
 <li><code>{0}</code> - shorthand for the single space-joint string of git hook arguments.</li>
-<li><code>{N}</code> - shorthand for the N-th git hook argument.</li>
+<li><code>{1}</code> - shorthand for the 1-st git hook argument (and so on for <code>{2}</code>, <code>{3}</code>, etc.)</li>
 <li><code>{lefthook_job_name}</code> - current job/command/script name</li>
 </ul>
 <blockquote>
@@ -3148,6 +3173,29 @@ pre-commit:
       runner: node
     "check.go":
       runner: go run
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="args-1"><a class="header" href="#args-1"><code>args</code></a></h2>
+<blockquote>
+<p>Support added in lefthook version <code>2.0.5</code></p>
+</blockquote>
+<p>Sometimes you want to pass arguments to the scripts or be able to overwrite arguments to the commands in <code>lefthook-local.yml</code>. For this you can use <code>args</code> option which will simply be appended to the command. You can use the same templates as in <a href="configuration/./run.html"><code>run</code></a>.</p>
+<p>Arguments passed by Git will be omitted if you specify <code>args</code> in the config. Providing no <code>args</code> or providing <code>args: "{0}"</code> works the same way.</p>
+<p>See <a href="configuration/./run.html"><code>run</code></a> for supported templates.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-yml"># lefthook.yml
+
+pre-commit:
+  jobs:
+    - script: check-python-files.sh
+      runner: bash
+      args: "{staged_files}"
+      glob: "*.py"
+
+    - run: yarn lint
+      args: "{staged_files}"
+      glob:
+        - "*.ts"
+        - "*.js"
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="skip-3"><a class="header" href="#skip-3"><code>skip</code></a></h2>
 <p>You can skip all or specific commands and scripts using <code>skip</code> option. You can also skip when merging, rebasing, or being on a specific branch. Globs are available for branches.</p>
