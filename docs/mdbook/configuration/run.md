@@ -10,7 +10,7 @@ You can use files templates that will be substituted with the appropriate files 
 - `{all_files}` - all files tracked by git.
 - `{cmd}` - shorthand for the command from `lefthook.yml`.
 - `{0}` - shorthand for the single space-joint string of git hook arguments.
-- `{N}` - shorthand for the N-th git hook argument.
+- `{1}` - shorthand for the 1-st git hook argument (and so on for `{2}`, `{3}`, etc.)
 - `{lefthook_job_name}` - current job/command/script name
 
 > **Note:** Command line length has a limit on every system. If your list of files is quite long, lefthook splits your files list to fit in the limit and runs few commands sequentially.
