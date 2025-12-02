@@ -1,5 +1,12 @@
 # Change log
 
+## 2.0.5 (2025-12-02)
+
+- feat: add optional args to scripts ([#1206](https://github.com/evilmartians/lefthook/pull/1206)) by [@mrexox]()
+- deps: November 2025 ([#1200](https://github.com/evilmartians/lefthook/pull/1200)) by [@mrexox]()
+- chore: upgrade golangci-lint to 2.6.1, add modernize ([#1190](https://github.com/evilmartians/lefthook/pull/1190)) by [@scop]()
+- chore: publish artifact attestations ([#1189](https://github.com/evilmartians/lefthook/pull/1189)) by [@scop]()
+
 ## 2.0.4 (2025-11-13)
 
 - fix: glob_matcher jsonschema values
@@ -1046,3 +1053,4 @@ gem 'lefthook'
 [@siler]: https://github.com/siler
 [@technicalpickles]: https://github.com/technicalpickles
 [@jasonwbarnett]: https://github.com/jasonwbarnett
+[@scop]: https://github.com/scop
