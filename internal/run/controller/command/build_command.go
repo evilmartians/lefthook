@@ -19,11 +19,6 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 	}
 
 	// TODO(mrexox): Port this logic to buildScript and add tests
-	filesCmd := params.FilesCmd
-	if len(filesCmd) > 0 {
-		filesCmd = replacePositionalArguments(filesCmd, b.opts.GitArgs)
-	}
-
 	replacer := b.buildReplacer(params)
 	filter := filter.New(b.git.Fs, filter.Params{
 		Glob:         params.Glob,
@@ -42,7 +37,7 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 	// Checking substitutions and skipping execution if it is empty.
 	//
 	// Special case when `files` option specified but not referenced in `run`: return if the result is empty.
-	if !b.opts.Force && len(filesCmd) > 0 && replacer.Empty(config.SubFiles) {
+	if !b.opts.Force && len(params.FilesCmd) > 0 && replacer.Empty(config.SubFiles) {
 		files, err := replacer.Files(config.SubFiles, filter)
 		if err != nil {
 			return nil, nil, err
@@ -116,5 +111,5 @@ func (b *Builder) buildReplacer(params *JobParams) replacer.Replacer {
 		return replacer.NewMocked(b.opts.ForceFiles, predefined)
 	}
 
-	return replacer.New(b.git, params.Root, "", predefined)
+	return replacer.New(b.git, params.Root, params.FilesCmd, predefined)
 }
