@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
+	"github.com/evilmartians/lefthook/v2/internal/run/controller/filter"
 )
 
 func Test_getNChars(t *testing.T) {
@@ -204,6 +205,47 @@ func Test_ReplaceAndSplit(t *testing.T) {
 			assert.Equal(commands, tt.result.commands)
 		})
 	}
+}
+
+func Test_ReplaceAndSplit_CustomTemplates(t *testing.T) {
+	t.Run("custom templates should not be escaped", func(t *testing.T) {
+		assert := assert.New(t)
+
+		// Create a replacer with custom templates (note: keys include braces)
+		r := NewMocked([]string{"file1.js"}, map[string]string{
+			"{use-mise}": `eval "$(mise env)"`,
+		})
+
+		// Discover templates in the command (use empty filter)
+		emptyFilter := &filter.Filter{}
+		err := r.Discover("{use-mise} prettier {staged_files}", emptyFilter)
+		assert.NoError(err)
+
+		// Replace templates
+		commands, files := r.ReplaceAndSplit("{use-mise} prettier {staged_files}", 300)
+
+		// Custom template should NOT be escaped (no quotes around it)
+		assert.Equal([]string{`eval "$(mise env)" prettier file1.js`}, commands)
+		assert.Equal([]string{"file1.js"}, files)
+	})
+
+	t.Run("file templates should still be escaped", func(t *testing.T) {
+		assert := assert.New(t)
+
+		// Create a replacer with a file that needs escaping
+		r := NewMocked([]string{"file with spaces.js"}, map[string]string{})
+
+		// Discover templates in the command (use empty filter)
+		emptyFilter := &filter.Filter{}
+		err := r.Discover("prettier {staged_files}", emptyFilter)
+		assert.NoError(err)
+
+		// Replace templates
+		commands, _ := r.ReplaceAndSplit("prettier {staged_files}", 300)
+
+		// File template SHOULD be escaped (with quotes)
+		assert.Equal([]string{`prettier 'file with spaces.js'`}, commands)
+	})
 }
 
 func Test_replaceQuoted(t *testing.T) {
