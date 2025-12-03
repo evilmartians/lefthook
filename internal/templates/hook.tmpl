@@ -18,10 +18,15 @@ call_lefthook()
   if test -n "$LEFTHOOK_BIN"
   then
     "$LEFTHOOK_BIN" "$@"
-  {{ if .LefthookExe -}}
-  elif test -n "{{ .LefthookExe }}"
+  {{ if .LefthookPath -}}
+  elif test -n "{{ .LefthookPath }}"
   then
-    {{ .LefthookExe }} "$@"
+    {{ .LefthookPath }} "$@"
+  {{ end -}}
+  {{ if .LefthookPathCurrent -}}
+  elif {{ .LefthookPathCurrent }} -h >/dev/null 2>&1
+  then
+    {{ .LefthookPathCurrent }} "$@"
   {{ end -}}
   elif lefthook{{.Extension}} -h >/dev/null 2>&1
   then
@@ -48,8 +53,8 @@ call_lefthook()
     elif test -f "$dir/node_modules/lefthook/bin/index.js"
     then
       "$dir/node_modules/lefthook/bin/index.js" "$@"
-    {{ $extension := .Extension }}
-    {{- range .Roots -}}
+    {{ $extension := .Extension -}}
+    {{ range .Roots -}}
     elif test -f "$dir/{{.}}/node_modules/lefthook-${osArch}-${cpuArch}/bin/lefthook{{$extension}}"
     then
       "$dir/{{.}}/node_modules/lefthook-${osArch}-${cpuArch}/bin/lefthook{{$extension}}" "$@"
@@ -62,7 +67,7 @@ call_lefthook()
     elif test -f "$dir/{{.}}/node_modules/lefthook/bin/index.js"
     then
       "$dir/{{.}}/node_modules/lefthook/bin/index.js" "$@"
-    {{ end }}
+    {{ end -}}
     elif go tool lefthook -h >/dev/null 2>&1
     then
       go tool lefthook "$@"

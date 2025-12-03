@@ -244,7 +244,7 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, hooks []string, force
 			Rc:                      cfg.Rc,
 			AssertLefthookInstalled: cfg.AssertLefthookInstalled,
 			Roots:                   roots,
-			LefthookExe:             cfg.Lefthook,
+			LefthookPath:            cfg.Lefthook,
 		}
 		if err = l.addHook(hook, templateArgs); err != nil {
 			return fmt.Errorf("could not add the hook: %w", err)
@@ -256,7 +256,7 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, hooks []string, force
 			Rc:                      cfg.Rc,
 			AssertLefthookInstalled: cfg.AssertLefthookInstalled,
 			Roots:                   roots,
-			LefthookExe:             cfg.Lefthook,
+			LefthookPath:            cfg.Lefthook,
 		}
 		if err = l.addHook(config.GhostHookName, templateArgs); err != nil {
 			return nil
