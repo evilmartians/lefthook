@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
+	"os"
 	"runtime"
 	"strings"
 	"text/template"
@@ -16,7 +17,7 @@ var templatesFS embed.FS
 
 type Args struct {
 	Rc                      string
-	LefthookExe             string
+	LefthookPath            string
 	AssertLefthookInstalled bool
 	Roots                   []string
 }
@@ -24,24 +25,30 @@ type Args struct {
 type hookTmplData struct {
 	HookName                string
 	Extension               string
-	LefthookExe             string
+	LefthookPath            string
+	LefthookPathCurrent     string
 	Rc                      string
 	Roots                   []string
 	AssertLefthookInstalled bool
 }
 
 func Hook(hookName string, args Args) []byte {
+	lefthookPathCurrent, err := os.Executable()
+	if err != nil {
+		lefthookPathCurrent = ""
+	}
+
 	buf := &bytes.Buffer{}
 	t := template.Must(template.ParseFS(templatesFS, "hook.tmpl"))
-	err := t.Execute(buf, hookTmplData{
+	if err = t.Execute(buf, hookTmplData{
 		HookName:                hookName,
 		Extension:               getExtension(),
 		Rc:                      args.Rc,
 		AssertLefthookInstalled: args.AssertLefthookInstalled,
 		Roots:                   args.Roots,
-		LefthookExe:             strings.ReplaceAll(strings.TrimSpace(args.LefthookExe), "\n", ";"),
-	})
-	if err != nil {
+		LefthookPath:            strings.ReplaceAll(strings.TrimSpace(args.LefthookPath), "\n", ";"),
+		LefthookPathCurrent:     lefthookPathCurrent,
+	}); err != nil {
 		panic(err)
 	}
 
