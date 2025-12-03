@@ -18,6 +18,15 @@ call_lefthook()
   if test -n "$LEFTHOOK_BIN"
   then
     "$LEFTHOOK_BIN" "$@"
+  elif lefthook{{.Extension}} -h >/dev/null 2>&1
+  then
+    lefthook{{.Extension}} "$@"
+  {{ if .Extension -}}
+  {{/* Check if lefthook.bat exists. Ruby bundler creates such a wrapper */ -}}
+  elif lefthook.bat -h >/dev/null 2>&1
+  then
+    lefthook.bat "$@"
+  {{ end -}}
   {{ if .LefthookPath -}}
   elif test -n "{{ .LefthookPath }}"
   then
@@ -27,15 +36,6 @@ call_lefthook()
   elif {{ .LefthookPathCurrent }} -h >/dev/null 2>&1
   then
     {{ .LefthookPathCurrent }} "$@"
-  {{ end -}}
-  elif lefthook{{.Extension}} -h >/dev/null 2>&1
-  then
-    lefthook{{.Extension}} "$@"
-  {{ if .Extension -}}
-  {{/* Check if lefthook.bat exists. Ruby bundler creates such a wrapper */ -}}
-  elif lefthook.bat -h >/dev/null 2>&1
-  then
-    lefthook.bat "$@"
   {{ end -}}
   else
     dir="$(git rev-parse --show-toplevel)"
