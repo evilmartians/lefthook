@@ -1,5 +1,10 @@
 # Change log
 
+## 2.0.6 (2025-12-03)
+
+- feat: save original executable location in hooks ([#1208](https://github.com/evilmartians/lefthook/pull/1208)) by [@mrexox]()
+- docs: encourage python install using pipx ([#1207](https://github.com/evilmartians/lefthook/pull/1207)) by [@franzramadhan]()
+
 ## 2.0.5 (2025-12-02)
 
 - feat: add optional args to scripts ([#1206](https://github.com/evilmartians/lefthook/pull/1206)) by [@mrexox]()
@@ -1054,3 +1059,4 @@ gem 'lefthook'
 [@technicalpickles]: https://github.com/technicalpickles
 [@jasonwbarnett]: https://github.com/jasonwbarnett
 [@scop]: https://github.com/scop
+[@franzramadhan]: https://github.com/franzramadhan
