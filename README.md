@@ -46,7 +46,7 @@ gem install lefthook
 For **Python**:
 
 ```bash
-pip install lefthook
+pipx install lefthook
 ```
 
 **[Installation guide][installation]** with more ways to install lefthook: [apt][install-apt], [brew][install-brew], [winget][install-winget], and others.
