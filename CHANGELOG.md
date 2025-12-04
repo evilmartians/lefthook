@@ -1,5 +1,9 @@
 # Change log
 
+## 2.0.7 (2025-12-04)
+
+- fix: prefer using lefthook from the $PATH ([#1211](https://github.com/evilmartians/lefthook/pull/1211)) by [@joevin-sql-docto]()
+
 ## 2.0.6 (2025-12-03)
 
 - feat: save original executable location in hooks ([#1208](https://github.com/evilmartians/lefthook/pull/1208)) by [@mrexox]()
@@ -1060,3 +1064,4 @@ gem 'lefthook'
 [@jasonwbarnett]: https://github.com/jasonwbarnett
 [@scop]: https://github.com/scop
 [@franzramadhan]: https://github.com/franzramadhan
+[@joevin-sql-docto]: https://github.com/joevin-slq-docto

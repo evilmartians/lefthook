@@ -23,11 +23,6 @@ call_lefthook()
   then
     {{ .LefthookPath }} "$@"
   {{ end -}}
-  {{ if .LefthookPathCurrent -}}
-  elif {{ .LefthookPathCurrent }} -h >/dev/null 2>&1
-  then
-    {{ .LefthookPathCurrent }} "$@"
-  {{ end -}}
   elif lefthook{{.Extension}} -h >/dev/null 2>&1
   then
     lefthook{{.Extension}} "$@"
@@ -36,6 +31,11 @@ call_lefthook()
   elif lefthook.bat -h >/dev/null 2>&1
   then
     lefthook.bat "$@"
+  {{ end -}}
+  {{ if .LefthookPathCurrent -}}
+  elif {{ .LefthookPathCurrent }} -h >/dev/null 2>&1
+  then
+    {{ .LefthookPathCurrent }} "$@"
   {{ end -}}
   else
     dir="$(git rev-parse --show-toplevel)"
