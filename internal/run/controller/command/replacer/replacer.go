@@ -146,9 +146,9 @@ func (r Replacer) ReplaceAndSplit(command string, maxlen int) ([]string, []strin
 		maxlen += entry.cnt * len(template)
 		if _, ok := r.files[template]; ok {
 			allFiles = append(allFiles, entry.items...)
+			// Only escape file templates, not custom templates
+			entry.items = escapeFiles(entry.items)
 		}
-
-		entry.items = escapeFiles(entry.items)
 	}
 
 	maxlen -= len(command)
