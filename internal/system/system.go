@@ -1,4 +1,4 @@
-// system package contains wrappers for OS interactions.
+// Package system contains wrappers for OS interactions.
 package system
 
 import (
@@ -33,7 +33,7 @@ func (c osCmd) Run(command []string, root string, in io.Reader, out io.Writer, e
 	return c.RunWithContext(context.Background(), command, root, in, out, errOut)
 }
 
-// Run runs system command with LEFTHOOK=0 in order to prevent calling
+// RunWithContext runs system command with LEFTHOOK=0 in order to prevent calling
 // subsequent lefthook hooks.
 func (c osCmd) RunWithContext(
 	ctx context.Context,

@@ -174,7 +174,7 @@ func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.
 	return main, secondary, nil
 }
 
-// Loads configs from the given directory with extensions.
+// Load loads configs from the given directory with extensions.
 func Load(filesystem afero.Fs, repo *git.Repository) (*Config, error) {
 	main, secondary, err := LoadKoanf(filesystem, repo)
 	if err != nil {

@@ -90,7 +90,7 @@ func (c CommandExecutor) CmdLines(cmd []string) ([]string, error) {
 	return strings.Split(out, "\n"), nil
 }
 
-// CmdLines runs plain string command, returns its output split by newline.
+// CmdLinesWithinFolder runs plain string command, returns its output split by newline.
 func (c CommandExecutor) CmdLinesWithinFolder(cmd []string, folder string) ([]string, error) {
 	root := filepath.Join(c.root, folder)
 	out, err := c.execute(cmd, root)

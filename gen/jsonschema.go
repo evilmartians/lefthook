@@ -18,7 +18,7 @@ func main() {
 	r.ExpandedStruct = true
 	r.AdditionalFields = func(t reflect.Type) []reflect.StructField {
 		if t == reflect.TypeFor[config.Config]() {
-			return reflect.VisibleFields(reflect.TypeOf(struct {
+			return reflect.VisibleFields(reflect.TypeFor[struct {
 				Schema               string       `json:"$schema,omitempty"`
 				PreCommit            *config.Hook `json:"pre-commit,omitempty"`
 				ApplypatchMsg        *config.Hook `json:"applypatch-msg,omitempty"`
@@ -48,7 +48,7 @@ func main() {
 				P4PostChangelist     *config.Hook `json:"p4-post-changelist,omitempty"`
 				P4PreSubmit          *config.Hook `json:"p4-pre-submit,omitempty"`
 				PostIndexChange      *config.Hook `json:"post-index-change,omitempty"`
-			}{}))
+			}]())
 		}
 
 		return []reflect.StructField{}

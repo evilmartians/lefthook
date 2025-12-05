@@ -30,7 +30,7 @@ type Lefthook struct {
 	repo *git.Repository
 }
 
-// New returns an instance of Lefthook.
+// NewLefthook returns an instance of Lefthook.
 func NewLefthook(verbose bool, colors string) (*Lefthook, error) {
 	fs := afero.NewOsFs()
 

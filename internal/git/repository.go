@@ -171,7 +171,7 @@ func (r *Repository) StagedFilesWithDeleted() ([]string, error) {
 	return r.stagedFilesWithDeletedOnce()
 }
 
-// StagedFiles returns a list of all files in repository.
+// AllFiles returns a list of all files in repository.
 func (r *Repository) AllFiles() ([]string, error) {
 	return r.FindExistingFiles(cmdAllFiles, "")
 }
