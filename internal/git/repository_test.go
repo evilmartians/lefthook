@@ -135,7 +135,7 @@ RM old-file -> new-file`,
 			}
 
 			if len(tt.pathsToHash) > 0 {
-				cmd := append([]string{"git", "hash-object"}, tt.pathsToHash...)
+				cmd := append([]string{"git", "hash-object", "--"}, tt.pathsToHash...)
 				gitCmds[strings.Join(cmd, " ")] = tt.gitHashOut
 			}
 

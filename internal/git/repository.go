@@ -45,7 +45,7 @@ var (
 	}
 	cmdAllFiles     = []string{"git", "ls-files", "--cached"}
 	cmdCreateStash  = []string{"git", "stash", "create"}
-	cmdStageFiles   = []string{"git", "add", "--force"}
+	cmdStageFiles   = []string{"git", "add", "--force", "--"}
 	cmdRemotes      = []string{"git", "branch", "--remotes"}
 	cmdHideUnstaged = []string{"git", "checkout", "--force", "--"}
 	cmdGitVersion   = []string{"git", "version"}
@@ -280,6 +280,7 @@ func (r *Repository) RestoreUnstaged() error {
 		"--whitespace=nowarn",
 		"--recount",
 		"--unidiff-zero",
+		"--",
 		r.unstagedPatchPath,
 	})
 	if err != nil {
@@ -383,7 +384,7 @@ func (r *Repository) Changeset() (map[string]string, error) {
 		return changeset, nil
 	}
 
-	out, err := r.Git.BatchedCmd([]string{"git", "hash-object"}, pathsToHash)
+	out, err := r.Git.BatchedCmd([]string{"git", "hash-object", "--"}, pathsToHash)
 	if err != nil {
 		return nil, err
 	}
