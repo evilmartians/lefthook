@@ -45,7 +45,7 @@ func (c CommandExecutor) WithoutTrim() CommandExecutor {
 	return c
 }
 
-// Cmd runs plain string command. Trims spaces around output.
+// Cmd runs plain string command.
 func (c CommandExecutor) Cmd(cmd []string) (string, error) {
 	out, err := c.execute(cmd, c.root)
 	if err != nil {
