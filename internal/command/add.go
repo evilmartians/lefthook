@@ -17,7 +17,7 @@ type AddArgs struct {
 	CreateDirs, Force bool
 }
 
-// Creates a hook, given in args. The hook is a Lefthook hook.
+// Add creates a hook, given in args. The hook is a Lefthook hook.
 func (l *Lefthook) Add(_ctx context.Context, args AddArgs) error {
 	if !config.KnownHook(args.Hook) {
 		return fmt.Errorf("skip adding, hook is unavailable: %s", args.Hook)
