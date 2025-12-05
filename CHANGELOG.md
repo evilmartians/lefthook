@@ -1,5 +1,9 @@
 # Change log
 
+## 2.0.8 (2025-12-05)
+
+- fix: do not escape custom templates in command replacement ([#1213](https://github.com/evilmartians/lefthook/pull/1213)) by [@joevin-sql-docto]()
+
 ## 2.0.7 (2025-12-04)
 
 - fix: prefer using lefthook from the $PATH ([#1211](https://github.com/evilmartians/lefthook/pull/1211)) by [@joevin-sql-docto]()
