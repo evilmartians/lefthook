@@ -303,6 +303,9 @@ func (u *Updater) download(ctx context.Context, name, fileURL, checksumURL, path
 			}
 		}
 	}
+	if err = scanner.Err(); err != nil {
+		return false, fmt.Errorf("scan checksum response body: %w", err)
+	}
 
 	log.Debugf("No matches found for %s %s", name, hashsum)
 

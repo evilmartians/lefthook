@@ -90,6 +90,9 @@ func (r *Repository) branch() string {
 			return match[1]
 		}
 	}
+	if err = scanner.Err(); err != nil {
+		log.Warnf("Could not read %s: %s", file.Name(), err)
+	}
 
 	return ""
 }
