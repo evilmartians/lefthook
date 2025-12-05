@@ -81,7 +81,6 @@ func (r *Repository) branch() string {
 	}()
 
 	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
 
 	for scanner.Scan() {
 		match := refBranchRegexp.FindStringSubmatch(scanner.Text())

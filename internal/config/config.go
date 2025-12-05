@@ -10,7 +10,7 @@ import (
 	"io"
 
 	"github.com/mitchellh/mapstructure"
-	toml "github.com/pelletier/go-toml/v2"
+	"github.com/pelletier/go-toml/v2"
 	"gopkg.in/yaml.v3"
 )
 
