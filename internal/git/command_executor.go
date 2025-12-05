@@ -45,7 +45,7 @@ func (c CommandExecutor) WithoutTrim() CommandExecutor {
 	return c
 }
 
-// Cmd runs plain string command. Trims spaces around output.
+// Cmd runs plain string command.
 func (c CommandExecutor) Cmd(cmd []string) (string, error) {
 	out, err := c.execute(cmd, c.root)
 	if err != nil {
@@ -78,13 +78,9 @@ func (c CommandExecutor) BatchedCmd(cmd []string, args []string) (string, error)
 
 // CmdLines runs plain string command, returns its output split by newline.
 func (c CommandExecutor) CmdLines(cmd []string) ([]string, error) {
-	out, err := c.execute(cmd, c.root)
+	out, err := c.Cmd(cmd)
 	if err != nil {
 		return nil, err
-	}
-
-	if !c.noTrimOut {
-		out = strings.TrimSpace(out)
 	}
 
 	return strings.Split(out, "\n"), nil
