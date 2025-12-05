@@ -511,8 +511,8 @@ func TestRunAll(t *testing.T) {
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
-				"git add --force .*script.sh.*README.md",
-				"git add --force .*script.sh.*README.md",
+				"git add --force -- .*script.sh.*README.md",
+				"git add --force -- .*script.sh.*README.md",
 			},
 		},
 		"with pre-commit skip": {
@@ -537,7 +537,7 @@ func TestRunAll(t *testing.T) {
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
-				"git add --force .*README.md",
+				"git add --force -- .*README.md",
 				"git diff --name-only --cached --diff-filter=ACMRD",
 			},
 		},
@@ -565,7 +565,7 @@ func TestRunAll(t *testing.T) {
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
-				"git add --force .*README.md",
+				"git add --force -- .*README.md",
 			},
 		},
 		"with pre-commit and stage_fixed=true under root": {
@@ -586,7 +586,7 @@ func TestRunAll(t *testing.T) {
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
-				"git add --force .*scripts.*script.sh",
+				"git add --force -- .*scripts.*script.sh",
 			},
 		},
 		"with pre-push skip": {
