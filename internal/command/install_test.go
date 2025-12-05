@@ -508,7 +508,7 @@ remotes:
     configs:
       - examples/remote/ping.yml
 `,
-			shouldRefetchInitially: false,
+			shouldRefetchInitially: true,
 			shouldRefetchAfter:     false,
 			shouldRefetchBefore:    false,
 		},

@@ -8,10 +8,12 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/gobwas/glob"
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
@@ -128,20 +130,48 @@ func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Con
 
 	//nolint:nestif
 	if fetchRemotes {
+		fetchedRemotes := make(map[string]struct{})
 		for _, remote := range cfg.Remotes {
 			if remote.Configured() && l.shouldRefetch(remote) {
 				if err = l.repo.SyncRemote(remote.GitURL, remote.Ref, false); err != nil {
-					log.Warnf("Couldn't sync from %s. Will continue anyway: %s", remote.GitURL, err)
-					continue
+					ref, err := l.findAvailableRemoteRef(remote.GitURL)
+					if err != nil {
+						log.Warnf("Couldn't sync from %s. Will continue without that remote.", remote.GitURL)
+						continue
+					}
+
+					if ref != "" {
+						log.Warnf("Couldn't sync %s %s. Will continue with fallback version: %s.", remote.GitURL, remote.Ref, ref)
+					} else {
+						log.Warnf("Couldn't sync %s %s. Will continue with old version.", remote.GitURL, remote.Ref)
+					}
+
+					remote.Ref = ref
 				}
 
+				fetchedRemotes[l.repo.RemoteFolder(remote.GitURL, remote.Ref)] = struct{}{}
 				remotesSynced = true
 			}
 		}
 
 		if remotesSynced {
+			// Delete stale remotes
+			entries, err := afero.ReadDir(l.fs, l.repo.RemotesFolder())
+			if err != nil {
+				return nil, err
+			}
+
+			for _, entry := range entries {
+				remotePath := filepath.Join(l.repo.RemotesFolder(), entry.Name())
+				if _, ok := fetchedRemotes[remotePath]; !ok {
+					if err = l.fs.RemoveAll(remotePath); err != nil {
+						log.Error("failed to drop stale remote path: ", remotePath)
+					}
+				}
+			}
+
 			// Reread the config file with synced remotes
-			cfg, err = l.readOrCreateConfig()
+			cfg, err = l.readOrCreateConfig() // TODO(mrexox): should re-use remote refs assigned
 			if err != nil {
 				return nil, fmt.Errorf("failed to reread the config: %w", err)
 			}
@@ -161,13 +191,7 @@ func (l *Lefthook) shouldRefetch(remote *config.Remote) bool {
 	if remote.Refetch || remote.RefetchFrequency == "always" {
 		return true
 	}
-	if remote.RefetchFrequency == "" || remote.RefetchFrequency == "never" {
-		return false
-	}
-
-	timedelta, err := time.ParseDuration(remote.RefetchFrequency)
-	if err != nil {
-		log.Warnf("Couldn't parse refetch frequency %s. Will continue anyway: %s", remote.RefetchFrequency, err)
+	if remote.RefetchFrequency == "never" {
 		return false
 	}
 
@@ -183,8 +207,42 @@ func (l *Lefthook) shouldRefetch(remote *config.Remote) bool {
 		return false
 	}
 
+	if len(remote.RefetchFrequency) == 0 {
+		return false
+	}
+
 	lastFetchTime = info.ModTime()
+	timedelta, err := time.ParseDuration(remote.RefetchFrequency)
+	if err != nil {
+		log.Warnf("Couldn't parse refetch frequency %s. Will continue anyway: %s", remote.RefetchFrequency, err)
+		return false
+	}
+
 	return time.Now().After(lastFetchTime.Add(timedelta))
+}
+
+func (l *Lefthook) findAvailableRemoteRef(url string) (string, error) {
+	entries, err := afero.ReadDir(l.fs, l.repo.RemotesFolder())
+	if err != nil {
+		return "", err
+	}
+
+	// TODO(mrexox): use same algo with remote.go
+	repoName := filepath.Base(
+		strings.TrimSuffix(url, filepath.Ext(url)),
+	)
+	g := glob.MustCompile(repoName + "*")
+	for _, info := range slices.Backward(entries) {
+		if g.Match(info.Name()) {
+			if info.Name() == repoName {
+				return "", nil
+			}
+
+			oldRef := strings.Replace(info.Name(), repoName, "", 1)
+			return oldRef[1:], nil
+		}
+	}
+	return "", errors.New("not found")
 }
 
 func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, hooks []string, force bool) error {
