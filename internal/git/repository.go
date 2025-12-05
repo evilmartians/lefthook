@@ -360,7 +360,7 @@ func (r *Repository) AddFiles(files []string) error {
 }
 
 // Changeset returns a map of files and their hashes that are different from the index.
-// The hash for a deleted file is "deleted".
+// The hash for a deleted file is "deleted", and "directory" for a directory.
 func (r *Repository) Changeset() (map[string]string, error) {
 	changeset := make(map[string]string)
 	pathsToHash := make([]string, 0)
@@ -373,6 +373,10 @@ func (r *Repository) Changeset() (map[string]string, error) {
 	r.parseStatusShort(lines, func(path string, index, worktree byte) {
 		if index == 'D' || worktree == 'D' {
 			changeset[path] = "deleted"
+			return
+		}
+		if strings.HasSuffix(path, "/") {
+			changeset[path] = "directory"
 			return
 		}
 
