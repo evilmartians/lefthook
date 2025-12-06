@@ -154,6 +154,9 @@
             "non-ci"
           ]
         },
+        "fail_on_changes_diff": {
+          "type": "boolean"
+        },
         "files": {
           "type": "string"
         },
@@ -439,7 +442,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2025.12.01.",
+  "$comment": "Last updated on 2025.12.09.",
   "properties": {
     "min_version": {
       "type": "string",
