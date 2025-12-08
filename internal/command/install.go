@@ -307,7 +307,6 @@ func (l *Lefthook) checkHooksSynchronized(cfg *config.Config) (bool, []string) {
 	}()
 
 	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
 
 	var storedChecksum string
 	var storedTimestamp int64

@@ -79,7 +79,6 @@ func (l *Lefthook) isLefthookFile(path string) bool {
 	}()
 
 	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
 
 	for scanner.Scan() {
 		if strings.Contains(scanner.Text(), hookContentFingerprint) {
