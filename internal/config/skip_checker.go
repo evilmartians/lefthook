@@ -16,7 +16,7 @@ func NewSkipChecker(cmd system.Command) *skipChecker {
 	return &skipChecker{&commandExecutor{cmd}}
 }
 
-// check returns the result of applying a skip/only setting which can be a branch, git state, shell command, etc.
+// Check returns the result of applying a skip/only setting which can be a branch, git state, shell command, etc.
 func (sc *skipChecker) Check(state func() git.State, skip any, only any) bool {
 	if skip == nil && only == nil {
 		return false

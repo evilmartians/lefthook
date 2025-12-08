@@ -1,4 +1,4 @@
-// controller handles ordering, filtering, substitutions while running
+// Package controller handles ordering, filtering, substitutions while running
 // jobs for a given hook.
 package controller
 
