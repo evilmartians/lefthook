@@ -85,6 +85,9 @@ func (l *Lefthook) isLefthookFile(path string) bool {
 			return true
 		}
 	}
+	if err = scanner.Err(); err != nil {
+		log.Warnf("Could not read %s: %s", file.Name(), err)
+	}
 
 	return false
 }
