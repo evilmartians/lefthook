@@ -19,7 +19,7 @@ const (
 func (r *Repository) RemoteFolder(url string, ref string) string {
 	return filepath.Join(
 		r.RemotesFolder(),
-		remoteDirectoryName(url, ref),
+		RemoteDirectoryName(url, ref),
 	)
 }
 
@@ -44,7 +44,7 @@ func (r *Repository) SyncRemote(url, ref string, force bool) error {
 	defer log.StopSpinner()
 	defer log.UnsetName("fetching remotes")
 
-	directoryName := remoteDirectoryName(url, ref)
+	directoryName := RemoteDirectoryName(url, ref)
 	remotePath := filepath.Join(remotesPath, directoryName)
 
 	if force {
@@ -129,7 +129,7 @@ func (r *Repository) cloneRemote(dest, directoryName, url, ref string) error {
 	return nil
 }
 
-func remoteDirectoryName(url, ref string) string {
+func RemoteDirectoryName(url, ref string) string {
 	name := filepath.Base(
 		strings.TrimSuffix(url, filepath.Ext(url)),
 	)

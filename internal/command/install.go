@@ -17,6 +17,7 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
+	"github.com/evilmartians/lefthook/v2/internal/git"
 	"github.com/evilmartians/lefthook/v2/internal/log"
 	"github.com/evilmartians/lefthook/v2/internal/templates"
 )
@@ -227,10 +228,7 @@ func (l *Lefthook) findAvailableRemoteRef(url string) (string, error) {
 		return "", err
 	}
 
-	// TODO(mrexox): use same algo with remote.go
-	repoName := filepath.Base(
-		strings.TrimSuffix(url, filepath.Ext(url)),
-	)
+	repoName := git.RemoteDirectoryName(url, "")
 	g := glob.MustCompile(repoName + "*")
 	for _, info := range slices.Backward(entries) {
 		if g.Match(info.Name()) {
