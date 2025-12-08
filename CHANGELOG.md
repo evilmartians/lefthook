@@ -1,5 +1,16 @@
 # Change log
 
+## 2.0.9 (2025-12-08)
+
+- fix: skip pre commit hook if no staged files ([#1229](https://github.com/evilmartians/lefthook/pull/1229)) by [@mrexox](https://github.com/mrexox)
+- fix: do not try to hash-object directories ([#1220](https://github.com/evilmartians/lefthook/pull/1220)) by [@scop](https://github.com/scop)
+- fix: check and report Scanner errors ([#1222](https://github.com/evilmartians/lefthook/pull/1222)) by [@scop](https://github.com/scop)
+- refactor: command executor tweaks ([#1224](https://github.com/evilmartians/lefthook/pull/1224)) by [@scop](https://github.com/scop)
+- refactor: remove some redundant code ([#1221](https://github.com/evilmartians/lefthook/pull/1221)) by [@scop](https://github.com/scop)
+- fix: improve separation of options and filenames for more git commands ([#1225](https://github.com/evilmartians/lefthook/pull/1225)) by [@scop](https://github.com/scop)
+- chore: upgrade golangci-lint to 2.7.1, add godoclint ([#1223](https://github.com/evilmartians/lefthook/pull/1223)) by [@scop](https://github.com/scop)
+- chore: remove unnecessary .svg executable permissions ([#1219](https://github.com/evilmartians/lefthook/pull/1219)) by [@scop](https://github.com/scop)
+
 ## 2.0.8 (2025-12-05)
 
 - fix: do not escape custom templates in command replacement ([#1213](https://github.com/evilmartians/lefthook/pull/1213)) by [@joevin-sql-docto]()
