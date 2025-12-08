@@ -55,6 +55,10 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 		}
 
 		if len(files) == 0 {
+			if !replacer.Empty(config.SubStagedFiles) {
+				return nil, nil, SkipError{"no matching staged files"}
+			}
+
 			files, err = b.git.StagedFilesWithDeleted()
 			if err != nil {
 				return nil, nil, err
