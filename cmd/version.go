@@ -5,6 +5,7 @@ import (
 
 	"github.com/urfave/cli/v3"
 
+	"github.com/evilmartians/lefthook/v2/internal/command"
 	"github.com/evilmartians/lefthook/v2/internal/log"
 	ver "github.com/evilmartians/lefthook/v2/internal/version"
 )
@@ -30,6 +31,9 @@ func version() *cli.Command {
 		Action: func(_ctx context.Context, cmd *cli.Command) error {
 			log.Println(ver.Version(verbose))
 			return nil
+		},
+		ShellComplete: func(ctx context.Context, cmd *cli.Command) {
+			command.ShellCompleteFlags(cmd)
 		},
 	}
 }

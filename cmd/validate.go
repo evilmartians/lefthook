@@ -30,5 +30,8 @@ func validate() *cli.Command {
 
 			return l.Validate(ctx, args)
 		},
+		ShellComplete: func(ctx context.Context, cmd *cli.Command) {
+			command.ShellCompleteFlags(cmd)
+		},
 	}
 }

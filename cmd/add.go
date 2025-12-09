@@ -47,5 +47,9 @@ func add() *cli.Command {
 			args.Hook = cmd.Args().Get(0)
 			return l.Add(ctx, args)
 		},
+		ShellComplete: func(ctx context.Context, cmd *cli.Command) {
+			command.ShellCompleteFlags(cmd)
+			command.ShellCompleteHookNames()
+		},
 	}
 }
