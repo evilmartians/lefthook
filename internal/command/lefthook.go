@@ -2,12 +2,16 @@ package command
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 
+	"github.com/knadh/koanf/parsers/json"
+	"github.com/knadh/koanf/providers/rawbytes"
+	"github.com/knadh/koanf/v2"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v3"
 
@@ -66,6 +70,27 @@ func NewLefthook(verbose bool, colors string) (*Lefthook, error) {
 
 func (l *Lefthook) LoadConfig() (*config.Config, error) {
 	return config.Load(l.fs, l.repo)
+}
+
+func (l *Lefthook) reloadConfig(cfg *config.Config) (*config.Config, error) {
+	log.Debug("Reloading config...")
+
+	buffer := new(bytes.Buffer)
+	if err := cfg.Dump(config.JSONCompactFormat, buffer); err != nil {
+		return nil, err
+	}
+
+	main := koanf.New(".")
+	if err := main.Load(rawbytes.Provider(buffer.Bytes()), json.Parser()); err != nil {
+		return nil, err
+	}
+
+	secondary, err := config.LoadSecondary(main, l.fs, l.repo)
+	if err != nil {
+		return nil, err
+	}
+
+	return config.Unmarshal(main, secondary)
 }
 
 // Tests a file whether it is a lefthook-created file.

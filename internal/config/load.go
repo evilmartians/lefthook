@@ -108,47 +108,50 @@ func loadFirstMain(k *koanf.Koanf, filesystem afero.Fs, root string) error {
 	return nil
 }
 
-func loadMain(k *koanf.Koanf, filesystem afero.Fs, root string) error {
+func loadMain(filesystem afero.Fs, root string) (*koanf.Koanf, error) {
+	main := koanf.New(".")
+
 	configOverride := os.Getenv("LEFTHOOK_CONFIG")
 	if len(configOverride) == 0 {
-		return loadFirstMain(k, filesystem, root)
+		if err := loadFirstMain(main, filesystem, root); err != nil {
+			return nil, err
+		}
+
+		return main, nil
 	}
 
 	if !filepath.IsAbs(configOverride) {
 		configOverride = filepath.Join(root, configOverride)
 	}
 	if ok, _ := afero.Exists(filesystem, configOverride); !ok {
-		return ConfigNotFoundError{fmt.Sprintf("Config file \"%s\" not found!", configOverride)}
+		return nil, ConfigNotFoundError{fmt.Sprintf("Config file \"%s\" not found!", configOverride)}
 	}
 
-	return loadConfig(k, filesystem, configOverride)
+	if err := loadConfig(main, filesystem, configOverride); err != nil {
+		return nil, err
+	}
+
+	return main, nil
 }
 
-func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.Koanf, error) {
-	main := koanf.New(".")
-
-	// Load main config
-	if err := loadMain(main, filesystem, repo.RootPath); err != nil {
-		return nil, nil, err
-	}
-
+func LoadSecondary(main *koanf.Koanf, filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, error) {
 	// Save `extends` and `remotes`
 	extends := main.Strings("extends")
 	var remotes []*Remote
 	if err := main.Unmarshal("remotes", &remotes); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	secondary := koanf.New(".")
 
 	// Load main `extends`
 	if err := extend(secondary, filesystem, repo.RootPath, extends); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	// Load main `remotes`
 	if err := loadRemotes(secondary, filesystem, repo, remotes); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	// Don't allow to set `lefthook` field from a remote config
@@ -158,7 +161,7 @@ func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.
 	var noLocal bool
 	if err := loadFirst(secondary, filesystem, repo.RootPath, LocalConfigNames); err != nil {
 		if ok := errors.As(err, &ConfigNotFoundError{}); !ok {
-			return nil, nil, err
+			return nil, err
 		}
 		noLocal = true
 	}
@@ -167,8 +170,24 @@ func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.
 	localExtends := secondary.Strings("extends")
 	if !noLocal && !slices.Equal(extends, localExtends) {
 		if err := extend(secondary, filesystem, repo.RootPath, localExtends); err != nil {
-			return nil, nil, err
+			return nil, err
 		}
+	}
+
+	return secondary, nil
+}
+
+func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.Koanf, error) {
+	// Load main lefthook.yml
+	main, err := loadMain(filesystem, repo.RootPath)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Load secondary extends, remotes and lefthook-local.yml
+	secondary, err := LoadSecondary(main, filesystem, repo)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	return main, secondary, nil
@@ -181,6 +200,10 @@ func Load(filesystem afero.Fs, repo *git.Repository) (*Config, error) {
 		return nil, err
 	}
 
+	return Unmarshal(main, secondary)
+}
+
+func Unmarshal(main *koanf.Koanf, secondary *koanf.Koanf) (*Config, error) {
 	var config Config
 
 	config.SourceDir = DefaultSourceDir
