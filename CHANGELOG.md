@@ -1,5 +1,11 @@
 # Change log
 
+## 2.0.11 (2025-12-12)
+
+- feat: refetch and cleanup on ref change ([#1210](https://github.com/evilmartians/lefthook/pull/1210)) by [@mrexox](https://github.com/mrexox)
+- ci: npm trusted publishing ([#1234](https://github.com/evilmartians/lefthook/pull/1234)) by [@mrexox](https://github.com/mrexox)
+- feat: more rudimentary shell completions ([#1230](https://github.com/evilmartians/lefthook/pull/1230)) by [@scop](https://github.com/scop)
+
 ## 2.0.10 (2025-12-12)
 
 - feat: add no_auto_install to lefthook.yml ([#1231](https://github.com/evilmartians/lefthook/pull/1231)) by [@pavelzw](https://github.com/pavelzw)

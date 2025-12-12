@@ -6,7 +6,7 @@ import (
 	"golang.org/x/mod/semver"
 )
 
-const version = "2.0.10"
+const version = "2.0.11"
 
 var (
 	// Is set via -X github.com/evilmartians/lefthook/internal/version.commit={commit}.

@@ -1,6 +1,6 @@
 {
   "name": "@evilmartians/lefthook",
-  "version": "2.0.10",
+  "version": "2.0.11",
   "description": "Simple git hooks manager",
   "main": "bin/index.js",
   "files": [
