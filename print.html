@@ -855,6 +855,20 @@ lefthook: lefthook --verbose
 
 min_version: 1.1.3
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="no_auto_install"><a class="header" href="#no_auto_install"><code>no_auto_install</code></a></h2>
+<p><strong>Default: <code>false</code></strong></p>
+<p>Disable automatic installation and synchronization of git hooks when running lefthook. By default, lefthook automatically installs and updates hooks when you run <code>lefthook run</code> if the configuration has changed. Setting this to <code>true</code> disables that behavior.</p>
+<p>This can also be controlled with the <code>--no-auto-install</code> option for the <code>lefthook run</code> command.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-yml"># lefthook.yml
+
+no_auto_install: true
+
+pre-commit:
+  commands:
+    lint:
+      run: npm run lint
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="no_tty"><a class="header" href="#no_tty"><code>no_tty</code></a></h2>
 <p><strong>Default: <code>false</code></strong></p>
 <p>Whether hide spinner and other interactive things. This can be also controlled with <code>--no-tty</code> option for <code>lefthook run</code> command.</p>
