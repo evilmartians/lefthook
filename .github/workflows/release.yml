@@ -71,14 +71,18 @@ jobs:
           name: dist
       - run: tar -xvf dist.tar
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Update npm
+        run: npm install -g npm@latest
+
       - name: Publish to NPM
         env:
           NPM_API_KEY: ${{ secrets.NPM_API_KEY }}
         run: |
-          cat << EOF > ~/.npmrc
-          //registry.npmjs.org/:_authToken=${NPM_API_KEY}
-          EOF
-          chmod 0600 ~/.npmrc
           cd packaging/
           ruby pack.rb prepare
           ruby pack.rb publish_npm
