@@ -55,7 +55,7 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 		}
 
 		if len(files) == 0 {
-			if !replacer.Empty(config.SubStagedFiles) {
+			if replacer.Cached(config.SubStagedFiles) {
 				return nil, nil, SkipError{"no matching staged files"}
 			}
 
