@@ -1,5 +1,10 @@
 # Change log
 
+## 2.0.10 (2025-12-12)
+
+- feat: add no_auto_install to lefthook.yml ([#1231](https://github.com/evilmartians/lefthook/pull/1231)) by [@pavelzw](https://github.com/pavelzw)
+- fix: skip if empty files template ([#1233](https://github.com/evilmartians/lefthook/pull/1233)) by [@mrexox](https://github.com/mrexox)
+
 ## 2.0.9 (2025-12-08)
 
 - fix: skip pre commit hook if no staged files ([#1229](https://github.com/evilmartians/lefthook/pull/1229)) by [@mrexox](https://github.com/mrexox)
