@@ -7,6 +7,8 @@ The behaviour of lefthook when files (tracked by git) are modified can set by mo
 - `ci`: exit with a non-zero status only when the `CI` environment variable is set. This can be useful when combined with `stage_fixed` to ensure a frictionless devX locally, and a robust CI.
 - `non-ci`: exit with a non-zero status only when the `CI` environment variable is _not_ set. This can be useful in setups where the CI pipeline commits changes automatically, such as [autofix.ci](https://autofix.ci).
 
+See also [`fail_on_changes_diff`](./fail_on_changes_diff.md).
+
 ```yml
 # lefthook.yml
 pre-commit:

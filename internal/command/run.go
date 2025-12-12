@@ -26,22 +26,23 @@ const (
 var errPipedAndParallelSet = errors.New("conflicting options 'piped' and 'parallel' are set to 'true', remove one of this option from hook group")
 
 type RunArgs struct {
-	NoTTY           bool
-	AllFiles        bool
-	FilesFromStdin  bool
-	Force           bool
-	NoAutoInstall   bool
-	NoStageFixed    bool
-	SkipLFS         bool
-	Verbose         bool
-	FailOnChanges   *bool
-	Hook            string
-	Exclude         []string
-	Files           []string
-	RunOnlyCommands []string
-	RunOnlyJobs     []string
-	RunOnlyTags     []string
-	GitArgs         []string
+	NoTTY             bool
+	AllFiles          bool
+	FilesFromStdin    bool
+	Force             bool
+	NoAutoInstall     bool
+	NoStageFixed      bool
+	SkipLFS           bool
+	Verbose           bool
+	FailOnChanges     *bool
+	FailOnChangesDiff *bool
+	Hook              string
+	Exclude           []string
+	Files             []string
+	RunOnlyCommands   []string
+	RunOnlyJobs       []string
+	RunOnlyTags       []string
+	GitArgs           []string
 }
 
 func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
@@ -122,6 +123,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	if err != nil {
 		return err
 	}
+	failOnChangesDiff := shouldFailOnChangesDiff(args.FailOnChangesDiff, hook.FailOnChangesDiff)
 
 	// Convert Commands and Scripts into Jobs
 	hook.Jobs = append(hook.Jobs, config.CommandsToJobs(hook.Commands)...)
@@ -131,19 +133,20 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	args.RunOnlyJobs = append(args.RunOnlyJobs, args.RunOnlyCommands...)
 
 	return runHook(ctx, hook, l.repo, run.Options{
-		DisableTTY:    cfg.NoTTY || args.NoTTY,
-		SkipLFS:       cfg.SkipLFS || args.SkipLFS,
-		Templates:     cfg.Templates,
-		GlobMatcher:   cfg.GlobMatcher,
-		GitArgs:       args.GitArgs,
-		ExcludeFiles:  args.Exclude,
-		Files:         args.Files,
-		Force:         args.Force,
-		NoStageFixed:  args.NoStageFixed,
-		RunOnlyJobs:   args.RunOnlyJobs,
-		RunOnlyTags:   args.RunOnlyTags,
-		SourceDirs:    sourceDirs,
-		FailOnChanges: failOnChanges,
+		DisableTTY:        cfg.NoTTY || args.NoTTY,
+		SkipLFS:           cfg.SkipLFS || args.SkipLFS,
+		Templates:         cfg.Templates,
+		GlobMatcher:       cfg.GlobMatcher,
+		GitArgs:           args.GitArgs,
+		ExcludeFiles:      args.Exclude,
+		Files:             args.Files,
+		Force:             args.Force,
+		NoStageFixed:      args.NoStageFixed,
+		RunOnlyJobs:       args.RunOnlyJobs,
+		RunOnlyTags:       args.RunOnlyTags,
+		SourceDirs:        sourceDirs,
+		FailOnChanges:     failOnChanges,
+		FailOnChangesDiff: failOnChangesDiff,
 	})
 }
 
@@ -227,6 +230,18 @@ func shouldFailOnChanges(fromArg *bool, fromHook string) (bool, error) {
 	default:
 		return false, fmt.Errorf("invalid value for fail_on_changes: %s", fromHook)
 	}
+}
+
+func shouldFailOnChangesDiff(fromArg *bool, fromHook *bool) bool {
+	if fromArg != nil {
+		return *fromArg
+	}
+	if fromHook != nil {
+		return *fromHook
+	}
+
+	_, ok := os.LookupEnv("CI")
+	return ok
 }
 
 func runHook(ctx context.Context, hook *config.Hook, repo *git.Repository, opts run.Options) error {
