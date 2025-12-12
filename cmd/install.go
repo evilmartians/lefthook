@@ -37,5 +37,9 @@ func install() *cli.Command {
 
 			return l.Install(ctx, args, cmd.Args().Slice())
 		},
+		ShellComplete: func(ctx context.Context, cmd *cli.Command) {
+			command.ShellCompleteFlags(cmd)
+			command.ShellCompleteHookNames()
+		},
 	}
 }
