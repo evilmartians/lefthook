@@ -127,14 +127,16 @@ func (l *Lefthook) createConfig(path string) error {
 
 func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Config, error) {
 	var remotesSynced bool
-	var err error
 
 	//nolint:nestif
 	if fetchRemotes {
 		fetchedRemotes := make(map[string]struct{})
 		for _, remote := range cfg.Remotes {
-			if remote.Configured() && l.shouldRefetch(remote) {
-				if err = l.repo.SyncRemote(remote.GitURL, remote.Ref, false); err != nil {
+			if !remote.Configured() {
+				continue
+			}
+			if l.shouldRefetch(remote) {
+				if serr := l.repo.SyncRemote(remote.GitURL, remote.Ref, false); serr != nil {
 					ref, err := l.findAvailableRemoteRef(remote.GitURL)
 					if err != nil {
 						log.Warnf("Couldn't sync from %s. Will continue without that remote.", remote.GitURL)
@@ -150,31 +152,37 @@ func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Con
 					remote.Ref = ref
 				}
 
-				fetchedRemotes[l.repo.RemoteFolder(remote.GitURL, remote.Ref)] = struct{}{}
 				remotesSynced = true
 			}
+
+			fetchedRemotes[l.repo.RemoteFolder(remote.GitURL, remote.Ref)] = struct{}{}
 		}
 
 		if remotesSynced {
+			var err error
+
+			// Reread the config file with synced remotes
+			cfg, err = l.reloadConfig(cfg)
+			if err != nil {
+				return nil, fmt.Errorf("failed to reread the config: %w", err)
+			}
+		}
+
+		if len(fetchedRemotes) > 0 {
 			// Delete stale remotes
 			entries, err := afero.ReadDir(l.fs, l.repo.RemotesFolder())
 			if err != nil {
 				return nil, err
 			}
-
 			for _, entry := range entries {
 				remotePath := filepath.Join(l.repo.RemotesFolder(), entry.Name())
 				if _, ok := fetchedRemotes[remotePath]; !ok {
+					log.Debug("Removing stale remote: ", remotePath)
+
 					if err = l.fs.RemoveAll(remotePath); err != nil {
 						log.Error("failed to drop stale remote path: ", remotePath)
 					}
 				}
-			}
-
-			// Reread the config file with synced remotes
-			cfg, err = l.readOrCreateConfig() // TODO(mrexox): should re-use remote refs assigned
-			if err != nil {
-				return nil, fmt.Errorf("failed to reread the config: %w", err)
 			}
 		}
 	}
