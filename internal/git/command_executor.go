@@ -19,6 +19,9 @@ type CommandExecutor struct {
 	maxCmdLen     int
 	onlyDebugLogs bool
 	noTrimOut     bool
+
+	// Do not print error messages
+	silent bool
 }
 
 // NewExecutor returns an object that executes given commands in the OS.
@@ -32,6 +35,11 @@ func NewExecutor(cmd system.Command) *CommandExecutor {
 
 func (c CommandExecutor) WithoutEnvs(envs ...string) CommandExecutor {
 	c.cmd = c.cmd.WithoutEnvs(envs...)
+	return c
+}
+
+func (c CommandExecutor) Silent() CommandExecutor {
+	c.silent = true
 	return c
 }
 
@@ -121,7 +129,7 @@ func (c CommandExecutor) execute(cmd []string, root string) (string, error) {
 	if err != nil {
 		if len(errString) > 0 {
 			logLevel := log.ErrorLevel
-			if c.onlyDebugLogs {
+			if c.onlyDebugLogs || c.silent {
 				logLevel = log.DebugLevel
 			}
 			log.Builder(logLevel, "> ").
