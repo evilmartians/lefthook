@@ -89,7 +89,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 		log.LogMeta(args.Hook)
 	}
 
-	if !args.NoAutoInstall {
+	if !args.NoAutoInstall && !cfg.NoAutoInstall {
 		// This line controls updating the git hook if config has changed
 		var newCfg *config.Config
 		newCfg, err = l.syncHooks(cfg, !isGhostHook)

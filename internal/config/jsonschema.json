@@ -439,7 +439,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2025.12.01.",
+  "$comment": "Last updated on 2025.12.10.",
   "properties": {
     "min_version": {
       "type": "string",
@@ -502,6 +502,10 @@
     "skip_lfs": {
       "type": "boolean",
       "description": "Skip running Git LFS hooks (enabled by default)"
+    },
+    "no_auto_install": {
+      "type": "boolean",
+      "description": "Do not automatically install hooks when running lefthook"
     },
     "glob_matcher": {
       "type": "string",
