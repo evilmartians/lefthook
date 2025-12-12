@@ -13,15 +13,20 @@ import (
 
 // CommandExecutor provides some methods that take some effect on execution and/or result data.
 type CommandExecutor struct {
-	mu            *sync.Mutex
-	cmd           system.Command
-	root          string
-	maxCmdLen     int
-	onlyDebugLogs bool
-	noTrimOut     bool
+	mu  *sync.Mutex
+	cmd system.Command
 
-	// Do not print error messages
-	silent bool
+	// Execute command in the specific directory
+	root string
+
+	// Split one command into multiple, respecting supported max command length
+	maxCmdLen int
+
+	// Print all logs in Debug level
+	onlyDebugLogs bool
+
+	// Do not trim leading and ending spaces
+	noTrimOut bool
 }
 
 // NewExecutor returns an object that executes given commands in the OS.
@@ -35,11 +40,6 @@ func NewExecutor(cmd system.Command) *CommandExecutor {
 
 func (c CommandExecutor) WithoutEnvs(envs ...string) CommandExecutor {
 	c.cmd = c.cmd.WithoutEnvs(envs...)
-	return c
-}
-
-func (c CommandExecutor) Silent() CommandExecutor {
-	c.silent = true
 	return c
 }
 
@@ -129,7 +129,7 @@ func (c CommandExecutor) execute(cmd []string, root string) (string, error) {
 	if err != nil {
 		if len(errString) > 0 {
 			logLevel := log.ErrorLevel
-			if c.onlyDebugLogs || c.silent {
+			if c.onlyDebugLogs {
 				logLevel = log.DebugLevel
 			}
 			log.Builder(logLevel, "> ").
