@@ -2,7 +2,7 @@
 
 Here are two hooks.
 
-`pre-commit` hook will only be executed when you're committing something on a branch starting with `def/` prefix.
+`pre-commit` hook will only be executed when you're committing something on a branch starting with `dev/` prefix.
 
 In `pre-push` hook:
 - `test` command will be skipped if `NO_TEST` env variable is set to `1`
