@@ -40,10 +40,9 @@ func TestPartiallyStagedFiles(t *testing.T) {
 		result       []string
 	}{
 		{
-			gitOut: `RM old-file -> new file
-M  staged
-MM staged but changed
-`,
+			gitOut: "RM new file\x00old-file\x00" +
+				"M  staged\x00" +
+				"MM staged but changed\x00",
 			result: []string{"new file", "staged but changed"},
 		},
 	} {
@@ -53,7 +52,7 @@ MM staged but changed
 					mu: new(sync.Mutex),
 					cmd: gitCmd{
 						cases: map[string]string{
-							"git status --short --porcelain": tt.gitOut,
+							"git status --short --porcelain -z": tt.gitOut,
 						},
 					},
 				},
@@ -90,7 +89,7 @@ func TestChangeset(t *testing.T) {
 		},
 		{
 			name:         "modified file",
-			gitStatusOut: " M modified.txt",
+			gitStatusOut: " M modified.txt\x00",
 			gitHashOut:   "123456",
 			pathsToHash:  []string{"modified.txt"},
 			result: map[string]string{
@@ -99,14 +98,14 @@ func TestChangeset(t *testing.T) {
 		},
 		{
 			name:         "deleted file",
-			gitStatusOut: "D  deleted.txt",
+			gitStatusOut: "D  deleted.txt\x00",
 			result: map[string]string{
 				"deleted.txt": "deleted",
 			},
 		},
 		{
 			name:         "new file",
-			gitStatusOut: "?? new.txt",
+			gitStatusOut: "?? new.txt\x00",
 			gitHashOut:   "654321",
 			pathsToHash:  []string{"new.txt"},
 			result: map[string]string{
@@ -115,7 +114,7 @@ func TestChangeset(t *testing.T) {
 		},
 		{
 			name:         "new dir",
-			gitStatusOut: "?? new-dir/",
+			gitStatusOut: "?? new-dir/\x00",
 			pathsToHash:  []string{},
 			result: map[string]string{
 				"new-dir/": "directory",
@@ -123,25 +122,35 @@ func TestChangeset(t *testing.T) {
 		},
 		{
 			name: "mixed changes",
-			gitStatusOut: `M  modified.txt
- D deleted.txt
-?? new.txt
-?? new-dir/
-RM old-file -> new-file`,
-			gitHashOut:  "123456\n654321\n758213",
-			pathsToHash: []string{"modified.txt", "new.txt", "new-file"},
+			gitStatusOut: "M  modified.txt\x00" +
+				"CT copied to\x00copied from\x00" +
+				" D deleted.txt\x00" +
+				"?? new.txt\x00" +
+				"?? new-dir/\x00" +
+				"RM new-file\x00old-file\x00" +
+				"A  foo -> bar\x00" +
+				"MM back\\slashes\x00" +
+				"R  this is the new filename\x00R  this is really the old name, does it throw off the parser\x00" +
+				"??  leading-space\x00",
+			gitHashOut:  "123456\nc0c0c0\n654321\n758213\nfbfbfb\nbbbbbb\nffffff\ncccccc\n",
+			pathsToHash: []string{"modified.txt", "copied to", "new.txt", "new-file", "foo -> bar", `back\slashes`, "this is the new filename", " leading-space"},
 			result: map[string]string{
-				"modified.txt": "123456",
-				"deleted.txt":  "deleted",
-				"new.txt":      "654321",
-				"new-dir/":     "directory",
-				"new-file":     "758213",
+				"modified.txt":             "123456",
+				"copied to":                "c0c0c0",
+				"deleted.txt":              "deleted",
+				"new.txt":                  "654321",
+				"new-dir/":                 "directory",
+				"new-file":                 "758213",
+				"foo -> bar":               "fbfbfb",
+				`back\slashes`:             "bbbbbb",
+				"this is the new filename": "ffffff",
+				" leading-space":           "cccccc",
 			},
 		},
 	} {
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
 			gitCmds := map[string]string{
-				"git status --short --porcelain": tt.gitStatusOut,
+				"git status --short --porcelain -z": tt.gitStatusOut,
 			}
 
 			if len(tt.pathsToHash) > 0 {

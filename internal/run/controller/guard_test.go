@@ -54,17 +54,17 @@ func Test_guard_wrap(t *testing.T) {
 			stashUnstagedChanges: false,
 			failOnChanges:        true,
 			commands: [][2]string{
-				{"git status --short --porcelain", ""},
-				{"git status --short --porcelain", ""},
+				{"git status --short --porcelain -z", ""},
+				{"git status --short --porcelain -z", ""},
 			},
 		},
 		"failOnChanges=true no fail": {
 			stashUnstagedChanges: false,
 			failOnChanges:        true,
 			commands: [][2]string{
-				{"git status --short --porcelain", " M file1\n M file2"},
+				{"git status --short --porcelain -z", " M file1\x00 M file2\x00"},
 				{"git hash-object -- file1 file2", "0\n1\n"},
-				{"git status --short --porcelain", " M file1\n M file2"},
+				{"git status --short --porcelain -z", " M file1\x00 M file2\x00"},
 				{"git hash-object -- file1 file2", "0\n1\n"},
 			},
 		},
@@ -72,9 +72,9 @@ func Test_guard_wrap(t *testing.T) {
 			stashUnstagedChanges: false,
 			failOnChanges:        true,
 			commands: [][2]string{
-				{"git status --short --porcelain", " M file1\n M file2"},
+				{"git status --short --porcelain -z", " M file1\x00 M file2\x00"},
 				{"git hash-object -- file1 file2", "0\n1\n"},
-				{"git status --short --porcelain", " M file1\n M file2"},
+				{"git status --short --porcelain -z", " M file1\x00 M file2\x00"},
 				{"git hash-object -- file1 file2", "2\n3\n"},
 			},
 			err: ErrFailOnChanges,
@@ -83,8 +83,8 @@ func Test_guard_wrap(t *testing.T) {
 			stashUnstagedChanges: false,
 			failOnChanges:        true,
 			commands: [][2]string{
-				{"git status --short --porcelain", ""},
-				{"git status --short --porcelain", " M file1\n M file2"},
+				{"git status --short --porcelain -z", ""},
+				{"git status --short --porcelain -z", " M file1\x00 M file2\x00"},
 				{"git hash-object -- file1 file2", "0\n1\n"},
 			},
 			err: ErrFailOnChanges,
@@ -93,21 +93,21 @@ func Test_guard_wrap(t *testing.T) {
 			stashUnstagedChanges: true,
 			failOnChanges:        false,
 			commands: [][2]string{
-				{"git status --short --porcelain", ""},
+				{"git status --short --porcelain -z", ""},
 			},
 		},
 		"stashUnstagedChanges=true no unstaged": {
 			stashUnstagedChanges: true,
 			failOnChanges:        false,
 			commands: [][2]string{
-				{"git status --short --porcelain", "M  file1\nM  file2\nM  file3"},
+				{"git status --short --porcelain -z", "M  file1\x00M  file2\x00M  file3\x00"},
 			},
 		},
 		"stashUnstagedChanges=true with partially staged": {
 			stashUnstagedChanges: true,
 			failOnChanges:        false,
 			commands: [][2]string{
-				{"git status --short --porcelain", "AM file1\n M file2\n A file3\n"},
+				{"git status --short --porcelain -z", "AM file1\x00 M file2\x00 A file3\x00"},
 				{"git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", ""},
