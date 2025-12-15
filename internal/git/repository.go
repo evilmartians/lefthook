@@ -1,6 +1,7 @@
 package git
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"os"
@@ -29,6 +30,7 @@ const (
 
 var (
 	reHeadBranch              = regexp.MustCompile(`HEAD -> (?P<name>.*)$`)
+	reOriginHeadBranch        = regexp.MustCompile(`ref: refs/remotes/origin/(?P<name>.*)$`)
 	reVersion                 = regexp.MustCompile(`\d+\.\d+\.\d+`)
 	cmdPushFilesBase          = []string{"git", "diff", "--name-only", "HEAD", "@{push}"}
 	cmdPushFilesHead          = []string{"git", "diff", "--name-only", "HEAD"}
@@ -178,11 +180,18 @@ func (r *Repository) AllFiles() ([]string, error) {
 
 // PushFiles returns a list of files that are ready to be pushed.
 func (r *Repository) PushFiles() ([]string, error) {
+	// Try with @{push}
 	lines, err := r.Git.OnlyDebugLogs().CmdLinesWithinFolder(cmdPushFilesBase, "")
 	if err == nil {
 		return r.extractFiles(lines, true)
 	}
 
+	// Try read .git/refs/origin/HEAD
+	if len(r.headBranch) == 0 {
+		r.headBranch = r.readOriginHead()
+	}
+
+	// Try walking through the remotes
 	if len(r.headBranch) == 0 {
 		branches, err := r.Git.CmdLines(cmdRemotes)
 		if err != nil {
@@ -511,4 +520,30 @@ func (r *Repository) isFile(path string) (bool, error) {
 	}
 
 	return !stat.IsDir(), nil
+}
+
+func (r *Repository) readOriginHead() string {
+	originHead := filepath.Join(r.GitPath, "refs", "remotes", "origin", "HEAD")
+	if _, err := r.Fs.Stat(originHead); os.IsNotExist(err) {
+		return ""
+	}
+
+	file, err := r.Fs.Open(originHead)
+	if err != nil {
+		return ""
+	}
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Warnf("Could not close %s: %s", originHead, err)
+		}
+	}()
+
+	scanner := bufio.NewScanner(file)
+	_ = scanner.Scan()
+	match := reOriginHeadBranch.FindStringSubmatch(scanner.Text())
+	if match == nil {
+		return ""
+	}
+
+	return match[reHeadBranch.SubexpIndex("name")]
 }
