@@ -1,6 +1,6 @@
 {
   "name": "lefthook-freebsd-x64",
-  "version": "2.0.11",
+  "version": "2.0.12",
   "description": "The FreeBSD 64-bit binary for lefthook, git hooks manager.",
   "preferUnplugged": false,
   "repository": {

@@ -1,5 +1,12 @@
 # Change log
 
+## 2.0.12 (2025-12-15)
+
+- chore: small changes on diff printing ([#1242](https://github.com/evilmartians/lefthook/pull/1242)) by [@mrexox](https://github.com/mrexox)
+- feat: ability to show diff when failing on changes ([#1227](https://github.com/evilmartians/lefthook/pull/1227)) by [@scop](https://github.com/scop)
+- fix: make short status parser more robust ([#1236](https://github.com/evilmartians/lefthook/pull/1236)) by [@scop](https://github.com/scop)
+- docs: fix readme ([#1235](https://github.com/evilmartians/lefthook/pull/1235)) by [@matdibu](https://github.com/matdibu)
+
 ## 2.0.11 (2025-12-12)
 
 - feat: refetch and cleanup on ref change ([#1210](https://github.com/evilmartians/lefthook/pull/1210)) by [@mrexox](https://github.com/mrexox)
