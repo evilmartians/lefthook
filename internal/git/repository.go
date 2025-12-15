@@ -401,6 +401,24 @@ func (r *Repository) Changeset() (map[string]string, error) {
 	return changeset, nil
 }
 
+func (r *Repository) PrintDiff(files []string) {
+	slices.Sort(files)
+
+	diffCmd := make([]string, 0, 4) //nolint:mnd // 3 or 4 elements
+	diffCmd = append(diffCmd, "git", "diff")
+	if log.Colorized() {
+		diffCmd = append(diffCmd, "--color")
+	}
+	diffCmd = append(diffCmd, "--")
+	diff, err := r.Git.BatchedCmd(diffCmd, files)
+	if err != nil {
+		log.Warnf("Couldn't diff changed files: %s", err)
+		return
+	}
+
+	log.Warn(diff)
+}
+
 func (r *Repository) statusShort() ([]string, error) {
 	return r.Git.WithoutTrim().CmdLines(cmdStatusShort)
 }
