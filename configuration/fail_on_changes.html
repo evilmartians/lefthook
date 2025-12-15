@@ -163,6 +163,7 @@
 <li><code>ci</code>: exit with a non-zero status only when the <code>CI</code> environment variable is set. This can be useful when combined with <code>stage_fixed</code> to ensure a frictionless devX locally, and a robust CI.</li>
 <li><code>non-ci</code>: exit with a non-zero status only when the <code>CI</code> environment variable is <em>not</em> set. This can be useful in setups where the CI pipeline commits changes automatically, such as <a href="https://autofix.ci">autofix.ci</a>.</li>
 </ul>
+<p>See also <a href="./fail_on_changes_diff.html"><code>fail_on_changes_diff</code></a>.</p>
 <pre><code class="language-yml"># lefthook.yml
 pre-commit:
   parallel: true
@@ -182,7 +183,7 @@ pre-commit:
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../configuration/exclude_tags.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../configuration/fail_on_changes_diff.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -196,7 +197,7 @@ pre-commit:
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../configuration/exclude_tags.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../configuration/fail_on_changes_diff.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

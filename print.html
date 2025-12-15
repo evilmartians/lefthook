@@ -682,6 +682,7 @@ SHA1=$3
 <li><a href="configuration/./piped.html"><code>piped</code></a></li>
 <li><a href="configuration/./follow.html"><code>follow</code></a></li>
 <li><a href="configuration/./fail_on_changes.html"><code>fail_on_changes</code></a></li>
+<li><a href="configuration/./fail_on_changes_diff.html"><code>fail_on_changes_diff</code></a></li>
 <li><a href="configuration/./exclude_tags.html"><code>exclude_tags</code></a></li>
 <li><a href="configuration/./exclude.html"><code>exclude</code></a></li>
 <li><a href="configuration/./skip.html"><code>skip</code></a></li>
@@ -1325,10 +1326,27 @@ pre-push:
 <li><code>ci</code>: exit with a non-zero status only when the <code>CI</code> environment variable is set. This can be useful when combined with <code>stage_fixed</code> to ensure a frictionless devX locally, and a robust CI.</li>
 <li><code>non-ci</code>: exit with a non-zero status only when the <code>CI</code> environment variable is <em>not</em> set. This can be useful in setups where the CI pipeline commits changes automatically, such as <a href="https://autofix.ci">autofix.ci</a>.</li>
 </ul>
+<p>See also <a href="configuration/./fail_on_changes_diff.html"><code>fail_on_changes_diff</code></a>.</p>
 <pre><code class="language-yml"># lefthook.yml
 pre-commit:
   parallel: true
   fail_on_changes: "always"
+  commands:
+    lint:
+      run: yarn lint
+    test:
+      run: yarn test
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="fail_on_changes_diff"><a class="header" href="#fail_on_changes_diff">fail_on_changes_diff</a></h1>
+<p>When Lefthook exits with a non-zero status as a result of <a href="configuration/./fail_on_changes.html"><code>fail_on_changes</code></a> triggering,
+it can optionally output a diff of the detected changes.</p>
+<p>The default behavior is to output the diff when run in a CI pipeline.
+The <code>fail_on_changes_diff</code> boolean configuration parameter can be used to override this.</p>
+<pre><code class="language-yml"># lefthook.yml
+pre-commit:
+  parallel: true
+  fail_on_changes: "always"
+  fail_on_changes_diff: true
   commands:
     lint:
       run: yarn lint

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>exclude_tags - Lefthook Documentation</title>
+        <title>fail_on_changes_diff - Lefthook Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -155,59 +155,32 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="exclude_tags"><a class="header" href="#exclude_tags"><code>exclude_tags</code></a></h2>
-<p><a href="./tags.html">Tags</a> or command names that you want to exclude. This option can be overwritten with <code>LEFTHOOK_EXCLUDE</code> env variable.</p>
-<p><strong>Example</strong></p>
+                        <h1 id="fail_on_changes_diff"><a class="header" href="#fail_on_changes_diff">fail_on_changes_diff</a></h1>
+<p>When Lefthook exits with a non-zero status as a result of <a href="./fail_on_changes.html"><code>fail_on_changes</code></a> triggering,
+it can optionally output a diff of the detected changes.</p>
+<p>The default behavior is to output the diff when run in a CI pipeline.
+The <code>fail_on_changes_diff</code> boolean configuration parameter can be used to override this.</p>
 <pre><code class="language-yml"># lefthook.yml
-
 pre-commit:
-  exclude_tags: frontend
+  parallel: true
+  fail_on_changes: "always"
+  fail_on_changes_diff: true
   commands:
     lint:
-      tags: frontend
-      ...
+      run: yarn lint
     test:
-      tags: frontend
-      ...
-    check-syntax:
-      tags: documentation
-</code></pre>
-<pre><code class="language-bash">lefthook run pre-commit # will only run check-syntax command
-</code></pre>
-<p><strong>Notes</strong></p>
-<p>This option is good to specify in <code>lefthook-local.yml</code> when you want to skip some execution locally.</p>
-<pre><code class="language-yml"># lefthook.yml
-
-pre-push:
-  commands:
-    packages-audit:
-      tags:
-        - frontend
-        - security
-      run: yarn audit
-    gems-audit:
-      tags:
-        - backend
-        - security
-      run: bundle audit
-</code></pre>
-<p>You can skip commands by tags:</p>
-<pre><code class="language-yml"># lefthook-local.yml
-
-pre-push:
-  exclude_tags:
-    - frontend
+      run: yarn test
 </code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../configuration/fail_on_changes_diff.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../configuration/fail_on_changes.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../configuration/exclude.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../configuration/exclude_tags.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -217,11 +190,11 @@ pre-push:
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../configuration/fail_on_changes_diff.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../configuration/fail_on_changes.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../configuration/exclude.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../configuration/exclude_tags.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
