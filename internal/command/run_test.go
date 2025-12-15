@@ -2,26 +2,15 @@ package command
 
 import (
 	"fmt"
-	"io"
 	"path/filepath"
 	"testing"
 
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/evilmartians/lefthook/v2/internal/system"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/cmdtest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/gittest"
 )
-
-type gitCmd struct{}
-
-func (g gitCmd) WithoutEnvs(...string) system.Command {
-	return g
-}
-
-func (g gitCmd) Run([]string, string, io.Reader, io.Writer, io.Writer) error {
-	return nil
-}
 
 func TestRun(t *testing.T) {
 	root, err := filepath.Abs("src")
@@ -151,7 +140,7 @@ post-commit:
 			fs := afero.NewMemMapFs()
 			lefthook := &Lefthook{
 				fs:   fs,
-				repo: gittest.NewRepositoryBuilder().Git(gitCmd{}).Fs(fs).Root(root).Build(),
+				repo: gittest.NewRepositoryBuilder().Cmd(cmdtest.NewDumb()).Fs(fs).Root(root).Build(),
 			}
 			lefthook.repo.Setup()
 

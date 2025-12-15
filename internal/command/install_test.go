@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/cmdtest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/gittest"
 )
 
@@ -31,7 +32,8 @@ func TestLefthookInstall(t *testing.T) {
 		name, config, checksum  string
 		force                   bool
 		hooks                   []string
-		existingHooks           map[string]string
+		git                     []cmdtest.Out
+		existingFiles           map[string]string
 		wantExist, wantNotExist []string
 		wantError               bool
 	}{
@@ -97,8 +99,8 @@ post-commit:
     notify:
       run: echo 'Done!'
 `,
-			existingHooks: map[string]string{
-				"pre-commit": "",
+			existingFiles: map[string]string{
+				hookPath("pre-commit"): "",
 			},
 			wantExist: []string{
 				configPath,
@@ -122,8 +124,8 @@ post-commit:
     notify:
       run: echo 'Done!'
 `,
-			existingHooks: map[string]string{
-				"pre-commit": "# LEFTHOOK file",
+			existingFiles: map[string]string{
+				hookPath("pre-commit"): "# LEFTHOOK file",
 			},
 			wantExist: []string{
 				configPath,
@@ -171,9 +173,9 @@ post-commit:
     notify:
       run: echo 'Done!'
 `,
-			existingHooks: map[string]string{
-				"pre-commit":     "",
-				"pre-commit.old": "",
+			existingFiles: map[string]string{
+				hookPath("pre-commit"):     "",
+				hookPath("pre-commit.old"): "",
 			},
 			wantError: true,
 			wantExist: []string{
@@ -199,9 +201,9 @@ post-commit:
     notify:
       run: echo 'Done!'
 `,
-			existingHooks: map[string]string{
-				"pre-commit":     "",
-				"pre-commit.old": "",
+			existingFiles: map[string]string{
+				hookPath("pre-commit"):     "",
+				hookPath("pre-commit.old"): "",
 			},
 			wantExist: []string{
 				configPath,
@@ -211,16 +213,59 @@ post-commit:
 				infoPath(config.ChecksumFileName),
 			},
 		},
+		{
+			name: "with unfetched remote",
+			config: `
+remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    configs:
+      - lefthook.yml
+`,
+			git: []cmdtest.Out{
+				{
+					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes") + " clone --quiet --origin origin --depth 1 https://github.com/evilmartians/lefthook lefthook",
+				},
+			},
+		},
+		{
+			name: "needs refetching",
+			config: `
+remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    ref: v2.0.0
+    configs:
+      - lefthook.yml
+`,
+			existingFiles: map[string]string{
+				filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.1", ".git", "FETCH_HEAD"): "",
+			},
+			git: []cmdtest.Out{
+				{
+					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes") + " clone --quiet --origin origin --depth 1 --branch v2.0.0 https://github.com/evilmartians/lefthook lefthook-v2.0.0",
+				},
+				{
+					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.0") + " fetch --quiet --depth 1 origin v2.0.0",
+				},
+				{
+					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.0") + " checkout FETCH_HEAD",
+				},
+			},
+		},
 	} {
 		fs := afero.NewMemMapFs()
-		repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Build()
-		lefthook := &Lefthook{
-			fs:   fs,
-			repo: repo,
-		}
 
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			assert := assert.New(t)
+
+			repo := gittest.NewRepositoryBuilder().
+				Root(root).
+				Fs(fs).
+				Cmd(cmdtest.NewOrdered(t, tt.git)).
+				Build()
+			lefthook := &Lefthook{
+				fs:   fs,
+				repo: repo,
+			}
 
 			// Create configuration file
 			if len(tt.config) > 0 {
@@ -234,8 +279,7 @@ post-commit:
 			}
 
 			// Create files that should exist
-			for hook, content := range tt.existingHooks {
-				path := hookPath(hook)
+			for path, content := range tt.existingFiles {
 				assert.NoError(fs.MkdirAll(filepath.Dir(path), 0o755))
 				assert.NoError(afero.WriteFile(fs, path, []byte(content), 0o755))
 			}
@@ -252,14 +296,14 @@ post-commit:
 			for _, file := range tt.wantExist {
 				ok, err := afero.Exists(fs, file)
 				assert.NoError(err)
-				assert.Equal(ok, true)
+				assert.Equal(true, ok)
 			}
 
 			// Test files that should not exist
 			for _, file := range tt.wantNotExist {
 				ok, err := afero.Exists(fs, file)
 				assert.NoError(err)
-				assert.Equal(ok, false)
+				assert.Equal(false, ok)
 			}
 		})
 	}
@@ -281,7 +325,8 @@ func Test_syncHooks(t *testing.T) {
 
 	for n, tt := range [...]struct {
 		name, config, checksum  string
-		existingHooks           map[string]string
+		existingFiles           map[string]string
+		git                     []cmdtest.Out
 		wantExist, wantNotExist []string
 		wantError               bool
 	}{
@@ -390,16 +435,71 @@ commit-msg:
 				hookPath(config.GhostHookName),
 			},
 		},
+		{
+			name: "with unfetched remote",
+			config: `
+remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    configs:
+      - lefthook.yml
+`,
+			git: []cmdtest.Out{
+				{
+					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes") + " clone --quiet --origin origin --depth 1 https://github.com/evilmartians/lefthook lefthook",
+				},
+			},
+		},
+		{
+			name: "no need to refetch",
+			config: `
+remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    ref: v2.0.1
+    configs:
+      - lefthook.yml
+`,
+			existingFiles: map[string]string{
+				filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.1", ".git", "FETCH_HEAD"): "",
+			},
+		},
+		{
+			name: "needs refetching",
+			config: `
+remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    ref: v2.0.0
+    configs:
+      - lefthook.yml
+`,
+			existingFiles: map[string]string{
+				filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.1", ".git", "FETCH_HEAD"): "",
+			},
+			git: []cmdtest.Out{
+				{
+					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes") + " clone --quiet --origin origin --depth 1 --branch v2.0.0 https://github.com/evilmartians/lefthook lefthook-v2.0.0",
+				},
+				{
+					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.0") + " fetch --quiet --depth 1 origin v2.0.0",
+				},
+				{
+					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.0") + " checkout FETCH_HEAD",
+				},
+			},
+			wantNotExist: []string{
+				filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.1"),
+			},
+		},
 	} {
 		fs := afero.NewMemMapFs()
-		repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Build()
-		lefthook := &Lefthook{
-			fs:   fs,
-			repo: repo,
-		}
 
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			assert := assert.New(t)
+
+			repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Cmd(cmdtest.NewOrdered(t, tt.git)).Build()
+			lefthook := &Lefthook{
+				fs:   fs,
+				repo: repo,
+			}
 
 			// Create configuration file
 			if len(tt.config) > 0 {
@@ -413,8 +513,7 @@ commit-msg:
 			}
 
 			// Create files that should exist
-			for hook, content := range tt.existingHooks {
-				path := hookPath(hook)
+			for path, content := range tt.existingFiles {
 				assert.NoError(fs.MkdirAll(filepath.Dir(path), 0o755))
 				assert.NoError(afero.WriteFile(fs, path, []byte(content), 0o755))
 			}
@@ -423,7 +522,7 @@ commit-msg:
 			assert.NoError(err)
 
 			// Create hooks
-			_, err = lefthook.syncHooks(cfg, false)
+			_, err = lefthook.syncHooks(cfg, true)
 			if tt.wantError {
 				assert.Error(err)
 			} else {

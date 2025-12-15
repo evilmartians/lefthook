@@ -1,60 +1,37 @@
 package git
 
 import (
-	"errors"
 	"fmt"
-	"io"
-	"strings"
 	"sync"
 	"testing"
 
-	"github.com/evilmartians/lefthook/v2/internal/system"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/cmdtest"
 )
-
-type gitCmd struct {
-	cases map[string]string
-}
-
-func (g gitCmd) WithoutEnvs(...string) system.Command {
-	return g
-}
-
-func (g gitCmd) Run(cmd []string, _root string, _in io.Reader, out io.Writer, _errOut io.Writer) error {
-	res, ok := g.cases[(strings.Join(cmd, " "))]
-	if !ok {
-		return errors.New("doesn't exist")
-	}
-
-	_, err := out.Write([]byte(res))
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
 
 func TestPartiallyStagedFiles(t *testing.T) {
 	for i, tt := range [...]struct {
-		name, gitOut string
-		error        bool
-		result       []string
+		name   string
+		git    []cmdtest.Out
+		error  bool
+		result []string
 	}{
 		{
-			gitOut: "RM new file\x00old-file\x00" +
-				"M  staged\x00" +
-				"MM staged but changed\x00",
+			git: []cmdtest.Out{
+				{
+					Command: "git status --short --porcelain -z",
+					Output: "RM new file\x00old-file\x00" +
+						"M  staged\x00" +
+						"MM staged but changed\x00",
+				},
+			},
 			result: []string{"new file", "staged but changed"},
 		},
 	} {
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
 			repository := &Repository{
 				Git: &CommandExecutor{
-					mu: new(sync.Mutex),
-					cmd: gitCmd{
-						cases: map[string]string{
-							"git status --short --porcelain -z": tt.gitOut,
-						},
-					},
+					mu:  new(sync.Mutex),
+					cmd: cmdtest.NewOrdered(t, tt.git),
 				},
 			}
 			repository.Setup()
@@ -79,61 +56,79 @@ func TestPartiallyStagedFiles(t *testing.T) {
 
 func TestChangeset(t *testing.T) {
 	for i, tt := range [...]struct {
-		name, gitStatusOut, gitHashOut string
-		pathsToHash                    []string
-		result                         map[string]string
+		name        string
+		git         []cmdtest.Out
+		pathsToHash []string
+		result      map[string]string
 	}{
 		{
-			name:   "no changes",
+			name: "no changes",
+			git: []cmdtest.Out{
+				{Command: "git status --short --porcelain -z", Output: ""},
+			},
 			result: map[string]string{},
 		},
 		{
-			name:         "modified file",
-			gitStatusOut: " M modified.txt\x00",
-			gitHashOut:   "123456",
-			pathsToHash:  []string{"modified.txt"},
+			name: "modified file",
+			git: []cmdtest.Out{
+				{Command: "git status --short --porcelain -z", Output: " M modified.txt\x00"},
+				{Command: "git hash-object -- modified.txt", Output: "123456"},
+			},
+			pathsToHash: []string{"modified.txt"},
 			result: map[string]string{
 				"modified.txt": "123456",
 			},
 		},
 		{
-			name:         "deleted file",
-			gitStatusOut: "D  deleted.txt\x00",
+			name: "deleted file",
+			git: []cmdtest.Out{
+				{Command: "git status --short --porcelain -z", Output: "D  deleted.txt\x00"},
+			},
 			result: map[string]string{
 				"deleted.txt": "deleted",
 			},
 		},
 		{
-			name:         "new file",
-			gitStatusOut: "?? new.txt\x00",
-			gitHashOut:   "654321",
-			pathsToHash:  []string{"new.txt"},
+			name: "new file",
+			git: []cmdtest.Out{
+				{Command: "git status --short --porcelain -z", Output: "?? new.txt\x00"},
+				{Command: "git hash-object -- new.txt", Output: "654321"},
+			},
+			pathsToHash: []string{"new.txt"},
 			result: map[string]string{
 				"new.txt": "654321",
 			},
 		},
 		{
-			name:         "new dir",
-			gitStatusOut: "?? new-dir/\x00",
-			pathsToHash:  []string{},
+			name: "new dir",
+			git: []cmdtest.Out{
+				{Command: "git status --short --porcelain -z", Output: "?? new-dir/\x00"},
+			},
+			pathsToHash: []string{},
 			result: map[string]string{
 				"new-dir/": "directory",
 			},
 		},
 		{
 			name: "mixed changes",
-			gitStatusOut: "M  modified.txt\x00" +
-				"CT copied to\x00copied from\x00" +
-				" D deleted.txt\x00" +
-				"?? new.txt\x00" +
-				"?? new-dir/\x00" +
-				"RM new-file\x00old-file\x00" +
-				"A  foo -> bar\x00" +
-				"MM back\\slashes\x00" +
-				"R  this is the new filename\x00R  this is really the old name, does it throw off the parser\x00" +
-				"??  leading-space\x00",
-			gitHashOut:  "123456\nc0c0c0\n654321\n758213\nfbfbfb\nbbbbbb\nffffff\ncccccc\n",
-			pathsToHash: []string{"modified.txt", "copied to", "new.txt", "new-file", "foo -> bar", `back\slashes`, "this is the new filename", " leading-space"},
+			git: []cmdtest.Out{
+				{
+					Command: "git status --short --porcelain -z",
+					Output: "M  modified.txt\x00" +
+						"CT copied to\x00copied from\x00" +
+						" D deleted.txt\x00" +
+						"?? new.txt\x00" +
+						"?? new-dir/\x00" +
+						"RM new-file\x00old-file\x00" +
+						"A  foo -> bar\x00" +
+						"MM back\\slashes\x00" +
+						"R  this is the new filename\x00R  this is really the old name, does it throw off the parser\x00" +
+						"??  leading-space\x00",
+				},
+
+				{Command: "git hash-object -- modified.txt copied to new.txt new-file foo -> bar back\\slashes this is the new filename  leading-space", Output: "123456\nc0c0c0\n654321\n758213\nfbfbfb\nbbbbbb\nffffff\ncccccc\n"},
+			},
+			// pathsToHash: []string{"modified.txt", "copied to", "new.txt", "new-file", "foo -> bar", `back\slashes`, "this is the new filename", " leading-space"},
 			result: map[string]string{
 				"modified.txt":             "123456",
 				"copied to":                "c0c0c0",
@@ -149,21 +144,10 @@ func TestChangeset(t *testing.T) {
 		},
 	} {
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			gitCmds := map[string]string{
-				"git status --short --porcelain -z": tt.gitStatusOut,
-			}
-
-			if len(tt.pathsToHash) > 0 {
-				cmd := append([]string{"git", "hash-object", "--"}, tt.pathsToHash...)
-				gitCmds[strings.Join(cmd, " ")] = tt.gitHashOut
-			}
-
 			repository := &Repository{
 				Git: &CommandExecutor{
-					mu: new(sync.Mutex),
-					cmd: gitCmd{
-						cases: gitCmds,
-					},
+					mu:        new(sync.Mutex),
+					cmd:       cmdtest.NewOrdered(t, tt.git),
 					maxCmdLen: 7000,
 				},
 			}
