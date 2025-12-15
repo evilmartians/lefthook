@@ -16,6 +16,10 @@ func run() *cli.Command {
 		Name:  "fail-on-changes",
 		Usage: "exit with 1 if some of the files were changed",
 	}
+	failOnChangesDiff := &cli.BoolWithInverseFlag{
+		Name:  "fail-on-changes-diff",
+		Usage: "output a diff when failing on changes",
+	}
 
 	return &cli.Command{
 		Name:      "run",
@@ -105,6 +109,10 @@ func run() *cli.Command {
 			if failOnChanges.IsSet() {
 				value := cmd.Bool("fail-on-changes")
 				args.FailOnChanges = &value
+			}
+			if failOnChangesDiff.IsSet() {
+				value := cmd.Bool("fail-on-changes-diff")
+				args.FailOnChangesDiff = &value
 			}
 
 			if cmd.Args().Len() < 1 {

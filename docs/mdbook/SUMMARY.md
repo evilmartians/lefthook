@@ -63,6 +63,7 @@
     - [`piped`](./configuration/piped.md)
     - [`follow`](./configuration/follow.md)
     - [`fail_on_changes`](./configuration/fail_on_changes.md)
+    - [`fail_on_changes_diff`](./configuration/fail_on_changes_diff.md)
     - [`exclude_tags`](./configuration/exclude_tags.md)
     - [`exclude`](./configuration/exclude.md)
     - [`skip`](./configuration/skip.md)

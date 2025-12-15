@@ -42,6 +42,7 @@ func Test_guard_wrap(t *testing.T) {
 	for name, tt := range map[string]struct {
 		stashUnstagedChanges bool
 		failOnChanges        bool
+		failOnChangesDiff    bool
 		commands             [][2]string
 		err                  error
 	}{
@@ -68,18 +69,20 @@ func Test_guard_wrap(t *testing.T) {
 				{"git hash-object -- file1 file2", "0\n1\n"},
 			},
 		},
-		"failOnChanges=true fail with changeset different": {
+		"failOnChanges=true fail with changeset different with diff": {
 			stashUnstagedChanges: false,
 			failOnChanges:        true,
+			failOnChangesDiff:    true,
 			commands: [][2]string{
 				{"git status --short --porcelain -z", " M file1\x00 M file2\x00"},
 				{"git hash-object -- file1 file2", "0\n1\n"},
 				{"git status --short --porcelain -z", " M file1\x00 M file2\x00"},
 				{"git hash-object -- file1 file2", "2\n3\n"},
+				{"git diff --color -- file1 file2", "diff --git a/file1 b/file1\n..."},
 			},
 			err: ErrFailOnChanges,
 		},
-		"failOnChanges=true fail with extra files": {
+		"failOnChanges=true fail with extra files without diff": {
 			stashUnstagedChanges: false,
 			failOnChanges:        true,
 			commands: [][2]string{
@@ -124,7 +127,7 @@ func Test_guard_wrap(t *testing.T) {
 			fs := afero.NewMemMapFs()
 			repo := gittest.NewRepositoryBuilder().Git(&guardCmd{tt.commands}).Fs(fs).Root("root").Build()
 			repo.Setup()
-			g := newGuard(repo, tt.stashUnstagedChanges, tt.failOnChanges)
+			g := newGuard(repo, tt.stashUnstagedChanges, tt.failOnChanges, tt.failOnChangesDiff)
 
 			var beenCalled bool
 			err := g.wrap(func() { beenCalled = true })

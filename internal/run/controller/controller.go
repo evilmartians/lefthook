@@ -26,19 +26,20 @@ type Controller struct {
 }
 
 type Options struct {
-	GitArgs       []string
-	ExcludeFiles  []string
-	Files         []string
-	RunOnlyJobs   []string
-	RunOnlyTags   []string
-	SourceDirs    []string
-	Templates     map[string]string
-	GlobMatcher   string
-	DisableTTY    bool
-	FailOnChanges bool
-	Force         bool
-	SkipLFS       bool
-	NoStageFixed  bool
+	GitArgs           []string
+	ExcludeFiles      []string
+	Files             []string
+	RunOnlyJobs       []string
+	RunOnlyTags       []string
+	SourceDirs        []string
+	Templates         map[string]string
+	GlobMatcher       string
+	DisableTTY        bool
+	FailOnChanges     bool
+	FailOnChangesDiff bool
+	Force             bool
+	SkipLFS           bool
+	NoStageFixed      bool
 }
 
 func NewController(repo *git.Repository) *Controller {
@@ -76,7 +77,7 @@ func (c *Controller) RunHook(ctx context.Context, opts Options, hook *config.Hoo
 		defer log.StopSpinner()
 	}
 
-	guard := newGuard(c.git, !opts.NoStageFixed && config.HookUsesStagedFiles(hook.Name), opts.FailOnChanges)
+	guard := newGuard(c.git, !opts.NoStageFixed && config.HookUsesStagedFiles(hook.Name), opts.FailOnChanges, opts.FailOnChangesDiff)
 	scope := newScope(hook, opts)
 	err := guard.wrap(func() {
 		if hook.Parallel {
