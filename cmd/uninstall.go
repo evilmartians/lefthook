@@ -41,5 +41,8 @@ func uninstall() *cli.Command {
 
 			return l.Uninstall(ctx, args)
 		},
+		ShellComplete: func(ctx context.Context, cmd *cli.Command) {
+			command.ShellCompleteFlags(cmd)
+		},
 	}
 }

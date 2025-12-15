@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/urfave/cli/v3"
 
@@ -125,19 +124,8 @@ func run() *cli.Command {
 			return l.Run(ctx, args)
 		},
 		ShellComplete: func(ctx context.Context, cmd *cli.Command) {
-			l, err := command.NewLefthook(args.Verbose, colors)
-			if err != nil {
-				return
-			}
-
-			cfg, err := l.LoadConfig()
-			if err != nil {
-				return
-			}
-
-			for hook := range cfg.Hooks {
-				fmt.Println(hook) //nolint:forbidigo
-			}
+			command.ShellCompleteFlags(cmd)
+			command.ShellCompleteHookNames()
 		},
 	}
 }

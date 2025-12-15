@@ -2,12 +2,18 @@ package command
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
+	"github.com/knadh/koanf/parsers/json"
+	"github.com/knadh/koanf/providers/rawbytes"
+	"github.com/knadh/koanf/v2"
 	"github.com/spf13/afero"
+	"github.com/urfave/cli/v3"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/git"
@@ -64,6 +70,27 @@ func NewLefthook(verbose bool, colors string) (*Lefthook, error) {
 
 func (l *Lefthook) LoadConfig() (*config.Config, error) {
 	return config.Load(l.fs, l.repo)
+}
+
+func (l *Lefthook) reloadConfig(cfg *config.Config) (*config.Config, error) {
+	log.Debug("Reloading config...")
+
+	buffer := new(bytes.Buffer)
+	if err := cfg.Dump(config.JSONCompactFormat, buffer); err != nil {
+		return nil, err
+	}
+
+	main := koanf.New(".")
+	if err := main.Load(rawbytes.Provider(buffer.Bytes()), json.Parser()); err != nil {
+		return nil, err
+	}
+
+	secondary, err := config.LoadSecondary(main, l.fs, l.repo)
+	if err != nil {
+		return nil, err
+	}
+
+	return config.Unmarshal(main, secondary)
 }
 
 // Tests a file whether it is a lefthook-created file.
@@ -145,4 +172,43 @@ func isEnvEnabled(name string) bool {
 	}
 
 	return false
+}
+
+func ShellCompleteHookNames() {
+	l, err := NewLefthook(false, "off")
+	if err != nil {
+		return
+	}
+
+	cfg, err := l.LoadConfig()
+	if err != nil {
+		return
+	}
+
+	for hook := range cfg.Hooks {
+		fmt.Println(hook) //nolint:forbidigo // undecorated stdout is a must
+	}
+}
+
+func ShellCompleteFlags(cmd *cli.Command) {
+	given := cmd.FlagNames()
+flags:
+	for _, f := range cmd.VisibleFlags() {
+		toAdd := make([]string, 0, len(f.Names()))
+		for _, fn := range f.Names() {
+			// Exclude all aliases of a flag if any of them is already given
+			if slices.Contains(given, fn) {
+				continue flags
+			}
+			// Do not bother with single letter flags.
+			// If the user knows what they're for, they can just write them (hit the letter instead of tab),
+			// no need to clutter the output with them.
+			if len(fn) != 1 {
+				toAdd = append(toAdd, fn)
+			}
+		}
+		for _, fn := range toAdd {
+			fmt.Println("--" + fn) //nolint:forbidigo // undecorated stdout is a must
+		}
+	}
 }

@@ -13,12 +13,20 @@ import (
 
 // CommandExecutor provides some methods that take some effect on execution and/or result data.
 type CommandExecutor struct {
-	mu            *sync.Mutex
-	cmd           system.Command
-	root          string
-	maxCmdLen     int
+	mu  *sync.Mutex
+	cmd system.Command
+
+	// Execute command in the specific directory
+	root string
+
+	// Split one command into multiple, respecting supported max command length
+	maxCmdLen int
+
+	// Print all logs in Debug level
 	onlyDebugLogs bool
-	noTrimOut     bool
+
+	// Do not trim leading and ending spaces
+	noTrimOut bool
 }
 
 // NewExecutor returns an object that executes given commands in the OS.

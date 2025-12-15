@@ -19,7 +19,7 @@ const (
 func (r *Repository) RemoteFolder(url string, ref string) string {
 	return filepath.Join(
 		r.RemotesFolder(),
-		remoteDirectoryName(url, ref),
+		RemoteDirectoryName(url, ref),
 	)
 }
 
@@ -44,7 +44,7 @@ func (r *Repository) SyncRemote(url, ref string, force bool) error {
 	defer log.StopSpinner()
 	defer log.UnsetName("fetching remotes")
 
-	directoryName := remoteDirectoryName(url, ref)
+	directoryName := RemoteDirectoryName(url, ref)
 	remotePath := filepath.Join(remotesPath, directoryName)
 
 	if force {
@@ -66,7 +66,7 @@ func (r *Repository) updateRemote(path, ref string) error {
 	log.Debugf("Updating remote config repository: %s", path)
 
 	// This is overwriting ENVs for worktrees, otherwise it does not work.
-	git := r.Git.WithoutEnvs("GIT_DIR", "GIT_INDEX_FILE")
+	git := r.Git.WithoutEnvs("GIT_DIR", "GIT_INDEX_FILE").OnlyDebugLogs()
 
 	if len(ref) != 0 {
 		_, err := git.Cmd([]string{
@@ -102,15 +102,34 @@ func (r *Repository) cloneRemote(dest, directoryName, url, ref string) error {
 	}
 	cmdClone = append(cmdClone, url, directoryName)
 
-	_, err := r.Git.WithoutEnvs("GIT_DIR", "GIT_INDEX_FILE").Cmd(cmdClone)
+	git := r.Git.WithoutEnvs("GIT_DIR", "GIT_INDEX_FILE").OnlyDebugLogs()
+	_, err := git.Cmd(cmdClone)
 	if err != nil {
 		return err
+	}
+
+	path := filepath.Join(dest, directoryName)
+	if len(ref) != 0 {
+		_, err := git.Cmd([]string{
+			"git", "-C", path, "fetch", "--quiet", "--depth", "1",
+			"origin", ref,
+		})
+		if err != nil {
+			return err
+		}
+
+		_, err = git.Cmd([]string{
+			"git", "-C", path, "checkout", "FETCH_HEAD",
+		})
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
-func remoteDirectoryName(url, ref string) string {
+func RemoteDirectoryName(url, ref string) string {
 	name := filepath.Base(
 		strings.TrimSuffix(url, filepath.Ext(url)),
 	)

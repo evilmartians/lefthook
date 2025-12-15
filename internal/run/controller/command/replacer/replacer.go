@@ -105,9 +105,19 @@ func (r Replacer) Discover(source string, filter *filter.Filter) error {
 	return nil
 }
 
-func (r Replacer) Empty(key string) bool {
+func (r Replacer) Cached(key string) bool {
 	_, ok := r.cache[key]
-	return !ok
+
+	return ok
+}
+
+func (r Replacer) Empty(key string) bool {
+	entry, ok := r.cache[key]
+	if !ok {
+		return true
+	}
+
+	return len(entry.items) == 0
 }
 
 func (r Replacer) Files(template string, filter *filter.Filter) ([]string, error) {

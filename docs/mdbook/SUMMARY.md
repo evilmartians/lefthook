@@ -42,6 +42,7 @@
   - [`extends`](./configuration/extends.md)
   - [`lefthook`](./configuration/lefthook.md)
   - [`min_version`](./configuration/min_version.md)
+  - [`no_auto_install`](./configuration/no_auto_install.md)
   - [`no_tty`](./configuration/no_tty.md)
   - [`output`](./configuration/output.md)
   - [`rc`](./configuration/rc.md)

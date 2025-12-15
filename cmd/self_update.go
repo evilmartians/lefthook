@@ -61,5 +61,8 @@ func selfUpdate() *cli.Command {
 				ExePath: exePath,
 			})
 		},
+		ShellComplete: func(ctx context.Context, cmd *cli.Command) {
+			command.ShellCompleteFlags(cmd)
+		},
 	}
 }

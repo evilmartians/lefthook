@@ -31,5 +31,8 @@ func checkInstall() *cli.Command {
 
 			return l.CheckInstall(ctx)
 		},
+		ShellComplete: func(ctx context.Context, cmd *cli.Command) {
+			command.ShellCompleteFlags(cmd)
+		},
 	}
 }
