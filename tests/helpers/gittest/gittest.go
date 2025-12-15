@@ -24,7 +24,7 @@ func (b *RepositoryBuilder) Root(root string) *RepositoryBuilder {
 	return b
 }
 
-func (b *RepositoryBuilder) Git(cmd system.Command) *RepositoryBuilder {
+func (b *RepositoryBuilder) Cmd(cmd system.Command) *RepositoryBuilder {
 	b.cmd = cmd
 	return b
 }

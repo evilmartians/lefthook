@@ -14,7 +14,7 @@ import (
 func TestBuilder(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	cmd := system.Cmd
-	repo := NewRepositoryBuilder().Root("root").Fs(fs).Git(cmd).Build()
+	repo := NewRepositoryBuilder().Root("root").Fs(fs).Cmd(cmd).Build()
 
 	assert := assert.New(t)
 	assert.Equal("root", repo.RootPath)

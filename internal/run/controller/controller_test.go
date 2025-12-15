@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-	"sync"
 	"testing"
 	"time"
 
@@ -17,18 +16,13 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/exec"
 	"github.com/evilmartians/lefthook/v2/internal/run/result"
-	"github.com/evilmartians/lefthook/v2/internal/system"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/cmdtest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/configtest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/gittest"
 )
 
 type (
 	executor struct{}
-	cmd      struct{}
-	gitCmd   struct {
-		mux      sync.Mutex
-		commands []string
-	}
 )
 
 func succeeded(name string) result.Result {
@@ -49,47 +43,42 @@ func (e executor) Execute(_ctx context.Context, opts exec.Options, _in io.Reader
 	return err
 }
 
-func (e cmd) RunWithContext(context.Context, []string, string, io.Reader, io.Writer, io.Writer) error {
-	return nil
-}
-
-func (g *gitCmd) WithoutEnvs(...string) system.Command {
-	return g
-}
-
-func (g *gitCmd) Run(cmd []string, _root string, _in io.Reader, out io.Writer, _errOut io.Writer) error {
-	g.mux.Lock()
-	g.commands = append(g.commands, strings.Join(cmd, " "))
-	g.mux.Unlock()
-
-	cmdLine := strings.Join(cmd, " ")
-	if cmdLine == "git diff --name-only --cached --diff-filter=ACMR" ||
-		cmdLine == "git diff --name-only --cached --diff-filter=ACMRD" ||
-		cmdLine == "git diff --name-only HEAD @{push}" {
-		root, _ := filepath.Abs("src")
-		_, err := out.Write([]byte(strings.Join([]string{
-			filepath.Join(root, "scripts", "script.sh"),
-			filepath.Join(root, "README.md"),
-		}, "\n")))
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (g *gitCmd) reset() {
-	g.mux.Lock()
-	g.commands = []string{}
-	g.mux.Unlock()
-}
+// func (g *gitCmd) WithoutEnvs(...string) system.Command {
+// 	return g
+// }
+//
+// func (g *gitCmd) Run(cmd []string, _root string, _in io.Reader, out io.Writer, _errOut io.Writer) error {
+// 	g.mux.Lock()
+// 	g.commands = append(g.commands, strings.Join(cmd, " "))
+// 	g.mux.Unlock()
+//
+// 	cmdLine := strings.Join(cmd, " ")
+// 	if cmdLine == "git diff --name-only --cached --diff-filter=ACMR" ||
+// 		cmdLine == "git diff --name-only --cached --diff-filter=ACMRD" ||
+// 		cmdLine == "git diff --name-only HEAD @{push}" {
+// 		root, _ := filepath.Abs("src")
+// 		_, err := out.Write([]byte(strings.Join([]string{
+// 			filepath.Join(root, "scripts", "script.sh"),
+// 			filepath.Join(root, "README.md"),
+// 		}, "\n")))
+// 		if err != nil {
+// 			return err
+// 		}
+// 	}
+//
+// 	return nil
+// }
+//
+// func (g *gitCmd) reset() {
+// 	g.mux.Lock()
+// 	g.commands = []string{}
+// 	g.mux.Unlock()
+// }
 
 func TestRunAll(t *testing.T) {
 	root, err := filepath.Abs("src")
 	assert.NoError(t, err)
 
-	gitExec := &gitCmd{}
 	gitPath := gittest.GitPath(root)
 
 	for name, tt := range map[string]struct {
@@ -628,13 +617,35 @@ func TestRunAll(t *testing.T) {
 		},
 	} {
 		fs := afero.NewMemMapFs()
-		repo := gittest.NewRepositoryBuilder().Root(root).Git(gitExec).Fs(fs).Build()
+
+		cmdExecutor := cmdtest.NewTracking(func(command string, root string, out io.Writer) error {
+			if command == "git diff --name-only --cached --diff-filter=ACMR" ||
+				command == "git diff --name-only --cached --diff-filter=ACMRD" ||
+				command == "git diff --name-only HEAD @{push}" {
+				root, _ := filepath.Abs("src")
+				_, err := out.Write([]byte(strings.Join([]string{
+					filepath.Join(root, "scripts", "script.sh"),
+					filepath.Join(root, "README.md"),
+				}, "\n")))
+				if err != nil {
+					return err
+				}
+			}
+
+			return nil
+		})
+
+		repo := gittest.NewRepositoryBuilder().
+			Root(root).
+			Cmd(cmdExecutor).
+			Fs(fs).
+			Build()
 		controller := &Controller{
 			git:      repo,
 			executor: executor{},
-			cmd:      cmd{},
+			cmd:      cmdtest.NewTracking(nil), // lfs hooks ignored in this test
 		}
-		gitExec.reset()
+		cmdExecutor.Reset()
 
 		for _, file := range tt.existingFiles {
 			assert.NoError(t, fs.MkdirAll(filepath.Dir(file), 0o755))
@@ -648,7 +659,7 @@ func TestRunAll(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 			repo.Setup()
-			gitExec.reset()
+			cmdExecutor.Reset()
 
 			opts := Options{
 				GitArgs:    tt.args,
@@ -673,11 +684,12 @@ func TestRunAll(t *testing.T) {
 			assert.ElementsMatch(fail, tt.fail)
 
 			if len(tt.gitCommands) > 0 {
-				assert.Len(gitExec.commands, len(tt.gitCommands))
-				for i, command := range gitExec.commands {
-					gitCommandRe := regexp.MustCompile(tt.gitCommands[i])
-					if !gitCommandRe.MatchString(command) {
-						t.Errorf("wrong git command regexp #%d\nExpected: %s\nWas: %s", i, tt.gitCommands[i], command)
+				assert.Len(cmdExecutor.Commands, len(tt.gitCommands))
+				for i, commandRe := range tt.gitCommands {
+					re := regexp.MustCompile(commandRe)
+					command := cmdExecutor.Commands[i]
+					if !re.MatchString(command) {
+						t.Errorf("wrong git command regexp #%d\nExpected: %s\nWas: %s", i, commandRe, command)
 					}
 				}
 			}
