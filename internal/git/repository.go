@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -21,7 +22,6 @@ const (
 	stashMessage      = "lefthook auto backup"
 	unstagedPatchName = "lefthook-unstaged.patch"
 	infoDirMode       = 0o775
-	minStatusLen      = 3
 
 	// The result of `git hash-object -t tree /dev/null`.
 	emptyTreeSHA = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
@@ -34,7 +34,7 @@ var (
 	cmdPushFilesHead          = []string{"git", "diff", "--name-only", "HEAD"}
 	cmdStagedFiles            = []string{"git", "diff", "--name-only", "--cached", "--diff-filter=ACMR"}
 	cmdStagedFilesWithDeleted = []string{"git", "diff", "--name-only", "--cached", "--diff-filter=ACMRD"}
-	cmdStatusShort            = []string{"git", "status", "--short", "--porcelain"}
+	cmdStatusShort            = []string{"git", "status", "--short", "--porcelain", "-z"}
 	cmdListStash              = []string{"git", "stash", "list"}
 	cmdPaths                  = []string{
 		"git", "rev-parse", "--path-format=absolute",
@@ -218,7 +218,7 @@ func (r *Repository) PartiallyStagedFiles() ([]string, error) {
 		return nil, err
 	}
 
-	r.parseStatusShort(lines, func(path string, index, worktree byte) {
+	r.parseStatusShort(lines, func(path string, index, worktree rune) {
 		if index != ' ' && index != '?' && worktree != ' ' && worktree != '?' {
 			partiallyStaged = append(partiallyStaged, path)
 		}
@@ -371,7 +371,7 @@ func (r *Repository) Changeset() (map[string]string, error) {
 		return nil, err
 	}
 
-	r.parseStatusShort(lines, func(path string, index, worktree byte) {
+	r.parseStatusShort(lines, func(path string, index, worktree rune) {
 		if index == 'D' || worktree == 'D' {
 			changeset[path] = "deleted"
 			return
@@ -405,23 +405,27 @@ func (r *Repository) statusShort() ([]string, error) {
 	return r.Git.WithoutTrim().CmdLines(cmdStatusShort)
 }
 
-func (r *Repository) parseStatusShort(lines []string, cb func(path string, index, worktree byte)) {
-	for _, line := range lines {
-		if len(line) < minStatusLen {
+// parseStatusShort parses short NUL separated porcelain v1 status output.
+// https://git-scm.com/docs/git-status#_short_format
+func (r *Repository) parseStatusShort(lines []string, cb func(path string, index, worktree rune)) {
+	output := strings.Join(lines, "") // there should be only one line with -z
+	skip := false
+	for item := range strings.SplitSeq(output, "\x00") {
+		if skip {
+			skip = false
 			continue
 		}
-
-		path := line[3:]
-		idx := strings.Index(path, "->")
-		if idx != -1 {
-			path = path[idx+3:]
-		}
-
-		if len(path) == 0 {
+		rs := []rune(item)
+		if len(rs) < 4 || rs[2] != ' ' { // two status characters, space, and a filename
 			continue
 		}
-
-		cb(path, line[0], line[1])
+		if slices.ContainsFunc(rs[0:2], func(r rune) bool {
+			return r == 'C' || r == 'R'
+		}) {
+			// Next item after a Copy or Rename one is expected to be the old name, which we ignore
+			skip = true
+		}
+		cb(string(rs[3:]), rs[0], rs[1])
 	}
 }
 
