@@ -3,7 +3,6 @@ package controller
 import (
 	"errors"
 	"maps"
-	"slices"
 
 	"github.com/evilmartians/lefthook/v2/internal/git"
 	"github.com/evilmartians/lefthook/v2/internal/log"
@@ -102,7 +101,7 @@ func (g *guard) after() error {
 			log.Warnf("Couldn't get changeset: %s\n", err)
 		}
 		if !maps.Equal(g.changesetBefore, changesetAfter) {
-			g.changesetDiff(changesetAfter)
+			g.printDiff(changesetAfter)
 			return ErrFailOnChanges
 		}
 	}
@@ -124,34 +123,27 @@ func (g *guard) after() error {
 	return nil
 }
 
-func (g *guard) changesetDiff(changesetAfter map[string]string) {
+func (g *guard) printDiff(changesetAfter map[string]string) {
 	if !g.failOnChangesDiff {
 		return
 	}
+
 	changed := make([]string, 0, len(g.changesetBefore))
 	for f, hashBefore := range g.changesetBefore {
 		if hashAfter, ok := changesetAfter[f]; !ok || hashBefore != hashAfter {
 			changed = append(changed, f)
 		}
 	}
+
 	for f := range changesetAfter {
 		if _, ok := g.changesetBefore[f]; !ok {
 			changed = append(changed, f)
 		}
 	}
+
 	if len(changed) == 0 {
 		return
 	}
-	slices.Sort(changed)
-	diffCmd := make([]string, 0, 4) //nolint:mnd // 3 or 4 elements
-	diffCmd = append(diffCmd, "git", "diff")
-	if log.Colorized() {
-		diffCmd = append(diffCmd, "--color")
-	}
-	diffCmd = append(diffCmd, "--")
-	if diff, err := g.git.Git.BatchedCmd(diffCmd, changed); err != nil {
-		log.Warnf("Couldn't diff changed files: %s", err)
-	} else {
-		log.Println(diff)
-	}
+
+	g.git.PrintDiff(changed)
 }
