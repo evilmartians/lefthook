@@ -442,7 +442,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2025.12.10.",
+  "$comment": "Last updated on 2025.12.19.",
   "properties": {
     "min_version": {
       "type": "string",
@@ -621,6 +621,89 @@
       "$ref": "#/$defs/Hook"
     }
   },
-  "additionalProperties": false,
+  "additionalProperties": {
+    "properties": {
+      "parallel": {
+        "type": "boolean"
+      },
+      "piped": {
+        "type": "boolean"
+      },
+      "follow": {
+        "type": "boolean"
+      },
+      "fail_on_changes": {
+        "type": "string",
+        "enum": [
+          "true",
+          "1",
+          "0",
+          "false",
+          "never",
+          "always",
+          "ci",
+          "non-ci"
+        ]
+      },
+      "fail_on_changes_diff": {
+        "type": "boolean"
+      },
+      "files": {
+        "type": "string"
+      },
+      "exclude_tags": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "exclude": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "skip": {
+        "oneOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "array"
+          }
+        ]
+      },
+      "only": {
+        "oneOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "array"
+          }
+        ]
+      },
+      "jobs": {
+        "items": {
+          "$ref": "#/$defs/Job"
+        },
+        "type": "array"
+      },
+      "commands": {
+        "additionalProperties": {
+          "$ref": "#/$defs/Command"
+        },
+        "type": "object"
+      },
+      "scripts": {
+        "additionalProperties": {
+          "$ref": "#/$defs/Script"
+        },
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "type": "object"
+  },
   "type": "object"
 }
