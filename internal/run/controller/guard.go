@@ -92,6 +92,17 @@ func (g *guard) before() {
 		log.Warnf("Couldn't hide unstaged files: %s\n", err)
 		return
 	}
+
+	// Capture changeset after stashing partially staged files, so we compare the same state
+	// before and after running hooks
+	if g.failOnChanges {
+		changeset, err := g.git.Changeset()
+		if err != nil {
+			log.Warnf("Couldn't get changeset: %s\n", err)
+		} else {
+			g.changesetBefore = changeset
+		}
+	}
 }
 
 func (g *guard) after() error {
