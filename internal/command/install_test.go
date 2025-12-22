@@ -214,6 +214,36 @@ post-commit:
 			},
 		},
 		{
+			name: "with custom hook",
+			config: `
+my-custom-hook:
+  commands:
+    custom:
+      run: echo 'Hello from custom!'
+`,
+			wantNotExist: []string{
+				hookPath("my-custom-hook"),
+			},
+		},
+		{
+			name: "with custom existing hook",
+			config: `
+my-custom-hook:
+  commands:
+    custom:
+      run: echo 'Hello from custom!'
+`,
+			existingFiles: map[string]string{
+				hookPath("my-custom-hook"): "",
+			},
+			wantExist: []string{
+				hookPath("my-custom-hook.old"),
+			},
+			wantNotExist: []string{
+				hookPath("my-custom-hook"),
+			},
+		},
+		{
 			name: "with unfetched remote",
 			config: `
 remotes:
