@@ -54,6 +54,9 @@ func main() {
 		return []reflect.StructField{}
 	}
 	schema := r.Reflect(&config.Config{})
+	if hookDef, ok := schema.Definitions["Hook"]; ok {
+		schema.AdditionalProperties = hookDef
+	}
 	schema.ID = "https://json.schemastore.org/lefthook.json"
 	schema.Comments = "Last updated on " + time.Now().Format("2006.01.02") + "."
 	dumped, err := json.MarshalIndent(schema, "", "  ")
