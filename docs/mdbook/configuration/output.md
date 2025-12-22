@@ -7,8 +7,6 @@ By default, all output values are enabled
 
 You can also disable all output with setting `output: false`. In this case only errors will be printed.
 
-This config quiets all outputs except for errors.
-
 **Example**
 
 ```yml
