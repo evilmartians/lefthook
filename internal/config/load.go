@@ -256,7 +256,7 @@ func loadRemotes(k *koanf.Koanf, filesystem afero.Fs, repo *git.Repository, remo
 		}
 
 		// Reset extends to omit issues when extending with remote extends.
-		if err := k.Set("extends", nil); err != nil {
+		if err := k.Set("extends", []string(nil)); err != nil {
 			return err
 		}
 	}
