@@ -1,5 +1,12 @@
 # Change log
 
+## 2.0.13 (2025-12-26)
+
+- fix: set extends to empty slice after loading remotes ([#1259](https://github.com/evilmartians/lefthook/pull/1259)) by [@mrexox]()
+- fix: allow custom hooks in JSON schema by updating generator ([#1250](https://github.com/evilmartians/lefthook/pull/1250)) by [@jeonghoon11]()
+- docs: remove duplicate config: false description ([#1245](https://github.com/evilmartians/lefthook/pull/1245)) by [@scop]()
+- chore: add more tests ([#1244](https://github.com/evilmartians/lefthook/pull/1244)) by [@mrexox]()
+
 ## 2.0.12 (2025-12-15)
 
 - chore: small changes on diff printing ([#1242](https://github.com/evilmartians/lefthook/pull/1242)) by [@mrexox](https://github.com/mrexox)
@@ -1098,3 +1105,4 @@ gem 'lefthook'
 [@scop]: https://github.com/scop
 [@franzramadhan]: https://github.com/franzramadhan
 [@joevin-sql-docto]: https://github.com/joevin-slq-docto
+[@jeonghoon11]: https://github.com/jeonghoon11
