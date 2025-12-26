@@ -58,8 +58,10 @@ post-commit:
 				configPath,
 				hookPath("pre-commit"),
 				hookPath("post-commit"),
-				hookPath(config.GhostHookName),
 				infoPath(config.ChecksumFileName),
+			},
+			wantNotExist: []string{
+				hookPath(config.GhostHookName),
 			},
 		},
 		{
@@ -107,8 +109,10 @@ post-commit:
 				hookPath("pre-commit"),
 				hookPath("pre-commit.old"),
 				hookPath("post-commit"),
-				hookPath(config.GhostHookName),
 				infoPath(config.ChecksumFileName),
+			},
+			wantNotExist: []string{
+				hookPath(config.GhostHookName),
 			},
 		},
 		{
@@ -131,11 +135,11 @@ post-commit:
 				configPath,
 				hookPath("pre-commit"),
 				hookPath("post-commit"),
-				hookPath(config.GhostHookName),
 				infoPath(config.ChecksumFileName),
 			},
 			wantNotExist: []string{
 				hookPath("pre-commit.old"),
+				hookPath(config.GhostHookName),
 			},
 		},
 		{
@@ -156,8 +160,10 @@ post-commit:
 				configPath,
 				hookPath("pre-commit"),
 				hookPath("post-commit"),
-				hookPath(config.GhostHookName),
 				infoPath(config.ChecksumFileName),
+			},
+			wantNotExist: []string{
+				hookPath(config.GhostHookName),
 			},
 		},
 		{
@@ -402,9 +408,10 @@ commit-msg:
 				hookPath("post-commit"),
 				hookPath("commit-msg"),
 				infoPath(config.ChecksumFileName),
+			},
+			wantNotExist: []string{
 				hookPath(config.GhostHookName),
 			},
-			wantNotExist: []string{},
 		},
 		{
 			name: "unsynchronized with selected hooks",
