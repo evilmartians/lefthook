@@ -298,11 +298,15 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, hooks []string, force
 			continue
 		}
 
-		hookNames = append(hookNames, hook)
-
 		if err = l.cleanHook(hook, force); err != nil {
 			return fmt.Errorf("could not replace the hook: %w", err)
 		}
+
+		if _, ok := config.AvailableHooks[hook]; !ok {
+			continue
+		}
+
+		hookNames = append(hookNames, hook)
 
 		templateArgs := templates.Args{
 			Rc:                      cfg.Rc,
