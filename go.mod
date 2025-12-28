@@ -54,8 +54,8 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
-	go.yaml.in/yaml/v3 v3.0.3 // indirect
 	golang.org/x/tools v0.39.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 require (
@@ -68,8 +68,8 @@ require (
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/rivo/uniseg v0.4.7 // indirect
+	go.yaml.in/yaml/v3 v3.0.3
 	golang.org/x/sys v0.39.0 // indirect
 	golang.org/x/term v0.38.0
 	golang.org/x/text v0.32.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1
 )
