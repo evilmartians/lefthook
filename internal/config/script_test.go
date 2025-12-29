@@ -42,43 +42,21 @@ func TestScriptsToJobs(t *testing.T) {
 
 func TestScriptsToJobsWithTimeout(t *testing.T) {
 	scripts := map[string]*Script{
+		"lint.sh": {
+			Runner:   "bash",
+			Timeout:  "30s",
+			Priority: 1,
+		},
 		"test.sh": {
 			Runner:  "bash",
-			Timeout: "30s",
-		},
-		"build.sh": {
-			Runner:  "bash",
 			Timeout: "10m",
-		},
-		"no-timeout.sh": {
-			Runner: "bash",
 		},
 	}
 
 	jobs := ScriptsToJobs(scripts)
 
-	// Find jobs by name since ordering may vary
-	var testJob, buildJob, noTimeoutJob *Job
-	for _, job := range jobs {
-		switch job.Name {
-		case "test.sh":
-			testJob = job
-		case "build.sh":
-			buildJob = job
-		case "no-timeout.sh":
-			noTimeoutJob = job
-		}
-	}
-
-	assert.NotNil(t, testJob)
-	assert.Equal(t, "test.sh", testJob.Script)
-	assert.Equal(t, "30s", testJob.Timeout)
-
-	assert.NotNil(t, buildJob)
-	assert.Equal(t, "build.sh", buildJob.Script)
-	assert.Equal(t, "10m", buildJob.Timeout)
-
-	assert.NotNil(t, noTimeoutJob)
-	assert.Equal(t, "no-timeout.sh", noTimeoutJob.Script)
-	assert.Equal(t, "", noTimeoutJob.Timeout)
+	assert.Equal(t, jobs, []*Job{
+		{Name: "lint.sh", Script: "lint.sh", Runner: "bash", Timeout: "30s"},
+		{Name: "test.sh", Script: "test.sh", Runner: "bash", Timeout: "10m"},
+	})
 }
