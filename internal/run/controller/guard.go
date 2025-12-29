@@ -106,29 +106,48 @@ func (g *guard) before() {
 }
 
 func (g *guard) after() error {
-	if g.failOnChanges {
-		changesetAfter, err := g.git.Changeset()
-		if err != nil {
-			log.Warnf("Couldn't get changeset: %s\n", err)
-		}
-		if !maps.Equal(g.changesetBefore, changesetAfter) {
+	changesetAfter, err := g.git.Changeset()
+	if err != nil {
+		log.Warnf("Couldn't get changeset: %s\n", err)
+	}
+	isFailingOnChanges := g.failOnChanges && !maps.Equal(g.changesetBefore, changesetAfter)
+
+	if !g.didStash {
+		if isFailingOnChanges {
 			g.printDiff(changesetAfter)
 			return ErrFailOnChanges
 		}
-	}
-
-	if !g.didStash {
 		return nil
 	}
 
 	if err := g.git.RestoreUnstaged(); err != nil {
 		log.Warnf("Couldn't restore unstaged files: %s\n", err)
-		return nil
+		// If we can't restore the unstaged files, first roll back the changes
+		// introduced by the hook before trying to restore unstaged files again
+		changed := g.getChangedFiles(changesetAfter)
+
+		log.Warnf("Couldn't restore unstaged files after hook changes, rolling back: %s\n", changed)
+		err = g.git.HideUnstaged(changed)
+		if err != nil {
+			log.Warnf("Couldn't rollback hook changes: %s\n", err)
+			return nil
+		}
+
+		// Retry restoring unstaged files after rolling back hook changes
+		if retryErr := g.git.RestoreUnstaged(); retryErr != nil {
+			log.Warnf("Couldn't restore unstaged files after rollback: %s\n", retryErr)
+			return nil
+		}
 	}
 
 	if err := g.git.DropUnstagedStash(); err != nil {
 		log.Warnf("Couldn't remove unstaged files backup: %s\n", err)
 		return nil
+	}
+
+	if isFailingOnChanges {
+		g.printDiff(changesetAfter)
+		return ErrFailOnChanges
 	}
 
 	return nil
@@ -139,6 +158,16 @@ func (g *guard) printDiff(changesetAfter map[string]string) {
 		return
 	}
 
+	changed := g.getChangedFiles(changesetAfter)
+
+	if len(changed) == 0 {
+		return
+	}
+
+	g.git.PrintDiff(changed)
+}
+
+func (g *guard) getChangedFiles(changesetAfter map[string]string) []string {
 	changed := make([]string, 0, len(g.changesetBefore))
 	for f, hashBefore := range g.changesetBefore {
 		if hashAfter, ok := changesetAfter[f]; !ok || hashBefore != hashAfter {
@@ -152,9 +181,5 @@ func (g *guard) printDiff(changesetAfter map[string]string) {
 		}
 	}
 
-	if len(changed) == 0 {
-		return
-	}
-
-	g.git.PrintDiff(changed)
+	return changed
 }
