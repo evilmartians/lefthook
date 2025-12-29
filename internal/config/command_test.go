@@ -39,3 +39,46 @@ func TestCommandsToJobs(t *testing.T) {
 		{Name: "last", Run: "echo"},
 	})
 }
+
+func TestCommandsToJobsWithTimeout(t *testing.T) {
+	commands := map[string]*Command{
+		"test": {
+			Run:     "npm test",
+			Timeout: "60s",
+		},
+		"build": {
+			Run:     "npm build",
+			Timeout: "5m",
+		},
+		"no-timeout": {
+			Run: "echo hello",
+		},
+	}
+
+	jobs := CommandsToJobs(commands)
+
+	// Find jobs by name since ordering may vary
+	var testJob, buildJob, noTimeoutJob *Job
+	for _, job := range jobs {
+		switch job.Name {
+		case "test":
+			testJob = job
+		case "build":
+			buildJob = job
+		case "no-timeout":
+			noTimeoutJob = job
+		}
+	}
+
+	assert.NotNil(t, testJob)
+	assert.Equal(t, "npm test", testJob.Run)
+	assert.Equal(t, "60s", testJob.Timeout)
+
+	assert.NotNil(t, buildJob)
+	assert.Equal(t, "npm build", buildJob.Run)
+	assert.Equal(t, "5m", buildJob.Timeout)
+
+	assert.NotNil(t, noTimeoutJob)
+	assert.Equal(t, "echo hello", noTimeoutJob.Run)
+	assert.Equal(t, "", noTimeoutJob.Timeout)
+}
