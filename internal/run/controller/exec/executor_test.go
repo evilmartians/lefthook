@@ -1,11 +1,52 @@
 package exec
 
 import (
+	"bytes"
+	"context"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestExecuteWithTimeout(t *testing.T) {
+	executor := CommandExecutor{}
+	ctx := context.Background()
+
+	t.Run("command completes before timeout", func(t *testing.T) {
+		opts := Options{
+			Commands: []string{"echo hello"},
+			Timeout:  "5s",
+		}
+		out := new(bytes.Buffer)
+
+		err := executor.Execute(ctx, opts, strings.NewReader(""), out)
+		assert.NoError(t, err)
+	})
+
+	t.Run("command without timeout executes normally", func(t *testing.T) {
+		opts := Options{
+			Commands: []string{"echo hello"},
+		}
+		out := new(bytes.Buffer)
+
+		err := executor.Execute(ctx, opts, strings.NewReader(""), out)
+		assert.NoError(t, err)
+	})
+
+	t.Run("invalid timeout format returns error", func(t *testing.T) {
+		opts := Options{
+			Commands: []string{"echo hello"},
+			Timeout:  "invalid",
+		}
+		out := new(bytes.Buffer)
+
+		err := executor.Execute(ctx, opts, strings.NewReader(""), out)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "invalid timeout format")
+	})
+}
 
 func TestParseDuration(t *testing.T) {
 	tests := []struct {
