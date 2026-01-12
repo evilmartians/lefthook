@@ -1,5 +1,13 @@
 # Change log
 
+## 2.0.14 (2026-01-12)
+
+- fix: skip if any files template is empty ([#1275](https://github.com/evilmartians/lefthook/pull/1275)) by [@mrexox](https://github.com/mrexox)
+- feat: add jsonc support ([#1274](https://github.com/evilmartians/lefthook/pull/1274)) by [@mrexox](https://github.com/mrexox)
+- deps: switch from gopkg.in/yaml.v3 to go.yaml.in/yaml/v3 ([#1261](https://github.com/evilmartians/lefthook/pull/1261)) by [@scop](https://github.com/scop)
+- fix: don't install custom hooks to hooks dir ([#1246](https://github.com/evilmartians/lefthook/pull/1246)) by [@scop](https://github.com/scop)
+- deps: December 2025 ([#1209](https://github.com/evilmartians/lefthook/pull/1209)) by [@mrexox](https://github.com/mrexox)
+
 ## 2.0.13 (2025-12-26)
 
 - fix: set extends to empty slice after loading remotes ([#1259](https://github.com/evilmartians/lefthook/pull/1259)) by [@mrexox]()
