@@ -7,7 +7,7 @@ exec lefthook install
 exec rm A.txt
 exec git add -A
 exec git commit -m 'test'
-stderr 'no matching staged files'
+stderr 'no files for inspection'
 
 -- lefthook.yml --
 pre-commit:
