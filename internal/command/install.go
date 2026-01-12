@@ -99,9 +99,7 @@ func (l *Lefthook) findMainConfig(path string) (string, error) {
 	}
 
 	for _, name := range config.MainConfigNames {
-		for _, extension := range []string{
-			".yml", ".yaml", ".toml", ".json",
-		} {
+		for _, extension := range config.Extensions {
 			configPath := filepath.Join(path, name+extension)
 			if ok, _ := afero.Exists(l.fs, configPath); ok {
 				return configPath, nil

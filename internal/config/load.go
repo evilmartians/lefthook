@@ -32,17 +32,19 @@ var (
 	hookKeyRegexp    = regexp.MustCompile(`^(?P<hookName>[^.]+)\.(?:scripts|commands|jobs)`)
 	LocalConfigNames = []string{"lefthook-local", ".lefthook-local", filepath.Join(".config", "lefthook-local")}
 	MainConfigNames  = []string{"lefthook", ".lefthook", filepath.Join(".config", "lefthook")}
-	extensions       = []string{
+	Extensions       = []string{
 		".yml",
 		".yaml",
 		".json",
+		".jsonc",
 		".toml",
 	}
 	parsers = map[string]koanf.Parser{
-		".yml":  yaml.Parser(),
-		".yaml": yaml.Parser(),
-		".json": json.Parser(),
-		".toml": toml.Parser(),
+		".yml":   yaml.Parser(),
+		".yaml":  yaml.Parser(),
+		".json":  json.Parser(),
+		".jsonc": jsoncParser(),
+		".toml":  toml.Parser(),
 	}
 
 	mergeJobsOption = koanf.WithMergeFunc(mergeJobs)
@@ -70,7 +72,7 @@ func loadConfig(k *koanf.Koanf, filesystem afero.Fs, path string) error {
 
 // loadFirst loads the first existing config from given names and supported extensions.
 func loadFirst(k *koanf.Koanf, filesystem afero.Fs, root string, names []string) error {
-	for _, extension := range extensions {
+	for _, extension := range Extensions {
 		for _, name := range names {
 			config := filepath.Join(root, name+extension)
 			if ok, _ := afero.Exists(filesystem, config); !ok {
@@ -90,7 +92,7 @@ func loadFirstMain(k *koanf.Koanf, filesystem afero.Fs, root string) error {
 	if ok := errors.As(err, &ConfigNotFoundError{}); ok {
 		var hasLocalConfig bool
 	OUT:
-		for _, extension := range extensions {
+		for _, extension := range Extensions {
 			for _, name := range LocalConfigNames {
 				if ok, _ := afero.Exists(filesystem, filepath.Join(root, name+extension)); ok {
 					hasLocalConfig = true

@@ -19,6 +19,10 @@ Lefthook supports the following file names for the main config:
 | JSON  | `lefthook.json` |
 | JSON  | `.lefthook.json` |
 | JSON  | `.config/lefthook.json` |
+|       |              |
+| JSONC | `lefthook.jsonc` |
+| JSONC | `.lefthook.jsonc` |
+| JSONC | `.config/lefthook.jsonc` |
 
 If there are more than 1 file in the project, only one will be used, and you'll never know which one. So, please, use one format in a project.
 
