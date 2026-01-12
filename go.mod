@@ -5,7 +5,7 @@ go 1.25
 toolchain go1.25.0
 
 require (
-	github.com/bmatcuk/doublestar/v4 v4.9.1
+	github.com/bmatcuk/doublestar/v4 v4.9.2
 	github.com/briandowns/spinner v1.23.2
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/creack/pty v1.1.24
