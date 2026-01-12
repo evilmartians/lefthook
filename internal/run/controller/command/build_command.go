@@ -27,7 +27,10 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 	}
 
 	// Checking substitutions and skipping execution if it is empty.
-	//
+	if !b.opts.Force && replacer.HasEmpty() {
+		return nil, nil, SkipError{"no files for inspection"}
+	}
+
 	// Special case when `files` option specified but not referenced in `run`: return if the result is empty.
 	if !b.opts.Force && len(params.FilesCmd) > 0 && replacer.Empty(config.SubFiles) {
 		files, err := replacer.Files(config.SubFiles, filter)
@@ -55,10 +58,6 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 		}
 
 		if len(files) == 0 {
-			if replacer.Cached(config.SubStagedFiles) {
-				return nil, nil, SkipError{"no matching staged files"}
-			}
-
 			files, err = b.git.StagedFilesWithDeleted()
 			if err != nil {
 				return nil, nil, err

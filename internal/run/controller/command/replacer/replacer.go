@@ -105,6 +105,16 @@ func (r Replacer) Discover(source string, filter *filter.Filter) error {
 	return nil
 }
 
+func (r Replacer) HasEmpty() bool {
+	for _, entry := range r.cache {
+		if len(entry.items) == 0 {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (r Replacer) Cached(key string) bool {
 	_, ok := r.cache[key]
 
