@@ -14,4 +14,4 @@ The configuration from `remotes` will be merged to the local config using the fo
 1. Remote configs (`remotes`)
 1. Local overrides (`lefthook-local.yml`)
 
-This priority may be changed in the future. For convenience, try not to have dependencies between your jobs in lefthook.yml config. Remote hooks should be considered as something like a "standalone package of hooks" rather than "plugin with settings extension".
+This priority may be changed in the future. For simplicity, try to keep jobs in remote settings independent from any other steps.
