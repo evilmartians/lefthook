@@ -6,18 +6,23 @@ exec lefthook install
 exec git commit -m 'test'
 stderr '\s*Args: lefthook.yml\s*'
 
+exec lefthook run pre-commit --file 'non-existent'
+stdout 'no files for inspection'
+
 -- lefthook.yml --
 output:
   - execution_out
+  - skips
 
 pre-commit:
   jobs:
-    - script: file.sh
+    - script: echo.sh
       runner: sh
       args: "{files}"
       files: echo lefthook.yml
+      glob: "*.yml"
 
--- .lefthook/pre-commit/file.sh --
+-- .lefthook/pre-commit/echo.sh --
 #!/usr/bin/env sh
 
 echo "Args: $@"
