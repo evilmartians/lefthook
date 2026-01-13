@@ -39,6 +39,10 @@ func (b *Builder) buildScript(params *JobParams) ([]string, []string, error) {
 		if err != nil {
 			return nil, nil, err
 		}
+
+		if !b.opts.Force && replacer.HasEmpty() {
+			return nil, nil, SkipError{"no files for inspection"}
+		}
 	}
 
 	var scriptExists bool
