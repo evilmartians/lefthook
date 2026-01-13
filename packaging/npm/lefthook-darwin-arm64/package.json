@@ -1,6 +1,6 @@
 {
   "name": "lefthook-darwin-arm64",
-  "version": "2.0.14",
+  "version": "2.0.15",
   "description": "The macOS ARM 64-bit binary for lefthook, git hooks manager.",
   "preferUnplugged": false,
   "repository": {

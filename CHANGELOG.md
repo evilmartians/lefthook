@@ -1,5 +1,10 @@
 # Change log
 
+## 2.0.15 (2026-01-13)
+
+- docs: clarify remote settings ([#1260](https://github.com/evilmartians/lefthook/pull/1260)) by [@mrexox](https://github.com/mrexox)
+- feat: skip scripts if args given with empty file template ([#1277](https://github.com/evilmartians/lefthook/pull/1277)) by [@mrexox](https://github.com/mrexox)
+
 ## 2.0.14 (2026-01-12)
 
 - fix: skip if any files template is empty ([#1275](https://github.com/evilmartians/lefthook/pull/1275)) by [@mrexox](https://github.com/mrexox)
