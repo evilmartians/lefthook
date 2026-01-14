@@ -39,3 +39,24 @@ func TestCommandsToJobs(t *testing.T) {
 		{Name: "last", Run: "echo"},
 	})
 }
+
+func TestCommandsToJobsWithTimeout(t *testing.T) {
+	commands := map[string]*Command{
+		"lint": {
+			Run:      "echo lint",
+			Timeout:  "60s",
+			Priority: 1,
+		},
+		"test": {
+			Run:     "echo test",
+			Timeout: "5m",
+		},
+	}
+
+	jobs := CommandsToJobs(commands)
+
+	assert.Equal(t, jobs, []*Job{
+		{Name: "lint", Run: "echo lint", Timeout: "60s"},
+		{Name: "test", Run: "echo test", Timeout: "5m"},
+	})
+}

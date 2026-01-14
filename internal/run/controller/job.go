@@ -134,6 +134,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 		Commands:    commands,
 		Interactive: job.Interactive && !scope.opts.DisableTTY,
 		UseStdin:    job.UseStdin,
+		Timeout:     job.Timeout,
 		Env:         env,
 	})
 

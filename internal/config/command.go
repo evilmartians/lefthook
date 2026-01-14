@@ -10,10 +10,11 @@ import (
 var ErrFilesIncompatible = errors.New("one of your runners contains incompatible file types")
 
 type Command struct {
-	Run      string `json:"run"                 mapstructure:"run"   toml:"run"               yaml:"run"`
-	Files    string `json:"files,omitempty"     mapstructure:"files" toml:"files,omitempty"   yaml:",omitempty"`
-	Root     string `json:"root,omitempty"      mapstructure:"root"  toml:"root,omitempty"    yaml:",omitempty"`
-	FailText string `json:"fail_text,omitempty" koanf:"fail_text"    mapstructure:"fail_text" toml:"fail_text,omitempty" yaml:"fail_text,omitempty"`
+	Run      string `json:"run"                 mapstructure:"run"     toml:"run"               yaml:"run"`
+	Files    string `json:"files,omitempty"     mapstructure:"files"   toml:"files,omitempty"   yaml:",omitempty"`
+	Root     string `json:"root,omitempty"      mapstructure:"root"    toml:"root,omitempty"    yaml:",omitempty"`
+	FailText string `json:"fail_text,omitempty" koanf:"fail_text"      mapstructure:"fail_text" toml:"fail_text,omitempty" yaml:"fail_text,omitempty"`
+	Timeout  string `json:"timeout,omitempty"   mapstructure:"timeout" toml:"timeout,omitempty" yaml:",omitempty"`
 
 	Skip any `json:"skip,omitempty" jsonschema:"oneof_type=boolean;array" mapstructure:"skip" toml:"skip,omitempty,inline" yaml:",omitempty"`
 	Only any `json:"only,omitempty" jsonschema:"oneof_type=boolean;array" mapstructure:"only" toml:"only,omitempty,inline" yaml:",omitempty"`
@@ -41,6 +42,7 @@ func CommandsToJobs(commands map[string]*Command) []*Job {
 			Root:        command.Root,
 			Files:       command.Files,
 			FailText:    command.FailText,
+			Timeout:     command.Timeout,
 			Tags:        command.Tags,
 			FileTypes:   command.FileTypes,
 			Env:         command.Env,
