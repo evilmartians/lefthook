@@ -8,6 +8,13 @@ Specifies how frequently Lefthook should refetch the remote configuration. This 
 - When set to a duration (e.g., `24h`), Lefthook will check the last fetch time and refetch the configuration only if the specified amount of time has passed.
 - When set to `never` or not set, Lefthook will not fetch from remote.
 
+It is recommended to configure remotes that point to mutable references
+(including ones without a `ref`) to be refetched with some frequency appropriate for the project.
+
+Failure to fetch does not cause an error, but just a warning message.
+If a successfully fetched previous configuration exists, it will be used.
+Otherwise, the remote will be ignored.
+
 **Example**
 
 ```yml
