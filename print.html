@@ -988,6 +988,7 @@ remotes:
 <blockquote>
 <p><strong>Note:</strong> If you initially had <code>ref</code> option, ran <code>lefthook install</code>, and then removed it, lefthook won't decide which branch/tag to use as a ref. So, if you added it once, please, use it always to avoid issues in local setups.</p>
 </blockquote>
+<p>See also <a href="configuration/./refetch_frequency.html"><code>refetch_frequency</code></a>.</p>
 <p><strong>Example</strong></p>
 <pre><code class="language-yml"># lefthook.yml
 
@@ -998,6 +999,7 @@ remotes:
 <div style="break-before: page; page-break-before: always;"></div><h2 id="refetch"><a class="header" href="#refetch"><code>refetch</code></a></h2>
 <p><strong>Default:</strong> <code>false</code></p>
 <p>Force remote config refetching on every run. Lefthook will be refetching the specified remote every time it is called.</p>
+<p>See <a href="configuration/./refetch_frequency.html"><code>refetch_frequency</code></a> for more flexible refetching options and additional considerations.</p>
 <p><strong>Example</strong></p>
 <pre><code class="language-yml"># lefthook.yml
 
@@ -1013,6 +1015,11 @@ remotes:
 <li>When set to a duration (e.g., <code>24h</code>), Lefthook will check the last fetch time and refetch the configuration only if the specified amount of time has passed.</li>
 <li>When set to <code>never</code> or not set, Lefthook will not fetch from remote.</li>
 </ul>
+<p>It is recommended to configure remotes that point to mutable references
+(including ones without a <code>ref</code>) to be refetched with some frequency appropriate for the project.</p>
+<p>Failure to fetch does not cause an error, but just a warning message.
+If a successfully fetched previous configuration exists, it will be used.
+Otherwise, the remote will be ignored.</p>
 <p><strong>Example</strong></p>
 <pre><code class="language-yml"># lefthook.yml
 
