@@ -9,7 +9,7 @@ VERSION = "2.0.15"
 ROOT = File.join(__dir__, "..")
 DIST = File.join(ROOT, "dist")
 
-PYTHON_PLATFORMS = ["linux", "darwin", "freebsd", "openbsd", "windows"].product(["x86_64", "arm64"])
+PYTHON_PLATFORMS = ["linux", "darwin", "windows"].product(["x86_64", "arm64"])
 
 module Pack
   extend FileUtils
