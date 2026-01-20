@@ -50,10 +50,17 @@
           }
         },
         "file_types": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array"
+            }
+          ],
           "items": {
             "type": "string"
-          },
-          "type": "array"
+          }
         },
         "glob": {
           "oneOf": [
@@ -293,10 +300,17 @@
           "type": "array"
         },
         "file_types": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array"
+            }
+          ],
           "items": {
             "type": "string"
-          },
-          "type": "array"
+          }
         },
         "env": {
           "additionalProperties": {
@@ -442,7 +456,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2025.12.19.",
+  "$comment": "Last updated on 2026.01.20.",
   "properties": {
     "min_version": {
       "type": "string",
