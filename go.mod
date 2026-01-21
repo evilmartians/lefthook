@@ -11,7 +11,7 @@ require (
 	github.com/creack/pty v1.1.24
 	github.com/gabriel-vasile/mimetype v1.4.12
 	github.com/gobwas/glob v0.2.3
-	github.com/goccy/go-yaml v1.19.1
+	github.com/goccy/go-yaml v1.19.2
 	github.com/invopop/jsonschema v0.13.0
 	github.com/kaptinlin/jsonschema v0.6.5
 	github.com/knadh/koanf/maps v0.1.2
@@ -24,11 +24,12 @@ require (
 	github.com/mattn/go-tty v0.0.7
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rogpeppe/go-internal v1.14.1
-	github.com/schollz/progressbar/v3 v3.18.0
+	github.com/schollz/progressbar/v3 v3.19.0
 	github.com/spf13/afero v1.15.0
 	github.com/stretchr/testify v1.11.1
-	github.com/urfave/cli/v3 v3.6.1
-	golang.org/x/mod v0.31.0
+	github.com/tidwall/jsonc v0.3.2
+	github.com/urfave/cli/v3 v3.6.2
+	golang.org/x/mod v0.32.0
 )
 
 require (
@@ -52,10 +53,9 @@ require (
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
-	github.com/tidwall/jsonc v0.3.2 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
-	golang.org/x/tools v0.39.0 // indirect
+	golang.org/x/tools v0.40.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
@@ -70,7 +70,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/rivo/uniseg v0.4.7 // indirect
 	go.yaml.in/yaml/v3 v3.0.3
-	golang.org/x/sys v0.39.0 // indirect
-	golang.org/x/term v0.38.0
+	golang.org/x/sys v0.40.0 // indirect
+	golang.org/x/term v0.39.0
 	golang.org/x/text v0.32.0 // indirect
 )
