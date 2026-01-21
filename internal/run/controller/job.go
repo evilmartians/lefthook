@@ -85,9 +85,10 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 
 	name := job.PrintableName(id)
 	scope = scope.extend(job)
+	logName := strings.Join(append(scope.names, name), " ❯ ")
 
 	if reason := c.skipReason(scope, job, name); len(reason) > 0 {
-		log.Skip(name, reason)
+		log.Skip(logName, reason)
 
 		return result.Skip(name)
 	}
@@ -117,7 +118,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 		ExcludeFiles: scope.excludeFiles,
 	})
 	if err != nil {
-		log.Skip(name, err.Error())
+		log.Skip(logName, err.Error())
 
 		var skipErr command.SkipError
 		if errors.As(err, &skipErr) {
@@ -129,7 +130,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 
 	env := maps.Clone(scope.env)
 	maps.Copy(env, job.Env)
-	ok := c.run(ctx, strings.Join(append(scope.names, name), " ❯ "), scope.follow, exec.Options{
+	ok := c.run(ctx, logName, scope.follow, exec.Options{
 		Root:        filepath.Join(c.git.RootPath, scope.root),
 		Commands:    commands,
 		Interactive: job.Interactive && !scope.opts.DisableTTY,
