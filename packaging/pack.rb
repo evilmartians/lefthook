@@ -9,6 +9,8 @@ VERSION = "2.0.15"
 ROOT = File.join(__dir__, "..")
 DIST = File.join(ROOT, "dist")
 
+PYTHON_PLATFORMS = ["linux", "darwin", "windows"].product(["x86_64", "arm64"])
+
 module Pack
   extend FileUtils
 
@@ -39,7 +41,7 @@ module Pack
 
     replace_in_file("npm/lefthook/package.json", /"(lefthook-.+)": "[\d.]+"/, %{"\\1": "#{VERSION}"})
     replace_in_file("rubygems/lefthook.gemspec", /(spec\.version\s+= ).*/, %{\\1"#{VERSION}"})
-    replace_in_file("pypi/setup.py", /(version+=).*/, %{\\1'#{VERSION}',})
+    replace_in_file("pypi/pyproject.toml", /(version\s*=\s*)"[^"]+"/, %{\\1"#{VERSION}"})
     replace_in_file("aur/lefthook/PKGBUILD", /(pkgver+=).*/, %{\\1#{VERSION}})
     replace_in_file("aur/lefthook-bin/PKGBUILD", /(pkgver+=).*/, %{\\1#{VERSION}})
   end
@@ -164,9 +166,18 @@ module Pack
 
   def publish_pypi
     puts "Publishing to PyPI..."
-    cd(File.join(__dir__, "pypi"))
-    system("python setup.py sdist bdist_wheel", exception: true)
-    system("python -m twine upload --verbose --repository lefthook dist/*", exception: true)
+    pypi_dir = File.join(__dir__, "pypi")
+
+    PYTHON_PLATFORMS.each do |os, arch|
+      puts "Building wheel for #{os}-#{arch}..."
+      cd(pypi_dir)
+      ENV["LEFTHOOK_TARGET_PLATFORM"] = os
+      ENV["LEFTHOOK_TARGET_ARCH"] = arch
+      system("uv build --wheel", exception: true)
+    end
+
+    puts "Uploading to PyPI..."
+    system("uv publish", exception: true)
   end
 
   def publish_aur_lefthook
