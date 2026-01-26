@@ -20,7 +20,7 @@ require (
 	github.com/knadh/koanf/parsers/yaml v1.1.0
 	github.com/knadh/koanf/providers/fs v1.0.0
 	github.com/knadh/koanf/providers/rawbytes v1.0.0
-	github.com/knadh/koanf/v2 v2.3.0
+	github.com/knadh/koanf/v2 v2.3.2
 	github.com/mattn/go-tty v0.0.7
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rogpeppe/go-internal v1.14.1
