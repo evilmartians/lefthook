@@ -129,7 +129,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 
 	env := maps.Clone(scope.env)
 	maps.Copy(env, job.Env)
-	ok := c.run(ctx, strings.Join(append(scope.names, name), " ❯ "), scope.follow, exec.Options{
+	ok, failText := c.run(ctx, strings.Join(append(scope.names, name), " ❯ "), scope.follow, exec.Options{
 		Root:        filepath.Join(c.git.RootPath, scope.root),
 		Commands:    commands,
 		Interactive: job.Interactive && !scope.opts.DisableTTY,
@@ -141,7 +141,10 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 	executionTime := time.Since(startTime)
 
 	if !ok {
-		return result.Failure(name, job.FailText, executionTime)
+		if failText == "" {
+			failText = job.FailText
+		}
+		return result.Failure(name, failText, executionTime)
 	}
 
 	if config.HookUsesStagedFiles(scope.hookName) && job.StageFixed && !scope.opts.NoStageFixed {

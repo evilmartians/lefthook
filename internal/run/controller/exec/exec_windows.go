@@ -8,7 +8,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"syscall"
-	"time"
 
 	"github.com/evilmartians/lefthook/v2/internal/log"
 	"github.com/evilmartians/lefthook/v2/internal/system"
@@ -26,17 +25,6 @@ type executeArgs struct {
 }
 
 func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader, out io.Writer) error {
-	// Apply timeout if specified
-	if opts.Timeout != "" {
-		timeout, err := parseDuration(opts.Timeout)
-		if err != nil {
-			return fmt.Errorf("invalid timeout format '%s': %w", opts.Timeout, err)
-		}
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(ctx, timeout)
-		defer cancel()
-	}
-
 	if opts.Interactive && !isatty.IsTerminal(os.Stdin.Fd()) {
 		tty, err := tty.Open()
 		if err == nil {
@@ -109,9 +97,4 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 	defer func() { _ = command.Process.Kill() }()
 
 	return command.Wait()
-}
-
-// parseDuration parses a duration string (e.g., "60s", "5m", "1h30m").
-func parseDuration(duration string) (time.Duration, error) {
-	return time.ParseDuration(duration)
 }
