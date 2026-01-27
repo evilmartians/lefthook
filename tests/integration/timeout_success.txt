@@ -1,0 +1,19 @@
+[windows] skip
+
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+exec lefthook install
+exec git commit -m 'test' --allow-empty
+! stderr 'timeout'
+
+-- lefthook.yml --
+output:
+  - failure
+  - success
+pre-commit:
+  commands:
+    fast:
+      timeout: 10s
+      run: echo "done"
