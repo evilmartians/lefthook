@@ -17,7 +17,10 @@
           "type": "string"
         },
         "timeout": {
-          "type": "integer"
+          "type": "string",
+          "examples": [
+            "15s"
+          ]
         },
         "skip": {
           "oneOf": [
@@ -271,7 +274,10 @@
           "type": "string"
         },
         "timeout": {
-          "type": "integer"
+          "type": "string",
+          "examples": [
+            "15s"
+          ]
         },
         "glob": {
           "oneOf": [
@@ -449,7 +455,10 @@
           "type": "string"
         },
         "timeout": {
-          "type": "integer"
+          "type": "string",
+          "examples": [
+            "15s"
+          ]
         },
         "interactive": {
           "type": "boolean"

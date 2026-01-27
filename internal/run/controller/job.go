@@ -130,7 +130,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 	env := maps.Clone(scope.env)
 	maps.Copy(env, job.Env)
 
-	if job.Timeout != 0 {
+	if job.Timeout > 0 {
 		var cancel context.CancelFunc
 		ctx, cancel = context.WithTimeout(ctx, job.Timeout)
 		defer cancel()
