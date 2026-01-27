@@ -16,6 +16,9 @@
         "fail_text": {
           "type": "string"
         },
+        "timeout": {
+          "type": "integer"
+        },
         "skip": {
           "oneOf": [
             {
@@ -267,6 +270,9 @@
         "fail_text": {
           "type": "string"
         },
+        "timeout": {
+          "type": "integer"
+        },
         "glob": {
           "oneOf": [
             {
@@ -442,6 +448,9 @@
         "fail_text": {
           "type": "string"
         },
+        "timeout": {
+          "type": "integer"
+        },
         "interactive": {
           "type": "boolean"
         },
@@ -456,7 +465,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2026.01.20.",
+  "$comment": "Last updated on 2026.01.27.",
   "properties": {
     "min_version": {
       "type": "string",

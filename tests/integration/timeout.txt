@@ -6,7 +6,7 @@ exec git config user.name "Your Name"
 exec git add -A
 exec lefthook install
 ! exec git commit -m 'test'
-stderr 'timeout \(1s\)'
+stderr 'timeout \(100ms\)'
 
 -- lefthook.yml --
 output:
@@ -14,5 +14,5 @@ output:
 pre-commit:
   commands:
     slow:
-      timeout: 1s
+      timeout: 100ms
       run: sleep 10

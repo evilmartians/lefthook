@@ -2,6 +2,7 @@ package config
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -44,19 +45,19 @@ func TestScriptsToJobsWithTimeout(t *testing.T) {
 	scripts := map[string]*Script{
 		"lint.sh": {
 			Runner:   "bash",
-			Timeout:  "30s",
+			Timeout:  30 * time.Second,
 			Priority: 1,
 		},
 		"test.sh": {
 			Runner:  "bash",
-			Timeout: "10m",
+			Timeout: 10 * time.Minute,
 		},
 	}
 
 	jobs := ScriptsToJobs(scripts)
 
 	assert.Equal(t, jobs, []*Job{
-		{Name: "lint.sh", Script: "lint.sh", Runner: "bash", Timeout: "30s"},
-		{Name: "test.sh", Script: "test.sh", Runner: "bash", Timeout: "10m"},
+		{Name: "lint.sh", Script: "lint.sh", Runner: "bash", Timeout: 30 * time.Second},
+		{Name: "test.sh", Script: "test.sh", Runner: "bash", Timeout: 10 * time.Minute},
 	})
 }
