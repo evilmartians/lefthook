@@ -129,22 +129,28 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 
 	env := maps.Clone(scope.env)
 	maps.Copy(env, job.Env)
-	ok, failText := c.run(ctx, strings.Join(append(scope.names, name), " ❯ "), scope.follow, exec.Options{
+
+	if job.Timeout > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, job.Timeout)
+		defer cancel()
+	}
+	err = c.run(ctx, strings.Join(append(scope.names, name), " ❯ "), scope.follow, exec.Options{
 		Root:        filepath.Join(c.git.RootPath, scope.root),
 		Commands:    commands,
 		Interactive: job.Interactive && !scope.opts.DisableTTY,
 		UseStdin:    job.UseStdin,
-		Timeout:     job.Timeout,
 		Env:         env,
 	})
 
 	executionTime := time.Since(startTime)
 
-	if !ok {
-		if failText == "" {
-			failText = job.FailText
+	if err != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			return result.Failure(name, "timeout ("+job.Timeout.String()+")", executionTime)
 		}
-		return result.Failure(name, failText, executionTime)
+
+		return result.Failure(name, job.FailText, executionTime)
 	}
 
 	if config.HookUsesStagedFiles(scope.hookName) && job.StageFixed && !scope.opts.NoStageFixed {

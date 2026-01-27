@@ -10,7 +10,6 @@ type Options struct {
 	Root                  string
 	Commands              []string
 	Env                   map[string]string
-	Timeout               string
 	Interactive, UseStdin bool
 }
 

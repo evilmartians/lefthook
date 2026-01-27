@@ -1,15 +1,17 @@
 package config
 
+import "time"
+
 type Job struct {
-	Name     string `json:"name,omitempty"      mapstructure:"name"                       toml:"name,omitempty"    yaml:",omitempty"`
-	Run      string `json:"run,omitempty"       jsonschema:"oneof_required=Run a command" mapstructure:"run"       toml:"run,omitempty"       yaml:",omitempty"`
-	Script   string `json:"script,omitempty"    jsonschema:"oneof_required=Run a script"  mapstructure:"script"    toml:"script,omitempty"    yaml:",omitempty"`
-	Runner   string `json:"runner,omitempty"    mapstructure:"runner"                     toml:"runner,omitempty"  yaml:",omitempty"`
-	Args     string `json:"args,omitempty"      mapstructure:"args"                       toml:"args,omitempty"    yaml:",omitempty"`
-	Root     string `json:"root,omitempty"      mapstructure:"root"                       toml:"root,omitempty"    yaml:",omitempty"`
-	Files    string `json:"files,omitempty"     mapstructure:"files"                      toml:"files,omitempty"   yaml:",omitempty"`
-	FailText string `json:"fail_text,omitempty" koanf:"fail_text"                         mapstructure:"fail_text" toml:"fail_text,omitempty" yaml:"fail_text,omitempty"`
-	Timeout  string `json:"timeout,omitempty"   mapstructure:"timeout"                    toml:"timeout,omitempty" yaml:",omitempty"`
+	Name     string        `json:"name,omitempty"      mapstructure:"name"                       toml:"name,omitempty"    yaml:",omitempty"`
+	Run      string        `json:"run,omitempty"       jsonschema:"oneof_required=Run a command" mapstructure:"run"       toml:"run,omitempty"       yaml:",omitempty"`
+	Script   string        `json:"script,omitempty"    jsonschema:"oneof_required=Run a script"  mapstructure:"script"    toml:"script,omitempty"    yaml:",omitempty"`
+	Runner   string        `json:"runner,omitempty"    mapstructure:"runner"                     toml:"runner,omitempty"  yaml:",omitempty"`
+	Args     string        `json:"args,omitempty"      mapstructure:"args"                       toml:"args,omitempty"    yaml:",omitempty"`
+	Root     string        `json:"root,omitempty"      mapstructure:"root"                       toml:"root,omitempty"    yaml:",omitempty"`
+	Files    string        `json:"files,omitempty"     mapstructure:"files"                      toml:"files,omitempty"   yaml:",omitempty"`
+	FailText string        `json:"fail_text,omitempty" koanf:"fail_text"                         mapstructure:"fail_text" toml:"fail_text,omitempty" yaml:"fail_text,omitempty"`
+	Timeout  time.Duration `json:"timeout,omitempty"   jsonschema:"type=string,example=15s"      mapstructure:"timeout"   toml:"timeout,omitempty"   yaml:",omitempty"`
 
 	Glob      []string `json:"glob,omitempty"       jsonschema:"oneof_type=string;array" mapstructure:"glob"    toml:"glob,omitempty"     yaml:",omitempty"`
 	Exclude   []string `json:"exclude,omitempty"    jsonschema:"oneof_type=string;array" mapstructure:"exclude" toml:"exclude,omitempty"  yaml:",omitempty"`

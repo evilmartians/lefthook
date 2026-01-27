@@ -16,6 +16,12 @@
         "fail_text": {
           "type": "string"
         },
+        "timeout": {
+          "type": "string",
+          "examples": [
+            "15s"
+          ]
+        },
         "skip": {
           "oneOf": [
             {
@@ -267,6 +273,12 @@
         "fail_text": {
           "type": "string"
         },
+        "timeout": {
+          "type": "string",
+          "examples": [
+            "15s"
+          ]
+        },
         "glob": {
           "oneOf": [
             {
@@ -442,6 +454,12 @@
         "fail_text": {
           "type": "string"
         },
+        "timeout": {
+          "type": "string",
+          "examples": [
+            "15s"
+          ]
+        },
         "interactive": {
           "type": "boolean"
         },
@@ -456,7 +474,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2026.01.20.",
+  "$comment": "Last updated on 2026.01.27.",
   "properties": {
     "min_version": {
       "type": "string",
