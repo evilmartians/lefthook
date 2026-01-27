@@ -4,7 +4,7 @@ require "fileutils"
 require "digest"
 require "open-uri"
 
-VERSION = "2.0.15"
+VERSION = "2.0.16"
 
 ROOT = File.join(__dir__, "..")
 DIST = File.join(ROOT, "dist")

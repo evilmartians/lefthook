@@ -1,5 +1,17 @@
 # Change log
 
+## 2.0.16 (2026-01-27)
+
+- chore: timeout cleanup ([#1297](https://github.com/evilmartians/lefthook/pull/1297)) by [@mrexox](https://github.com/mrexox)
+- feat: add timeout argument ([#1263](https://github.com/evilmartians/lefthook/pull/1263)) by [@franzramadhan](https://github.com/franzramadhan)
+- deps: January 2026 ([#1285](https://github.com/evilmartians/lefthook/pull/1285)) by [@mrexox](https://github.com/mrexox)
+- pkg: pack one binary per platform into python wheels ([#1181](https://github.com/evilmartians/lefthook/pull/1181)) by [@danfimov](https://github.com/danfimov)
+- fix: accept string in file_types ([#1288](https://github.com/evilmartians/lefthook/pull/1288)) by [@scop](https://github.com/scop)
+- docs: elaborate on when to refetch and failure mode ([#1287](https://github.com/evilmartians/lefthook/pull/1287)) by [@scop](https://github.com/scop)
+- fix: try reading direct file instead of all remotes ([#1243](https://github.com/evilmartians/lefthook/pull/1243)) by [@mrexox](https://github.com/mrexox)
+- perf: [**breaking**] skip ghost hook when hooks are already configured ([#1255](https://github.com/evilmartians/lefthook/pull/1255)) by [@WooWan](https://github.com/WooWan)
+- chore: upgrade to 2.8.0 ([#1278](https://github.com/evilmartians/lefthook/pull/1278)) by [@scop](https://github.com/scop)
+
 ## 2.0.15 (2026-01-13)
 
 - docs: clarify remote settings ([#1260](https://github.com/evilmartians/lefthook/pull/1260)) by [@mrexox](https://github.com/mrexox)

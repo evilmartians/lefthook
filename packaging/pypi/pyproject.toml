@@ -1,6 +1,6 @@
 [project]
 name = "lefthook"
-version = "2.0.15"
+version = "2.0.16"
 description = "Git hooks manager. Fast, powerful, simple."
 readme = "README.md"
 license = "MIT"
