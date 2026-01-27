@@ -39,3 +39,24 @@ func TestScriptsToJobs(t *testing.T) {
 		{Name: "last.sh", Script: "last.sh", Runner: "bash"},
 	})
 }
+
+func TestScriptsToJobsWithTimeout(t *testing.T) {
+	scripts := map[string]*Script{
+		"lint.sh": {
+			Runner:   "bash",
+			Timeout:  "30s",
+			Priority: 1,
+		},
+		"test.sh": {
+			Runner:  "bash",
+			Timeout: "10m",
+		},
+	}
+
+	jobs := ScriptsToJobs(scripts)
+
+	assert.Equal(t, jobs, []*Job{
+		{Name: "lint.sh", Script: "lint.sh", Runner: "bash", Timeout: "30s"},
+		{Name: "test.sh", Script: "test.sh", Runner: "bash", Timeout: "10m"},
+	})
+}

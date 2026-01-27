@@ -9,6 +9,7 @@ type Job struct {
 	Root     string `json:"root,omitempty"      mapstructure:"root"                       toml:"root,omitempty"    yaml:",omitempty"`
 	Files    string `json:"files,omitempty"     mapstructure:"files"                      toml:"files,omitempty"   yaml:",omitempty"`
 	FailText string `json:"fail_text,omitempty" koanf:"fail_text"                         mapstructure:"fail_text" toml:"fail_text,omitempty" yaml:"fail_text,omitempty"`
+	Timeout  string `json:"timeout,omitempty"   mapstructure:"timeout"                    toml:"timeout,omitempty" yaml:",omitempty"`
 
 	Glob      []string `json:"glob,omitempty"       jsonschema:"oneof_type=string;array" mapstructure:"glob"    toml:"glob,omitempty"     yaml:",omitempty"`
 	Exclude   []string `json:"exclude,omitempty"    jsonschema:"oneof_type=string;array" mapstructure:"exclude" toml:"exclude,omitempty"  yaml:",omitempty"`
