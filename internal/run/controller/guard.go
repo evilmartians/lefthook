@@ -106,11 +106,19 @@ func (g *guard) before() {
 }
 
 func (g *guard) after() error {
-	changesetAfter, err := g.git.Changeset()
-	if err != nil {
-		log.Warnf("Couldn't get changeset: %s\n", err)
+	// Only get changeset if we need it for failOnChanges check
+	var changesetAfter map[string]string
+	var isFailingOnChanges bool
+
+	if g.failOnChanges {
+		var err error
+		changesetAfter, err = g.git.Changeset()
+		if err != nil {
+			log.Warnf("Couldn't get changeset: %s\n", err)
+			changesetAfter = make(map[string]string)
+		}
+		isFailingOnChanges = !maps.Equal(g.changesetBefore, changesetAfter)
 	}
-	isFailingOnChanges := g.failOnChanges && !maps.Equal(g.changesetBefore, changesetAfter)
 
 	if !g.didStash {
 		if isFailingOnChanges {
@@ -124,6 +132,12 @@ func (g *guard) after() error {
 		log.Warnf("Couldn't restore unstaged files: %s\n", err)
 		// If we can't restore the unstaged files, first roll back the changes
 		// introduced by the hook before trying to restore unstaged files again
+		// Get changeset only when needed for error recovery
+		changesetAfter, err := g.git.Changeset()
+		if err != nil {
+			log.Warnf("Couldn't get changeset: %s\n", err)
+			changesetAfter = make(map[string]string)
+		}
 		changed := g.getChangedFiles(changesetAfter)
 
 		log.Warnf("Couldn't restore unstaged files after hook changes, rolling back: %s\n", changed)
