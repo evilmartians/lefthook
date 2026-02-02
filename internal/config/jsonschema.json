@@ -474,7 +474,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2026.01.27.",
+  "$comment": "Last updated on 2026.02.02.",
   "properties": {
     "min_version": {
       "type": "string",
@@ -541,6 +541,10 @@
     "no_auto_install": {
       "type": "boolean",
       "description": "Do not automatically install hooks when running lefthook"
+    },
+    "install_non_git_hooks": {
+      "type": "boolean",
+      "description": "Install non-Git hooks to .git/hooks"
     },
     "glob_matcher": {
       "type": "string",

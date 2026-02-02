@@ -89,6 +89,30 @@ post-commit:
 			},
 		},
 		{
+			name: "with non-git hook",
+			config: `
+test:
+  jobs:
+    - run: echo test
+`,
+			wantNotExist: []string{
+				hookPath("test"),
+			},
+		},
+		{
+			name: "with non-git hook",
+			config: `
+install_non_git_hooks: true
+
+test:
+  jobs:
+    - run: echo test
+`,
+			wantExist: []string{
+				hookPath("test"),
+			},
+		},
+		{
 			name: "with existing hooks",
 			config: `
 pre-commit:

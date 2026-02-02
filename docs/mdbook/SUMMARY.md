@@ -40,6 +40,7 @@
   - [`assert_lefthook_installed`](./configuration/assert_lefthook_installed.md)
   - [`colors`](./configuration/colors.md)
   - [`extends`](./configuration/extends.md)
+  - [`install_non_git_hooks`](./configuration/install_non_git_hooks.md)
   - [`lefthook`](./configuration/lefthook.md)
   - [`min_version`](./configuration/min_version.md)
   - [`no_auto_install`](./configuration/no_auto_install.md)
