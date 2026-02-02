@@ -50,6 +50,8 @@ type Config struct {
 
 	NoAutoInstall bool `json:"no_auto_install,omitempty" jsonschema:"description=Do not automatically install hooks when running lefthook" koanf:"no_auto_install" mapstructure:"no_auto_install,omitempty"`
 
+	InstallCustomHooks bool `json:"install_custom_hooks,omitempty" jsonschema:"description=Install non-Git hooks to .git/hooks" koanf:"install_custom_hooks" mapstructure:"install_custom_hooks,omitempty"`
+
 	GlobMatcher string `json:"glob_matcher,omitempty" jsonschema:"description=Choose the glob matching engine: 'gobwas' (default) or 'doublestar' (standard ** behavior),enum=gobwas,enum=doublestar,default=gobwas" koanf:"glob_matcher" mapstructure:"glob_matcher,omitempty"`
 
 	Remotes []*Remote `json:"remotes,omitempty" jsonschema:"description=Provide multiple remote configs to use lefthook configurations shared across projects. Lefthook will automatically download and merge configurations into main config." mapstructure:"remotes,omitempty"`
