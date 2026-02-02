@@ -542,7 +542,7 @@
       "type": "boolean",
       "description": "Do not automatically install hooks when running lefthook"
     },
-    "install_custom_hooks": {
+    "install_non_git_hooks": {
       "type": "boolean",
       "description": "Install non-Git hooks to .git/hooks"
     },

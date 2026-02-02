@@ -300,7 +300,7 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, hooks []string, force
 			return fmt.Errorf("could not replace the hook: %w", err)
 		}
 
-		if _, ok := config.AvailableHooks[hook]; !ok && !cfg.InstallCustomHooks {
+		if _, ok := config.AvailableHooks[hook]; !ok && !cfg.InstallNonGitHooks {
 			continue
 		}
 
