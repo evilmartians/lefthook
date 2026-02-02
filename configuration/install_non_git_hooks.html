@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>lefthook - Lefthook Documentation</title>
+        <title>install_non_git_hooks - Lefthook Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -155,67 +155,21 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="lefthook"><a class="header" href="#lefthook"><code>lefthook</code></a></h2>
-<p><strong>Default:</strong> <code>null</code></p>
+                        <h2 id="install_non_git_hooks"><a class="header" href="#install_non_git_hooks"><code>install_non_git_hooks</code></a></h2>
 <blockquote>
-<p>Added in lefthook <code>1.10.5</code></p>
+<p>Since lefthook 2.0.17</p>
 </blockquote>
-<p>Provide a full path to lefthook executable or a command to run lefthook. Bourne shell (<code>sh</code>) syntax is supported.</p>
-<blockquote>
-<p><strong>Important:</strong> This option does not merge from <code>remotes</code> or <code>extends</code> for security reasons. But it gets merged from lefthook local config if specified.</p>
-</blockquote>
-<p>There are three reasons you may want to specify <code>lefthook</code>:</p>
-<ol>
-<li>You want to force using specific lefthook version from your dependencies (e.g. npm package)</li>
-<li>You use PnP loader for your JS/TS project, and your <code>package.json</code> with lefthook dependency locates in a subfolder</li>
-<li>You want to make sure you use concrete lefthook executable path and want to defined it in <code>lefthook-local.yml</code></li>
-</ol>
-<h3 id="examples"><a class="header" href="#examples">Examples</a></h3>
-<h4 id="specify-lefthook-executable"><a class="header" href="#specify-lefthook-executable">Specify lefthook executable</a></h4>
-<pre><code class="language-yml"># lefthook.yml
-
-lefthook: /usr/bin/lefthook
-
-pre-commit:
-  jobs:
-    - run: yarn lint
-</code></pre>
-<h4 id="specify-a-command-to-run-lefthook"><a class="header" href="#specify-a-command-to-run-lefthook">Specify a command to run lefthook</a></h4>
-<pre><code class="language-yml"># lefthook.yml
-
-lefthook: |
-  cd project-with-lefthook
-  pnpm lefthook
-
-pre-commit:
-  jobs:
-    - run: yarn lint
-      root: project-with-lefthook
-</code></pre>
-<h4 id="force-using-a-version-from-rubygems"><a class="header" href="#force-using-a-version-from-rubygems">Force using a version from Rubygems</a></h4>
-<pre><code class="language-yml"># lefthook.yml
-
-lefthook: bundle exec lefthook
-
-pre-commit:
-  jobs:
-    - run: bundle exec rubocop {staged_files}
-</code></pre>
-<h4 id="enable-debug-logs"><a class="header" href="#enable-debug-logs">Enable debug logs</a></h4>
-<pre><code class="language-yml"># lefthook-local.yml
-
-lefthook: lefthook --verbose
-</code></pre>
+<p>Install non-Git hooks into <code>.git/hooks</code>. May be useful for using with tools like https://git-flow.sh/.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../configuration/install_non_git_hooks.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../configuration/extends.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../configuration/min_version.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../configuration/lefthook.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -225,11 +179,11 @@ lefthook: lefthook --verbose
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../configuration/install_non_git_hooks.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../configuration/extends.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../configuration/min_version.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../configuration/lefthook.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
