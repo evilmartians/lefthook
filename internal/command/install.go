@@ -41,10 +41,7 @@ type InstallArgs struct {
 }
 
 func (l *Lefthook) Install(ctx context.Context, args InstallArgs, hooks []string) error {
-	// Check for core.hooksPath configuration
-	localHooksPath, globalHooksPath := l.getHooksPathConfig()
-
-	if err := l.ensureNoHooksPath(localHooksPath, globalHooksPath, args.Force, args.ResetHooksPath); err != nil {
+	if err := l.ensureHooksPathUnset(args.Force, args.ResetHooksPath); err != nil {
 		return err
 	}
 
@@ -477,8 +474,13 @@ func (l *Lefthook) getHooksPathConfig() (local, global string) {
 	return
 }
 
-// ensureNoHooksPath ensures core.hooksPath is not configured.
-func (l *Lefthook) ensureNoHooksPath(local, global string, force, resetHooksPath bool) error {
+// ensureHooksPathUnset ensures core.hooksPath is not configured.
+//
+// In general using lefthook doesn't make sense with global hooks.
+// Local hooks make sense only in terms of migratio from other hook managers.
+func (l *Lefthook) ensureHooksPathUnset(force, resetHooksPath bool) error {
+	local, global := l.getHooksPathConfig()
+
 	hasLocal := len(local) > 0
 	hasGlobal := len(global) > 0
 
@@ -491,26 +493,23 @@ func (l *Lefthook) ensureNoHooksPath(local, global string, force, resetHooksPath
 		return formatHooksPathError(local, global)
 	}
 
-	// Warn about configured core.hooksPath
 	if hasLocal {
-		log.Warnf("core.hooksPath is set locally to '%s'.", local)
+		log.Warnf("core.hooksPath is set locally to '%s'", local)
 	}
 	if hasGlobal {
-		log.Warnf("core.hooksPath is set globally to '%s'.", global)
+		log.Warnf("core.hooksPath is set globally to '%s'", global)
 	}
 
-	// If resetHooksPath is true, unset the conflicting configurations.
 	if resetHooksPath {
 		return l.unsetHooksPathConfig(local, global)
 	}
 
-	// If force is true, proceed with installation anyway (without unsetting).
-	// Determine path: use global path if only global is defined, otherwise use local path
+	// Local setting takes precedence.
 	path := local
 	if !hasLocal && hasGlobal {
 		path = global
 	}
-	log.Warnf("Installing lefthook anyway in '%s'.", path)
+	log.Warnf("Installing hooks anyway in '%s'", path)
 
 	return nil
 }
@@ -523,25 +522,29 @@ func formatHooksPathError(local, global string) error {
 	hasGlobal := len(global) > 0
 
 	if hasLocal {
-		errMsg.WriteString(fmt.Sprintf("core.hooksPath is set locally to '%s'.\n", local))
-		hints = append(hints, "hint:   git config --unset-all --local core.hooksPath")
+		errMsg.WriteString(fmt.Sprintf("core.hooksPath is set locally to '%s'\n", local))
+		hints = append(hints, "hint:        git config --unset-all --local core.hooksPath")
 	}
 	if hasGlobal {
-		errMsg.WriteString(fmt.Sprintf("core.hooksPath is set globally to '%s'.\n", global))
-		hints = append(hints, "hint:   git config --unset-all --global core.hooksPath")
+		errMsg.WriteString(fmt.Sprintf("core.hooksPath is set globally to '%s'\n", global))
+		hints = append(hints, "hint:        git config --unset-all --global core.hooksPath")
 	}
-
-	errMsg.WriteString("hint: Run these commands to remove it:\n")
+	errMsg.WriteString("\n")
+	errMsg.WriteString("hint:    Unset it:\n")
+	errMsg.WriteString("hint:\n")
 	errMsg.WriteString(strings.Join(hints, "\n"))
-	errMsg.WriteString("\nhint: Or run lefthook with --reset-hooks-path to automatically unset it:\n")
-	errMsg.WriteString("hint:   lefthook install --reset-hooks-path\n")
+	errMsg.WriteString("\nhint:\n")
+	errMsg.WriteString("hint:    Or run lefthook with --reset-hooks-path to automatically unset it:\n")
+	errMsg.WriteString("hint:\n")
+	errMsg.WriteString("hint:        lefthook install --reset-hooks-path\n")
 
 	// Determine path: use global path if only global is defined, otherwise use local path
 	path := local
 	if !hasLocal && hasGlobal {
 		path = global
 	}
-	errMsg.WriteString(fmt.Sprintf("hint: Use option --force to install lefthook it anyway in '%s'.", path))
+	errMsg.WriteString("hint:\n")
+	errMsg.WriteString(fmt.Sprintf("hint:    Run 'lefthook install --force' to install hooks anyway in '%s'.", path))
 
 	return errors.New(errMsg.String())
 }
