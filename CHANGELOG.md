@@ -1,5 +1,12 @@
 # Change log
 
+## 2.1.0 (2026-02-03)
+
+- ci: skip Python publishing by [@mrexox][]
+- chore: fancy wording and indentation for hits by [@mrexox][]
+- feat: check core.hooksPath when lefthook install ([#1292](https://github.com/evilmartians/lefthook/pull/1292)) by [@joevin-sql-docto][]
+- feat: allow installing non-git hooks ([#1301](https://github.com/evilmartians/lefthook/pull/1301)) by [@mrexox][]
+
 ## 2.0.16 (2026-01-27)
 
 - chore: timeout cleanup ([#1297](https://github.com/evilmartians/lefthook/pull/1297)) by [@mrexox](https://github.com/mrexox)
