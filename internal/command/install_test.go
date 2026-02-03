@@ -317,10 +317,20 @@ remotes:
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			assert := assert.New(t)
 
+			// Prepend git config commands required by getHooksPathConfig() in install.go.
+			// These commands are always called at the start of Install() to detect core.hooksPath conflicts.
+			gitCmds := tt.git
+			if len(gitCmds) == 0 || gitCmds[0].Command != "git config --local core.hooksPath" {
+				gitCmds = append([]cmdtest.Out{
+					{Command: "git config --local core.hooksPath"},
+					{Command: "git config --global core.hooksPath"},
+				}, gitCmds...)
+			}
+
 			repo := gittest.NewRepositoryBuilder().
 				Root(root).
 				Fs(fs).
-				Cmd(cmdtest.NewOrdered(t, tt.git)).
+				Cmd(cmdtest.NewOrdered(t, gitCmds)).
 				Build()
 			lefthook := &Lefthook{
 				fs:   fs,
@@ -705,6 +715,186 @@ remotes:
 
 			assert.NoError(fs.Chtimes(fetchHeadPath(lefthook, remote), firstFetchTime, time.Now()))
 			assert.Equal(lefthook.shouldRefetch(remote), tt.shouldRefetchBefore)
+		})
+	}
+}
+
+func TestLefthookInstallWithCoreHooksPath(t *testing.T) {
+	root, err := filepath.Abs("src")
+	assert.NoError(t, err)
+
+	configPath := filepath.Join(root, "lefthook.yml")
+
+	hookPath := func(hook string) string {
+		return filepath.Join(gittest.GitPath(root), "hooks", hook)
+	}
+
+	infoPath := func(file string) string {
+		return filepath.Join(gittest.GitPath(root), "info", file)
+	}
+
+	configContent := `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+`
+
+	for n, tt := range [...]struct {
+		name           string
+		force          bool
+		resetHooksPath bool
+		git            []cmdtest.Out
+		wantError      bool
+		wantErrorMsg   string
+		wantExist      []string
+	}{
+		{
+			name:           "with local and global core.hooksPath without flags",
+			force:          false,
+			resetHooksPath: false,
+			git: []cmdtest.Out{
+				{
+					Command: "git config --local core.hooksPath",
+					Output:  ".custom-hooks",
+				},
+				{
+					Command: "git config --global core.hooksPath",
+					Output:  "/usr/local/hooks",
+				},
+			},
+			wantError:    true,
+			wantErrorMsg: "core.hooksPath",
+		},
+		{
+			name:           "with local and global core.hooksPath with --force",
+			force:          true,
+			resetHooksPath: false,
+			git: []cmdtest.Out{
+				{
+					Command: "git config --local core.hooksPath",
+					Output:  ".custom-hooks",
+				},
+				{
+					Command: "git config --global core.hooksPath",
+					Output:  "/usr/local/hooks",
+				},
+			},
+			wantError: false,
+			wantExist: []string{
+				configPath,
+				hookPath("pre-commit"),
+				infoPath(config.ChecksumFileName),
+			},
+		},
+		{
+			name:           "with local and global core.hooksPath with --reset-hooks-path",
+			force:          false,
+			resetHooksPath: true,
+			git: []cmdtest.Out{
+				{
+					Command: "git config --local core.hooksPath",
+					Output:  ".custom-hooks",
+				},
+				{
+					Command: "git config --global core.hooksPath",
+					Output:  "/usr/local/hooks",
+				},
+				{
+					Command: "git config --local --unset-all core.hooksPath",
+				},
+				{
+					Command: "git config --global --unset-all core.hooksPath",
+				},
+			},
+			wantError: false,
+			wantExist: []string{
+				configPath,
+				hookPath("pre-commit"),
+				infoPath(config.ChecksumFileName),
+			},
+		},
+		{
+			name:           "with only global core.hooksPath with --force",
+			force:          true,
+			resetHooksPath: false,
+			git: []cmdtest.Out{
+				{
+					Command: "git config --local core.hooksPath",
+					Output:  "",
+				},
+				{
+					Command: "git config --global core.hooksPath",
+					Output:  "/usr/local/hooks",
+				},
+			},
+			wantError: false,
+			wantExist: []string{
+				configPath,
+				hookPath("pre-commit"),
+				infoPath(config.ChecksumFileName),
+			},
+		},
+		{
+			name:           "with only local core.hooksPath with --reset-hooks-path",
+			force:          false,
+			resetHooksPath: true,
+			git: []cmdtest.Out{
+				{
+					Command: "git config --local core.hooksPath",
+					Output:  ".custom-hooks",
+				},
+				{
+					Command: "git config --global core.hooksPath",
+					Output:  "",
+				},
+				{
+					Command: "git config --local --unset-all core.hooksPath",
+				},
+			},
+			wantError: false,
+			wantExist: []string{
+				configPath,
+				hookPath("pre-commit"),
+				infoPath(config.ChecksumFileName),
+			},
+		},
+	} {
+		fs := afero.NewMemMapFs()
+
+		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
+			assert := assert.New(t)
+
+			repo := gittest.NewRepositoryBuilder().
+				Root(root).
+				Fs(fs).
+				Cmd(cmdtest.NewOrdered(t, tt.git)).
+				Build()
+			lefthook := &Lefthook{
+				fs:   fs,
+				repo: repo,
+			}
+
+			// Create configuration file
+			assert.NoError(afero.WriteFile(fs, configPath, []byte(configContent), 0o644))
+			timestamp := time.Date(2022, time.June, 22, 10, 40, 10, 1, time.UTC)
+			assert.NoError(fs.Chtimes(configPath, timestamp, timestamp))
+
+			// Do install
+			err := lefthook.Install(t.Context(), InstallArgs{Force: tt.force, ResetHooksPath: tt.resetHooksPath}, nil)
+			if tt.wantError {
+				if assert.Error(err) && tt.wantErrorMsg != "" {
+					assert.Contains(err.Error(), tt.wantErrorMsg)
+				}
+			} else {
+				assert.NoError(err)
+				// Test files that should exist
+				for _, file := range tt.wantExist {
+					ok, err := afero.Exists(fs, file)
+					assert.NoError(err)
+					assert.True(ok)
+				}
+			}
 		})
 	}
 }
