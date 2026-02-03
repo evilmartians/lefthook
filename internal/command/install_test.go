@@ -717,16 +717,18 @@ pre-commit:
 `
 
 	for n, tt := range [...]struct {
-		name         string
-		force        bool
-		git          []cmdtest.Out
-		wantError    bool
-		wantErrorMsg string
-		wantExist    []string
+		name           string
+		force          bool
+		resetHooksPath bool
+		git            []cmdtest.Out
+		wantError      bool
+		wantErrorMsg   string
+		wantExist      []string
 	}{
 		{
-			name:  "with local and global core.hooksPath without --force",
-			force: false,
+			name:           "with local and global core.hooksPath without flags",
+			force:          false,
+			resetHooksPath: false,
 			git: []cmdtest.Out{
 				{
 					Command: "git config --local core.hooksPath",
@@ -741,8 +743,30 @@ pre-commit:
 			wantErrorMsg: "core.hooksPath",
 		},
 		{
-			name:  "with local and global core.hooksPath with --force",
-			force: true,
+			name:           "with local and global core.hooksPath with --force",
+			force:          true,
+			resetHooksPath: false,
+			git: []cmdtest.Out{
+				{
+					Command: "git config --local core.hooksPath",
+					Output:  ".custom-hooks",
+				},
+				{
+					Command: "git config --global core.hooksPath",
+					Output:  "/usr/local/hooks",
+				},
+			},
+			wantError: false,
+			wantExist: []string{
+				configPath,
+				hookPath("pre-commit"),
+				infoPath(config.ChecksumFileName),
+			},
+		},
+		{
+			name:           "with local and global core.hooksPath with --reset-hooks-path",
+			force:          false,
+			resetHooksPath: true,
 			git: []cmdtest.Out{
 				{
 					Command: "git config --local core.hooksPath",
@@ -757,6 +781,51 @@ pre-commit:
 				},
 				{
 					Command: "git config --global --unset-all core.hooksPath",
+				},
+			},
+			wantError: false,
+			wantExist: []string{
+				configPath,
+				hookPath("pre-commit"),
+				infoPath(config.ChecksumFileName),
+			},
+		},
+		{
+			name:           "with only global core.hooksPath with --force",
+			force:          true,
+			resetHooksPath: false,
+			git: []cmdtest.Out{
+				{
+					Command: "git config --local core.hooksPath",
+					Output:  "",
+				},
+				{
+					Command: "git config --global core.hooksPath",
+					Output:  "/usr/local/hooks",
+				},
+			},
+			wantError: false,
+			wantExist: []string{
+				configPath,
+				hookPath("pre-commit"),
+				infoPath(config.ChecksumFileName),
+			},
+		},
+		{
+			name:           "with only local core.hooksPath with --reset-hooks-path",
+			force:          false,
+			resetHooksPath: true,
+			git: []cmdtest.Out{
+				{
+					Command: "git config --local core.hooksPath",
+					Output:  ".custom-hooks",
+				},
+				{
+					Command: "git config --global core.hooksPath",
+					Output:  "",
+				},
+				{
+					Command: "git config --local --unset-all core.hooksPath",
 				},
 			},
 			wantError: false,
@@ -788,7 +857,7 @@ pre-commit:
 			assert.NoError(fs.Chtimes(configPath, timestamp, timestamp))
 
 			// Do install
-			err := lefthook.Install(t.Context(), InstallArgs{Force: tt.force}, nil)
+			err := lefthook.Install(t.Context(), InstallArgs{Force: tt.force, ResetHooksPath: tt.resetHooksPath}, nil)
 			if tt.wantError {
 				if assert.Error(err) && tt.wantErrorMsg != "" {
 					assert.Contains(err.Error(), tt.wantErrorMsg)
