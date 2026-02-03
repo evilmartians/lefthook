@@ -523,20 +523,17 @@ func formatHooksPathError(local, global string) error {
 
 	if hasLocal {
 		errMsg.WriteString(fmt.Sprintf("core.hooksPath is set locally to '%s'\n", local))
-		hints = append(hints, "hint:        git config --unset-all --local core.hooksPath")
+		hints = append(hints, "hint:   git config --unset-all --local core.hooksPath")
 	}
 	if hasGlobal {
 		errMsg.WriteString(fmt.Sprintf("core.hooksPath is set globally to '%s'\n", global))
-		hints = append(hints, "hint:        git config --unset-all --global core.hooksPath")
+		hints = append(hints, "hint:   git config --unset-all --global core.hooksPath")
 	}
 	errMsg.WriteString("\n")
-	errMsg.WriteString("hint:    Unset it:\n")
-	errMsg.WriteString("hint:\n")
+	errMsg.WriteString("hint: Unset it:\n")
 	errMsg.WriteString(strings.Join(hints, "\n"))
 	errMsg.WriteString("\nhint:\n")
-	errMsg.WriteString("hint:    Or run lefthook with --reset-hooks-path to automatically unset it:\n")
-	errMsg.WriteString("hint:\n")
-	errMsg.WriteString("hint:        lefthook install --reset-hooks-path\n")
+	errMsg.WriteString("hint: Run 'lefthook install --reset-hooks-path' to automatically unset it.\n")
 
 	// Determine path: use global path if only global is defined, otherwise use local path
 	path := local
@@ -544,7 +541,7 @@ func formatHooksPathError(local, global string) error {
 		path = global
 	}
 	errMsg.WriteString("hint:\n")
-	errMsg.WriteString(fmt.Sprintf("hint:    Run 'lefthook install --force' to install hooks anyway in '%s'.", path))
+	errMsg.WriteString(fmt.Sprintf("hint: Run 'lefthook install --force' to install hooks anyway in '%s'.", path))
 
 	return errors.New(errMsg.String())
 }
