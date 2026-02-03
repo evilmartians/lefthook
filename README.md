@@ -28,7 +28,7 @@ go install github.com/evilmartians/lefthook/v2@v2.1.0
 * or as a go tool
 
 ```bash
-go get -tool github.com/evilmartians/lefthook
+go get -tool github.com/evilmartians/lefthook/v2@v2.1.0
 ```
 
 With **NPM**:
