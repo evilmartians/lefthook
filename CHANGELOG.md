@@ -4,7 +4,7 @@
 
 - ci: skip Python publishing by [@mrexox][]
 - chore: fancy wording and indentation for hits by [@mrexox][]
-- feat: check core.hooksPath when lefthook install ([#1292](https://github.com/evilmartians/lefthook/pull/1292)) by [@joevin-sql-docto][]
+- feat: check core.hooksPath when lefthook install ([#1292](https://github.com/evilmartians/lefthook/pull/1292)) by [@joevin-slq-docto][]
 - feat: allow installing non-git hooks ([#1301](https://github.com/evilmartians/lefthook/pull/1301)) by [@mrexox][]
 
 ## 2.0.16 (2026-01-27)
