@@ -1,2 +1,4 @@
 [default.extend-identifiers]
 "PnP" = "PnP"
+[default.extend-words]
+slq = "slq"
