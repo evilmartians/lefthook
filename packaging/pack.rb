@@ -11,8 +11,111 @@ DIST = File.join(ROOT, "dist")
 
 PYTHON_PLATFORMS = ["linux", "darwin", "windows"].product(["x86_64", "arm64"])
 
+BIN_SRC = {
+  linux_amd64:   "#{DIST}/no_self_update_linux_amd64_v1/lefthook",
+  linux_arm64:   "#{DIST}/no_self_update_linux_arm64_v8.0/lefthook",
+  darwin_amd64:  "#{DIST}/no_self_update_darwin_amd64_v1/lefthook",
+  darwin_arm64:  "#{DIST}/no_self_update_darwin_arm64_v8.0/lefthook",
+  windows_amd64: "#{DIST}/no_self_update_windows_amd64_v1/lefthook.exe",
+  windows_arm64: "#{DIST}/no_self_update_windows_arm64_v8.0/lefthook.exe",
+  freebsd_amd64: "#{DIST}/no_self_update_freebsd_amd64_v1/lefthook",
+  freebsd_arm64: "#{DIST}/no_self_update_freebsd_arm64_v8.0/lefthook",
+  openbsd_amd64: "#{DIST}/no_self_update_openbsd_amd64_v1/lefthook",
+  openbsd_arm64: "#{DIST}/no_self_update_openbsd_arm64_v8.0/lefthook",
+}
+
 module Pack
   extend FileUtils
+
+  class Distribution
+    extend FileUtils
+
+    def prepare
+    end
+
+    def publish
+      raise NotImplementedError
+    end
+
+    protected
+
+    def copy_files
+      # Check that all destination paths are present
+      unless BIN_SRC.keys.to_set.subset?(bin_dest.keys.to_set)
+        raise "#{self.class}: invalid binaries destination"
+      end
+
+      cd(__dir__)
+
+      puts "Preparing binaries for #{self.class}..."
+      bin_dest.each do |(source_type, dest)|
+        mkdir_p(File.dirname(dest))
+        cp(BIN_SRC[source_type], dest, verbose: true)
+      end
+    end
+  end
+
+  class NPM < Distribution
+    def bin_dest
+      {
+        linux_amd64:  "npm/lefthook-linux-x64/bin/lefthook",
+        linux_arm64: "npm/lefthook-linux-arm64/bin/lefthook",
+        freebsd_amd64: "npm/lefthook-freebsd-x64/bin/lefthook",
+        freebsd_arm64: "npm/lefthook-freebsd-arm64/bin/lefthook",
+        openbsd_amd64: "npm/lefthook-openbsd-x64/bin/lefthook",
+        openbsd_arm64: "npm/lefthook-openbsd-arm64/bin/lefthook",
+        windows_amd64: "npm/lefthook-windows-x64/bin/lefthook.exe",
+        windows_arm64: "npm/lefthook-windows-arm64/bin/lefthook.exe",
+        darwin_amd64: "npm/lefthook-darwin-x64/bin/lefthook",
+        darwin_arm64: "npm/lefthook-darwin-arm64/bin/lefthook"
+      }
+    end
+
+    def prepare
+      cd(__dir__)
+
+      copy_files
+
+      puts "Putting README... "
+      Dir["npm/*"].each do |npm_dir|
+        cp(File.join(ROOT, "README.md"), File.join(npm_dir, "README.md"), verbose: true)
+      end
+
+      puts "Putting schema.json..."
+      cp(File.join(ROOT, "schema.json"), "npm/lefthook/", verbose: true)
+    end
+
+    def publish
+      puts "Publishing lefthook npm..."
+      cd(File.join(__dir__, "npm"))
+      Dir["lefthook*"].each do |package|
+        puts "publishing #{package}"
+        cd(File.join(__dir__, "npm", package))
+        system("npm publish --access public", exception: true)
+        cd(File.join(__dir__, "npm"))
+      end
+
+      puts "Publishing @evilmartians/lefthook npm..."
+      cd(File.join(__dir__, "npm-bundled"))
+      system("npm publish --access public", exception: true)
+
+      puts "Publishing @evilmartians/lefthook-installer npm..."
+      cd(File.join(__dir__, "npm-installer"))
+      system("npm publish --access public", exception: true)
+    end
+  end
+
+  class Aur < Distribution
+  end
+
+  DISTRIBUTIONS = [
+    NPM,
+    NPMBundled,
+    NPMInstaller,
+    Aur,
+    RubyGems,
+    PyPi,
+  ].map(&:new)
 
   module_function
 
