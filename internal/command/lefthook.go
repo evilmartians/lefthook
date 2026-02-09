@@ -32,8 +32,9 @@ const (
 )
 
 type Lefthook struct {
-	fs   afero.Fs
-	repo *git.Repository
+	fs     afero.Fs
+	repo   *git.Repository
+	colors string
 }
 
 // NewLefthook returns an instance of Lefthook.
@@ -65,11 +66,16 @@ func NewLefthook(verbose bool, colors string) (*Lefthook, error) {
 		return nil, err
 	}
 
-	return &Lefthook{fs: fs, repo: repo}, nil
+	return &Lefthook{fs: fs, repo: repo, colors: colors}, nil
 }
 
 func (l *Lefthook) LoadConfig() (*config.Config, error) {
-	return config.Load(l.fs, l.repo)
+	cfg, err := config.Load(l.fs, l.repo)
+
+	// Reset colors
+	log.SetColors(l.colors)
+
+	return cfg, err
 }
 
 func (l *Lefthook) reloadConfig(cfg *config.Config) (*config.Config, error) {

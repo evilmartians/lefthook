@@ -188,6 +188,12 @@ func SetColors(colors any) {
 		switch typedColors {
 		case "on":
 			std.colors = ColorOn
+			setColor(lipgloss.CompleteColor{TrueColor: "#ff6347", ANSI256: "196", ANSI: "9"}, &ColorRed)
+			setColor(lipgloss.CompleteColor{TrueColor: "#32cd32", ANSI256: "148", ANSI: "2"}, &ColorGreen)
+			setColor(lipgloss.CompleteColor{TrueColor: "#fada5e", ANSI256: "191", ANSI: "11"}, &ColorYellow)
+			setColor(lipgloss.CompleteColor{TrueColor: "#70C0BA", ANSI256: "37", ANSI: "14"}, &ColorCyan)
+			setColor(lipgloss.CompleteColor{TrueColor: "#808080", ANSI256: "244", ANSI: "7"}, &GolorGray)
+			setColor(lipgloss.Color("#383838"), &colorBorder)
 		case "off":
 			std.colors = ColorOff
 			setColor(lipgloss.NoColor{}, &ColorRed)
@@ -235,6 +241,8 @@ func setColor(colorCode any, adaptiveColor *lipgloss.TerminalColor) {
 	case lipgloss.NoColor:
 		*adaptiveColor = typedCode
 		return
+	case lipgloss.TerminalColor:
+		*adaptiveColor = typedCode
 	default:
 		return
 	}
