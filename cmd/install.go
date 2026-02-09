@@ -19,13 +19,14 @@ func install() *cli.Command {
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:        "force",
-				Usage:       "proceed with installation even if core.hooksPath is configured (overwrite .old files)",
+				Usage:       "overwrite .old files and proceed even if core.hooksPath is set",
 				Aliases:     []string{"f"},
 				Destination: &args.Force,
 			},
 			&cli.BoolFlag{
 				Name:        "reset-hooks-path",
 				Usage:       "automatically unset core.hooksPath configuration",
+				Aliases:     []string{"r"},
 				Destination: &args.ResetHooksPath,
 			},
 			&cli.BoolFlag{
