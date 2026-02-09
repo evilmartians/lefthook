@@ -27,3 +27,7 @@ colors:
   yellow: '#F0E68C'
 ```
 
+Control via ENV variable.
+
+- Set `NO_COLOR=true` to disable colored output in lefthook and all subcommands that lefthook calls.
+- Set `CLICOLOR_FORCE=true` to force colored output in lefthook and all subcommands.
