@@ -1,5 +1,12 @@
 # Change log
 
+## 2.1.1 (2026-02-12)
+
+- ci: fix publishing to PyPi by [@mrexox](https://github.com/mrexox)
+- fix: reset colors on config read ([#1309](https://github.com/evilmartians/lefthook/pull/1309)) by [@mrexox](https://github.com/mrexox)
+- chore: reduce verbosity of hints in lefthook install ([#1303](https://github.com/evilmartians/lefthook/pull/1303)) by [@joevin-slq-docto](https://github.com/joevin-slq-docto)
+- docs: add missing /v2 suffix for go get -tool ([#1304](https://github.com/evilmartians/lefthook/pull/1304)) by [@alexandregv](https://github.com/alexandregv)
+
 ## 2.1.0 (2026-02-03)
 
 - ci: skip Python publishing by [@mrexox][]
