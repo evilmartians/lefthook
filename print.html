@@ -350,7 +350,8 @@ yay -S lefthook-bin
 <p>Creates an empty <code>lefthook.yml</code> if a configuration file does not exist.</p>
 <p>Installs configured hooks to Git hooks.</p>
 <blockquote>
-<p><strong>Note:</strong> NPM package <code>lefthook</code> installs the hooks in a postinstall script automatically. For projects not using NPM package run <code>lefthook install</code> after cloning the repo.</p>
+<p><strong>Note:</strong> Reinstall is not required when you modify <code>lefthook.yml</code>, the configuration file is read every time a git hook is run.
+<strong>Note:</strong> NPM package <code>lefthook</code> installs the hooks in a postinstall script automatically. For projects not using NPM package run <code>lefthook install</code> after cloning the repo.</p>
 </blockquote>
 <h3 id="installing-specific-hooks"><a class="header" href="#installing-specific-hooks">Installing specific hooks</a></h3>
 <p>You can install only specific hooks by running <code>lefthook install &lt;hook-1&gt; &lt;hook-2&gt; ...</code>.</p>
@@ -425,7 +426,8 @@ $ lefthook run pre-commit --file file1.js --file file2.js
 <p>Creates an empty <code>lefthook.yml</code> if a configuration file does not exist.</p>
 <p>Installs configured hooks to Git hooks.</p>
 <blockquote>
-<p><strong>Note:</strong> NPM package <code>lefthook</code> installs the hooks in a postinstall script automatically. For projects not using NPM package run <code>lefthook install</code> after cloning the repo.</p>
+<p><strong>Note:</strong> Reinstall is not required when you modify <code>lefthook.yml</code>, the configuration file is read every time a git hook is run.
+<strong>Note:</strong> NPM package <code>lefthook</code> installs the hooks in a postinstall script automatically. For projects not using NPM package run <code>lefthook install</code> after cloning the repo.</p>
 </blockquote>
 <h3 id="installing-specific-hooks-1"><a class="header" href="#installing-specific-hooks-1">Installing specific hooks</a></h3>
 <p>You can install only specific hooks by running <code>lefthook install &lt;hook-1&gt; &lt;hook-2&gt; ...</code>.</p>
@@ -1531,6 +1533,21 @@ pre-commit:
     test:
       run: yarn test
 </code></pre>
+<p>Skipping a command conditionally based on the existence of a CLI tool:</p>
+<pre><code class="language-yml">prepare-commit-msg:
+  skip:
+    - merge
+    - rebase
+  commands:
+    aiautocommit:
+      interactive: true
+      run: aiautocommit commit --output-file "{1}"
+      env:
+        LOG_LEVEL: info
+      skip:
+        # only run this if the tool exists
+        - run: "! which aiautocommit"
+</code></pre>
 <blockquote>
 <p>TIP</p>
 <p>Always skipping is useful when you have a <code>lefthook-local.yml</code> config and you don't want to run some commands locally. So you just overwrite the <code>skip</code> option for them to be <code>true</code>.</p>
@@ -2106,6 +2123,21 @@ pre-commit:
       run: yarn lint
     test:
       run: yarn test
+</code></pre>
+<p>Skipping a command conditionally based on the existence of a CLI tool:</p>
+<pre><code class="language-yml">prepare-commit-msg:
+  skip:
+    - merge
+    - rebase
+  commands:
+    aiautocommit:
+      interactive: true
+      run: aiautocommit commit --output-file "{1}"
+      env:
+        LOG_LEVEL: info
+      skip:
+        # only run this if the tool exists
+        - run: "! which aiautocommit"
 </code></pre>
 <blockquote>
 <p>TIP</p>
@@ -2748,6 +2780,21 @@ pre-commit:
     test:
       run: yarn test
 </code></pre>
+<p>Skipping a command conditionally based on the existence of a CLI tool:</p>
+<pre><code class="language-yml">prepare-commit-msg:
+  skip:
+    - merge
+    - rebase
+  commands:
+    aiautocommit:
+      interactive: true
+      run: aiautocommit commit --output-file "{1}"
+      env:
+        LOG_LEVEL: info
+      skip:
+        # only run this if the tool exists
+        - run: "! which aiautocommit"
+</code></pre>
 <blockquote>
 <p>TIP</p>
 <p>Always skipping is useful when you have a <code>lefthook-local.yml</code> config and you don't want to run some commands locally. So you just overwrite the <code>skip</code> option for them to be <code>true</code>.</p>
@@ -3335,6 +3382,21 @@ pre-commit:
       run: yarn lint
     test:
       run: yarn test
+</code></pre>
+<p>Skipping a command conditionally based on the existence of a CLI tool:</p>
+<pre><code class="language-yml">prepare-commit-msg:
+  skip:
+    - merge
+    - rebase
+  commands:
+    aiautocommit:
+      interactive: true
+      run: aiautocommit commit --output-file "{1}"
+      env:
+        LOG_LEVEL: info
+      skip:
+        # only run this if the tool exists
+        - run: "! which aiautocommit"
 </code></pre>
 <blockquote>
 <p>TIP</p>

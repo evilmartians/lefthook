@@ -173,7 +173,8 @@
 <p>Creates an empty <code>lefthook.yml</code> if a configuration file does not exist.</p>
 <p>Installs configured hooks to Git hooks.</p>
 <blockquote>
-<p><strong>Note:</strong> NPM package <code>lefthook</code> installs the hooks in a postinstall script automatically. For projects not using NPM package run <code>lefthook install</code> after cloning the repo.</p>
+<p><strong>Note:</strong> Reinstall is not required when you modify <code>lefthook.yml</code>, the configuration file is read every time a git hook is run.
+<strong>Note:</strong> NPM package <code>lefthook</code> installs the hooks in a postinstall script automatically. For projects not using NPM package run <code>lefthook install</code> after cloning the repo.</p>
 </blockquote>
 <h3 id="installing-specific-hooks"><a class="header" href="#installing-specific-hooks">Installing specific hooks</a></h3>
 <p>You can install only specific hooks by running <code>lefthook install &lt;hook-1&gt; &lt;hook-2&gt; ...</code>.</p>

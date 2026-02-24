@@ -240,6 +240,21 @@ pre-commit:
     test:
       run: yarn test
 </code></pre>
+<p>Skipping a command conditionally based on the existence of a CLI tool:</p>
+<pre><code class="language-yml">prepare-commit-msg:
+  skip:
+    - merge
+    - rebase
+  commands:
+    aiautocommit:
+      interactive: true
+      run: aiautocommit commit --output-file "{1}"
+      env:
+        LOG_LEVEL: info
+      skip:
+        # only run this if the tool exists
+        - run: "! which aiautocommit"
+</code></pre>
 <blockquote>
 <p>TIP</p>
 <p>Always skipping is useful when you have a <code>lefthook-local.yml</code> config and you don't want to run some commands locally. So you just overwrite the <code>skip</code> option for them to be <code>true</code>.</p>
