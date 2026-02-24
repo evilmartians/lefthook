@@ -861,7 +861,7 @@ pre-commit:
 <h4 id="enable-debug-logs"><a class="header" href="#enable-debug-logs">Enable debug logs</a></h4>
 <pre><code class="language-yml"># lefthook-local.yml
 
-lefthook: lefthook --verbose
+lefthook: LEFTHOOK_VERBOSE=1 lefthook
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="min_version"><a class="header" href="#min_version"><code>min_version</code></a></h2>
 <p>If you want to specify a minimum version for lefthook binary (e.g. if you need some features older versions don't have) you can set this option.</p>
@@ -3568,6 +3568,9 @@ summary: (done in 0.52 seconds)
 </code></pre>
 <h2 id="lefthook_verbose"><a class="header" href="#lefthook_verbose"><code>LEFTHOOK_VERBOSE</code></a></h2>
 <p>Set <code>LEFTHOOK_VERBOSE=1</code> or <code>LEFTHOOK_VERBOSE=true</code> to enable verbose printing.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-bash">LEFTHOOK_VERBOSE=1 lefthook run pre-commit
+</code></pre>
 <h2 id="lefthook_config"><a class="header" href="#lefthook_config"><code>LEFTHOOK_CONFIG</code></a></h2>
 <p>Override the main lefthook config with <code>LEFTHOOK_CONFIG=~/global_lefthook.yml</code>. Note: local config, specified extends, and remotes will still be loaded.</p>
 <h2 id="lefthook_exclude"><a class="header" href="#lefthook_exclude"><code>LEFTHOOK_EXCLUDE</code></a></h2>
@@ -3601,6 +3604,9 @@ LEFTHOOK=1 pnpm install
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook_verbose-1"><a class="header" href="#lefthook_verbose-1"><code>LEFTHOOK_VERBOSE</code></a></h2>
 <p>Set <code>LEFTHOOK_VERBOSE=1</code> or <code>LEFTHOOK_VERBOSE=true</code> to enable verbose printing.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-bash">LEFTHOOK_VERBOSE=1 lefthook run pre-commit
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="lefthook_output-1"><a class="header" href="#lefthook_output-1"><code>LEFTHOOK_OUTPUT</code></a></h2>
 <p>Use <code>LEFTHOOK_OUTPUT={list of output values}</code> to specify what to print in your output. You can also set <code>LEFTHOOK_OUTPUT=false</code> to disable all output except for errors. Refer to the <a href="usage/envs/../../configuration/output.html"><code>output</code></a> configuration option for more details.</p>
 <p><strong>Example</strong></p>
