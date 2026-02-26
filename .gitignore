@@ -7,6 +7,7 @@ tmp/
 dist/
 book/
 bin/
+site/
 
 # Packages
 packaging/pypi/lefthook/__pycache__/
