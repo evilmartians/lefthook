@@ -1,4 +1,8 @@
-## `exclude`
+---
+title: "exclude"
+---
+
+# `exclude`
 
 This option allows to setup a list of globs for files to be excluded in files template.
 

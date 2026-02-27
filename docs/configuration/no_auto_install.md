@@ -1,4 +1,8 @@
-## `no_auto_install`
+---
+title: "no_auto_install"
+---
+
+# `no_auto_install`
 
 **Default: `false`**
 

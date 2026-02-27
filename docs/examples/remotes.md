@@ -1,4 +1,4 @@
-## Remotes
+# Remotes
 
 Use configurations from other Git repositories via `remotes` feature.
 

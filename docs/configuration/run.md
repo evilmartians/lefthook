@@ -1,4 +1,8 @@
-## `run`
+---
+title: "run"
+---
+
+# `run`
 
 This is a mandatory option for a command, which specifies the actual command to be run using the `sh` shell.
 

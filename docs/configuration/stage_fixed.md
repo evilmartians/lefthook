@@ -1,4 +1,8 @@
-## `stage_fixed`
+---
+title: "stage_fixed"
+---
+
+# `stage_fixed`
 
 **Default: `false`**
 

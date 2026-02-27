@@ -1,4 +1,8 @@
-## `exclude_tags`
+---
+title: "exclude_tags"
+---
+
+# `exclude_tags`
 
 [Tags](./tags.md) or command names that you want to exclude. This option can be overwritten with `LEFTHOOK_EXCLUDE` env variable.
 

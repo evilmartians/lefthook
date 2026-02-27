@@ -1,4 +1,8 @@
-## Scripts
+---
+title: "Scripts"
+---
+
+# Scripts
 
 Scripts are stored under `<source_dir>/<hook-name>/` folder. These scripts are your own executables which are being run in the project root.
 
@@ -15,19 +19,6 @@ To add a script for a `pre-commit` hook:
        "my-script.sh":
          runner: bash
    ```
-
-### Script options
-
-- [`runner`](./runner.md)
-- [`skip`](./skip.md)
-- [`only`](./only.md)
-- [`tags`](./tags.md)
-- [`env`](./env.md)
-- [`fail_text`](./fail_text.md)
-- [`stage_fixed`](./stage_fixed.md)
-- [`interactive`](./interactive.md)
-- [`use_stdin`](./use_stdin.md)
-- [`priority`](./priority.md)
 
 ### Example
 

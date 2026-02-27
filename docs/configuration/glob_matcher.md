@@ -1,4 +1,8 @@
-## `glob_matcher`
+---
+title: "glob_matcher"
+---
+
+# `glob_matcher`
 
 You can configure which glob matching engine lefthook uses to filter files. By default, lefthook uses `gobwas/glob`, but you can opt-in to use `doublestar` for standard glob behavior.
 

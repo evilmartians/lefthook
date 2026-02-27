@@ -1,4 +1,4 @@
-## Filters
+# Filters
 
 Files passed to your hooks can be filtered with the following options
 

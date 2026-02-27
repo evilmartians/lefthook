@@ -1,4 +1,8 @@
-## `remotes`
+---
+title: "remotes"
+---
+
+# `remotes`
 
 You can provide multiple remote configs if you want to share yours lefthook configurations across many projects. Lefthook will automatically download and merge configurations into your local `lefthook.yml`.
 

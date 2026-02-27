@@ -1,4 +1,8 @@
-## `piped`
+---
+title: "piped"
+---
+
+# `piped`
 
 **Default: `false`**
 

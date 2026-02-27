@@ -1,4 +1,8 @@
-## `jobs`
+---
+title: "jobs"
+---
+
+# `jobs`
 
 > Added in lefthook `1.10.0`
 
@@ -28,32 +32,6 @@ pre-commit:
 
 - Groups can include other jobs.
 - Flow within groups can be parallel or piped. Options `glob`, `root`, and `exclude` apply to all jobs in the group, including nested ones.
-
-### Job options
-
-Below are the available options for configuring jobs.
-
-- [`name`](./name.md)
-- [`run`](./run.md)
-- [`script`](./script.md)
-- [`runner`](./runner.md)
-- [`group`](./group.md)
-  - [`parallel`](./parallel.md)
-  - [`piped`](./piped.md)
-  - [`jobs`](./jobs.md)
-- [`skip`](./skip.md)
-- [`only`](./only.md)
-- [`tags`](./tags.md)
-- [`glob`](./glob.md)
-- [`files`](./files.md)
-- [`file_types`](./file_types.md)
-- [`env`](./env.md)
-- [`root`](./root.md)
-- [`exclude`](./exclude.md)
-- [`fail_text`](./fail_text.md)
-- [`stage_fixed`](./stage_fixed.md)
-- [`interactive`](./interactive.md)
-- [`use_stdin`](./use_stdin.md)
 
 ### Example
 

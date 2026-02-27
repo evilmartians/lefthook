@@ -1,4 +1,4 @@
-## lefthook-local.yml
+# lefthook-local.yml
 
 > **Tip:** You can put `lefthook-local.yml` into your `~/.gitignore`, so in every project you can have your local-only overrides.
 

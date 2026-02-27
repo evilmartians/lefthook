@@ -1,4 +1,8 @@
-## `refetch_frequency`
+---
+title: "refetch_frequency"
+---
+
+# `refetch_frequency`
 
 **Default:** Not set
 

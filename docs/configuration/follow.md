@@ -1,4 +1,8 @@
-## `follow`
+---
+title: "follow"
+---
+
+# `follow`
 
 **Default: `false`**
 

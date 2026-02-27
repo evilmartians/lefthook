@@ -1,4 +1,8 @@
-## `no_tty`
+---
+title: "no_tty"
+---
+
+# `no_tty`
 
 **Default: `false`**
 

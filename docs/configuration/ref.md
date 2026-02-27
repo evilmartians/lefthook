@@ -1,4 +1,8 @@
-## `ref`
+---
+title: "ref"
+---
+
+# `ref`
 
 An optional *branch* or *tag* name.
 

@@ -1,4 +1,8 @@
-## `interactive`
+---
+title: "interactive"
+---
+
+# `interactive`
 
 **Default: `false`**
 

@@ -1,4 +1,8 @@
-## `refetch`
+---
+title: "refetch"
+---
+
+# `refetch`
 
 **Default:** `false`
 

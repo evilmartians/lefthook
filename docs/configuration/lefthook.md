@@ -1,4 +1,8 @@
-## `lefthook`
+---
+title: "lefthook"
+---
+
+# `lefthook`
 
 **Default:** `null`
 

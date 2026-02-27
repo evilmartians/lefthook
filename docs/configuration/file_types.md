@@ -1,4 +1,8 @@
-## `file_types`
+---
+title: "file_types"
+---
+
+# `file_types`
 
 Filter files in a [`run`](./run.md) templates by their type. Special file types and MIME types are supported[^1]:
 

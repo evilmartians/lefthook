@@ -1,4 +1,8 @@
-## `group`
+---
+title: "group"
+---
+
+# `group`
 
 You can define a group of jobs and configure how they should execute using the following options:
 

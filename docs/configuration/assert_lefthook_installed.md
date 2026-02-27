@@ -2,7 +2,7 @@
 title: "assert_lefthook_installed"
 ---
 
-## `assert_lefthook_installed`
+# `assert_lefthook_installed`
 
 **Default: `false`**
 

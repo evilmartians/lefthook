@@ -1,4 +1,4 @@
-## Commitlint and commitzen
+# Commitlint and commitzen
 
 Use lefthook to generate commit messages using commitzen and validate them with commitlint.
 

@@ -1,4 +1,8 @@
-## `skip_lfs`
+---
+title: "skip_lfs"
+---
+
+# `skip_lfs`
 
 **Default:** `false`
 

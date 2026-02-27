@@ -1,4 +1,8 @@
-## `templates`
+---
+title: "templates"
+---
+
+# `templates`
 
 > Added in lefthook `1.10.8`
 

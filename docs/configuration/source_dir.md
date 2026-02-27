@@ -1,4 +1,8 @@
-## `source_dir`
+---
+title: "source_dir"
+---
+
+# `source_dir`
 
 **Default: `.lefthook/`**
 

@@ -1,4 +1,8 @@
-# fail_on_changes
+---
+title: "fail_on_change"
+---
+
+# `fail_on_changes`
 
 The behaviour of lefthook when files (tracked by git) are modified can set by modifying the `fail_on_changes` configuration parameter. The possible values are:
 

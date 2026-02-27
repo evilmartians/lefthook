@@ -1,4 +1,8 @@
-## `env`
+---
+title: "env"
+---
+
+# `env`
 
 You can specify some ENV variables for the command or script.
 

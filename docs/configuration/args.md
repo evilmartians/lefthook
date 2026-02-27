@@ -2,7 +2,7 @@
 title: "args"
 ---
 
-## `args`
+# `args`
 
 > Support added in lefthook version `2.0.5`
 

@@ -1,4 +1,8 @@
-## `install_non_git_hooks`
+---
+title: "install_non_git_hooks"
+---
+
+# `install_non_git_hooks`
 
 > Since lefthook 2.0.17
 

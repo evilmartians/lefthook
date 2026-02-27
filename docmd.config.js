@@ -20,7 +20,7 @@ module.exports = {
   // --- Theme & Layout ---
   theme: {
     name: 'default',            // Options: 'default', 'sky', 'ruby', 'retro'
-    defaultMode: 'light',  // 'light', 'dark', or 'system'
+    defaultMode: 'system',  // 'light', 'dark', or 'system'
     enableModeToggle: true, // Show mode toggle button
     positionMode: 'top',    // 'top' or 'bottom'
     codeHighlight: true,    // Enable Highlight.js
@@ -32,13 +32,14 @@ module.exports = {
   minify: true,           // Minify HTML/CSS/JS in build
   autoTitleFromH1: true,  // Auto-generate page title from first H1
   copyCode: true,         // Show "copy" button on code blocks
-  pageNavigation: true,   // Prev/Next buttons at bottom
+  pageNavigation: false,   // Prev/Next buttons at bottom
 
   // --- Navigation (Sidebar) ---
   navigation: [
     {
       title: "Installation",
       icon: 'rocket',
+      path: "/install",
       collapsible: true,
       children: [
         { title: "Ruby", path: "/installation/ruby" },
@@ -169,7 +170,15 @@ module.exports = {
     },
     { title: "CLI", collapsible: true, icon: "terminal",
       children: [
-        { title: "ENV variables", collapsible: true,
+            { title: "lefthook install", icon: "chevron-right", path: "/usage/commands/install" },
+            { title: "lefthook uninstall", icon: "chevron-right", path: "/usage/commands/uninstall" },
+            { title: "lefthook run", icon: "chevron-right", path: "/usage/commands/run" },
+            { title: "lefthook add", icon: "chevron-right", path: "/usage/commands/add" },
+            { title: "lefthook validate", icon: "chevron-right", path: "/usage/commands/validate" },
+            { title: "lefthook dump", icon: "chevron-right", path: "/usage/commands/dump" },
+            { title: "lefthook check-install", icon: "chevron-right", path: "/usage/commands/check-install" },
+            { title: "lefthook self-update", icon: "chevron-right", path: "/usage/commands/self-update" },
+        { title: "ENV variables", collapsible: true, icon: "dollar-sign",
           children: [
             { title: "LEFTHOOK", path: "/usage/envs/LEFTHOOK" },
             { title: "LEFTHOOK_VERBOSE", path: "/usage/envs/LEFTHOOK_VERBOSE" },

@@ -1,4 +1,8 @@
-## `priority`
+---
+title: "priority"
+---
+
+# `priority`
 
 **Default: `0`**
 

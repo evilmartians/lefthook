@@ -1,4 +1,8 @@
-# fail_on_changes_diff
+---
+title: "fail_on_changes_diff"
+---
+
+# `fail_on_changes_diff`
 
 When Lefthook exits with a non-zero status as a result of [`fail_on_changes`](./fail_on_changes.md) triggering,
 it can optionally output a diff of the detected changes.

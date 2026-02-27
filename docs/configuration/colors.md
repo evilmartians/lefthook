@@ -2,7 +2,7 @@
 title: "colors"
 ---
 
-## `colors`
+# `colors`
 
 **Default: `auto`**
 

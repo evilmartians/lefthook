@@ -1,4 +1,8 @@
-## `name`
+---
+title: "name"
+---
+
+# `name`
 
 Name of a job. Will be printed in summary. If specified, the jobs can be merged with a jobs of the same name in a [local config](../examples/lefthook-local.md) or [extends](./extends.md).
 

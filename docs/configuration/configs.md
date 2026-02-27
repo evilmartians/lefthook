@@ -2,7 +2,7 @@
 title: "configs"
 ---
 
-## `configs`
+# `configs`
 
 **Default:** `[lefthook.yml]`
 

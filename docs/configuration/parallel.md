@@ -1,4 +1,8 @@
-## `parallel`
+---
+title: "parallel"
+---
+
+# `parallel`
 
 **Default: `false`**
 
