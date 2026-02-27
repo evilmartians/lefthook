@@ -1,5 +1,5 @@
 ---
-title: "fail_on_change"
+title: "fail_on_changes"
 ---
 
 # `fail_on_changes`
