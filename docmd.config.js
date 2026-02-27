@@ -1,40 +1,34 @@
 // docmd.config.js
 module.exports = {
-  // --- Core Metadata ---
   siteTitle: 'Lefthook',
-  siteUrl: 'https://lefthook.dev', // e.g. https://mysite.com (Critical for SEO/Sitemap)
+  siteUrl: 'https://lefthook.dev',
 
-  // --- Branding ---
   logo: {
     light: '/assets/lefthook.png',
     dark: '/assets/lefthook.png',
     alt: 'Logo',
     href: './',
   },
-  favicon: '/assets/lefthook.png',
+  favicon: '/assets/favicon.svg',
 
-  // --- Source & Output ---
   srcDir: 'docs',
   outputDir: 'site',
 
-  // --- Theme & Layout ---
   theme: {
     name: 'default',            // Options: 'default', 'sky', 'ruby', 'retro'
     defaultMode: 'system',  // 'light', 'dark', or 'system'
     enableModeToggle: true, // Show mode toggle button
     positionMode: 'top',    // 'top' or 'bottom'
     codeHighlight: true,    // Enable Highlight.js
-    customCss: ['assets/css/lefthook.css'],          // e.g. ['assets/css/custom.css']
+    customCss: ['assets/css/lefthook.css'],
   },
 
-  // --- Features ---
   search: true,           // Built-in offline search
   minify: true,           // Minify HTML/CSS/JS in build
   autoTitleFromH1: true,  // Auto-generate page title from first H1
   copyCode: true,         // Show "copy" button on code blocks
   pageNavigation: false,   // Prev/Next buttons at bottom
 
-  // --- Navigation (Sidebar) ---
   navigation: [
     {
       title: "Installation",
@@ -207,35 +201,29 @@ module.exports = {
     { title: 'GitHub', path: 'https://github.com/evilmartians/lefthook', icon: 'github', external: true },
   ],
 
-  // --- Plugins ---
   plugins: {
     seo: {
       defaultDescription: 'Lefthook documentation.',
       openGraph: {
-        defaultImage: '',   // e.g. 'assets/images/og-image.png'
+        defaultImage: 'assets/lefthook.png',
       },
-      // twitter: {
-      //   cardType: 'summary_large_image',
-      // }
     },
     analytics: {
       // googleV4: {
-      //   measurementId: 'G-X9WTDL262N' // Replace with your GA Measurement ID
+      //   measurementId: ''
       // }
     },
     sitemap: {
-      defaultChangefreq: 'weekly',  // e.g. 'daily', 'weekly', 'monthly'
-      defaultPriority: 0.8          // Priority between 0.0 and 1.0
+      defaultChangefreq: 'weekly',
+      defaultPriority: 0.8
     },
     search: {},
     mermaid: {},
     llms: {}
   },
 
-  // --- Footer ---
-  footer: '© ' + new Date().getFullYear() + ' Lefthook.',
+  footer: '© ' + new Date().getFullYear() + ' Lefthook. Evil Martians.',
 
-  // --- Edit Link ---
   editLink: {
     enabled: false,
     baseUrl: 'https://github.com/evilmartians/lefthook/edit/main/docs',

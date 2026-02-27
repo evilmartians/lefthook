@@ -3,9 +3,6 @@ title: "What is Lefthook?"
 description: "Welcome to Lefthook documentation"
 ---
 
-<img align="right" width="147" height="125" title="Lefthook logo"
-     src="/assets/favicon.svg">
-
 **Lefthook** is a Git hooks manager.
 
 **Example:** Run your linters on `pre-commit` hook and forget about the routine.
