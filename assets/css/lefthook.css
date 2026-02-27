@@ -3,6 +3,10 @@
   --font-family-mono: "Martian Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
 }
 
+.main-content-wrapper {
+  min-height: 100vh;
+}
+
 body[data-theme="dark"] {
   --link-color: #ff1e1e;
   --font-family-mono: "Martian Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
