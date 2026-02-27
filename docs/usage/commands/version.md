@@ -1,3 +1,7 @@
+---
+title: "lefthook version"
+---
+
 ## `lefthook version`
 
 `lefthook version` prints the current binary version. Print the commit hash with `lefthook version --full`

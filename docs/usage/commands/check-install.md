@@ -1,3 +1,7 @@
+---
+title: "lefthook check-install"
+---
+
 ## `lefthook check-install`
 
 Checks if Git hooks are installed and synchronized.

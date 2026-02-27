@@ -64,5 +64,5 @@ pre-commit:
 ```yml
 # lefthook-local.yml
 
-lefthook: lefthook --verbose
+lefthook: LEFTHOOK_VERBOSE=1 lefthook
 ```

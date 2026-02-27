@@ -1,3 +1,7 @@
+---
+title: "lefthook add"
+---
+
 ## `lefthook add`
 
 Installs the given hook to Git hook.

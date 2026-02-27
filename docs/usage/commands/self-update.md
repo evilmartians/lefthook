@@ -1,3 +1,7 @@
+---
+title: "lefthook self-update"
+---
+
 ## `lefthook self-update`
 
 Updates the binary with the latest lefthook release on Github.

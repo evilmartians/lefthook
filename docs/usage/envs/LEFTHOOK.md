@@ -1,3 +1,7 @@
+---
+title: "LEFTHOOK"
+---
+
 ## `LEFTHOOK`
 
 Use `LEFTHOOK=0 git ...` or `LEFTHOOK=false git ...` to disable lefthook when running git commands.

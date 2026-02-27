@@ -1,3 +1,7 @@
+---
+title: "lefthook run"
+---
+
 ## `lefthook run`
 
 Executes the commands and scripts configured for a given hook. Installed Git hooks call `lefthook run` implicitly.

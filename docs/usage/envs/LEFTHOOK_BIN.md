@@ -1,3 +1,7 @@
+---
+title: "LEFTHOOK_BIN"
+---
+
 ## `LEFTHOOK_BIN`
 
 Set `LEFTHOOK_BIN` to a location where lefthook is installed to use that instead of trying to detect from the it the PATH or from a package manager.

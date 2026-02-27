@@ -1,3 +1,7 @@
+---
+title: "lefthook dump"
+---
+
 ## `lefthook dump`
 
 Prints the whole configuration after merging all secondary configs.

@@ -1,3 +1,7 @@
+---
+title: "CI"
+---
+
 ## `CI`
 
 When using NPM package `lefthook`, set `CI=true` in your CI (if it does not set it automatically) to prevent lefthook from installing hooks in the postinstall script:
