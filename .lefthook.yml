@@ -25,6 +25,9 @@ pre-commit:
     - name: fix typos
       tags: lint
       run: typos --write-changes {staged_files}
+      exclude:
+        - "*.svg"
+        - "*.png"
       stage_fixed: true
 
     - name: update JSON schema
