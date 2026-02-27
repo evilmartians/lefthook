@@ -1,0 +1,6 @@
+/*!
+ * docmd (v0.4.9)
+ * Copyright (c) 2025-present docmd.io
+ * License: MIT
+ */
+:root{--link-color: #ff1e1e;--font-family-mono: "Martian Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace}body[data-theme=dark]{--link-color: #ff1e1e;--font-family-mono: "Martian Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace}
