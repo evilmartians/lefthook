@@ -251,7 +251,8 @@ func runHook(ctx context.Context, hook *config.Hook, repo *git.Repository, opts 
 	startTime := time.Now()
 	results, err := run.Run(ctx, hook, repo, opts)
 	if err != nil {
-		if errors.Is(err, run.ErrFailOnChanges) {
+		var failOnChangesErr *run.FailOnChangesError
+		if errors.As(err, &failOnChangesErr) {
 			return err
 		}
 		return fmt.Errorf("failed to run the hook: %w", err)

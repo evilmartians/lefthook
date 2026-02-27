@@ -2,13 +2,20 @@ package controller
 
 import (
 	"errors"
+	"fmt"
 	"maps"
 
 	"github.com/evilmartians/lefthook/v2/internal/git"
 	"github.com/evilmartians/lefthook/v2/internal/log"
 )
 
-var ErrFailOnChanges = errors.New("files were modified by a hook, and fail_on_changes is enabled")
+type FailOnChangesError struct {
+	changedFiles []string
+}
+
+func (e *FailOnChangesError) Error() string {
+	return "files were modified by a hook, and fail_on_changes is enabled"
+}
 
 type guard struct {
 	git *git.Repository
@@ -16,10 +23,6 @@ type guard struct {
 	stashUnstagedChanges bool
 	failOnChanges        bool
 	failOnChangesDiff    bool
-
-	didStash             bool
-	partiallyStagedFiles []string
-	changesetBefore      map[string]string
 }
 
 func newGuard(repo *git.Repository, stashUnstagedChanges bool, failOnChanges bool, failOnChangesDiff bool) *guard {
@@ -31,22 +34,18 @@ func newGuard(repo *git.Repository, stashUnstagedChanges bool, failOnChanges boo
 	}
 }
 
-func (g *guard) wrap(call func()) error {
+func (g *guard) wrap(fn func()) error {
 	if !g.failOnChanges && !g.stashUnstagedChanges {
-		call()
+		fn()
+
 		return nil
 	}
 
 	return g.withHiddenUnstagedChanges(
-		g.withFailOnChanges(
-			call,
-		),
+		func() error {
+			return g.withFailOnChanges(fn)
+		},
 	)
-	// g.before()
-	//
-	// call()
-	//
-	// return g.after()
 }
 
 func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
@@ -66,32 +65,46 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 
 	log.Debug("[lefthook] saving partially staged files")
 
-	g.partiallyStagedFiles = partiallyStagedFiles
-	err = g.git.SaveUnstaged(g.partiallyStagedFiles)
-	if err != nil {
+	if err := g.git.SaveUnstaged(partiallyStagedFiles); err != nil {
 		log.Warnf("Couldn't save unstaged changes: %s\n", err)
 		return err
 	}
 
-	err = g.git.StashUnstaged()
-	if err != nil {
+	if err := g.git.StashUnstaged(); err != nil {
 		log.Warnf("Couldn't stash partially staged files: %s\n", err)
 		return err
 	}
 
-	g.didStash = true
-
 	log.Builder(log.DebugLevel, "[lefthook] ").
-		Add("hide partially staged files: ", g.partiallyStagedFiles).
+		Add("hide partially staged files: ", partiallyStagedFiles).
 		Log()
 
-	err = g.git.HideUnstaged(g.partiallyStagedFiles)
-	if err != nil {
+	if err := g.git.RevertUnstagedChanges(partiallyStagedFiles); err != nil {
 		log.Warnf("Couldn't hide unstaged files: %s\n", err)
 		return err
 	}
 
-	return fn()
+	wrappedErr := fn()
+
+	var failOnChangesErr *FailOnChangesError
+	if errors.As(wrappedErr, &failOnChangesErr) {
+		if err := g.git.RevertUnstagedChanges(failOnChangesErr.changedFiles); err != nil {
+			log.Warnf("Couldn't hide unstaged files: %s\n", err)
+			return wrappedErr
+		}
+	}
+
+	if err := g.git.RestoreUnstaged(); err != nil {
+		log.Warnf("Couldn't restore unstaged files: %s\n", err)
+		return wrappedErr
+	}
+
+	if err := g.git.DropUnstagedStash(); err != nil {
+		log.Warnf("Couldn't remove unstaged files backup: %s\n", err)
+		return wrappedErr
+	}
+
+	return wrappedErr
 }
 
 func (g *guard) withFailOnChanges(fn func()) error {
@@ -100,222 +113,45 @@ func (g *guard) withFailOnChanges(fn func()) error {
 		return nil
 	}
 
-	changeset, err := g.git.Changeset()
+	changesetBefore, err := g.git.Changeset()
 	if err != nil {
-		log.Warnf("Couldn't get changeset: %s\n", err)
-	} else {
-		g.changesetBefore = changeset
+		return fmt.Errorf("couldn't calculate changeset: %w", err)
 	}
 
 	fn()
 
-	// Only get changeset if we need it for failOnChanges check
-	var changesetAfter map[string]string
-	var isFailingOnChanges bool
-	var err error
-	changesetAfter, err = g.git.Changeset()
+	changesetAfter, err := g.git.Changeset()
 	if err != nil {
-		log.Warnf("Couldn't get changeset: %s\n", err)
-		changesetAfter = make(map[string]string)
+		return fmt.Errorf("couldn't calculate changeset: %w", err)
 	}
-	isFailingOnChanges = !maps.Equal(g.changesetBefore, changesetAfter)
-
-	if !g.didStash {
-		if isFailingOnChanges {
-			g.printDiff(changesetAfter)
-			return ErrFailOnChanges
-		}
-		return nil
-	}
-
-	if err := g.git.RestoreUnstaged(); err != nil {
-		log.Warnf("Couldn't restore unstaged files: %s\n", err)
-		// If we can't restore the unstaged files, first roll back the changes
-		// introduced by the hook before trying to restore unstaged files again
-		// Get changeset only when needed for error recovery
-		changesetAfter, err := g.git.Changeset()
-		if err != nil {
-			log.Warnf("Couldn't get changeset: %s\n", err)
-			changesetAfter = make(map[string]string)
-		}
-		changed := g.getChangedFiles(changesetAfter)
-
-		log.Warnf("Couldn't restore unstaged files after hook changes, rolling back: %s\n", changed)
-		err = g.git.HideUnstaged(changed)
-		if err != nil {
-			log.Warnf("Couldn't rollback hook changes: %s\n", err)
-			return nil
-		}
-
-		// Retry restoring unstaged files after rolling back hook changes
-		if retryErr := g.git.RestoreUnstaged(); retryErr != nil {
-			log.Warnf("Couldn't restore unstaged files after rollback: %s\n", retryErr)
-			return nil
-		}
-	}
-
-	if err := g.git.DropUnstagedStash(); err != nil {
-		log.Warnf("Couldn't remove unstaged files backup: %s\n", err)
-		return nil
-	}
-
-	if isFailingOnChanges {
-		g.printDiff(changesetAfter)
-		return ErrFailOnChanges
+	if !maps.Equal(changesetBefore, changesetAfter) {
+		changedFiles := g.printDiff(changesetBefore, changesetAfter)
+		return &FailOnChangesError{changedFiles: changedFiles}
 	}
 
 	return nil
 }
 
-func (g *guard) before() {
-	if g.failOnChanges {
-		changeset, err := g.git.Changeset()
-		if err != nil {
-			log.Warnf("Couldn't get changeset: %s\n", err)
-		} else {
-			g.changesetBefore = changeset
-		}
+func (g *guard) printDiff(changesetBefore, changesetAfter map[string]string) []string {
+	changedFiles := g.getChangedFiles(changesetBefore, changesetAfter)
+
+	if g.failOnChangesDiff && len(changedFiles) > 0 {
+		g.git.PrintDiff(changedFiles)
 	}
 
-	if !g.stashUnstagedChanges {
-		return
-	}
-
-	partiallyStagedFiles, err := g.git.PartiallyStagedFiles()
-	if err != nil {
-		log.Warnf("Couldn't find partially staged files: %s\n", err)
-		return
-	}
-
-	if len(partiallyStagedFiles) == 0 {
-		return
-	}
-
-	log.Debug("[lefthook] saving partially staged files")
-
-	g.partiallyStagedFiles = partiallyStagedFiles
-	err = g.git.SaveUnstaged(g.partiallyStagedFiles)
-	if err != nil {
-		log.Warnf("Couldn't save unstaged changes: %s\n", err)
-		return
-	}
-
-	err = g.git.StashUnstaged()
-	if err != nil {
-		log.Warnf("Couldn't stash partially staged files: %s\n", err)
-		return
-	}
-
-	g.didStash = true
-
-	log.Builder(log.DebugLevel, "[lefthook] ").
-		Add("hide partially staged files: ", g.partiallyStagedFiles).
-		Log()
-
-	err = g.git.HideUnstaged(g.partiallyStagedFiles)
-	if err != nil {
-		log.Warnf("Couldn't hide unstaged files: %s\n", err)
-		return
-	}
-
-	// Capture changeset after stashing partially staged files, so we compare the same state
-	// before and after running hooks
-	if g.failOnChanges {
-		changeset, err := g.git.Changeset()
-		if err != nil {
-			log.Warnf("Couldn't get changeset: %s\n", err)
-		} else {
-			g.changesetBefore = changeset
-		}
-	}
+	return changedFiles
 }
 
-func (g *guard) after() error {
-	// Only get changeset if we need it for failOnChanges check
-	var changesetAfter map[string]string
-	var isFailingOnChanges bool
-
-	if g.failOnChanges {
-		var err error
-		changesetAfter, err = g.git.Changeset()
-		if err != nil {
-			log.Warnf("Couldn't get changeset: %s\n", err)
-			changesetAfter = make(map[string]string)
-		}
-		isFailingOnChanges = !maps.Equal(g.changesetBefore, changesetAfter)
-	}
-
-	if !g.didStash {
-		if isFailingOnChanges {
-			g.printDiff(changesetAfter)
-			return ErrFailOnChanges
-		}
-		return nil
-	}
-
-	if err := g.git.RestoreUnstaged(); err != nil {
-		log.Warnf("Couldn't restore unstaged files: %s\n", err)
-		// If we can't restore the unstaged files, first roll back the changes
-		// introduced by the hook before trying to restore unstaged files again
-		// Get changeset only when needed for error recovery
-		changesetAfter, err := g.git.Changeset()
-		if err != nil {
-			log.Warnf("Couldn't get changeset: %s\n", err)
-			changesetAfter = make(map[string]string)
-		}
-		changed := g.getChangedFiles(changesetAfter)
-
-		log.Warnf("Couldn't restore unstaged files after hook changes, rolling back: %s\n", changed)
-		err = g.git.HideUnstaged(changed)
-		if err != nil {
-			log.Warnf("Couldn't rollback hook changes: %s\n", err)
-			return nil
-		}
-
-		// Retry restoring unstaged files after rolling back hook changes
-		if retryErr := g.git.RestoreUnstaged(); retryErr != nil {
-			log.Warnf("Couldn't restore unstaged files after rollback: %s\n", retryErr)
-			return nil
-		}
-	}
-
-	if err := g.git.DropUnstagedStash(); err != nil {
-		log.Warnf("Couldn't remove unstaged files backup: %s\n", err)
-		return nil
-	}
-
-	if isFailingOnChanges {
-		g.printDiff(changesetAfter)
-		return ErrFailOnChanges
-	}
-
-	return nil
-}
-
-func (g *guard) printDiff(changesetAfter map[string]string) {
-	if !g.failOnChangesDiff {
-		return
-	}
-
-	changed := g.getChangedFiles(changesetAfter)
-
-	if len(changed) == 0 {
-		return
-	}
-
-	g.git.PrintDiff(changed)
-}
-
-func (g *guard) getChangedFiles(changesetAfter map[string]string) []string {
-	changed := make([]string, 0, len(g.changesetBefore))
-	for f, hashBefore := range g.changesetBefore {
+func (g *guard) getChangedFiles(changesetBefore, changesetAfter map[string]string) []string {
+	changed := make([]string, 0, len(changesetBefore))
+	for f, hashBefore := range changesetBefore {
 		if hashAfter, ok := changesetAfter[f]; !ok || hashBefore != hashAfter {
 			changed = append(changed, f)
 		}
 	}
 
 	for f := range changesetAfter {
-		if _, ok := g.changesetBefore[f]; !ok {
+		if _, ok := changesetBefore[f]; !ok {
 			changed = append(changed, f)
 		}
 	}

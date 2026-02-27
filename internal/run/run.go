@@ -9,7 +9,7 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/run/result"
 )
 
-var ErrFailOnChanges = controller.ErrFailOnChanges
+type FailOnChangesError = controller.FailOnChangesError
 
 type Options = controller.Options
 
