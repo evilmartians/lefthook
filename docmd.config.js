@@ -2,7 +2,7 @@
 module.exports = {
   // --- Core Metadata ---
   siteTitle: 'Lefthook',
-  siteUrl: '', // e.g. https://mysite.com (Critical for SEO/Sitemap)
+  siteUrl: 'https://lefthook.dev', // e.g. https://mysite.com (Critical for SEO/Sitemap)
 
   // --- Branding ---
   logo: {
