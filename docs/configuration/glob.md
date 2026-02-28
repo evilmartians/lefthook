@@ -18,28 +18,28 @@ pre-commit:
       glob: "*.{js,ts,jsx,tsx}"
 ```
 
-> **Note:** from lefthook version `1.10.10` you can also provide a list of globs:
->
-> ```yml
-> # lefthook.yml
->
-> pre-commit:
->   jobs:
->     - run: yarn lint {staged_files}
->       glob:
->         - "*.ts"
->         - "*.js"
-> ```
+::: callout info Note
+From lefthook version `1.10.10` you can also provide a list of globs:
 
-**Notes**
+```yml
+# lefthook.yml
+
+pre-commit:
+  jobs:
+    - run: yarn lint {staged_files}
+      glob:
+        - "*.ts"
+        - "*.js"
+```
+:::
 
 For patterns that you can use see [this](https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm) reference. We use [glob](https://github.com/gobwas/glob) library.
 
-***When using `root:`***
+**When using `root:`**
 
 Globs are still calculated from the actual root of the git repo, `root` is ignored.
 
-***Behaviour of `**`***
+**Behaviour of `**`**
 
 Note that the behaviour of `**` is different from typical glob implementations, like `ls` or tools like `lint-staged` in that a double-asterisk matches 1+ directories deep, not zero or more directories.
 If you want to match *both* files at the top level and nested, then rather than:
@@ -56,7 +56,7 @@ glob: "src/*.js"
 
 Alternatively, you can opt-in to standard glob behavior by setting [`glob_matcher: doublestar`](./glob_matcher.md) at the top level of your configuration. With this setting, `**` will match 0 or more directories, making it consistent with most other glob implementations.
 
-***Using `glob` without a files template in`run`***
+**Using `glob` without a files template in`run`**
 
 If you've specified `glob` but don't have a files template in [`run`](./run.md) option, lefthook will check `{staged_files}` for `pre-commit` hook and `{push_files}` for `pre-push` hook and apply filtering. If no files left, the command will be skipped.
 

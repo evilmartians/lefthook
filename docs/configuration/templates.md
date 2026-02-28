@@ -4,7 +4,9 @@ title: "templates"
 
 # `templates`
 
-> Added in lefthook `1.10.8`
+::: callout tip New feature
+Added in lefthook `1.10.8`
+:::
 
 Provide custom replacement for templates in `run` values.
 

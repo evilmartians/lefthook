@@ -4,7 +4,9 @@ title: "jobs"
 
 # `jobs`
 
-> Added in lefthook `1.10.0`
+::: callout tip New feature
+Added in lefthook `1.10.0`
+:::
 
 Jobs provide a flexible way to define tasks, supporting both commands and scripts. Jobs can be grouped for advanced flow control.
 
@@ -35,7 +37,9 @@ pre-commit:
 
 ### Example
 
-> **Note:** Currently, only `root`, `glob`, and `exclude` options are applied to group jobs. Other options must be set for each job individually. Submit a [feature request](https://github.com/evilmartians/lefthook/issues/new?assignees=&labels=feature+request&projects=&template=feature_request.md) if this limits your workflow.
+::: callout info Note
+Currently, only `root`, `glob`, and `exclude` options are applied to group jobs. Other options must be set for each job individually. Submit a [feature request](https://github.com/evilmartians/lefthook/issues/new?assignees=&labels=feature+request&projects=&template=feature_request.md) if this limits your workflow.
+:::
 
 A configuration demonstrating a piped group running in parallel with other jobs:
 

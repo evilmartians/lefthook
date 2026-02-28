@@ -6,7 +6,9 @@ title: "piped"
 
 **Default: `false`**
 
-> **Note:** Lefthook will return an error if both `piped: true` and `parallel: true` are set
+::: callout info Note
+Lefthook will return an error if both `piped: true` and `parallel: true` are set
+:::
 
 Stop running commands and scripts if one of them fail.
 

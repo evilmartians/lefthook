@@ -12,5 +12,7 @@ CI=true yarn install
 CI=true pnpm install
 ```
 
-> **Note:** Set `LEFTHOOK=1` or `LEFTHOOK=true` to override this behavior and install hooks in the postinstall script (despite `CI=true`).
+::: callout info Note
+Set `LEFTHOOK=1` or `LEFTHOOK=true` to override this behavior and install hooks in the postinstall script (despite `CI=true`).
+:::
 

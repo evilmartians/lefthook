@@ -17,7 +17,9 @@ You can use files templates that will be substituted with the appropriate files 
 - `{1}` - shorthand for the 1-st git hook argument (and so on for `{2}`, `{3}`, etc.)
 - `{lefthook_job_name}` - current job/command/script name
 
-> **Note:** Command line length has a limit on every system. If your list of files is quite long, lefthook splits your files list to fit in the limit and runs few commands sequentially.
+::: callout info Note
+Command line length has a limit on every system. If your list of files is quite long, lefthook splits your files list to fit in the limit and runs few commands sequentially.
+:::
 
 **Example**
 
@@ -79,7 +81,9 @@ pre-push:
 
 Simply run `bundle exec rubocop` on all files with `.rb` extension excluding `application.rb` and `routes.rb` files.
 
-> **Note:** `--force-exclusion` will apply `Exclude` configuration setting of Rubocop
+::: callout info Note
+`--force-exclusion` will apply `Exclude` configuration setting of Rubocop
+:::
 
 ```yml
 # lefthook.yml

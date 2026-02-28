@@ -48,15 +48,17 @@ pre-commit:
               E1: bonjour
 ```
 
-> **Note:** To make a group mergeable with settings defined in local config or extends you have to specify the name of the job group belongs to:
-> ```yml
-> pre-commit:
->   jobs:
->     - name: a name of a group
->       group:
->         jobs:
->           - name: lint
->             run: yarn lint
->           - name: test
->             run: yarn test
-> ```
+::: callout info Note
+To make a group mergeable with settings defined in local config or extends you have to specify the name of the job group belongs to:
+```yml
+pre-commit:
+  jobs:
+    - name: a name of a group
+      group:
+        jobs:
+          - name: lint
+            run: yarn lint
+          - name: test
+            run: yarn test
+```
+:::

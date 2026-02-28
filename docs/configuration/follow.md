@@ -22,4 +22,6 @@ pre-push:
       run: yarn test
 ```
 
-> **Note:** If used with [`parallel`](#parallel) the output can be a mess, so please avoid setting both options to `true`
+::: callout info Note
+If used with [`parallel`](#parallel) the output can be a mess, so please avoid setting both options to `true`
+:::

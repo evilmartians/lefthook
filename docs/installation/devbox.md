@@ -7,4 +7,6 @@ lefthook already exists in the [Nix package](https://search.nixos.org/packages?c
 devbox add lefthook@latest
 ```
 
-**Note**: The devbox plugin for lefthook is maintained by the community. While we appreciate their contribution, the lefthook team cannot provide direct support for devbox-specific installation issues.
+::: callout info Note
+The devbox plugin for lefthook is maintained by the community. While we appreciate their contribution, the lefthook team cannot provide direct support for devbox-specific installation issues.
+:::

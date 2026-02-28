@@ -38,8 +38,6 @@ pre-commit:
       run: yarn eslint --fix {staged_files} && git add {staged_files}
 ```
 
-**Notes**
-
-***When using `root:`***
+**When using `root:`**
 
 Globs are still calculated from the actual root of the git repo, `root` is ignored.

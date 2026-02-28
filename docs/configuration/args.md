@@ -4,7 +4,9 @@ title: "args"
 
 # `args`
 
-> Support added in lefthook version `2.0.5`
+::: callout tip New feature
+Added in lefthook `2.0.5`
+:::
 
 Sometimes you want to pass arguments to the scripts or be able to overwrite arguments to the commands in `lefthook-local.yml`. For this you can use `args` option which will simply be appended to the command. You can use the same templates as in [`run`](./run.md).
 

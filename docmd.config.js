@@ -73,16 +73,12 @@ module.exports = {
       collapsible: true,
       children: [
         {
-          title: "Ruby",
+          title: "Ruby gem",
           path: "/installation/ruby"
         },
         {
-          title: "Node.js",
+          title: "NPM",
           path: "/installation/node"
-        },
-        {
-          title: "Swift",
-          path: "/installation/swift"
         },
         {
           title: "Go",
@@ -93,8 +89,8 @@ module.exports = {
           path: "/installation/python"
         },
         {
-          title: "Scoop",
-          path: "/installation/scoop"
+          title: "Swift",
+          path: "/installation/swift"
         },
         {
           title: "Homebrew",
@@ -105,8 +101,8 @@ module.exports = {
           path: "/installation/winget"
         },
         {
-          title: "Snap",
-          path: "/installation/snap"
+          title: "Scoop",
+          path: "/installation/scoop"
         },
         {
           title: "Debian-based distro",
@@ -123,6 +119,14 @@ module.exports = {
         {
           title: "Arch Linux",
           path: "/installation/arch"
+        },
+        {
+          title: "Snap",
+          path: "/installation/snap"
+        },
+        {
+          title: "Devbox",
+          path: "/installation/devbox"
         },
         {
           title: "Mise",

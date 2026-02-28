@@ -1,8 +1,10 @@
 ## Git LFS support
 
-> **Note:** If git-lfs binary is not installed and not required in your project, LFS hooks won't be executed, and you won't be warned about it.
->
-> Git LFS hooks may be slow. Disable them with the global `skip_lfs: true` setting.
+::: callout info Note
+If git-lfs binary is not installed and not required in your project, LFS hooks won't be executed, and you won't be warned about it.
+
+Git LFS hooks may be slow. Disable them with the global `skip_lfs: true` setting.
+:::
 
 Lefthook runs LFS hooks internally for the following hooks:
 

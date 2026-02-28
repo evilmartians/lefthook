@@ -6,7 +6,9 @@ title: "only"
 
 You can force a command, script, or the whole hook to execute only in certain conditions. This option acts like the opposite of [`skip`](./skip.md). It accepts the same values but skips execution only if the condition is not satisfied.
 
-> **Note:** `skip` option takes precedence over `only` option, so if you have conflicting conditions the execution will be skipped.
+::: callout info Note
+`skip` option takes precedence over `only` option, so if you have conflicting conditions the execution will be skipped.
+:::
 
 **Example**
 

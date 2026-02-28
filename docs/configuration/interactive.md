@@ -6,7 +6,9 @@ title: "interactive"
 
 **Default: `false`**
 
-> **Note:** If you want to pass stdin to your command or script but don't need to get the input from CLI, use [`use_stdin`](./use_stdin.md) option instead.
+::: callout info Note
+If you want to pass stdin to your command or script but don't need to get the input from CLI, use [`use_stdin`](./use_stdin.md) option instead.
+:::
 
 
 Whether to use interactive mode. This applies the certain behavior:

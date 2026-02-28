@@ -1,4 +1,8 @@
-# Node.js
+---
+title: "NPM"
+---
+
+# NPM package
 
 ```bash
 npm install --save-dev lefthook
@@ -12,9 +16,13 @@ yarn add --dev lefthook
 pnpm add -D lefthook
 ```
 
-> **Note:** If you use `pnpm` package manager make sure to update `pnpm-workspace.yaml`s `onlyBuiltDependencies` with `lefthook` and add `lefthook` to `pnpm.onlyBuiltDependencies` in your root `package.json`, otherwise the `postinstall` script of the `lefthook` package won't be executed and hooks won't be installed.
+::: callout info Note
+If you use `pnpm` package manager make sure to update `pnpm-workspace.yaml`s `onlyBuiltDependencies` with `lefthook` and add `lefthook` to `pnpm.onlyBuiltDependencies` in your root `package.json`, otherwise the `postinstall` script of the `lefthook` package won't be executed and hooks won't be installed.
+:::
 
-**Note**: lefthook has three NPM packages with different ways to deliver the executables
+## Choose right package
+
+Lefthook supports three NPM packages with different ways to deliver the executables
 
  1. [lefthook](https://www.npmjs.com/package/lefthook) installs one executable for your system
 
