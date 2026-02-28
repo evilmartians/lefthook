@@ -20,16 +20,16 @@
         window.DOCMD_DEFAULT_MODE = "system";
     </script>
     <title>jobs</title>
-    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mm62kgqd">
-    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mm62kgqd">
+    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mm6r2107">
+    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mm6r2107">
     
     <link rel="stylesheet" 
-          href="../../assets/css/docmd-highlight-light.css?v=mm62kgqd" 
+          href="../../assets/css/docmd-highlight-light.css?v=mm6r2107" 
           id="hljs-light" 
           >
           
     <link rel="stylesheet" 
-          href="../../assets/css/docmd-highlight-dark.css?v=mm62kgqd" 
+          href="../../assets/css/docmd-highlight-dark.css?v=mm6r2107" 
           id="hljs-dark" 
           disabled>
     
@@ -49,7 +49,7 @@
 
 
     
-    <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mm62kgqd">
+    <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mm6r2107">
     
     <script>/**
  * --------------------------------------------------------------------
@@ -194,7 +194,7 @@
       
         <a href="../../installation/ruby" class="" >
           
-          <span class="nav-item-title">Ruby</span>
+          <span class="nav-item-title">Ruby gem</span>
           
           
         </a>
@@ -207,20 +207,7 @@
       
         <a href="../../installation/node" class="" >
           
-          <span class="nav-item-title">Node.js</span>
-          
-          
-        </a>
-      
-      
-      
-    </li>
-    
-    <li class="" >
-      
-        <a href="../../installation/swift" class="" >
-          
-          <span class="nav-item-title">Swift</span>
+          <span class="nav-item-title">NPM</span>
           
           
         </a>
@@ -257,9 +244,9 @@
     
     <li class="" >
       
-        <a href="../../installation/scoop" class="" >
+        <a href="../../installation/swift" class="" >
           
-          <span class="nav-item-title">Scoop</span>
+          <span class="nav-item-title">Swift</span>
           
           
         </a>
@@ -296,9 +283,9 @@
     
     <li class="" >
       
-        <a href="../../installation/snap" class="" >
+        <a href="../../installation/scoop" class="" >
           
-          <span class="nav-item-title">Snap</span>
+          <span class="nav-item-title">Scoop</span>
           
           
         </a>
@@ -351,6 +338,32 @@
         <a href="../../installation/arch" class="" >
           
           <span class="nav-item-title">Arch Linux</span>
+          
+          
+        </a>
+      
+      
+      
+    </li>
+    
+    <li class="" >
+      
+        <a href="../../installation/snap" class="" >
+          
+          <span class="nav-item-title">Snap</span>
+          
+          
+        </a>
+      
+      
+      
+    </li>
+    
+    <li class="" >
+      
+        <a href="../../installation/devbox" class="" >
+          
+          <span class="nav-item-title">Devbox</span>
           
           
         </a>
@@ -2411,9 +2424,9 @@
                     
                     
                     <h1 id="jobs"><code>jobs</code></h1>
-<blockquote>
+<div class="docmd-container callout callout-tip"><div class="callout-title">New feature</div><div class="callout-content">
 <p>Added in lefthook <code>1.10.0</code></p>
-</blockquote>
+</div></div>
 <p>Jobs provide a flexible way to define tasks, supporting both commands and scripts. Jobs can be grouped for advanced flow control.</p>
 <h3 id="basic-example" class="docmd-heading"><a href="#basic-example" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Basic example</h3>
 <p>Define jobs in your <code>lefthook.yml</code> file under a specific hook like <code>pre-commit</code>:</p>
@@ -2436,9 +2449,9 @@
 <li>Flow within groups can be parallel or piped. Options <code>glob</code>, <code>root</code>, and <code>exclude</code> apply to all jobs in the group, including nested ones.</li>
 </ul>
 <h3 id="example" class="docmd-heading"><a href="#example" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Example</h3>
-<blockquote>
-<p><strong>Note:</strong> Currently, only <code>root</code>, <code>glob</code>, and <code>exclude</code> options are applied to group jobs. Other options must be set for each job individually. Submit a <a href="https://github.com/evilmartians/lefthook/issues/new?assignees=&amp;labels=feature+request&amp;projects=&amp;template=feature_request.md">feature request</a> if this limits your workflow.</p>
-</blockquote>
+<div class="docmd-container callout callout-info"><div class="callout-title">Note</div><div class="callout-content">
+<p>Currently, only <code>root</code>, <code>glob</code>, and <code>exclude</code> options are applied to group jobs. Other options must be set for each job individually. Submit a <a href="https://github.com/evilmartians/lefthook/issues/new?assignees=&amp;labels=feature+request&amp;projects=&amp;template=feature_request.md">feature request</a> if this limits your workflow.</p>
+</div></div>
 <p>A configuration demonstrating a piped group running in parallel with other jobs:</p>
 <pre class="hljs"><code><span class="hljs-comment"># lefthook.yml</span>
 
@@ -2530,11 +2543,11 @@
 
     </div>
 
-    <script src="../../assets/js/docmd-main.js?v=mm62kgqd"></script>
-    <script src="../../assets/js/docmd-image-lightbox.js?v=mm62kgqd" ></script>
+    <script src="../../assets/js/docmd-main.js?v=mm6r2107"></script>
+    <script src="../../assets/js/docmd-image-lightbox.js?v=mm6r2107" ></script>
 <script src="https://cdn.jsdelivr.net/npm/minisearch@7.2.0/dist/umd/index.min.js" ></script>
-<script src="../../assets/js/docmd-search.js?v=mm62kgqd" ></script>
-<script src="../../assets/js/init-mermaid.js?v=mm62kgqd" type="module"></script>
+<script src="../../assets/js/docmd-search.js?v=mm6r2107" ></script>
+<script src="../../assets/js/init-mermaid.js?v=mm6r2107" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;">

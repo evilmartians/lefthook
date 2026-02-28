@@ -76,7 +76,7 @@
 - [Homebrew](https://lefthook.dev/installation/homebrew/)
 - [Manual](https://lefthook.dev/installation/manual/)
 - [Mise](https://lefthook.dev/installation/mise/)
-- [Node.js](https://lefthook.dev/installation/node/)
+- [NPM](https://lefthook.dev/installation/node/)
 - [Python](https://lefthook.dev/installation/python/)
 - [RPM-based](https://lefthook.dev/installation/rpm/)
 - [Ruby](https://lefthook.dev/installation/ruby/)

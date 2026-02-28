@@ -19,37 +19,37 @@
         window.DOCMD_ROOT = root;
         window.DOCMD_DEFAULT_MODE = "system";
     </script>
-    <title>Node.js</title>
-    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mm62kgqd">
-    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mm62kgqd">
+    <title>NPM</title>
+    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mm6r2107">
+    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mm6r2107">
     
     <link rel="stylesheet" 
-          href="../../assets/css/docmd-highlight-light.css?v=mm62kgqd" 
+          href="../../assets/css/docmd-highlight-light.css?v=mm6r2107" 
           id="hljs-light" 
           >
           
     <link rel="stylesheet" 
-          href="../../assets/css/docmd-highlight-dark.css?v=mm62kgqd" 
+          href="../../assets/css/docmd-highlight-dark.css?v=mm6r2107" 
           id="hljs-dark" 
           disabled>
     
     
 <meta name="description" content="Lefthook documentation.">
 <link rel="canonical" href="https://lefthook.dev/installation/node/">
-<meta property="og:title" content="Node.js : Lefthook">
+<meta property="og:title" content="NPM : Lefthook">
 <meta property="og:description" content="Lefthook documentation.">
 <meta property="og:url" content="https://lefthook.dev/installation/node/">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://lefthook.dev/assets/lefthook.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Node.js">
+<meta name="twitter:title" content="NPM">
 <meta name="twitter:description" content="Lefthook documentation.">
 <meta name="twitter:image" content="https://lefthook.dev/assets/lefthook.png">
 
 
 
     
-    <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mm62kgqd">
+    <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mm6r2107">
     
     <script>/**
  * --------------------------------------------------------------------
@@ -194,7 +194,7 @@
       
         <a href="../../installation/ruby" class="" >
           
-          <span class="nav-item-title">Ruby</span>
+          <span class="nav-item-title">Ruby gem</span>
           
           
         </a>
@@ -207,20 +207,7 @@
       
         <a href="../../installation/node" class="active" >
           
-          <span class="nav-item-title">Node.js</span>
-          
-          
-        </a>
-      
-      
-      
-    </li>
-    
-    <li class="" >
-      
-        <a href="../../installation/swift" class="" >
-          
-          <span class="nav-item-title">Swift</span>
+          <span class="nav-item-title">NPM</span>
           
           
         </a>
@@ -257,9 +244,9 @@
     
     <li class="" >
       
-        <a href="../../installation/scoop" class="" >
+        <a href="../../installation/swift" class="" >
           
-          <span class="nav-item-title">Scoop</span>
+          <span class="nav-item-title">Swift</span>
           
           
         </a>
@@ -296,9 +283,9 @@
     
     <li class="" >
       
-        <a href="../../installation/snap" class="" >
+        <a href="../../installation/scoop" class="" >
           
-          <span class="nav-item-title">Snap</span>
+          <span class="nav-item-title">Scoop</span>
           
           
         </a>
@@ -351,6 +338,32 @@
         <a href="../../installation/arch" class="" >
           
           <span class="nav-item-title">Arch Linux</span>
+          
+          
+        </a>
+      
+      
+      
+    </li>
+    
+    <li class="" >
+      
+        <a href="../../installation/snap" class="" >
+          
+          <span class="nav-item-title">Snap</span>
+          
+          
+        </a>
+      
+      
+      
+    </li>
+    
+    <li class="" >
+      
+        <a href="../../installation/devbox" class="" >
+          
+          <span class="nav-item-title">Devbox</span>
           
           
         </a>
@@ -2320,7 +2333,7 @@
 
                 </button>
                 
-                <span class="header-title">Node.js</span>
+                <span class="header-title">NPM</span>
             </div>
             
             <div class="header-right">
@@ -2410,17 +2423,18 @@
                 <div class="main-content">
                     
                     
-                    <h1 id="nodejs">Node.js</h1>
+                    <h1 id="npm-package">NPM package</h1>
 <pre class="hljs"><code>npm install --save-dev lefthook
 </code></pre>
 <pre class="hljs"><code>yarn add --dev lefthook
 </code></pre>
 <pre class="hljs"><code>pnpm add -D lefthook
 </code></pre>
-<blockquote>
-<p><strong>Note:</strong> If you use <code>pnpm</code> package manager make sure to update <code>pnpm-workspace.yaml</code>s <code>onlyBuiltDependencies</code> with <code>lefthook</code> and add <code>lefthook</code> to <code>pnpm.onlyBuiltDependencies</code> in your root <code>package.json</code>, otherwise the <code>postinstall</code> script of the <code>lefthook</code> package won’t be executed and hooks won’t be installed.</p>
-</blockquote>
-<p><strong>Note</strong>: lefthook has three NPM packages with different ways to deliver the executables</p>
+<div class="docmd-container callout callout-info"><div class="callout-title">Note</div><div class="callout-content">
+<p>If you use <code>pnpm</code> package manager make sure to update <code>pnpm-workspace.yaml</code>s <code>onlyBuiltDependencies</code> with <code>lefthook</code> and add <code>lefthook</code> to <code>pnpm.onlyBuiltDependencies</code> in your root <code>package.json</code>, otherwise the <code>postinstall</code> script of the <code>lefthook</code> package won’t be executed and hooks won’t be installed.</p>
+</div></div>
+<h2 id="choose-right-package" class="docmd-heading"><a href="#choose-right-package" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Choose right package</h2>
+<p>Lefthook supports three NPM packages with different ways to deliver the executables</p>
 <ol>
 <li><p><a href="https://www.npmjs.com/package/lefthook">lefthook</a> installs one executable for your system</p>
 <pre class="hljs"><code>npm install --save-dev lefthook
@@ -2473,11 +2487,11 @@
 
     </div>
 
-    <script src="../../assets/js/docmd-main.js?v=mm62kgqd"></script>
-    <script src="../../assets/js/docmd-image-lightbox.js?v=mm62kgqd" ></script>
+    <script src="../../assets/js/docmd-main.js?v=mm6r2107"></script>
+    <script src="../../assets/js/docmd-image-lightbox.js?v=mm6r2107" ></script>
 <script src="https://cdn.jsdelivr.net/npm/minisearch@7.2.0/dist/umd/index.min.js" ></script>
-<script src="../../assets/js/docmd-search.js?v=mm62kgqd" ></script>
-<script src="../../assets/js/init-mermaid.js?v=mm62kgqd" type="module"></script>
+<script src="../../assets/js/docmd-search.js?v=mm6r2107" ></script>
+<script src="../../assets/js/init-mermaid.js?v=mm6r2107" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;">

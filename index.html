@@ -20,16 +20,16 @@
         window.DOCMD_DEFAULT_MODE = "system";
     </script>
     <title>What is Lefthook?</title>
-    <link id="site-favicon" rel="icon" href="./assets/favicon.svg?v=mm62kgqd">
-    <link rel="stylesheet" href="./assets/css/docmd-main.css?v=mm62kgqd">
+    <link id="site-favicon" rel="icon" href="./assets/favicon.svg?v=mm6r2107">
+    <link rel="stylesheet" href="./assets/css/docmd-main.css?v=mm6r2107">
     
     <link rel="stylesheet" 
-          href="./assets/css/docmd-highlight-light.css?v=mm62kgqd" 
+          href="./assets/css/docmd-highlight-light.css?v=mm6r2107" 
           id="hljs-light" 
           >
           
     <link rel="stylesheet" 
-          href="./assets/css/docmd-highlight-dark.css?v=mm62kgqd" 
+          href="./assets/css/docmd-highlight-dark.css?v=mm6r2107" 
           id="hljs-dark" 
           disabled>
     
@@ -49,7 +49,7 @@
 
 
     
-    <link rel="stylesheet" href="./assets/css/lefthook.css?v=mm62kgqd">
+    <link rel="stylesheet" href="./assets/css/lefthook.css?v=mm6r2107">
     
     <script>/**
  * --------------------------------------------------------------------
@@ -194,7 +194,7 @@
       
         <a href="./installation/ruby" class="" >
           
-          <span class="nav-item-title">Ruby</span>
+          <span class="nav-item-title">Ruby gem</span>
           
           
         </a>
@@ -207,20 +207,7 @@
       
         <a href="./installation/node" class="" >
           
-          <span class="nav-item-title">Node.js</span>
-          
-          
-        </a>
-      
-      
-      
-    </li>
-    
-    <li class="" >
-      
-        <a href="./installation/swift" class="" >
-          
-          <span class="nav-item-title">Swift</span>
+          <span class="nav-item-title">NPM</span>
           
           
         </a>
@@ -257,9 +244,9 @@
     
     <li class="" >
       
-        <a href="./installation/scoop" class="" >
+        <a href="./installation/swift" class="" >
           
-          <span class="nav-item-title">Scoop</span>
+          <span class="nav-item-title">Swift</span>
           
           
         </a>
@@ -296,9 +283,9 @@
     
     <li class="" >
       
-        <a href="./installation/snap" class="" >
+        <a href="./installation/scoop" class="" >
           
-          <span class="nav-item-title">Snap</span>
+          <span class="nav-item-title">Scoop</span>
           
           
         </a>
@@ -351,6 +338,32 @@
         <a href="./installation/arch" class="" >
           
           <span class="nav-item-title">Arch Linux</span>
+          
+          
+        </a>
+      
+      
+      
+    </li>
+    
+    <li class="" >
+      
+        <a href="./installation/snap" class="" >
+          
+          <span class="nav-item-title">Snap</span>
+          
+          
+        </a>
+      
+      
+      
+    </li>
+    
+    <li class="" >
+      
+        <a href="./installation/devbox" class="" >
+          
+          <span class="nav-item-title">Devbox</span>
           
           
         </a>
@@ -2410,8 +2423,24 @@
                 <div class="main-content">
                     
                     
-                    <p><strong>Lefthook</strong> is a Git hooks manager.</p>
-<p><strong>Example:</strong> Run your linters on <code>pre-commit</code> hook and forget about the routine.</p>
+                    <p><strong>Lefthook</strong> is a Git hooks manager. It is</p>
+<ul>
+<li>Fast</li>
+<li>Powerful</li>
+<li>Simple</li>
+</ul>
+<h2 id="how-lefthook-works" class="docmd-heading"><a href="#how-lefthook-works" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>How lefthook works?</h2>
+<p>You</p>
+<ul>
+<li>Configure <a href="./configuration"><code>lefthook.yml</code></a></li>
+<li>Run <code>lefthook install</code></li>
+</ul>
+<p>Lefthook installs the configured hooks into <code>.git/hooks/</code>. Hook is a simple script that calls <code>lefthook run {hook-name}</code> when executed.</p>
+<h2 id="how-to-install-lefthook" class="docmd-heading"><a href="#how-to-install-lefthook" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>How to install lefthook?</h2>
+<p>The most common way is to use the package manager of your project, e.g. <a href="./installation/ruby">gem</a> or <a href="./installation/node">npm package</a>.</p>
+<p>You can also install lefthook via <a href="./installation/homebrew">Homebrew</a>, <a href="./installation/winget"><code>winget</code></a>, <a href="./installation/rpm"><code>yum</code></a>, <a href="./installation/deb"><code>apt</code></a>, <a href="./installation/alpine"><code>apk</code></a>, <a href="./installation/scoop"><code>scoop</code></a></p>
+<h2 id="example-configuration" class="docmd-heading"><a href="#example-configuration" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Example configuration</h2>
+<p>Run linters on <code>pre-commit</code> hook.</p>
 <pre class="hljs"><code><span class="hljs-comment"># lefthook.yml</span>
 
 <span class="hljs-attr">pre-commit:</span>
@@ -2441,6 +2470,41 @@
                     
 
 
+  <div class="toc-container">
+    <h2 class="toc-title">On This Page<span class="mobile-view toc-menu-button float-right">
+<svg class="lucide-icon icon-chevrons-down-up " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
+  class="lucide lucide-chevrons-down-up"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m7 20 5-5 5 5" />
+  <path d="m7 4 5 5 5-5" />
+</svg>
+</span></h2>
+    <ul class="toc-list">
+      
+        <li class="toc-item toc-level-2">
+          <a href="#how-lefthook-works" class="toc-link">How lefthook works?</a>
+        </li>
+      
+        <li class="toc-item toc-level-2">
+          <a href="#how-to-install-lefthook" class="toc-link">How to install lefthook?</a>
+        </li>
+      
+        <li class="toc-item toc-level-2">
+          <a href="#example-configuration" class="toc-link">Example configuration</a>
+        </li>
+      
+    </ul>
+  </div>
+
                 </div>
             </div>
 
@@ -2463,11 +2527,11 @@
 
     </div>
 
-    <script src="./assets/js/docmd-main.js?v=mm62kgqd"></script>
-    <script src="./assets/js/docmd-image-lightbox.js?v=mm62kgqd" ></script>
+    <script src="./assets/js/docmd-main.js?v=mm6r2107"></script>
+    <script src="./assets/js/docmd-image-lightbox.js?v=mm6r2107" ></script>
 <script src="https://cdn.jsdelivr.net/npm/minisearch@7.2.0/dist/umd/index.min.js" ></script>
-<script src="./assets/js/docmd-search.js?v=mm62kgqd" ></script>
-<script src="./assets/js/init-mermaid.js?v=mm62kgqd" type="module"></script>
+<script src="./assets/js/docmd-search.js?v=mm6r2107" ></script>
+<script src="./assets/js/init-mermaid.js?v=mm6r2107" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;">
