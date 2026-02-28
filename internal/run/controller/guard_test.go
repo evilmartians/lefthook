@@ -112,29 +112,27 @@ func Test_guard_wrap(t *testing.T) {
 				{Command: "git stash drop --quiet 1", Output: ""},
 			},
 		},
-		// "stashUnstagedChanges=true failOnChanges=true with partially staged and hook changes": {
-		// 	stashUnstagedChanges: true,
-		// 	failOnChanges:        true,
-		// 	commands: []cmdtest.Out{
-		// 		{Command: "git status --short --porcelain -z", Output: "AM file1\x00"},
-		// 		{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
-		// 			filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
-		// 			" -- file1", Output: ""},
-		// 		{Command: "git stash create", Output: "<stash-hash>"},
-		// 		{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
-		// 		{Command: "git checkout --force -- file1", Output: ""},
-		// 		{Command: "git status --short --porcelain -z", Output: "A file1\x00"},
-		// 		{Command: "git hash-object -- file1", Output: "hash1\n"},
-		// 		// run jobs
-		// 		{Command: "git status --short --porcelain -z", Output: "A  file1\x00 M file2\x00"},
-		// 		{Command: "git hash-object -- file1 file2", Output: "hash1\nhash2\n"},
-		// 		{Command: "git status --short --porcelain -z", Output: "A  file1\x00 M file2\x00"},
-		// 		{Command: "git hash-object -- file1 file2", Output: "hash1\nhash3\n"},
-		// 		{Command: "git stash list", Output: "0: my stash\n1: lefthook auto backup\n2: my second stash\n"},
-		// 		{Command: "git stash drop --quiet 1", Output: ""},
-		// 	},
-		// 	err: &ErrFailOnChanges{},
-		// },
+		"stashUnstagedChanges=true failOnChanges=true with partially staged and hook changes": {
+			stashUnstagedChanges: true,
+			failOnChanges:        true,
+			commands: []cmdtest.Out{
+				{Command: "git status --short --porcelain -z", Output: "AM file1\x00"},
+				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
+					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
+					" -- file1", Output: ""},
+				{Command: "git stash create", Output: "<stash-hash>"},
+				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
+				{Command: "git checkout --force -- file1", Output: ""},
+				{Command: "git status --short --porcelain -z", Output: "A file1\x00"},
+				// run jobs
+				{Command: "git status --short --porcelain -z", Output: "A  file1\x00 M file2\x00"},
+				{Command: "git hash-object -- file1 file2", Output: "hash1\nhash2\n"},
+				{Command: "git checkout --force -- file1 file2", Output: ""},
+				{Command: "git stash list", Output: "0: my stash\n1: lefthook auto backup\n2: my second stash\n"},
+				{Command: "git stash drop --quiet 1", Output: ""},
+			},
+			err: &FailOnChangesError{},
+		},
 		"stashUnstagedChanges=true failOnChanges=true with partially staged and hook changes with diff": {
 			stashUnstagedChanges: true,
 			failOnChanges:        true,
@@ -187,39 +185,6 @@ func Test_guard_wrap(t *testing.T) {
 				{Command: "git status --short --porcelain -z", Output: ""},
 			},
 		},
-		// "stashUnstagedChanges=true failOnChanges=true with changeset error after stashing": {
-		// 	stashUnstagedChanges: true,
-		// 	failOnChanges:        true,
-		// 	commands: []cmdtest.Out{
-		// 		// First Changeset() in before() - has file1
-		// 		{Command: "git status --short --porcelain -z", Output: "AM file1\x00"},
-		// 		{Command: "git hash-object -- file1", Output: "hash1\n"},
-		// 		// PartiallyStagedFiles() - uses statusShortOnce
-		// 		{Command: "git status --short --porcelain -z", Output: "AM file1\x00"},
-		// 		{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
-		// 			filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
-		// 			" -- file1", Output: ""},
-		// 		{Command: "git stash create", Output: "<stash-hash>"},
-		// 		{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
-		// 		{Command: "git checkout --force -- file1", Output: ""},
-		// 		// Second Changeset() in before() after stashing - empty (simulates error/no files)
-		// 		{Command: "git status --short --porcelain -z", Output: ""},
-		// 		// Changeset() in after() - also empty, so they match
-		// 		{Command: "git status --short --porcelain -z", Output: ""},
-		// 		{Command: "git stash list", Output: "0: my stash\n1: lefthook auto backup\n2: my second stash\n"},
-		// 		{Command: "git stash drop --quiet 1", Output: ""},
-		// 	},
-		// },
-		// "failOnChanges=true with changeset error in after": {
-		// 	stashUnstagedChanges: false,
-		// 	failOnChanges:        true,
-		// 	commands: []cmdtest.Out{
-		// 		// Changeset() error in before() - empty output, so changesetBefore is empty
-		// 		{Command: "git status --short --porcelain -z", Output: ""},
-		// 		// Changeset() error in after() - empty output, so changesetAfter is empty
-		// 		{Command: "git status --short --porcelain -z", Output: ""},
-		// 	},
-		// },
 		"failOnChanges=true failOnChangesDiff=true with no changed files": {
 			stashUnstagedChanges: false,
 			failOnChanges:        true,
@@ -229,21 +194,6 @@ func Test_guard_wrap(t *testing.T) {
 				{Command: "git status --short --porcelain -z", Output: ""},
 			},
 		},
-		// "stashUnstagedChanges=true with drop stash error": {
-		// 	stashUnstagedChanges: true,
-		// 	failOnChanges:        false,
-		// 	commands: []cmdtest.Out{
-		// 		{Command: "git status --short --porcelain -z", Output: "AM file1\x00"},
-		// 		{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
-		// 			filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
-		// 			" -- file1", Output: ""},
-		// 		{Command: "git stash create", Output: "<stash-hash>"},
-		// 		{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
-		// 		{Command: "git checkout --force -- file1", Output: ""},
-		// 		// RestoreUnstaged succeeds (patch file will be created)
-		// 		{Command: "git stash list", Output: ""}, // Empty list - stash not found, drop will fail silently
-		// 	},
-		// },
 		"failOnChanges=true with deleted file in changeset": {
 			stashUnstagedChanges: false,
 			failOnChanges:        true,
