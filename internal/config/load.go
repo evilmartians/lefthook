@@ -47,7 +47,7 @@ var (
 		".toml":  toml.Parser(),
 	}
 
-	mergeJobsOption = koanf.WithMergeFunc(mergeJobs)
+	mergeJobsOption = koanf.WithMergeFunc(mergeHooks)
 )
 
 // ConfigNotFoundError.
@@ -391,7 +391,20 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 		default:
 		}
 
+		var destSetup, srcSetup []any
+		switch setup := dest["setup"].(type) {
+		case []any:
+			destSetup = setup
+		default:
+		}
+		switch setup := src["setup"].(type) {
+		case []any:
+			srcSetup = setup
+		default:
+		}
+
 		destJobs = mergeJobsSlice(srcJobs, destJobs)
+		destSetup = slices.Concat(srcSetup, destSetup)
 
 		maps.Merge(src, dest)
 
@@ -416,6 +429,9 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 
 		if len(destJobs) > 0 {
 			dest["jobs"] = destJobs
+		}
+		if len(destSetup) > 0 {
+			dest["setup"] = destSetup
 		}
 
 		return nil
@@ -470,9 +486,12 @@ func (k koanfProvider) ReadBytes() ([]byte, error) {
 	panic("not implemented")
 }
 
-func mergeJobs(src, dest map[string]any) error {
+// mergeHooks merges `jobs` and `setup` settings.
+//
+// `jobs` settings get overwritten by name or get appended to the end.
+// `setup` always get prepended.
+func mergeHooks(src, dest map[string]any) error {
 	srcJobs := make(map[string][]any)
-
 	for name, maybeHook := range src {
 		switch hook := maybeHook.(type) {
 		case map[string]any:
@@ -498,7 +517,33 @@ func mergeJobs(src, dest map[string]any) error {
 		}
 	}
 
-	if len(srcJobs) == 0 || len(destJobs) == 0 {
+	srcSetup := make(map[string][]any)
+	for name, maybeHook := range src {
+		switch hook := maybeHook.(type) {
+		case map[string]any:
+			switch setup := hook["setup"].(type) {
+			case []any:
+				srcSetup[name] = setup
+			default:
+			}
+		default:
+		}
+	}
+
+	destSetup := make(map[string][]any)
+	for name, maybeHook := range dest {
+		switch hook := maybeHook.(type) {
+		case map[string]any:
+			switch setup := hook["setup"].(type) {
+			case []any:
+				destSetup[name] = setup
+			default:
+			}
+		default:
+		}
+	}
+
+	if (len(srcJobs) == 0 || len(destJobs) == 0) && (len(srcSetup) == 0 || len(destSetup) == 0) {
 		maps.Merge(src, dest)
 		return nil
 	}
@@ -513,6 +558,16 @@ func mergeJobs(src, dest map[string]any) error {
 		destJobs[hook] = mergeJobsSlice(newJobs, oldJobs)
 	}
 
+	for hook, newSetup := range srcSetup {
+		oldSetup, ok := destSetup[hook]
+		if !ok {
+			destSetup[hook] = newSetup
+			continue
+		}
+
+		destSetup[hook] = slices.Concat(oldSetup, newSetup)
+	}
+
 	maps.Merge(src, dest)
 
 	for name, maybeHook := range dest {
@@ -520,6 +575,16 @@ func mergeJobs(src, dest map[string]any) error {
 			switch hook := maybeHook.(type) {
 			case map[string]any:
 				hook["jobs"] = jobs
+			default:
+			}
+		}
+	}
+
+	for name, maybeHook := range dest {
+		if setup, ok := destSetup[name]; ok {
+			switch hook := maybeHook.(type) {
+			case map[string]any:
+				hook["setup"] = setup
 			default:
 			}
 		}

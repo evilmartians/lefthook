@@ -205,6 +205,12 @@
             }
           ]
         },
+        "setup": {
+          "items": {
+            "$ref": "#/$defs/SetupInstruction"
+          },
+          "type": "array"
+        },
         "jobs": {
           "items": {
             "$ref": "#/$defs/Job"
@@ -472,9 +478,26 @@
       },
       "additionalProperties": false,
       "type": "object"
+    },
+    "SetupInstruction": {
+      "oneOf": [
+        {
+          "required": [
+            "run"
+          ],
+          "title": "Run a command"
+        }
+      ],
+      "properties": {
+        "run": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
     }
   },
-  "$comment": "Last updated on 2026.02.02.",
+  "$comment": "Last updated on 2026.02.28.",
   "properties": {
     "min_version": {
       "type": "string",
@@ -718,6 +741,12 @@
             "type": "array"
           }
         ]
+      },
+      "setup": {
+        "items": {
+          "$ref": "#/$defs/SetupInstruction"
+        },
+        "type": "array"
       },
       "jobs": {
         "items": {

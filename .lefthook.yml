@@ -3,6 +3,9 @@ skip_lfs: true
 
 pre-commit:
   parallel: true
+  setup:
+    - run: command -v typos || brew install typos-cli
+    - run: command -v lychee || brew install lychee
   jobs:
     - name: lint & test
       glob: "*.go"

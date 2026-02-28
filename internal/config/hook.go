@@ -15,8 +15,13 @@ type Hook struct {
 	Skip              any      `json:"skip,omitempty"                 jsonschema:"oneof_type=boolean;array"                                                      mapstructure:"skip"                 toml:"skip,omitempty,inline"          yaml:",omitempty"`
 	Only              any      `json:"only,omitempty"                 jsonschema:"oneof_type=boolean;array"                                                      mapstructure:"only"                 toml:"only,omitempty,inline"          yaml:",omitempty"`
 
-	Jobs []*Job `json:"jobs,omitempty" mapstructure:"jobs" toml:"jobs,omitempty" yaml:",omitempty"`
+	Setup []*SetupInstruction `json:"setup,omitempty" mapstructure:"setup" toml:"setup,omitempty" yaml:",omitempty"`
+	Jobs  []*Job              `json:"jobs,omitempty"  mapstructure:"jobs"  toml:"jobs,omitempty"  yaml:",omitempty"`
 
 	Commands map[string]*Command `json:"commands,omitempty" mapstructure:"-" toml:"commands,omitempty" yaml:",omitempty"`
 	Scripts  map[string]*Script  `json:"scripts,omitempty"  mapstructure:"-" toml:"scripts,omitempty"  yaml:",omitempty"`
+}
+
+type SetupInstruction struct {
+	Run string `json:"run,omitempty" jsonschema:"oneof_required=Run a command" mapstructure:"run" toml:"run,omitempty" yaml:",omitempty"`
 }
