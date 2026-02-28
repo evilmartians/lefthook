@@ -14,7 +14,7 @@
 - [exclude](https://lefthook.dev/configuration/exclude/)
 - [extends](https://lefthook.dev/configuration/extends/)
 - [fail_on_changes_diff](https://lefthook.dev/configuration/fail_on_changes_diff/)
-- [fail_on_change](https://lefthook.dev/configuration/fail_on_changes/)
+- [fail_on_changes](https://lefthook.dev/configuration/fail_on_changes/)
 - [fail_text](https://lefthook.dev/configuration/fail_text/)
 - [file_types](https://lefthook.dev/configuration/file_types/)
 - [files (hook-level)](https://lefthook.dev/configuration/files-global/)
