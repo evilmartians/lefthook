@@ -20,16 +20,16 @@
         window.DOCMD_DEFAULT_MODE = "system";
     </script>
     <title>exclude</title>
-    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mm4u9rx5">
-    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mm4u9rx5">
+    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mm61xyjj">
+    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mm61xyjj">
     
     <link rel="stylesheet" 
-          href="../../assets/css/docmd-highlight-light.css?v=mm4u9rx5" 
+          href="../../assets/css/docmd-highlight-light.css?v=mm61xyjj" 
           id="hljs-light" 
           >
           
     <link rel="stylesheet" 
-          href="../../assets/css/docmd-highlight-dark.css?v=mm4u9rx5" 
+          href="../../assets/css/docmd-highlight-dark.css?v=mm61xyjj" 
           id="hljs-dark" 
           disabled>
     
@@ -49,7 +49,7 @@
 
 
     
-    <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mm4u9rx5">
+    <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mm61xyjj">
     
     <script>/**
  * --------------------------------------------------------------------
@@ -1646,7 +1646,7 @@
     
     <li class="collapsible"  aria-expanded="false" >
       
-        <span class="nav-label" style="cursor: pointer;">
+        <span class="nav-label">
            
 <svg class="lucide-icon icon-terminal " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-terminal"
@@ -1915,7 +1915,7 @@
     
     <li class="collapsible"  aria-expanded="false" >
       
-        <span class="nav-label" style="cursor: pointer;">
+        <span class="nav-label">
            
 <svg class="lucide-icon icon-dollar-sign " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-dollar-sign"
@@ -2072,7 +2072,7 @@
     
     <li class="collapsible"  aria-expanded="false" >
       
-        <span class="nav-label" style="cursor: pointer;">
+        <span class="nav-label">
            
 <svg class="lucide-icon icon-file-code " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-file-code"
@@ -2413,7 +2413,7 @@
                     <h1 id="exclude"><code>exclude</code></h1>
 <p>This option allows to setup a list of globs for files to be excluded in files template.</p>
 <blockquote>
-<p><strong>Note:</strong> The glob patterns used in <code>exclude</code> are affected by the <a href="./glob_matcher"><code>glob_matcher</code></a> setting. See the glob_matcher documentation for details on how <code>**</code> patterns behave.</p>
+<p><strong>Note:</strong> The glob patterns used in <code>exclude</code> are affected by the <a href="../glob_matcher"><code>glob_matcher</code></a> setting. See the glob_matcher documentation for details on how <code>**</code> patterns behave.</p>
 </blockquote>
 <p><strong>Example</strong></p>
 <p>Run Rubocop on staged files with <code>.rb</code> extension except for <code>application.rb</code>, <code>routes.rb</code>, <code>rails_helper.rb</code>, and all Ruby files in <code>config/initializers/</code>.</p>
@@ -2430,7 +2430,7 @@
         <span class="hljs-bullet">-</span> <span class="hljs-string">spec/rails_helper.rb</span>
       <span class="hljs-attr">run:</span> <span class="hljs-string">bundle</span> <span class="hljs-string">exec</span> <span class="hljs-string">rubocop</span> <span class="hljs-string">--force-exclusion</span> {<span class="hljs-string">staged_files</span>}
 </code></pre>
-<p>If you’ve specified <code>exclude</code> but don’t have a files template in <a href="./run"><code>run</code></a> option, lefthook will check <code>{staged_files}</code> for <code>pre-commit</code> hook and <code>{push_files}</code> for <code>pre-push</code> hook and apply filtering. If no files left, the command will be skipped.</p>
+<p>If you’ve specified <code>exclude</code> but don’t have a files template in <a href="../run"><code>run</code></a> option, lefthook will check <code>{staged_files}</code> for <code>pre-commit</code> hook and <code>{push_files}</code> for <code>pre-push</code> hook and apply filtering. If no files left, the command will be skipped.</p>
 <pre class="hljs"><code><span class="hljs-comment"># lefthook.yml</span>
 
 <span class="hljs-attr">pre-commit:</span>
@@ -2471,11 +2471,11 @@
 
     </div>
 
-    <script src="../../assets/js/docmd-main.js?v=mm4u9rx5"></script>
-    <script src="../../assets/js/docmd-image-lightbox.js?v=mm4u9rx5" ></script>
+    <script src="../../assets/js/docmd-main.js?v=mm61xyjj"></script>
+    <script src="../../assets/js/docmd-image-lightbox.js?v=mm61xyjj" ></script>
 <script src="https://cdn.jsdelivr.net/npm/minisearch@7.2.0/dist/umd/index.min.js" ></script>
-<script src="../../assets/js/docmd-search.js?v=mm4u9rx5" ></script>
-<script src="../../assets/js/init-mermaid.js?v=mm4u9rx5" type="module"></script>
+<script src="../../assets/js/docmd-search.js?v=mm61xyjj" ></script>
+<script src="../../assets/js/init-mermaid.js?v=mm61xyjj" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;">
