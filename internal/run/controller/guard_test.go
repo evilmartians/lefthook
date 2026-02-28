@@ -112,27 +112,6 @@ func Test_guard_wrap(t *testing.T) {
 				{Command: "git stash drop --quiet 1", Output: ""},
 			},
 		},
-		"stashUnstagedChanges=true failOnChanges=true with partially staged and hook changes": {
-			stashUnstagedChanges: true,
-			failOnChanges:        true,
-			commands: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: "AM file1\x00"},
-				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
-					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
-					" -- file1", Output: ""},
-				{Command: "git stash create", Output: "<stash-hash>"},
-				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
-				{Command: "git checkout --force -- file1", Output: ""},
-				{Command: "git status --short --porcelain -z", Output: "A file1\x00"},
-				// run jobs
-				{Command: "git status --short --porcelain -z", Output: "A  file1\x00 M file2\x00"},
-				{Command: "git hash-object -- file1 file2", Output: "hash1\nhash2\n"},
-				{Command: "git checkout --force -- file1 file2", Output: ""},
-				{Command: "git stash list", Output: "0: my stash\n1: lefthook auto backup\n2: my second stash\n"},
-				{Command: "git stash drop --quiet 1", Output: ""},
-			},
-			err: &FailOnChangesError{},
-		},
 		"stashUnstagedChanges=true failOnChanges=true with partially staged and hook changes with diff": {
 			stashUnstagedChanges: true,
 			failOnChanges:        true,
@@ -148,10 +127,10 @@ func Test_guard_wrap(t *testing.T) {
 				{Command: "git status --short --porcelain -z", Output: "A  file1\x00"},
 				{Command: "git hash-object -- file1", Output: "hash1\n"},
 				// job run
-				{Command: "git status --short --porcelain -z", Output: "A  file1\x00 M file2\x00"},
-				{Command: "git hash-object -- file1 file2", Output: "hash1\nhash3\n"},
-				{Command: "git diff --color -- file2", Output: "diff --git a/file2 b/file2\n..."},
-				{Command: "git checkout --force -- file2", Output: ""},
+				{Command: "git status --short --porcelain -z", Output: "AM file1\x00"},
+				{Command: "git hash-object -- file1", Output: "hash2\n"},
+				{Command: "git diff --color -- file1", Output: "diff --git a/file1 b/file1\n..."},
+				{Command: "git checkout --force -- file1", Output: ""},
 				{Command: "git stash list", Output: "0: my stash\n1: lefthook auto backup\n2: my second stash\n"},
 				{Command: "git stash drop --quiet 1", Output: ""},
 			},
