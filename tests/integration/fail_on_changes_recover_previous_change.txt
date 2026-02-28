@@ -1,0 +1,36 @@
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add .
+exec git commit -m "firstcommit"
+exec lefthook install
+
+# same as echo "The good" > file.txt
+cp file.txt.changed file.txt
+exec cat file.txt
+cmp stdout file.txt.expected
+
+exec echo "The bad" > file.txt
+exec cat file.txt
+cmp stdout file.txt.expected
+
+! exec git commit -m 'test'
+exec cat file.txt
+cmp stdout file.txt.expected
+
+-- file.txt --
+Guess the film
+
+-- lefthook.yml --
+pre-commit:
+  fail_on_changes: "always"
+  fail_on_changes_diff: true
+  jobs:
+    - run: echo "The evil" > file.txt
+
+-- file.txt.changed --
+The good
+
+-- file.txt.expected --
+The good
+

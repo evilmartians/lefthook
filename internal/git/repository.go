@@ -257,7 +257,7 @@ func (r *Repository) SaveUnstaged(files []string) error {
 	return err
 }
 
-func (r *Repository) HideUnstaged(files []string) error {
+func (r *Repository) RevertUnstagedChanges(files []string) error {
 	_, err := r.Git.BatchedCmd(cmdHideUnstaged, files)
 
 	return err
