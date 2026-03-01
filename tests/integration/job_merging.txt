@@ -99,7 +99,7 @@ e3:
     - name: echo
       run: e3
 extends:
-  - extends/e3.yml
+  - extends/e1.yml
 pre-commit:
   jobs:
     - name: group

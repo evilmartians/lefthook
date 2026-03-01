@@ -151,6 +151,12 @@ func LoadSecondary(main *koanf.Koanf, filesystem afero.Fs, repo *git.Repository)
 		return nil, err
 	}
 
+	// Some extends required the other extends and changed the list
+	// We don't want to load those extends again, so unsetting them.
+	if !slices.Equal(secondary.Strings("extends"), extends) {
+		secondary.Delete("extends")
+	}
+
 	// Load main `remotes`
 	if err := loadRemotes(secondary, filesystem, repo, remotes); err != nil {
 		return nil, err
