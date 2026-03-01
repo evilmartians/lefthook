@@ -1,6 +1,11 @@
 assert_lefthook_installed: true
 skip_lfs: true
 
+output:
+  - meta
+  - summary
+  - jobs
+
 pre-commit:
   parallel: true
   setup:

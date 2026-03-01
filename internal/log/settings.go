@@ -14,20 +14,10 @@ const (
 	executionOutput
 	executionInfo
 	emptySummary
+	setup
 )
 
-const (
-	disableAll = 0
-	skipMeta   = (1 << iota)
-	skipSuccess
-	skipFailure
-	skipSummary
-	skipSkips
-	skipExecution
-	skipExecutionOutput
-	skipExecutionInfo
-	skipEmptySummary
-)
+const disableAll = 0
 
 type LogSettings struct {
 	bitmap int16
@@ -95,14 +85,16 @@ func (s *LogSettings) enable(setting string) {
 		s.bitmap |= summary | success | failure
 	case "skips":
 		s.bitmap |= skips
-	case "execution":
+	case "execution", "jobs":
 		s.bitmap |= execution | executionOutput | executionInfo
-	case "execution_out":
+	case "execution_out", "jobs_out":
 		s.bitmap |= executionOutput | execution
-	case "execution_info":
+	case "execution_info", "jobs_info":
 		s.bitmap |= executionInfo | execution
 	case "empty_summary":
 		s.bitmap |= emptySummary
+	case "setup":
+		s.bitmap |= setup
 	}
 }
 
@@ -153,4 +145,8 @@ func (s LogSettings) LogSkips() bool {
 
 func (s LogSettings) LogEmptySummary() bool {
 	return s.isEnable(emptySummary)
+}
+
+func (s LogSettings) LogSetup() bool {
+	return s.isEnable(setup)
 }

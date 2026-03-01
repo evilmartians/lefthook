@@ -2,7 +2,7 @@ package controller
 
 import (
 	"context"
-	"os"
+	"io"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/log"
@@ -37,7 +37,11 @@ func (c *Controller) setup(
 		commands = append(commands, rawCommands...)
 	}
 
-	log.LogSetup()
+	r, w := io.Pipe()
+	log.LogSetup(r)
 
-	return c.executor.Execute(ctx, exec.Options{Commands: commands}, system.NullReader, os.Stdout)
+	err := c.executor.Execute(ctx, exec.Options{Commands: commands}, system.NullReader, w)
+	_ = w.Close()
+
+	return err
 }
