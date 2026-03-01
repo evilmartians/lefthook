@@ -20,16 +20,16 @@
         window.DOCMD_DEFAULT_MODE = "system";
     </script>
     <title>run</title>
-    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mm6r6ecd">
-    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mm6r6ecd">
+    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mm87281y">
+    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mm87281y">
     
     <link rel="stylesheet" 
-          href="../../assets/css/docmd-highlight-light.css?v=mm6r6ecd" 
+          href="../../assets/css/docmd-highlight-light.css?v=mm87281y" 
           id="hljs-light" 
           >
           
     <link rel="stylesheet" 
-          href="../../assets/css/docmd-highlight-dark.css?v=mm6r6ecd" 
+          href="../../assets/css/docmd-highlight-dark.css?v=mm87281y" 
           id="hljs-dark" 
           disabled>
     
@@ -49,7 +49,7 @@
 
 
     
-    <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mm6r6ecd">
+    <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mm87281y">
     
     <script>/**
  * --------------------------------------------------------------------
@@ -774,19 +774,6 @@
           
     <li class="" >
       
-        <a href="../../configuration/files-global" class="" >
-          
-          <span class="nav-item-title">files</span>
-          
-          
-        </a>
-      
-      
-      
-    </li>
-    
-    <li class="" >
-      
         <a href="../../configuration/parallel" class="" >
           
           <span class="nav-item-title">parallel</span>
@@ -816,6 +803,19 @@
         <a href="../../configuration/follow" class="" >
           
           <span class="nav-item-title">follow</span>
+          
+          
+        </a>
+      
+      
+      
+    </li>
+    
+    <li class="" >
+      
+        <a href="../../configuration/files-global" class="" >
+          
+          <span class="nav-item-title">files</span>
           
           
         </a>
@@ -878,6 +878,19 @@
     
     <li class="" >
       
+        <a href="../../configuration/only" class="" >
+          
+          <span class="nav-item-title">only</span>
+          
+          
+        </a>
+      
+      
+      
+    </li>
+    
+    <li class="" >
+      
         <a href="../../configuration/skip" class="" >
           
           <span class="nav-item-title">skip</span>
@@ -891,9 +904,9 @@
     
     <li class="" >
       
-        <a href="../../configuration/only" class="" >
+        <a href="../../configuration/setup" class="" >
           
-          <span class="nav-item-title">only</span>
+          <span class="nav-item-title">setup</span>
           
           
         </a>
@@ -2439,7 +2452,7 @@
 <div class="docmd-container callout callout-info"><div class="callout-title">Note</div><div class="callout-content">
 <p>Command line length has a limit on every system. If your list of files is quite long, lefthook splits your files list to fit in the limit and runs few commands sequentially.</p>
 </div></div>
-<p><strong>Example</strong></p>
+<h4 id="example" class="docmd-heading"><a href="#example" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Example</h4>
 <p>Run <code>yarn lint</code> on <code>pre-commit</code> hook.</p>
 <pre class="hljs"><code><span class="hljs-comment"># lefthook.yml</span>
 
@@ -2459,7 +2472,7 @@
       <span class="hljs-attr">glob:</span> <span class="hljs-string">&quot;*.go&quot;</span>
       <span class="hljs-attr">run:</span> <span class="hljs-string">go</span> <span class="hljs-string">vet</span> {<span class="hljs-string">files</span>}
 </code></pre>
-<h4 id="staged_files-template" class="docmd-heading"><a href="#staged_files-template" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a><code>{staged_files}</code> template</h4>
+<h4 id="staged_files" class="docmd-heading"><a href="#staged_files" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a><code>{staged_files}</code></h4>
 <p>Run <code>yarn eslint</code> only on staged files with <code>.js</code>, <code>.ts</code>, <code>.jsx</code>, and <code>.tsx</code> extensions.</p>
 <pre class="hljs"><code><span class="hljs-comment"># lefthook.yml</span>
 
@@ -2469,7 +2482,7 @@
       <span class="hljs-attr">glob:</span> <span class="hljs-string">&quot;*.{js,ts,jsx,tsx}&quot;</span>
       <span class="hljs-attr">run:</span> <span class="hljs-string">yarn</span> <span class="hljs-string">eslint</span> {<span class="hljs-string">staged_files</span>}
 </code></pre>
-<h4 id="push_files-template" class="docmd-heading"><a href="#push_files-template" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a><code>{push_files}</code> template</h4>
+<h4 id="push_files" class="docmd-heading"><a href="#push_files" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a><code>{push_files}</code></h4>
 <p>If you want to lint files only before pushing them.</p>
 <pre class="hljs"><code><span class="hljs-comment"># lefthook.yml</span>
 
@@ -2479,7 +2492,7 @@
       <span class="hljs-attr">glob:</span> <span class="hljs-string">&quot;*.{js,ts,jsx,tsx}&quot;</span>
       <span class="hljs-attr">run:</span> <span class="hljs-string">yarn</span> <span class="hljs-string">eslint</span> {<span class="hljs-string">push_files</span>}
 </code></pre>
-<h4 id="all_files-template" class="docmd-heading"><a href="#all_files-template" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a><code>{all_files}</code> template</h4>
+<h4 id="all_files" class="docmd-heading"><a href="#all_files" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a><code>{all_files}</code></h4>
 <p>Simply run <code>bundle exec rubocop</code> on all files with <code>.rb</code> extension excluding <code>application.rb</code> and <code>routes.rb</code> files.</p>
 <div class="docmd-container callout callout-info"><div class="callout-title">Note</div><div class="callout-content">
 <p><code>--force-exclusion</code> will apply <code>Exclude</code> configuration setting of Rubocop</p>
@@ -2498,7 +2511,7 @@
         <span class="hljs-bullet">-</span> <span class="hljs-string">config/routes.rb</span>
       <span class="hljs-attr">run:</span> <span class="hljs-string">bundle</span> <span class="hljs-string">exec</span> <span class="hljs-string">rubocop</span> <span class="hljs-string">--force-exclusion</span> {<span class="hljs-string">all_files</span>}
 </code></pre>
-<h4 id="cmd-template" class="docmd-heading"><a href="#cmd-template" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a><code>{cmd}</code> template</h4>
+<h4 id="cmd" class="docmd-heading"><a href="#cmd" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a><code>{cmd}</code></h4>
 <pre class="hljs"><code><span class="hljs-comment"># lefthook.yml</span>
 
 <span class="hljs-attr">pre-commit:</span>
@@ -2593,23 +2606,27 @@
     <ul class="toc-list">
       
         <li class="toc-item toc-level-4">
+          <a href="#example" class="toc-link">Example</a>
+        </li>
+      
+        <li class="toc-item toc-level-4">
           <a href="#files-template" class="toc-link">{files} template</a>
         </li>
       
         <li class="toc-item toc-level-4">
-          <a href="#staged_files-template" class="toc-link">{staged_files} template</a>
+          <a href="#staged_files" class="toc-link">{staged_files}</a>
         </li>
       
         <li class="toc-item toc-level-4">
-          <a href="#push_files-template" class="toc-link">{push_files} template</a>
+          <a href="#push_files" class="toc-link">{push_files}</a>
         </li>
       
         <li class="toc-item toc-level-4">
-          <a href="#all_files-template" class="toc-link">{all_files} template</a>
+          <a href="#all_files" class="toc-link">{all_files}</a>
         </li>
       
         <li class="toc-item toc-level-4">
-          <a href="#cmd-template" class="toc-link">{cmd} template</a>
+          <a href="#cmd" class="toc-link">{cmd}</a>
         </li>
       
         <li class="toc-item toc-level-4">
@@ -2653,11 +2670,11 @@
 
     </div>
 
-    <script src="../../assets/js/docmd-main.js?v=mm6r6ecd"></script>
-    <script src="../../assets/js/docmd-image-lightbox.js?v=mm6r6ecd" ></script>
+    <script src="../../assets/js/docmd-main.js?v=mm87281y"></script>
+    <script src="../../assets/js/docmd-image-lightbox.js?v=mm87281y" ></script>
 <script src="https://cdn.jsdelivr.net/npm/minisearch@7.2.0/dist/umd/index.min.js" ></script>
-<script src="../../assets/js/docmd-search.js?v=mm6r6ecd" ></script>
-<script src="../../assets/js/init-mermaid.js?v=mm6r6ecd" type="module"></script>
+<script src="../../assets/js/docmd-search.js?v=mm87281y" ></script>
+<script src="../../assets/js/init-mermaid.js?v=mm87281y" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;">

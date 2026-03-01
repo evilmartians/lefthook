@@ -25,7 +25,9 @@
         if (!searchModal) return;
 
         const rawRoot = window.DOCMD_ROOT || './';
-        const ROOT_PATH = rawRoot.endsWith('/') ? rawRoot : rawRoot + '/';
+        let ROOT_PATH = new URL(rawRoot, window.location.href).href;
+        if (!ROOT_PATH.endsWith('/')) ROOT_PATH += '/';
+
         const emptyStateHtml = '<div class="search-initial">Type to start searching...</div>';
 
         // 1. Open/Close Logic

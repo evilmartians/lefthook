@@ -50,6 +50,7 @@
 - [runner](https://lefthook.dev/configuration/runner/)
 - [script](https://lefthook.dev/configuration/script/)
 - [Scripts](https://lefthook.dev/configuration/Scripts/)
+- [setup](https://lefthook.dev/configuration/setup/)
 - [skip_lfs](https://lefthook.dev/configuration/skip_lfs/)
 - [skip](https://lefthook.dev/configuration/skip/)
 - [source_dir_local](https://lefthook.dev/configuration/source_dir_local/)

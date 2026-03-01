@@ -226,6 +226,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://lefthook.dev/configuration/setup/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://lefthook.dev/configuration/skip/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
