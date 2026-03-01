@@ -1,6 +1,8 @@
 # lefthook-local.yml
 
-> **Tip:** You can put `lefthook-local.yml` into your `~/.gitignore`, so in every project you can have your local-only overrides.
+::: callout tip Tip
+You can put `lefthook-local.yml` into your `~/.gitignore`, so in every project you can have your local-only overrides.
+:::
 
 `lefthook-local.yml` overrides and extends the configuration of your main `lefthook.yml`.
 
