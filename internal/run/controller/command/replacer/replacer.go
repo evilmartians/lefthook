@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"runtime"
+	"strconv"
 	"strings"
 
 	"github.com/alessio/shellescape"
@@ -31,7 +32,6 @@ func New(
 	git *git.Repository,
 	root string,
 	filesCmd string,
-	templates map[string]string,
 ) Replacer {
 	var (
 		staged = git.StagedFiles
@@ -56,11 +56,35 @@ func New(
 			config.SubAllFiles:    all,
 			config.SubFiles:       cmd,
 		},
-		templates: templates,
 	}
 }
 
-func NewMocked(files []string, templates map[string]string) Replacer {
+func (r Replacer) AddTemplates(templates map[string]string) Replacer {
+	if r.templates == nil {
+		r.templates = make(map[string]string)
+	}
+
+	for key, replacement := range templates {
+		r.templates["{"+key+"}"] = replacement
+	}
+
+	return r
+}
+
+func (r Replacer) AddGitArgs(args []string) Replacer {
+	if r.templates == nil {
+		r.templates = make(map[string]string)
+	}
+
+	r.templates["{0}"] = strings.Join(args, " ")
+	for i, arg := range args {
+		r.templates["{"+strconv.Itoa(i+1)+"}"] = arg
+	}
+
+	return r
+}
+
+func NewMocked(files []string) Replacer {
 	forceFilesFn := func() ([]string, error) { return files, nil } //nolint:unparam
 
 	return Replacer{
@@ -71,7 +95,6 @@ func NewMocked(files []string, templates map[string]string) Replacer {
 			config.SubAllFiles:    forceFilesFn,
 			config.SubFiles:       forceFilesFn,
 		},
-		templates: templates,
 	}
 }
 

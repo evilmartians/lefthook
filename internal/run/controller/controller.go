@@ -72,11 +72,9 @@ func (c *Controller) RunHook(ctx context.Context, opts Options, hook *config.Hoo
 		}
 	}
 
-	log.StopSpinner()
-	if err := c.setup(ctx, hook.Setup); err != nil {
+	if err := c.setup(ctx, opts, hook.Setup); err != nil {
 		log.Warnf("Failed to run setup: %s\n", err)
 	}
-	log.StartSpinner()
 
 	if !opts.DisableTTY && !hook.Follow {
 		log.StartSpinner()
