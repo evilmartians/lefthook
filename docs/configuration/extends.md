@@ -8,7 +8,7 @@ You can extend your config with another one YAML file. Its content will be merge
 
 You can use asterisk to make a glob.
 
-**Example**
+#### Example
 
 ```yml
 # lefthook.yml
@@ -29,5 +29,3 @@ extends:
 > - `lefthook-local.yml` – local config file
 >
 > So, `extends` override settings from `lefthook.yml`, `remotes` override `extends`, and `lefthook-local.yml` can override everything.
-
-

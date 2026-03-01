@@ -10,7 +10,7 @@ You can force a command, script, or the whole hook to execute only in certain co
 `skip` option takes precedence over `only` option, so if you have conflicting conditions the execution will be skipped.
 :::
 
-**Example**
+#### Example
 
 Execute a hook only for `dev/*` branches.
 

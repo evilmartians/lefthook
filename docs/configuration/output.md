@@ -11,7 +11,7 @@ By default, all output values are enabled
 
 You can also disable all output with setting `output: false`. In this case only errors will be printed.
 
-**Example**
+#### Example
 
 ```yml
 # lefthook.yml

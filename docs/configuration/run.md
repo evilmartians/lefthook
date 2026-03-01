@@ -21,7 +21,7 @@ You can use files templates that will be substituted with the appropriate files 
 Command line length has a limit on every system. If your list of files is quite long, lefthook splits your files list to fit in the limit and runs few commands sequentially.
 :::
 
-**Example**
+#### Example
 
 Run `yarn lint` on `pre-commit` hook.
 
@@ -49,7 +49,7 @@ pre-commit:
       run: go vet {files}
 ```
 
-#### `{staged_files}` template
+#### `{staged_files}`
 
 Run `yarn eslint` only on staged files with `.js`, `.ts`, `.jsx`, and `.tsx` extensions.
 
@@ -63,7 +63,7 @@ pre-commit:
       run: yarn eslint {staged_files}
 ```
 
-#### `{push_files}` template
+#### `{push_files}`
 
 If you want to lint files only before pushing them.
 
@@ -77,7 +77,7 @@ pre-push:
       run: yarn eslint {push_files}
 ```
 
-#### `{all_files}` template
+#### `{all_files}`
 
 Simply run `bundle exec rubocop` on all files with `.rb` extension excluding `application.rb` and `routes.rb` files.
 
@@ -101,7 +101,7 @@ pre-commit:
       run: bundle exec rubocop --force-exclusion {all_files}
 ```
 
-#### `{cmd}` template
+#### `{cmd}`
 
 ```yml
 # lefthook.yml

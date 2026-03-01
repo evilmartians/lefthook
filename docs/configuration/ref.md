@@ -12,7 +12,7 @@ If you initially had `ref` option, ran `lefthook install`, and then removed it, 
 
 See also [`refetch_frequency`](./refetch_frequency.md).
 
-**Example**
+#### Example
 
 ```yml
 # lefthook.yml

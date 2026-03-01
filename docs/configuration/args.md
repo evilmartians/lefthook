@@ -14,7 +14,7 @@ Arguments passed by Git will be omitted if you specify `args` in the config. Pro
 
 See [`run`](./run.md) for supported templates.
 
-**Example**
+#### Example
 
 ```yml
 # lefthook.yml

@@ -8,7 +8,7 @@ title: "configs"
 
 An optional array of config paths from remote's root.
 
-**Example**
+#### Example
 
 ```yml
 # lefthook.yml

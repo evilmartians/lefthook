@@ -19,7 +19,7 @@ Failure to fetch does not cause an error, but just a warning message.
 If a successfully fetched previous configuration exists, it will be used.
 Otherwise, the remote will be ignored.
 
-**Example**
+#### Example
 
 ```yml
 # lefthook.yml
@@ -31,4 +31,3 @@ remotes:
 
 > WARNING
 > If `refetch` is set to `true`, it overrides any setting in `refetch_frequency`.
-

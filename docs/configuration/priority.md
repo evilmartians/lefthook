@@ -14,7 +14,7 @@ Value `0` is considered an `+Infinity`, so commands or scripts with `priority: 0
 
 Set priority from 1 to +Infinity. This option can be used to configure the order of the sequential steps.
 
-**Example**
+#### Example
 
 ```yml
 # lefthook.yml

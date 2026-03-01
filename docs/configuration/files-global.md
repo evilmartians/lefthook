@@ -8,7 +8,7 @@ A custom command executed by the `sh` shell that returns the files or directorie
 
 If the result of this command is empty, the execution of commands will be skipped.
 
-**Example**
+#### Example
 
 ```yml
 # lefthook.yml
