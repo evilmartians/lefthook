@@ -47,5 +47,6 @@ version:
 	sed -i "s/lefthook-plugin.git\", exact: \".*\"/lefthook-plugin.git\", exact: \"$$version\"/" docs/installation/swift.md
 	sed -i "s/go install github.com\/evilmartians\/lefthook\/v2.*/go install github.com\/evilmartians\/lefthook\/v2@v$$version/" docs/installation/go.md
 	sed -i "s/go install github.com\/evilmartians\/lefthook\/v2.*/go install github.com\/evilmartians\/lefthook\/v2@v$$version/" README.md
+	sed -i "s/go get -tool github.com\/evilmartians\/lefthook\/v2.*/go get -tool github.com\/evilmartians\/lefthook\/v2@v$$version/" README.md
 	ruby packaging/pack.rb clean set_version
 	git add internal/version/version.go packaging/* docs/ README.md
