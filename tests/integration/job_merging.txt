@@ -108,20 +108,20 @@ pre-commit:
       group:
         jobs:
           - name: child
-            run: child named with glob
+            run: child named
             stage_fixed: true
           - run: 0 no-name
-          - run: 1 no-name
-          - run: 2 no-name
           - run: 3 no-name
+          - run: 2 no-name
+          - run: 1 no-name
     - name: echo
-      run: echo 2
+      run: echo 1
       glob:
         - "3"
       tags:
         - backend
       skip: true
     - run: lefthook.yml
-    - run: e1
-    - run: e2
     - run: e3
+    - run: e2
+    - run: e1

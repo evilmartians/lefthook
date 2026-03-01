@@ -391,7 +391,11 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 		default:
 		}
 
-		destJobs = mergeJobsSlice(srcJobs, destJobs)
+		// In this context:
+		// - dest = mainHook (base config, should come first)
+		// - src = overrideHook (local override, should come second)
+		// So we call mergeJobsSlice with dest (main) as src and src (local) as dest
+		destJobs = mergeJobsSlice(destJobs, srcJobs)
 
 		maps.Merge(src, dest)
 
@@ -530,14 +534,15 @@ func mergeJobs(src, dest map[string]any) error {
 
 func mergeJobsSlice(src, dest []any) []any {
 	mergeable := make(map[string]map[string]any)
-	result := make([]any, 0, len(dest))
+	result := make([]any, 0, len(src))
 
-	for _, maybeJob := range dest {
-		switch destJob := maybeJob.(type) {
+	// First, process src jobs (base configuration)
+	for _, maybeJob := range src {
+		switch srcJob := maybeJob.(type) {
 		case map[string]any:
-			switch name := destJob["name"].(type) {
+			switch name := srcJob["name"].(type) {
 			case string:
-				mergeable[name] = destJob
+				mergeable[name] = srcJob
 			default:
 			}
 
@@ -546,12 +551,13 @@ func mergeJobsSlice(src, dest []any) []any {
 		}
 	}
 
-	for _, maybeJob := range src {
-		switch srcJob := maybeJob.(type) {
+	// Then, process dest jobs (extending/overriding configuration)
+	for _, maybeJob := range dest {
+		switch destJob := maybeJob.(type) {
 		case map[string]any:
-			switch name := srcJob["name"].(type) {
+			switch name := destJob["name"].(type) {
 			case string:
-				destJob, ok := mergeable[name]
+				srcJob, ok := mergeable[name]
 				if ok {
 					var srcSubJobs []any
 					var destSubJobs []any
@@ -575,30 +581,30 @@ func mergeJobsSlice(src, dest []any) []any {
 					default:
 					}
 
-					if len(destSubJobs) != 0 && len(srcSubJobs) != 0 {
-						destSubJobs = mergeJobsSlice(srcSubJobs, destSubJobs)
+					if len(srcSubJobs) != 0 && len(destSubJobs) != 0 {
+						srcSubJobs = mergeJobsSlice(srcSubJobs, destSubJobs)
 					}
 
 					// Replace possible {cmd} before merging the jobs
-					switch srcRun := srcJob["run"].(type) {
+					switch destRun := destJob["run"].(type) {
 					case string:
-						switch destRun := destJob["run"].(type) {
+						switch srcRun := srcJob["run"].(type) {
 						case string:
-							newRun := strings.ReplaceAll(srcRun, CMD, destRun)
-							srcJob["run"] = newRun
+							newRun := strings.ReplaceAll(destRun, CMD, srcRun)
+							destJob["run"] = newRun
 						default:
 						}
 					default:
 					}
 
-					maps.Merge(srcJob, destJob)
+					maps.Merge(destJob, srcJob)
 
-					if len(destSubJobs) != 0 {
-						switch destGroup := destJob["group"].(type) {
+					if len(srcSubJobs) != 0 {
+						switch srcGroup := srcJob["group"].(type) {
 						case map[string]any:
-							switch destGroup["jobs"].(type) {
+							switch srcGroup["jobs"].(type) {
 							case []any:
-								destGroup["jobs"] = destSubJobs
+								srcGroup["jobs"] = srcSubJobs
 							default:
 							}
 						default:
