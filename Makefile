@@ -44,8 +44,8 @@ version:
 	@read -p "New version: " version
 	sed -i "s/const version = .*/const version = \"$$version\"/" internal/version/version.go
 	sed -i "s/VERSION = .*/VERSION = \"$$version\"/" packaging/pack.rb
-	sed -i "s/lefthook-plugin.git\", exact: \".*\"/lefthook-plugin.git\", exact: \"$$version\"/" docs/mdbook/installation/swift.md
-	sed -i "s/go install github.com\/evilmartians\/lefthook\/v2.*/go install github.com\/evilmartians\/lefthook\/v2@v$$version/" docs/mdbook/installation/go.md
+	sed -i "s/lefthook-plugin.git\", exact: \".*\"/lefthook-plugin.git\", exact: \"$$version\"/" docs/installation/swift.md
+	sed -i "s/go install github.com\/evilmartians\/lefthook\/v2.*/go install github.com\/evilmartians\/lefthook\/v2@v$$version/" docs/installation/go.md
 	sed -i "s/go install github.com\/evilmartians\/lefthook\/v2.*/go install github.com\/evilmartians\/lefthook\/v2@v$$version/" README.md
 	ruby packaging/pack.rb clean set_version
 	git add internal/version/version.go packaging/* docs/ README.md

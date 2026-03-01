@@ -1,5 +1,15 @@
 # Change log
 
+## 2.1.2 (2026-03-01)
+
+- feat: introduce setup hook option ([#1326](https://github.com/evilmartians/lefthook/pull/1326)) by [@mrexox](https://github.com/mrexox)
+- refactor: recovering logic for changesets ([#1324](https://github.com/evilmartians/lefthook/pull/1324)) by [@mrexox](https://github.com/mrexox)
+- fix: rollback auto-staged changes if unwanted changes detected ([#1251](https://github.com/evilmartians/lefthook/pull/1251)) by [@tuchfarber](https://github.com/tuchfarber)
+- docs: improve docs ui ([#1323](https://github.com/evilmartians/lefthook/pull/1323)) by [@mrexox](https://github.com/mrexox)
+- docs: additional skip example and note about reinstallation ([#1319](https://github.com/evilmartians/lefthook/pull/1319)) by [@iloveitaly](https://github.com/iloveitaly)
+- docs: fix incorrect --verbose usage ([#1318](https://github.com/evilmartians/lefthook/pull/1318)) by [@iloveitaly](https://github.com/iloveitaly)
+- pkg: fix python packages publishing by [@mrexox](https://github.com/mrexox)
+
 ## 2.1.1 (2026-02-12)
 
 - ci: fix publishing to PyPi by [@mrexox](https://github.com/mrexox)
