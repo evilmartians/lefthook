@@ -987,6 +987,62 @@ pre-commit:
 				},
 			},
 		},
+		"with setup instructions": {
+			files: map[string]string{
+				"lefthook.yml": `
+extends:
+  - extend1.yml
+  - extend2.yml
+
+pre-commit:
+  setup:
+    - run: 5
+`,
+				"lefthook-local.yml": `
+pre-commit:
+  setup:
+    - run: 4
+`,
+				"extend1.yml": `
+extends:
+  - extend3.yml
+
+pre-commit:
+  setup:
+    - run: 1
+`,
+				"extend2.yml": `
+pre-commit:
+  setup:
+    - run: 3
+`,
+				"extend3.yml": `
+pre-commit:
+  setup:
+    - run: 2
+`,
+			},
+			result: &Config{
+				Extends: []string{
+					"extend1.yml",
+					"extend2.yml",
+				},
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Name: "pre-commit",
+						Setup: []*SetupInstruction{
+							{Run: "1"},
+							{Run: "2"},
+							{Run: "3"},
+							{Run: "4"},
+							{Run: "5"},
+						},
+					},
+				},
+			},
+		},
 	} {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		repo := gittest.NewRepositoryBuilder().Fs(fs).Root(root).Build()

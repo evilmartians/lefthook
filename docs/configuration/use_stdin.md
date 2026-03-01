@@ -10,7 +10,7 @@ With many commands or scripts having `use_stdin: true`, only one will receive th
 
 Pass the stdin from the OS to the command/script.
 
-**Example**
+#### Example
 
 Use this option for the `pre-push` hook when you have a script that does `while read ...`. Without this option lefthook will hang: lefthook uses [pseudo TTY](https://github.com/creack/pty) by default, and it doesn't close stdin when all data is read.
 

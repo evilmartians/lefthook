@@ -8,7 +8,7 @@ Installs the given hook to Git hook.
 
 With argument `--dirs` creates a directory `.git/hooks/<hook name>/` if it doesn't exist. Use it before adding a script to configuration.
 
-**Example**
+#### Example
 
 ```bash
 $ lefthook add pre-push  --dirs

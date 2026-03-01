@@ -6,7 +6,7 @@ title: "glob"
 
 You can set a glob to filter files for your command. This is only used if you use a file template in [`run`](./run.md) option or provide your custom [`files`](./files.md) command.
 
-**Example**
+#### Example
 
 ```yml
 # lefthook.yml

@@ -69,7 +69,7 @@ e3:
     echo:
       run: e3
 extends:
-  - extends/e3.yml
+  - extends/e1.yml
 pre-commit:
   commands:
     echo:

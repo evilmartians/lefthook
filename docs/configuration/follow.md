@@ -8,7 +8,7 @@ title: "follow"
 
 Follow the STDOUT of the running commands and scripts.
 
-**Example**
+#### Example
 
 ```yml
 # lefthook.yml

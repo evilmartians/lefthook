@@ -8,7 +8,7 @@ title: "no_tty"
 
 Whether hide spinner and other interactive things. This can be also controlled with `--no-tty` option for `lefthook run` command.
 
-**Example**
+#### Example
 
 ```yml
 # lefthook.yml

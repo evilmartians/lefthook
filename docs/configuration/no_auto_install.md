@@ -10,7 +10,7 @@ Disable automatic installation and synchronization of git hooks when running lef
 
 This can also be controlled with the `--no-auto-install` option for the `lefthook run` command.
 
-**Example**
+#### Example
 
 ```yml
 # lefthook.yml

@@ -13,7 +13,7 @@ Possible skip values:
 - `ref: main` - when on a `main` branch
 - `run: test ${SKIP_ME} -eq 1` - when `test ${SKIP_ME} -eq 1` is successful (return code is 0)
 
-**Example**
+#### Example
 
 Always skipping a command:
 
@@ -149,4 +149,3 @@ prepare-commit-msg:
 >     lint:
 >       skip: true
 > ```
-

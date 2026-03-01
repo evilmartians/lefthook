@@ -12,7 +12,7 @@ Lefthook will return an error if both `piped: true` and `parallel: true` are set
 
 Stop running commands and scripts if one of them fail.
 
-**Example**
+#### Example
 
 ```yml
 # lefthook.yml

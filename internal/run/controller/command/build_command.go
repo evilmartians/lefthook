@@ -1,10 +1,7 @@
 package command
 
 import (
-	"strconv"
 	"strings"
-
-	"github.com/alessio/shellescape"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/command/replacer"
@@ -86,21 +83,15 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 
 // buildReplacer creates the replacer with all supported templates for files and arguments.
 func (b *Builder) buildReplacer(params *JobParams) replacer.Replacer {
-	predefined := make(map[string]string)
-	predefined["{0}"] = strings.Join(b.opts.GitArgs, " ")
-	for i, arg := range b.opts.GitArgs {
-		predefined["{"+strconv.Itoa(i+1)+"}"] = arg
-	}
-	for key, replacement := range b.opts.Templates {
-		predefined["{"+key+"}"] = replacement
-	}
-	predefined["{lefthook_job_name}"] = shellescape.Quote(params.Name)
-
 	if len(b.opts.ForceFiles) > 0 {
-		return replacer.NewMocked(b.opts.ForceFiles, predefined)
+		return replacer.NewMocked(b.opts.ForceFiles).
+			AddTemplates(b.opts.Templates).
+			AddGitArgs(b.opts.GitArgs)
 	}
 
-	return replacer.New(b.git, params.Root, params.FilesCmd, predefined)
+	return replacer.New(b.git, params.Root, params.FilesCmd).
+		AddTemplates(b.opts.Templates).
+		AddGitArgs(b.opts.GitArgs)
 }
 
 func (b *Builder) buildFilter(params *JobParams) *filter.Filter {

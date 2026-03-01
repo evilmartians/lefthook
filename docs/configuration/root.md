@@ -10,7 +10,7 @@ This is useful when you execute some `npm` or `yarn` command but the `package.js
 
 For `pre-push` and `pre-commit` hooks and for the custom `files` command `root` option is used to filter file paths. If all files are filtered the command will be skipped.
 
-**Example**
+#### Example
 
 Format and stage files from a `client/` folder.
 

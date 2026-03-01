@@ -1,8 +1,16 @@
 assert_lefthook_installed: true
 skip_lfs: true
 
+output:
+  - meta
+  - summary
+  - jobs
+
 pre-commit:
   parallel: true
+  setup:
+    - run: command -v typos || brew install typos-cli
+    - run: command -v lychee || brew install lychee
   jobs:
     - name: lint & test
       glob: "*.go"

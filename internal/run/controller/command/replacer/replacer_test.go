@@ -212,9 +212,11 @@ func Test_ReplaceAndSplit_CustomTemplates(t *testing.T) {
 		assert := assert.New(t)
 
 		// Create a replacer with custom templates (note: keys include braces)
-		r := NewMocked([]string{"file1.js"}, map[string]string{
-			"{use-mise}": `eval "$(mise env)"`,
-		})
+		r := NewMocked([]string{"file1.js"}).AddTemplates(
+			map[string]string{
+				"use-mise": `eval "$(mise env)"`,
+			},
+		)
 
 		// Discover templates in the command (use empty filter)
 		emptyFilter := &filter.Filter{}
@@ -233,7 +235,7 @@ func Test_ReplaceAndSplit_CustomTemplates(t *testing.T) {
 		assert := assert.New(t)
 
 		// Create a replacer with a file that needs escaping
-		r := NewMocked([]string{"file with spaces.js"}, map[string]string{})
+		r := NewMocked([]string{"file with spaces.js"})
 
 		// Discover templates in the command (use empty filter)
 		emptyFilter := &filter.Filter{}

@@ -6,7 +6,7 @@ title: "fail_text"
 
 You can specify a text to show when the command or script fails.
 
-**Example**
+#### Example
 
 ```yml
 # lefthook.yml

@@ -6,7 +6,7 @@ title: "git_url"
 
 A URL to Git repository. It will be accessed with privileges of the machine lefthook runs on.
 
-**Example**
+#### Example
 
 ```yml
 # lefthook.yml

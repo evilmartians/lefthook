@@ -235,10 +235,6 @@ module.exports = {
           path: "/configuration/Hook",
           children: [
             {
-              title: "files",
-              path: "/configuration/files-global"
-            },
-            {
               title: "parallel",
               path: "/configuration/parallel"
             },
@@ -249,6 +245,10 @@ module.exports = {
             {
               title: "follow",
               path: "/configuration/follow"
+            },
+            {
+              title: "files",
+              path: "/configuration/files-global"
             },
             {
               title: "fail_on_changes",
@@ -267,12 +267,16 @@ module.exports = {
               path: "/configuration/exclude"
             },
             {
+              title: "only",
+              path: "/configuration/only"
+            },
+            {
               title: "skip",
               path: "/configuration/skip"
             },
             {
-              title: "only",
-              path: "/configuration/only"
+              title: "setup",
+              path: "/configuration/setup"
             },
             {
               title: "jobs",

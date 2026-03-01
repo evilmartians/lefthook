@@ -8,7 +8,7 @@ title: "colors"
 
 Whether enable or disable colorful output of Lefthook. This option can be overwritten with `--colors` option. You can also provide your own color codes.
 
-**Example**
+#### Example
 
 Disable colors.
 

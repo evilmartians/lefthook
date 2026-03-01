@@ -10,7 +10,7 @@ If the result of this command is empty, the execution of commands will be skippe
 
 This option overwrites the [hook-level `files`](./files-global.md) option.
 
-**Example**
+#### Example
 
 Provide a git command to list files.
 
