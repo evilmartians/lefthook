@@ -522,11 +522,11 @@ func formatHooksPathError(local, global string) error {
 	hasGlobal := len(global) > 0
 
 	if hasLocal {
-		errMsg.WriteString(fmt.Sprintf("core.hooksPath is set locally to '%s'\n", local))
+		fmt.Fprintf(&errMsg, "core.hooksPath is set locally to '%s'\n", local)
 		hints = append(hints, "hint:   git config --unset-all --local core.hooksPath")
 	}
 	if hasGlobal {
-		errMsg.WriteString(fmt.Sprintf("core.hooksPath is set globally to '%s'\n", global))
+		fmt.Fprintf(&errMsg, "core.hooksPath is set globally to '%s'\n", global)
 		hints = append(hints, "hint:   git config --unset-all --global core.hooksPath")
 	}
 	errMsg.WriteString("\n")
@@ -541,7 +541,7 @@ func formatHooksPathError(local, global string) error {
 		path = global
 	}
 	errMsg.WriteString("hint:\n")
-	errMsg.WriteString(fmt.Sprintf("hint: Run 'lefthook install --force' to install hooks anyway in '%s'.", path))
+	fmt.Fprintf(&errMsg, "hint: Run 'lefthook install --force' to install hooks anyway in '%s'.", path)
 
 	return errors.New(errMsg.String())
 }
