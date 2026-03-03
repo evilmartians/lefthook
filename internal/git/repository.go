@@ -31,7 +31,7 @@ const (
 var (
 	reHeadBranch              = regexp.MustCompile(`HEAD -> (?P<name>.*)$`)
 	reOriginHeadBranch        = regexp.MustCompile(`ref: refs/remotes/origin/(?P<name>.*)$`)
-	reVersion                 = regexp.MustCompile(`\d+\.\d+\.\d+`)
+	reVersion                 = regexp.MustCompile(`\d+\.\d+\.(\d+|\w+)`)
 	cmdPushFilesBase          = []string{"git", "diff", "--name-only", "HEAD", "@{push}"}
 	cmdPushFilesHead          = []string{"git", "diff", "--name-only", "HEAD"}
 	cmdStagedFiles            = []string{"git", "diff", "--name-only", "--cached", "--diff-filter=ACMR"}
