@@ -25,7 +25,8 @@ import (
 const (
 	EnvVerbose             = "LEFTHOOK_VERBOSE" // keep all output
 	envNoColor             = "NO_COLOR"
-	envForceColor          = "CLICOLOR_FORCE"
+	envClicolorForce       = "CLICOLOR_FORCE"
+	envClicolor            = "CLICOLOR"
 	hookFileMode           = 0o755
 	oldHookPostfix         = ".old"
 	hookContentFingerprint = "LEFTHOOK"
@@ -49,14 +50,19 @@ func NewLefthook(verbose bool, colors string) (*Lefthook, error) {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	if colors == "auto" {
-		if isEnvEnabled(envForceColor) {
+	switch colors {
+	case "auto", "":
+		if isEnvEnabled(envClicolorForce) {
 			colors = "on"
 		}
 
 		if isEnvEnabled(envNoColor) {
 			colors = "off"
 		}
+	case "on":
+		// Try to overwrite the lipgloss ENV handling.
+		_ = os.Unsetenv(envNoColor)
+		_ = os.Unsetenv(envClicolor)
 	}
 
 	log.SetColors(colors)

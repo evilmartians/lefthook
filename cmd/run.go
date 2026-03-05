@@ -36,6 +36,7 @@ func run() *cli.Command {
 				Name:        "colors",
 				Usage:       "on, off, or auto (default: auto)",
 				Destination: &colors,
+				Value:       "auto",
 			},
 			&cli.StringSliceFlag{
 				Name:        "job",
