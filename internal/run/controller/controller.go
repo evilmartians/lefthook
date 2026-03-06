@@ -47,7 +47,7 @@ func NewController(repo *git.Repository) *Controller {
 		git: repo,
 
 		// Some hooks use STDIN for parsing data from Git. To allow multiple commands
-		// and scripts access the same Git data STDIN is cached via CachedReadec.
+		// and scripts access the same Git data STDIN is cached via CachedReader.
 		cachedStdin: utils.NewCachedReader(os.Stdin),
 
 		// Executor interface for jobs
