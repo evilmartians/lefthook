@@ -24,15 +24,15 @@ templates:
 
 pre-commit:
   jobs:
-    # Will run: `bundle exec rubocop file1 file2 file3 ...`
-    - run: {dip} bundle exec rubocop {staged_files}
+    # Will run: `bundle exec rubocop -- file1 file2 file3 ...`
+    - run: {dip} bundle exec rubocop -- {staged_files}
 ```
 
 ```yml
 # lefthook-local.yml
 
 templates:
-  dip: dip # Will run: `dip bundle exec rubocop file1 file2 file3 ...`
+  dip: dip # Will run: `dip bundle exec rubocop -- file1 file2 file3 ...`
 ```
 
 ### Reduce redundancy

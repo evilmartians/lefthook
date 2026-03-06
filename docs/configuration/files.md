@@ -39,5 +39,5 @@ pre-push:
       tags: backend
       glob: "**/*.rb"
       files: node ./lefthook-scripts/ls-files.js # you can call your own scripts
-      run: bundle exec rubocop --force-exclusion --parallel {files}
+      run: bundle exec rubocop --force-exclusion --parallel -- {files}
 ```

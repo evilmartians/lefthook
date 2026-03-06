@@ -348,6 +348,7 @@ func (r *Repository) DropUnstagedStash() error {
 				"stash",
 				"drop",
 				"--quiet",
+				"--",
 				matches[stashID],
 			})
 			if err != nil {

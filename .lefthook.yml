@@ -25,7 +25,7 @@ pre-commit:
 
     - name: check links
       tags: docs
-      run: lychee --max-concurrency 3 {staged_files}
+      run: lychee --max-concurrency 3 -- {staged_files}
       glob: '*.md'
       exclude:
         - CHANGELOG.md

@@ -95,7 +95,7 @@ pre-commit:
       run: yarn eslint {staged_files}
 
     - name: lint backend
-      run: bundle exec rubocop --force-exclusion {all_files}
+      run: bundle exec rubocop --force-exclusion -- {all_files}
 
     - name: stylelint frontend
       files: git diff --name-only HEAD @{push}
@@ -113,7 +113,7 @@ pre-commit:
       exclude:
         - "*/application.rb"
         - "*/routes.rb"
-      run: bundle exec rubocop --force-exclusion {all_files}
+      run: bundle exec rubocop --force-exclusion -- {all_files}
 ```
 
 * ### **Execute in sub-directory**
@@ -125,7 +125,7 @@ pre-commit:
     - name: lint backend
       root: "api/" # Careful to have only trailing slash
       glob: "*.rb" # glob filter
-      run: bundle exec rubocop {all_files}
+      run: bundle exec rubocop -- {all_files}
 ```
 
 * ### **Run scripts**
@@ -198,7 +198,7 @@ If you want to run specific group of commands directly.
 ```yml
 fixer:
   jobs:
-    - run: bundle exec rubocop --force-exclusion --safe-auto-correct {staged_files}
+    - run: bundle exec rubocop --force-exclusion --safe-auto-correct -- {staged_files}
     - run: yarn eslint --fix {staged_files}
 ```
 ```bash

@@ -6,7 +6,7 @@ title: "file_types"
 
 Filter files in a [`run`](./run.md) templates by their type. Special file types and MIME types are supported[^1]:
 
-|File type| Exlanation|
+|File type| Explanation|
 |---------|-----------|
 |`text`   | Any file that contains text. Symlinks are not followed. |
 |`binary` | Any file that contains non-text bytes. Symlinks are not followed. |
@@ -87,7 +87,7 @@ Check typos in scripts.
 
 pre-commit:
   jobs:
-    - run: typos -w {staged_files}
+    - run: typos -w -- {staged_files}
       file_types:
         - text/x-perl
         - text/x-python
