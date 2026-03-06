@@ -91,7 +91,7 @@ func Test_guard_wrap(t *testing.T) {
 				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
 				{Command: "git checkout --force -- file1", Output: ""},
 				{Command: "git stash list", Output: "0: my stash\n1: lefthook auto backup\n2: my second stash\n"},
-				{Command: "git stash drop --quiet 1", Output: ""},
+				{Command: "git stash drop --quiet -- 1", Output: ""},
 			},
 		},
 		"stashUnstagedChanges=true failOnChanges=true with partially staged no hook changes": {
@@ -109,7 +109,7 @@ func Test_guard_wrap(t *testing.T) {
 				// job run
 				{Command: "git status --short --porcelain -z", Output: "A file1\x00"},
 				{Command: "git stash list", Output: "0: my stash\n1: lefthook auto backup\n2: my second stash\n"},
-				{Command: "git stash drop --quiet 1", Output: ""},
+				{Command: "git stash drop --quiet -- 1", Output: ""},
 			},
 		},
 		"stashUnstagedChanges=true failOnChanges=true with partially staged and hook changes with diff": {
@@ -132,7 +132,7 @@ func Test_guard_wrap(t *testing.T) {
 				{Command: "git diff --color -- file1", Output: "diff --git a/file1 b/file1\n..."},
 				{Command: "git checkout --force -- file1", Output: ""},
 				{Command: "git stash list", Output: "0: my stash\n1: lefthook auto backup\n2: my second stash\n"},
-				{Command: "git stash drop --quiet 1", Output: ""},
+				{Command: "git stash drop --quiet -- 1", Output: ""},
 			},
 			err: &FailOnChangesError{[]string{"file2"}},
 		},

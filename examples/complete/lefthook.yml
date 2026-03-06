@@ -16,7 +16,7 @@ pre-commit:
       exclude:
         - "*/application.rb"
         - "*/routes.rb"
-      run: bundle exec rubocop --force-exclusion {all_files}
+      run: bundle exec rubocop --force-exclusion -- {all_files}
       stage_fixed: true
   scripts:
     "good_job.js":
@@ -34,7 +34,7 @@ pre-push:
       tags: backend style
       files: git diff --name-only master
       glob: "*.rb"
-      run: bundle exec rubocop --force-exclusion {files}
+      run: bundle exec rubocop --force-exclusion -- {files}
   scripts:
     "verify":
       runner: sh

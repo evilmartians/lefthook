@@ -8,7 +8,7 @@ Wrapping some commands defined in a main config with `dip`[^1].
 pre-commit:
   jobs:
     - name: rubocop
-      run: bundle exec rubocop -A {staged_files}
+      run: bundle exec rubocop -A -- {staged_files}
 ```
 
 ```yml

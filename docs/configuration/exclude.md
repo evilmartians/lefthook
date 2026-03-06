@@ -26,7 +26,7 @@ pre-commit:
         - config/application.rb
         - config/initializers/*.rb
         - spec/rails_helper.rb
-      run: bundle exec rubocop --force-exclusion {staged_files}
+      run: bundle exec rubocop --force-exclusion -- {staged_files}
 ```
 
 If you've specified `exclude` but don't have a files template in [`run`](./run.md) option, lefthook will check `{staged_files}` for `pre-commit` hook and `{push_files}` for `pre-push` hook and apply filtering. If no files left, the command will be skipped.
