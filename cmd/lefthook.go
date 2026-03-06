@@ -14,10 +14,10 @@ func Lefthook() *cli.Command {
 		Commands: commands,
 		Description: `... of supported ENV variables:
 
-LEFTHOOK         - set to '0' or 'false' to disable lefthook execution
-LEFTHOOK_CONFIG  - override main config path
-LEFTHOOK_OUTPUT  - control printed sections (see config option 'output')
-LEFTHOOK_VERBOSE - enable debug logs`,
+LEFTHOOK          set to '0' or 'false' to disable lefthook execution
+LEFTHOOK_CONFIG   override main config path
+LEFTHOOK_OUTPUT   control printed sections (see config option 'output')
+LEFTHOOK_VERBOSE  enable debug logs`,
 		EnableShellCompletion: true,
 		Suggest:               true,
 	}
