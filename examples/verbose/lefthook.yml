@@ -10,7 +10,7 @@ pre-commit:
     # If there are no files left after filtering, this command will be skipped
     js-lint:
       glob: "*.{js,ts}"
-      run: npx eslint --fix {staged_files} && git add {staged_files}
+      run: npx eslint --fix -- {staged_files} && git add -- {staged_files}
 
     # `ruby-test` will skip execution only when in a merging or rebasing state.
     ruby-test:
@@ -31,7 +31,7 @@ pre-commit:
     ruby-lint:
       glob: "*.rb"
       files: git diff-tree -r --name-only --diff-filter=CDMR HEAD origin/master
-      run: bundle exec rubocop --force-exclusion --parallel '{files}'
+      run: bundle exec rubocop --force-exclusion --parallel -- '{files}'
 
 # You can provide more hooks.
 pre-push:
@@ -39,4 +39,4 @@ pre-push:
     spelling:
       files: git diff --name-only HEAD @{push}
       glob: "*.md"
-      run: npx yaspeller {files}
+      run: npx yaspeller -- {files}

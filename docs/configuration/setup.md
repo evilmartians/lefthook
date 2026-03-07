@@ -26,6 +26,6 @@ pre-commit:
           go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.10.1
         fi
   jobs:
-    - run: golangci-lint {staged_files}
+    - run: golangci-lint -- {staged_files}
       glob: "*.go"
 ```

@@ -46,7 +46,7 @@ pre-commit:
     govet:
       files: git ls-files -m
       glob: "*.go"
-      run: go vet {files}
+      run: go vet -- {files}
 ```
 
 #### `{staged_files}`
@@ -98,7 +98,7 @@ pre-commit:
       exclude:
         - config/application.rb
         - config/routes.rb
-      run: bundle exec rubocop --force-exclusion {all_files}
+      run: bundle exec rubocop --force-exclusion -- {all_files}
 ```
 
 #### `{cmd}`

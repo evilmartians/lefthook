@@ -58,7 +58,7 @@ lefthook: bundle exec lefthook
 
 pre-commit:
   jobs:
-    - run: bundle exec rubocop {staged_files}
+    - run: bundle exec rubocop -- {staged_files}
 ```
 
 #### Enable debug logs
