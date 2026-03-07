@@ -45,7 +45,7 @@ class Dists::RubyGem does Package::Dist {
     say "Publish lefthook gem";
 
     $!sys.cd(rubygems);
-    $!sys.run("rake build");
+    run("rake", "build");
     my $last-pkg = "{rubygems}/pkg/".IO.dir.tail;
     $!sys.run("gem push $last-pkg");
   }
