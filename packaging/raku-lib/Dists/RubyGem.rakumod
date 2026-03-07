@@ -31,7 +31,7 @@ class Dists::RubyGem does Package::Dist {
     $!sys.replace(
       file => "{rubygems}/lefthook.gemspec",
       regex => /$<spec-version>=(spec '.' version \s* '=') .* $/,
-      replacement => -> $/ { "$<spec-version> = {VERSION}" },
+      replacement => -> $/ { qq[$<spec-version> "{VERSION}"] },
     );
   }
 
