@@ -1,5 +1,13 @@
 # Change log
 
+## 2.1.3 (2026-03-07)
+
+- chore: switch artifact attestations gen to actions/attest v4 ([#1338](https://github.com/evilmartians/lefthook/pull/1338)) by [@scop](https://github.com/scop)
+- chore: describe ENV variables usage in CLI help output ([#1337](https://github.com/evilmartians/lefthook/pull/1337)) by [@mrexox](https://github.com/mrexox)
+- fix: support git debug versions ([#1334](https://github.com/evilmartians/lefthook/pull/1334)) by [@mrexox](https://github.com/mrexox)
+- deps: March 2026 ([#1330](https://github.com/evilmartians/lefthook/pull/1330)) by [@mrexox](https://github.com/mrexox)
+- feat: update minimum go version ([#1331](https://github.com/evilmartians/lefthook/pull/1331)) by [@mrexox](https://github.com/mrexox)
+
 ## 2.1.2 (2026-03-01)
 
 - feat: introduce setup hook option ([#1326](https://github.com/evilmartians/lefthook/pull/1326)) by [@mrexox](https://github.com/mrexox)
