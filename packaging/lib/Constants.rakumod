@@ -1,4 +1,4 @@
-constant VERSION = "2.1.0";
+constant VERSION = "2.1.3";
 constant REPO-ROOT = $*PROGRAM.parent.parent.parent.Str;
 constant DIST-PATH = REPO-ROOT ~ "/dist";
 

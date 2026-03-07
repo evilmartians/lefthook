@@ -7,8 +7,8 @@ sub publish-aur-package(:$name!, :%sha256-urls!, :$path-to-pkgbuild!, :$sys!) is
   my $clone-to = "{$name}-aur";
   my $dest-pkgbuild = "$clone-to/PKGBUILD";
 
-  $sys.run("git clone ssh://aur@aur.archlinux.org/{$name}.git {$clone-to}");
-  $sys.cp($path-to-pkgbuild, $dest-pkgbuild);
+  run("git", "clone", "ssh://aur@aur.archlinux.org/{$name}.git", $clone-to);
+  $path-to-pkgbuild.IO.copy($dest-pkgbuild);
 
   for %sha256-urls.kv -> $name, $url {
     my $sha256sum = fetch-sha256($url);
@@ -35,6 +35,8 @@ sub publish-aur-package(:$name!, :%sha256-urls!, :$path-to-pkgbuild!, :$sys!) is
 
 sub fetch-sha256(Str:D $url --> Str:D)
 {
-  my $data = run("curl", "-fsSL", $url, :out).out.slurp(:close, :bin);
-  run("sha256sum", "-", :in($data), :out).out.slurp(:close).words.head;
+  my $curl = run("curl", "-fsSL", $url, :out, :bin);
+  my $sha256sum = run("sha256sum", "-", :in($curl.out), :out);
+
+  $sha256sum.out.slurp(:close).words.head;
 }

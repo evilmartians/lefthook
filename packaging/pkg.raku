@@ -9,6 +9,7 @@ use System;
 
 use Lefthook::Package;
 use Lefthook::PackageKind;
+
 use NPM;
 use RubyGem;
 use PyPI;
