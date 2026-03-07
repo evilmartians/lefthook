@@ -8,6 +8,7 @@ dist/
 book/
 bin/
 site/
+.precomp/
 
 # Packages
 packaging/pypi/lefthook/__pycache__/

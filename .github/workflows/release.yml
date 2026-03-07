@@ -79,13 +79,13 @@ jobs:
       - name: Update npm
         run: npm install -g npm@latest
 
+      - uses: Raku/setup-raku@v1
       - name: Publish to NPM
         env:
           NPM_API_KEY: ${{ secrets.NPM_API_KEY }}
         run: |
           cd packaging/
-          ruby pack.rb prepare
-          ruby pack.rb publish_npm
+          raku pkg.raku --package=npm prepare publish
 
   publish-gem:
     needs: build
@@ -101,6 +101,7 @@ jobs:
           name: dist
       - run: tar -xvf dist.tar
 
+      - uses: Raku/setup-raku@v1
       - name: Publish to Rubygems
         env:
           RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
@@ -112,8 +113,7 @@ jobs:
           EOF
           chmod 0600 ~/.gem/credentials
           cd packaging/
-          ruby pack.rb prepare
-          ruby pack.rb publish_gem
+          raku pkg.raku --package=rubygem prepare publish
 
   publish-pypi:
     needs: build
@@ -136,13 +136,13 @@ jobs:
           python-version: "3.12"
           version: "latest"
 
+      - uses: Raku/setup-raku@v1
       - name: Publish to PyPI
         env:
           UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_KEY }}
         run: |
           cd packaging/
-          ruby pack.rb prepare
-          ruby pack.rb publish_pypi
+          raku pkg.raku --package=pypi prepare publish
 
   publish-homebrew:
     needs: build
@@ -205,10 +205,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: Raku/setup-raku@v1
       - name: Update AUR package
         run: |
           pacman -Syu --noconfirm
-          pacman -S --noconfirm openssh git ruby go base-devel
+          pacman -S --noconfirm openssh git go base-devel curl
 
           useradd -m -G wheel runner
           echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
@@ -224,7 +225,7 @@ jobs:
             echo "  User aur" >> ~/.ssh/config
             ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
 
-            ruby packaging/pack.rb publish_aur_lefthook
+            raku packaging/pkg.raku --package aur publish
           '
 
   publish-aur_lefthook-bin:
@@ -237,10 +238,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: Raku/setup-raku@v1
       - name: Update AUR package
         run: |
           pacman -Syu --noconfirm
-          pacman -S --noconfirm openssh git ruby base-devel
+          pacman -S --noconfirm openssh git base-devel curl
 
           useradd -m -G wheel runner
           echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
@@ -256,5 +258,5 @@ jobs:
             echo "  User aur" >> ~/.ssh/config
             ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
 
-            ruby packaging/pack.rb publish_aur_lefthook_bin
+            raku packaging/pkg.raku --package aur-bin publish
           '
