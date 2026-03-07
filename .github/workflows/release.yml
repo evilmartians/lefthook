@@ -46,7 +46,7 @@ jobs:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
 
       - name: Generate artifact attestations
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest@v4
         with:
           subject-checksums: dist/lefthook_checksums.txt
 
