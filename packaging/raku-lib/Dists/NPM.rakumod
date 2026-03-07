@@ -1,6 +1,6 @@
 use Constants;
 use System;
-use Lefthook::Package;
+use Package;
 
 my constant packages-dir = $*PROGRAM.parent.parent.Str;
 my constant npm = "{packages-dir}/npm";
@@ -44,7 +44,7 @@ my constant @schemas = qq:to/END/.lines.map(*.trim);
   {npm-installer}/schema.json
 END
 
-class NPM does Lefthook::Package {
+class Dists::NPM does Package::Dist {
   has System $.sys is required;
   has $!npm-dists = {
     amd64-linux   => "{npm}/lefthook-linux-x64/bin/lefthook",
@@ -73,7 +73,7 @@ class NPM does Lefthook::Package {
     arm64-openbsd => "{npm-bundled}/bin/lefthook-openbsd-arm64/lefthook",
   };
 
-  submethod kind returns Lefthook::PackageKind { Lefthook::PackageKind::<npm> }
+  submethod kind returns Package::Kind { Package::Kind::<npm> }
 
   method clean {
     $!sys.rm(

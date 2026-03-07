@@ -1,10 +1,10 @@
 use Constants;
 use System;
-use Lefthook::Package;
+use Package;
 
 my constant rubygems = $*PROGRAM.parent.parent.child("rubygems").Str;
 
-class RubyGem does Lefthook::Package {
+class Dists::RubyGem does Package::Dist {
   has System $.sys is required;
   has $!dists = {
     amd64-linux   => "{rubygems}/libexec/lefthook-linux-x64/lefthook",
@@ -20,7 +20,7 @@ class RubyGem does Lefthook::Package {
     arm64-openbsd => "{rubygems}/libexec/lefthook-openbsd-arm64/lefthook",
   };
 
-  submethod kind returns Lefthook::PackageKind { Lefthook::PackageKind::<rubygem> }
+  submethod kind returns Package::Kind { Package::Kind::<rubygem> }
 
   method clean {
     $!sys.rm("{rubygems}/libexec/".IO.dir.grep(*.d));

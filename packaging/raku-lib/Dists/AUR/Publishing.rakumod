@@ -1,6 +1,6 @@
 use Constants;
 
-unit module Aur::Publishing;
+unit module Dists::AUR::Publishing;
 
 sub publish-aur-package(:$name!, :%sha256-urls!, :$path-to-pkgbuild!, :$sys!) is export
 {

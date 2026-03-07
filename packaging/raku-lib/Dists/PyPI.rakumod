@@ -1,11 +1,11 @@
 use Constants;
 use System;
-use Lefthook::Package;
+use Package;
 
 my constant pypi = $*PROGRAM.parent.parent.child("pypi").Str;
 my constant @platforms = <linux darwin windows> X <x86_64 arm64>;
 
-class PyPI does Lefthook::Package {
+class Dists::PyPI does Package::Dist {
   has System $.sys is required;
   has $!dists = {
     amd64-linux   => "{pypi}/lefthook/bin/lefthook-linux-x86_64/lefthook",
@@ -21,7 +21,7 @@ class PyPI does Lefthook::Package {
     arm64-openbsd => "{pypi}/lefthook/bin/lefthook-openbsd-arm64/lefthook",
   };
 
-  submethod kind returns Lefthook::PackageKind { Lefthook::PackageKind::<pypi> }
+  submethod kind returns Package::Kind { Package::Kind::<pypi> }
 
   method clean {
     $!sys.rm(

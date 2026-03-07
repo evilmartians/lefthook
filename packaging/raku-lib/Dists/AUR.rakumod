@@ -1,14 +1,14 @@
 use Constants;
 use System;
-use Lefthook::Package;
-use AUR::Publishing;
+use Package;
+use Dists::AUR::Publishing;
 
 my constant aur = $*PROGRAM.parent.parent.child("aur");
 
-class AUR does Lefthook::Package {
+class Dists::AUR does Package::Dist {
   has System $.sys is required;
 
-  submethod kind returns Lefthook::PackageKind { Lefthook::PackageKind::<aur> }
+  submethod kind returns Package::Kind { Package::Kind::<aur> }
 
   method clean {}
 
