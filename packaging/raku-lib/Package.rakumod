@@ -1,7 +1,8 @@
 unit module Package;
 
-enum Kind <
-  all
+enum Kind is export(:kinds) <
+  all-packages
+
   npm
   rubygem
   pypi

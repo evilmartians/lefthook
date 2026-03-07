@@ -1,9 +1,10 @@
-use Constants;
+use Config;
 use System;
 use Package;
 use Dists::AUR::Publishing;
 
-my constant aur = $*PROGRAM.parent.parent.child("aur");
+my constant aur = PKG-ROOT.child("aur");
+my constant pkgbuild = aur.child("lefthook").child("PKGBUILD");
 
 class Dists::AUR does Package::Dist {
   has System $.sys is required;
@@ -14,7 +15,7 @@ class Dists::AUR does Package::Dist {
 
   method set-version {
     $!sys.replace(
-      file => "{aur}/lefthook/PKGBUILD",
+      file => pkgbuild,
       regex => /pkgver\s*'='.*$/,
       replacement => "pkgver={VERSION}",
     );
@@ -28,7 +29,7 @@ class Dists::AUR does Package::Dist {
       sha256-urls => {
         sha256sum => "https://github.com/evilmartians/lefthook/archive/v{VERSION}.tar.gz",
       },
-      path-to-pkgbuild => "{aur}/lefthook/PKGBUILD",
+      path-to-pkgbuild => pkgbuild,
       sys => $!sys,
     );
   }

@@ -11,10 +11,11 @@ use v6;
 
 use lib $*PROGRAM.dirname ~ "/raku-lib";
 
-use Constants;
+use Config;
 use System;
 
 use Package;
+use Package :kinds;
 
 use Dists::NPM;
 use Dists::RubyGem;
@@ -27,7 +28,7 @@ use Dists::AUR-Bin;
 #|   set-version
 #|   prepare
 #|   publish
-sub MAIN(*@steps, Package::Kind :$package = Package::Kind::<all>, Bool :$dry-run = False) {
+sub MAIN(*@steps, Package::Kind :$package = all-packages, Bool :$dry-run = False) {
   my $sys = System.new(dry-run => $dry-run);
 
   my Package::Dist @packages = (
@@ -38,7 +39,7 @@ sub MAIN(*@steps, Package::Kind :$package = Package::Kind::<all>, Bool :$dry-run
     Dists::AUR-Bin,
   );
 
-  @packages .= grep(*.kind == $package) unless $package == Package::Kind::<all>;
+  @packages .= grep(*.kind == $package) unless $package == all-packages;
   @packages .= map(*.new(sys => $sys));
 
   for @steps -> $step {

@@ -1,13 +1,13 @@
-use Constants;
+use Config;
 use System;
 use Package;
 
-my constant pypi = $*PROGRAM.parent.parent.child("pypi").Str;
 my constant @platforms = <linux darwin windows> X <x86_64 arm64>;
+my constant pypi = PKG-ROOT.child("pypi");
 
 class Dists::PyPI does Package::Dist {
   has System $.sys is required;
-  has $!dists = {
+  has %!dists = {
     amd64-linux   => "{pypi}/lefthook/bin/lefthook-linux-x86_64/lefthook",
     amd64-windows => "{pypi}/lefthook/bin/lefthook-windows-x86_64/lefthook.exe",
     amd64-darwin  => "{pypi}/lefthook/bin/lefthook-darwin-x86_64/lefthook",
@@ -41,9 +41,9 @@ class Dists::PyPI does Package::Dist {
   }
 
   method prepare {
-    die "pypi/ setup is not complete" unless $!dists.keys.Set == %DISTS.keys.Set;
+    die "pypi/ setup is not complete" unless %!dists.keys.Set == %DISTS.keys.Set;
 
-    $!sys.cp(.value, $!dists{.key}) for %DISTS.pairs;
+    $!sys.cp(.value, %!dists{.key}) for %DISTS.pairs;
   }
 
   method publish {

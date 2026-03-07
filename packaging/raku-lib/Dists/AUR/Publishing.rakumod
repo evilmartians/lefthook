@@ -1,4 +1,4 @@
-use Constants;
+use Config;
 
 unit module Dists::AUR::Publishing;
 

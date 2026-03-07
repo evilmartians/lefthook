@@ -1,12 +1,12 @@
-use Constants;
+use Config;
 use System;
 use Package;
 
-my constant rubygems = $*PROGRAM.parent.parent.child("rubygems").Str;
+my constant rubygems = PKG-ROOT.child("rubygems").Str;
 
 class Dists::RubyGem does Package::Dist {
   has System $.sys is required;
-  has $!dists = {
+  has %!dists = {
     amd64-linux   => "{rubygems}/libexec/lefthook-linux-x64/lefthook",
     amd64-windows => "{rubygems}/libexec/lefthook-windows-x64/lefthook.exe",
     amd64-darwin  => "{rubygems}/libexec/lefthook-darwin-x64/lefthook",
@@ -36,9 +36,9 @@ class Dists::RubyGem does Package::Dist {
   }
 
   method prepare {
-    die "rubygems/ setup is not complete" unless $!dists.keys.Set == %DISTS.keys.Set;
+    die "rubygems/ setup is not complete" unless %!dists.keys.Set == %DISTS.keys.Set;
 
-    $!sys.cp(.value, $!dists{.key}) for %DISTS.pairs;
+    $!sys.cp(.value, %!dists{.key}) for %DISTS.pairs;
   }
 
   method publish {
