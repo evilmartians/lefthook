@@ -1,0 +1,111 @@
+use Test;
+use File::Temp;
+
+use System;
+
+my $sys = System.new(dry-run => False);
+
+subtest "rm(*@paths)", {
+  my ($tmp-one) = tempfile;
+  my ($tmp-two) = tempfile;
+  my $tmp-dir = tempdir;
+
+  my $sub-dir = $tmp-dir.IO.child("sub1").child("sub2");
+  mkdir $sub-dir;
+
+  ok $tmp-one.IO.e, "exists";
+  ok $tmp-two.IO.e, "exists";
+  ok $sub-dir.IO.e, "exists";
+
+  $sys.rm($tmp-one, $tmp-two, $sub-dir);
+
+  nok $tmp-one.IO.e, "removes $tmp-one";
+  nok $tmp-two.IO.e, "removes $tmp-two";
+  nok $sub-dir.IO.e, "removes $sub-dir";
+}
+
+subtest "rm(@paths)", {
+  my ($tmp-one) = tempfile;
+  my ($tmp-two) = tempfile;
+
+  ok $tmp-one.IO.e, "exists";
+  ok $tmp-two.IO.e, "exists";
+
+  $sys.rm([$tmp-one, $tmp-two]);
+
+  nok $tmp-one.IO.e, "removes $tmp-one";
+  nok $tmp-two.IO.e, "removes $tmp-two";
+}
+
+subtest "cd", {
+  my $dir = tempdir;
+
+  isnt $*CWD, $dir, "not in a temp dir";
+
+  $sys.cd($dir);
+
+  is $*CWD, $dir, "in a temp dir";
+}
+
+subtest "cp", {
+  my ($tmp-file) = tempfile;
+  my $tmp-dir = tempdir;
+
+  my $dest = $tmp-dir.IO.child('subdir').child($tmp-file.IO.basename);
+
+  nok $dest.e, "not copied";
+  nok $dest.parent.e, "parent doesn't exist";
+
+  $sys.cp($tmp-file, $dest);
+
+  ok $dest.e, "copied";
+  ok $dest.parent.e, "parent exists";
+}
+
+subtest "replace", {
+  my ($tmp-file) = tempfile;
+
+  spurt $tmp-file.IO, qq:to/END/;
+  version = "1.0.0"
+  description = "lefthook is a Git hooks manager"
+  END
+
+  $sys.replace(
+    file => $tmp-file,
+    regex => /version \s* '=' .*$/,
+    replacement => 'version = "2.0.0"',
+  );
+
+  my $result = $tmp-file.IO.slurp;
+
+  is $result, qq:to/END/, "replaces successfully";
+  version = "2.0.0"
+  description = "lefthook is a Git hooks manager"
+  END
+
+  $sys.replace(
+    file => $tmp-file,
+    regex => /description \s* '=' \s* '"' $<name>=(<[\w]>+).*/,
+    replacement => -> $/ { qq[description = "$<name> is cool"] },
+  );
+
+  $result = $tmp-file.IO.slurp;
+
+  is $result, qq:to/END/, "replaces successfully";
+  version = "2.0.0"
+  description = "lefthook is cool"
+  END
+}
+
+subtest "run", {
+  my Str $said;
+  temp $*OUT = class { method print(*@s) { $said ~= @s.join } }
+  $sys.run("echo 'Hello'");
+
+  is $said, q:to/END/, "called echo";
+  run echo 'Hello'
+  'Hello'
+  END
+}
+
+done-testing;

@@ -1,0 +1,6 @@
+{
+    "name": "Lefthook-Packager",
+    "depends": [
+        "File::Temp"
+    ]
+}

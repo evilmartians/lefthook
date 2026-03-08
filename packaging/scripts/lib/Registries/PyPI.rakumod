@@ -27,7 +27,7 @@ class Registries::PyPI does Registry::Package {
   method clean {
     $!sys.rm(
       "{pypi}/lefthook/__pycache__/",
-      "{pypi}/lefthook/bin/",
+      "{pypi}/lefthook/bin/".IO.dir.grep(*.basename ne ".keep"),
       "{pypi}/lefthook.egg-info/",
       "{pypi}/build/",
     )

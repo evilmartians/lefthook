@@ -26,7 +26,7 @@ class System {
   }
 
   # Copies a file. Creates parent dirs for $dest if needed.
-  method cp(Str:D $source, Str:D $dest) {
+  method cp(IO() $source, IO() $dest) {
     say "cp $source -> $dest";
     return if $!dry-run;
 

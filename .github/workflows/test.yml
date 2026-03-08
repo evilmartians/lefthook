@@ -61,6 +61,19 @@ jobs:
           flags: integration
           name: integration-${{ join(matrix.*, ' ') }}
 
+  test-packaging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install Raku
+        uses: Raku/setup-raku@v1
+      - name: Run packaging tests
+        run: |
+          cd packaging/scripts/
+          zef install . --deps-only
+          raku -I lib t/*.rakutest
+
   build:
     runs-on: ubuntu-latest
     steps:
