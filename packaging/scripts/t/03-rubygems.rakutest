@@ -2,14 +2,13 @@ use Test;
 
 use System;
 use Constants;
-use Registries::RubyGem;
+use Registries::RubyGems;
 
 use lib $?FILE.IO.parent.child("lib");
-use TestSystem;
 use TestRegistry;
 
 subtest "clean", {
-  my ($sys, $npm) = new-registry(Registries::RubyGem);
+  my ($sys, $npm) = new-registry(Registries::RubyGems);
 
   $npm.clean;
 
@@ -19,7 +18,7 @@ subtest "clean", {
 }
 
 subtest "prepare", {
-  my ($sys, $npm) = new-registry(Registries::RubyGem);
+  my ($sys, $npm) = new-registry(Registries::RubyGems);
 
   $npm.prepare;
 
@@ -58,7 +57,7 @@ subtest "prepare", {
 }
 
 subtest "publish", {
-  my ($sys, $npm) = new-registry(Registries::RubyGem);
+  my ($sys, $npm) = new-registry(Registries::RubyGems);
 
   my $tmp-gem1-file = "{PKG-ROOT}/rubygems/pkg/lefthook-0.0.1.gem";
   my $tmp-gem2-file = "{PKG-ROOT}/rubygems/pkg/lefthook-0.0.2.gem";

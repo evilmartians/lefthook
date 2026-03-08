@@ -1,5 +1,6 @@
 use Constants;
 use System;
+use SystemAPI;
 use Registry;
 use Registries::AUR::Publishing;
 
@@ -9,7 +10,7 @@ my constant pkgbuild = aur.child("lefthook").child("PKGBUILD");
 class Registries::AUR does Registry::Package {
   has SystemAPI $.sys is required;
 
-  submethod kind returns Registry::Kind { Registry::Kind::<aur> }
+  method kind(--> Registry::Kind:D) { Registry::Kind::aur }
 
   method clean {}
 
