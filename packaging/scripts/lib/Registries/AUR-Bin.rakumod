@@ -7,7 +7,7 @@ my constant aur = PKG-ROOT.child("aur");
 my constant pkgbuild = aur.child("lefthook-bin").child("PKGBUILD");
 
 class Registries::AUR-Bin does Registry::Package {
-  has System $.sys is required;
+  has SystemAPI $.sys is required;
 
   submethod kind returns Registry::Kind { Registry::Kind::<aur-bin> }
 

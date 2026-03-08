@@ -1,13 +1,21 @@
-# Provides wrappers for interaction with file system.
-class System {
-  has Bool $.dry-run is required;
-
-  # Removes file or dir recursively.
-  #
+# For mocking in tests.
+role SystemAPI {
   # `multi` allows calling the method in different ways:
   #   rm("path1", "path2", ...);
   #   rm(["path1", "path2", ...]);
   multi method rm(*@paths) { self.rm(@paths) }
+  multi method rm(@paths) { ... }
+  method cd(IO() $path) { ... }
+  method cp(IO() $source, IO() $dest) { ... }
+  method replace(IO() :$file, Regex :$regex, :$replacement) { ... }
+  method run(Str:D $cmd) {... }
+}
+
+# Provides wrappers for interaction with file system.
+class System does SystemAPI {
+  has Bool $.dry-run is required;
+
+  # Removes file or dir recursively.
   multi method rm(@paths) {
     for @paths -> $path {
       next unless $path.IO.e;

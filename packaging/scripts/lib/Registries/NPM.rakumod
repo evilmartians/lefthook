@@ -44,7 +44,7 @@ my constant @schemas = qq:to/END/.lines.map(*.trim);
 END
 
 class Registries::NPM does Registry::Package {
-  has System $.sys is required;
+  has SystemAPI $.sys is required;
 
   my constant %NPM-DISTS = (
     amd64-linux   => "{npm}/lefthook-linux-x64/bin/lefthook",

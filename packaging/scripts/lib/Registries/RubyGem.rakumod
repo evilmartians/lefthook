@@ -5,7 +5,7 @@ use Registry;
 my constant rubygems = PKG-ROOT.child("rubygems").Str;
 
 class Registries::RubyGem does Registry::Package {
-  has System $.sys is required;
+  has SystemAPI $.sys is required;
 
   my constant %RUBYGEM-DISTS = (
     amd64-linux   => "{rubygems}/libexec/lefthook-linux-x64/lefthook",
@@ -46,8 +46,8 @@ class Registries::RubyGem does Registry::Package {
     say "Publish lefthook gem";
 
     $!sys.cd(rubygems);
-    run("rake", "build");
-    my $last-pkg = "{rubygems}/pkg/".IO.dir.tail;
+    $!sys.run("rake build");
+    my $last-pkg = "{rubygems}/pkg/".IO.dir.sort(*.basename).tail;
     $!sys.run("gem push $last-pkg");
   }
 }

@@ -6,7 +6,7 @@ my constant @platforms = <linux darwin windows> X <x86_64 arm64>;
 my constant pypi = PKG-ROOT.child("pypi");
 
 class Registries::PyPI does Registry::Package {
-  has System $.sys is required;
+  has SystemAPI $.sys is required;
 
   my constant %PYPI-DISTS = {
     amd64-linux   => "{pypi}/lefthook/bin/lefthook-linux-x86_64/lefthook",
