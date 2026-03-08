@@ -60,8 +60,12 @@ class System {
       return;
     }
 
+    die "not a file/dir: $path" unless $path.d;
+
     for $path.dir -> $entry {
       self!rm-r($entry);
     }
+
+    $path.rmdir;
   }
 }

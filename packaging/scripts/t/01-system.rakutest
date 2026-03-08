@@ -10,18 +10,22 @@ subtest "rm(*@paths)", {
   my ($tmp-two) = tempfile;
   my $tmp-dir = tempdir;
 
-  my $sub-dir = $tmp-dir.IO.child("sub1").child("sub2");
-  mkdir $sub-dir;
+  my $sub1-dir = $tmp-dir.IO.child("sub1");
+  my $sub2-dir = $sub1-dir.child("sub2");
+  mkdir $sub2-dir;
 
   ok $tmp-one.IO.e, "exists";
   ok $tmp-two.IO.e, "exists";
-  ok $sub-dir.IO.e, "exists";
+  ok $sub1-dir.IO.e, "exists";
+  ok $sub2-dir.IO.e, "exists";
 
-  $sys.rm($tmp-one, $tmp-two, $sub-dir);
+  $sys.rm($tmp-one, $tmp-two, $sub1-dir);
 
   nok $tmp-one.IO.e, "removes $tmp-one";
   nok $tmp-two.IO.e, "removes $tmp-two";
-  nok $sub-dir.IO.e, "removes $sub-dir";
+  nok $sub1-dir.IO.e, "removes $sub1-dir";
+  nok $sub2-dir.IO.e, "removes $sub2-dir";
+  ok $tmp-dir.IO.e, "keeps parent $tmp-dir";
 }
 
 subtest "rm(@paths)", {
