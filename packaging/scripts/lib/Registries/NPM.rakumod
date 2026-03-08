@@ -1,6 +1,6 @@
-use Config;
+use Constants;
 use System;
-use Package;
+use Registry;
 
 my constant npm           = PKG-ROOT.child("npm");
 my constant npm-bundled   = PKG-ROOT.child("npm-bundled");
@@ -43,9 +43,10 @@ my constant @schemas = qq:to/END/.lines.map(*.trim);
   {npm-installer}/schema.json
 END
 
-class Dists::NPM does Package::Dist {
+class Registries::NPM does Registry::Package {
   has System $.sys is required;
-  has %!npm-dists = {
+
+  my constant %NPM-DISTS = (
     amd64-linux   => "{npm}/lefthook-linux-x64/bin/lefthook",
     amd64-windows => "{npm}/lefthook-windows-x64/bin/lefthook.exe",
     amd64-darwin  => "{npm}/lefthook-darwin-x64/bin/lefthook",
@@ -57,8 +58,8 @@ class Dists::NPM does Package::Dist {
     arm64-darwin  => "{npm}/lefthook-darwin-arm64/bin/lefthook",
     arm64-freebsd => "{npm}/lefthook-freebsd-arm64/bin/lefthook",
     arm64-openbsd => "{npm}/lefthook-openbsd-arm64/bin/lefthook",
-  };
-  has %!npm-bundled-dists = {
+  );
+  my constant %NPM-BUNDLED-DISTS = (
     amd64-linux   => "{npm-bundled}/bin/lefthook-linux-x64/lefthook",
     amd64-windows => "{npm-bundled}/bin/lefthook-windows-x64/lefthook.exe",
     amd64-darwin  => "{npm-bundled}/bin/lefthook-darwin-x64/lefthook",
@@ -70,16 +71,16 @@ class Dists::NPM does Package::Dist {
     arm64-darwin  => "{npm-bundled}/bin/lefthook-darwin-arm64/lefthook",
     arm64-freebsd => "{npm-bundled}/bin/lefthook-freebsd-arm64/lefthook",
     arm64-openbsd => "{npm-bundled}/bin/lefthook-openbsd-arm64/lefthook",
-  };
+  );
 
-  submethod kind returns Package::Kind { Package::Kind::<npm> }
+  submethod kind returns Registry::Kind { Registry::Kind::<npm> }
 
   method clean {
     $!sys.rm(
       |@READMEs,
       |@schemas,
-      |%!npm-dists.values,
-      |%!npm-bundled-dists.values,
+      |%NPM-DISTS.values,
+      |%NPM-BUNDLED-DISTS.values,
     )
   }
 
@@ -104,12 +105,12 @@ class Dists::NPM does Package::Dist {
     $!sys.cp("{REPO-ROOT}/README.md", $_) for @READMEs;
     $!sys.cp("{REPO-ROOT}/schema.json", $_) for @schemas;
 
-    die "npm/ setup is not complete" unless %DISTS.keys.Set == %!npm-dists.keys.Set;
-    die "npm-bundled/ setup is not complete" unless %DISTS.keys.Set == %!npm-bundled-dists.keys.Set;
+    die "npm/ setup is not complete" unless %DISTS.keys.Set == %NPM-DISTS.keys.Set;
+    die "npm-bundled/ setup is not complete" unless %DISTS.keys.Set == %NPM-BUNDLED-DISTS.keys.Set;
 
     for %DISTS.kv -> $kind, $source {
-      $!sys.cp($source, %!npm-dists{$kind});
-      $!sys.cp($source, %!npm-bundled-dists{$kind});
+      $!sys.cp($source, %NPM-DISTS{$kind});
+      $!sys.cp($source, %NPM-BUNDLED-DISTS{$kind});
     }
   }
 

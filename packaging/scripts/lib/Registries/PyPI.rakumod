@@ -1,13 +1,14 @@
-use Config;
+use Constants;
 use System;
-use Package;
+use Registry;
 
 my constant @platforms = <linux darwin windows> X <x86_64 arm64>;
 my constant pypi = PKG-ROOT.child("pypi");
 
-class Dists::PyPI does Package::Dist {
+class Registries::PyPI does Registry::Package {
   has System $.sys is required;
-  has %!dists = {
+
+  my constant %PYPI-DISTS = {
     amd64-linux   => "{pypi}/lefthook/bin/lefthook-linux-x86_64/lefthook",
     amd64-windows => "{pypi}/lefthook/bin/lefthook-windows-x86_64/lefthook.exe",
     amd64-darwin  => "{pypi}/lefthook/bin/lefthook-darwin-x86_64/lefthook",
@@ -21,7 +22,7 @@ class Dists::PyPI does Package::Dist {
     arm64-openbsd => "{pypi}/lefthook/bin/lefthook-openbsd-arm64/lefthook",
   };
 
-  submethod kind returns Package::Kind { Package::Kind::<pypi> }
+  submethod kind returns Registry::Kind { Registry::Kind::<pypi> }
 
   method clean {
     $!sys.rm(
@@ -41,9 +42,9 @@ class Dists::PyPI does Package::Dist {
   }
 
   method prepare {
-    die "pypi/ setup is not complete" unless %!dists.keys.Set == %DISTS.keys.Set;
+    die "pypi/ setup is not complete" unless %PYPI-DISTS.keys.Set == %DISTS.keys.Set;
 
-    $!sys.cp(.value, %!dists{.key}) for %DISTS.pairs;
+    $!sys.cp(.value, %PYPI-DISTS{.key}) for %DISTS.pairs;
   }
 
   method publish {

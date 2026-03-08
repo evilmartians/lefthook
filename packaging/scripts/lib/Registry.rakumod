@@ -1,7 +1,7 @@
-unit module Package;
+unit module Registry;
 
 enum Kind is export(:kinds) <
-  all-packages
+  all-registries
 
   npm
   rubygem
@@ -10,7 +10,7 @@ enum Kind is export(:kinds) <
   aur-bin
 >;
 
-role Dist {
+role Package {
   submethod kind returns Kind { ... }
 
   method clean       { ... }

@@ -1,6 +1,6 @@
-use Config;
+use Constants;
 
-unit module Dists::AUR::Publishing;
+unit module Registries::AUR::Publishing;
 
 # Updates the AUR Git repo with the new version.
 sub publish-aur-package(:$name!, :%sha256-urls!, :$path-to-pkgbuild!, :$sys!) is export

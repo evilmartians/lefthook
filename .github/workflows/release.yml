@@ -84,8 +84,8 @@ jobs:
         env:
           NPM_API_KEY: ${{ secrets.NPM_API_KEY }}
         run: |
-          cd packaging/
-          raku pkg.raku --package=npm prepare publish
+          raku packaging/scripts/prepare.raku --target=npm
+          raku packaging/scripts/publish.raku --target=npm
 
   publish-gem:
     needs: build
@@ -112,8 +112,8 @@ jobs:
           :rubygems_api_key: ${RUBYGEMS_API_KEY}
           EOF
           chmod 0600 ~/.gem/credentials
-          cd packaging/
-          raku pkg.raku --package=rubygem prepare publish
+          raku packaging/scripts/prepare.raku --target=rubygem
+          raku packaging/scripts/publish.raku --target=rubygem
 
   publish-pypi:
     needs: build
@@ -141,8 +141,8 @@ jobs:
         env:
           UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_KEY }}
         run: |
-          cd packaging/
-          raku pkg.raku --package=pypi prepare publish
+          raku packaging/scripts/prepare.raku --target=pypi
+          raku packaging/scripts/publish.raku --target=pypi
 
   publish-homebrew:
     needs: build
@@ -225,7 +225,7 @@ jobs:
             echo "  User aur" >> ~/.ssh/config
             ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
 
-            raku packaging/pkg.raku --package aur publish
+            raku packaging/scripts/publish.raku --target=aur
           '
 
   publish-aur_lefthook-bin:
@@ -258,5 +258,5 @@ jobs:
             echo "  User aur" >> ~/.ssh/config
             ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
 
-            raku packaging/pkg.raku --package aur-bin publish
+            raku packaging/scripts/publish.raku --target=aur-bin
           '

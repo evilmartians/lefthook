@@ -1,7 +1,7 @@
 constant VERSION = "2.1.3";
 
-constant REPO-ROOT = $?FILE.IO.parent(3);
-constant PKG-ROOT  = $?FILE.IO.parent(2);
+constant REPO-ROOT = $?FILE.IO.parent(4);
+constant PKG-ROOT  = $?FILE.IO.parent(3).child("registries");
 
 my constant dist-path = REPO-ROOT.child("dist").Str;
 constant %DISTS = (

@@ -1,15 +1,15 @@
-use Config;
+use Constants;
 use System;
-use Package;
-use Dists::AUR::Publishing;
+use Registry;
+use Registries::AUR::Publishing;
 
 my constant aur = PKG-ROOT.child("aur");
 my constant pkgbuild = aur.child("lefthook").child("PKGBUILD");
 
-class Dists::AUR does Package::Dist {
+class Registries::AUR does Registry::Package {
   has System $.sys is required;
 
-  submethod kind returns Package::Kind { Package::Kind::<aur> }
+  submethod kind returns Registry::Kind { Registry::Kind::<aur> }
 
   method clean {}
 
