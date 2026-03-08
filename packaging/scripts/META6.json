@@ -1,6 +1,6 @@
 {
     "name": "Lefthook-Packager",
-    "depends": [
+    "test-depends": [
         "File::Temp"
     ]
 }
