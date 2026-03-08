@@ -8,6 +8,7 @@ sub publish-aur-package(:$name!, :%sha256-urls!, :$path-to-pkgbuild!, :$sys!) is
   my $clone-to = "{$name}-aur";
   my $dest-pkgbuild = "$clone-to/PKGBUILD";
 
+  $sys.cd(PKG-ROOT);
   run("git", "clone", "ssh://aur@aur.archlinux.org/{$name}.git", $clone-to);
   $path-to-pkgbuild.IO.copy($dest-pkgbuild);
 
