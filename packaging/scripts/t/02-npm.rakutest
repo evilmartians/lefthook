@@ -1,0 +1,147 @@
+use Test;
+
+use System;
+use Constants;
+use Registries::NPM;
+
+use lib $?FILE.IO.parent.child("lib");
+use TestSystem;
+use TestRegistry;
+
+subtest "clean", {
+  my ($sys, $npm) = new-registry(Registries::NPM);
+
+  $npm.clean;
+
+  is-deeply $sys.removed.Set, (
+    "{PKG-ROOT}/npm/lefthook/schema.json",
+    "{PKG-ROOT}/npm-bundled/schema.json",
+    "{PKG-ROOT}/npm-installer/schema.json",
+    "{PKG-ROOT}/npm/lefthook/README.md",
+    "{PKG-ROOT}/npm/lefthook-darwin-arm64/README.md",
+    "{PKG-ROOT}/npm/lefthook-darwin-x64/README.md",
+    "{PKG-ROOT}/npm/lefthook-linux-arm64/README.md",
+    "{PKG-ROOT}/npm/lefthook-linux-x64/README.md",
+    "{PKG-ROOT}/npm/lefthook-windows-arm64/README.md",
+    "{PKG-ROOT}/npm/lefthook-windows-x64/README.md",
+    "{PKG-ROOT}/npm/lefthook-freebsd-arm64/README.md",
+    "{PKG-ROOT}/npm/lefthook-freebsd-x64/README.md",
+    "{PKG-ROOT}/npm/lefthook-openbsd-arm64/README.md",
+    "{PKG-ROOT}/npm/lefthook-openbsd-x64/README.md",
+    "{PKG-ROOT}/npm-bundled/README.md",
+    "{PKG-ROOT}/npm-installer/README.md",
+    "{PKG-ROOT}/npm/lefthook-linux-x64/bin/lefthook",
+    "{PKG-ROOT}/npm/lefthook-windows-x64/bin/lefthook.exe",
+    "{PKG-ROOT}/npm/lefthook-darwin-x64/bin/lefthook",
+    "{PKG-ROOT}/npm/lefthook-freebsd-x64/bin/lefthook",
+    "{PKG-ROOT}/npm/lefthook-openbsd-x64/bin/lefthook",
+    "{PKG-ROOT}/npm/lefthook-linux-arm64/bin/lefthook",
+    "{PKG-ROOT}/npm/lefthook-windows-arm64/bin/lefthook.exe",
+    "{PKG-ROOT}/npm/lefthook-darwin-arm64/bin/lefthook",
+    "{PKG-ROOT}/npm/lefthook-freebsd-arm64/bin/lefthook",
+    "{PKG-ROOT}/npm/lefthook-openbsd-arm64/bin/lefthook",
+    "{PKG-ROOT}/npm-bundled/bin/lefthook-linux-x64/lefthook",
+    "{PKG-ROOT}/npm-bundled/bin/lefthook-windows-x64/lefthook.exe",
+    "{PKG-ROOT}/npm-bundled/bin/lefthook-darwin-x64/lefthook",
+    "{PKG-ROOT}/npm-bundled/bin/lefthook-freebsd-x64/lefthook",
+    "{PKG-ROOT}/npm-bundled/bin/lefthook-openbsd-x64/lefthook",
+    "{PKG-ROOT}/npm-bundled/bin/lefthook-linux-arm64/lefthook",
+    "{PKG-ROOT}/npm-bundled/bin/lefthook-windows-arm64/lefthook.exe",
+    "{PKG-ROOT}/npm-bundled/bin/lefthook-darwin-arm64/lefthook",
+    "{PKG-ROOT}/npm-bundled/bin/lefthook-freebsd-arm64/lefthook",
+    "{PKG-ROOT}/npm-bundled/bin/lefthook-openbsd-arm64/lefthook",
+  ).Set;
+}
+
+subtest "prepare", {
+  my ($sys, $npm) = new-registry(Registries::NPM);
+
+  $npm.prepare;
+
+  is-deeply $sys.copied, {
+    "{REPO-ROOT}/README.md" => (
+      "{PKG-ROOT}/npm/lefthook/README.md",
+      "{PKG-ROOT}/npm/lefthook-darwin-arm64/README.md",
+      "{PKG-ROOT}/npm/lefthook-darwin-x64/README.md",
+      "{PKG-ROOT}/npm/lefthook-linux-arm64/README.md",
+      "{PKG-ROOT}/npm/lefthook-linux-x64/README.md",
+      "{PKG-ROOT}/npm/lefthook-windows-arm64/README.md",
+      "{PKG-ROOT}/npm/lefthook-windows-x64/README.md",
+      "{PKG-ROOT}/npm/lefthook-freebsd-arm64/README.md",
+      "{PKG-ROOT}/npm/lefthook-freebsd-x64/README.md",
+      "{PKG-ROOT}/npm/lefthook-openbsd-arm64/README.md",
+      "{PKG-ROOT}/npm/lefthook-openbsd-x64/README.md",
+      "{PKG-ROOT}/npm-bundled/README.md",
+      "{PKG-ROOT}/npm-installer/README.md",
+    ).SetHash,
+    "{REPO-ROOT}/schema.json" => (
+      "{PKG-ROOT}/npm/lefthook/schema.json",
+      "{PKG-ROOT}/npm-bundled/schema.json",
+      "{PKG-ROOT}/npm-installer/schema.json",
+    ).SetHash,
+    "{REPO-ROOT}/dist/no_self_update_linux_amd64_v1/lefthook" => (
+      "{PKG-ROOT}/npm/lefthook-linux-x64/bin/lefthook",
+      "{PKG-ROOT}/npm-bundled/bin/lefthook-linux-x64/lefthook",
+    ).SetHash,
+    "{REPO-ROOT}/dist/no_self_update_windows_amd64_v1/lefthook.exe" => (
+      "{PKG-ROOT}/npm/lefthook-windows-x64/bin/lefthook.exe",
+      "{PKG-ROOT}/npm-bundled/bin/lefthook-windows-x64/lefthook.exe",
+    ).SetHash,
+    "{REPO-ROOT}/dist/no_self_update_darwin_amd64_v1/lefthook" => (
+      "{PKG-ROOT}/npm/lefthook-darwin-x64/bin/lefthook",
+      "{PKG-ROOT}/npm-bundled/bin/lefthook-darwin-x64/lefthook",
+    ).SetHash,
+    "{REPO-ROOT}/dist/no_self_update_freebsd_amd64_v1/lefthook" => (
+      "{PKG-ROOT}/npm/lefthook-freebsd-x64/bin/lefthook",
+      "{PKG-ROOT}/npm-bundled/bin/lefthook-freebsd-x64/lefthook",
+    ).SetHash,
+    "{REPO-ROOT}/dist/no_self_update_openbsd_amd64_v1/lefthook" => (
+      "{PKG-ROOT}/npm/lefthook-openbsd-x64/bin/lefthook",
+      "{PKG-ROOT}/npm-bundled/bin/lefthook-openbsd-x64/lefthook",
+    ).SetHash,
+    "{REPO-ROOT}/dist/no_self_update_linux_arm64_v8.0/lefthook" => (
+      "{PKG-ROOT}/npm/lefthook-linux-arm64/bin/lefthook",
+      "{PKG-ROOT}/npm-bundled/bin/lefthook-linux-arm64/lefthook",
+    ).SetHash,
+    "{REPO-ROOT}/dist/no_self_update_windows_arm64_v8.0/lefthook.exe" => (
+      "{PKG-ROOT}/npm/lefthook-windows-arm64/bin/lefthook.exe",
+      "{PKG-ROOT}/npm-bundled/bin/lefthook-windows-arm64/lefthook.exe",
+    ).SetHash,
+    "{REPO-ROOT}/dist/no_self_update_darwin_arm64_v8.0/lefthook" => (
+      "{PKG-ROOT}/npm/lefthook-darwin-arm64/bin/lefthook",
+      "{PKG-ROOT}/npm-bundled/bin/lefthook-darwin-arm64/lefthook",
+    ).SetHash,
+    "{REPO-ROOT}/dist/no_self_update_freebsd_arm64_v8.0/lefthook" => (
+      "{PKG-ROOT}/npm/lefthook-freebsd-arm64/bin/lefthook",
+      "{PKG-ROOT}/npm-bundled/bin/lefthook-freebsd-arm64/lefthook",
+    ).SetHash,
+    "{REPO-ROOT}/dist/no_self_update_openbsd_arm64_v8.0/lefthook" => (
+      "{PKG-ROOT}/npm/lefthook-openbsd-arm64/bin/lefthook",
+      "{PKG-ROOT}/npm-bundled/bin/lefthook-openbsd-arm64/lefthook",
+    ).SetHash,
+  };
+}
+
+subtest "publish", {
+  my ($sys, $npm) = new-registry(Registries::NPM);
+
+  $npm.publish;
+
+  is-deeply $sys.run-calls, [
+    ("npm publish --access public", "{PKG-ROOT}/npm/lefthook-darwin-arm64/".IO),
+    ("npm publish --access public", "{PKG-ROOT}/npm/lefthook-darwin-x64/".IO),
+    ("npm publish --access public", "{PKG-ROOT}/npm/lefthook-linux-arm64/".IO),
+    ("npm publish --access public", "{PKG-ROOT}/npm/lefthook-linux-x64/".IO),
+    ("npm publish --access public", "{PKG-ROOT}/npm/lefthook-windows-arm64/".IO),
+    ("npm publish --access public", "{PKG-ROOT}/npm/lefthook-windows-x64/".IO),
+    ("npm publish --access public", "{PKG-ROOT}/npm/lefthook-freebsd-arm64/".IO),
+    ("npm publish --access public", "{PKG-ROOT}/npm/lefthook-freebsd-x64/".IO),
+    ("npm publish --access public", "{PKG-ROOT}/npm/lefthook-openbsd-arm64/".IO),
+    ("npm publish --access public", "{PKG-ROOT}/npm/lefthook-openbsd-x64/".IO),
+    ("npm publish --access public", "{PKG-ROOT}/npm/lefthook/".IO),
+    ("npm publish --access public", "{PKG-ROOT}/npm-bundled".IO),
+    ("npm publish --access public", "{PKG-ROOT}/npm-installer".IO),
+  ], "calls publishing in the right order";
+}
+
+done-testing;

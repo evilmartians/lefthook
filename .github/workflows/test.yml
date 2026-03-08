@@ -6,7 +6,7 @@ on:
 
 name: Test
 jobs:
-  test:
+  unit:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -27,7 +27,7 @@ jobs:
           flags: unit
           name: ${{ join(matrix.*, ' ') }}
 
-  test-integration:
+  integration:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -60,6 +60,19 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: integration
           name: integration-${{ join(matrix.*, ' ') }}
+
+  packaging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install Raku
+        uses: Raku/setup-raku@v1
+      - name: Run packaging tests
+        run: |
+          cd packaging/scripts/
+          zef install . --deps-only
+          raku -I lib t/*.rakutest
 
   build:
     runs-on: ubuntu-latest

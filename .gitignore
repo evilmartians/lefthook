@@ -1,27 +1,10 @@
-.vscode/
-.idea/
 /lefthook
 /lefthook-local.yml
+/bin/
+/dist/
+/book/
+/site/
+/vscode/
+/.idea/
 
 tmp/
-dist/
-book/
-bin/
-site/
-
-# Packages
-packaging/pypi/lefthook/__pycache__/
-packaging/pypi/lefthook/bin/
-packaging/pypi/lefthook.egg-info/
-packaging/pypi/build/
-packaging/rubygems/pkg/
-packaging/rubygems/libexec/
-packaging/npm-bundled/bin/
-packaging/npm-*/README.md
-packaging/npm/*/bin/
-packaging/npm/*/README.md
-packaging/npm/*/schema.json
-packaging/npm-bundled/schema.json
-packaging/npm-installer/schema.json
-!packaging/npm/*/package.json
-!packaging/npm/lefthook/bin/index.js
