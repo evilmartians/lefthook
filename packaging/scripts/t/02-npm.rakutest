@@ -1,6 +1,5 @@
 use Test;
 
-use System;
 use Constants;
 use Registries::NPM;
 

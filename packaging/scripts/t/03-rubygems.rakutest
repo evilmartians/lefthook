@@ -1,6 +1,5 @@
 use Test;
 
-use System;
 use Constants;
 use Registries::RubyGems;
 
@@ -8,9 +7,9 @@ use lib $?FILE.IO.parent.child("lib");
 use TestRegistry;
 
 subtest "clean", {
-  my ($sys, $npm) = new-registry(Registries::RubyGems);
+  my ($sys, $gem) = new-registry(Registries::RubyGems);
 
-  $npm.clean;
+  $gem.clean;
 
   is-deeply $sys.removed.Set, (
     "{PKG-ROOT}/rubygems/pkg/",
@@ -18,9 +17,9 @@ subtest "clean", {
 }
 
 subtest "prepare", {
-  my ($sys, $npm) = new-registry(Registries::RubyGems);
+  my ($sys, $gem) = new-registry(Registries::RubyGems);
 
-  $npm.prepare;
+  $gem.prepare;
 
   is-deeply $sys.copied, {
     "{REPO-ROOT}/dist/no_self_update_linux_amd64_v1/lefthook" => (
@@ -57,7 +56,7 @@ subtest "prepare", {
 }
 
 subtest "publish", {
-  my ($sys, $npm) = new-registry(Registries::RubyGems);
+  my ($sys, $gem) = new-registry(Registries::RubyGems);
 
   my $tmp-gem1-file = "{PKG-ROOT}/rubygems/pkg/lefthook-0.0.1.gem";
   my $tmp-gem2-file = "{PKG-ROOT}/rubygems/pkg/lefthook-0.0.2.gem";
@@ -65,7 +64,7 @@ subtest "publish", {
   spurt $tmp-gem2-file, "<TEST>";
   LEAVE { .IO.unlink for ($tmp-gem1-file, $tmp-gem2-file) }
 
-  $npm.publish;
+  $gem.publish;
 
   is-deeply $sys.run-calls, [
     ("rake build", "{PKG-ROOT}/rubygems".IO),
