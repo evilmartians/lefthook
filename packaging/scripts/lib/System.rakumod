@@ -22,7 +22,7 @@ class System does SystemAPI {
 
     say "cd $path";
     chdir $path;
-    LEAVE chdir $old;
+    LEAVE { say "cd $old"; chdir $old; } # like defer in Go
 
     block();
   }

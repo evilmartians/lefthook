@@ -112,8 +112,8 @@ jobs:
           :rubygems_api_key: ${RUBYGEMS_API_KEY}
           EOF
           chmod 0600 ~/.gem/credentials
-          raku packaging/scripts/prepare.raku --target=rubygem
-          raku packaging/scripts/publish.raku --target=rubygem
+          raku packaging/scripts/prepare.raku --target=rubygems
+          raku packaging/scripts/publish.raku --target=rubygems
 
   publish-pypi:
     needs: build

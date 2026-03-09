@@ -3,7 +3,6 @@ use Registry;
 unit class Registries::RubyGems does Registry::Package;
 
 use Constants;
-use System;
 use SystemAPI;
 
 my constant RUBYGEMS = PKG-ROOT.child("rubygems");
@@ -42,7 +41,9 @@ method set-version {
 method prepare {
   die "rubygems/ setup is not complete" unless %RUBYGEM-DISTS.keys.Set == %DISTS.keys.Set;
 
-  $!sys.cp(.value, %RUBYGEM-DISTS{.key}) for %DISTS.pairs;
+  for %DISTS.kv -> $platform, $source {
+    $!sys.cp($source, %RUBYGEM-DISTS{$platform});
+  }
 }
 
 method publish {
@@ -56,5 +57,5 @@ method publish {
   my $last-pkg = $pkg-dir.IO.dir.sort(*.basename).tail
       // die "no gem found in rubygems/pkg/";
 
-  $!sys.run("gem", "push, $last-pkg);
+  $!sys.run("gem", "push", $last-pkg);
 }

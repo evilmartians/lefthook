@@ -1,7 +1,7 @@
 unit module Registry;
 
 # Supported regitstries.
-enum Kind <
+enum Kind is export(:kinds) <
   all-registries
 
   npm

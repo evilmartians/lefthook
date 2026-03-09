@@ -3,18 +3,9 @@ use Registry;
 unit class Registries::PyPI does Registry::Package;
 
 use Constants;
-use System;
 use SystemAPI;
 
 my constant PYPI = PKG-ROOT.child("pypi");
-my constant @PLATFORMS = (
-  ("linux",   "x86_64"),
-  ("windows", "x86_64"),
-  ("darwin",  "x86_64"),
-  ("linux",   "arm64"),
-  ("windows", "arm64"),
-  ("darwin",  "arm64"),
-);
 my constant %PYPI-DISTS = {
   amd64-linux   => "{PYPI}/lefthook/bin/lefthook-linux-x86_64/lefthook",
   amd64-windows => "{PYPI}/lefthook/bin/lefthook-windows-x86_64/lefthook.exe",
@@ -28,11 +19,18 @@ my constant %PYPI-DISTS = {
   arm64-freebsd => "{PYPI}/lefthook/bin/lefthook-freebsd-arm64/lefthook",
   arm64-openbsd => "{PYPI}/lefthook/bin/lefthook-openbsd-arm64/lefthook",
 };
+my constant @PLATFORMS = (
+  ("linux",   "x86_64"),
+  ("windows", "x86_64"),
+  ("darwin",  "x86_64"),
+  ("linux",   "arm64"),
+  ("windows", "arm64"),
+  ("darwin",  "arm64"),
+);
 
 has SystemAPI $.sys is required;
 
-
-method kind(--> Registry::Kind:D) { Registry::Kind::PYPI }
+method kind(--> Registry::Kind:D) { Registry::Kind::pypi }
 
 method clean {
   $!sys.rm(
@@ -54,7 +52,9 @@ method set-version {
 method prepare {
   die "PYPI/ setup is not complete" unless %PYPI-DISTS.keys.Set == %DISTS.keys.Set;
 
-  $!sys.cp(.value, %PYPI-DISTS{.key}) for %DISTS.pairs;
+  for %DISTS.kv -> $platform, $source {
+    $!sys.cp($source, %PYPI-DISTS{$platform});
+  }
 }
 
 method publish {

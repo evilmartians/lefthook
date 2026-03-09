@@ -3,7 +3,6 @@ use Registry;
 unit class Registries::NPM does Registry::Package;
 
 use Constants;
-use System;
 use SystemAPI;
 
 my constant NPM           = PKG-ROOT.child("npm");
@@ -111,9 +110,9 @@ method prepare {
   die "npm/ setup is not complete" unless %DISTS.keys.Set == %NPM-DISTS.keys.Set;
   die "NPM-BUNDLED/ setup is not complete" unless %DISTS.keys.Set == %NPM-BUNDLED-DISTS.keys.Set;
 
-  for %DISTS.kv -> $kind, $source {
-    $!sys.cp($source, %NPM-DISTS{$kind});
-    $!sys.cp($source, %NPM-BUNDLED-DISTS{$kind});
+  for %DISTS.kv -> $platform, $source {
+    $!sys.cp($source, %NPM-DISTS{$platform});
+    $!sys.cp($source, %NPM-BUNDLED-DISTS{$platform});
   }
 }
 
