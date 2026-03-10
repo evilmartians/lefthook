@@ -1,36 +1,36 @@
-use Constants;
-use System;
 use Registry;
+
+unit class Registries::AUR does Registry::Package;
+
+use Constants;
+use SystemAPI;
 use Registries::AUR::Publishing;
 
-my constant aur = PKG-ROOT.child("aur");
-my constant pkgbuild = aur.child("lefthook").child("PKGBUILD");
+my constant PKGBUILD = PKG-ROOT.child("aur").child("lefthook").child("PKGBUILD");
 
-class Registries::AUR does Registry::Package {
-  has SystemAPI $.sys is required;
+has SystemAPI $.sys is required;
 
-  submethod kind returns Registry::Kind { Registry::Kind::<aur> }
+method kind(--> Registry::Kind:D) { Registry::Kind::aur }
 
-  method clean {}
+method clean {}
 
-  method set-version {
-    $!sys.replace(
-      file => pkgbuild,
-      regex => /pkgver\s*'='.*$/,
-      replacement => "pkgver={VERSION}",
-    );
-  }
+method set-version {
+  $!sys.replace(
+    file => PKGBUILD,
+    regex => /pkgver\s*'='.*$/,
+    replacement => "pkgver={VERSION}",
+  );
+}
 
-  method prepare {}
+method prepare {}
 
-  method publish {
-    publish-aur-package(
-      name => "lefthook",
-      sha256-urls => {
-        sha256sum => "https://github.com/evilmartians/lefthook/archive/v{VERSION}.tar.gz",
-      },
-      path-to-pkgbuild => pkgbuild,
-      sys => $!sys,
-    );
-  }
+method publish {
+  publish-aur-package(
+    name => "lefthook",
+    sha256-urls => {
+      sha256sum => "https://github.com/evilmartians/lefthook/archive/v{VERSION}.tar.gz",
+    },
+    path-to-pkgbuild => PKGBUILD,
+    sys => $!sys,
+  );
 }

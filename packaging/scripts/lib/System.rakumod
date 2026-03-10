@@ -1,22 +1,11 @@
-# For mocking in tests.
-role SystemAPI {
-  # `multi` allows calling the method in different ways:
-  #   rm("path1", "path2", ...);
-  #   rm(["path1", "path2", ...]);
-  multi method rm(*@paths) { self.rm(@paths) }
-  multi method rm(@paths) { ... }
-  method cd(IO() $path) { ... }
-  method cp(IO() $source, IO() $dest) { ... }
-  method replace(IO() :$file, Regex :$regex, :$replacement) { ... }
-  method run(Str:D $cmd) {... }
-}
+use SystemAPI;
 
 # Provides wrappers for interaction with file system.
 class System does SystemAPI {
   has Bool $.dry-run is required;
 
   # Removes file or dir recursively.
-  multi method rm(@paths) {
+  multi method rm(@paths --> Nil) {
     for @paths -> $path {
       next unless $path.IO.e;
 
@@ -27,14 +16,19 @@ class System does SystemAPI {
     };
   }
 
-  # Changes current dir.
-  method cd(IO() $path) {
+  # Changes current dir and execute the &block.
+  method in-dir(IO() $path, &block --> Nil) {
+    my $old = $*CWD;
+
     say "cd $path";
     chdir $path;
+    LEAVE { say "cd $old"; chdir $old; } # like defer in Go
+
+    block();
   }
 
   # Copies a file. Creates parent dirs for $dest if needed.
-  method cp(IO() $source, IO() $dest) {
+  method cp(IO() $source, IO() $dest --> Nil) {
     say "cp $source -> $dest";
     return if $!dry-run;
 
@@ -43,7 +37,7 @@ class System does SystemAPI {
   }
 
   # Replaces text in a $file line-by-line.
-  method replace(IO() :$file, Regex :$regex, :$replacement) {
+  method replace(IO() :$file, Regex :$regex, :$replacement --> Nil) {
     die "$file does not exist" unless $file.f;
 
     say "replace in $file\n\t{$regex.gist} -> {$replacement.gist}";
@@ -53,14 +47,21 @@ class System does SystemAPI {
   }
 
   # Runs the command.
-  method run(Str:D $cmd) {
-    say "run $cmd";
+  method run(*@argv --> Nil) {
+    say "run {@argv.join(' ')}";
     return if $!dry-run;
 
-    run($cmd.words, :out).out.slurp(:close).chomp.say;
+    my $proc = run(|@argv, :out, :err);
+    my $out = $proc.out.slurp(:close);
+    my $err = $proc.err.slurp(:close);
+
+    print $out if $out.chars;
+    note $err if $err.chars;
+
+    die "failed: {@argv.join(' ')} --> {$proc.exitcode}" if $proc.exitcode != 0;
   }
 
-  method !rm-r(IO() $path) {
+  method !rm-r(IO() $path --> Nil) {
     return unless $path.e;
 
     if $path.f {

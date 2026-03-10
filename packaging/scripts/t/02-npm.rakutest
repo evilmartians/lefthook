@@ -1,11 +1,9 @@
 use Test;
 
-use System;
 use Constants;
 use Registries::NPM;
 
 use lib $?FILE.IO.parent.child("lib");
-use TestSystem;
 use TestRegistry;
 
 subtest "clean", {

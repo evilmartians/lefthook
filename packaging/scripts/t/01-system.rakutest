@@ -41,14 +41,16 @@ subtest "rm(@paths)", {
   nok $tmp-two.IO.e, "removes $tmp-two";
 }
 
-subtest "cd", {
+subtest "in-dir", {
   my $dir = tempdir;
 
   isnt $*CWD, $dir, "not in a temp dir";
 
-  $sys.cd($dir);
+  $sys.in-dir($dir, {
+    is $*CWD, $dir, "in a temp dir";
+  });
 
-  is $*CWD, $dir, "in a temp dir";
+  isnt $*CWD, $dir, "not in a temp dir";
 }
 
 subtest "cp", {
@@ -104,7 +106,7 @@ subtest "replace", {
 subtest "run", {
   my Str $said;
   temp $*OUT = class { method print(*@s) { $said ~= @s.join } }
-  $sys.run("echo 'Hello'");
+  $sys.run("echo", "'Hello'");
 
   is $said, q:to/END/, "called echo";
   run echo 'Hello'
