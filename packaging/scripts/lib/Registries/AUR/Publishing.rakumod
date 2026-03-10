@@ -18,18 +18,18 @@ sub publish-aur-package(
     clone-aur-repo($name, $clone-to);
     copy-pkgbuild($path-to-pkgbuild, $dest-pkgbuild);
     fill-sha256-sums($sys, $dest-pkgbuild, %sha256-urls);
+  });
 
-    $sys.in-dir($clone-to, {
-      $sys.run("makepkg --printsrcinfo > .SRCINFO");
-      $sys.run("makepkg --noconfirm");
-      $sys.run("makepkg --install --noconfirm");
+  $sys.in-dir($clone-to, {
+    $sys.run("sh", "-c", "makepkg --printsrcinfo > .SRCINFO");
+    $sys.run("makepkg", "--noconfirm");
+    $sys.run("makepkg", "--install", "--noconfirm");
 
-      $sys.run("git config user.name 'github-actions[bot]'");
-      $sys.run("git config user.email 'github-actions[bot]@users.noreply.github.com'");
-      $sys.run("git add PKGBUILD .SRCINFO");
-      $sys.run("git commit -m 'release v{VERSION}'");
-      $sys.run("git push origin master");
-    });
+    $sys.run("git", "config", "user.name", "github-actions[bot]");
+    $sys.run("git", "config", "user.email", "github-actions[bot]@users.noreply.github.com");
+    $sys.run("git", "add", "PKGBUILD", ".SRCINFO");
+    $sys.run("git", "commit", "-m", "release v{VERSION}");
+    $sys.run("git", "push", "origin", "master");
   });
 }
 
