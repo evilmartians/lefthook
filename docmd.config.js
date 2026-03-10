@@ -5,7 +5,7 @@ module.exports = {
     light: "/assets/lefthook.png",
     dark: "/assets/lefthook.png",
     alt: "Logo",
-    href: "./"
+    href: "/"
   },
   favicon: "/assets/favicon.svg",
   srcDir: "docs",
