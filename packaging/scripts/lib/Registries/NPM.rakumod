@@ -75,7 +75,7 @@ my constant %NPM-BUNDLED-DISTS = (
   arm64-openbsd => "{NPM-BUNDLED}/bin/lefthook-openbsd-arm64/lefthook",
 );
 
-method kind(--> Registry::Kind:D) { Registry::Kind::npm }
+method target(--> Registry::Target:D) { Registry::Target::npm }
 
 method clean {
   $!sys.rm(

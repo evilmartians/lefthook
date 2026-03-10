@@ -5,7 +5,7 @@
 # I hope that reading through these scripts will show you
 # a lot of interesting concepts... and definitely fun!
 
-unit class Packaging;
+unit class Packager;
 
 use System;
 use Registry;
@@ -24,8 +24,8 @@ my constant @PACKAGE-TYPES = (
   Registries::AUR-Bin,
 );
 
-has Bool           $.dry-run is required;
-has Registry::Kind $.target  is required;
+has Bool             $.dry-run is required;
+has Registry::Target $.target  is required;
 
 method clean(--> Nil)       { .clean       for self!packages }
 method set-version(--> Nil) { .set-version for self!packages }
@@ -36,7 +36,7 @@ method !packages(--> Seq) {
   my $sys = System.new(dry-run => $!dry-run);
   my @packages = @PACKAGE-TYPES.map({ .new(sys => $sys) });
 
-  return @packages.Seq if $!target == Registry::Kind::all-registries;
+  return @packages.Seq if $!target == Registry::Target::all-registries;
 
-  @packages.grep(*.kind == $!target);
+  @packages.grep(*.target == $!target);
 }

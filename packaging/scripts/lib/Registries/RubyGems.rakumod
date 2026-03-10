@@ -22,8 +22,7 @@ my constant %RUBYGEM-DISTS = (
 
 has SystemAPI $.sys is required;
 
-
-method kind(--> Registry::Kind:D) { Registry::Kind::rubygem }
+method target(--> Registry::Target:D) { Registry::Target::rubygem }
 
 method clean {
   $!sys.rm("{RUBYGEMS}/libexec/".IO.dir.grep(*.d));
