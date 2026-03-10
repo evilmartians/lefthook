@@ -71,7 +71,7 @@ func (r *Repository) updateRemote(path, ref string) error {
 	if len(ref) != 0 {
 		_, err := git.Cmd([]string{
 			"git", "-C", path, "fetch", "--quiet", "--depth", "1",
-			"origin", ref,
+			"origin", "--", ref,
 		})
 		if err != nil {
 			return err
@@ -112,7 +112,7 @@ func (r *Repository) cloneRemote(dest, directoryName, url, ref string) error {
 	if len(ref) != 0 {
 		_, err := git.Cmd([]string{
 			"git", "-C", path, "fetch", "--quiet", "--depth", "1",
-			"origin", ref,
+			"origin", "--", ref,
 		})
 		if err != nil {
 			return err

@@ -60,12 +60,12 @@ glob_matcher: gobwas  # or omit this line
 
 pre-commit:
   jobs:
-    - run: eslint {staged_files}
+    - run: eslint -- {staged_files}
       glob: "**/*.js"
       # Matches: src/app.js, lib/util.js
       # Does NOT match: app.js
 
-    - run: eslint {staged_files}
+    - run: eslint -- {staged_files}
       glob: "*.js"
       # Matches: app.js
       # Does NOT match: src/app.js
@@ -77,7 +77,7 @@ glob_matcher: doublestar
 
 pre-commit:
   jobs:
-    - run: eslint {staged_files}
+    - run: eslint -- {staged_files}
       glob: "**/*.js"
       # Matches: app.js, src/app.js, lib/util.js
 ```

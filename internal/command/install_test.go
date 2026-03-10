@@ -304,7 +304,7 @@ remotes:
 					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes") + " clone --quiet --origin origin --depth 1 --branch v2.0.0 https://github.com/evilmartians/lefthook lefthook-v2.0.0",
 				},
 				{
-					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.0") + " fetch --quiet --depth 1 origin v2.0.0",
+					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.0") + " fetch --quiet --depth 1 origin -- v2.0.0",
 				},
 				{
 					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.0") + " checkout FETCH_HEAD",
@@ -550,7 +550,7 @@ remotes:
 					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes") + " clone --quiet --origin origin --depth 1 --branch v2.0.0 https://github.com/evilmartians/lefthook lefthook-v2.0.0",
 				},
 				{
-					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.0") + " fetch --quiet --depth 1 origin v2.0.0",
+					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.0") + " fetch --quiet --depth 1 origin -- v2.0.0",
 				},
 				{
 					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.0") + " checkout FETCH_HEAD",

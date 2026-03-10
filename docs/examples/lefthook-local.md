@@ -12,10 +12,10 @@ You can put `lefthook-local.yml` into your `~/.gitignore`, so in every project y
 pre-commit:
   commands:
     lint:
-      run: bundle exec rubocop {staged_files}
+      run: bundle exec rubocop -- {staged_files}
       glob: "*.rb"
     check-links:
-      run: lychee {staged_files}
+      run: lychee -- {staged_files}
 ```
 
 ```yml
@@ -48,10 +48,10 @@ pre-commit:
   parallel: true
   commands:
     lint:
-      run: docker-compose run backend bundle exec rubocop {staged_files}
+      run: docker-compose run backend bundle exec rubocop -- {staged_files}
       glob: "*.rb"
     check-links:
-      run: lychee {staged_files}
+      run: lychee -- {staged_files}
       skip: true
 
 post-merge:
