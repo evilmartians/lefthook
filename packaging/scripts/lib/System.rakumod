@@ -21,8 +21,9 @@ class System does SystemAPI {
     my $old = $*CWD;
 
     say "cd $path";
-    chdir $path;
-    LEAVE { say "cd $old"; chdir $old; } # like defer in Go
+
+    chdir $path unless $!dry-run;
+    LEAVE { say "cd $old"; chdir $old unless $!dry-run; } # like defer in Go
 
     block();
   }
@@ -38,10 +39,10 @@ class System does SystemAPI {
 
   # Replaces text in a $file line-by-line.
   method replace(IO() :$file, Regex :$regex, :$replacement --> Nil) {
-    die "$file does not exist" unless $file.f;
-
     say "replace in $file\n\t{$regex.gist} -> {$replacement.gist}";
     return if $!dry-run;
+
+    die "$file does not exist" unless $file.f;
 
     spurt $file, $file.slurp.lines.map({ .subst($regex, $replacement) }).join("\n") ~ "\n";
   }
