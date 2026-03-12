@@ -3,6 +3,8 @@ package command
 import (
 	"strings"
 
+	"github.com/alessio/shellescape"
+
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/command/replacer"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/filter"
@@ -83,14 +85,18 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 
 // buildReplacer creates the replacer with all supported templates for files and arguments.
 func (b *Builder) buildReplacer(params *JobParams) replacer.Replacer {
+	var r replacer.Replacer
 	if len(b.opts.ForceFiles) > 0 {
-		return replacer.NewMocked(b.opts.ForceFiles).
-			AddTemplates(b.opts.Templates).
-			AddGitArgs(b.opts.GitArgs)
+		r = replacer.NewMocked(b.opts.ForceFiles)
+	} else {
+		r = replacer.New(b.git, params.Root, params.FilesCmd)
 	}
 
-	return replacer.New(b.git, params.Root, params.FilesCmd).
+	return r.
 		AddTemplates(b.opts.Templates).
+		AddTemplates(map[string]string{
+			"lefthook_job_name": shellescape.Quote(params.Name),
+		}).
 		AddGitArgs(b.opts.GitArgs)
 }
 
