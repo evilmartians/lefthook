@@ -30,7 +30,7 @@ my constant @PLATFORMS = (
 
 has SystemAPI $.sys is required;
 
-method kind(--> Registry::Kind:D) { Registry::Kind::pypi }
+method target(--> Registry::Target:D) { Registry::Target::pypi }
 
 method clean {
   $!sys.rm(

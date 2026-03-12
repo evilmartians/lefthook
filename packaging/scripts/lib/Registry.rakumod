@@ -1,7 +1,7 @@
 unit module Registry;
 
 # Supported regitstries.
-enum Kind is export(:kinds) <
+enum Target is export(:Target) <
   all-registries
 
   npm
@@ -13,7 +13,7 @@ enum Kind is export(:kinds) <
 
 # Abstract interface for a registry class to implement.
 role Package {
-  method kind(--> Kind:D)     { ... }
+  method target(--> Target:D)     { ... }
   method clean(--> Nil)       { ... }
   method set-version(--> Nil) { ... }
   method prepare(--> Nil)     { ... }

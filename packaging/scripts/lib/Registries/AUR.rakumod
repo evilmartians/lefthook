@@ -10,7 +10,7 @@ my constant PKGBUILD = PKG-ROOT.child("aur").child("lefthook").child("PKGBUILD")
 
 has SystemAPI $.sys is required;
 
-method kind(--> Registry::Kind:D) { Registry::Kind::aur }
+method target(--> Registry::Target:D) { Registry::Target::aur }
 
 method clean {}
 
