@@ -5,7 +5,7 @@ enum Target is export(:Target) <
   all-registries
 
   npm
-  rubygem
+  rubygems
   pypi
   aur
   aur-bin

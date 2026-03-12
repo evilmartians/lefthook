@@ -22,7 +22,7 @@ my constant %RUBYGEM-DISTS = (
 
 has SystemAPI $.sys is required;
 
-method target(--> Registry::Target:D) { Registry::Target::rubygem }
+method target(--> Registry::Target:D) { Registry::Target::rubygems }
 
 method clean {
   $!sys.rm("{RUBYGEMS}/libexec/".IO.dir.grep(*.d));
@@ -54,7 +54,7 @@ method publish {
 
   my $pkg-dir = RUBYGEMS.child("pkg");
   my $last-pkg = $pkg-dir.IO.dir.sort(*.basename).tail
-      // die "no gem found in rubygems/pkg/";
+      // die "no gem found in $pkg-dir";
 
   $!sys.run("gem", "push", $last-pkg);
 }

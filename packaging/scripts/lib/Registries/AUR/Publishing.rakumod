@@ -15,8 +15,8 @@ sub publish-aur-package(
   my $dest-pkgbuild = $clone-to.child("PKGBUILD");
 
   $sys.in-dir(PKG-ROOT, {
-    clone-aur-repo($name, $clone-to);
-    copy-pkgbuild($path-to-pkgbuild, $dest-pkgbuild);
+    clone-aur-repo($sys, $name, $clone-to);
+    copy-pkgbuild($sys, $path-to-pkgbuild, $dest-pkgbuild);
     fill-sha256-sums($sys, $dest-pkgbuild, %sha256-urls);
   });
 
@@ -33,12 +33,12 @@ sub publish-aur-package(
   });
 }
 
-sub clone-aur-repo(Str:D $name, IO() $clone-to --> Nil) {
-  run("git", "clone", "ssh://aur@aur.archlinux.org/{$name}.git", $clone-to);
+sub clone-aur-repo(SystemAPI $sys, Str:D $name, IO() $clone-to --> Nil) {
+  $sys.run("git", "clone", "ssh://aur@aur.archlinux.org/{$name}.git", $clone-to);
 }
 
-sub copy-pkgbuild(IO() $from, IO() $to --> Nil) {
-  $from.copy($to);
+sub copy-pkgbuild(SystemAPI $sys, IO() $from, IO() $to --> Nil) {
+  $sys.cp($from, $to);
 }
 
 sub fill-sha256-sums(
