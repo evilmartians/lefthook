@@ -10,7 +10,7 @@ sub MAIN(
   Registry::Target :$target = all-registries,
   Bool :$dry-run = False,
 ) {
-  Packaging.new(
+  Packager.new(
     target  => $target,
     dry-run => $dry-run,
   ).publish;

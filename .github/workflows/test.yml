@@ -74,6 +74,18 @@ jobs:
           zef install . --deps-only
           raku -I lib t/*.rakutest
 
+          raku prepare.raku --target=npm --dry-run
+          raku prepare.raku --target=rubygems --dry-run
+          raku prepare.raku --target=pypi --dry-run
+          raku prepare.raku --target=aur --dry-run
+          raku prepare.raku --target=aur-bin --dry-run
+
+          raku publish.raku --target=npm --dry-run
+          raku publish.raku --target=rubygems --dry-run
+          raku publish.raku --target=pypi --dry-run
+          raku publish.raku --target=aur --dry-run
+          raku publish.raku --target=aur-bin --dry-run
+
   build:
     runs-on: ubuntu-latest
     steps:
