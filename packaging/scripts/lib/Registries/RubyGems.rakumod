@@ -54,7 +54,7 @@ method publish {
 
   my $pkg-dir = RUBYGEMS.child("pkg");
   my $last-pkg = $pkg-dir.IO.dir.sort(*.basename).tail
-      // die "no gem found in rubygems/pkg/";
+      // die "no gem found in $pkg-dir";
 
   $!sys.run("gem", "push", $last-pkg);
 }

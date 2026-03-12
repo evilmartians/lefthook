@@ -81,6 +81,8 @@ jobs:
           raku prepare.raku --target=aur-bin --dry-run
 
           raku publish.raku --target=npm --dry-run
+          mkdir -p ../registries/rubygems/pkg
+          touch ../registries/rubygems/pkg/lefthook_99.gem
           raku publish.raku --target=rubygems --dry-run
           raku publish.raku --target=pypi --dry-run
           raku publish.raku --target=aur --dry-run
