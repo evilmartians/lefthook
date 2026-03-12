@@ -1,5 +1,15 @@
 # Change log
 
+## 2.1.4 (2026-03-12)
+
+- pkg: fix scripts ([#1348](https://github.com/evilmartians/lefthook/pull/1348)) by [@mrexox](https://github.com/mrexox)
+- fix: bring back {lefthook_job_name} template ([#1347](https://github.com/evilmartians/lefthook/pull/1347)) by [@mrexox](https://github.com/mrexox)
+- pkg: refactor packaging (2) ([#1346](https://github.com/evilmartians/lefthook/pull/1346)) by [@mrexox](https://github.com/mrexox)
+- fix: separate more commands' non-option args with -- ([#1339](https://github.com/evilmartians/lefthook/pull/1339)) by [@scop](https://github.com/scop)
+- docs: change logo to point to landing page instead of itself ([#1343](https://github.com/evilmartians/lefthook/pull/1343)) by [@igas](https://github.com/igas)
+- pkg: make it easier to read ([#1340](https://github.com/evilmartians/lefthook/pull/1340)) by [@mrexox](https://github.com/mrexox)
+- pkg: refactor packaging scripts ([#1308](https://github.com/evilmartians/lefthook/pull/1308)) by [@mrexox](https://github.com/mrexox)
+
 ## 2.1.3 (2026-03-07)
 
 - chore: switch artifact attestations gen to actions/attest v4 ([#1338](https://github.com/evilmartians/lefthook/pull/1338)) by [@scop](https://github.com/scop)

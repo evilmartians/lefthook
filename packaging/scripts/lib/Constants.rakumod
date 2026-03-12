@@ -1,5 +1,5 @@
 # Current lefthook version.
-constant VERSION = "2.1.3";
+constant VERSION = "2.1.4";
 
 # Git root.
 constant REPO-ROOT = $?FILE.IO.parent(4);
