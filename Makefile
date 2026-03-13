@@ -37,7 +37,7 @@ lint: bin/golangci-lint
 	bin/golangci-lint run --fix
 
 bin/golangci-lint:
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b bin/ v$$(awk '/^golangci-lint[[:space:]]/ { print $2 }' .tool-versions)
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b bin/ v$$(cat .tool-versions | grep golangci-lint | cut -d' ' -f2)
 
 .ONESHELL:
 version:
