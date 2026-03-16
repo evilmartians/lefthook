@@ -27,7 +27,7 @@ require (
 	github.com/schollz/progressbar/v3 v3.19.0
 	github.com/spf13/afero v1.15.0
 	github.com/stretchr/testify v1.11.1
-	github.com/tidwall/jsonc v0.3.2
+	github.com/tidwall/jsonc v0.3.3
 	github.com/urfave/cli/v3 v3.7.0
 	golang.org/x/mod v0.33.0
 )
