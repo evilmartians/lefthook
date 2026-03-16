@@ -9,11 +9,14 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/providers/rawbytes"
 	"github.com/knadh/koanf/v2"
+	"github.com/muesli/termenv"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v3"
+	"golang.org/x/term"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/git"
@@ -40,6 +43,8 @@ type Lefthook struct {
 
 // NewLefthook returns an instance of Lefthook.
 func NewLefthook(verbose bool, colors string) (*Lefthook, error) {
+	configureRenderer(os.Stdin)
+
 	fs := afero.NewOsFs()
 
 	if isEnvEnabled(EnvVerbose) {
@@ -175,6 +180,16 @@ func (l *Lefthook) addHook(hook string, args templates.Args) error {
 	return afero.WriteFile(
 		l.fs, hookPath, templates.Hook(hook, args), hookFileMode,
 	)
+}
+
+// configureRenderer pins the lipgloss color profile to ANSI when stdin isn't a
+// TTY. Without this, termenv's OSC 11 probe leaks escape sequences in git hooks.
+func configureRenderer(stdin *os.File) {
+	if !term.IsTerminal(int(stdin.Fd())) {
+		r := lipgloss.DefaultRenderer()
+		r.SetColorProfile(termenv.ANSI)
+		r.SetHasDarkBackground(true)
+	}
 }
 
 func isEnvEnabled(name string) bool {
