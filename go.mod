@@ -28,7 +28,7 @@ require (
 	github.com/spf13/afero v1.15.0
 	github.com/stretchr/testify v1.11.1
 	github.com/tidwall/jsonc v0.3.3
-	github.com/urfave/cli/v3 v3.7.0
+	github.com/urfave/cli/v3 v3.8.0
 	golang.org/x/mod v0.34.0
 )
 
