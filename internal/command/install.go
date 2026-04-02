@@ -276,23 +276,7 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, hooks []string, force
 		return fmt.Errorf("could not create hooks dir: %w", err)
 	}
 
-	rootsMap := make(map[string]struct{})
-	for _, hook := range cfg.Hooks {
-		for _, command := range hook.Commands {
-			if len(command.Root) > 0 {
-				root := strings.Trim(command.Root, "/")
-				if _, ok := rootsMap[root]; !ok {
-					rootsMap[root] = struct{}{}
-				}
-			}
-		}
-
-		collectAllJobRoots(rootsMap, hook.Jobs)
-	}
-	roots := make([]string, 0, len(rootsMap))
-	for root := range rootsMap {
-		roots = append(roots, root)
-	}
+	roots := collectRoots(cfg)
 
 	hookNames := make([]string, 0, len(cfg.Hooks)+1)
 	for hook := range cfg.Hooks {
@@ -346,6 +330,23 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, hooks []string, force
 	}
 
 	return nil
+}
+
+func collectRoots(cfg *config.Config) []string {
+	rootsMap := make(map[string]struct{})
+	for _, hook := range cfg.Hooks {
+		for _, command := range hook.Commands {
+			if len(command.Root) > 0 {
+				rootsMap[strings.Trim(command.Root, "/")] = struct{}{}
+			}
+		}
+		collectAllJobRoots(rootsMap, hook.Jobs)
+	}
+	roots := make([]string, 0, len(rootsMap))
+	for root := range rootsMap {
+		roots = append(roots, root)
+	}
+	return roots
 }
 
 func collectAllJobRoots(roots map[string]struct{}, jobs []*config.Job) {
