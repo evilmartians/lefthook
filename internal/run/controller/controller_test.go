@@ -711,8 +711,8 @@ func TestRunHook_PrePushUsesStdinForPushFiles(t *testing.T) {
 	cmdExecutor := cmdtest.NewTracking(func(command string, root string, out io.Writer) error {
 		switch command {
 		case "git ls-tree -r --name-only feedface":
-			_, err := out.Write([]byte(filepath.Join(root, "README.md")))
-			return err
+			_, writeErr := out.Write([]byte(filepath.Join(root, "README.md")))
+			return writeErr
 		case "git diff --name-only HEAD @{push}":
 			t.Fatalf("unexpected fallback command: %s", command)
 			return nil

@@ -24,6 +24,7 @@ const (
 	stashMessage      = "lefthook auto backup"
 	unstagedPatchName = "lefthook-unstaged.patch"
 	infoDirMode       = 0o775
+	pushRefFieldsNum  = 4
 )
 
 var (
@@ -278,7 +279,7 @@ func parsePushRefs(stdin []byte) ([]pushRef, bool) {
 		}
 
 		fields := strings.Fields(line)
-		if len(fields) != 4 {
+		if len(fields) != pushRefFieldsNum {
 			return nil, false
 		}
 

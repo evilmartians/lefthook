@@ -60,7 +60,7 @@ func New(
 }
 
 func (r Replacer) AddPushFiles(files []string) Replacer {
-	r.files[config.SubPushFiles] = func() ([]string, error) {
+	r.files[config.SubPushFiles] = func() ([]string, error) { //nolint:unparam
 		return files, nil
 	}
 
