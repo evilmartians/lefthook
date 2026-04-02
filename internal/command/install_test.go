@@ -507,6 +507,52 @@ commit-msg:
 			},
 		},
 		{
+			// Reproduces the bug: when core.hooksPath is set globally (e.g. for
+			// credential leak detection), syncHooks should skip hook creation
+			// rather than overwriting the user's global hooks directory.
+			// See: reproduce-bug.sh
+			name: "unsynchronized with global core.hooksPath set",
+			config: `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+`,
+			checksum: "00000000f706df65f379a9ff5ce0119b 1555894311\n",
+			git: []cmdtest.Out{
+				{Command: "git config --local core.hooksPath"},
+				{Command: "git config --global core.hooksPath", Output: "/home/user/.config/git/hooks"},
+			},
+			wantExist: []string{
+				configPath,
+			},
+			wantNotExist: []string{
+				hookPath("pre-commit"),
+				hookPath(config.GhostHookName),
+			},
+		},
+		{
+			name: "unsynchronized with local core.hooksPath set",
+			config: `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+`,
+			checksum: "00000000f706df65f379a9ff5ce0119b 1555894311\n",
+			git: []cmdtest.Out{
+				{Command: "git config --local core.hooksPath", Output: ".custom-hooks"},
+				{Command: "git config --global core.hooksPath"},
+			},
+			wantExist: []string{
+				configPath,
+			},
+			wantNotExist: []string{
+				hookPath("pre-commit"),
+				hookPath(config.GhostHookName),
+			},
+		},
+		{
 			name: "with unfetched remote",
 			config: `
 remotes:
