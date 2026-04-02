@@ -59,6 +59,14 @@ func New(
 	}
 }
 
+func (r Replacer) AddPushFiles(files []string) Replacer {
+	r.files[config.SubPushFiles] = func() ([]string, error) {
+		return files, nil
+	}
+
+	return r
+}
+
 func (r Replacer) AddTemplates(templates map[string]string) Replacer {
 	if r.templates == nil {
 		r.templates = make(map[string]string)

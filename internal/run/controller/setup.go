@@ -26,6 +26,9 @@ func (c *Controller) setup(
 	replacer := replacer.New(c.git, "", "").
 		AddTemplates(opts.Templates).
 		AddGitArgs(opts.GitArgs)
+	if c.usePushFiles {
+		replacer = replacer.AddPushFiles(c.pushFiles)
+	}
 
 	commands := make([]string, 0, len(setupInstructions))
 	for _, instr := range setupInstructions {

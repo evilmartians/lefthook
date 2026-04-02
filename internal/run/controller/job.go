@@ -93,13 +93,15 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 	}
 
 	builder := command.NewBuilder(c.git, command.BuilderOptions{
-		HookName:    scope.hookName,
-		ForceFiles:  scope.opts.Files,
-		Force:       scope.opts.Force,
-		SourceDirs:  scope.opts.SourceDirs,
-		GitArgs:     scope.opts.GitArgs,
-		Templates:   scope.opts.Templates,
-		GlobMatcher: scope.opts.GlobMatcher,
+		HookName:     scope.hookName,
+		ForceFiles:   scope.opts.Files,
+		PushFiles:    c.pushFiles,
+		UsePushFiles: c.usePushFiles,
+		Force:        scope.opts.Force,
+		SourceDirs:   scope.opts.SourceDirs,
+		GitArgs:      scope.opts.GitArgs,
+		Templates:    scope.opts.Templates,
+		GlobMatcher:  scope.opts.GlobMatcher,
 	})
 	commands, files, err := builder.BuildCommands(&command.JobParams{
 		Name:         name,

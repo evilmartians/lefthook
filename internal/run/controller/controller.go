@@ -4,6 +4,7 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"strconv"
@@ -19,10 +20,12 @@ import (
 )
 
 type Controller struct {
-	git         *git.Repository
-	cachedStdin io.Reader
-	executor    exec.Executor
-	cmd         system.CommandWithContext
+	git          *git.Repository
+	cachedStdin  io.Reader
+	pushFiles    []string
+	usePushFiles bool
+	executor     exec.Executor
+	cmd          system.CommandWithContext
 }
 
 type Options struct {
@@ -60,6 +63,24 @@ func NewController(repo *git.Repository) *Controller {
 
 func (c *Controller) RunHook(ctx context.Context, opts Options, hook *config.Hook) ([]result.Result, error) {
 	results := make([]result.Result, 0, len(hook.Jobs))
+
+	c.pushFiles = nil
+	c.usePushFiles = false
+
+	if config.HookUsesPushFiles(hook.Name) && c.cachedStdin != nil {
+		stdin, err := io.ReadAll(c.cachedStdin)
+		if err != nil {
+			return results, fmt.Errorf("failed to read pre-push stdin: %w", err)
+		}
+		pushFiles, ok, err := c.git.PushFilesFromStdin(stdin)
+		if err != nil {
+			return results, fmt.Errorf("failed to resolve pre-push files from stdin: %w", err)
+		}
+		if ok {
+			c.pushFiles = pushFiles
+			c.usePushFiles = true
+		}
+	}
 
 	if config.NewSkipChecker(system.Cmd).Check(c.git.State, hook.Skip, hook.Only) {
 		log.Skip(hook.Name, "hook setting")

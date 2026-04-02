@@ -2,6 +2,7 @@ package git
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -23,17 +24,17 @@ const (
 	stashMessage      = "lefthook auto backup"
 	unstagedPatchName = "lefthook-unstaged.patch"
 	infoDirMode       = 0o775
-
-	// The result of `git hash-object -t tree /dev/null`.
-	emptyTreeSHA = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 )
 
 var (
 	reHeadBranch              = regexp.MustCompile(`HEAD -> (?P<name>.*)$`)
 	reOriginHeadBranch        = regexp.MustCompile(`ref: refs/remotes/origin/(?P<name>.*)$`)
 	reVersion                 = regexp.MustCompile(`\d+\.\d+\.(\d+|\w+)`)
+	reZeroOID                 = regexp.MustCompile(`^0+$`)
 	cmdPushFilesBase          = []string{"git", "diff", "--name-only", "HEAD", "@{push}"}
 	cmdPushFilesHead          = []string{"git", "diff", "--name-only", "HEAD"}
+	cmdPushFilesRangeBase     = []string{"git", "diff", "--name-only"}
+	cmdPushFilesTreeBase      = []string{"git", "ls-tree", "-r", "--name-only"}
 	cmdStagedFiles            = []string{"git", "diff", "--name-only", "--cached", "--diff-filter=ACMR"}
 	cmdStagedFilesWithDeleted = []string{"git", "diff", "--name-only", "--cached", "--diff-filter=ACMRD"}
 	cmdStatusShort            = []string{"git", "status", "--short", "--porcelain", "-z"}
@@ -68,6 +69,11 @@ type Repository struct {
 	stagedFilesWithDeletedOnce func() ([]string, error)
 	statusShortOnce            func() ([]string, error)
 	stateOnce                  func() State
+}
+
+type pushRef struct {
+	localOID  string
+	remoteOID string
 }
 
 // NewRepository returns a Repository or an error, if git repository it not initialized.
@@ -210,10 +216,87 @@ func (r *Repository) PushFiles() ([]string, error) {
 
 	// Nothing has been pushed yet or upstream is not set
 	if len(r.headBranch) == 0 {
-		r.headBranch = emptyTreeSHA
+		return r.FindExistingFiles(append(cmdPushFilesTreeBase, "HEAD"), "")
 	}
 
 	return r.FindExistingFiles(append(cmdPushFilesHead, r.headBranch), "")
+}
+
+// PushFilesFromStdin returns exact pre-push files using Git's stdin ref updates.
+// The second return value is false when stdin does not contain valid pre-push ref data.
+func (r *Repository) PushFilesFromStdin(stdin []byte) ([]string, bool, error) {
+	pushRefs, ok := parsePushRefs(stdin)
+	if !ok {
+		return nil, false, nil
+	}
+
+	files := make([]string, 0)
+	seen := make(map[string]struct{})
+
+	for _, ref := range pushRefs {
+		if isZeroOID(ref.localOID) {
+			continue
+		}
+
+		command := append([]string{}, cmdPushFilesRangeBase...)
+		if isZeroOID(ref.remoteOID) {
+			command = append(append([]string{}, cmdPushFilesTreeBase...), ref.localOID)
+		} else {
+			command = append(command, ref.remoteOID, ref.localOID)
+		}
+
+		lines, err := r.Git.OnlyDebugLogs().CmdLinesWithinFolder(command, "")
+		if err != nil {
+			return nil, true, err
+		}
+
+		extracted, err := r.extractFiles(lines, true)
+		if err != nil {
+			return nil, true, err
+		}
+
+		for _, file := range extracted {
+			if _, ok := seen[file]; ok {
+				continue
+			}
+			seen[file] = struct{}{}
+			files = append(files, file)
+		}
+	}
+
+	return files, true, nil
+}
+
+func parsePushRefs(stdin []byte) ([]pushRef, bool) {
+	scanner := bufio.NewScanner(bytes.NewReader(stdin))
+	pushRefs := make([]pushRef, 0)
+
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if len(line) == 0 {
+			continue
+		}
+
+		fields := strings.Fields(line)
+		if len(fields) != 4 {
+			return nil, false
+		}
+
+		pushRefs = append(pushRefs, pushRef{
+			localOID:  fields[1],
+			remoteOID: fields[3],
+		})
+	}
+
+	if len(pushRefs) == 0 {
+		return nil, false
+	}
+
+	return pushRefs, true
+}
+
+func isZeroOID(oid string) bool {
+	return reZeroOID.MatchString(oid)
 }
 
 // PartiallyStagedFiles returns the list of files that have both staged and

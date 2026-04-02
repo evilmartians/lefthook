@@ -92,6 +92,10 @@ func (b *Builder) buildReplacer(params *JobParams) replacer.Replacer {
 		r = replacer.New(b.git, params.Root, params.FilesCmd)
 	}
 
+	if b.opts.UsePushFiles {
+		r = r.AddPushFiles(b.opts.PushFiles)
+	}
+
 	return r.
 		AddTemplates(b.opts.Templates).
 		AddTemplates(map[string]string{
