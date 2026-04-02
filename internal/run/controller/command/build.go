@@ -22,15 +22,13 @@ type JobParams struct {
 }
 
 type BuilderOptions struct {
-	HookName     string
-	GitArgs      []string
-	ForceFiles   []string
-	PushFiles    []string
-	SourceDirs   []string
-	Templates    map[string]string
-	GlobMatcher  string
-	Force        bool
-	UsePushFiles bool
+	HookName    string
+	GitArgs     []string
+	ForceFiles  []string
+	SourceDirs  []string
+	Templates   map[string]string
+	GlobMatcher string
+	Force       bool
 }
 
 type Builder struct {

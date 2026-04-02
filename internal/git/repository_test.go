@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
-	"strings"
 	"sync"
 	"testing"
 
@@ -178,56 +177,6 @@ func TestChangeset(t *testing.T) {
 }
 
 func TestPushFiles(t *testing.T) {
-	t.Run("uses pre-push stdin as the source of truth", func(t *testing.T) {
-		fs := afero.NewMemMapFs()
-		root := "/repo"
-		readme := filepath.Join(root, "README.md")
-		script := filepath.Join(root, "script.sh")
-
-		if err := fs.MkdirAll(root, 0o755); err != nil {
-			t.Fatalf("unexpected error: %s", err)
-		}
-		if err := afero.WriteFile(fs, readme, []byte("readme"), 0o644); err != nil {
-			t.Fatalf("unexpected error: %s", err)
-		}
-		if err := afero.WriteFile(fs, script, []byte("script"), 0o644); err != nil {
-			t.Fatalf("unexpected error: %s", err)
-		}
-
-		repository := &Repository{
-			Fs:       fs,
-			RootPath: root,
-			Git: &CommandExecutor{
-				mu: new(sync.Mutex),
-				cmd: cmdtest.NewOrdered(t, []cmdtest.Out{
-					{
-						Command: "git diff --name-only deadbeef cafebabe",
-						Output:  "README.md\nmissing.txt\n",
-					},
-					{
-						Command: "git ls-tree -r --name-only feedface",
-						Output:  "README.md\nscript.sh\n",
-					},
-				}),
-			},
-		}
-		repository.Setup()
-		files, ok, err := repository.PushFilesFromStdin([]byte(
-			"refs/heads/main cafebabe refs/heads/main deadbeef\n" +
-				"refs/heads/topic feedface refs/heads/topic " + strings.Repeat("0", 64) + "\n",
-		))
-		if err != nil {
-			t.Fatalf("unexpected error: %s", err)
-		}
-		if !ok {
-			t.Fatal("expected stdin to be parsed")
-		}
-
-		if want := []string{"README.md", "script.sh"}; len(files) != len(want) || files[0] != want[0] || files[1] != want[1] {
-			t.Fatalf("expected %v, got %v", want, files)
-		}
-	})
-
 	t.Run("falls back to ls-tree for initial push without upstream", func(t *testing.T) {
 		fs := afero.NewMemMapFs()
 		root := "/repo"

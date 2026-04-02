@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"io"
@@ -16,7 +15,6 @@ import (
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/exec"
-	"github.com/evilmartians/lefthook/v2/internal/run/controller/utils"
 	"github.com/evilmartians/lefthook/v2/internal/run/result"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/cmdtest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/configtest"
@@ -697,54 +695,4 @@ func TestRunAll(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestRunHook_PrePushUsesStdinForPushFiles(t *testing.T) {
-	root, err := filepath.Abs("src")
-	assert.NoError(t, err)
-
-	fs := afero.NewMemMapFs()
-	readme := filepath.Join(root, "README.md")
-	assert.NoError(t, fs.MkdirAll(root, 0o755))
-	assert.NoError(t, afero.WriteFile(fs, readme, []byte("readme"), 0o644))
-
-	cmdExecutor := cmdtest.NewTracking(func(command string, root string, out io.Writer) error {
-		switch command {
-		case "git ls-tree -r --name-only feedface":
-			_, writeErr := out.Write([]byte(filepath.Join(root, "README.md")))
-			return writeErr
-		case "git diff --name-only HEAD @{push}":
-			t.Fatalf("unexpected fallback command: %s", command)
-			return nil
-		default:
-			return nil
-		}
-	})
-
-	repo := gittest.NewRepositoryBuilder().
-		Root(root).
-		Cmd(cmdExecutor).
-		Fs(fs).
-		Build()
-	controller := &Controller{
-		git:         repo,
-		cachedStdin: utils.NewCachedReader(bytes.NewBufferString("refs/heads/main feedface refs/heads/main " + strings.Repeat("0", 64) + "\n")),
-		executor:    executor{},
-		cmd:         cmdtest.NewTracking(nil),
-	}
-
-	repo.Setup()
-	hook := configtest.ParseHook(`
-        jobs:
-          - name: test
-            run: success {push_files}
-      `)
-	hook.Name = "pre-push"
-
-	results, err := controller.RunHook(t.Context(), Options{}, hook)
-	assert.NoError(t, err)
-	assert.Len(t, results, 1)
-	assert.True(t, results[0].Success())
-	assert.Equal(t, "test", results[0].Name)
-	assert.Contains(t, cmdExecutor.Commands, "git ls-tree -r --name-only feedface")
 }
