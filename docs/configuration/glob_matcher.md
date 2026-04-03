@@ -6,9 +6,10 @@ title: "glob_matcher"
 
 Configure which glob matching engine lefthook uses to filter files.
 
+
 **Values:**
-- `gobwas` (default): `**` matches **1 or more** directories — does not match root-level files
-- `doublestar`: `**` matches **0 or more** directories — consistent with most other tools
+- `gobwas` (default): see https://github.com/gobwas/glob
+- `doublestar`: Usual glob behavior (like in Bash)
 
 #### Example
 
@@ -27,7 +28,7 @@ pre-commit:
 #### Behaviour comparison
 
 ```yml
-# Default (gobwas): **/*.js matches src/app.js but NOT app.js
+# gobwas (default): **/*.js matches src/app.js but NOT app.js
 # doublestar:       **/*.js matches app.js, src/app.js, a/b/c/app.js
 ```
 
