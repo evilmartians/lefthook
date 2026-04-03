@@ -38,6 +38,6 @@ pre-commit:
       run: yarn eslint --fix {staged_files} && git add {staged_files}
 ```
 
-**When using `root:`**
-
-Globs are still calculated from the actual root of the git repo, `root` is ignored.
+::: callout info Note
+Globs are always calculated from the actual root of the git repo — `root` does not affect glob matching.
+:::

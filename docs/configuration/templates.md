@@ -12,9 +12,7 @@ Provide custom replacement for templates in `run` values.
 
 With `templates` you can specify what can be overridden via `lefthook-local.yml` without a need to overwrite every jobs in your configuration.
 
-## Example
-
-### Override with lefthook-local.yml
+#### Override with lefthook-local.yml
 
 ```yml
 # lefthook.yml
@@ -35,7 +33,7 @@ templates:
   dip: dip # Will run: `dip bundle exec rubocop -- file1 file2 file3 ...`
 ```
 
-### Reduce redundancy
+#### Reduce redundancy
 
 ```yml
 # lefthook.yml

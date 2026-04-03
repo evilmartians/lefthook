@@ -128,24 +128,24 @@ prepare-commit-msg:
         - run: "! which aiautocommit"
 ```
 
-> TIP
->
-> Always skipping is useful when you have a `lefthook-local.yml` config and you don't want to run some commands locally. So you just overwrite the `skip` option for them to be `true`.
->
-> ```yml
-> # lefthook.yml
->
-> pre-commit:
->   commands:
->     lint:
->       run: yarn lint
-> ```
->
-> ```yml
-> # lefthook-local.yml
->
-> pre-commit:
->   commands:
->     lint:
->       skip: true
-> ```
+::: callout tip
+Always skipping is useful when you have a `lefthook-local.yml` config and you don't want to run some commands locally. So you just overwrite the `skip` option for them to be `true`.
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  commands:
+    lint:
+      run: yarn lint
+```
+
+```yml
+# lefthook-local.yml
+
+pre-commit:
+  commands:
+    lint:
+      skip: true
+```
+:::

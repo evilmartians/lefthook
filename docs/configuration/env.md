@@ -19,9 +19,9 @@ pre-commit:
       run: bundle exec rspec
 ```
 
-#### Extending PATH
+#### Extending `PATH`
 
-If your hook is run by GUI program, and you use some PATH tweaks in your ~/.<shell>rc, you might see an error saying *executable not found*. In that case You can extend the **$PATH** variable with `lefthook-local.yml` configuration the following way.
+If your hook is run by a GUI program and you use PATH tweaks in your `~/.<shell>rc`, you might see an *executable not found* error. You can extend `$PATH` via `lefthook-local.yml`:
 
 ```yml
 # lefthook.yml
@@ -42,6 +42,6 @@ pre-commit:
         PATH: $PATH:/home/me/path/to/yarn
 ```
 
-**Notes**
-
-This option is useful when using lefthook on different OSes or shells where ENV variables are set in different ways.
+::: callout tip
+Useful when running lefthook across different OSes or shells where environment variables are set differently.
+:::

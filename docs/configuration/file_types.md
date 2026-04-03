@@ -25,18 +25,13 @@ Filter files in a [`run`](./run.md) templates by their type. Special file types 
 |`text/x-sh` | Also shell script file. |
 |`application/json` | JSON file. |
 
-> **Important**
-> The following types are applied using AND logic:
-> - text
-> - binary
-> - executable
-> - not executable
-> - symlink
-> - not symlink
->
-> The mime types are applied using OR logic. So, you can have both `text/x-lua` and `text/x-sh`, but you can't specify both `symlink` and `not symlink`.
+::: callout info Note
+The following types are applied using AND logic: `text`, `binary`, `executable`, `not executable`, `symlink`, `not symlink`.
 
-**Examples**
+MIME types are applied using OR logic — you can combine `text/x-lua` and `text/x-sh`, but not `symlink` and `not symlink`.
+:::
+
+#### Example
 
 Apply some different linters on text and binary files.
 

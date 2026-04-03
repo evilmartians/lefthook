@@ -1,4 +1,8 @@
-## Git LFS support
+---
+title: "Git LFS support"
+---
+
+# Git LFS support
 
 ::: callout info Note
 If git-lfs binary is not installed and not required in your project, LFS hooks won't be executed, and you won't be warned about it.

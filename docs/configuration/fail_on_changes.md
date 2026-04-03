@@ -13,6 +13,8 @@ The behaviour of lefthook when files (tracked by git) are modified can set by mo
 
 See also [`fail_on_changes_diff`](./fail_on_changes_diff.md).
 
+#### Example
+
 ```yml
 # lefthook.yml
 pre-commit:

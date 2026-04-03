@@ -1,4 +1,8 @@
-## Capture ARGS from git in the script
+---
+title: "Capture ARGS from git in the script"
+---
+
+# Capture ARGS from git in the script
 
 Lefthook passes Git arguments to your commands and scripts.
 

@@ -4,11 +4,11 @@ title: "fail_on_changes_diff"
 
 # `fail_on_changes_diff`
 
-When Lefthook exits with a non-zero status as a result of [`fail_on_changes`](./fail_on_changes.md) triggering,
-it can optionally output a diff of the detected changes.
+**Default:** outputs diff only in CI
 
-The default behavior is to output the diff when run in a CI pipeline.
-The `fail_on_changes_diff` boolean configuration parameter can be used to override this.
+When [`fail_on_changes`](./fail_on_changes.md) triggers, lefthook can optionally print a diff of the detected changes. Set this boolean to explicitly enable or disable the diff output regardless of environment.
+
+#### Example
 
 ```yml
 # lefthook.yml

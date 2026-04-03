@@ -6,9 +6,9 @@ title: "source_dir"
 
 **Default: `.lefthook/`**
 
-Change a directory for script files. Directory for script files contains folders with git hook names which contain script files.
+Change a directory for script files. The directory contains subfolders named after git hooks, each containing script files.
 
-Example of directory tree:
+#### Example
 
 ```
 .lefthook/
