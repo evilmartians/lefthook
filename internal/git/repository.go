@@ -32,7 +32,7 @@ var (
 	reStashMessage            = regexp.MustCompile(`^(?P<stash>[^ ]+):\s*` + stashMessage)
 	cmdPushFilesBase          = []string{"git", "diff", "--name-only", "HEAD", "@{push}"}
 	cmdPushFilesHead          = []string{"git", "diff", "--name-only", "HEAD"}
-	cmdPushFilesTreeBase      = []string{"git", "ls-tree", "-r", "--name-only"}
+	cmdLsTreeFilesHead        = []string{"git", "ls-tree", "-r", "--name-only", "HEAD"}
 	cmdStagedFiles            = []string{"git", "diff", "--name-only", "--cached", "--diff-filter=ACMR"}
 	cmdStagedFilesWithDeleted = []string{"git", "diff", "--name-only", "--cached", "--diff-filter=ACMRD"}
 	cmdStatusShort            = []string{"git", "status", "--short", "--porcelain", "-z"}
@@ -189,11 +189,15 @@ func (r *Repository) PushFiles() ([]string, error) {
 		r.headBranch = r.resolveHeadBranch()
 	}
 
+	// Nothing has been pushed yet or upstream is not set
+	if len(r.headBranch) == 0 {
+		return r.FindExistingFiles(cmdLsTreeFilesHead, "")
+	}
+
 	return r.FindExistingFiles(append(cmdPushFilesHead, r.headBranch), "")
 }
 
-// resolveHeadBranch determines the upstream head branch by reading .git/refs/remotes/origin/HEAD
-// or walking remote refs. Returns emptyTreeSHA when nothing has been pushed yet.
+// resolveHeadBranch determines the upstream head branch.
 func (r *Repository) resolveHeadBranch() string {
 	if branch := r.readOriginHead(); len(branch) > 0 {
 		return branch
@@ -210,12 +214,7 @@ func (r *Repository) resolveHeadBranch() string {
 		}
 	}
 
-	// Nothing has been pushed yet or upstream is not set
-	if len(r.headBranch) == 0 {
-		return r.FindExistingFiles(append(cmdPushFilesTreeBase, "HEAD"), "")
-	}
-
-	return r.FindExistingFiles(append(cmdPushFilesHead, r.headBranch), "")
+	return ""
 }
 
 // PartiallyStagedFiles returns the list of files that have both staged and
