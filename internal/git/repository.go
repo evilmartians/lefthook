@@ -29,6 +29,7 @@ var (
 	reHeadBranch              = regexp.MustCompile(`HEAD -> (?P<name>.*)$`)
 	reOriginHeadBranch        = regexp.MustCompile(`ref: refs/remotes/origin/(?P<name>.*)$`)
 	reVersion                 = regexp.MustCompile(`\d+\.\d+\.(\d+|\w+)`)
+	reStashMessage            = regexp.MustCompile(`^(?P<stash>[^ ]+):\s*` + stashMessage)
 	cmdPushFilesBase          = []string{"git", "diff", "--name-only", "HEAD", "@{push}"}
 	cmdPushFilesHead          = []string{"git", "diff", "--name-only", "HEAD"}
 	cmdPushFilesTreeBase      = []string{"git", "ls-tree", "-r", "--name-only"}
@@ -184,25 +185,28 @@ func (r *Repository) PushFiles() ([]string, error) {
 		return r.extractFiles(lines, true)
 	}
 
-	// Try read .git/refs/origin/HEAD
 	if len(r.headBranch) == 0 {
-		r.headBranch = r.readOriginHead()
+		r.headBranch = r.resolveHeadBranch()
 	}
 
-	// Try walking through the remotes
-	if len(r.headBranch) == 0 {
-		branches, err := r.Git.CmdLines(cmdRemotes)
-		if err != nil {
-			return nil, err
-		}
+	return r.FindExistingFiles(append(cmdPushFilesHead, r.headBranch), "")
+}
 
+// resolveHeadBranch determines the upstream head branch by reading .git/refs/remotes/origin/HEAD
+// or walking remote refs. Returns emptyTreeSHA when nothing has been pushed yet.
+func (r *Repository) resolveHeadBranch() string {
+	if branch := r.readOriginHead(); len(branch) > 0 {
+		return branch
+	}
+
+	branches, err := r.Git.CmdLines(cmdRemotes)
+	if err == nil {
 		for _, branch := range branches {
 			matches := reHeadBranch.FindStringSubmatch(branch)
 			if matches == nil {
 				continue
 			}
-			r.headBranch = matches[reHeadBranch.SubexpIndex("name")]
-			break
+			return matches[reHeadBranch.SubexpIndex("name")]
 		}
 	}
 
@@ -330,15 +334,14 @@ func (r *Repository) DropUnstagedStash() error {
 		return err
 	}
 
-	stashRegexp := regexp.MustCompile(`^(?P<stash>[^ ]+):\s*` + stashMessage)
 	for i := range lines {
 		line := lines[len(lines)-i-1]
-		matches := stashRegexp.FindStringSubmatch(line)
+		matches := reStashMessage.FindStringSubmatch(line)
 		if matches == nil {
 			continue
 		}
 
-		stashID := stashRegexp.SubexpIndex("stash")
+		stashID := reStashMessage.SubexpIndex("stash")
 
 		if len(matches[stashID]) > 0 {
 			_, err := r.Git.Cmd([]string{

@@ -23,6 +23,7 @@ type Controller struct {
 	cachedStdin io.Reader
 	executor    exec.Executor
 	cmd         system.CommandWithContext
+	skipChecker *config.SkipChecker
 }
 
 type Options struct {
@@ -55,13 +56,15 @@ func NewController(repo *git.Repository) *Controller {
 
 		// Command interface (for LFS hooks)
 		cmd: system.Cmd,
+
+		skipChecker: config.NewSkipChecker(system.Cmd),
 	}
 }
 
 func (c *Controller) RunHook(ctx context.Context, opts Options, hook *config.Hook) ([]result.Result, error) {
 	results := make([]result.Result, 0, len(hook.Jobs))
 
-	if config.NewSkipChecker(system.Cmd).Check(c.git.State, hook.Skip, hook.Only) {
+	if c.skipChecker.Check(c.git.State, hook.Skip, hook.Only) {
 		log.Skip(hook.Name, "hook setting")
 		return results, nil
 	}

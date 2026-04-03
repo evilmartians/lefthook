@@ -41,10 +41,6 @@ type InstallArgs struct {
 }
 
 func (l *Lefthook) Install(ctx context.Context, args InstallArgs, hooks []string) error {
-	if err := l.ensureHooksPathUnset(args.Force, args.ResetHooksPath); err != nil {
-		return err
-	}
-
 	cfg, err := l.readOrCreateConfig()
 	if err != nil {
 		return err
@@ -68,6 +64,17 @@ func (l *Lefthook) Install(ctx context.Context, args InstallArgs, hooks []string
 		if err != nil {
 			return err
 		}
+	}
+
+	return l.installHooks(cfg, hooks, args)
+}
+
+// installHooks is the single entry point for creating hook files.
+// It ensures core.hooksPath is checked before any hooks are written,
+// preventing silent overwrites of global hook directories.
+func (l *Lefthook) installHooks(cfg *config.Config, hooks []string, args InstallArgs) error {
+	if err := l.ensureHooksPathUnset(args.Force, args.ResetHooksPath); err != nil {
+		return err
 	}
 
 	return l.createHooksIfNeeded(cfg, hooks, args.Force)
@@ -196,7 +203,11 @@ func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Con
 	}
 
 	// Don't rely on config checksum if remotes were refetched
-	return cfg, l.createHooksIfNeeded(cfg, hooks, false)
+	if err := l.installHooks(cfg, hooks, InstallArgs{}); err != nil {
+		log.Warnf("Skipping hook sync: %s", err)
+		return cfg, nil
+	}
+	return cfg, nil
 }
 
 func (l *Lefthook) shouldRefetch(remote *config.Remote) bool {
@@ -276,23 +287,7 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, hooks []string, force
 		return fmt.Errorf("could not create hooks dir: %w", err)
 	}
 
-	rootsMap := make(map[string]struct{})
-	for _, hook := range cfg.Hooks {
-		for _, command := range hook.Commands {
-			if len(command.Root) > 0 {
-				root := strings.Trim(command.Root, "/")
-				if _, ok := rootsMap[root]; !ok {
-					rootsMap[root] = struct{}{}
-				}
-			}
-		}
-
-		collectAllJobRoots(rootsMap, hook.Jobs)
-	}
-	roots := make([]string, 0, len(rootsMap))
-	for root := range rootsMap {
-		roots = append(roots, root)
-	}
+	roots := collectRoots(cfg)
 
 	hookNames := make([]string, 0, len(cfg.Hooks)+1)
 	for hook := range cfg.Hooks {
@@ -346,6 +341,23 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, hooks []string, force
 	}
 
 	return nil
+}
+
+func collectRoots(cfg *config.Config) []string {
+	rootsMap := make(map[string]struct{})
+	for _, hook := range cfg.Hooks {
+		for _, command := range hook.Commands {
+			if len(command.Root) > 0 {
+				rootsMap[strings.Trim(command.Root, "/")] = struct{}{}
+			}
+		}
+		collectAllJobRoots(rootsMap, hook.Jobs)
+	}
+	roots := make([]string, 0, len(rootsMap))
+	for root := range rootsMap {
+		roots = append(roots, root)
+	}
+	return roots
 }
 
 func collectAllJobRoots(roots map[string]struct{}, jobs []*config.Job) {

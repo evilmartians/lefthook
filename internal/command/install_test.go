@@ -317,14 +317,14 @@ remotes:
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			assert := assert.New(t)
 
-			// Prepend git config commands required by getHooksPathConfig() in install.go.
-			// These commands are always called at the start of Install() to detect core.hooksPath conflicts.
+			// Append git config commands required by ensureHooksPathUnset() via installHooks().
+			// These commands are called after remote syncing, when hooks are about to be created.
 			gitCmds := tt.git
 			if len(gitCmds) == 0 || gitCmds[0].Command != "git config --local core.hooksPath" {
-				gitCmds = append([]cmdtest.Out{
-					{Command: "git config --local core.hooksPath"},
-					{Command: "git config --global core.hooksPath"},
-				}, gitCmds...)
+				gitCmds = append(gitCmds,
+					cmdtest.Out{Command: "git config --local core.hooksPath"},
+					cmdtest.Out{Command: "git config --global core.hooksPath"},
+				)
 			}
 
 			repo := gittest.NewRepositoryBuilder().
@@ -507,6 +507,52 @@ commit-msg:
 			},
 		},
 		{
+			// Reproduces the bug: when core.hooksPath is set globally (e.g. for
+			// credential leak detection), syncHooks should skip hook creation
+			// rather than overwriting the user's global hooks directory.
+			// See: reproduce-bug.sh
+			name: "unsynchronized with global core.hooksPath set",
+			config: `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+`,
+			checksum: "00000000f706df65f379a9ff5ce0119b 1555894311\n",
+			git: []cmdtest.Out{
+				{Command: "git config --local core.hooksPath"},
+				{Command: "git config --global core.hooksPath", Output: "/home/user/.config/git/hooks"},
+			},
+			wantExist: []string{
+				configPath,
+			},
+			wantNotExist: []string{
+				hookPath("pre-commit"),
+				hookPath(config.GhostHookName),
+			},
+		},
+		{
+			name: "unsynchronized with local core.hooksPath set",
+			config: `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+`,
+			checksum: "00000000f706df65f379a9ff5ce0119b 1555894311\n",
+			git: []cmdtest.Out{
+				{Command: "git config --local core.hooksPath", Output: ".custom-hooks"},
+				{Command: "git config --global core.hooksPath"},
+			},
+			wantExist: []string{
+				configPath,
+			},
+			wantNotExist: []string{
+				hookPath("pre-commit"),
+				hookPath(config.GhostHookName),
+			},
+		},
+		{
 			name: "with unfetched remote",
 			config: `
 remotes:
@@ -566,7 +612,18 @@ remotes:
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			assert := assert.New(t)
 
-			repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Cmd(cmdtest.NewOrdered(t, tt.git)).Build()
+			// Append git config commands required by ensureHooksPathUnset() via installHooks().
+			// These commands are called when syncHooks needs to create/update hooks,
+			// which happens after any remote fetching.
+			gitCmds := tt.git
+			if len(gitCmds) == 0 || gitCmds[0].Command != "git config --local core.hooksPath" {
+				gitCmds = append(gitCmds,
+					cmdtest.Out{Command: "git config --local core.hooksPath"},
+					cmdtest.Out{Command: "git config --global core.hooksPath"},
+				)
+			}
+
+			repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Cmd(cmdtest.NewOrdered(t, gitCmds)).Build()
 			lefthook := &Lefthook{
 				fs:   fs,
 				repo: repo,
