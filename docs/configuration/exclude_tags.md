@@ -28,9 +28,9 @@ pre-commit:
 lefthook run pre-commit # will only run check-syntax command
 ```
 
-**Notes**
-
-This option is good to specify in `lefthook-local.yml` when you want to skip some execution locally.
+::: callout tip
+Useful in `lefthook-local.yml` to skip specific commands locally without modifying the shared config.
+:::
 
 ```yml
 # lefthook.yml

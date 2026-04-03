@@ -29,5 +29,6 @@ remotes:
     refetch_frequency: 24h # Refetches once every 24 hours
 ```
 
-> WARNING
-> If `refetch` is set to `true`, it overrides any setting in `refetch_frequency`.
+::: callout warn
+If [`refetch`](./refetch.md) is set to `true`, it overrides any setting in `refetch_frequency`.
+:::

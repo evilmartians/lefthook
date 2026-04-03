@@ -6,6 +6,7 @@ title: "Hook"
 
 Contains settings for the git hook (commands, scripts, skip rules, etc.). You can specify any Git hook or your own custom, e.g. `test`
 
+#### Example
 
 ```yml
 # lefthook.yml

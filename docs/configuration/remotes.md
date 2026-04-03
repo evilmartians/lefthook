@@ -10,12 +10,18 @@ You can use [`extends`](./extends.md) but the paths must be relative to the remo
 
 If you provide [`scripts`](./scripts.md) in a remote config file, the [scripts](./source_dir.md) folder must also be in the **root of the repository**.
 
-**Note**
+::: callout info Note
+Configs are merged in this order: `lefthook.yml` → `remotes` → `lefthook-local.yml`. For simplicity, keep jobs in remote configs independent from other steps.
+:::
 
-The configuration from `remotes` will be merged to the local config using the following priority:
+#### Example
 
-1. Local main config (`lefthook.yml`)
-1. Remote configs (`remotes`)
-1. Local overrides (`lefthook-local.yml`)
+```yml
+# lefthook.yml
 
-This priority may be changed in the future. For simplicity, try to keep jobs in remote settings independent from any other steps.
+remotes:
+  - git_url: git@github.com:evilmartians/lefthook
+    ref: v1.0.0
+    configs:
+      - examples/ruby-linter.yml
+```

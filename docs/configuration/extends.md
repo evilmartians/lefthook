@@ -21,11 +21,13 @@ extends:
   - projects/*/specific-lefthook-config.yml
 ```
 
-> The extends will be merged to the main configuration in your file. Here is the order of settings applied:
->
-> - `lefthook.yml` – main config file
-> - `extends` – configs specified in [extends](./extends.md) option
-> - `remotes` – configs specified in [remotes](./remotes.md) option
-> - `lefthook-local.yml` – local config file
->
-> So, `extends` override settings from `lefthook.yml`, `remotes` override `extends`, and `lefthook-local.yml` can override everything.
+::: callout info Note
+Settings are applied in this order:
+
+- `lefthook.yml` – main config file
+- `extends` – configs specified in [extends](./extends.md) option
+- `remotes` – configs specified in [remotes](./remotes.md) option
+- `lefthook-local.yml` – local config file
+
+So, `extends` override settings from `lefthook.yml`, `remotes` override `extends`, and `lefthook-local.yml` can override everything.
+:::

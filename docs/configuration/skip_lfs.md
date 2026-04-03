@@ -8,7 +8,7 @@ title: "skip_lfs"
 
 Skip running LFS hooks even if it exists on your system.
 
-### Example
+#### Example
 
 ```yml
 # lefthook.yml

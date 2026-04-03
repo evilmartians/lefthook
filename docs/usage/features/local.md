@@ -1,4 +1,8 @@
-## Local config
+---
+title: "Local config"
+---
+
+# Local config
 
 You can extend and override options of your main configuration with `lefthook-local.yml`. Don't forget to add the file to `.gitignore`.
 

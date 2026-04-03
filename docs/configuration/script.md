@@ -6,7 +6,7 @@ title: "script"
 
 Name of a script to execute. The rules are the same as for [`scripts`](./Scripts.md)
 
-### Example
+#### Example
 
 ```yml
 # lefthook.yml

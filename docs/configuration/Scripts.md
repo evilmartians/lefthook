@@ -20,7 +20,7 @@ To add a script for a `pre-commit` hook:
          runner: bash
    ```
 
-### Example
+#### Example
 
 Let's create a bash script to check commit templates `.lefthook/commit-msg/template_checker`:
 

@@ -10,7 +10,7 @@ You can define a group of jobs and configure how they should execute using the f
 - [`piped`](./piped.md): Executes jobs sequentially, passing output between them.
 - [`jobs`](./jobs.md): Specifies the jobs within the group.
 
-### Example
+#### Example
 
 ```yml
 # lefthook.yml

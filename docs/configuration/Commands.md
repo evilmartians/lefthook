@@ -17,7 +17,7 @@ pre-commit:
       ... # command options
 ```
 
-### Command options
+#### Command options
 
 - [`run`](./run.md)
 - [`skip`](./skip.md)
