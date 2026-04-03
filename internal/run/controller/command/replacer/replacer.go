@@ -172,6 +172,9 @@ func (r Replacer) Files(template string, filter *filter.Filter) ([]string, error
 	return filter.Apply(files), nil
 }
 
+// ReplaceAndSplit substitutes file templates in command and chunks the result to
+// respect maxlen. It consumes the cache entries (entry.items is drained), so
+// this method should be called only once per Replacer instance.
 func (r Replacer) ReplaceAndSplit(command string, maxlen int) ([]string, []string) {
 	if len(r.cache) == 0 {
 		return []string{command}, nil

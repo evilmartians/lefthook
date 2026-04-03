@@ -385,29 +385,10 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 		default:
 		}
 
-		var destJobs, srcJobs []any
-		switch jobs := dest["jobs"].(type) {
-		case []any:
-			destJobs = jobs
-		default:
-		}
-		switch jobs := src["jobs"].(type) {
-		case []any:
-			srcJobs = jobs
-		default:
-		}
-
-		var destSetup, srcSetup []any
-		switch setup := dest["setup"].(type) {
-		case []any:
-			destSetup = setup
-		default:
-		}
-		switch setup := src["setup"].(type) {
-		case []any:
-			srcSetup = setup
-		default:
-		}
+		destJobs := anySlice(dest, "jobs")
+		srcJobs := anySlice(src, "jobs")
+		destSetup := anySlice(dest, "setup")
+		srcSetup := anySlice(src, "setup")
 
 		destJobs = mergeJobsSlice(srcJobs, destJobs)
 		destSetup = slices.Concat(srcSetup, destSetup)
@@ -497,57 +478,10 @@ func (k koanfProvider) ReadBytes() ([]byte, error) {
 // `jobs` settings get overwritten by name or get appended to the end.
 // `setup` always get prepended.
 func mergeHooks(src, dest map[string]any) error {
-	srcJobs := make(map[string][]any)
-	for name, maybeHook := range src {
-		switch hook := maybeHook.(type) {
-		case map[string]any:
-			switch jobs := hook["jobs"].(type) {
-			case []any:
-				srcJobs[name] = jobs
-			default:
-			}
-		default:
-		}
-	}
-
-	destJobs := make(map[string][]any)
-	for name, maybeHook := range dest {
-		switch hook := maybeHook.(type) {
-		case map[string]any:
-			switch jobs := hook["jobs"].(type) {
-			case []any:
-				destJobs[name] = jobs
-			default:
-			}
-		default:
-		}
-	}
-
-	srcSetup := make(map[string][]any)
-	for name, maybeHook := range src {
-		switch hook := maybeHook.(type) {
-		case map[string]any:
-			switch setup := hook["setup"].(type) {
-			case []any:
-				srcSetup[name] = setup
-			default:
-			}
-		default:
-		}
-	}
-
-	destSetup := make(map[string][]any)
-	for name, maybeHook := range dest {
-		switch hook := maybeHook.(type) {
-		case map[string]any:
-			switch setup := hook["setup"].(type) {
-			case []any:
-				destSetup[name] = setup
-			default:
-			}
-		default:
-		}
-	}
+	srcJobs := extractHookSlices(src, "jobs")
+	destJobs := extractHookSlices(dest, "jobs")
+	srcSetup := extractHookSlices(src, "setup")
+	destSetup := extractHookSlices(dest, "setup")
 
 	if (len(srcJobs) == 0 || len(destJobs) == 0) && (len(srcSetup) == 0 || len(destSetup) == 0) {
 		maps.Merge(src, dest)
@@ -599,10 +533,30 @@ func mergeHooks(src, dest map[string]any) error {
 	return nil
 }
 
+// anySlice extracts a []any value from a string-keyed map, returning nil if absent or wrong type.
+func anySlice(m map[string]any, key string) []any {
+	v, _ := m[key].([]any)
+	return v
+}
+
+// extractHookSlices builds a name→[]any map from a hooks map for the given field key.
+func extractHookSlices(hooks map[string]any, key string) map[string][]any {
+	result := make(map[string][]any)
+	for name, maybeHook := range hooks {
+		if hook, ok := maybeHook.(map[string]any); ok {
+			if v, ok := hook[key].([]any); ok {
+				result[name] = v
+			}
+		}
+	}
+	return result
+}
+
 func mergeJobsSlice(src, dest []any) []any {
 	mergeable := make(map[string]map[string]any)
 	result := make([]any, 0, len(dest))
 
+	// Pass 1: index dest jobs by name and preserve order.
 	for _, maybeJob := range dest {
 		switch destJob := maybeJob.(type) {
 		case map[string]any:
@@ -617,6 +571,7 @@ func mergeJobsSlice(src, dest []any) []any {
 		}
 	}
 
+	// Pass 2: merge src jobs into dest by name, or append unnamed ones.
 	for _, maybeJob := range src {
 		switch srcJob := maybeJob.(type) {
 		case map[string]any:

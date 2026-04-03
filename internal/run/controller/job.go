@@ -16,7 +16,6 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/filter"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/utils"
 	"github.com/evilmartians/lefthook/v2/internal/run/result"
-	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
 const (
@@ -190,8 +189,7 @@ func (c *Controller) addStagedFiles(files []string) {
 }
 
 func (c *Controller) skipReason(scope *scope, job *config.Job, name string) string {
-	skipChecker := config.NewSkipChecker(system.Cmd)
-	if skipChecker.Check(c.git.State, job.Skip, job.Only) {
+	if c.skipChecker.Check(c.git.State, job.Skip, job.Only) {
 		return "by condition"
 	}
 

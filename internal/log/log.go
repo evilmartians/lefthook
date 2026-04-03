@@ -23,7 +23,7 @@ var (
 	ColorGreen  lipgloss.TerminalColor = lipgloss.CompleteColor{TrueColor: "#32cd32", ANSI256: "148", ANSI: "2"}
 	ColorYellow lipgloss.TerminalColor = lipgloss.CompleteColor{TrueColor: "#fada5e", ANSI256: "191", ANSI: "11"}
 	ColorCyan   lipgloss.TerminalColor = lipgloss.CompleteColor{TrueColor: "#70C0BA", ANSI256: "37", ANSI: "14"}
-	GolorGray   lipgloss.TerminalColor = lipgloss.CompleteColor{TrueColor: "#808080", ANSI256: "244", ANSI: "7"}
+	ColorGray   lipgloss.TerminalColor = lipgloss.CompleteColor{TrueColor: "#808080", ANSI256: "244", ANSI: "7"}
 	colorBorder lipgloss.TerminalColor = lipgloss.Color("#383838")
 
 	std = New()
@@ -123,7 +123,7 @@ func (s StyleLogger) Info(str string) {
 
 func Debug(args ...any) {
 	res := strings.TrimSpace(fmt.Sprint(args...))
-	std.Debug(color(GolorGray).Render(res))
+	std.Debug(color(ColorGray).Render(res))
 }
 
 func Debugf(format string, args ...any) {
@@ -192,16 +192,10 @@ func SetColors(colors any) {
 			setColor(lipgloss.CompleteColor{TrueColor: "#32cd32", ANSI256: "148", ANSI: "2"}, &ColorGreen)
 			setColor(lipgloss.CompleteColor{TrueColor: "#fada5e", ANSI256: "191", ANSI: "11"}, &ColorYellow)
 			setColor(lipgloss.CompleteColor{TrueColor: "#70C0BA", ANSI256: "37", ANSI: "14"}, &ColorCyan)
-			setColor(lipgloss.CompleteColor{TrueColor: "#808080", ANSI256: "244", ANSI: "7"}, &GolorGray)
+			setColor(lipgloss.CompleteColor{TrueColor: "#808080", ANSI256: "244", ANSI: "7"}, &ColorGray)
 			setColor(lipgloss.Color("#383838"), &colorBorder)
 		case "off":
-			std.colors = ColorOff
-			setColor(lipgloss.NoColor{}, &ColorRed)
-			setColor(lipgloss.NoColor{}, &ColorGreen)
-			setColor(lipgloss.NoColor{}, &ColorYellow)
-			setColor(lipgloss.NoColor{}, &ColorCyan)
-			setColor(lipgloss.NoColor{}, &GolorGray)
-			setColor(lipgloss.NoColor{}, &colorBorder)
+			disableColors()
 		default:
 			std.colors = ColorAuto
 		}
@@ -211,24 +205,28 @@ func SetColors(colors any) {
 			return
 		}
 
-		std.colors = ColorOff
-		setColor(lipgloss.NoColor{}, &ColorRed)
-		setColor(lipgloss.NoColor{}, &ColorGreen)
-		setColor(lipgloss.NoColor{}, &ColorYellow)
-		setColor(lipgloss.NoColor{}, &ColorCyan)
-		setColor(lipgloss.NoColor{}, &GolorGray)
-		setColor(lipgloss.NoColor{}, &colorBorder)
+		disableColors()
 	case map[string]any:
 		std.colors = ColorOn
 		setColor(typedColors["red"], &ColorRed)
 		setColor(typedColors["green"], &ColorGreen)
 		setColor(typedColors["yellow"], &ColorYellow)
 		setColor(typedColors["cyan"], &ColorCyan)
-		setColor(typedColors["gray"], &GolorGray)
+		setColor(typedColors["gray"], &ColorGray)
 		setColor(typedColors["gray"], &colorBorder)
 	default:
 		std.colors = ColorAuto
 	}
+}
+
+func disableColors() {
+	std.colors = ColorOff
+	setColor(lipgloss.NoColor{}, &ColorRed)
+	setColor(lipgloss.NoColor{}, &ColorGreen)
+	setColor(lipgloss.NoColor{}, &ColorYellow)
+	setColor(lipgloss.NoColor{}, &ColorCyan)
+	setColor(lipgloss.NoColor{}, &ColorGray)
+	setColor(lipgloss.NoColor{}, &colorBorder)
 }
 
 func setColor(colorCode any, adaptiveColor *lipgloss.TerminalColor) {
@@ -271,7 +269,7 @@ func Yellow(s string) string {
 }
 
 func Gray(s string) string {
-	return color(GolorGray).Render(s)
+	return color(ColorGray).Render(s)
 }
 
 func Bold(s string) string {

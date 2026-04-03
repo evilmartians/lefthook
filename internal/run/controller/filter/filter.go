@@ -196,6 +196,9 @@ func byRoot(vs []string, matcher string) []string {
 	return vsf
 }
 
+// byType filters files by one or more file type predicates.
+// To add a new type: add a typeX constant, handle it in parseFileTypeFilter,
+// and add the corresponding guard below.
 func byType(fs afero.Fs, vs []string, types []string) []string {
 	if len(types) == 0 {
 		return vs

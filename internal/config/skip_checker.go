@@ -8,16 +8,16 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
-type skipChecker struct {
+type SkipChecker struct {
 	exec *commandExecutor
 }
 
-func NewSkipChecker(cmd system.Command) *skipChecker {
-	return &skipChecker{&commandExecutor{cmd}}
+func NewSkipChecker(cmd system.Command) *SkipChecker {
+	return &SkipChecker{&commandExecutor{cmd}}
 }
 
 // Check returns the result of applying a skip/only setting which can be a branch, git state, shell command, etc.
-func (sc *skipChecker) Check(state func() git.State, skip any, only any) bool {
+func (sc *SkipChecker) Check(state func() git.State, skip any, only any) bool {
 	if skip == nil && only == nil {
 		return false
 	}
@@ -35,7 +35,7 @@ func (sc *skipChecker) Check(state func() git.State, skip any, only any) bool {
 	return false
 }
 
-func (sc *skipChecker) matches(state func() git.State, value any) bool {
+func (sc *SkipChecker) matches(state func() git.State, value any) bool {
 	switch typedValue := value.(type) {
 	case bool:
 		return typedValue
@@ -47,7 +47,7 @@ func (sc *skipChecker) matches(state func() git.State, value any) bool {
 	return false
 }
 
-func (sc *skipChecker) matchesSlices(gitState func() git.State, slice []any) bool {
+func (sc *SkipChecker) matchesSlices(gitState func() git.State, slice []any) bool {
 	for _, state := range slice {
 		switch typedState := state.(type) {
 		case string:
@@ -68,7 +68,7 @@ func (sc *skipChecker) matchesSlices(gitState func() git.State, slice []any) boo
 	return false
 }
 
-func (sc *skipChecker) matchesRef(state func() git.State, typedState map[string]any) bool {
+func (sc *SkipChecker) matchesRef(state func() git.State, typedState map[string]any) bool {
 	ref, ok := typedState["ref"].(string)
 	if !ok {
 		return false
@@ -84,7 +84,7 @@ func (sc *skipChecker) matchesRef(state func() git.State, typedState map[string]
 	return g.Match(branch)
 }
 
-func (sc *skipChecker) matchesCommands(typedState map[string]any) bool {
+func (sc *SkipChecker) matchesCommands(typedState map[string]any) bool {
 	commandLine, ok := typedState["run"].(string)
 	if !ok {
 		return false
