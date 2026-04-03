@@ -23,9 +23,6 @@ const (
 	stashMessage      = "lefthook auto backup"
 	unstagedPatchName = "lefthook-unstaged.patch"
 	infoDirMode       = 0o775
-
-	// The result of `git hash-object -t tree /dev/null`.
-	emptyTreeSHA = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 )
 
 var (
@@ -35,6 +32,7 @@ var (
 	reStashMessage            = regexp.MustCompile(`^(?P<stash>[^ ]+):\s*` + stashMessage)
 	cmdPushFilesBase          = []string{"git", "diff", "--name-only", "HEAD", "@{push}"}
 	cmdPushFilesHead          = []string{"git", "diff", "--name-only", "HEAD"}
+	cmdPushFilesTreeBase      = []string{"git", "ls-tree", "-r", "--name-only"}
 	cmdStagedFiles            = []string{"git", "diff", "--name-only", "--cached", "--diff-filter=ACMR"}
 	cmdStagedFilesWithDeleted = []string{"git", "diff", "--name-only", "--cached", "--diff-filter=ACMRD"}
 	cmdStatusShort            = []string{"git", "status", "--short", "--porcelain", "-z"}
@@ -212,7 +210,12 @@ func (r *Repository) resolveHeadBranch() string {
 		}
 	}
 
-	return emptyTreeSHA
+	// Nothing has been pushed yet or upstream is not set
+	if len(r.headBranch) == 0 {
+		return r.FindExistingFiles(append(cmdPushFilesTreeBase, "HEAD"), "")
+	}
+
+	return r.FindExistingFiles(append(cmdPushFilesHead, r.headBranch), "")
 }
 
 // PartiallyStagedFiles returns the list of files that have both staged and

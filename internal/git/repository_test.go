@@ -1,9 +1,14 @@
 package git
 
 import (
+	"errors"
 	"fmt"
+	"io"
+	"path/filepath"
 	"sync"
 	"testing"
+
+	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/v2/tests/helpers/cmdtest"
 )
@@ -169,4 +174,53 @@ func TestChangeset(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestPushFiles(t *testing.T) {
+	t.Run("falls back to ls-tree for initial push without upstream", func(t *testing.T) {
+		fs := afero.NewMemMapFs()
+		root := "/repo"
+		readme := filepath.Join(root, "README.md")
+
+		if err := fs.MkdirAll(root, 0o755); err != nil {
+			t.Fatalf("unexpected error: %s", err)
+		}
+		if err := afero.WriteFile(fs, readme, []byte("readme"), 0o644); err != nil {
+			t.Fatalf("unexpected error: %s", err)
+		}
+
+		cmd := cmdtest.NewTracking(func(command string, _ string, out io.Writer) error {
+			switch command {
+			case "git diff --name-only HEAD @{push}":
+				return errors.New("no upstream configured")
+			case "git branch --remotes":
+				return nil
+			case "git ls-tree -r --name-only HEAD":
+				_, err := out.Write([]byte("README.md\nmissing.txt\n"))
+				return err
+			default:
+				t.Fatalf("unexpected command: %s", command)
+				return nil
+			}
+		})
+
+		repository := &Repository{
+			Fs:       fs,
+			RootPath: root,
+			Git: &CommandExecutor{
+				mu:  new(sync.Mutex),
+				cmd: cmd,
+			},
+		}
+		repository.Setup()
+
+		files, err := repository.PushFiles()
+		if err != nil {
+			t.Fatalf("unexpected error: %s", err)
+		}
+
+		if want := []string{"README.md"}; len(files) != len(want) || files[0] != want[0] {
+			t.Fatalf("expected %v, got %v", want, files)
+		}
+	})
 }
