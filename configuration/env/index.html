@@ -20,16 +20,16 @@
         window.DOCMD_DEFAULT_MODE = "system";
     </script>
     <title>env</title>
-    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mnipfrni">
-    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mnipfrni">
+    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mnj9b2om">
+    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mnj9b2om">
     
     <link rel="stylesheet" 
-          href="../../assets/css/docmd-highlight-light.css?v=mnipfrni" 
+          href="../../assets/css/docmd-highlight-light.css?v=mnj9b2om" 
           id="hljs-light" 
           >
           
     <link rel="stylesheet" 
-          href="../../assets/css/docmd-highlight-dark.css?v=mnipfrni" 
+          href="../../assets/css/docmd-highlight-dark.css?v=mnj9b2om" 
           id="hljs-dark" 
           disabled>
     
@@ -49,7 +49,7 @@
 
 
     
-    <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mnipfrni">
+    <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mnj9b2om">
     
     <script>/**
  * --------------------------------------------------------------------
@@ -2448,8 +2448,8 @@
         <span class="hljs-attr">RAILS_ENV:</span> <span class="hljs-string">test</span>
       <span class="hljs-attr">run:</span> <span class="hljs-string">bundle</span> <span class="hljs-string">exec</span> <span class="hljs-string">rspec</span>
 </code></pre>
-<h4 id="extending-path" class="docmd-heading"><a href="#extending-path" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Extending PATH</h4>
-<p>If your hook is run by GUI program, and you use some PATH tweaks in your ~/.<shell>rc, you might see an error saying <em>executable not found</em>. In that case You can extend the <strong>$PATH</strong> variable with <code>lefthook-local.yml</code> configuration the following way.</p>
+<h4 id="extending-path" class="docmd-heading"><a href="#extending-path" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Extending <code>PATH</code></h4>
+<p>If your hook is run by a GUI program and you use PATH tweaks in your <code>~/.&lt;shell&gt;rc</code>, you might see an <em>executable not found</em> error. You can extend <code>$PATH</code> via <code>lefthook-local.yml</code>:</p>
 <pre class="hljs"><code><span class="hljs-comment"># lefthook.yml</span>
 
 <span class="hljs-attr">pre-commit:</span>
@@ -2465,8 +2465,9 @@
       <span class="hljs-attr">env:</span>
         <span class="hljs-attr">PATH:</span> <span class="hljs-string">$PATH:/home/me/path/to/yarn</span>
 </code></pre>
-<p><strong>Notes</strong></p>
-<p>This option is useful when using lefthook on different OSes or shells where ENV variables are set in different ways.</p>
+<div class="docmd-container callout callout-tip"><div class="callout-content">
+<p>Useful when running lefthook across different OSes or shells where environment variables are set differently.</p>
+</div></div>
 
 
                     
@@ -2529,11 +2530,11 @@
 
     </div>
 
-    <script src="../../assets/js/docmd-main.js?v=mnipfrni"></script>
-    <script src="../../assets/js/docmd-image-lightbox.js?v=mnipfrni" ></script>
+    <script src="../../assets/js/docmd-main.js?v=mnj9b2om"></script>
+    <script src="../../assets/js/docmd-image-lightbox.js?v=mnj9b2om" ></script>
 <script src="https://cdn.jsdelivr.net/npm/minisearch@7.2.0/dist/umd/index.min.js" ></script>
-<script src="../../assets/js/docmd-search.js?v=mnipfrni" ></script>
-<script src="../../assets/js/init-mermaid.js?v=mnipfrni" type="module"></script>
+<script src="../../assets/js/docmd-search.js?v=mnj9b2om" ></script>
+<script src="../../assets/js/init-mermaid.js?v=mnj9b2om" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;">

@@ -20,16 +20,16 @@
         window.DOCMD_DEFAULT_MODE = "system";
     </script>
     <title>lefthook</title>
-    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mnipfrni">
-    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mnipfrni">
+    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mnj9b2om">
+    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mnj9b2om">
     
     <link rel="stylesheet" 
-          href="../../assets/css/docmd-highlight-light.css?v=mnipfrni" 
+          href="../../assets/css/docmd-highlight-light.css?v=mnj9b2om" 
           id="hljs-light" 
           >
           
     <link rel="stylesheet" 
-          href="../../assets/css/docmd-highlight-dark.css?v=mnipfrni" 
+          href="../../assets/css/docmd-highlight-dark.css?v=mnj9b2om" 
           id="hljs-dark" 
           disabled>
     
@@ -49,7 +49,7 @@
 
 
     
-    <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mnipfrni">
+    <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mnj9b2om">
     
     <script>/**
  * --------------------------------------------------------------------
@@ -2442,16 +2442,15 @@
 <p>Added in lefthook <code>1.10.5</code></p>
 </div></div>
 <p>Provide a full path to lefthook executable or a command to run lefthook. Bourne shell (<code>sh</code>) syntax is supported.</p>
-<blockquote>
-<p><strong>Important:</strong> This option does not merge from <code>remotes</code> or <code>extends</code> for security reasons. But it gets merged from lefthook local config if specified.</p>
-</blockquote>
+<div class="docmd-container callout callout-warn"><div class="callout-content">
+<p>This option does not merge from <code>remotes</code> or <code>extends</code> for security reasons. It does get merged from <code>lefthook-local.yml</code> if specified.</p>
+</div></div>
 <p>There are three reasons you may want to specify <code>lefthook</code>:</p>
 <ol>
 <li>You want to force using specific lefthook version from your dependencies (e.g. npm package)</li>
 <li>You use PnP loader for your JS/TS project, and your <code>package.json</code> with lefthook dependency locates in a subfolder</li>
 <li>You want to make sure you use concrete lefthook executable path and want to defined it in <code>lefthook-local.yml</code></li>
 </ol>
-<h3 id="examples" class="docmd-heading"><a href="#examples" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Examples</h3>
 <h4 id="specify-lefthook-executable" class="docmd-heading"><a href="#specify-lefthook-executable" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Specify lefthook executable</h4>
 <pre class="hljs"><code><span class="hljs-comment"># lefthook.yml</span>
 
@@ -2516,10 +2515,6 @@
 </span></h2>
     <ul class="toc-list">
       
-        <li class="toc-item toc-level-3">
-          <a href="#examples" class="toc-link">Examples</a>
-        </li>
-      
         <li class="toc-item toc-level-4">
           <a href="#specify-lefthook-executable" class="toc-link">Specify lefthook executable</a>
         </li>
@@ -2561,11 +2556,11 @@
 
     </div>
 
-    <script src="../../assets/js/docmd-main.js?v=mnipfrni"></script>
-    <script src="../../assets/js/docmd-image-lightbox.js?v=mnipfrni" ></script>
+    <script src="../../assets/js/docmd-main.js?v=mnj9b2om"></script>
+    <script src="../../assets/js/docmd-image-lightbox.js?v=mnj9b2om" ></script>
 <script src="https://cdn.jsdelivr.net/npm/minisearch@7.2.0/dist/umd/index.min.js" ></script>
-<script src="../../assets/js/docmd-search.js?v=mnipfrni" ></script>
-<script src="../../assets/js/init-mermaid.js?v=mnipfrni" type="module"></script>
+<script src="../../assets/js/docmd-search.js?v=mnj9b2om" ></script>
+<script src="../../assets/js/init-mermaid.js?v=mnj9b2om" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;">

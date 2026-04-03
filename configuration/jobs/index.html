@@ -20,16 +20,16 @@
         window.DOCMD_DEFAULT_MODE = "system";
     </script>
     <title>jobs</title>
-    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mnipfrni">
-    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mnipfrni">
+    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mnj9b2om">
+    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mnj9b2om">
     
     <link rel="stylesheet" 
-          href="../../assets/css/docmd-highlight-light.css?v=mnipfrni" 
+          href="../../assets/css/docmd-highlight-light.css?v=mnj9b2om" 
           id="hljs-light" 
           >
           
     <link rel="stylesheet" 
-          href="../../assets/css/docmd-highlight-dark.css?v=mnipfrni" 
+          href="../../assets/css/docmd-highlight-dark.css?v=mnj9b2om" 
           id="hljs-dark" 
           disabled>
     
@@ -49,7 +49,7 @@
 
 
     
-    <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mnipfrni">
+    <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mnj9b2om">
     
     <script>/**
  * --------------------------------------------------------------------
@@ -2441,27 +2441,8 @@
 <p>Added in lefthook <code>1.10.0</code></p>
 </div></div>
 <p>Jobs provide a flexible way to define tasks, supporting both commands and scripts. Jobs can be grouped for advanced flow control.</p>
-<h3 id="basic-example" class="docmd-heading"><a href="#basic-example" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Basic example</h3>
-<p>Define jobs in your <code>lefthook.yml</code> file under a specific hook like <code>pre-commit</code>:</p>
-<pre class="hljs"><code><span class="hljs-comment"># lefthook.yml</span>
-
-<span class="hljs-attr">pre-commit:</span>
-  <span class="hljs-attr">jobs:</span>
-    <span class="hljs-bullet">-</span> <span class="hljs-attr">run:</span> <span class="hljs-string">yarn</span> <span class="hljs-string">lint</span>
-    <span class="hljs-bullet">-</span> <span class="hljs-attr">run:</span> <span class="hljs-string">yarn</span> <span class="hljs-string">test</span>
-</code></pre>
-<h3 id="differences-from-commands-and-scripts" class="docmd-heading"><a href="#differences-from-commands-and-scripts" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Differences from Commands and Scripts</h3>
-<p><strong>Optional Job Names</strong></p>
-<ul>
-<li>Named jobs are merged across <a href="../extends"><code>extends</code></a> and local config.</li>
-<li>Unnamed jobs are appended in the order of their definition.</li>
-</ul>
-<p><strong>Job Groups</strong></p>
-<ul>
-<li>Groups can include other jobs.</li>
-<li>Flow within groups can be parallel or piped. Options <code>glob</code>, <code>root</code>, and <code>exclude</code> apply to all jobs in the group, including nested ones.</li>
-</ul>
-<h3 id="example" class="docmd-heading"><a href="#example" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Example</h3>
+<p>Named jobs are merged across <a href="../extends"><code>extends</code></a> and local config; unnamed jobs are appended in definition order. Groups can include other jobs with their own parallel or piped flow — <code>glob</code>, <code>root</code>, and <code>exclude</code> on a group apply to all nested jobs.</p>
+<h4 id="example" class="docmd-heading"><a href="#example" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Example</h4>
 <div class="docmd-container callout callout-info"><div class="callout-title">Note</div><div class="callout-content">
 <p>Currently, only <code>root</code>, <code>glob</code>, and <code>exclude</code> options are applied to group jobs. Other options must be set for each job individually. Submit a <a href="https://github.com/evilmartians/lefthook/issues/new?assignees=&amp;labels=feature+request&amp;projects=&amp;template=feature_request.md">feature request</a> if this limits your workflow.</p>
 </div></div>
@@ -2499,41 +2480,6 @@
                     
 
 
-  <div class="toc-container">
-    <h2 class="toc-title">On This Page<span class="mobile-view toc-menu-button float-right">
-<svg class="lucide-icon icon-chevrons-down-up " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
-  class="lucide lucide-chevrons-down-up"
-  xmlns="http://www.w3.org/2000/svg"
-  width="24"
-  height="24"
-  viewBox="0 0 24 24"
-  fill="none"
-  stroke="currentColor"
-  stroke-width="2"
-  stroke-linecap="round"
-  stroke-linejoin="round"
->
-  <path d="m7 20 5-5 5 5" />
-  <path d="m7 4 5 5 5-5" />
-</svg>
-</span></h2>
-    <ul class="toc-list">
-      
-        <li class="toc-item toc-level-3">
-          <a href="#basic-example" class="toc-link">Basic example</a>
-        </li>
-      
-        <li class="toc-item toc-level-3">
-          <a href="#differences-from-commands-and-scripts" class="toc-link">Differences from Commands and Scripts</a>
-        </li>
-      
-        <li class="toc-item toc-level-3">
-          <a href="#example" class="toc-link">Example</a>
-        </li>
-      
-    </ul>
-  </div>
-
                 </div>
             </div>
 
@@ -2556,11 +2502,11 @@
 
     </div>
 
-    <script src="../../assets/js/docmd-main.js?v=mnipfrni"></script>
-    <script src="../../assets/js/docmd-image-lightbox.js?v=mnipfrni" ></script>
+    <script src="../../assets/js/docmd-main.js?v=mnj9b2om"></script>
+    <script src="../../assets/js/docmd-image-lightbox.js?v=mnj9b2om" ></script>
 <script src="https://cdn.jsdelivr.net/npm/minisearch@7.2.0/dist/umd/index.min.js" ></script>
-<script src="../../assets/js/docmd-search.js?v=mnipfrni" ></script>
-<script src="../../assets/js/init-mermaid.js?v=mnipfrni" type="module"></script>
+<script src="../../assets/js/docmd-search.js?v=mnj9b2om" ></script>
+<script src="../../assets/js/init-mermaid.js?v=mnj9b2om" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;">

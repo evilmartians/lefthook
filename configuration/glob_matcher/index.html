@@ -20,16 +20,16 @@
         window.DOCMD_DEFAULT_MODE = "system";
     </script>
     <title>glob_matcher</title>
-    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mnipfrni">
-    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mnipfrni">
+    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mnj9b2om">
+    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mnj9b2om">
     
     <link rel="stylesheet" 
-          href="../../assets/css/docmd-highlight-light.css?v=mnipfrni" 
+          href="../../assets/css/docmd-highlight-light.css?v=mnj9b2om" 
           id="hljs-light" 
           >
           
     <link rel="stylesheet" 
-          href="../../assets/css/docmd-highlight-dark.css?v=mnipfrni" 
+          href="../../assets/css/docmd-highlight-dark.css?v=mnj9b2om" 
           id="hljs-dark" 
           disabled>
     
@@ -49,7 +49,7 @@
 
 
     
-    <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mnipfrni">
+    <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mnj9b2om">
     
     <script>/**
  * --------------------------------------------------------------------
@@ -2437,13 +2437,13 @@
                     
                     
                     <h1 id="glob_matcher"><code>glob_matcher</code></h1>
-<p>You can configure which glob matching engine lefthook uses to filter files. By default, lefthook uses <code>gobwas/glob</code>, but you can opt-in to use <code>doublestar</code> for standard glob behavior.</p>
+<p>Configure which glob matching engine lefthook uses to filter files.</p>
 <p><strong>Values:</strong></p>
 <ul>
-<li><code>gobwas</code> (default): The current glob implementation</li>
-<li><code>doublestar</code>: Standard glob behavior where <code>**</code> matches 0 or more directories</li>
+<li><code>gobwas</code> (default): see <a href="https://github.com/gobwas/glob">https://github.com/gobwas/glob</a></li>
+<li><code>doublestar</code>: Usual glob behavior (like in Bash)</li>
 </ul>
-<p><strong>Example:</strong></p>
+<h4 id="example" class="docmd-heading"><a href="#example" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Example</h4>
 <pre class="hljs"><code><span class="hljs-comment"># lefthook.yml</span>
 
 <span class="hljs-attr">glob_matcher:</span> <span class="hljs-string">doublestar</span>
@@ -2454,64 +2454,11 @@
       <span class="hljs-attr">run:</span> <span class="hljs-string">yarn</span> <span class="hljs-string">eslint</span> {<span class="hljs-string">staged_files</span>}
       <span class="hljs-attr">glob:</span> <span class="hljs-string">&quot;**/*.{js,ts}&quot;</span>
 </code></pre>
-<h3 id="key-differences" class="docmd-heading"><a href="#key-differences" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Key Differences</h3>
-<p>The main difference between the two matchers is how they handle <code>**</code>:</p>
-<h4 id="default-behavior-gobwas" class="docmd-heading"><a href="#default-behavior-gobwas" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Default behavior (<code>gobwas</code>)</h4>
-<p>The <code>**</code> pattern matches <strong>1 or more</strong> directories:</p>
-<ul>
-<li><code>**/*.js</code> matches <code>folder/file.js</code>, <code>a/b/c/file.js</code></li>
-<li><code>**/*.js</code> does <strong>NOT</strong> match <code>file.js</code> at the root level</li>
-</ul>
-<h4 id="standard-behavior-doublestar" class="docmd-heading"><a href="#standard-behavior-doublestar" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Standard behavior (<code>doublestar</code>)</h4>
-<p>The <code>**</code> pattern matches <strong>0 or more</strong> directories:</p>
-<ul>
-<li><code>**/*.js</code> matches <code>file.js</code>, <code>folder/file.js</code>, <code>a/b/c/file.js</code></li>
-<li>This is consistent with most glob implementations</li>
-</ul>
-<h3 id="when-to-use" class="docmd-heading"><a href="#when-to-use" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>When to Use</h3>
-<p><strong>Use <code>glob_matcher: doublestar</code> when:</strong></p>
-<ul>
-<li>You want standard glob behavior consistent with other tools</li>
-<li>You need <code>**</code> to match files at any level including the root</li>
-<li>You’re migrating from other tools that use standard glob patterns</li>
-</ul>
-<p><strong>Keep the default (<code>gobwas</code>) when:</strong></p>
-<ul>
-<li>You want to maintain existing behavior</li>
-<li>You specifically need <code>**</code> to require at least one directory level</li>
-<li>You have existing patterns that depend on the current behavior</li>
-</ul>
-<h3 id="example-comparison" class="docmd-heading"><a href="#example-comparison" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Example Comparison</h3>
-<pre class="hljs"><code><span class="hljs-comment"># With default (gobwas)</span>
-<span class="hljs-attr">glob_matcher:</span> <span class="hljs-string">gobwas</span>  <span class="hljs-comment"># or omit this line</span>
-
-<span class="hljs-attr">pre-commit:</span>
-  <span class="hljs-attr">jobs:</span>
-    <span class="hljs-bullet">-</span> <span class="hljs-attr">run:</span> <span class="hljs-string">eslint</span> <span class="hljs-string">--</span> {<span class="hljs-string">staged_files</span>}
-      <span class="hljs-attr">glob:</span> <span class="hljs-string">&quot;**/*.js&quot;</span>
-      <span class="hljs-comment"># Matches: src/app.js, lib/util.js</span>
-      <span class="hljs-comment"># Does NOT match: app.js</span>
-
-    <span class="hljs-bullet">-</span> <span class="hljs-attr">run:</span> <span class="hljs-string">eslint</span> <span class="hljs-string">--</span> {<span class="hljs-string">staged_files</span>}
-      <span class="hljs-attr">glob:</span> <span class="hljs-string">&quot;*.js&quot;</span>
-      <span class="hljs-comment"># Matches: app.js</span>
-      <span class="hljs-comment"># Does NOT match: src/app.js</span>
+<h4 id="behaviour-comparison" class="docmd-heading"><a href="#behaviour-comparison" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Behaviour comparison</h4>
+<pre class="hljs"><code><span class="hljs-comment"># gobwas (default): **/*.js matches src/app.js but NOT app.js</span>
+<span class="hljs-comment"># doublestar:       **/*.js matches app.js, src/app.js, a/b/c/app.js</span>
 </code></pre>
-<pre class="hljs"><code><span class="hljs-comment"># With doublestar</span>
-<span class="hljs-attr">glob_matcher:</span> <span class="hljs-string">doublestar</span>
-
-<span class="hljs-attr">pre-commit:</span>
-  <span class="hljs-attr">jobs:</span>
-    <span class="hljs-bullet">-</span> <span class="hljs-attr">run:</span> <span class="hljs-string">eslint</span> <span class="hljs-string">--</span> {<span class="hljs-string">staged_files</span>}
-      <span class="hljs-attr">glob:</span> <span class="hljs-string">&quot;**/*.js&quot;</span>
-      <span class="hljs-comment"># Matches: app.js, src/app.js, lib/util.js</span>
-</code></pre>
-<h3 id="notes" class="docmd-heading"><a href="#notes" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Notes</h3>
-<ul>
-<li>The <code>glob_matcher</code> setting is global and applies to all <code>glob</code> and <code>exclude</code> patterns in your configuration</li>
-<li>This setting does not affect <code>root</code> or other path-related options</li>
-<li>The setting is fully backward compatible - existing configurations continue to work without modification</li>
-</ul>
+<p>Use <code>doublestar</code> when migrating from other tools or when you need <code>**</code> to match files at any depth including the root. The setting applies globally to all <code>glob</code> and <code>exclude</code> patterns and is backwards compatible.</p>
 
 
                     
@@ -2541,28 +2488,12 @@
 </span></h2>
     <ul class="toc-list">
       
-        <li class="toc-item toc-level-3">
-          <a href="#key-differences" class="toc-link">Key Differences</a>
+        <li class="toc-item toc-level-4">
+          <a href="#example" class="toc-link">Example</a>
         </li>
       
         <li class="toc-item toc-level-4">
-          <a href="#default-behavior-gobwas" class="toc-link">Default behavior (gobwas)</a>
-        </li>
-      
-        <li class="toc-item toc-level-4">
-          <a href="#standard-behavior-doublestar" class="toc-link">Standard behavior (doublestar)</a>
-        </li>
-      
-        <li class="toc-item toc-level-3">
-          <a href="#when-to-use" class="toc-link">When to Use</a>
-        </li>
-      
-        <li class="toc-item toc-level-3">
-          <a href="#example-comparison" class="toc-link">Example Comparison</a>
-        </li>
-      
-        <li class="toc-item toc-level-3">
-          <a href="#notes" class="toc-link">Notes</a>
+          <a href="#behaviour-comparison" class="toc-link">Behaviour comparison</a>
         </li>
       
     </ul>
@@ -2590,11 +2521,11 @@
 
     </div>
 
-    <script src="../../assets/js/docmd-main.js?v=mnipfrni"></script>
-    <script src="../../assets/js/docmd-image-lightbox.js?v=mnipfrni" ></script>
+    <script src="../../assets/js/docmd-main.js?v=mnj9b2om"></script>
+    <script src="../../assets/js/docmd-image-lightbox.js?v=mnj9b2om" ></script>
 <script src="https://cdn.jsdelivr.net/npm/minisearch@7.2.0/dist/umd/index.min.js" ></script>
-<script src="../../assets/js/docmd-search.js?v=mnipfrni" ></script>
-<script src="../../assets/js/init-mermaid.js?v=mnipfrni" type="module"></script>
+<script src="../../assets/js/docmd-search.js?v=mnj9b2om" ></script>
+<script src="../../assets/js/init-mermaid.js?v=mnj9b2om" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;">

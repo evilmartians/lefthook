@@ -20,16 +20,16 @@
         window.DOCMD_DEFAULT_MODE = "system";
     </script>
     <title>glob</title>
-    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mnipfrni">
-    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mnipfrni">
+    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mnj9b2om">
+    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mnj9b2om">
     
     <link rel="stylesheet" 
-          href="../../assets/css/docmd-highlight-light.css?v=mnipfrni" 
+          href="../../assets/css/docmd-highlight-light.css?v=mnj9b2om" 
           id="hljs-light" 
           >
           
     <link rel="stylesheet" 
-          href="../../assets/css/docmd-highlight-dark.css?v=mnipfrni" 
+          href="../../assets/css/docmd-highlight-dark.css?v=mnj9b2om" 
           id="hljs-dark" 
           disabled>
     
@@ -49,7 +49,7 @@
 
 
     
-    <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mnipfrni">
+    <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mnj9b2om">
     
     <script>/**
  * --------------------------------------------------------------------
@@ -2460,18 +2460,14 @@
 </code></pre>
 </div></div>
 <p>For patterns that you can use see <a href="https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm">this</a> reference. We use <a href="https://github.com/gobwas/glob">glob</a> library.</p>
-<p><strong>When using <code>root:</code></strong></p>
-<p>Globs are still calculated from the actual root of the git repo, <code>root</code> is ignored.</p>
-<p><strong>Behaviour of <code>**</code></strong></p>
-<p>Note that the behaviour of <code>**</code> is different from typical glob implementations, like <code>ls</code> or tools like <code>lint-staged</code> in that a double-asterisk matches 1+ directories deep, not zero or more directories.<br>
-If you want to match <em>both</em> files at the top level and nested, then rather than:</p>
-<pre class="hljs"><code><span class="hljs-attr">glob:</span> <span class="hljs-string">&quot;src/**/*.js&quot;</span>
+<h4 id="when-using-root" class="docmd-heading"><a href="#when-using-root" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>When using <code>root</code></h4>
+<p>Globs are still calculated from the actual root of the git repo — <code>root</code> is ignored.</p>
+<h4 id="behaviour-of" class="docmd-heading"><a href="#behaviour-of" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Behaviour of <code>**</code></h4>
+<p>The <code>**</code> pattern matches <strong>1 or more</strong> directories deep (not zero or more, unlike most other tools). To match files at both the top level and nested, use separate patterns or opt-in to standard behavior with <a href="../glob_matcher"><code>glob_matcher: doublestar</code></a>.</p>
+<pre class="hljs"><code><span class="hljs-attr">glob:</span> <span class="hljs-string">&quot;src/**/*.js&quot;</span>  <span class="hljs-comment"># does NOT match src/file.js</span>
+<span class="hljs-attr">glob:</span> <span class="hljs-string">&quot;src/*.js&quot;</span>     <span class="hljs-comment"># matches src/file.js only</span>
 </code></pre>
-<p>You’ll need:</p>
-<pre class="hljs"><code><span class="hljs-attr">glob:</span> <span class="hljs-string">&quot;src/*.js&quot;</span>
-</code></pre>
-<p>Alternatively, you can opt-in to standard glob behavior by setting <a href="../glob_matcher"><code>glob_matcher: doublestar</code></a> at the top level of your configuration. With this setting, <code>**</code> will match 0 or more directories, making it consistent with most other glob implementations.</p>
-<p><strong>Using <code>glob</code> without a files template in<code>run</code></strong></p>
+<h4 id="using-glob-without-a-files-template-in-run" class="docmd-heading"><a href="#using-glob-without-a-files-template-in-run" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Using <code>glob</code> without a files template in <code>run</code></h4>
 <p>If you’ve specified <code>glob</code> but don’t have a files template in <a href="../run"><code>run</code></a> option, lefthook will check <code>{staged_files}</code> for <code>pre-commit</code> hook and <code>{push_files}</code> for <code>pre-push</code> hook and apply filtering. If no files left, the command will be skipped.</p>
 <pre class="hljs"><code><span class="hljs-comment"># lefthook.yml</span>
 
@@ -2489,6 +2485,45 @@ If you want to match <em>both</em> files at the top level and nested, then rathe
                 <div class="toc-sidebar">
                     
 
+
+  <div class="toc-container">
+    <h2 class="toc-title">On This Page<span class="mobile-view toc-menu-button float-right">
+<svg class="lucide-icon icon-chevrons-down-up " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
+  class="lucide lucide-chevrons-down-up"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m7 20 5-5 5 5" />
+  <path d="m7 4 5 5 5-5" />
+</svg>
+</span></h2>
+    <ul class="toc-list">
+      
+        <li class="toc-item toc-level-4">
+          <a href="#example" class="toc-link">Example</a>
+        </li>
+      
+        <li class="toc-item toc-level-4">
+          <a href="#when-using-root" class="toc-link">When using root</a>
+        </li>
+      
+        <li class="toc-item toc-level-4">
+          <a href="#behaviour-of" class="toc-link">Behaviour of **</a>
+        </li>
+      
+        <li class="toc-item toc-level-4">
+          <a href="#using-glob-without-a-files-template-in-run" class="toc-link">Using glob without a files template in run</a>
+        </li>
+      
+    </ul>
+  </div>
 
                 </div>
             </div>
@@ -2512,11 +2547,11 @@ If you want to match <em>both</em> files at the top level and nested, then rathe
 
     </div>
 
-    <script src="../../assets/js/docmd-main.js?v=mnipfrni"></script>
-    <script src="../../assets/js/docmd-image-lightbox.js?v=mnipfrni" ></script>
+    <script src="../../assets/js/docmd-main.js?v=mnj9b2om"></script>
+    <script src="../../assets/js/docmd-image-lightbox.js?v=mnj9b2om" ></script>
 <script src="https://cdn.jsdelivr.net/npm/minisearch@7.2.0/dist/umd/index.min.js" ></script>
-<script src="../../assets/js/docmd-search.js?v=mnipfrni" ></script>
-<script src="../../assets/js/init-mermaid.js?v=mnipfrni" type="module"></script>
+<script src="../../assets/js/docmd-search.js?v=mnj9b2om" ></script>
+<script src="../../assets/js/init-mermaid.js?v=mnj9b2om" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;">
