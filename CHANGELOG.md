@@ -1,5 +1,17 @@
 # Change log
 
+## 2.1.5 (2026-04-06)
+
+- deps: April 2026 ([#1375](https://github.com/evilmartians/lefthook/pull/1375)) by [@mrexox]()
+- docs: update documentation and docs for claude ([#1373](https://github.com/evilmartians/lefthook/pull/1373)) by [@mrexox]()
+- fix: git repository merge issue ([#1372](https://github.com/evilmartians/lefthook/pull/1372)) by [@mrexox]()
+- fix: use pre-push stdin for push file detection ([#1368](https://github.com/evilmartians/lefthook/pull/1368)) by [@supitsdu]()
+- chore: small cleanup ([#1370](https://github.com/evilmartians/lefthook/pull/1370)) by [@mrexox]()
+- fix: prevent `lefthook run` from overwriting global hooks ([#1371](https://github.com/evilmartians/lefthook/pull/1371)) by [@ivy]()
+- chore: upgrade to 2.11.4 ([#1362](https://github.com/evilmartians/lefthook/pull/1362)) by [@scop]()
+- chore: fix golangci-lint version lookup by [@mrexox]()
+- chore: move golangci-lint version to .tool-versions ([#1349](https://github.com/evilmartians/lefthook/pull/1349)) by [@scop]()
+
 ## 2.1.4 (2026-03-12)
 
 - pkg: fix scripts ([#1348](https://github.com/evilmartians/lefthook/pull/1348)) by [@mrexox](https://github.com/mrexox)
@@ -1173,3 +1185,5 @@ gem 'lefthook'
 [@franzramadhan]: https://github.com/franzramadhan
 [@joevin-sql-docto]: https://github.com/joevin-slq-docto
 [@jeonghoon11]: https://github.com/jeonghoon11
+[@supitsdu]: https://github.com/supitsdu
+[@ivy]: https://github.com/ivy
