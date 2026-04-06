@@ -52,9 +52,11 @@ class System does SystemAPI {
     say "run {@argv.join(' ')}";
     return if $!dry-run;
 
-    my $proc = run(|@argv, :out, :err);
-    my $out = $proc.out.slurp(:close);
-    my $err = $proc.err.slurp(:close);
+    my $proc = run(|@argv, :out, :err, :in(False));
+    my ($out, $err) = await (
+      start $proc.out.slurp(:close),
+      start $proc.err.slurp(:close),
+    );
 
     print $out if $out.chars;
     note $err if $err.chars;
