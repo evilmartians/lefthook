@@ -223,6 +223,8 @@ jobs:
             echo "Host aur.archlinux.org" >> ~/.ssh/config
             echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
             echo "  User aur" >> ~/.ssh/config
+            echo "  StrictHostKeyChecking accept-new" >> ~/.ssh/config
+            echo "  BatchMode yes" >> ~/.ssh/config
             ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
 
             raku packaging/scripts/publish.raku --target=aur
@@ -256,6 +258,8 @@ jobs:
             echo "Host aur.archlinux.org" >> ~/.ssh/config
             echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
             echo "  User aur" >> ~/.ssh/config
+            echo "  StrictHostKeyChecking accept-new" >> ~/.ssh/config
+            echo "  BatchMode yes" >> ~/.ssh/config
             ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
 
             raku packaging/scripts/publish.raku --target=aur-bin
