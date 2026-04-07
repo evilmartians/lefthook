@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/bmatcuk/doublestar/v4"
@@ -187,7 +188,9 @@ func byRoot(vs []string, matcher string) []string {
 		return vs
 	}
 
-	matcher = strings.TrimRight(matcher, "/") + "/"
+	matcher = strings.TrimRight(matcher, string(filepath.Separator))
+	matcher = strings.TrimRight(matcher, "/")
+	matcher += string(filepath.Separator)
 
 	vsf := make([]string, 0)
 	for _, v := range vs {
