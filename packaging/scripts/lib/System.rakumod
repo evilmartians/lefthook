@@ -53,8 +53,16 @@ class System does SystemAPI {
     return if $!dry-run;
 
     my $proc = run(|@argv, :out, :err);
-    my $out = $proc.out.slurp(:close);
-    my $err = $proc.err.slurp(:close);
+
+    # Read stdout and stderr concurrently to avoid a pipe deadlock: if the
+    # child writes enough data to fill one pipe's kernel buffer (~64 KB) while
+    # the parent is still blocked draining the other pipe, neither side can
+    # make progress.  Draining both pipes in parallel prevents the deadlock.
+    my $out-promise = start { $proc.out.slurp(:close) };
+    my $err-promise = start { $proc.err.slurp(:close) };
+
+    my $out = await $out-promise;
+    my $err = await $err-promise;
 
     print $out if $out.chars;
     note $err if $err.chars;
