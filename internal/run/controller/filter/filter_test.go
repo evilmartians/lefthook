@@ -3,6 +3,8 @@ package filter
 import (
 	"fmt"
 	"testing"
+
+	"github.com/evilmartians/lefthook/v2/tests/helpers/pathtest"
 )
 
 func slicesEqual(a, b []string) bool {
@@ -217,9 +219,11 @@ func TestByRoot(t *testing.T) {
 		},
 	} {
 		t.Run(fmt.Sprintf("%d:", i), func(t *testing.T) {
-			res := byRoot(tt.source, tt.path)
-			if !slicesEqual(res, tt.result) {
-				t.Errorf("expected %v to be equal to %v", res, tt.result)
+			source := pathtest.AsOSPaths(tt.source)
+			resultWant := pathtest.AsOSPaths(tt.result)
+			result := byRoot(source, tt.path)
+			if !slicesEqual(result, resultWant) {
+				t.Errorf("expected %v to be equal to %v", result, resultWant)
 			}
 		})
 	}
