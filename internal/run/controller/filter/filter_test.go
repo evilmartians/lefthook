@@ -198,12 +198,12 @@ func TestByRoot(t *testing.T) {
 		{
 			source: []string{"folder/subfolder/0.rb", "subfolder/1.txt", "folder/2.RB", "3.rbs"},
 			path:   "folder",
-			result: []string{".//subfolder/0.rb", ".//2.RB"},
+			result: []string{"./subfolder/0.rb", "./2.RB"},
 		},
 		{
 			source: []string{"folder/subfolder/0.rb", "folder/1.rbs"},
 			path:   "folder/subfolder",
-			result: []string{".//0.rb"},
+			result: []string{"./0.rb"},
 		},
 		{
 			source: []string{"folder/subfolder/0.rb", "folder/1.rbs"},
