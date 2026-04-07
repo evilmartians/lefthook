@@ -187,9 +187,7 @@ func byRoot(vs []string, matcher string) []string {
 		return vs
 	}
 
-	if !strings.HasSuffix(matcher, "/") {
-		matcher += "/"
-	}
+	matcher = strings.TrimRight(matcher, "/") + "/"
 
 	vsf := make([]string, 0)
 	for _, v := range vs {

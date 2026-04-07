@@ -210,6 +210,11 @@ func TestByRoot(t *testing.T) {
 			path:   "folder/subfolder/",
 			result: []string{"./0.rb"},
 		},
+		{
+			source: []string{"folder/subfolder/0.rb", "folder/1.rbs"},
+			path:   "folder/subfolder//",
+			result: []string{"./0.rb"},
+		},
 	} {
 		t.Run(fmt.Sprintf("%d:", i), func(t *testing.T) {
 			res := byRoot(tt.source, tt.path)
