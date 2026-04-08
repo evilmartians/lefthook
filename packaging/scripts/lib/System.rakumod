@@ -54,18 +54,16 @@ class System does SystemAPI {
 
     my $proc = run(|@argv, :out, :err);
 
-    # Read stdout and stderr concurrently to avoid a pipe deadlock: if the
-    # child writes enough data to fill one pipe's kernel buffer (~64 KB) while
-    # the parent is still blocked draining the other pipe, neither side can
-    # make progress.  Draining both pipes in parallel prevents the deadlock.
-    my $out-promise = start { $proc.out.slurp(:close) };
-    my $err-promise = start { $proc.err.slurp(:close) };
+    # Stream stdout and stderr concurrently, printing each line as it arrives.
+    # Running both reads in parallel prevents a pipe deadlock: if the child
+    # fills one pipe's kernel buffer (~64 KB) while the parent is blocked on
+    # the other, neither side can make progress.  Streaming also gives
+    # real-time output for long-running commands like `uv build` and `makepkg`.
+    my $out-promise = start { for $proc.out.lines(:close) -> $line { say $line } };
+    my $err-promise = start { for $proc.err.lines(:close) -> $line { note $line } };
 
-    my $out = await $out-promise;
-    my $err = await $err-promise;
-
-    print $out if $out.chars;
-    note $err if $err.chars;
+    await $out-promise;
+    await $err-promise;
 
     die "failed: {@argv.join(' ')} --> {$proc.exitcode}" if $proc.exitcode != 0;
   }

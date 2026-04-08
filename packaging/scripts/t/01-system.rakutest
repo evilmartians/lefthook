@@ -115,12 +115,11 @@ subtest "run", {
 }
 
 subtest "run does not deadlock with large stdout and stderr", {
-  # Verifies that stdout and stderr are drained concurrently so that neither
+  # Verifies that stdout and stderr are streamed concurrently so that neither
   # pipe's kernel buffer (~64 KB) fills up and stalls the child process.
   # seq 1 10000 produces ~70 KB of output, which is enough to overflow the
   # buffer on each pipe.  Running stderr output in the background ensures both
-  # pipes are written simultaneously, which would deadlock the old sequential
-  # slurp implementation.
+  # pipes are written simultaneously, which would deadlock a sequential read.
   my Str $captured-out;
   temp $*OUT = class { method print(*@s) { $captured-out ~= @s.join } }
 
@@ -128,7 +127,7 @@ subtest "run does not deadlock with large stdout and stderr", {
     $sys.run("sh", "-c", "seq 1 10000 >&2 & seq 1 10000; wait");
   }, "completes without deadlock when both pipes carry large output";
 
-  ok $captured-out.contains("10000"), "captured full stdout";
+  ok $captured-out.contains("10000"), "streamed full stdout";
 }
 
 done-testing;
