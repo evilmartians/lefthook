@@ -52,12 +52,7 @@ class System does SystemAPI {
     say "run {@argv.join(' ')}";
     return if $!dry-run;
 
-    my $proc = run(|@argv, :out, :err);
-    my $out = $proc.out.slurp(:close);
-    my $err = $proc.err.slurp(:close);
-
-    print $out if $out.chars;
-    note $err if $err.chars;
+    my $proc = run(|@argv, :out(True), :err(True));
 
     die "failed: {@argv.join(' ')} --> {$proc.exitcode}" if $proc.exitcode != 0;
   }
