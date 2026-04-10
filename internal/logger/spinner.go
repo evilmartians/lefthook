@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 package logger
 
 import (
@@ -196,3 +197,47 @@ func pluralize(count int) string {
 	}
 	return "s"
 }
+||||||| parent of befc20fb (refactor: add a new logger without a global state [skip ci])
+=======
+package logger
+
+import (
+	"time"
+
+	"github.com/briandowns/spinner"
+)
+
+const (
+	spinnerCharSet     = 14
+	spinnerRefreshRate = 100 * time.Millisecond
+	spinnerText        = " waiting"
+)
+
+type Spinner struct {
+	spinner *spinner.Spinner
+	names   []string
+}
+
+func NewSpinner() *Spinner {
+	return &Spinner{
+		names: make([]string, 0, 10), // reduce extra allocations
+		spinner: spinner.New(
+			spinner.CharSets[spinnerCharSet],
+			spinnerRefreshRate,
+			spinner.WithSuffix(spinnerText),
+		),
+	}
+}
+
+func (s *Spinner) Start() {
+	s.spinner.Start()
+}
+
+func (s *Spinner) Stop() {
+	s.spinner.Stop()
+}
+
+func (s *Spinner) active() bool {
+	return s.spinner.Active()
+}
+>>>>>>> befc20fb (refactor: add a new logger without a global state [skip ci])
