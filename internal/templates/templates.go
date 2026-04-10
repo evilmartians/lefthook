@@ -5,6 +5,7 @@ import (
 	"embed"
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"text/template"
@@ -46,8 +47,8 @@ func Hook(hookName string, args Args) []byte {
 		Rc:                      args.Rc,
 		AssertLefthookInstalled: args.AssertLefthookInstalled,
 		Roots:                   args.Roots,
-		LefthookPath:            strings.ReplaceAll(strings.TrimSpace(args.LefthookPath), "\n", ";"),
-		LefthookPathCurrent:     lefthookPathCurrent,
+		LefthookPath:            filepath.ToSlash(strings.ReplaceAll(strings.TrimSpace(args.LefthookPath), "\n", ";")),
+		LefthookPathCurrent:     filepath.ToSlash(lefthookPathCurrent),
 	}); err != nil {
 		panic(err)
 	}
