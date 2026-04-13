@@ -153,6 +153,14 @@ func (l *Logger) Print(args ...any) {
 // 	l.Print(fmt.Sprintf(format, args...))
 // }
 
+func (l *Logger) SetColors(colors map[Color]color.Color) {
+	l.colors = colors
+}
+
+func (l *Logger) SetLevel(level Level) {
+	l.level = level
+}
+
 func isEnvEnabled(env string) bool {
 	value := os.Getenv(env)
 	if len(value) > 0 && value != "0" && value != "false" && value != "off" {

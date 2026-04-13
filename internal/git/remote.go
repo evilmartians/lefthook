@@ -15,8 +15,8 @@ const (
 )
 
 // RemoteFolder returns the path to the folder where the remote
-// repository is located.
-func (r *Repository) RemoteFolder(url string, ref string) string {
+// Git is located.
+func (r *Git) RemoteFolder(url string, ref string) string {
 	return filepath.Join(
 		r.RemotesFolder(),
 		RemoteDirectoryName(url, ref),
@@ -24,14 +24,14 @@ func (r *Repository) RemoteFolder(url string, ref string) string {
 }
 
 // RemotesFolder returns the path to the lefthook remotes folder.
-func (r *Repository) RemotesFolder() string {
+func (r *Git) RemotesFolder() string {
 	return filepath.Join(r.InfoPath, remotesFolder)
 }
 
-// SyncRemote clones or pulls the latest changes for a git repository that was
-// specified as a remote config repository. If successful, the path to the root
-// of the repository will be returned.
-func (r *Repository) SyncRemote(url, ref string, force bool) error {
+// SyncRemote clones or pulls the latest changes for a git Git that was
+// specified as a remote config Git. If successful, the path to the root
+// of the Git will be returned.
+func (r *Git) SyncRemote(url, ref string, force bool) error {
 	remotesPath := r.RemotesFolder()
 
 	err := r.Fs.MkdirAll(remotesPath, remotesFolderMode)
@@ -62,11 +62,11 @@ func (r *Repository) SyncRemote(url, ref string, force bool) error {
 	return r.cloneRemote(remotesPath, directoryName, url, ref)
 }
 
-func (r *Repository) updateRemote(path, ref string) error {
+func (r *Git) updateRemote(path, ref string) error {
 	log.Debugf("Updating remote config repository: %s", path)
 
 	// This is overwriting ENVs for worktrees, otherwise it does not work.
-	git := r.Git.WithoutEnvs("GIT_DIR", "GIT_INDEX_FILE").OnlyDebugLogs()
+	git := r.Commander.WithoutEnvs("GIT_DIR", "GIT_INDEX_FILE").OnlyDebugLogs()
 
 	if len(ref) != 0 {
 		_, err := git.Cmd([]string{
@@ -93,7 +93,7 @@ func (r *Repository) updateRemote(path, ref string) error {
 	return nil
 }
 
-func (r *Repository) cloneRemote(dest, directoryName, url, ref string) error {
+func (r *Git) cloneRemote(dest, directoryName, url, ref string) error {
 	log.Debugf("Cloning remote config repository: %v/%v", dest, directoryName)
 
 	cmdClone := []string{"git", "-C", dest, "clone", "--quiet", "--origin", "origin", "--depth", "1"}

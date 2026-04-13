@@ -24,7 +24,6 @@ import (
 
 const (
 	EnvVerbose             = "LEFTHOOK_VERBOSE" // keep all output
-	envForceColor          = "FORCE_COLOR"
 	envNoColor             = "NO_COLOR"
 	envClicolorForce       = "CLICOLOR_FORCE"
 	envClicolor            = "CLICOLOR"
