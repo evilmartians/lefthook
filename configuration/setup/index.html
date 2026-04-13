@@ -8,32 +8,92 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="generator" content="docmd v0.4.x">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script>
+  <meta charset="UTF-8">
+  <meta name="generator" content="docmd v0.5.x">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>/**
+ * --------------------------------------------------------------------
+ * docmd : the minimalist, zero-config documentation generator.
+ *
+ * @package     @docmd/core (and ecosystem)
+ * @website     https://docmd.io
+ * @repository  https://github.com/docmd-io/docmd
+ * @license     MIT
+ * @copyright   Copyright (c) 2025-present docmd.io
+ *
+ * [docmd-source] - Please do not remove this header.
+ * --------------------------------------------------------------------
+ */
+
+(function () {
+  try {
+    // 1. Determine Theme
+    var localValue = localStorage.getItem('docmd-theme');
+    var configValue = window.DOCMD_DEFAULT_MODE || 'light';
+    var theme = localValue ? localValue : configValue;
+
+    if (theme === 'system') {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    // 2. Apply to Root
+    document.documentElement.setAttribute('data-theme', theme);
+
+    // 3. Highlight.js Toggle Strategy
+    var lightLink = document.getElementById('hljs-light');
+    var darkLink = document.getElementById('hljs-dark');
+
+    if (lightLink && darkLink) {
+      if (theme === 'dark') {
+        lightLink.disabled = true;
+        darkLink.disabled = false;
+      } else {
+        lightLink.disabled = false;
+        darkLink.disabled = true;
+      }
+    }
+
+    document.documentElement.style.visibility = "visible";
+  } catch (e) {
+    document.documentElement.style.visibility = "visible";
+    console.error('Theme init failed', e);
+  }
+})();</script>
+    <style>
+      html {
+        visibility: hidden;
+      }
+    </style>
+    
+      <script>
         var root = "../../";
         if (root && !root.endsWith('/')) root += '/';
         if (root === '') root = './';
         window.DOCMD_ROOT = root;
-        window.DOCMD_DEFAULT_MODE = "system";
-    </script>
-    <title>setup</title>
-    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mnr67zrc">
-    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mnr67zrc">
-    
-    <link rel="stylesheet" 
-          href="../../assets/css/docmd-highlight-light.css?v=mnr67zrc" 
-          id="hljs-light" 
-          >
+
+        var siteRoot = "../../";
+        if (siteRoot && !siteRoot.endsWith('/')) siteRoot += '/';
+        if (siteRoot === '') siteRoot = './';
+        window.DOCMD_SITE_ROOT = siteRoot;
+
+        window.DOCMD_APPEARANCE = "system";
+        window.DOCMD_VERSION_ROOT = "/";
+      </script>
+      <title>
+        setup
+      </title>
+      <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mnwxck6v">
+        <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mnwxck6v">
+        
+          <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=mnwxck6v"
+            id="hljs-light" >
+
+          <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=mnwxck6v"
+            id="hljs-dark" disabled>
           
-    <link rel="stylesheet" 
-          href="../../assets/css/docmd-highlight-dark.css?v=mnr67zrc" 
-          id="hljs-dark" 
-          disabled>
-    
-    
+            
 <meta name="description" content="Lefthook documentation.">
 <link rel="canonical" href="https://lefthook.dev/configuration/setup/">
 <meta property="og:title" content="setup : Lefthook">
@@ -48,10 +108,11 @@
 
 
 
-    
-    <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mnr67zrc">
-    
-    <script>/**
+              
+                <link rel="stylesheet"
+                  href="../../assets/css/lefthook.css?v=mnwxck6v">
+                
+                  <script>/**
  * --------------------------------------------------------------------
  * docmd : the minimalist, zero-config documentation generator.
  *
@@ -59,62 +120,72 @@
  * @website     https://docmd.io
  * @repository  https://github.com/docmd-io/docmd
  * @license     MIT
- * @copyright   Copyright (c) 2025 docmd.io
+ * @copyright   Copyright (c) 2025-present docmd.io
  *
  * [docmd-source] - Please do not remove this header.
  * --------------------------------------------------------------------
  */
 
-(function() {
+(function () {
   try {
     // 1. Determine Theme
     var localValue = localStorage.getItem('docmd-theme');
-    var configValue = window.DOCMD_DEFAULT_MODE || 'light'; 
+    var configValue = window.DOCMD_DEFAULT_MODE || 'light';
     var theme = localValue ? localValue : configValue;
-    
+
     if (theme === 'system') {
       theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
 
     // 2. Apply to Root
     document.documentElement.setAttribute('data-theme', theme);
-    
+
     // 3. Highlight.js Toggle Strategy
     var lightLink = document.getElementById('hljs-light');
     var darkLink = document.getElementById('hljs-dark');
-    
+
     if (lightLink && darkLink) {
-        if (theme === 'dark') {
-            lightLink.disabled = true;
-            darkLink.disabled = false;
-        } else {
-            lightLink.disabled = false;
-            darkLink.disabled = true;
-        }
+      if (theme === 'dark') {
+        lightLink.disabled = true;
+        darkLink.disabled = false;
+      } else {
+        lightLink.disabled = false;
+        darkLink.disabled = true;
+      }
     }
 
+    document.documentElement.style.visibility = "visible";
   } catch (e) {
+    document.documentElement.style.visibility = "visible";
     console.error('Theme init failed', e);
   }
 })();</script>
 </head>
-<body class="sidebar-collapsible" 
-      data-default-collapsed="false" 
-      data-copy-code-enabled="true"
-      data-spa-enabled="true">
-    
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-    
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            
-            <a href="/" class="logo-link">
-                <img src="../../assets/lefthook.png" alt="Logo" class="logo-light" >
-                <img src="../../assets/lefthook.png" alt="Logo" class="logo-dark" >
-            </a>
-            
-            <span class="mobile-view sidebar-menu-button float-right">
+
+<body
+  class="sidebar-collapsible"
+  data-default-collapsed="false"
+  data-copy-code-enabled="true" data-spa-enabled="true" data-source-file="docs/configuration/setup.md">
+
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  
+
+        
+          <aside class="sidebar">
+            <div class="sidebar-header">
+              
+                <a href="/" class="logo-link">
+                  <img
+                    src="../../assets/lefthook.png"
+                    alt="Logo" class="logo-light" >
+                      <img
+                        src="../../assets/lefthook.png"
+                        alt="Logo" class="logo-dark" >
+                </a>
                 
+                    <span class="mobile-view sidebar-menu-button float-right">
+                      
 <svg class="lucide-icon icon-menu " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-menu"
   xmlns="http://www.w3.org/2000/svg"
@@ -132,19 +203,23 @@
   <path d="M4 19h16" />
 </svg>
 
-            </span>
-        </div>
+                    </span>
+            </div>
 
-        
+            <div class="sidebar-top-group">
+              
+                  
+            </div>
 
-        
+            
 
 <nav class="sidebar-nav" aria-label="Main Navigation">
   <ul>
     
-    <li class="collapsible"  aria-expanded="false" >
+      <li class="collapsible nav-group"  aria-expanded="false" >
       
-        <a href="../../install" class="" >
+        <a href="../../install" class=" nav-group"
+          >
            
 <svg class="lucide-icon icon-rocket " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-rocket"
@@ -163,10 +238,13 @@
   <path d="M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z" />
   <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05" />
 </svg>
- 
-          <span class="nav-item-title">Installation</span>
-           
-              <span class="collapse-icon-wrapper">
+
+          
+          <span class="nav-item-title">
+            Installation
+            </span>
+          
+            <span class="collapse-icon-wrapper">
 <svg class="lucide-icon icon-chevron-right collapse-icon" width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-right"
   xmlns="http://www.w3.org/2000/svg"
@@ -185,226 +263,275 @@
           
           
         </a>
+        
+
+        
+          <ul class="submenu">
+            
+      <li class="" >
       
-      
-      
-        <ul class="submenu">
+        <a href="../../installation/ruby" class=" "
+          >
           
-    <li class="" >
-      
-        <a href="../../installation/ruby" class="" >
-          
-          <span class="nav-item-title">Ruby gem</span>
-          
-          
-        </a>
-      
-      
-      
-    </li>
-    
-    <li class="" >
-      
-        <a href="../../installation/node" class="" >
-          
-          <span class="nav-item-title">NPM</span>
+          <span class="nav-item-title">
+            Ruby gem
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../installation/go" class="" >
+        <a href="../../installation/node" class=" "
+          >
           
-          <span class="nav-item-title">Go</span>
+          <span class="nav-item-title">
+            NPM
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../installation/python" class="" >
+        <a href="../../installation/go" class=" "
+          >
           
-          <span class="nav-item-title">Python</span>
+          <span class="nav-item-title">
+            Go
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../installation/swift" class="" >
+        <a href="../../installation/python" class=" "
+          >
           
-          <span class="nav-item-title">Swift</span>
+          <span class="nav-item-title">
+            Python
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../installation/homebrew" class="" >
+        <a href="../../installation/swift" class=" "
+          >
           
-          <span class="nav-item-title">Homebrew</span>
+          <span class="nav-item-title">
+            Swift
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../installation/winget" class="" >
+        <a href="../../installation/homebrew" class=" "
+          >
           
-          <span class="nav-item-title">Winget</span>
+          <span class="nav-item-title">
+            Homebrew
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../installation/scoop" class="" >
+        <a href="../../installation/winget" class=" "
+          >
           
-          <span class="nav-item-title">Scoop</span>
+          <span class="nav-item-title">
+            Winget
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../installation/deb" class="" >
+        <a href="../../installation/scoop" class=" "
+          >
           
-          <span class="nav-item-title">Debian-based distro</span>
+          <span class="nav-item-title">
+            Scoop
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../installation/rpm" class="" >
+        <a href="../../installation/deb" class=" "
+          >
           
-          <span class="nav-item-title">RPM-based distro</span>
+          <span class="nav-item-title">
+            Debian-based distro
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../installation/alpine" class="" >
+        <a href="../../installation/rpm" class=" "
+          >
           
-          <span class="nav-item-title">Alpine</span>
+          <span class="nav-item-title">
+            RPM-based distro
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../installation/arch" class="" >
+        <a href="../../installation/alpine" class=" "
+          >
           
-          <span class="nav-item-title">Arch Linux</span>
+          <span class="nav-item-title">
+            Alpine
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../installation/snap" class="" >
+        <a href="../../installation/arch" class=" "
+          >
           
-          <span class="nav-item-title">Snap</span>
+          <span class="nav-item-title">
+            Arch Linux
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../installation/devbox" class="" >
+        <a href="../../installation/snap" class=" "
+          >
           
-          <span class="nav-item-title">Devbox</span>
+          <span class="nav-item-title">
+            Snap
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../installation/mise" class="" >
+        <a href="../../installation/devbox" class=" "
+          >
           
-          <span class="nav-item-title">Mise</span>
+          <span class="nav-item-title">
+            Devbox
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../installation/manual" class="" >
+        <a href="../../installation/mise" class=" "
+          >
           
-          <span class="nav-item-title">Manual</span>
+          <span class="nav-item-title">
+            Mise
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-        </ul>
+      <li class="" >
       
-    </li>
+        <a href="../../installation/manual" class=" "
+          >
+          
+          <span class="nav-item-title">
+            Manual
+            </span>
+          
+          
+        </a>
+        
+
+        
+      </li>
     
-    <li class="active-parent collapsible expanded"  aria-expanded="true" >
+          </ul>
+        
+      </li>
+    
+      <li class="active-parent collapsible expanded nav-group"  aria-expanded="true" >
       
-        <a href="../../configuration" class="" >
+        <a href="../../configuration" class=" nav-group"
+          >
            
 <svg class="lucide-icon icon-settings " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-settings"
@@ -421,10 +548,13 @@
   <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
   <circle cx="12" cy="12" r="3" />
 </svg>
- 
-          <span class="nav-item-title">Configuration</span>
-           
-              <span class="collapse-icon-wrapper">
+
+          
+          <span class="nav-item-title">
+            Configuration
+            </span>
+          
+            <span class="collapse-icon-wrapper">
 <svg class="lucide-icon icon-chevron-right collapse-icon" width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-right"
   xmlns="http://www.w3.org/2000/svg"
@@ -443,148 +573,181 @@
           
           
         </a>
+        
+
+        
+          <ul class="submenu">
+            
+      <li class="" >
       
-      
-      
-        <ul class="submenu">
+        <a href="../../configuration/assert_lefthook_installed" class=" "
+          >
           
-    <li class="" >
-      
-        <a href="../../configuration/assert_lefthook_installed" class="" >
-          
-          <span class="nav-item-title">assert_lefthook_installed</span>
-          
-          
-        </a>
-      
-      
-      
-    </li>
-    
-    <li class="" >
-      
-        <a href="../../configuration/colors" class="" >
-          
-          <span class="nav-item-title">colors</span>
+          <span class="nav-item-title">
+            assert_lefthook_installed
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/extends" class="" >
+        <a href="../../configuration/colors" class=" "
+          >
           
-          <span class="nav-item-title">extends</span>
+          <span class="nav-item-title">
+            colors
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/install_non_git_hooks" class="" >
+        <a href="../../configuration/extends" class=" "
+          >
           
-          <span class="nav-item-title">install_non_git_hooks</span>
+          <span class="nav-item-title">
+            extends
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/lefthook" class="" >
+        <a href="../../configuration/install_non_git_hooks" class=" "
+          >
           
-          <span class="nav-item-title">lefthook</span>
+          <span class="nav-item-title">
+            install_non_git_hooks
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/min_version" class="" >
+        <a href="../../configuration/lefthook" class=" "
+          >
           
-          <span class="nav-item-title">min_version</span>
+          <span class="nav-item-title">
+            lefthook
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/no_auto_install" class="" >
+        <a href="../../configuration/min_version" class=" "
+          >
           
-          <span class="nav-item-title">no_auto_install</span>
+          <span class="nav-item-title">
+            min_version
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/no_tty" class="" >
+        <a href="../../configuration/no_auto_install" class=" "
+          >
           
-          <span class="nav-item-title">no_tty</span>
+          <span class="nav-item-title">
+            no_auto_install
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/output" class="" >
+        <a href="../../configuration/no_tty" class=" "
+          >
           
-          <span class="nav-item-title">output</span>
+          <span class="nav-item-title">
+            no_tty
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/rc" class="" >
+        <a href="../../configuration/output" class=" "
+          >
           
-          <span class="nav-item-title">rc</span>
+          <span class="nav-item-title">
+            output
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="collapsible"  aria-expanded="false" >
+      <li class="" >
       
-        <a href="../../configuration/remotes" class="" >
+        <a href="../../configuration/rc" class=" "
+          >
           
-          <span class="nav-item-title">remotes</span>
-           
-              <span class="collapse-icon-wrapper">
+          <span class="nav-item-title">
+            rc
+            </span>
+          
+          
+        </a>
+        
+
+        
+      </li>
+    
+      <li class="collapsible nav-group"  aria-expanded="false" >
+      
+        <a href="../../configuration/remotes" class=" nav-group"
+          >
+          
+          <span class="nav-item-title">
+            remotes
+            </span>
+          
+            <span class="collapse-icon-wrapper">
 <svg class="lucide-icon icon-chevron-right collapse-icon" width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-right"
   xmlns="http://www.w3.org/2000/svg"
@@ -603,152 +766,185 @@
           
           
         </a>
+        
+
+        
+          <ul class="submenu">
+            
+      <li class="" >
       
-      
-      
-        <ul class="submenu">
+        <a href="../../configuration/git_url" class=" "
+          >
           
-    <li class="" >
-      
-        <a href="../../configuration/git_url" class="" >
-          
-          <span class="nav-item-title">git_url</span>
-          
-          
-        </a>
-      
-      
-      
-    </li>
-    
-    <li class="" >
-      
-        <a href="../../configuration/ref" class="" >
-          
-          <span class="nav-item-title">ref</span>
+          <span class="nav-item-title">
+            git_url
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/refetch" class="" >
+        <a href="../../configuration/ref" class=" "
+          >
           
-          <span class="nav-item-title">refetch</span>
+          <span class="nav-item-title">
+            ref
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/refetch_frequency" class="" >
+        <a href="../../configuration/refetch" class=" "
+          >
           
-          <span class="nav-item-title">refetch_frequency</span>
+          <span class="nav-item-title">
+            refetch
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/configs" class="" >
+        <a href="../../configuration/refetch_frequency" class=" "
+          >
           
-          <span class="nav-item-title">configs</span>
+          <span class="nav-item-title">
+            refetch_frequency
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-        </ul>
+      <li class="" >
       
-    </li>
-    
-    <li class="" >
-      
-        <a href="../../configuration/source_dir" class="" >
+        <a href="../../configuration/configs" class=" "
+          >
           
-          <span class="nav-item-title">source_dir</span>
+          <span class="nav-item-title">
+            configs
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+          </ul>
+        
+      </li>
+    
+      <li class="" >
       
-        <a href="../../configuration/source_dir_local" class="" >
+        <a href="../../configuration/source_dir" class=" "
+          >
           
-          <span class="nav-item-title">source_dir_local</span>
+          <span class="nav-item-title">
+            source_dir
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/skip_lfs" class="" >
+        <a href="../../configuration/source_dir_local" class=" "
+          >
           
-          <span class="nav-item-title">skip_lfs</span>
+          <span class="nav-item-title">
+            source_dir_local
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/glob_matcher" class="" >
+        <a href="../../configuration/skip_lfs" class=" "
+          >
           
-          <span class="nav-item-title">glob_matcher</span>
+          <span class="nav-item-title">
+            skip_lfs
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/templates" class="" >
+        <a href="../../configuration/glob_matcher" class=" "
+          >
           
-          <span class="nav-item-title">templates</span>
+          <span class="nav-item-title">
+            glob_matcher
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="active-parent collapsible expanded"  aria-expanded="true" >
+      <li class="" >
       
-        <a href="../../configuration/Hook" class="" >
+        <a href="../../configuration/templates" class=" "
+          >
           
-          <span class="nav-item-title">Hook</span>
-           
-              <span class="collapse-icon-wrapper">
+          <span class="nav-item-title">
+            templates
+            </span>
+          
+          
+        </a>
+        
+
+        
+      </li>
+    
+      <li class="active-parent collapsible expanded nav-group"  aria-expanded="true" >
+      
+        <a href="../../configuration/Hook" class=" nav-group"
+          >
+          
+          <span class="nav-item-title">
+            Hook
+            </span>
+          
+            <span class="collapse-icon-wrapper">
 <svg class="lucide-icon icon-chevron-right collapse-icon" width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-right"
   xmlns="http://www.w3.org/2000/svg"
@@ -767,161 +963,197 @@
           
           
         </a>
+        
+
+        
+          <ul class="submenu">
+            
+      <li class="" >
       
-      
-      
-        <ul class="submenu">
+        <a href="../../configuration/parallel" class=" "
+          >
           
-    <li class="" >
-      
-        <a href="../../configuration/parallel" class="" >
-          
-          <span class="nav-item-title">parallel</span>
-          
-          
-        </a>
-      
-      
-      
-    </li>
-    
-    <li class="" >
-      
-        <a href="../../configuration/piped" class="" >
-          
-          <span class="nav-item-title">piped</span>
+          <span class="nav-item-title">
+            parallel
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/follow" class="" >
+        <a href="../../configuration/piped" class=" "
+          >
           
-          <span class="nav-item-title">follow</span>
+          <span class="nav-item-title">
+            piped
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/files-global" class="" >
+        <a href="../../configuration/follow" class=" "
+          >
           
-          <span class="nav-item-title">files</span>
+          <span class="nav-item-title">
+            follow
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/fail_on_changes" class="" >
+        <a href="../../configuration/files-global" class=" "
+          >
           
-          <span class="nav-item-title">fail_on_changes</span>
+          <span class="nav-item-title">
+            files
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/fail_on_changes_diff" class="" >
+        <a href="../../configuration/fail_on_changes" class=" "
+          >
           
-          <span class="nav-item-title">fail_on_changes_diff</span>
+          <span class="nav-item-title">
+            fail_on_changes
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/exclude_tags" class="" >
+        <a href="../../configuration/fail_on_changes_diff" class=" "
+          >
           
-          <span class="nav-item-title">exclude_tags</span>
+          <span class="nav-item-title">
+            fail_on_changes_diff
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/exclude" class="" >
+        <a href="../../configuration/exclude_tags" class=" "
+          >
           
-          <span class="nav-item-title">exclude</span>
+          <span class="nav-item-title">
+            exclude_tags
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/only" class="" >
+        <a href="../../configuration/exclude" class=" "
+          >
           
-          <span class="nav-item-title">only</span>
+          <span class="nav-item-title">
+            exclude
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/skip" class="" >
+        <a href="../../configuration/only" class=" "
+          >
           
-          <span class="nav-item-title">skip</span>
+          <span class="nav-item-title">
+            only
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="active" >
+      <li class="" >
       
-        <a href="../../configuration/setup" class="active" >
+        <a href="../../configuration/skip" class=" "
+          >
           
-          <span class="nav-item-title">setup</span>
+          <span class="nav-item-title">
+            skip
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="collapsible"  aria-expanded="false" >
+      <li class="active" >
       
-        <a href="../../configuration/jobs" class="" >
+        <a href="../../configuration/setup" class="active "
+          >
           
-          <span class="nav-item-title">jobs</span>
-           
-              <span class="collapse-icon-wrapper">
+          <span class="nav-item-title">
+            setup
+            </span>
+          
+          
+        </a>
+        
+
+        
+      </li>
+    
+      <li class="collapsible nav-group"  aria-expanded="false" >
+      
+        <a href="../../configuration/jobs" class=" nav-group"
+          >
+          
+          <span class="nav-item-title">
+            jobs
+            </span>
+          
+            <span class="collapse-icon-wrapper">
 <svg class="lucide-icon icon-chevron-right collapse-icon" width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-right"
   xmlns="http://www.w3.org/2000/svg"
@@ -940,83 +1172,101 @@
           
           
         </a>
+        
+
+        
+          <ul class="submenu">
+            
+      <li class="" >
       
-      
-      
-        <ul class="submenu">
+        <a href="../../configuration/name" class=" "
+          >
           
-    <li class="" >
-      
-        <a href="../../configuration/name" class="" >
-          
-          <span class="nav-item-title">name</span>
-          
-          
-        </a>
-      
-      
-      
-    </li>
-    
-    <li class="" >
-      
-        <a href="../../configuration/run" class="" >
-          
-          <span class="nav-item-title">run</span>
+          <span class="nav-item-title">
+            name
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/script" class="" >
+        <a href="../../configuration/run" class=" "
+          >
           
-          <span class="nav-item-title">script</span>
+          <span class="nav-item-title">
+            run
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/runner" class="" >
+        <a href="../../configuration/script" class=" "
+          >
           
-          <span class="nav-item-title">runner</span>
+          <span class="nav-item-title">
+            script
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/args" class="" >
+        <a href="../../configuration/runner" class=" "
+          >
           
-          <span class="nav-item-title">args</span>
+          <span class="nav-item-title">
+            runner
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="collapsible"  aria-expanded="false" >
+      <li class="" >
       
-        <a href="../../configuration/group" class="" >
+        <a href="../../configuration/args" class=" "
+          >
           
-          <span class="nav-item-title">group</span>
-           
-              <span class="collapse-icon-wrapper">
+          <span class="nav-item-title">
+            args
+            </span>
+          
+          
+        </a>
+        
+
+        
+      </li>
+    
+      <li class="collapsible nav-group"  aria-expanded="false" >
+      
+        <a href="../../configuration/group" class=" nav-group"
+          >
+          
+          <span class="nav-item-title">
+            group
+            </span>
+          
+            <span class="collapse-icon-wrapper">
 <svg class="lucide-icon icon-chevron-right collapse-icon" width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-right"
   xmlns="http://www.w3.org/2000/svg"
@@ -1035,234 +1285,285 @@
           
           
         </a>
+        
+
+        
+          <ul class="submenu">
+            
+      <li class="" >
       
-      
-      
-        <ul class="submenu">
+        <a href="../../configuration/parallel" class=" "
+          >
           
-    <li class="" >
-      
-        <a href="../../configuration/parallel" class="" >
-          
-          <span class="nav-item-title">parallel</span>
-          
-          
-        </a>
-      
-      
-      
-    </li>
-    
-    <li class="" >
-      
-        <a href="../../configuration/piped" class="" >
-          
-          <span class="nav-item-title">piped</span>
+          <span class="nav-item-title">
+            parallel
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/jobs" class="" >
+        <a href="../../configuration/piped" class=" "
+          >
           
-          <span class="nav-item-title">jobs</span>
+          <span class="nav-item-title">
+            piped
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-        </ul>
+      <li class="" >
       
-    </li>
-    
-    <li class="" >
-      
-        <a href="../../configuration/skip" class="" >
+        <a href="../../configuration/jobs" class=" "
+          >
           
-          <span class="nav-item-title">skip</span>
+          <span class="nav-item-title">
+            jobs
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+          </ul>
+        
+      </li>
+    
+      <li class="" >
       
-        <a href="../../configuration/only" class="" >
+        <a href="../../configuration/skip" class=" "
+          >
           
-          <span class="nav-item-title">only</span>
+          <span class="nav-item-title">
+            skip
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/tags" class="" >
+        <a href="../../configuration/only" class=" "
+          >
           
-          <span class="nav-item-title">tags</span>
+          <span class="nav-item-title">
+            only
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/glob" class="" >
+        <a href="../../configuration/tags" class=" "
+          >
           
-          <span class="nav-item-title">glob</span>
+          <span class="nav-item-title">
+            tags
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/files" class="" >
+        <a href="../../configuration/glob" class=" "
+          >
           
-          <span class="nav-item-title">files</span>
+          <span class="nav-item-title">
+            glob
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/file_types" class="" >
+        <a href="../../configuration/files" class=" "
+          >
           
-          <span class="nav-item-title">file_types</span>
+          <span class="nav-item-title">
+            files
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/env" class="" >
+        <a href="../../configuration/file_types" class=" "
+          >
           
-          <span class="nav-item-title">env</span>
+          <span class="nav-item-title">
+            file_types
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/root" class="" >
+        <a href="../../configuration/env" class=" "
+          >
           
-          <span class="nav-item-title">root</span>
+          <span class="nav-item-title">
+            env
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/exclude" class="" >
+        <a href="../../configuration/root" class=" "
+          >
           
-          <span class="nav-item-title">exclude</span>
+          <span class="nav-item-title">
+            root
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/fail_text" class="" >
+        <a href="../../configuration/exclude" class=" "
+          >
           
-          <span class="nav-item-title">fail_text</span>
+          <span class="nav-item-title">
+            exclude
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/stage_fixed" class="" >
+        <a href="../../configuration/fail_text" class=" "
+          >
           
-          <span class="nav-item-title">stage_fixed</span>
+          <span class="nav-item-title">
+            fail_text
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/interactive" class="" >
+        <a href="../../configuration/stage_fixed" class=" "
+          >
           
-          <span class="nav-item-title">interactive</span>
+          <span class="nav-item-title">
+            stage_fixed
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/use_stdin" class="" >
+        <a href="../../configuration/interactive" class=" "
+          >
           
-          <span class="nav-item-title">use_stdin</span>
+          <span class="nav-item-title">
+            interactive
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-        </ul>
+      <li class="" >
       
-    </li>
-    
-    <li class="collapsible"  aria-expanded="false" >
-      
-        <a href="../../configuration/Commands" class="" >
+        <a href="../../configuration/use_stdin" class=" "
+          >
           
-          <span class="nav-item-title">commands</span>
-           
-              <span class="collapse-icon-wrapper">
+          <span class="nav-item-title">
+            use_stdin
+            </span>
+          
+          
+        </a>
+        
+
+        
+      </li>
+    
+          </ul>
+        
+      </li>
+    
+      <li class="collapsible nav-group"  aria-expanded="false" >
+      
+        <a href="../../configuration/Commands" class=" nav-group"
+          >
+          
+          <span class="nav-item-title">
+            commands
+            </span>
+          
+            <span class="collapse-icon-wrapper">
 <svg class="lucide-icon icon-chevron-right collapse-icon" width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-right"
   xmlns="http://www.w3.org/2000/svg"
@@ -1281,217 +1582,265 @@
           
           
         </a>
+        
+
+        
+          <ul class="submenu">
+            
+      <li class="" >
       
-      
-      
-        <ul class="submenu">
+        <a href="../../configuration/run" class=" "
+          >
           
-    <li class="" >
-      
-        <a href="../../configuration/run" class="" >
-          
-          <span class="nav-item-title">run</span>
-          
-          
-        </a>
-      
-      
-      
-    </li>
-    
-    <li class="" >
-      
-        <a href="../../configuration/skip" class="" >
-          
-          <span class="nav-item-title">skip</span>
+          <span class="nav-item-title">
+            run
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/only" class="" >
+        <a href="../../configuration/skip" class=" "
+          >
           
-          <span class="nav-item-title">only</span>
+          <span class="nav-item-title">
+            skip
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/tags" class="" >
+        <a href="../../configuration/only" class=" "
+          >
           
-          <span class="nav-item-title">tags</span>
+          <span class="nav-item-title">
+            only
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/glob" class="" >
+        <a href="../../configuration/tags" class=" "
+          >
           
-          <span class="nav-item-title">glob</span>
+          <span class="nav-item-title">
+            tags
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/files" class="" >
+        <a href="../../configuration/glob" class=" "
+          >
           
-          <span class="nav-item-title">files</span>
+          <span class="nav-item-title">
+            glob
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/file_types" class="" >
+        <a href="../../configuration/files" class=" "
+          >
           
-          <span class="nav-item-title">file_types</span>
+          <span class="nav-item-title">
+            files
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/env" class="" >
+        <a href="../../configuration/file_types" class=" "
+          >
           
-          <span class="nav-item-title">env</span>
+          <span class="nav-item-title">
+            file_types
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/root" class="" >
+        <a href="../../configuration/env" class=" "
+          >
           
-          <span class="nav-item-title">root</span>
+          <span class="nav-item-title">
+            env
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/exclude" class="" >
+        <a href="../../configuration/root" class=" "
+          >
           
-          <span class="nav-item-title">exclude</span>
+          <span class="nav-item-title">
+            root
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/fail_text" class="" >
+        <a href="../../configuration/exclude" class=" "
+          >
           
-          <span class="nav-item-title">fail_text</span>
+          <span class="nav-item-title">
+            exclude
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/stage_fixed" class="" >
+        <a href="../../configuration/fail_text" class=" "
+          >
           
-          <span class="nav-item-title">stage_fixed</span>
+          <span class="nav-item-title">
+            fail_text
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/interactive" class="" >
+        <a href="../../configuration/stage_fixed" class=" "
+          >
           
-          <span class="nav-item-title">interactive</span>
+          <span class="nav-item-title">
+            stage_fixed
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/use_stdin" class="" >
+        <a href="../../configuration/interactive" class=" "
+          >
           
-          <span class="nav-item-title">use_stdin</span>
+          <span class="nav-item-title">
+            interactive
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/priority" class="" >
+        <a href="../../configuration/use_stdin" class=" "
+          >
           
-          <span class="nav-item-title">priority</span>
+          <span class="nav-item-title">
+            use_stdin
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-        </ul>
+      <li class="" >
       
-    </li>
-    
-    <li class="collapsible"  aria-expanded="false" >
-      
-        <a href="../../configuration/Scripts" class="" >
+        <a href="../../configuration/priority" class=" "
+          >
           
-          <span class="nav-item-title">scripts</span>
-           
-              <span class="collapse-icon-wrapper">
+          <span class="nav-item-title">
+            priority
+            </span>
+          
+          
+        </a>
+        
+
+        
+      </li>
+    
+          </ul>
+        
+      </li>
+    
+      <li class="collapsible nav-group"  aria-expanded="false" >
+      
+        <a href="../../configuration/Scripts" class=" nav-group"
+          >
+          
+          <span class="nav-item-title">
+            scripts
+            </span>
+          
+            <span class="collapse-icon-wrapper">
 <svg class="lucide-icon icon-chevron-right collapse-icon" width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-right"
   xmlns="http://www.w3.org/2000/svg"
@@ -1510,169 +1859,202 @@
           
           
         </a>
+        
+
+        
+          <ul class="submenu">
+            
+      <li class="" >
       
-      
-      
-        <ul class="submenu">
+        <a href="../../configuration/runner" class=" "
+          >
           
-    <li class="" >
-      
-        <a href="../../configuration/runner" class="" >
-          
-          <span class="nav-item-title">runner</span>
-          
-          
-        </a>
-      
-      
-      
-    </li>
-    
-    <li class="" >
-      
-        <a href="../../configuration/args" class="" >
-          
-          <span class="nav-item-title">args</span>
+          <span class="nav-item-title">
+            runner
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/skip" class="" >
+        <a href="../../configuration/args" class=" "
+          >
           
-          <span class="nav-item-title">skip</span>
+          <span class="nav-item-title">
+            args
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/only" class="" >
+        <a href="../../configuration/skip" class=" "
+          >
           
-          <span class="nav-item-title">only</span>
+          <span class="nav-item-title">
+            skip
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/tags" class="" >
+        <a href="../../configuration/only" class=" "
+          >
           
-          <span class="nav-item-title">tags</span>
+          <span class="nav-item-title">
+            only
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/env" class="" >
+        <a href="../../configuration/tags" class=" "
+          >
           
-          <span class="nav-item-title">env</span>
+          <span class="nav-item-title">
+            tags
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/fail_text" class="" >
+        <a href="../../configuration/env" class=" "
+          >
           
-          <span class="nav-item-title">fail_text</span>
+          <span class="nav-item-title">
+            env
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/stage_fixed" class="" >
+        <a href="../../configuration/fail_text" class=" "
+          >
           
-          <span class="nav-item-title">stage_fixed</span>
+          <span class="nav-item-title">
+            fail_text
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/interactive" class="" >
+        <a href="../../configuration/stage_fixed" class=" "
+          >
           
-          <span class="nav-item-title">interactive</span>
+          <span class="nav-item-title">
+            stage_fixed
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../configuration/use_stdin" class="" >
+        <a href="../../configuration/interactive" class=" "
+          >
           
-          <span class="nav-item-title">use_stdin</span>
-          
-          
-        </a>
-      
-      
-      
-    </li>
-    
-    <li class="" >
-      
-        <a href="../../configuration/priority" class="" >
-          
-          <span class="nav-item-title">priority</span>
+          <span class="nav-item-title">
+            interactive
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-        </ul>
+      <li class="" >
       
-    </li>
+        <a href="../../configuration/use_stdin" class=" "
+          >
+          
+          <span class="nav-item-title">
+            use_stdin
+            </span>
+          
+          
+        </a>
+        
+
+        
+      </li>
     
-        </ul>
+      <li class="" >
       
-    </li>
+        <a href="../../configuration/priority" class=" "
+          >
+          
+          <span class="nav-item-title">
+            priority
+            </span>
+          
+          
+        </a>
+        
+
+        
+      </li>
     
-        </ul>
-      
-    </li>
+          </ul>
+        
+      </li>
     
-    <li class="collapsible"  aria-expanded="false" >
+          </ul>
+        
+      </li>
+    
+          </ul>
+        
+      </li>
+    
+      <li class="collapsible nav-group"  aria-expanded="false" >
       
-        <span class="nav-label">
+        <span class="nav-label nav-group">
            
 <svg class="lucide-icon icon-terminal " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-terminal"
@@ -1689,10 +2071,13 @@
   <path d="M12 19h8" />
   <path d="m4 17 6-6-6-6" />
 </svg>
- 
-          <span class="nav-item-title">CLI</span>
-           
-              <span class="collapse-icon-wrapper">
+
+          
+          <span class="nav-item-title">
+            CLI
+          </span>
+          
+            <span class="collapse-icon-wrapper">
 <svg class="lucide-icon icon-chevron-right collapse-icon" width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-right"
   xmlns="http://www.w3.org/2000/svg"
@@ -1710,14 +2095,15 @@
 </span>
           
         </span>
+        
+
+        
+          <ul class="submenu">
+            
+      <li class="" >
       
-      
-      
-        <ul class="submenu">
-          
-    <li class="" >
-      
-        <a href="../../usage/commands/install" class="" >
+        <a href="../../usage/commands/install" class=" "
+          >
            
 <svg class="lucide-icon icon-chevron-right " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-right"
@@ -1733,19 +2119,23 @@
 >
   <path d="m9 18 6-6-6-6" />
 </svg>
- 
-          <span class="nav-item-title">lefthook install</span>
+
+          
+          <span class="nav-item-title">
+            lefthook install
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../usage/commands/uninstall" class="" >
+        <a href="../../usage/commands/uninstall" class=" "
+          >
            
 <svg class="lucide-icon icon-chevron-right " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-right"
@@ -1761,19 +2151,23 @@
 >
   <path d="m9 18 6-6-6-6" />
 </svg>
- 
-          <span class="nav-item-title">lefthook uninstall</span>
+
+          
+          <span class="nav-item-title">
+            lefthook uninstall
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../usage/commands/run" class="" >
+        <a href="../../usage/commands/run" class=" "
+          >
            
 <svg class="lucide-icon icon-chevron-right " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-right"
@@ -1789,19 +2183,23 @@
 >
   <path d="m9 18 6-6-6-6" />
 </svg>
- 
-          <span class="nav-item-title">lefthook run</span>
+
+          
+          <span class="nav-item-title">
+            lefthook run
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../usage/commands/add" class="" >
+        <a href="../../usage/commands/add" class=" "
+          >
            
 <svg class="lucide-icon icon-chevron-right " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-right"
@@ -1817,19 +2215,23 @@
 >
   <path d="m9 18 6-6-6-6" />
 </svg>
- 
-          <span class="nav-item-title">lefthook add</span>
+
+          
+          <span class="nav-item-title">
+            lefthook add
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../usage/commands/validate" class="" >
+        <a href="../../usage/commands/validate" class=" "
+          >
            
 <svg class="lucide-icon icon-chevron-right " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-right"
@@ -1845,19 +2247,23 @@
 >
   <path d="m9 18 6-6-6-6" />
 </svg>
- 
-          <span class="nav-item-title">lefthook validate</span>
+
+          
+          <span class="nav-item-title">
+            lefthook validate
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../usage/commands/dump" class="" >
+        <a href="../../usage/commands/dump" class=" "
+          >
            
 <svg class="lucide-icon icon-chevron-right " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-right"
@@ -1873,19 +2279,23 @@
 >
   <path d="m9 18 6-6-6-6" />
 </svg>
- 
-          <span class="nav-item-title">lefthook dump</span>
+
+          
+          <span class="nav-item-title">
+            lefthook dump
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../usage/commands/check-install" class="" >
+        <a href="../../usage/commands/check-install" class=" "
+          >
            
 <svg class="lucide-icon icon-chevron-right " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-right"
@@ -1901,19 +2311,23 @@
 >
   <path d="m9 18 6-6-6-6" />
 </svg>
- 
-          <span class="nav-item-title">lefthook check-install</span>
+
+          
+          <span class="nav-item-title">
+            lefthook check-install
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../usage/commands/self-update" class="" >
+        <a href="../../usage/commands/self-update" class=" "
+          >
            
 <svg class="lucide-icon icon-chevron-right " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-right"
@@ -1929,19 +2343,22 @@
 >
   <path d="m9 18 6-6-6-6" />
 </svg>
- 
-          <span class="nav-item-title">lefthook self-update</span>
+
+          
+          <span class="nav-item-title">
+            lefthook self-update
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="collapsible"  aria-expanded="false" >
+      <li class="collapsible nav-group"  aria-expanded="false" >
       
-        <span class="nav-label">
+        <span class="nav-label nav-group">
            
 <svg class="lucide-icon icon-dollar-sign " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-dollar-sign"
@@ -1958,10 +2375,13 @@
   <line x1="12" x2="12" y1="2" y2="22" />
   <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
 </svg>
- 
-          <span class="nav-item-title">ENV variables</span>
-           
-              <span class="collapse-icon-wrapper">
+
+          
+          <span class="nav-item-title">
+            ENV variables
+          </span>
+          
+            <span class="collapse-icon-wrapper">
 <svg class="lucide-icon icon-chevron-right collapse-icon" width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-right"
   xmlns="http://www.w3.org/2000/svg"
@@ -1979,126 +2399,150 @@
 </span>
           
         </span>
+        
+
+        
+          <ul class="submenu">
+            
+      <li class="" >
       
-      
-      
-        <ul class="submenu">
+        <a href="../../usage/envs/LEFTHOOK" class=" "
+          >
           
-    <li class="" >
-      
-        <a href="../../usage/envs/LEFTHOOK" class="" >
-          
-          <span class="nav-item-title">LEFTHOOK</span>
-          
-          
-        </a>
-      
-      
-      
-    </li>
-    
-    <li class="" >
-      
-        <a href="../../usage/envs/LEFTHOOK_VERBOSE" class="" >
-          
-          <span class="nav-item-title">LEFTHOOK_VERBOSE</span>
+          <span class="nav-item-title">
+            LEFTHOOK
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../usage/envs/LEFTHOOK_OUTPUT" class="" >
+        <a href="../../usage/envs/LEFTHOOK_VERBOSE" class=" "
+          >
           
-          <span class="nav-item-title">LEFTHOOK_OUTPUT</span>
+          <span class="nav-item-title">
+            LEFTHOOK_VERBOSE
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../usage/envs/LEFTHOOK_CONFIG" class="" >
+        <a href="../../usage/envs/LEFTHOOK_OUTPUT" class=" "
+          >
           
-          <span class="nav-item-title">LEFTHOOK_CONFIG</span>
+          <span class="nav-item-title">
+            LEFTHOOK_OUTPUT
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../usage/envs/LEFTHOOK_EXCLUDE" class="" >
+        <a href="../../usage/envs/LEFTHOOK_CONFIG" class=" "
+          >
           
-          <span class="nav-item-title">LEFTHOOK_EXCLUDE</span>
+          <span class="nav-item-title">
+            LEFTHOOK_CONFIG
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../usage/envs/CLICOLOR_FORCE" class="" >
+        <a href="../../usage/envs/LEFTHOOK_EXCLUDE" class=" "
+          >
           
-          <span class="nav-item-title">CLICOLOR_FORCE</span>
+          <span class="nav-item-title">
+            LEFTHOOK_EXCLUDE
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../usage/envs/NO_COLOR" class="" >
+        <a href="../../usage/envs/CLICOLOR_FORCE" class=" "
+          >
           
-          <span class="nav-item-title">NO_COLOR</span>
+          <span class="nav-item-title">
+            CLICOLOR_FORCE
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../usage/envs/CI" class="" >
+        <a href="../../usage/envs/NO_COLOR" class=" "
+          >
           
-          <span class="nav-item-title">CI</span>
+          <span class="nav-item-title">
+            NO_COLOR
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-        </ul>
+      <li class="" >
       
-    </li>
+        <a href="../../usage/envs/CI" class=" "
+          >
+          
+          <span class="nav-item-title">
+            CI
+            </span>
+          
+          
+        </a>
+        
+
+        
+      </li>
     
-        </ul>
-      
-    </li>
+          </ul>
+        
+      </li>
     
-    <li class="collapsible"  aria-expanded="false" >
+          </ul>
+        
+      </li>
+    
+      <li class="collapsible nav-group"  aria-expanded="false" >
       
-        <span class="nav-label">
+        <span class="nav-label nav-group">
            
 <svg class="lucide-icon icon-file-code " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-file-code"
@@ -2117,10 +2561,13 @@
   <path d="M10 12.5 8 15l2 2.5" />
   <path d="m14 12.5 2 2.5-2 2.5" />
 </svg>
- 
-          <span class="nav-item-title">Examples</span>
-           
-              <span class="collapse-icon-wrapper">
+
+          
+          <span class="nav-item-title">
+            Examples
+          </span>
+          
+            <span class="collapse-icon-wrapper">
 <svg class="lucide-icon icon-chevron-right collapse-icon" width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-right"
   xmlns="http://www.w3.org/2000/svg"
@@ -2138,109 +2585,131 @@
 </span>
           
         </span>
+        
+
+        
+          <ul class="submenu">
+            
+      <li class="" >
       
-      
-      
-        <ul class="submenu">
+        <a href="../../examples/lefthook-local" class=" "
+          >
           
-    <li class="" >
-      
-        <a href="../../examples/lefthook-local" class="" >
-          
-          <span class="nav-item-title">Using local only config</span>
-          
-          
-        </a>
-      
-      
-      
-    </li>
-    
-    <li class="" >
-      
-        <a href="../../examples/wrap-commands" class="" >
-          
-          <span class="nav-item-title">Wrap commands locally</span>
+          <span class="nav-item-title">
+            Using local only config
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../examples/stage_fixed" class="" >
+        <a href="../../examples/wrap-commands" class=" "
+          >
           
-          <span class="nav-item-title">Auto add linter fixes to commit</span>
+          <span class="nav-item-title">
+            Wrap commands locally
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../examples/filters" class="" >
+        <a href="../../examples/stage_fixed" class=" "
+          >
           
-          <span class="nav-item-title">Filter files</span>
+          <span class="nav-item-title">
+            Auto add linter fixes to commit
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../examples/skip" class="" >
+        <a href="../../examples/filters" class=" "
+          >
           
-          <span class="nav-item-title">Skip or run on condition</span>
+          <span class="nav-item-title">
+            Filter files
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../examples/remotes" class="" >
+        <a href="../../examples/skip" class=" "
+          >
           
-          <span class="nav-item-title">Remote configs</span>
+          <span class="nav-item-title">
+            Skip or run on condition
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="../../examples/commitlint" class="" >
+        <a href="../../examples/remotes" class=" "
+          >
           
-          <span class="nav-item-title">With commitlint</span>
+          <span class="nav-item-title">
+            Remote configs
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-        </ul>
+      <li class="" >
       
-    </li>
+        <a href="../../examples/commitlint" class=" "
+          >
+          
+          <span class="nav-item-title">
+            With commitlint
+            </span>
+          
+          
+        </a>
+        
+
+        
+      </li>
     
-    <li class="" >
+          </ul>
+        
+      </li>
+    
+      <li class="" >
       
-        <a href="../../misc/contributors" class="" >
+        <a href="../../misc/contributors" class=" "
+          >
            
 <svg class="lucide-icon icon-users-round " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-users-round"
@@ -2258,19 +2727,23 @@
   <circle cx="10" cy="8" r="5" />
   <path d="M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3" />
 </svg>
- 
-          <span class="nav-item-title">Contributors</span>
+
+          
+          <span class="nav-item-title">
+            Contributors
+            </span>
           
           
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
-    <li class="" >
+      <li class="" >
       
-        <a href="https://github.com/evilmartians/lefthook" class="" target=&#34;_blank&#34; rel=&#34;noopener&#34;>
+        <a href="https://github.com/evilmartians/lefthook" class=" "
+          target=&quot;_blank&quot; rel=&quot;noopener&quot;>
            
 <svg class="lucide-icon icon-github " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-github"
@@ -2287,8 +2760,11 @@
   <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
   <path d="M9 18c-4.51 2-5-2-7-2" />
 </svg>
- 
-          <span class="nav-item-title">GitHub</span>
+
+          
+          <span class="nav-item-title">
+            GitHub
+            </span>
           
            
 <svg class="lucide-icon icon-external-link nav-external-icon" width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
@@ -2307,26 +2783,32 @@
   <path d="M10 14 21 3" />
   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
 </svg>
- 
+
+          
         </a>
-      
-      
-      
-    </li>
+        
+
+        
+      </li>
     
   </ul>
 </nav>
 
-        
-    </aside>
-
-    <div class="main-content-wrapper">
-        
-        <header class="page-header">
-            <div class="header-left">
+              <div class="sidebar-bottom-group mt-auto">
                 
-                <button id="sidebar-toggle-button" class="sidebar-toggle-button" aria-label="Toggle Sidebar">
                     
+              </div>
+          </aside>
+          
+            <div class="main-content-wrapper">
+              
+                    
+                      <header class="page-header">
+                        <div class="header-left">
+                          
+                            <button id="sidebar-toggle-button" class="sidebar-toggle-button"
+                              aria-label="Toggle Sidebar">
+                              
 <svg class="lucide-icon icon-panel-left-close " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-panel-left-close"
   xmlns="http://www.w3.org/2000/svg"
@@ -2344,14 +2826,18 @@
   <path d="m16 15-3-3 3-3" />
 </svg>
 
-                </button>
-                
-                <span class="header-title">setup</span>
-            </div>
-            
-            <div class="header-right">
-                
-                    
+                            </button>
+                            
+                              <div class="header-titles-wrapper">
+                                <span class="header-title">
+                                  setup
+                                </span>
+                              </div>
+                        </div>
+
+                        <div class="header-right">
+                          
+                            
 
 
 <div class="docmd-options-menu">
@@ -2426,17 +2912,78 @@
     
 </div>
 
-                
-            </div>
-        </header>
-        
-
-        <main class="content-area" id="main-content">
-            <div class="content-layout">
-                <div class="main-content">
-                    
-                    
-                    <h1 id="setup"><code>setup</code></h1>
+                              
+                        </div>
+                      </header>
+                      
+                        <div class="content-theme-cover">
+                          <main class="content-area" id="main-content">
+                            <div class="content-layout">
+                              <div class="main-content">
+                                
+                                  <nav aria-label="breadcrumb" class="docmd-breadcrumbs">
+                                    <ol>
+                                      
+                                        <li class="breadcrumb-item " >
+                                          
+                                            <a href="../../configuration">Configuration</a>
+                                          
+                                          
+                                            <span class="breadcrumb-separator">
+<svg class="lucide-icon icon-chevron-right " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
+  class="lucide lucide-chevron-right"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m9 18 6-6-6-6" />
+</svg>
+</span>
+                                          
+                                        </li>
+                                      
+                                        <li class="breadcrumb-item " >
+                                          
+                                            <a href="../../configuration/Hook">Hook</a>
+                                          
+                                          
+                                            <span class="breadcrumb-separator">
+<svg class="lucide-icon icon-chevron-right " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
+  class="lucide lucide-chevron-right"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m9 18 6-6-6-6" />
+</svg>
+</span>
+                                          
+                                        </li>
+                                      
+                                        <li class="breadcrumb-item active" aria-current=&quot;page&quot;>
+                                          
+                                            <span>setup</span>
+                                          
+                                          
+                                        </li>
+                                      
+                                    </ol>
+                                  </nav>
+                                
+                                
+                                    <h1 id="setup"><code>setup</code></h1>
 <div class="docmd-container callout callout-tip"><div class="callout-title">New feature</div><div class="callout-content">
 <p>Added in lefthook <code>2.1.2</code></p>
 </div></div>
@@ -2444,55 +2991,53 @@
 <div class="docmd-container callout callout-info"><div class="callout-title">Note</div><div class="callout-content">
 <p>When merging configs (with <code>lefthook-local.yml</code> or files from <a href="../extends"><code>extends</code></a>) <code>setup</code> instructions get <strong>prepended</strong>. When there are multiple <code>extends</code>, they get <strong>appended</strong> in the same order as extend files are specified.</p>
 </div></div>
-<h4 id="example" class="docmd-heading"><a href="#example" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Example</h4>
+<h4 id="setup-example" class="docmd-heading"><a href="#setup-example" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Example</h4>
 <pre class="hljs"><code><span class="hljs-comment"># lefthook.yml</span>
 
-<span class="hljs-attr">pre-commit:</span>
-  <span class="hljs-attr">setup:</span>
-    <span class="hljs-bullet">-</span> <span class="hljs-attr">run:</span> <span class="hljs-string">|
-        if ! command -v golangci-lint &gt;/dev/null 2&gt;&amp;1; then
-          go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.10.1
+pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:</span>
+  setup<span class="hljs-punctuation">:</span>
+    <span class="hljs-punctuation">-</span> run<span class="hljs-punctuation">:</span> <span class="hljs-punctuation">|</span>
+        <span class="hljs-keyword">if</span> <span class="hljs-punctuation">!</span> command <span class="hljs-punctuation">-</span>v golangci<span class="hljs-punctuation">-</span>lint <span class="hljs-punctuation">&gt;/</span>dev<span class="hljs-punctuation">/</span><span class="hljs-keyword">null</span> <span class="hljs-number">2</span><span class="hljs-punctuation">&gt;&amp;</span><span class="hljs-number">1</span>; then
+          <span class="hljs-keyword">go</span> install github.<span class="hljs-attr">com</span><span class="hljs-punctuation">/</span>golangci<span class="hljs-punctuation">/</span>golangci<span class="hljs-punctuation">-</span>lint<span class="hljs-punctuation">/</span>v2<span class="hljs-punctuation">/</span>cmd<span class="hljs-punctuation">/</span>golangci<span class="hljs-punctuation">-</span>lint@v2.<span class="hljs-number">10.1</span>
         fi
-</span>  <span class="hljs-attr">jobs:</span>
-    <span class="hljs-bullet">-</span> <span class="hljs-attr">run:</span> <span class="hljs-string">golangci-lint</span> <span class="hljs-string">--</span> {<span class="hljs-string">staged_files</span>}
-      <span class="hljs-attr">glob:</span> <span class="hljs-string">&quot;*.go&quot;</span>
+  jobs<span class="hljs-punctuation">:</span>
+    <span class="hljs-punctuation">-</span> run<span class="hljs-punctuation">:</span> golangci<span class="hljs-punctuation">-</span>lint <span class="hljs-punctuation">--</span> {staged_files}
+      glob<span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;*.go&quot;</span>
 </code></pre>
 
-
-                    
-                </div>
-
-                <div class="toc-sidebar">
-                    
+                                      
+                              </div>
+                              <div class="toc-sidebar">
+                                
 
 
-                </div>
-            </div>
-
-            <div class="page-footer-actions">
-                
-            </div>
-        </main>
-
-        
+                              </div>
+                            </div>
+                            <div class="page-footer-actions">
+                              
+                            </div>
+                          </main>
+                          
 
 
 <footer class="page-footer">
     <div class="footer-content">
         <div class="user-footer">© 2026 Lefthook. Evil Martians.</div>
+        
         <div class="branding-footer">
             Built with <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path><path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"></path><path d="m18 15-2-2"></path><path d="m15 18-2-2"></path></svg> <a href="https://docmd.io" target="_blank" rel="noopener">docmd.</a>
         </div>
+        
     </div>
 </footer>
 
-    </div>
-
-    <script src="../../assets/js/docmd-main.js?v=mnr67zrc"></script>
-    <script src="../../assets/js/docmd-image-lightbox.js?v=mnr67zrc" ></script>
+                        </div>
+            </div>
+            <script src="../../assets/js/docmd-main.js?v=mnwxck6v"></script>
+            <script src="../../assets/js/docmd-image-lightbox.js?v=mnwxck6v" ></script>
 <script src="https://cdn.jsdelivr.net/npm/minisearch@7.2.0/dist/umd/index.min.js" ></script>
-<script src="../../assets/js/docmd-search.js?v=mnr67zrc" ></script>
-<script src="../../assets/js/init-mermaid.js?v=mnr67zrc" type="module"></script>
+<script src="../../assets/js/docmd-search.js?v=mnwxck6v" ></script>
+<script src="../../assets/js/init-mermaid.js?v=mnwxck6v" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;">
@@ -2512,6 +3057,54 @@
       </div>
   </div>
 
-    
+    <script>
+      (function() {
+        var searchDebounceTimer;
+
+        document.addEventListener('click', function(e) {
+          var link = e.target.closest('a');
+          if (!link || !window.gtag) return;
+          
+          var url = link.href;
+          var hostname = window.location.hostname;
+          var isExternal = link.hostname && link.hostname !== hostname;
+          var isDownload = link.hasAttribute('download') || url.match(/\.(pdf|zip|tar|gz|exe|pkg)$/i);
+          
+          if (isExternal) {
+            gtag('event', 'click_external', { 'url': url, 'link_text': link.innerText.trim() });
+          } else if (isDownload) {
+            gtag('event', 'download', { 'file_name': url.split('/').pop(), 'url': url });
+          }
+
+          // TOC tracking
+          if (link.classList.contains('toc-link')) {
+            gtag('event', 'toc_click', { 'target_id': link.getAttribute('href'), 'title': link.innerText.trim() });
+          }
+
+          // Permalink tracking
+          if (link.classList.contains('heading-anchor')) {
+            gtag('event', 'permalink_click', { 'url': url });
+          }
+        });
+
+        
+        // Search Keyword Tracking
+        document.addEventListener('input', function(e) {
+          if (e.target.id === 'docmd-search-input' && window.gtag) {
+            var query = e.target.value.trim();
+            if (query.length < 3) return;
+            
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(function() {
+              gtag('event', 'search', { 'search_term': query });
+            }, 1000);
+          }
+        });
+        
+      })();
+    </script>
+
+              
 </body>
+
 </html>

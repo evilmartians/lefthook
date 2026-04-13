@@ -1,3 +1,4 @@
+import o from"https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";(async function(){"use strict";let d=0;function s(){return document.documentElement.getAttribute("data-theme")==="dark"?"dark":"default"}async function t(){o.initialize({startOnLoad:!1,theme:s(),securityLevel:"loose"});let r=document.querySelectorAll('.mermaid:not([data-processed="true"])');for(let e of r){e.dataset.original||(e.dataset.original=e.textContent||"");let a=e.dataset.original;if(e.offsetParent!==null)try{let n=`mermaid-svg-${d++}`,{svg:i}=await o.render(n,a);e.innerHTML=i,e.setAttribute("data-processed","true")}catch{e.setAttribute("data-processed","error")}}}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",t):t(),document.addEventListener("docmd:page-mounted",t),document.addEventListener("click",r=>{r.target?.closest(".docmd-tabs-nav-item, .collapsible-summary")&&setTimeout(t,50)}),new MutationObserver(r=>{for(let e of r)e.attributeName==="data-theme"&&(document.querySelectorAll(".mermaid").forEach(a=>a.removeAttribute("data-processed")),t())}).observe(document.documentElement,{attributes:!0,attributeFilter:["data-theme"]})})();
 /**
  * --------------------------------------------------------------------
  * docmd : the minimalist, zero-config documentation generator.
@@ -6,72 +7,8 @@
  * @website     https://docmd.io
  * @repository  https://github.com/docmd-io/docmd
  * @license     MIT
- * @copyright   Copyright (c) 2025 docmd.io
+ * @copyright   Copyright (c) 2025-present docmd.io
  *
  * [docmd-source] - Please do not remove this header.
  * --------------------------------------------------------------------
  */
-
-import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-
-(async function () {
-  'use strict';
-  let counter = 0;
-
-  function getTheme() {
-    return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default';
-  }
-
-  async function renderAll() {
-    mermaid.initialize({ startOnLoad: false, theme: getTheme(), securityLevel: 'loose' });
-
-    const elements = document.querySelectorAll('.mermaid:not([data-processed="true"])');
-    
-    for (const el of elements) {
-      if (!el.dataset.original) el.dataset.original = el.textContent;
-      const code = el.dataset.original;
-
-      // Skip elements that are strictly display:none (Wait for tab click)
-      if (el.offsetParent === null) continue;
-
-      try {
-        const id = `mermaid-svg-${counter++}`;
-        // Generate SVG string in memory (prevents D3 bounding box crashes)
-        const { svg } = await mermaid.render(id, code);
-        el.innerHTML = svg;
-        el.setAttribute('data-processed', 'true');
-      } catch (e) {
-        el.setAttribute('data-processed', 'error');
-      }
-    }
-  }
-
-  // 1. Initial Load
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', renderAll);
-  } else {
-    renderAll();
-  }
-
-  // 2. SPA Navigation Load
-  document.addEventListener('docmd:page-mounted', renderAll);
-
-  // 3. Render when a hidden Tab or Collapsible is opened
-  document.addEventListener('click', (e) => {
-    if (e.target.closest('.docmd-tabs-nav-item, .collapsible-summary')) {
-      setTimeout(renderAll, 50); // Small delay to let CSS apply display:block
-    }
-  });
-
-  // 4. Theme Toggle
-  const themeObserver = new MutationObserver((mutations) => {
-    for (const m of mutations) {
-      if (m.attributeName === 'data-theme') {
-        document.querySelectorAll('.mermaid').forEach(el => el.removeAttribute('data-processed'));
-        renderAll();
-      }
-    }
-  });
-  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter:['data-theme'] });
-
-})();

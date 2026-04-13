@@ -1,0 +1,130 @@
+<!--
+  ---------------------------------------------------------------
+  docmd : the minimalist, zero-config documentation generator.
+  @website https://docmd.io
+  [docmd-source] - Please do not remove this header.
+  ---------------------------------------------------------------
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 : Page Not Found</title>
+    
+    <!-- Force absolute paths for assets using relativePathToRoot (which we will set to '/') -->
+    <link rel="icon" href="/assets/favicon.svg">
+    
+    <!-- 1. Core CSS -->
+    <link rel="stylesheet" href="/assets/css/docmd-main.css?v=mnwxck6v">
+    
+    <!-- 2. Highlight.js (Theme aware) -->
+    
+    <link rel="stylesheet" href="/assets/css/docmd-highlight-light.css?v=mnwxck6v" id="hljs-light" >
+    <link rel="stylesheet" href="/assets/css/docmd-highlight-dark.css?v=mnwxck6v" id="hljs-dark" disabled>
+
+    <!-- 3. Theme CSS -->
+    
+
+    <!-- 4. Custom CSS -->
+    
+    <link rel="stylesheet" href="/assets/css/lefthook.css?v=mnwxck6v">
+    
+
+    <!-- 5. Theme Init (Dark Mode logic) -->
+    <script>/**
+ * --------------------------------------------------------------------
+ * docmd : the minimalist, zero-config documentation generator.
+ *
+ * @package     @docmd/core (and ecosystem)
+ * @website     https://docmd.io
+ * @repository  https://github.com/docmd-io/docmd
+ * @license     MIT
+ * @copyright   Copyright (c) 2025-present docmd.io
+ *
+ * [docmd-source] - Please do not remove this header.
+ * --------------------------------------------------------------------
+ */
+
+(function () {
+  try {
+    // 1. Determine Theme
+    var localValue = localStorage.getItem('docmd-theme');
+    var configValue = window.DOCMD_DEFAULT_MODE || 'light';
+    var theme = localValue ? localValue : configValue;
+
+    if (theme === 'system') {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    // 2. Apply to Root
+    document.documentElement.setAttribute('data-theme', theme);
+
+    // 3. Highlight.js Toggle Strategy
+    var lightLink = document.getElementById('hljs-light');
+    var darkLink = document.getElementById('hljs-dark');
+
+    if (lightLink && darkLink) {
+      if (theme === 'dark') {
+        lightLink.disabled = true;
+        darkLink.disabled = false;
+      } else {
+        lightLink.disabled = false;
+        darkLink.disabled = true;
+      }
+    }
+
+    document.documentElement.style.visibility = "visible";
+  } catch (e) {
+    document.documentElement.style.visibility = "visible";
+    console.error('Theme init failed', e);
+  }
+})();</script>
+
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        .error-logo { height: 60px; margin-bottom: 2rem; width: auto; display: block; }
+        .error-logo.light { display: var(--display-light, block); }
+        .error-logo.dark { display: var(--display-dark, none); }
+        
+        /* Simple theme logic for logo if JS fails */
+        @media (prefers-color-scheme: dark) {
+            :root[data-theme="system"] .error-logo.light { display: none; }
+            :root[data-theme="system"] .error-logo.dark { display: block; }
+        }
+        :root[data-theme="dark"] .error-logo.light { display: none; }
+        :root[data-theme="dark"] .error-logo.dark { display: block; }
+
+        h1 { font-size: 5rem; margin: 0; line-height: 1; color: var(--link-color); font-weight: 700; }
+        h2 { font-size: 2rem; margin: 1rem 0; }
+        p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 2rem; max-width: 500px; }
+        .docmd-button { font-size: 1.1rem; padding: 0.8rem 1.5rem; }
+    </style>
+</head>
+<body>
+    
+        
+            <img src="/assets/lefthook.png" class="error-logo light" alt="Logo">
+        
+        
+            <img src="/assets/lefthook.png" class="error-logo dark" alt="Logo">
+        
+    
+
+    <h1>404</h1>
+    <h2>Page Not Found</h2>
+    <p>The page you are looking for does not exist or has been moved.</p>
+    <a href="/" class="docmd-button">Return Home</a>
+</body>
+</html>
