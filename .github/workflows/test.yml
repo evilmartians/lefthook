@@ -110,3 +110,138 @@ jobs:
         with:
           name: Executables
           path: lefthook-binaries.tar
+
+  npm-integration:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - name: Install Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Determine platform info
+        id: platform
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            echo "goos=windows" >> "$GITHUB_OUTPUT"
+            echo "ext=.exe" >> "$GITHUB_OUTPUT"
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            echo "goos=darwin" >> "$GITHUB_OUTPUT"
+            echo "ext=" >> "$GITHUB_OUTPUT"
+          else
+            echo "goos=linux" >> "$GITHUB_OUTPUT"
+            echo "ext=" >> "$GITHUB_OUTPUT"
+          fi
+          ARCH=$(uname -m)
+          if [[ "$ARCH" == "arm64" || "$ARCH" == "aarch64" ]]; then
+            echo "goarch=arm64" >> "$GITHUB_OUTPUT"
+            echo "npmarch=arm64" >> "$GITHUB_OUTPUT"
+          else
+            echo "goarch=amd64" >> "$GITHUB_OUTPUT"
+            echo "npmarch=x64" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Build lefthook binary
+        env:
+          GOOS: ${{ steps.platform.outputs.goos }}
+          GOARCH: ${{ steps.platform.outputs.goarch }}
+        run: |
+          go build -o lefthook${{ steps.platform.outputs.ext }} .
+      - name: Package npm-bundled with built binary
+        run: |
+          PKG_DIR="packaging/registries/npm-bundled"
+          BIN_DIR="$PKG_DIR/bin/lefthook-${{ steps.platform.outputs.goos }}-${{ steps.platform.outputs.npmarch }}"
+          mkdir -p "$BIN_DIR"
+          cp lefthook${{ steps.platform.outputs.ext }} "$BIN_DIR/lefthook${{ steps.platform.outputs.ext }}"
+          chmod +x "$BIN_DIR/lefthook${{ steps.platform.outputs.ext }}" || true
+          cd "$PKG_DIR"
+          npm pack
+      - name: Create test project and install lefthook
+        run: |
+          mkdir test-project
+          cd test-project
+          npm init -y
+          npm install ../packaging/registries/npm-bundled/*.tgz
+      - name: Configure lefthook pre-commit hook
+        run: |
+          cd test-project
+          echo "require('fs').writeFileSync('hook-ran.txt', 'success');" > create-marker.js
+          printf 'pre-commit:\n  commands:\n    test-hook:\n      run: node create-marker.js\n' > lefthook.yml
+          echo "--- lefthook.yml ---"
+          cat lefthook.yml
+      - name: Remove other package managers
+        run: |
+          # Ensure only npm is available so lefthook doesn't detect yarn/pnpm/etc.
+          # On Github-hosted runners, yarn and pnpm are pre-installed globally which pollutes the test
+          # since yarn will end up detecting the path when NPM does not
+          npm uninstall -g yarn pnpm corepack || true
+          corepack disable || true
+          if command -v yarn &> /dev/null; then
+            echo "WARN: yarn still found at $(which yarn), removing..."
+            rm -f "$(which yarn)" || true
+          fi
+          if command -v pnpm &> /dev/null; then
+            echo "WARN: pnpm still found at $(which pnpm), removing..."
+            rm -f "$(which pnpm)" || true
+          fi
+          echo "Remaining package managers:"
+          echo "  npm: $(which npm || echo 'not found')"
+          echo "  yarn: $(which yarn || echo 'not found')"
+          echo "  pnpm: $(which pnpm || echo 'not found')"
+      - name: Initialize git repo and trigger pre-commit
+        run: |
+          cd test-project
+          git init
+          git config user.email "test@test.com"
+          git config user.name "Test"
+
+          # Install lefthook into the git hooks
+          export LEFTHOOK=1
+          npx lefthook install
+
+          # Stage and commit to trigger pre-commit
+          git add .
+          COMMIT_OUTPUT=$(git commit -m "test commit" 2>&1 || true)
+          echo "$COMMIT_OUTPUT"
+          echo "commit_output<<DELIM" >> "$GITHUB_ENV"
+          echo "$COMMIT_OUTPUT" >> "$GITHUB_ENV"
+          echo "DELIM" >> "$GITHUB_ENV"
+      - name: Print generated hook scripts
+        if: always()
+        run: |
+          cd test-project
+          HOOKS_DIR=$(git rev-parse --git-dir)/hooks
+          echo "--- Hook scripts in $HOOKS_DIR ---"
+          for hook in pre-commit prepare-commit-msg; do
+            echo ""
+            echo "=== $hook ==="
+            if [[ -f "$HOOKS_DIR/$hook" ]]; then
+              cat "$HOOKS_DIR/$hook"
+            else
+              echo "(not found)"
+            fi
+          done
+      - name: Verify hook executed successfully
+        run: |
+          cd test-project
+          if [[ "$commit_output" == *"Can't find lefthook in PATH"* ]]; then
+            echo "FAIL: lefthook was not found in PATH"
+            exit 1
+          fi
+          if [[ -f "hook-ran.txt" ]]; then
+            echo "PASS: hook-ran.txt exists with content: $(cat hook-ran.txt)"
+          else
+            echo "FAIL: hook-ran.txt was not created by the pre-commit hook"
+            exit 1
+          fi
