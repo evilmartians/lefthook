@@ -39,13 +39,13 @@ func add() *cli.Command {
 			},
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			l, err := command.NewLefthook(verbose, "auto")
-			if err != nil {
-				return err
-			}
-
+			// l, err := command.NewLefthook(verbose, "auto")
+			// if err != nil {
+			// 	return err
+			// }
+			app := newApp(verbose, "")
 			args.Hook = cmd.Args().Get(0)
-			return l.Add(ctx, args)
+			return commands.Add(ctx, app, args)
 		},
 		ShellComplete: func(ctx context.Context, cmd *cli.Command) {
 			command.ShellCompleteFlags(cmd)
