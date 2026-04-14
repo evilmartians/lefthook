@@ -104,11 +104,17 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 	default:
 		// No pty available (sandbox, CI, pipe). Merge stderr into
 		// stdout buffer to match pty behavior where both streams
-		// go through the same device. Setpgid isolates the child
-		// process group so parent SIGINT doesn't race with context
-		// cancellation, matching the session isolation that
-		// pty.Start (setsid) provides.
+		// go through the same device.
+		//
+		// Setpgid isolates the child from the parent's process group
+		// so a SIGINT aimed at lefthook doesn't race with context
+		// cancellation. Cancel kills the whole process group (negative
+		// PID) so children like sleep(1) are cleaned up, matching the
+		// session teardown that pty.Start (setsid) provides.
 		command.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+		command.Cancel = func() error {
+			return syscall.Kill(-command.Process.Pid, syscall.SIGKILL)
+		}
 		command.Stdout = args.out
 		command.Stderr = args.out
 		command.Stdin = args.in
