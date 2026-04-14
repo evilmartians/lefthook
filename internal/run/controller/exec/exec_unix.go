@@ -90,7 +90,7 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 		if err != nil {
 			return err
 		}
-	} else {
+	} else if isatty.IsTerminal(os.Stdout.Fd()) {
 		p, err := pty.Start(command)
 		if err != nil {
 			return err
@@ -99,6 +99,17 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 		defer func() { _ = p.Close() }()
 
 		_, _ = io.Copy(args.out, p)
+	} else {
+		// No pty available (sandbox, CI, pipe). Merge stderr into
+		// stdout buffer to match pty behavior where both streams
+		// go through the same device.
+		command.Stdout = args.out
+		command.Stderr = args.out
+		command.Stdin = args.in
+		err := command.Start()
+		if err != nil {
+			return err
+		}
 	}
 
 	defer func() { _ = command.Process.Kill() }()
