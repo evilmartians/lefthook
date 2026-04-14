@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"syscall"
 
 	"github.com/creack/pty"
 	"github.com/mattn/go-isatty"
@@ -82,7 +83,8 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 	command.Dir = args.root
 	command.Env = append(os.Environ(), args.envs...)
 
-	if args.interactive || args.useStdin {
+	switch {
+	case args.interactive || args.useStdin:
 		command.Stdout = args.out
 		command.Stdin = args.in
 		command.Stderr = os.Stderr
@@ -90,7 +92,7 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 		if err != nil {
 			return err
 		}
-	} else if isatty.IsTerminal(os.Stdout.Fd()) {
+	case isatty.IsTerminal(os.Stdout.Fd()):
 		p, err := pty.Start(command)
 		if err != nil {
 			return err
@@ -99,10 +101,14 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 		defer func() { _ = p.Close() }()
 
 		_, _ = io.Copy(args.out, p)
-	} else {
+	default:
 		// No pty available (sandbox, CI, pipe). Merge stderr into
 		// stdout buffer to match pty behavior where both streams
-		// go through the same device.
+		// go through the same device. Setpgid isolates the child
+		// process group so parent SIGINT doesn't race with context
+		// cancellation, matching the session isolation that
+		// pty.Start (setsid) provides.
+		command.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 		command.Stdout = args.out
 		command.Stderr = args.out
 		command.Stdin = args.in
