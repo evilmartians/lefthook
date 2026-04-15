@@ -5,8 +5,10 @@ package exec
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -131,4 +133,54 @@ func TestExecute_UseStdin(t *testing.T) {
 	err := CommandExecutor{}.Execute(context.Background(), opts, in, &buf)
 	assert.NoError(t, err)
 	assert.Contains(t, buf.String(), "from-stdin")
+}
+
+func TestExecute_ConcurrentOutputIsolation_Interactive(t *testing.T) {
+	// Mirrors how the controller runs parallel jobs: each goroutine gets
+	// its own buffer. Output from concurrent commands must not leak across
+	// buffers. Uses Interactive mode to take the direct exec path (no pty).
+	const workers = 5
+	const linesPerWorker = 20
+
+	tmpDir := t.TempDir()
+
+	bufs := make([]bytes.Buffer, workers)
+	var wg sync.WaitGroup
+
+	for i := range workers {
+		wg.Add(1)
+		go func(id int) {
+			defer wg.Done()
+			label := fmt.Sprintf("WORKER-%d", id)
+			cmd := fmt.Sprintf("for i in $(seq 1 %d); do echo '%s line '$i; sleep 0.01; done", linesPerWorker, label)
+			opts := Options{
+				Root:        tmpDir,
+				Commands:    []string{cmd},
+				Interactive: true,
+			}
+			err := CommandExecutor{}.Execute(context.Background(), opts, nil, &bufs[id])
+			assert.NoError(t, err)
+		}(i)
+	}
+
+	wg.Wait()
+
+	for i := range workers {
+		label := fmt.Sprintf("WORKER-%d", i)
+		output := bufs[i].String()
+		lines := strings.Split(strings.TrimSpace(output), "\n")
+
+		assert.Len(t, lines, linesPerWorker, "%s should have %d lines", label, linesPerWorker)
+		for _, line := range lines {
+			assert.Contains(t, line, label, "buffer %d should only contain %s output, got: %s", i, label, line)
+		}
+
+		for j := range workers {
+			if j == i {
+				continue
+			}
+			other := fmt.Sprintf("WORKER-%d", j)
+			assert.NotContains(t, output, other, "buffer %d should not contain %s output", i, other)
+		}
+	}
 }
