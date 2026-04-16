@@ -3044,7 +3044,7 @@ The minimum Go version required is 1.26 and you can install
 - as global package
 
 ```bash
-go install github.com/evilmartians/lefthook/v2@v2.1.5
+go install github.com/evilmartians/lefthook/v2@v2.1.6
 ```
 
 - or as a go tool in your project
@@ -3254,7 +3254,7 @@ You can find the Swift wrapper plugin [here](https://github.com/csjones/lefthook
 Utilize lefthook in your Swift project using Swift Package Manager:
 
 ```swift
-.package(url: "https://github.com/csjones/lefthook-plugin.git", exact: "2.1.5"),
+.package(url: "https://github.com/csjones/lefthook-plugin.git", exact: "2.1.6"),
 ```
 
 Or, with [mint](https://github.com/yonaskolb/Mint):
