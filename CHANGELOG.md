@@ -1,5 +1,14 @@
 # Change log
 
+## 2.1.6 (2026-04-16)
+
+- fix: normalize lefthook path for sh script ([#1383](https://github.com/evilmartians/lefthook/pull/1383)) by [@AndrewKahr](https://github.com/AndrewKahr)
+- fix: normalize `root` to always include trailing slash before path replacement ([#1381](https://github.com/evilmartians/lefthook/pull/1381)) by [@Copilot](https://github.com/Copilot)
+- fix: skip pty allocation when stdout is not a terminal ([#1393](https://github.com/evilmartians/lefthook/pull/1393)) by [@technicalpickles](https://github.com/technicalpickles)
+- docs: upgrade docmd ([#1391](https://github.com/evilmartians/lefthook/pull/1391)) by [@mrexox](https://github.com/mrexox)
+- fix: log full scoped name for skipped jobs ([#1291](https://github.com/evilmartians/lefthook/pull/1291)) by [@scop](https://github.com/scop)
+- fix: do not pipe stdout and stderr ([#1382](https://github.com/evilmartians/lefthook/pull/1382)) by [@mrexox](https://github.com/mrexox)
+
 ## 2.1.5 (2026-04-06)
 
 - deps: April 2026 ([#1375](https://github.com/evilmartians/lefthook/pull/1375)) by [@mrexox]()
