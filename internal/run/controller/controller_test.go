@@ -567,7 +567,7 @@ func TestRunAll(t *testing.T) {
 				Jobs: []*config.Job{{
 					Name:       "ok",
 					Run:        "success",
-					Root:       root + "/scripts",
+					Root:       filepath.Join(root, "scripts"),
 					StageFixed: true,
 				}},
 			},
@@ -624,8 +624,8 @@ func TestRunAll(t *testing.T) {
 				command == "git diff --name-only HEAD @{push}" {
 				root, _ := filepath.Abs("src")
 				_, err := out.Write([]byte(strings.Join([]string{
-					filepath.ToSlash(filepath.Join(root, "scripts", "script.sh")),
-					filepath.ToSlash(filepath.Join(root, "README.md")),
+					filepath.Join(root, "scripts", "script.sh"),
+					filepath.Join(root, "README.md"),
 				}, "\n")))
 				if err != nil {
 					return err
