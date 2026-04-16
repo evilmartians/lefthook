@@ -567,7 +567,7 @@ func TestRunAll(t *testing.T) {
 				Jobs: []*config.Job{{
 					Name:       "ok",
 					Run:        "success",
-					Root:       filepath.Join(root, "scripts"),
+					Root:       root + "/scripts",
 					StageFixed: true,
 				}},
 			},
