@@ -198,23 +198,28 @@ func TestByRoot(t *testing.T) {
 		{
 			source: []string{"folder/subfolder/0.rb", "subfolder/1.txt", "folder/2.RB", "3.rbs"},
 			path:   "folder",
-			result: []string{".//subfolder/0.rb", ".//2.RB"},
+			result: []string{"./subfolder/0.rb", "./2.RB"},
 		},
 		{
 			source: []string{"folder/subfolder/0.rb", "folder/1.rbs"},
 			path:   "folder/subfolder",
-			result: []string{".//0.rb"},
+			result: []string{"./0.rb"},
 		},
 		{
 			source: []string{"folder/subfolder/0.rb", "folder/1.rbs"},
 			path:   "folder/subfolder/",
 			result: []string{"./0.rb"},
 		},
+		{
+			source: []string{"folder/subfolder/0.rb", "folder/1.rbs"},
+			path:   "folder/subfolder//",
+			result: []string{"./0.rb"},
+		},
 	} {
 		t.Run(fmt.Sprintf("%d:", i), func(t *testing.T) {
-			res := byRoot(tt.source, tt.path)
-			if !slicesEqual(res, tt.result) {
-				t.Errorf("expected %v to be equal to %v", res, tt.result)
+			result := byRoot(tt.source, tt.path)
+			if !slicesEqual(result, tt.result) {
+				t.Errorf("expected %v to be equal to %v", result, tt.result)
 			}
 		})
 	}

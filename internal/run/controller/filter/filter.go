@@ -187,10 +187,12 @@ func byRoot(vs []string, matcher string) []string {
 		return vs
 	}
 
+	matcher = strings.TrimRight(matcher, "/")
+
 	vsf := make([]string, 0)
 	for _, v := range vs {
 		if strings.HasPrefix(v, matcher) {
-			vsf = append(vsf, strings.Replace(v, matcher, "./", 1))
+			vsf = append(vsf, strings.Replace(v, matcher, ".", 1))
 		}
 	}
 	return vsf
