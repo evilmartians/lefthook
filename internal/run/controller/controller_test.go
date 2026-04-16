@@ -624,8 +624,8 @@ func TestRunAll(t *testing.T) {
 				command == "git diff --name-only HEAD @{push}" {
 				root, _ := filepath.Abs("src")
 				_, err := out.Write([]byte(strings.Join([]string{
-					filepath.Join(root, "scripts", "script.sh"),
-					filepath.Join(root, "README.md"),
+					filepath.ToSlash(filepath.Join(root, "scripts", "script.sh")),
+					filepath.ToSlash(filepath.Join(root, "README.md")),
 				}, "\n")))
 				if err != nil {
 					return err
