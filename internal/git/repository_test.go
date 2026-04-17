@@ -223,4 +223,59 @@ func TestPushFiles(t *testing.T) {
 			t.Fatalf("expected %v, got %v", want, files)
 		}
 	})
+
+	t.Run("separates fallback branch from pathspecs", func(t *testing.T) {
+		fs := afero.NewMemMapFs()
+		root := "/repo"
+		gitPath := filepath.Join(root, ".git")
+		originHead := filepath.Join(gitPath, "refs", "remotes", "origin", "HEAD")
+
+		if err := fs.MkdirAll(filepath.Join(root, "dev"), 0o755); err != nil {
+			t.Fatalf("unexpected error: %s", err)
+		}
+		if err := fs.MkdirAll(filepath.Dir(originHead), 0o755); err != nil {
+			t.Fatalf("unexpected error: %s", err)
+		}
+		if err := afero.WriteFile(fs, filepath.Join(root, "other.txt"), []byte("changed"), 0o644); err != nil {
+			t.Fatalf("unexpected error: %s", err)
+		}
+		if err := afero.WriteFile(fs, originHead, []byte("ref: refs/remotes/origin/dev\n"), 0o644); err != nil {
+			t.Fatalf("unexpected error: %s", err)
+		}
+
+		cmd := cmdtest.NewTracking(func(command string, _ string, out io.Writer) error {
+			switch command {
+			case "git diff --name-only HEAD @{push}":
+				return errors.New("no upstream configured")
+			case "git diff --name-only HEAD dev --":
+				_, err := out.Write([]byte("other.txt\n"))
+				return err
+			case "git diff --name-only HEAD dev":
+				return errors.New("fatal: ambiguous argument 'dev': both revision and filename")
+			default:
+				t.Fatalf("unexpected command: %s", command)
+				return nil
+			}
+		})
+
+		repository := &Repository{
+			Fs:       fs,
+			RootPath: root,
+			GitPath:  gitPath,
+			Git: &CommandExecutor{
+				mu:  new(sync.Mutex),
+				cmd: cmd,
+			},
+		}
+		repository.Setup()
+
+		files, err := repository.PushFiles()
+		if err != nil {
+			t.Fatalf("unexpected error: %s", err)
+		}
+
+		if want := []string{"other.txt"}; len(files) != len(want) || files[0] != want[0] {
+			t.Fatalf("expected %v, got %v", want, files)
+		}
+	})
 }

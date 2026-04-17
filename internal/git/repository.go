@@ -194,7 +194,11 @@ func (r *Repository) PushFiles() ([]string, error) {
 		return r.FindExistingFiles(cmdLsTreeFilesHead, "")
 	}
 
-	return r.FindExistingFiles(append(cmdPushFilesHead, r.headBranch), "")
+	command := make([]string, 0, len(cmdPushFilesHead)+2)
+	command = append(command, cmdPushFilesHead...)
+	command = append(command, r.headBranch, "--")
+
+	return r.FindExistingFiles(command, "")
 }
 
 // resolveHeadBranch determines the upstream head branch.
