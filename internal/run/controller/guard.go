@@ -18,14 +18,14 @@ func (e *FailOnChangesError) Error() string {
 }
 
 type guard struct {
-	git *git.Repository
+	git *git.Repo
 
 	stashUnstagedChanges bool
 	failOnChanges        bool
 	failOnChangesDiff    bool
 }
 
-func newGuard(repo *git.Repository, stashUnstagedChanges bool, failOnChanges bool, failOnChangesDiff bool) *guard {
+func newGuard(repo *git.Repo, stashUnstagedChanges bool, failOnChanges bool, failOnChangesDiff bool) *guard {
 	return &guard{
 		git:                  repo,
 		stashUnstagedChanges: stashUnstagedChanges,

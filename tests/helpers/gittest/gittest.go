@@ -34,10 +34,10 @@ func (b *RepositoryBuilder) Fs(fs afero.Fs) *RepositoryBuilder {
 	return b
 }
 
-func (b *RepositoryBuilder) Build() *git.Repository {
-	return &git.Repository{
+func (b *RepositoryBuilder) Build() *git.Repo {
+	return &git.Repo{
 		Fs:        b.fs,
-		Git:       git.NewExecutor(b.cmd),
+		Git:       git.NewCommander(b.cmd),
 		RootPath:  b.root,
 		GitPath:   GitPath(b.root),
 		HooksPath: filepath.Join(GitPath(b.root), "hooks"),

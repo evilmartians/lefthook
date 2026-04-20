@@ -21,7 +21,7 @@ func TestBuilder(t *testing.T) {
 	assert.Equal(filepath.Join("root", ".git"), repo.GitPath)
 	assert.Equal(filepath.Join("root", ".git", "info"), repo.InfoPath)
 	assert.Equal(filepath.Join("root", ".git", "hooks"), repo.HooksPath)
-	assert.Equal(git.NewExecutor(cmd), repo.Git)
+	assert.Equal(git.NewCommander(cmd), repo.Git)
 	assert.Equal(fs, repo.Fs)
 }
 

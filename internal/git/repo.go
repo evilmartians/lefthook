@@ -15,6 +15,8 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
+	"github.com/evilmartians/lefthook/v2/internal/system"
 	"github.com/evilmartians/lefthook/v2/internal/version"
 )
 
@@ -52,14 +54,16 @@ var (
 	cmdGitVersion   = []string{"git", "version"}
 )
 
-// Repository represents a git repository.
-type Repository struct {
-	Fs                afero.Fs
-	Git               *CommandExecutor
-	HooksPath         string
-	RootPath          string
-	GitPath           string
-	InfoPath          string
+// Repo represents a git repository.
+type Repo struct {
+	Fs        afero.Fs
+	Git       *Commander
+	HooksPath string
+	RootPath  string
+	GitPath   string
+	InfoPath  string
+
+	logger            *logger.Logger
 	unstagedPatchPath string
 	headBranch        string
 
@@ -69,9 +73,13 @@ type Repository struct {
 	stateOnce                  func() State
 }
 
-// NewRepository returns a Repository or an error, if git repository it not initialized.
-func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
-	gitVersionOut, err := git.Cmd(cmdGitVersion)
+// NewRepo returns a Repository or an error, if git repository it not initialized.
+func NewRepo(
+	fs afero.Fs,
+	log *logger.Logger,
+) (*Repo, error) {
+	commander := NewCommander(system.Cmd)
+	gitVersionOut, err := commander.Cmd(cmdGitVersion)
 	if err == nil {
 		gitVersion := reVersion.FindString(gitVersionOut)
 		if err = version.Check(minGitVersion, gitVersion); err != nil {
@@ -83,7 +91,7 @@ func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
 		}
 	}
 
-	paths, err := git.Cmd(cmdPaths)
+	paths, err := commander.Cmd(cmdPaths)
 	if err != nil {
 		return nil, err
 	}
@@ -101,17 +109,18 @@ func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
 		}
 	}
 
-	git.root = rootPath
+	commander.root = rootPath
 
-	r := &Repository{
+	r := &Repo{
 		Fs:        fs,
-		Git:       git,
+		Git:       commander,
 		HooksPath: hooksPath,
 		RootPath:  rootPath,
 		GitPath:   gitPath,
 		InfoPath:  infoPath,
 	}
 
+	// TODO: Rename to something like "Init()"
 	r.Setup()
 
 	return r, nil
@@ -120,7 +129,8 @@ func NewRepository(fs afero.Fs, git *CommandExecutor) (*Repository, error) {
 // Precompute runs various Git commands in the background so the results are ready.
 // This returns a function which can be used to wait for the result. This should
 // be invoked to ensure we're not holding any locks on the Git repository.
-func (r *Repository) Precompute() func() {
+// TODO: Rename to something with "cache"
+func (r *Repo) Precompute() func() {
 	var wg sync.WaitGroup
 
 	wg.Go(func() {
@@ -142,7 +152,7 @@ func (r *Repository) Precompute() func() {
 // It's not necessary to invoke if you've used NewRepository.
 //
 // This can also be called multiple times to reset the cache.
-func (r *Repository) Setup() {
+func (r *Repo) Setup() {
 	r.stagedFilesOnce = sync.OnceValues(func() ([]string, error) {
 		return r.FindExistingFiles(cmdStagedFiles, "")
 	})
@@ -163,22 +173,22 @@ func (r *Repository) Setup() {
 }
 
 // StagedFiles returns a list of staged files which exist on file system.
-func (r *Repository) StagedFiles() ([]string, error) {
+func (r *Repo) StagedFiles() ([]string, error) {
 	return r.stagedFilesOnce()
 }
 
 // StagedFilesWithDeleted returns a list of staged files with deleted files.
-func (r *Repository) StagedFilesWithDeleted() ([]string, error) {
+func (r *Repo) StagedFilesWithDeleted() ([]string, error) {
 	return r.stagedFilesWithDeletedOnce()
 }
 
 // AllFiles returns a list of all files in repository.
-func (r *Repository) AllFiles() ([]string, error) {
+func (r *Repo) AllFiles() ([]string, error) {
 	return r.FindExistingFiles(cmdAllFiles, "")
 }
 
 // PushFiles returns a list of files that are ready to be pushed.
-func (r *Repository) PushFiles() ([]string, error) {
+func (r *Repo) PushFiles() ([]string, error) {
 	// Try with @{push}
 	lines, err := r.Git.OnlyDebugLogs().CmdLinesWithinFolder(cmdPushFilesBase, "")
 	if err == nil {
@@ -198,7 +208,7 @@ func (r *Repository) PushFiles() ([]string, error) {
 }
 
 // resolveHeadBranch determines the upstream head branch.
-func (r *Repository) resolveHeadBranch() string {
+func (r *Repo) resolveHeadBranch() string {
 	if branch := r.readOriginHead(); len(branch) > 0 {
 		return branch
 	}
@@ -220,7 +230,7 @@ func (r *Repository) resolveHeadBranch() string {
 // PartiallyStagedFiles returns the list of files that have both staged and
 // unstaged changes.
 // See https://git-scm.com/docs/git-status#_short_format.
-func (r *Repository) PartiallyStagedFiles() ([]string, error) {
+func (r *Repo) PartiallyStagedFiles() ([]string, error) {
 	partiallyStaged := make([]string, 0)
 
 	lines, err := r.statusShortOnce()
@@ -237,7 +247,7 @@ func (r *Repository) PartiallyStagedFiles() ([]string, error) {
 	return partiallyStaged, nil
 }
 
-func (r *Repository) SaveUnstaged(files []string) error {
+func (r *Repo) SaveUnstaged(files []string) error {
 	_, err := r.Git.BatchedCmd(
 		[]string{
 			"git",
@@ -258,13 +268,13 @@ func (r *Repository) SaveUnstaged(files []string) error {
 	return err
 }
 
-func (r *Repository) RevertUnstagedChanges(files []string) error {
+func (r *Repo) RevertUnstagedChanges(files []string) error {
 	_, err := r.Git.BatchedCmd(cmdHideUnstaged, files)
 
 	return err
 }
 
-func (r *Repository) RestoreUnstaged() error {
+func (r *Repo) RestoreUnstaged() error {
 	if ok, _ := afero.Exists(r.Fs, r.unstagedPatchPath); !ok {
 		return nil
 	}
@@ -305,7 +315,7 @@ func (r *Repository) RestoreUnstaged() error {
 	return nil
 }
 
-func (r *Repository) StashUnstaged() error {
+func (r *Repo) StashUnstaged() error {
 	stashHash, err := r.Git.Cmd(cmdCreateStash)
 	if err != nil {
 		return err
@@ -327,7 +337,7 @@ func (r *Repository) StashUnstaged() error {
 	return nil
 }
 
-func (r *Repository) DropUnstagedStash() error {
+func (r *Repo) DropUnstagedStash() error {
 	lines, err := r.Git.CmdLines(cmdListStash)
 	if err != nil {
 		return err
@@ -360,7 +370,7 @@ func (r *Repository) DropUnstagedStash() error {
 	return nil
 }
 
-func (r *Repository) AddFiles(files []string) error {
+func (r *Repo) AddFiles(files []string) error {
 	if len(files) == 0 {
 		return nil
 	}
@@ -372,7 +382,7 @@ func (r *Repository) AddFiles(files []string) error {
 
 // Changeset returns a map of files and their hashes that are different from the index.
 // The hash for a deleted file is "deleted", and "directory" for a directory.
-func (r *Repository) Changeset() (map[string]string, error) {
+func (r *Repo) Changeset() (map[string]string, error) {
 	changeset := make(map[string]string)
 	pathsToHash := make([]string, 0)
 
@@ -411,7 +421,7 @@ func (r *Repository) Changeset() (map[string]string, error) {
 	return changeset, nil
 }
 
-func (r *Repository) PrintDiff(files []string) {
+func (r *Repo) PrintDiff(files []string) {
 	slices.Sort(files)
 
 	diffCmd := make([]string, 0, 4) //nolint:mnd // 3 or 4 elements
@@ -429,13 +439,13 @@ func (r *Repository) PrintDiff(files []string) {
 	log.Warn(diff)
 }
 
-func (r *Repository) statusShort() ([]string, error) {
+func (r *Repo) statusShort() ([]string, error) {
 	return r.Git.WithoutTrim().CmdLines(cmdStatusShort)
 }
 
 // parseStatusShort parses short NUL separated porcelain v1 status output.
 // https://git-scm.com/docs/git-status#_short_format
-func (r *Repository) parseStatusShort(lines []string, cb func(path string, index, worktree rune)) {
+func (r *Repo) parseStatusShort(lines []string, cb func(path string, index, worktree rune)) {
 	output := strings.Join(lines, "") // there should be only one line with -z
 	skip := false
 	for item := range strings.SplitSeq(output, "\x00") {
@@ -458,7 +468,7 @@ func (r *Repository) parseStatusShort(lines []string, cb func(path string, index
 }
 
 // FindAllFiles accepts git command and returns its result as a list of filepaths.
-func (r *Repository) FindAllFiles(command []string, folder string) ([]string, error) {
+func (r *Repo) FindAllFiles(command []string, folder string) ([]string, error) {
 	lines, err := r.Git.CmdLinesWithinFolder(command, folder)
 	if err != nil {
 		return nil, err
@@ -468,7 +478,7 @@ func (r *Repository) FindAllFiles(command []string, folder string) ([]string, er
 }
 
 // FindExistingFiles accepts git command and returns its result as a list of filepaths.
-func (r *Repository) FindExistingFiles(command []string, folder string) ([]string, error) {
+func (r *Repo) FindExistingFiles(command []string, folder string) ([]string, error) {
 	lines, err := r.Git.CmdLinesWithinFolder(command, folder)
 	if err != nil {
 		return nil, err
@@ -477,7 +487,7 @@ func (r *Repository) FindExistingFiles(command []string, folder string) ([]strin
 	return r.extractFiles(lines, true)
 }
 
-func (r *Repository) extractFiles(lines []string, checkExistence bool) ([]string, error) {
+func (r *Repo) extractFiles(lines []string, checkExistence bool) ([]string, error) {
 	var files []string
 
 	for _, line := range lines {
@@ -508,7 +518,7 @@ func (r *Repository) extractFiles(lines []string, checkExistence bool) ([]string
 	return files, nil
 }
 
-func (r *Repository) isFile(path string) (bool, error) {
+func (r *Repo) isFile(path string) (bool, error) {
 	if !strings.HasPrefix(path, r.RootPath) {
 		path = filepath.Join(r.RootPath, path)
 	}
@@ -523,7 +533,7 @@ func (r *Repository) isFile(path string) (bool, error) {
 	return !stat.IsDir(), nil
 }
 
-func (r *Repository) readOriginHead() string {
+func (r *Repo) readOriginHead() string {
 	originHead := filepath.Join(r.GitPath, "refs", "remotes", "origin", "HEAD")
 	if _, err := r.Fs.Stat(originHead); os.IsNotExist(err) {
 		return ""

@@ -2,21 +2,23 @@
 package app
 
 import (
-	"image/color"
 	"os"
+	"path/filepath"
 
-	"charm.land/lipgloss/v2"
-	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/git"
 	"github.com/evilmartians/lefthook/v2/internal/logger"
+	"github.com/spf13/afero"
 )
 
 type App struct {
-	git    *git.Git
+	repo   *git.Repo
 	logger *logger.Logger
+
+	config *ConfigService
+	hooks  *HooksService
 }
 
-func New(git *git.Git, verbose bool, colors string) *App {
+func New(fs afero.Fs, verbose bool, colors string) (*App, error) {
 	l := logger.New(os.Stdout)
 	switch colors {
 	case "on", "yes", "true", "1":
@@ -29,57 +31,57 @@ func New(git *git.Git, verbose bool, colors string) *App {
 		l.SetLevel(logger.LevelDebug)
 	}
 
-	return &App{
-		git:    git,
-		logger: l,
-	}
-}
-
-func (app *App) Setup() error {
-	return app.git.Setup()
-}
-
-func (app *App) Load() (*config.Config, error) {
-	if err := app.Setup(); err != nil {
+	repo, err := git.NewRepo(fs, l)
+	if err != nil {
 		return nil, err
 	}
 
-	cfg, err := config.Load(app.git)
-
-	// Reset loaded colors
-	app.setColors(cfg.Colors)
-
-	return cfg, err
+	return &App{
+		repo:   repo,
+		logger: l,
+	}, nil
 }
 
-func (app *App) setColors(colors any) {
-	if colors == nil {
-		return
+// MkdirForScripts creates dirs in configured folders to auto-load user scripts by hook and script names.
+func (app *App) MkdirForScripts(hookName string) error {
+	sourceDirs, err := app.ConfigService().SourceDirs()
+	if err != nil {
+		return err
 	}
 
-	switch colorsTyped := colors.(type) {
-	case string:
-		switch colorsTyped {
-		case "on":
-			app.logger.SetColors(logger.DefaultColors)
-		case "off":
-			app.logger.SetColors(logger.NoColors)
-		default:
+	for _, sourceDir := range sourceDirs {
+		sourceDir = filepath.Join(app.repo.RootPath, sourceDir, hookName)
+
+		if err := app.repo.Fs.MkdirAll(sourceDir, dirMode); err != nil {
+			return err
 		}
-	case bool:
-		if colorsTyped {
-			app.logger.SetColors(logger.DefaultColors)
-		} else {
-			app.logger.SetColors(logger.NoColors)
-		}
-	case map[string]any:
-		app.logger.SetColors(map[logger.Color]color.Color{
-			logger.ColorCyan:   lipgloss.Color(colorsTyped["cyan"].(string)),
-			logger.ColorGray:   lipgloss.Color(colorsTyped["gray"].(string)),
-			logger.ColorGreen:  lipgloss.Color(colorsTyped["green"].(string)),
-			logger.ColorRed:    lipgloss.Color(colorsTyped["red"].(string)),
-			logger.ColorYellow: lipgloss.Color(colorsTyped["yellow"].(string)),
-		})
-	default:
 	}
+
+	return nil
+}
+
+func (app *App) ConfigService() *ConfigService {
+	if app.config != nil {
+		return app.config
+	}
+
+	app.config = &ConfigService{
+		repo:   app.repo,
+		logger: app.logger,
+	}
+
+	return app.config
+}
+
+func (app *App) HooksService() *HooksService {
+	if app.hooks != nil {
+		return app.hooks
+	}
+
+	app.hooks = &HooksService{
+		repo:   app.repo,
+		logger: app.logger,
+	}
+
+	return app.hooks
 }

@@ -6,14 +6,14 @@ import (
 
 	"github.com/urfave/cli/v3"
 
-	"github.com/evilmartians/lefthook/v2/internal/command"
+	"github.com/evilmartians/lefthook/v2/internal/commands"
 )
 
 //go:embed add-usage.txt
 var addUsageText string
 
 func add() *cli.Command {
-	var args command.AddArgs
+	var args commands.AddArgs
 	var verbose bool
 
 	return &cli.Command{
@@ -43,13 +43,18 @@ func add() *cli.Command {
 			// if err != nil {
 			// 	return err
 			// }
-			app := newApp(verbose, "")
-			args.Hook = cmd.Args().Get(0)
+			app, err := newApp(verbose, "")
+			if err != nil {
+				return err
+			}
+
+			args.HookName = cmd.Args().Get(0)
 			return commands.Add(ctx, app, args)
 		},
 		ShellComplete: func(ctx context.Context, cmd *cli.Command) {
-			command.ShellCompleteFlags(cmd)
-			command.ShellCompleteHookNames()
+			autocomplete := newAutocomplete()
+			autocomplete.printFlags(cmd)
+			autocomplete.printHookNames()
 		},
 	}
 }

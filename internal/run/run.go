@@ -21,7 +21,7 @@ type Options = controller.Options
 func Run(
 	ctx context.Context,
 	hook *config.Hook,
-	repo *git.Repository,
+	repo *git.Repo,
 	opts Options,
 ) ([]result.Result, error) {
 	return controller.NewController(repo).RunHook(ctx, opts, hook)

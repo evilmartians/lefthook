@@ -24,7 +24,7 @@ func (m mockCmd) Run(cmd []string, root string, in io.Reader, out io.Writer, err
 
 func TestBatchedCmd(t *testing.T) {
 	assert := assert.New(t)
-	c := CommandExecutor{cmd: mockCmd{}, mu: new(sync.Mutex), maxCmdLen: 2}
+	c := Commander{cmd: mockCmd{}, mu: new(sync.Mutex), maxCmdLen: 2}
 	out, err := c.BatchedCmd([]string{"hello"}, []string{"1", "2", "3", "4"})
 	assert.NoError(err)
 

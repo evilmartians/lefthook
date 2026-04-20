@@ -16,7 +16,7 @@ const (
 
 // RemoteFolder returns the path to the folder where the remote
 // Git is located.
-func (r *Git) RemoteFolder(url string, ref string) string {
+func (r *Repo) RemoteFolder(url string, ref string) string {
 	return filepath.Join(
 		r.RemotesFolder(),
 		RemoteDirectoryName(url, ref),
@@ -24,14 +24,14 @@ func (r *Git) RemoteFolder(url string, ref string) string {
 }
 
 // RemotesFolder returns the path to the lefthook remotes folder.
-func (r *Git) RemotesFolder() string {
+func (r *Repo) RemotesFolder() string {
 	return filepath.Join(r.InfoPath, remotesFolder)
 }
 
 // SyncRemote clones or pulls the latest changes for a git Git that was
 // specified as a remote config Git. If successful, the path to the root
 // of the Git will be returned.
-func (r *Git) SyncRemote(url, ref string, force bool) error {
+func (r *Repo) SyncRemote(url, ref string, force bool) error {
 	remotesPath := r.RemotesFolder()
 
 	err := r.Fs.MkdirAll(remotesPath, remotesFolderMode)
@@ -62,7 +62,7 @@ func (r *Git) SyncRemote(url, ref string, force bool) error {
 	return r.cloneRemote(remotesPath, directoryName, url, ref)
 }
 
-func (r *Git) updateRemote(path, ref string) error {
+func (r *Repo) updateRemote(path, ref string) error {
 	log.Debugf("Updating remote config repository: %s", path)
 
 	// This is overwriting ENVs for worktrees, otherwise it does not work.
@@ -93,7 +93,7 @@ func (r *Git) updateRemote(path, ref string) error {
 	return nil
 }
 
-func (r *Git) cloneRemote(dest, directoryName, url, ref string) error {
+func (r *Repo) cloneRemote(dest, directoryName, url, ref string) error {
 	log.Debugf("Cloning remote config repository: %v/%v", dest, directoryName)
 
 	cmdClone := []string{"git", "-C", dest, "clone", "--quiet", "--origin", "origin", "--depth", "1"}
