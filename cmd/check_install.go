@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/urfave/cli/v3"
+
+	"github.com/evilmartians/lefthook/v2/internal/commands"
 )
 
 func checkInstall() *cli.Command {

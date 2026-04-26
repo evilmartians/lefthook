@@ -11,11 +11,12 @@ import (
 )
 
 type App struct {
+	Logger *logger.Logger
 	repo   *git.Repo
-	logger *logger.Logger
 
 	config *ConfigService
 	hooks  *HooksService
+	git    *GitService
 }
 
 func New(fs afero.Fs, verbose bool, colors string) (*App, error) {
@@ -84,4 +85,17 @@ func (app *App) HooksService() *HooksService {
 	}
 
 	return app.hooks
+}
+
+func (app *App) GitService() *GitService {
+	if app.git != nil {
+		return app.git
+	}
+
+	app.git = &GitService{
+		repo:   app.repo,
+		logger: app.logger,
+	}
+
+	return app.git
 }
