@@ -1,8 +1,6 @@
 module github.com/evilmartians/lefthook/v2
 
-go 1.26
-
-toolchain go1.26.0
+go 1.26.2
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.10.0
@@ -13,7 +11,7 @@ require (
 	github.com/gobwas/glob v0.2.3
 	github.com/goccy/go-yaml v1.19.2
 	github.com/invopop/jsonschema v0.13.0
-	github.com/kaptinlin/jsonschema v0.7.7
+	github.com/kaptinlin/jsonschema v0.7.11
 	github.com/knadh/koanf/maps v0.1.2
 	github.com/knadh/koanf/parsers/json v1.0.0
 	github.com/knadh/koanf/parsers/toml/v2 v2.2.0
@@ -44,10 +42,9 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/go-json-experiment/json v0.0.0-20260214004413-d219187c3433 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
-	github.com/kaptinlin/go-i18n v0.3.0 // indirect
-	github.com/kaptinlin/jsonpointer v0.4.17 // indirect
-	github.com/kaptinlin/messageformat-go v0.4.19 // indirect
-	github.com/kr/pretty v0.3.1 // indirect
+	github.com/kaptinlin/go-i18n v0.4.4 // indirect
+	github.com/kaptinlin/jsonpointer v0.4.19 // indirect
+	github.com/kaptinlin/messageformat-go v0.6.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
@@ -72,5 +69,5 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4
 	golang.org/x/sys v0.43.0 // indirect
 	golang.org/x/term v0.42.0
-	golang.org/x/text v0.35.0 // indirect
+	golang.org/x/text v0.36.0 // indirect
 )
