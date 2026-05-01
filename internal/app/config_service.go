@@ -175,7 +175,7 @@ func (s *ConfigService) Synchronized() bool {
 		return false
 	}
 
-	configTimestamp, err := s.lastUpdated()
+	configTimestamp, err := s.LastUpdated()
 	if err != nil {
 		return false
 	}
@@ -211,7 +211,7 @@ func (s *ConfigService) checksumFilepath() string {
 	return filepath.Join(s.repo.InfoPath, config.ChecksumFileName)
 }
 
-func (s *ConfigService) lastUpdated() (int64, error) {
+func (s *ConfigService) LastUpdated() (int64, error) {
 	configPath, err := s.MainPath()
 	if err != nil {
 		return 0, err

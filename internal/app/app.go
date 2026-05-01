@@ -39,7 +39,7 @@ func New(fs afero.Fs, verbose bool, colors string) (*App, error) {
 
 	return &App{
 		repo:   repo,
-		logger: l,
+		Logger: l,
 	}, nil
 }
 
@@ -68,7 +68,7 @@ func (app *App) ConfigService() *ConfigService {
 
 	app.config = &ConfigService{
 		repo:   app.repo,
-		logger: app.logger,
+		logger: app.Logger,
 	}
 
 	return app.config
@@ -81,7 +81,8 @@ func (app *App) HooksService() *HooksService {
 
 	app.hooks = &HooksService{
 		repo:   app.repo,
-		logger: app.logger,
+		logger: app.Logger,
+		config: app.ConfigService(),
 	}
 
 	return app.hooks
@@ -94,7 +95,7 @@ func (app *App) GitService() *GitService {
 
 	app.git = &GitService{
 		repo:   app.repo,
-		logger: app.logger,
+		logger: app.Logger,
 	}
 
 	return app.git

@@ -13,6 +13,13 @@ type GitService struct {
 	logger *logger.Logger
 }
 
+// SyncRemote clones or pulls the configured remote so its hooks/extends are
+// available locally. It mirrors the old `Lefthook.Install` behavior: always
+// fetch when called.
 func (s *GitService) SyncRemote(ctx context.Context, remote *config.Remote, force bool) error {
-	return nil
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
+	return s.repo.SyncRemote(remote.GitURL, remote.Ref, force)
 }

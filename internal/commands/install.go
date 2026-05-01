@@ -23,11 +23,12 @@ func Install(ctx context.Context, app *app.App, args InstallArgs) error {
 		}
 	}
 
-	if _, err := configService.Load(); err != nil {
+	cfg, err := configService.Load()
+	if err != nil {
 		return fmt.Errorf("config load failed: %w", err)
 	}
 
-	var ok bool
+	var remotesSynced bool
 	gitService := app.GitService()
 	configService.ForEachRemote(func(remote *config.Remote) {
 		if !remote.Configured() {
@@ -39,35 +40,15 @@ func Install(ctx context.Context, app *app.App, args InstallArgs) error {
 			return
 		}
 
-		ok = true
+		remotesSynced = true
 	})
-	if ok {
-		if _, err := configService.Reload(); err != nil {
+
+	if remotesSynced {
+		cfg, err = configService.Reload()
+		if err != nil {
 			return err
 		}
 	}
 
-	return app.HooksService().Install(cfg, args.Hooks, args.Force)
-
-	// var remotesSynced bool
-	// for _, remote := range cfg.Remotes {
-	// 	if remote.Configured() {
-	// 		if err = l.repo.SyncRemote(remote.GitURL, remote.Ref, args.Force); err != nil {
-	// 			log.Warnf("Couldn't sync from %s. Will continue anyway: %s", remote.GitURL, err)
-	// 			continue
-	// 		}
-
-	// 		remotesSynced = true
-	// 	}
-	// }
-
-	// if remotesSynced {
-	// 	// Reread the config file with synced remotes
-	// 	cfg, err = l.readOrCreateConfig()
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// }
-
-	// return app.HooksService.Install(cfg, hooks, args)
+	return app.HooksService().Install(cfg, args.Hooks, args.Force, args.ResetHooksPath)
 }
