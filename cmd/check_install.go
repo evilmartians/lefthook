@@ -5,7 +5,7 @@ import (
 
 	"github.com/urfave/cli/v3"
 
-	"github.com/evilmartians/lefthook/v2/internal/commands"
+	"github.com/evilmartians/lefthook/v2/internal/command"
 )
 
 func checkInstall() *cli.Command {
@@ -24,15 +24,15 @@ func checkInstall() *cli.Command {
 			},
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			app, err := newApp(verbose, "")
+			l, err := command.NewLefthook(verbose, "auto")
 			if err != nil {
 				return err
 			}
 
-			return commands.CheckInstall(ctx, app)
+			return l.CheckInstall(ctx)
 		},
 		ShellComplete: func(ctx context.Context, cmd *cli.Command) {
-			newAutocomplete().printFlags(cmd)
+			command.ShellCompleteFlags(cmd)
 		},
 	}
 }

@@ -29,7 +29,7 @@ type Replacer struct {
 }
 
 func New(
-	git *git.Repo,
+	git *git.Repository,
 	root string,
 	filesCmd string,
 ) Replacer {

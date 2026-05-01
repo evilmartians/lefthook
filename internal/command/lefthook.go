@@ -18,6 +18,7 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/git"
 	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/system"
 	"github.com/evilmartians/lefthook/v2/internal/templates"
 )
 
@@ -33,7 +34,7 @@ const (
 
 type Lefthook struct {
 	fs     afero.Fs
-	repo   *git.Repo
+	repo   *git.Repository
 	colors string
 }
 
@@ -66,7 +67,7 @@ func NewLefthook(verbose bool, colors string) (*Lefthook, error) {
 
 	log.SetColors(colors)
 
-	repo, err := git.NewRepo(fs)
+	repo, err := git.NewRepository(fs, git.NewExecutor(system.Cmd))
 	if err != nil {
 		return nil, err
 	}

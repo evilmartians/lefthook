@@ -4,7 +4,7 @@ package cmd
 
 import "github.com/urfave/cli/v3"
 
-var cliCommands = []*cli.Command{
+var commands = []*cli.Command{
 	run(),
 	install(),
 	uninstall(),

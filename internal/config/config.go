@@ -79,7 +79,6 @@ func (c *Config) Md5() (checksum string, err error) {
 	return checksum, err
 }
 
-// TODO: Move to ConfigService
 func (c *Config) Dump(format DumpFormat, out io.Writer) error {
 	res := make(map[string]any)
 	if err := mapstructure.Decode(c, &res); err != nil {

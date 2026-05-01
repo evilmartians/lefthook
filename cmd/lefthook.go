@@ -11,7 +11,7 @@ func Lefthook() *cli.Command {
 		Name:     "lefthook",
 		Usage:    "Git hooks manager",
 		Version:  ver.Version(true),
-		Commands: cliCommands,
+		Commands: commands,
 		Description: `... of supported ENV variables:
 
 LEFTHOOK          set to '0' or 'false' to disable lefthook execution

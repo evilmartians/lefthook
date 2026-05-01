@@ -5,11 +5,11 @@ import (
 
 	"github.com/urfave/cli/v3"
 
-	"github.com/evilmartians/lefthook/v2/internal/commands"
+	"github.com/evilmartians/lefthook/v2/internal/command"
 )
 
 func install() *cli.Command {
-	var args commands.InstallArgs
+	var args command.InstallArgs
 	var verbose bool
 
 	return &cli.Command{
@@ -36,18 +36,16 @@ func install() *cli.Command {
 			},
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			app, err := newApp(verbose, "")
+			l, err := command.NewLefthook(verbose, "auto")
 			if err != nil {
 				return err
 			}
-			args.Hooks = cmd.Args().Slice()
 
-			return commands.Install(ctx, app, args)
+			return l.Install(ctx, args, cmd.Args().Slice())
 		},
 		ShellComplete: func(ctx context.Context, cmd *cli.Command) {
-			autocomplete := newAutocomplete()
-			autocomplete.printFlags(cmd)
-			autocomplete.printHookNames()
+			command.ShellCompleteFlags(cmd)
+			command.ShellCompleteHookNames()
 		},
 	}
 }

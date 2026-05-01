@@ -26,11 +26,11 @@ var (
 	cmdParentCommits = []string{"git", "show", "--no-patch", `--format="%P"`}
 )
 
-func (r *Repo) State() State {
+func (r *Repository) State() State {
 	return r.stateOnce()
 }
 
-func (r *Repo) state() State {
+func (r *Repository) state() State {
 	var state State
 
 	branch := r.branch()
@@ -64,7 +64,7 @@ func (r *Repo) state() State {
 	return state
 }
 
-func (r *Repo) branch() string {
+func (r *Repository) branch() string {
 	headFile := filepath.Join(r.GitPath, "HEAD")
 	if _, err := r.Fs.Stat(headFile); os.IsNotExist(err) {
 		return ""
@@ -96,14 +96,14 @@ func (r *Repo) branch() string {
 	return ""
 }
 
-func (r *Repo) inMergeState() bool {
+func (r *Repository) inMergeState() bool {
 	if _, err := r.Fs.Stat(filepath.Join(r.GitPath, "MERGE_HEAD")); os.IsNotExist(err) {
 		return false
 	}
 	return true
 }
 
-func (r *Repo) inRebaseState() bool {
+func (r *Repository) inRebaseState() bool {
 	if _, mergeErr := r.Fs.Stat(filepath.Join(r.GitPath, "rebase-merge")); os.IsNotExist(mergeErr) {
 		if _, applyErr := r.Fs.Stat(filepath.Join(r.GitPath, "rebase-apply")); os.IsNotExist(applyErr) {
 			return false
@@ -113,7 +113,7 @@ func (r *Repo) inRebaseState() bool {
 	return true
 }
 
-func (r *Repo) inMergeCommitState() bool {
+func (r *Repository) inMergeCommitState() bool {
 	parents, err := r.Git.Cmd(cmdParentCommits)
 	if err != nil {
 		return false

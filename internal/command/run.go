@@ -167,7 +167,7 @@ func resolveHook(cfg *config.Config, hookName string) (*config.Hook, error) {
 	return hook, nil
 }
 
-func getFiles(repo *git.Repo, args RunArgs) ([]string, error) {
+func getFiles(repo *git.Repository, args RunArgs) ([]string, error) {
 	if args.FilesFromStdin {
 		paths, err := io.ReadAll(os.Stdin)
 		if err != nil {
@@ -185,7 +185,7 @@ func getFiles(repo *git.Repo, args RunArgs) ([]string, error) {
 	return args.Files, nil
 }
 
-func getSourceDirs(repo *git.Repo, cfg *config.Config) []string {
+func getSourceDirs(repo *git.Repository, cfg *config.Config) []string {
 	sourceDirs := []string{
 		filepath.Join(repo.RootPath, cfg.SourceDir),
 		filepath.Join(repo.RootPath, cfg.SourceDirLocal),
@@ -244,7 +244,7 @@ func shouldFailOnChangesDiff(fromArg *bool, fromHook *bool) bool {
 	return ok
 }
 
-func runHook(ctx context.Context, hook *config.Hook, repo *git.Repo, opts run.Options) error {
+func runHook(ctx context.Context, hook *config.Hook, repo *git.Repository, opts run.Options) error {
 	ctx, stop := signal.NotifyContext(ctx, os.Interrupt)
 	defer stop()
 

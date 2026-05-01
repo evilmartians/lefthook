@@ -19,7 +19,7 @@ import (
 )
 
 type Controller struct {
-	git         *git.Repo
+	git         *git.Repository
 	cachedStdin io.Reader
 	executor    exec.Executor
 	cmd         system.CommandWithContext
@@ -43,7 +43,7 @@ type Options struct {
 	NoStageFixed      bool
 }
 
-func NewController(repo *git.Repo) *Controller {
+func NewController(repo *git.Repository) *Controller {
 	return &Controller{
 		git: repo,
 
