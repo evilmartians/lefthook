@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
-	"github.com/evilmartians/lefthook/v2/internal/log"
 )
 
 type UninstallArgs struct {
@@ -24,11 +23,11 @@ func (l *Lefthook) Uninstall(_ctx context.Context, args UninstallArgs) error {
 	err := l.fs.Remove(l.checksumFilePath())
 	switch {
 	case err == nil:
-		log.Debugf("%s removed", l.checksumFilePath())
+		l.logger.Debugf("%s removed", l.checksumFilePath())
 	case errors.Is(err, os.ErrNotExist):
-		log.Debugf("%s not found, skipping\n", l.checksumFilePath())
+		l.logger.Debugf("%s not found, skipping", l.checksumFilePath())
 	default:
-		log.Errorf("Failed removing %s: %s\n", l.checksumFilePath(), err)
+		l.logger.Errorf("Failed removing %s: %s", l.checksumFilePath(), err)
 	}
 
 	if args.RemoveConfig {
@@ -59,9 +58,9 @@ func (l *Lefthook) deleteHooks(force bool) error {
 		}
 
 		if err := l.fs.Remove(hookFile); err == nil {
-			log.Debugf("%s removed", hookFile)
+			l.logger.Debugf("%s removed", hookFile)
 		} else {
-			log.Errorf("Failed removing %s: %s\n", hookFile, err)
+			l.logger.Errorf("Failed removing %s: %s", hookFile, err)
 		}
 
 		// Recover .old file if exists
@@ -71,9 +70,9 @@ func (l *Lefthook) deleteHooks(force bool) error {
 		}
 
 		if err := l.fs.Rename(oldHookFile, hookFile); err == nil {
-			log.Debug(oldHookFile, "renamed to", file.Name())
+			l.logger.Debug(oldHookFile, "renamed to", file.Name())
 		} else {
-			log.Errorf("Failed renaming %s: %s\n", oldHookFile, err)
+			l.logger.Errorf("Failed renaming %s: %s", oldHookFile, err)
 		}
 	}
 
@@ -83,15 +82,15 @@ func (l *Lefthook) deleteHooks(force bool) error {
 func (l *Lefthook) removeFile(glob string) {
 	paths, err := afero.Glob(l.fs, glob)
 	if err != nil {
-		log.Errorf("Failed removing configuration files: %s\n", err)
+		l.logger.Errorf("Failed removing configuration files: %s", err)
 		return
 	}
 
 	for _, fileName := range paths {
 		if err := l.fs.Remove(fileName); err == nil {
-			log.Debugf("%s removed", fileName)
+			l.logger.Debugf("%s removed", fileName)
 		} else {
-			log.Errorf("Failed removing file %s: %s\n", fileName, err)
+			l.logger.Errorf("Failed removing file %s: %s", fileName, err)
 		}
 	}
 }

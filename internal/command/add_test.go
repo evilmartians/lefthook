@@ -128,7 +128,7 @@ source_dir_local: .source_dir_local
 			fs := afero.NewMemMapFs()
 			lefthook := &Lefthook{
 				fs: fs,
-				repo: &git.Repository{
+				repo: &git.Repo{
 					Fs:        fs,
 					HooksPath: hooksPath,
 					RootPath:  root,

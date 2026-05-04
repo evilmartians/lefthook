@@ -9,7 +9,7 @@ import (
 	"github.com/urfave/cli/v3"
 
 	"github.com/evilmartians/lefthook/v2/internal/command"
-	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/updater"
 )
 
@@ -39,12 +39,13 @@ func selfUpdate() *cli.Command {
 			},
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
+			l := logger.New(os.Stdout)
 			if os.Getenv(command.EnvVerbose) == "1" || os.Getenv(command.EnvVerbose) == "true" {
 				verbose = true
 			}
 			if verbose {
-				log.SetLevel(log.DebugLevel)
-				log.Debug("Verbose mode enabled")
+				l.SetLevel(logger.LevelDebug)
+				l.Debug("Verbose mode enabled")
 			}
 
 			exePath, err := os.Executable()
@@ -55,7 +56,7 @@ func selfUpdate() *cli.Command {
 			ctxCancel, stop := signal.NotifyContext(ctx, os.Interrupt)
 			defer stop()
 
-			return updater.New().SelfUpdate(ctxCancel, updater.Options{
+			return updater.New(l).SelfUpdate(ctxCancel, updater.Options{
 				Yes:     yes,
 				Force:   force,
 				ExePath: exePath,

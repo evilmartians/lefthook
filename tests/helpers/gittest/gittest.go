@@ -1,11 +1,13 @@
 package gittest
 
 import (
+	"io"
 	"path/filepath"
 
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/v2/internal/git"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
@@ -34,10 +36,13 @@ func (b *RepositoryBuilder) Fs(fs afero.Fs) *RepositoryBuilder {
 	return b
 }
 
-func (b *RepositoryBuilder) Build() *git.Repository {
-	return &git.Repository{
+func (b *RepositoryBuilder) Build() *git.Repo {
+	logger := logger.New(io.Discard)
+
+	return &git.Repo{
 		Fs:        b.fs,
-		Git:       git.NewExecutor(b.cmd),
+		Git:       git.NewCommander(b.cmd, logger),
+		Logger:    logger,
 		RootPath:  b.root,
 		GitPath:   GitPath(b.root),
 		HooksPath: filepath.Join(GitPath(b.root), "hooks"),

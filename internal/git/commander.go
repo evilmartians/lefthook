@@ -11,10 +11,11 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
-// CommandExecutor provides some methods that take some effect on execution and/or result data.
-type CommandExecutor struct {
-	mu  *sync.Mutex
-	cmd system.Command
+// Commander provides some methods that take some effect on execution and/or result data.
+type Commander struct {
+	mu     *sync.Mutex
+	logger *logger.Logger
+	cmd    system.Command
 
 	// Execute command in the specific directory
 	root string
@@ -29,32 +30,33 @@ type CommandExecutor struct {
 	noTrimOut bool
 }
 
-// NewExecutor returns an object that executes given commands in the OS.
-func NewExecutor(cmd system.Command) *CommandExecutor {
-	return &CommandExecutor{
+// NewCommander returns an object that executes given commands in the OS.
+func NewCommander(cmd system.Command, logger *logger.Logger) *Commander {
+	return &Commander{
 		mu:        new(sync.Mutex),
+		logger:    logger,
 		cmd:       cmd,
 		maxCmdLen: system.MaxCmdLen(),
 	}
 }
 
-func (c CommandExecutor) WithoutEnvs(envs ...string) CommandExecutor {
+func (c Commander) WithoutEnvs(envs ...string) Commander {
 	c.cmd = c.cmd.WithoutEnvs(envs...)
 	return c
 }
 
-func (c CommandExecutor) OnlyDebugLogs() CommandExecutor {
+func (c Commander) OnlyDebugLogs() Commander {
 	c.onlyDebugLogs = true
 	return c
 }
 
-func (c CommandExecutor) WithoutTrim() CommandExecutor {
+func (c Commander) WithoutTrim() Commander {
 	c.noTrimOut = true
 	return c
 }
 
 // Cmd runs plain string command.
-func (c CommandExecutor) Cmd(cmd []string) (string, error) {
+func (c Commander) Cmd(cmd []string) (string, error) {
 	out, err := c.execute(cmd, c.root)
 	if err != nil {
 		return "", err
@@ -68,7 +70,7 @@ func (c CommandExecutor) Cmd(cmd []string) (string, error) {
 }
 
 // BatchedCmd runs the command with any number of appended arguments batched in chunks to match the OS limits.
-func (c CommandExecutor) BatchedCmd(cmd []string, args []string) (string, error) {
+func (c Commander) BatchedCmd(cmd []string, args []string) (string, error) {
 	result := strings.Builder{}
 
 	argsBatched := batchByLength(args, c.maxCmdLen-len(cmd))
@@ -85,7 +87,7 @@ func (c CommandExecutor) BatchedCmd(cmd []string, args []string) (string, error)
 }
 
 // CmdLines runs plain string command, returns its output split by newline.
-func (c CommandExecutor) CmdLines(cmd []string) ([]string, error) {
+func (c Commander) CmdLines(cmd []string) ([]string, error) {
 	out, err := c.Cmd(cmd)
 	if err != nil {
 		return nil, err
@@ -95,7 +97,7 @@ func (c CommandExecutor) CmdLines(cmd []string) ([]string, error) {
 }
 
 // CmdLinesWithinFolder runs plain string command, returns its output split by newline.
-func (c CommandExecutor) CmdLinesWithinFolder(cmd []string, folder string) ([]string, error) {
+func (c Commander) CmdLinesWithinFolder(cmd []string, folder string) ([]string, error) {
 	root := filepath.Join(c.root, folder)
 	out, err := c.execute(cmd, root)
 	if err != nil {
@@ -109,7 +111,7 @@ func (c CommandExecutor) CmdLinesWithinFolder(cmd []string, folder string) ([]st
 	return strings.Split(out, "\n"), nil
 }
 
-func (c CommandExecutor) execute(cmd []string, root string) (string, error) {
+func (c Commander) execute(cmd []string, root string) (string, error) {
 	if len(cmd) > 0 && cmd[0] == "git" {
 		// Preventing Git lock issues for all Git commands
 		c.mu.Lock()
@@ -121,26 +123,20 @@ func (c CommandExecutor) execute(cmd []string, root string) (string, error) {
 	outString := stdout.String()
 	errString := stderr.String()
 
-	logger.NewBuilder(c.logger).
-		WithLevel(logger.LevelDebug).
-		WithPrefix("[lefthook] ").
-		WriteLines("git: ", strings.Join(cmd, " ")).
-		WriteLines("out: ", outString).
+	c.logger.Builder(logger.LevelDebug, "[lefthook] ").
+		Add("git: ", strings.Join(cmd, " ")).
+		Add("out: ", outString).
 		Log()
 
 	if err != nil {
 		if len(errString) > 0 {
-			builder := logger.NewBuilder(c.logger).
-				WithLevel(logger.LevelError).
-				WithPrefix("> ")
-
+			logLevel := logger.LevelError
 			if c.onlyDebugLogs {
-				builder = builder.WithLevel(logger.LevelDebug)
+				logLevel = logger.LevelDebug
 			}
-
-			builder.
-				WriteLines("", strings.Join(cmd, " ")).
-				WriteLines("", errString).
+			c.logger.Builder(logLevel, "> ").
+				Add("", strings.Join(cmd, " ")).
+				Add("", errString).
 				Log()
 		}
 	}

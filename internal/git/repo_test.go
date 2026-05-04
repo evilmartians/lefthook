@@ -33,8 +33,8 @@ func TestPartiallyStagedFiles(t *testing.T) {
 		},
 	} {
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			repository := &Repository{
-				Git: &CommandExecutor{
+			repository := &Repo{
+				Git: &Commander{
 					mu:  new(sync.Mutex),
 					cmd: cmdtest.NewOrdered(t, tt.git),
 				},
@@ -149,8 +149,8 @@ func TestChangeset(t *testing.T) {
 		},
 	} {
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			repository := &Repository{
-				Git: &CommandExecutor{
+			repository := &Repo{
+				Git: &Commander{
 					mu:        new(sync.Mutex),
 					cmd:       cmdtest.NewOrdered(t, tt.git),
 					maxCmdLen: 7000,
@@ -204,10 +204,10 @@ func TestPushFiles(t *testing.T) {
 			}
 		})
 
-		repository := &Repository{
+		repository := &Repo{
 			Fs:       fs,
 			RootPath: root,
-			Git: &CommandExecutor{
+			Git: &Commander{
 				mu:  new(sync.Mutex),
 				cmd: cmd,
 			},
@@ -258,7 +258,7 @@ func TestPushFiles(t *testing.T) {
 			}
 		})
 
-		repository := &Repository{
+		repository := &Repo{
 			Fs:       fs,
 			RootPath: root,
 			GitPath:  gitPath,
