@@ -2,16 +2,16 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/evilmartians/lefthook/v2/cmd"
-	"github.com/evilmartians/lefthook/v2/internal/log"
 )
 
 func main() {
 	if err := cmd.Lefthook().Run(context.Background(), os.Args); err != nil {
 		if err.Error() != "" {
-			log.Errorf("Error: %s", err)
+			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		}
 		os.Exit(1)
 	}

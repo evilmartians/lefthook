@@ -18,7 +18,6 @@ import (
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/git"
-	"github.com/evilmartians/lefthook/v2/internal/log"
 	"github.com/evilmartians/lefthook/v2/internal/templates"
 )
 
@@ -50,7 +49,7 @@ func (l *Lefthook) Install(ctx context.Context, args InstallArgs, hooks []string
 	for _, remote := range cfg.Remotes {
 		if remote.Configured() {
 			if err = l.repo.SyncRemote(remote.GitURL, remote.Ref, args.Force); err != nil {
-				log.Warnf("Couldn't sync from %s. Will continue anyway: %s", remote.GitURL, err)
+				l.logger.Warnf("Couldn't sync from %s. Will continue anyway: %s", remote.GitURL, err)
 				continue
 			}
 
@@ -81,10 +80,10 @@ func (l *Lefthook) installHooks(cfg *config.Config, hooks []string, args Install
 }
 
 func (l *Lefthook) readOrCreateConfig() (*config.Config, error) {
-	log.Debug("config dir: ", l.repo.RootPath)
+	l.logger.Debug("config dir: ", l.repo.RootPath)
 
 	if !l.configExists(l.repo.RootPath) {
-		log.Info("Config not found, creating...")
+		l.logger.Info("Config not found, creating...")
 		if err := l.createConfig(l.repo.RootPath); err != nil {
 			return nil, err
 		}
@@ -130,7 +129,7 @@ func (l *Lefthook) createConfig(path string) error {
 		return err
 	}
 
-	log.Info("Added config:", file)
+	l.logger.Info("Added config:", file)
 
 	return nil
 }
@@ -149,14 +148,14 @@ func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Con
 				if serr := l.repo.SyncRemote(remote.GitURL, remote.Ref, false); serr != nil {
 					ref, err := l.findAvailableRemoteRef(remote.GitURL)
 					if err != nil {
-						log.Warnf("Couldn't sync from %s. Will continue without that remote.", remote.GitURL)
+						l.logger.Warnf("Couldn't sync from %s. Will continue without that remote.", remote.GitURL)
 						continue
 					}
 
 					if ref != "" {
-						log.Warnf("Couldn't sync %s %s. Will continue with fallback version: %s.", remote.GitURL, remote.Ref, ref)
+						l.logger.Warnf("Couldn't sync %s %s. Will continue with fallback version: %s.", remote.GitURL, remote.Ref, ref)
 					} else {
-						log.Warnf("Couldn't sync %s %s. Will continue with old version.", remote.GitURL, remote.Ref)
+						l.logger.Warnf("Couldn't sync %s %s. Will continue with old version.", remote.GitURL, remote.Ref)
 					}
 
 					remote.Ref = ref
@@ -187,10 +186,10 @@ func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Con
 			for _, entry := range entries {
 				remotePath := filepath.Join(l.repo.RemotesFolder(), entry.Name())
 				if _, ok := fetchedRemotes[remotePath]; !ok {
-					log.Debug("Removing stale remote: ", remotePath)
+					l.logger.Debug("Removing stale remote: ", remotePath)
 
 					if err = l.fs.RemoveAll(remotePath); err != nil {
-						log.Error("failed to drop stale remote path: ", remotePath)
+						l.logger.Error("failed to drop stale remote path: ", remotePath)
 					}
 				}
 			}
@@ -204,7 +203,7 @@ func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Con
 
 	// Don't rely on config checksum if remotes were refetched
 	if err := l.installHooks(cfg, hooks, InstallArgs{}); err != nil {
-		log.Warnf("Skipping hook sync: %s", err)
+		l.logger.Warnf("Skipping hook sync: %s", err)
 		return cfg, nil
 	}
 	return cfg, nil
@@ -226,7 +225,7 @@ func (l *Lefthook) shouldRefetch(remote *config.Remote) bool {
 			return true
 		}
 
-		log.Warnf("Failed to detect last fetch time: %s", err)
+		l.logger.Warnf("Failed to detect last fetch time: %s", err)
 		return false
 	}
 
@@ -237,7 +236,7 @@ func (l *Lefthook) shouldRefetch(remote *config.Remote) bool {
 	lastFetchTime = info.ModTime()
 	timedelta, err := time.ParseDuration(remote.RefetchFrequency)
 	if err != nil {
-		log.Warnf("Couldn't parse refetch frequency %s. Will continue anyway: %s", remote.RefetchFrequency, err)
+		l.logger.Warnf("Couldn't parse refetch frequency %s. Will continue anyway: %s", remote.RefetchFrequency, err)
 		return false
 	}
 
@@ -274,7 +273,7 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, hooks []string, force
 	var success bool
 	defer func() {
 		if !success {
-			log.Info(log.Cyan("sync hooks: ❌"))
+			l.logger.Info(l.logger.Cyan("sync hooks: ❌"))
 		}
 	}()
 
@@ -292,7 +291,7 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, hooks []string, force
 	hookNames := make([]string, 0, len(cfg.Hooks)+1)
 	for hook := range cfg.Hooks {
 		if _, ok := onlyHooks[hook]; len(onlyHooks) > 0 && !ok {
-			log.Debug("skip installing: ", hook)
+			l.logger.Debug("skip installing: ", hook)
 			continue
 		}
 
@@ -335,9 +334,9 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, hooks []string, force
 
 	success = true
 	if len(hookNames) > 0 {
-		log.Info(log.Cyan("sync hooks: ✔️"), log.Gray("("+strings.Join(hookNames, ", ")+")"))
+		l.logger.Info(l.logger.Cyan("sync hooks: ✔️"), l.logger.Gray("("+strings.Join(hookNames, ", ")+")"))
 	} else {
-		log.Info(log.Cyan("sync hooks: ✔️ "))
+		l.logger.Info(l.logger.Cyan("sync hooks: ✔️ "))
 	}
 
 	return nil
@@ -385,7 +384,7 @@ func (l *Lefthook) checkHooksSynchronized(cfg *config.Config) (bool, []string) {
 	}
 	defer func() {
 		if cErr := file.Close(); cErr != nil {
-			log.Warnf("Could not close %s: %s", file.Name(), cErr)
+			l.logger.Warnf("Could not close %s: %s", file.Name(), cErr)
 		}
 	}()
 
@@ -413,7 +412,7 @@ func (l *Lefthook) checkHooksSynchronized(cfg *config.Config) (bool, []string) {
 		}
 	}
 	if err = scanner.Err(); err != nil {
-		log.Warnf("Could not read %s: %s", file.Name(), err)
+		l.logger.Warnf("Could not read %s: %s", file.Name(), err)
 		return false, nil
 	}
 
@@ -506,10 +505,10 @@ func (l *Lefthook) ensureHooksPathUnset(force, resetHooksPath bool) error {
 	}
 
 	if hasLocal {
-		log.Warnf("core.hooksPath is set locally to '%s'", local)
+		l.logger.Warnf("core.hooksPath is set locally to '%s'", local)
 	}
 	if hasGlobal {
-		log.Warnf("core.hooksPath is set globally to '%s'", global)
+		l.logger.Warnf("core.hooksPath is set globally to '%s'", global)
 	}
 
 	if resetHooksPath {
@@ -521,7 +520,7 @@ func (l *Lefthook) ensureHooksPathUnset(force, resetHooksPath bool) error {
 	if !hasLocal && hasGlobal {
 		path = global
 	}
-	log.Warnf("Installing hooks anyway in '%s'", path)
+	l.logger.Warnf("Installing hooks anyway in '%s'", path)
 
 	return nil
 }
@@ -564,14 +563,14 @@ func (l *Lefthook) unsetHooksPathConfig(local, global string) error {
 		if _, err := l.repo.Git.Cmd([]string{"git", "config", "--local", "--unset-all", "core.hooksPath"}); err != nil {
 			return fmt.Errorf("failed to unset local core.hooksPath: %w", err)
 		}
-		log.Warn("local core.hooksPath has been unset.")
+		l.logger.Warn("local core.hooksPath has been unset.")
 	}
 
 	if len(global) > 0 {
 		if _, err := l.repo.Git.Cmd([]string{"git", "config", "--global", "--unset-all", "core.hooksPath"}); err != nil {
 			return fmt.Errorf("failed to unset global core.hooksPath: %w", err)
 		}
-		log.Warn("global core.hooksPath has been unset.")
+		l.logger.Warn("global core.hooksPath has been unset.")
 	}
 
 	return nil

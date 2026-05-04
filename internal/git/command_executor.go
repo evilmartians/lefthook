@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
@@ -121,20 +121,26 @@ func (c CommandExecutor) execute(cmd []string, root string) (string, error) {
 	outString := stdout.String()
 	errString := stderr.String()
 
-	log.Builder(log.DebugLevel, "[lefthook] ").
-		Add("git: ", strings.Join(cmd, " ")).
-		Add("out: ", outString).
+	logger.NewBuilder(c.logger).
+		WithLevel(logger.LevelDebug).
+		WithPrefix("[lefthook] ").
+		WriteLines("git: ", strings.Join(cmd, " ")).
+		WriteLines("out: ", outString).
 		Log()
 
 	if err != nil {
 		if len(errString) > 0 {
-			logLevel := log.ErrorLevel
+			builder := logger.NewBuilder(c.logger).
+				WithLevel(logger.LevelError).
+				WithPrefix("> ")
+
 			if c.onlyDebugLogs {
-				logLevel = log.DebugLevel
+				builder = builder.WithLevel(logger.LevelDebug)
 			}
-			log.Builder(logLevel, "> ").
-				Add("", strings.Join(cmd, " ")).
-				Add("", errString).
+
+			builder.
+				WriteLines("", strings.Join(cmd, " ")).
+				WriteLines("", errString).
 				Log()
 		}
 	}

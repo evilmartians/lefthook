@@ -4,12 +4,13 @@ import (
 	"github.com/gobwas/glob"
 
 	"github.com/evilmartians/lefthook/v2/internal/git"
-	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
 type SkipChecker struct {
-	exec *commandExecutor
+	exec   *commandExecutor
+	logger *logger.Logger
 }
 
 func NewSkipChecker(cmd system.Command) *SkipChecker {
@@ -92,9 +93,11 @@ func (sc *SkipChecker) matchesCommands(typedState map[string]any) bool {
 
 	result := sc.exec.execute(commandLine)
 
-	log.Builder(log.DebugLevel, "[lefthook] ").
-		Add("skip/only: ", commandLine).
-		Add("result:    ", result).
+	logger.NewBuilder(sc.logger).
+		WithLevel(logger.LevelDebug).
+		WithPrefix("[lefthook] ").
+		WriteLines("skip/only: ", commandLine).
+		WriteLines("result:    ", result).
 		Log()
 
 	return result

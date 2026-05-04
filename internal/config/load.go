@@ -136,7 +136,7 @@ func loadMain(filesystem afero.Fs, root string) (*koanf.Koanf, error) {
 	return main, nil
 }
 
-func LoadSecondary(main *koanf.Koanf, filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, error) {
+func LoadSecondary(main *koanf.Koanf, filesystem afero.Fs, repo *git.Repo) (*koanf.Koanf, error) {
 	// Save `extends` and `remotes`
 	extends := main.Strings("extends")
 	var remotes []*Remote
@@ -185,7 +185,7 @@ func LoadSecondary(main *koanf.Koanf, filesystem afero.Fs, repo *git.Repository)
 	return secondary, nil
 }
 
-func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.Koanf, error) {
+func LoadKoanf(filesystem afero.Fs, repo *git.Repo) (*koanf.Koanf, *koanf.Koanf, error) {
 	// Load main lefthook.yml
 	main, err := loadMain(filesystem, repo.RootPath)
 	if err != nil {
@@ -202,7 +202,7 @@ func LoadKoanf(filesystem afero.Fs, repo *git.Repository) (*koanf.Koanf, *koanf.
 }
 
 // Load loads configs from the given directory with extensions.
-func Load(filesystem afero.Fs, repo *git.Repository) (*Config, error) {
+func Load(filesystem afero.Fs, repo *git.Repo) (*Config, error) {
 	main, secondary, err := LoadKoanf(filesystem, repo)
 	if err != nil {
 		return nil, err
@@ -227,7 +227,7 @@ func Unmarshal(main *koanf.Koanf, secondary *koanf.Koanf) (*Config, error) {
 }
 
 // loadRemotes merges remote configs to the current one.
-func loadRemotes(k *koanf.Koanf, filesystem afero.Fs, repo *git.Repository, remotes []*Remote) error {
+func loadRemotes(k *koanf.Koanf, filesystem afero.Fs, repo *git.Repo, remotes []*Remote) error {
 	for _, remote := range remotes {
 		if !remote.Configured() {
 			continue

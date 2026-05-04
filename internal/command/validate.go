@@ -8,7 +8,6 @@ import (
 	"github.com/kaptinlin/jsonschema"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
-	"github.com/evilmartians/lefthook/v2/internal/log"
 )
 
 type ValidateArgs struct {
@@ -43,7 +42,7 @@ func (l *Lefthook) Validate(_ctx context.Context, args ValidateArgs) error {
 		return errors.New("validation failed for secondary config")
 	}
 
-	log.Info("All good")
+	l.logger.Info("All good")
 	return nil
 }
 
@@ -53,7 +52,7 @@ func logValidationErrors(indent int, details jsonschema.List) {
 	}
 
 	if len(details.InstanceLocation) > 0 {
-		logDetail(indent, details)
+		l.logDetail(indent, details)
 
 		indent += 2
 	}
@@ -63,7 +62,7 @@ func logValidationErrors(indent int, details jsonschema.List) {
 	}
 }
 
-func logDetail(indent int, details jsonschema.List) {
+func (l *Lefthook) logDetail(indent int, details jsonschema.List) {
 	var errors []string
 	if len(details.Errors) > 0 {
 		for _, err := range details.Errors {
@@ -74,14 +73,14 @@ func logDetail(indent int, details jsonschema.List) {
 	option := strings.Repeat(" ", indent) + strings.TrimLeft(details.InstanceLocation, "/") + ":"
 
 	if len(errors) == 0 {
-		option = log.Gray(option)
+		option = l.logger.Paint(logger.ColorGray, option)
 	} else {
-		option = log.Yellow(option)
+		option = l.logger.Paint(logger.ColorYello, option)
 	}
 
 	if len(details.Details) > 0 {
-		log.Info(option)
+		l.logger.Info(option)
 	} else {
-		log.Info(option, log.Red(strings.Join(errors, ",")))
+		l.logger.Info(option, l.logger.Red(strings.Join(errors, ",")))
 	}
 }

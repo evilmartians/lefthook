@@ -28,33 +28,8 @@ const (
 	LevelDebug
 )
 
-type Color uint8
-
-const (
-	ColorCyan Color = iota
-	ColorGray
-	ColorGreen
-	ColorRed
-	ColorYellow
-	ColorWhite
-)
-
 var profile = colorprofile.Detect(os.Stdout, os.Environ())
 var complete = lipgloss.Complete(profile)
-var DefaultColors map[Color]color.Color = map[Color]color.Color{
-	ColorCyan:   complete(lipgloss.Color("37"), lipgloss.Color("14"), lipgloss.Color("#70C0BA")),
-	ColorGray:   complete(lipgloss.Color("7"), lipgloss.Color("244"), lipgloss.Color("#808080")),
-	ColorGreen:  complete(lipgloss.Color("2"), lipgloss.Color("148"), lipgloss.Color("#32cd32")),
-	ColorRed:    complete(lipgloss.Color("9"), lipgloss.Color("196"), lipgloss.Color("#ff6347")),
-	ColorYellow: complete(lipgloss.Color("11"), lipgloss.Color("191"), lipgloss.Color("#fada5e")),
-}
-var NoColors map[Color]color.Color = map[Color]color.Color{
-	ColorCyan:   lipgloss.NoColor{},
-	ColorGray:   lipgloss.NoColor{},
-	ColorGreen:  lipgloss.NoColor{},
-	ColorRed:    lipgloss.NoColor{},
-	ColorYellow: lipgloss.NoColor{},
-}
 var border = lipgloss.NewStyle().
 	BorderStyle(lipgloss.NormalBorder()).
 	BorderLeft(true).
@@ -80,7 +55,7 @@ func New(out io.Writer) *Logger {
 
 func (l *Logger) Error(args ...string) {
 	message := border.BorderForeground(l.colors[ColorRed]).Render(args...)
-	l.Print(message)
+	l.log(LevelError, message)
 }
 
 func (l *Logger) Errorf(format string, args ...any) {
@@ -88,56 +63,36 @@ func (l *Logger) Errorf(format string, args ...any) {
 }
 
 func (l *Logger) Warn(args ...string) {
-	if l.level < LevelWarn {
-		return
-	}
-
 	message := border.BorderForeground(l.colors[ColorYellow]).Render(args...)
-	l.Print(message)
+	l.log(LevelWarn, message)
 }
 
 func (l *Logger) Warnf(format string, args ...any) {
-	if l.level < LevelWarn {
-		return
-	}
-
 	l.Warn(fmt.Sprintf(format, args...))
 }
 
 func (l *Logger) Info(args ...any) {
-	if l.level < LevelInfo {
-		return
-	}
-
-	l.Print(args...)
+	l.log(LevelInfo, args...)
 }
 
 func (l *Logger) Infof(format string, args ...any) {
-	if l.level < LevelInfo {
-		return
-	}
-
 	l.Info(fmt.Sprintf(format, args...))
 }
 
-func (l *Logger) Debug(args ...string) {
-	if l.level < LevelDebug {
-		return
-	}
-
-	message := border.BorderForeground(l.colors[ColorGray]).Render(args...)
-	l.Print(message)
-}
-
 func (l *Logger) Debugf(format string, args ...any) {
-	if l.level < LevelDebug {
-		return
-	}
-
 	l.Debug(fmt.Sprintf(format, args...))
 }
 
-func (l *Logger) Print(args ...any) {
+func (l *Logger) Debug(args ...string) {
+	message := border.BorderForeground(l.colors[ColorGray]).Render(args...)
+	l.log(LevelDebug, message)
+}
+
+func (l *logger) log(level Level, args ...any) {
+	if l.level < level {
+		return
+	}
+
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
@@ -147,14 +102,6 @@ func (l *Logger) Print(args ...any) {
 	}
 
 	_, _ = fmt.Fprintln(l.out, args...)
-}
-
-// func (l *Logger) Printf(format string, args ...any) {
-// 	l.Print(fmt.Sprintf(format, args...))
-// }
-
-func (l *Logger) SetColors(colors map[Color]color.Color) {
-	l.colors = colors
 }
 
 func (l *Logger) SetLevel(level Level) {

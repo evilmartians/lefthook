@@ -13,6 +13,7 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/git"
 	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/run"
 	"github.com/evilmartians/lefthook/v2/internal/run/result"
 	"github.com/evilmartians/lefthook/v2/internal/version"
@@ -54,7 +55,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	defer waitPrecompute()
 
 	if args.Verbose {
-		log.SetLevel(log.DebugLevel)
+		l.logger.SetLevel(logger.LevelDebug)
 	}
 
 	// Load config
@@ -62,7 +63,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	if err != nil {
 		var errNotFound config.ConfigNotFoundError
 		if ok := errors.As(err, &errNotFound); ok {
-			log.Warn(err.Error())
+			l.logger.Warn(err.Error())
 			return nil
 		}
 		return err
@@ -78,16 +79,15 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	_, ok := cfg.Hooks[args.Hook]
 	isGhostHook := args.Hook == config.GhostHookName && !ok && !args.Verbose
 	if isGhostHook {
-		log.SetLevel(log.WarnLevel)
+		l.logger.SetLevel(logger.LevelWarn)
 	}
 
 	enableLogTags := os.Getenv(envOutput)
 
-	log.InitSettings()
-	log.ApplySettings(enableLogTags, cfg.Output)
+	exLogger := l.logger.NewExecutionLogger(enableLogTags, cfg.Output)
 
-	if log.Settings.LogMeta() {
-		log.LogMeta(args.Hook)
+	if exLogger.Enabled(logger.LogMeta) {
+		exLogger.LogMeta(args.Hook)
 	}
 
 	if !args.NoAutoInstall && !cfg.NoAutoInstall {
@@ -95,7 +95,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 		var newCfg *config.Config
 		newCfg, err = l.syncHooks(cfg, !isGhostHook)
 		if err != nil {
-			log.Warnf(
+			l.logger.Warnf(
 				"⚠️  There was a problem with synchronizing git hooks. Run 'lefthook install' manually.\n   Error: %s", err,
 			)
 		} else {
@@ -154,7 +154,7 @@ func resolveHook(cfg *config.Config, hookName string) (*config.Hook, error) {
 	hook, ok := cfg.Hooks[hookName]
 	if !ok {
 		if config.KnownHook(hookName) {
-			log.Debugf("[lefthook] skip: Hook %s doesn't exist in the config", hookName)
+			l.logger.Debugf("[lefthook] skip: Hook %s doesn't exist in the config", hookName)
 			return nil, nil
 		}
 		return nil, fmt.Errorf("hook %s doesn't exist in the config", hookName)
@@ -167,7 +167,7 @@ func resolveHook(cfg *config.Config, hookName string) (*config.Hook, error) {
 	return hook, nil
 }
 
-func getFiles(repo *git.Repository, args RunArgs) ([]string, error) {
+func getFiles(repo *git.Repo, args RunArgs) ([]string, error) {
 	if args.FilesFromStdin {
 		paths, err := io.ReadAll(os.Stdin)
 		if err != nil {
@@ -185,7 +185,7 @@ func getFiles(repo *git.Repository, args RunArgs) ([]string, error) {
 	return args.Files, nil
 }
 
-func getSourceDirs(repo *git.Repository, cfg *config.Config) []string {
+func getSourceDirs(repo *git.Repo, cfg *config.Config) []string {
 	sourceDirs := []string{
 		filepath.Join(repo.RootPath, cfg.SourceDir),
 		filepath.Join(repo.RootPath, cfg.SourceDirLocal),
@@ -244,7 +244,7 @@ func shouldFailOnChangesDiff(fromArg *bool, fromHook *bool) bool {
 	return ok
 }
 
-func runHook(ctx context.Context, hook *config.Hook, repo *git.Repository, opts run.Options) error {
+func runHook(ctx context.Context, hook *config.Hook, repo *git.Repo, opts run.Options) error {
 	ctx, stop := signal.NotifyContext(ctx, os.Interrupt)
 	defer stop()
 
@@ -289,9 +289,9 @@ func printSummary(
 				summaryPrint(
 					fmt.Sprintf(
 						"%s %s %s",
-						log.Cyan("summary:"),
-						log.Gray("(skip)"),
-						log.Yellow("empty"),
+						l.logger.Paint(logger.ColorCyan, "summary:"),
+						l.logger.Paint(logger.ColorGray, "(skip)"),
+						l.logger.Paint(logger.ColorYellow, "empty"),
 					),
 				)
 			}
@@ -299,7 +299,7 @@ func printSummary(
 		}
 
 		summaryPrint(
-			log.Cyan("summary: ") + log.Gray(fmt.Sprintf("(done in %.2f seconds)", duration.Seconds())),
+			l.logger.Paint(logger.ColorCyan, "summary: ") + l.logger.Paint(logger.ColorGray, fmt.Sprintf("(done in %.2f seconds)", duration.Seconds())),
 		)
 	}
 

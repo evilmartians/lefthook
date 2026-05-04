@@ -7,14 +7,15 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
 // Commander provides some methods that take some effect on execution and/or result data.
 type Commander struct {
-	mu  *sync.Mutex
-	cmd system.Command
+	mu     *sync.Mutex
+	logger *logger.Logger
+	cmd    system.Command
 
 	// Execute command in the specific directory
 	root string
@@ -30,9 +31,10 @@ type Commander struct {
 }
 
 // NewCommander returns an object that executes given commands in the OS.
-func NewCommander(cmd system.Command) *Commander {
+func NewCommander(cmd system.Command, logger *logger.Logger) *Commander {
 	return &Commander{
 		mu:        new(sync.Mutex),
+		logger:    logger,
 		cmd:       cmd,
 		maxCmdLen: system.MaxCmdLen(),
 	}
@@ -121,18 +123,18 @@ func (c Commander) execute(cmd []string, root string) (string, error) {
 	outString := stdout.String()
 	errString := stderr.String()
 
-	log.Builder(log.DebugLevel, "[lefthook] ").
+	c.logger.Builder(logger.LevelDebug, "[lefthook] ").
 		Add("git: ", strings.Join(cmd, " ")).
 		Add("out: ", outString).
 		Log()
 
 	if err != nil {
 		if len(errString) > 0 {
-			logLevel := log.ErrorLevel
+			logLevel := logger.LevelError
 			if c.onlyDebugLogs {
-				logLevel = log.DebugLevel
+				logLevel = logger.LevelDebug
 			}
-			log.Builder(logLevel, "> ").
+			c.logger.Builder(logLevel, "> ").
 				Add("", strings.Join(cmd, " ")).
 				Add("", errString).
 				Log()

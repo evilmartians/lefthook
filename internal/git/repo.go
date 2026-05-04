@@ -58,12 +58,12 @@ var (
 type Repo struct {
 	Fs        afero.Fs
 	Git       *Commander
+	Logger    *logger.Logger
 	HooksPath string
 	RootPath  string
 	GitPath   string
 	InfoPath  string
 
-	logger            *logger.Logger
 	unstagedPatchPath string
 	headBranch        string
 
@@ -73,20 +73,20 @@ type Repo struct {
 	stateOnce                  func() State
 }
 
-// NewRepo returns a Repository or an error, if git repository it not initialized.
+// NewRepo returns a Repo or an error, if git repository it not initialized.
 func NewRepo(
 	fs afero.Fs,
-	log *logger.Logger,
+	logger *logger.Logger,
 ) (*Repo, error) {
-	commander := NewCommander(system.Cmd)
+	commander := NewCommander(system.Cmd, logger)
 	gitVersionOut, err := commander.Cmd(cmdGitVersion)
 	if err == nil {
 		gitVersion := reVersion.FindString(gitVersionOut)
 		if err = version.Check(minGitVersion, gitVersion); err != nil {
-			log.Debugf("[lefthook] version check warning: %s %s", gitVersion, err)
+			logger.Debugf("[lefthook] version check warning: %s %s", gitVersion, err)
 
 			if errors.Is(err, version.ErrUncoveredVersion) {
-				log.Warn("Git version is too old. Minimum supported version is " + minGitVersion)
+				logger.Warn("Git version is too old. Minimum supported version is " + minGitVersion)
 			}
 		}
 	}
@@ -118,6 +118,7 @@ func NewRepo(
 		RootPath:  rootPath,
 		GitPath:   gitPath,
 		InfoPath:  infoPath,
+		Logger:    logger,
 	}
 
 	// TODO: Rename to something like "Init()"
@@ -432,11 +433,11 @@ func (r *Repo) PrintDiff(files []string) {
 	diffCmd = append(diffCmd, "--")
 	diff, err := r.Git.BatchedCmd(diffCmd, files)
 	if err != nil {
-		log.Warnf("Couldn't diff changed files: %s", err)
+		r.Logger.Warnf("Couldn't diff changed files: %s", err)
 		return
 	}
 
-	log.Warn(diff)
+	r.Logger.Warn(diff)
 }
 
 func (r *Repo) statusShort() ([]string, error) {
@@ -545,7 +546,7 @@ func (r *Repo) readOriginHead() string {
 	}
 	defer func() {
 		if err := file.Close(); err != nil {
-			log.Warnf("Could not close %s: %s", originHead, err)
+			r.Logger.Warnf("Could not close %s: %s", originHead, err)
 		}
 	}()
 

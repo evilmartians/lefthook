@@ -258,7 +258,7 @@ func TestPushFiles(t *testing.T) {
 			}
 		})
 
-		repository := &Repository{
+		repository := &Repo{
 			Fs:       fs,
 			RootPath: root,
 			GitPath:  gitPath,
