@@ -12,7 +12,6 @@ import (
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/git"
-	"github.com/evilmartians/lefthook/v2/internal/log"
 	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/run"
 	"github.com/evilmartians/lefthook/v2/internal/run/result"
@@ -132,7 +131,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	hook.Scripts = nil
 	args.RunOnlyJobs = append(args.RunOnlyJobs, args.RunOnlyCommands...)
 
-	return runHook(ctx, hook, l.repo, run.Options{
+	return runHook(ctx, hook, l.repo, exLogger, run.Options{
 		DisableTTY:        cfg.NoTTY || args.NoTTY,
 		SkipLFS:           cfg.SkipLFS || args.SkipLFS,
 		Templates:         cfg.Templates,
@@ -244,12 +243,18 @@ func shouldFailOnChangesDiff(fromArg *bool, fromHook *bool) bool {
 	return ok
 }
 
-func runHook(ctx context.Context, hook *config.Hook, repo *git.Repo, opts run.Options) error {
+func runHook(
+	ctx context.Context,
+	hook *config.Hook,
+	repo *git.Repo,
+	exLogger *logger.ExecutionLogger,
+	opts run.Options,
+) error {
 	ctx, stop := signal.NotifyContext(ctx, os.Interrupt)
 	defer stop()
 
 	startTime := time.Now()
-	results, err := run.Run(ctx, hook, repo, opts)
+	results, err := run.Run(ctx, hook, repo, exLogger, opts)
 	if err != nil {
 		var failOnChangesErr *run.FailOnChangesError
 		if errors.As(err, &failOnChangesErr) {
@@ -262,7 +267,7 @@ func runHook(ctx context.Context, hook *config.Hook, repo *git.Repo, opts run.Op
 		return errors.New("Interrupted")
 	}
 
-	printSummary(time.Since(startTime), results)
+	logResults(exLogger, time.Since(startTime), results)
 
 	for _, result := range results {
 		if result.Failure() {
@@ -273,64 +278,61 @@ func runHook(ctx context.Context, hook *config.Hook, repo *git.Repo, opts run.Op
 	return nil
 }
 
-func printSummary(
+func logResults(
+	exLogger *logger.ExecutionLogger,
 	duration time.Duration,
 	results []result.Result,
 ) {
-	if log.Settings.LogSummary() {
-		summaryPrint := log.Separate
-
-		if !log.Settings.LogExecution() {
-			summaryPrint = func(s string) { log.Info(s) }
+	if exLogger.Enabled(logger.LogSummary) {
+		if !exLogger.Enabled(logger.LogExecution) {
+			exLogger.LogSeparator()
 		}
 
 		if len(results) == 0 {
-			if log.Settings.LogEmptySummary() {
-				summaryPrint(
-					fmt.Sprintf(
-						"%s %s %s",
-						l.logger.Paint(logger.ColorCyan, "summary:"),
-						l.logger.Paint(logger.ColorGray, "(skip)"),
-						l.logger.Paint(logger.ColorYellow, "empty"),
-					),
+			if exLogger.Enabled(LogEmptySummary) {
+				exLogger.Infof(
+					"%s %s %s",
+					l.logger.Paint(logger.ColorCyan, "summary:"),
+					l.logger.Paint(logger.ColorGray, "(skip)"),
+					l.logger.Paint(logger.ColorYellow, "empty"),
 				)
 			}
 			return
 		}
 
-		summaryPrint(
+		exLogger.Info(
 			l.logger.Paint(logger.ColorCyan, "summary: ") + l.logger.Paint(logger.ColorGray, fmt.Sprintf("(done in %.2f seconds)", duration.Seconds())),
 		)
 	}
 
-	logResults(0, results)
+	logResults(0, exLogger, results)
 }
 
-func logResults(indent int, results []result.Result) {
-	if log.Settings.LogSuccess() {
+func logResults(indent int, exLogger *logger.ExecutionLogger, results []result.Result) {
+	if exLogger.Enabled(logger.LogSuccess) {
 		for _, result := range results {
 			if !result.Success() {
 				continue
 			}
 
-			log.Success(indent, result.Name, result.Duration)
+			exLogger.LogSuccess(indent, result.Name, result.Duration)
 
 			if len(result.Sub) > 0 {
-				logResults(indent+1, result.Sub)
+				logResults(indent+1, exLogger, result.Sub)
 			}
 		}
 	}
 
-	if log.Settings.LogFailure() {
+	if exLogger.Enabled(logger.LogFailure) {
 		for _, result := range results {
 			if !result.Failure() {
 				continue
 			}
 
-			log.Failure(indent, result.Name, result.Text(), result.Duration)
+			exLogger.LogFailure(indent, result.Name, result.Text(), result.Duration)
 
 			if len(result.Sub) > 0 {
-				logResults(indent+1, result.Sub)
+				logResults(indent+1, exLogger, result.Sub)
 			}
 		}
 	}

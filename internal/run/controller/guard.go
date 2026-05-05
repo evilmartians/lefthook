@@ -6,7 +6,7 @@ import (
 	"maps"
 
 	"github.com/evilmartians/lefthook/v2/internal/git"
-	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 )
 
 type FailOnChangesError struct {
@@ -18,16 +18,24 @@ func (e *FailOnChangesError) Error() string {
 }
 
 type guard struct {
-	git *git.Repository
+	git    *git.Repository
+	logger *logger.Logger
 
 	stashUnstagedChanges bool
 	failOnChanges        bool
 	failOnChangesDiff    bool
 }
 
-func newGuard(repo *git.Repository, stashUnstagedChanges bool, failOnChanges bool, failOnChangesDiff bool) *guard {
+func newGuard(
+	repo *git.Repository,
+	logger *logger.ExecutionLogger,
+	stashUnstagedChanges bool,
+	failOnChanges bool,
+	failOnChangesDiff bool,
+) *guard {
 	return &guard{
 		git:                  repo,
+		logger:               logger,
 		stashUnstagedChanges: stashUnstagedChanges,
 		failOnChanges:        failOnChanges,
 		failOnChangesDiff:    failOnChangesDiff,
@@ -55,7 +63,7 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 
 	partiallyStagedFiles, err := g.git.PartiallyStagedFiles()
 	if err != nil {
-		log.Warnf("Couldn't find partially staged files: %s\n", err)
+		g.logger.Warnf("Couldn't find partially staged files: %s\n", err)
 		return err
 	}
 
@@ -63,24 +71,26 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 		return fn()
 	}
 
-	log.Debug("[lefthook] saving partially staged files")
+	g.logger.Debug("[lefthook] saving partially staged files")
 
 	if err := g.git.SaveUnstaged(partiallyStagedFiles); err != nil {
-		log.Warnf("Couldn't save unstaged changes: %s\n", err)
+		g.logger.Warnf("Couldn't save unstaged changes: %s\n", err)
 		return err
 	}
 
 	if err := g.git.StashUnstaged(); err != nil {
-		log.Warnf("Couldn't stash partially staged files: %s\n", err)
+		g.logger.Warnf("Couldn't stash partially staged files: %s\n", err)
 		return err
 	}
 
-	log.Builder(log.DebugLevel, "[lefthook] ").
-		Add("hide partially staged files: ", partiallyStagedFiles).
+	logger.NewBuilder(g.lobber).
+		WithPrefix("[lefthook] ").
+		WithLevel(logger.LevelDebug).
+		WriteLines("hide partially staged files: ", partiallyStagedFiles).
 		Log()
 
 	if err := g.git.RevertUnstagedChanges(partiallyStagedFiles); err != nil {
-		log.Warnf("Couldn't hide unstaged files: %s\n", err)
+		g.logger.Warnf("Couldn't hide unstaged files: %s\n", err)
 		return err
 	}
 
@@ -89,18 +99,18 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 	var failOnChangesErr *FailOnChangesError
 	if errors.As(wrappedErr, &failOnChangesErr) {
 		if err := g.git.RevertUnstagedChanges(failOnChangesErr.changedFiles); err != nil {
-			log.Warnf("Couldn't hide unstaged files: %s\n", err)
+			g.logger.Warnf("Couldn't hide unstaged files: %s\n", err)
 			return wrappedErr
 		}
 	}
 
 	if err := g.git.RestoreUnstaged(); err != nil {
-		log.Warnf("Couldn't restore unstaged files: %s\n", err)
+		g.logger.Warnf("Couldn't restore unstaged files: %s\n", err)
 		return wrappedErr
 	}
 
 	if err := g.git.DropUnstagedStash(); err != nil {
-		log.Warnf("Couldn't remove unstaged files backup: %s\n", err)
+		g.logger.Warnf("Couldn't remove unstaged files backup: %s\n", err)
 		return wrappedErr
 	}
 

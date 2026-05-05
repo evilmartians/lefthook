@@ -3,19 +3,21 @@ package logger
 import (
 	"fmt"
 	"strings"
-
-	"github.com/evilmartians/lefthook/v2/internal/logger"
 )
 
 // Builder introduces a way to build a multiline log message and print it at once.
 type Builder struct {
-	logger  *logger.Logger
+	logger  *Logger
 	level   Level
 	builder strings.Builder
 	prefix  string
 }
 
-func NewBuilder(logger *logger.Logger) *Builder {
+type logger interface {
+	log(Level, ...any)
+}
+
+func NewBuilder(logger logger) *Builder {
 	return &Builder{
 		logger:  logger,
 		level:   LevelInfo,

@@ -8,7 +8,6 @@ import (
 
 	"github.com/alessio/shellescape"
 
-	"github.com/evilmartians/lefthook/v2/internal/log"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/command/replacer"
 	"github.com/evilmartians/lefthook/v2/internal/system"
 )
@@ -51,25 +50,25 @@ func (b *Builder) buildScript(params *JobParams) ([]string, []string, error) {
 		scriptPath := filepath.Join(sourceDir, b.opts.HookName, params.Script)
 		fileInfo, err := b.git.Fs.Stat(scriptPath)
 		if os.IsNotExist(err) {
-			log.Debugf("[lefthook] script doesn't exist: %s", scriptPath)
+			b.logger.Debugf("[lefthook] script doesn't exist: %s", scriptPath)
 			continue
 		}
 		if err != nil {
-			log.Errorf("Failed to get info about a script: %s", params.Script)
+			b.logger.Errorf("Failed to get info about a script: %s", params.Script)
 			return nil, nil, err
 		}
 
 		scriptExists = true
 
 		if !fileInfo.Mode().IsRegular() {
-			log.Debugf("[lefthook] script '%s' is not a regular file, skipping", scriptPath)
+			b.logger.Debugf("[lefthook] script '%s' is not a regular file, skipping", scriptPath)
 			return nil, nil, SkipError{"not a regular file"}
 		}
 
 		// Make sure file is executable
 		if (fileInfo.Mode() & executableMask) == 0 {
 			if err := b.git.Fs.Chmod(scriptPath, executableFileMode); err != nil {
-				log.Errorf("Couldn't change file mode to make file executable: %s", err)
+				b.logger.Errorf("Couldn't change file mode to make file executable: %s", err)
 				return nil, nil, err
 			}
 		}

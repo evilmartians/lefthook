@@ -13,8 +13,8 @@ type SkipChecker struct {
 	logger *logger.Logger
 }
 
-func NewSkipChecker(cmd system.Command) *SkipChecker {
-	return &SkipChecker{&commandExecutor{cmd}}
+func NewSkipChecker(logger *logger.Logger, cmd system.Command) *SkipChecker {
+	return &SkipChecker{&commandExecutor{logger: logger, cmd: cmd}}
 }
 
 // Check returns the result of applying a skip/only setting which can be a branch, git state, shell command, etc.

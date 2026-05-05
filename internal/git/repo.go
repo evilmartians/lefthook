@@ -14,7 +14,6 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/evilmartians/lefthook/v2/internal/log"
 	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/system"
 	"github.com/evilmartians/lefthook/v2/internal/version"
@@ -427,7 +426,7 @@ func (r *Repo) PrintDiff(files []string) {
 
 	diffCmd := make([]string, 0, 4) //nolint:mnd // 3 or 4 elements
 	diffCmd = append(diffCmd, "git", "diff")
-	if log.Colorized() {
+	if !r.Logger.NoColors() {
 		diffCmd = append(diffCmd, "--color")
 	}
 	diffCmd = append(diffCmd, "--")

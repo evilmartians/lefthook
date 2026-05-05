@@ -11,7 +11,7 @@ import (
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/git"
-	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/exec"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/utils"
 	"github.com/evilmartians/lefthook/v2/internal/run/result"
@@ -19,7 +19,8 @@ import (
 )
 
 type Controller struct {
-	git         *git.Repository
+	git         *git.Repo
+	logger      *logger.ExecutionLogger
 	cachedStdin io.Reader
 	executor    exec.Executor
 	cmd         system.CommandWithContext
@@ -43,21 +44,22 @@ type Options struct {
 	NoStageFixed      bool
 }
 
-func NewController(repo *git.Repository) *Controller {
+func NewController(repo *git.Repo, logger *logger.ExecutionLogger) *Controller {
 	return &Controller{
-		git: repo,
+		git:    repo,
+		logger: logger,
 
 		// Some hooks use STDIN for parsing data from Git. To allow multiple commands
 		// and scripts access the same Git data STDIN is cached via CachedReader.
 		cachedStdin: utils.NewCachedReader(os.Stdin),
 
 		// Executor interface for jobs
-		executor: exec.CommandExecutor{},
+		executor: exec.New(logger),
 
 		// Command interface (for LFS hooks)
 		cmd: system.Cmd,
 
-		skipChecker: config.NewSkipChecker(system.Cmd),
+		skipChecker: config.NewSkipChecker(logger, system.Cmd),
 	}
 }
 
@@ -65,7 +67,7 @@ func (c *Controller) RunHook(ctx context.Context, opts Options, hook *config.Hoo
 	results := make([]result.Result, 0, len(hook.Jobs))
 
 	if c.skipChecker.Check(c.git.State, hook.Skip, hook.Only) {
-		log.Skip(hook.Name, "hook setting")
+		c.logger.LogSkipped(hook.Name, "hook setting")
 		return results, nil
 	}
 
@@ -76,15 +78,21 @@ func (c *Controller) RunHook(ctx context.Context, opts Options, hook *config.Hoo
 	}
 
 	if err := c.setup(ctx, opts, hook.Setup); err != nil {
-		log.Warnf("Failed to run setup: %s\n", err)
+		c.logger.Warnf("Failed to run setup: %s\n", err)
 	}
 
 	if !opts.DisableTTY && !hook.Follow {
-		log.StartSpinner()
-		defer log.StopSpinner()
+		c.logger.Spinner.Start()
+		defer c.logger.Spinner.Stop()
 	}
 
-	guard := newGuard(c.git, !opts.NoStageFixed && config.HookUsesStagedFiles(hook.Name), opts.FailOnChanges, opts.FailOnChangesDiff)
+	guard := newGuard(
+		c.git,
+		c.logger,
+		!opts.NoStageFixed && config.HookUsesStagedFiles(hook.Name),
+		opts.FailOnChanges,
+		opts.FailOnChangesDiff,
+	)
 	scope := newScope(hook, opts)
 	err := guard.wrap(func() {
 		if hook.Parallel {
@@ -130,7 +138,7 @@ func (c *Controller) sequentially(ctx context.Context, scope *scope, jobs []*con
 		id := strconv.Itoa(i)
 
 		if piped && failPipe {
-			log.Skip(job.PrintableName(id), "broken pipe")
+			c.logger.LogSkipped(job.PrintableName(id), "broken pipe")
 			continue
 		}
 

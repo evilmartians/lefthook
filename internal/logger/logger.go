@@ -108,6 +108,10 @@ func (l *Logger) SetLevel(level Level) {
 	l.level = level
 }
 
+func (l *Logger) NoColors() bool {
+	return l.colors == NoColors
+}
+
 func isEnvEnabled(env string) bool {
 	value := os.Getenv(env)
 	if len(value) > 0 && value != "0" && value != "false" && value != "off" {

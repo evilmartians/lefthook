@@ -14,10 +14,12 @@ import (
 	"github.com/creack/pty"
 	"github.com/mattn/go-isatty"
 
-	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 )
 
-type CommandExecutor struct{}
+type CommandExecutor struct {
+	logger *logger.Logger
+}
 
 type executeArgs struct {
 	in                    io.Reader
@@ -33,12 +35,12 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 		if err == nil {
 			defer func() {
 				if cErr := tty.Close(); cErr != nil {
-					log.Warnf("Could not close TTY input: %s\n", cErr)
+					e.logger.Warnf("Could not close TTY input: %s\n", cErr)
 				}
 			}()
 			in = tty
 		} else {
-			log.Errorf("Couldn't enable TTY input: %s\n", err)
+			e.logger.Errorf("Couldn't enable TTY input: %s\n", err)
 		}
 	}
 
@@ -50,10 +52,7 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 			fmt.Sprintf("%s=%s", name, os.ExpandEnv(value)),
 		)
 	}
-	switch log.Colors() {
-	case log.ColorOn:
-		envs = append(envs, "CLICOLOR_FORCE=true")
-	case log.ColorOff:
+	if c.logger.NoColors() {
 		envs = append(envs, "NO_COLOR=true")
 	}
 
@@ -78,7 +77,7 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 }
 
 func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *executeArgs) error {
-	log.Debug("[lefthook] run: ", cmdstr)
+	e.logger.Debug("[lefthook] run: ", cmdstr)
 	command := exec.CommandContext(ctx, "sh", "-c", cmdstr)
 	command.Dir = args.root
 	command.Env = append(os.Environ(), args.envs...)

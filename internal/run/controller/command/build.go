@@ -3,6 +3,7 @@ package command
 import (
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/git"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 )
 
 type JobParams struct {
@@ -32,14 +33,16 @@ type BuilderOptions struct {
 }
 
 type Builder struct {
-	git  *git.Repository
-	opts BuilderOptions
+	git    *git.Repository
+	logger *logger.ExecutionLogger
+	opts   BuilderOptions
 }
 
-func NewBuilder(repo *git.Repository, opts BuilderOptions) *Builder {
+func NewBuilder(repo *git.Repository, logger *logger.ExecutionLogger, opts BuilderOptions) *Builder {
 	return &Builder{
-		git:  repo,
-		opts: opts,
+		git:    repo,
+		logger: logger,
+		opts:   opts,
 	}
 }
 

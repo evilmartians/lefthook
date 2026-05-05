@@ -10,7 +10,6 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/v2/internal/git"
-	"github.com/evilmartians/lefthook/v2/internal/log"
 )
 
 func (c *Controller) runLFSHook(ctx context.Context, hookName string, args []string) error {
@@ -37,7 +36,7 @@ func (c *Controller) runLFSHook(ctx context.Context, hookName string, args []str
 
 	if !git.IsLFSAvailable() {
 		if requiredExists || configExists {
-			log.Errorf(
+			c.logger.Errorf(
 				"This Repository requires Git LFS, but 'git-lfs' wasn't found.\n"+
 					"Install 'git-lfs' or consider reviewing the files:\n"+
 					"  - %s\n"+
@@ -50,7 +49,7 @@ func (c *Controller) runLFSHook(ctx context.Context, hookName string, args []str
 		return nil
 	}
 
-	log.Debugf(
+	c.logger.Debugf(
 		"[git-lfs] executing hook: git lfs %s %s", hookName, strings.Join(args, " "),
 	)
 	out := new(bytes.Buffer)
@@ -69,27 +68,27 @@ func (c *Controller) runLFSHook(ctx context.Context, hookName string, args []str
 
 	outString := strings.Trim(out.String(), "\n")
 	if outString != "" {
-		log.Debug("[git-lfs] stdout: ", outString)
+		c.logger.Debug("[git-lfs] stdout: ", outString)
 	}
 	errString := strings.Trim(errOut.String(), "\n")
 	if errString != "" {
-		log.Debug("[git-lfs] stderr: ", errString)
+		c.logger.Debug("[git-lfs] stderr: ", errString)
 	}
 	if err != nil {
-		log.Debug("[git-lfs] error:  ", err)
+		c.logger.Debug("[git-lfs] error:  ", err)
 	}
 
 	if err == nil && outString != "" {
-		log.Info("[git-lfs] stdout: ", outString)
+		c.logger.Info("[git-lfs] stdout: ", outString)
 	}
 
 	if err != nil && (requiredExists || configExists) {
-		log.Warn("git-lfs command failed")
+		c.logger.Warn("git-lfs command failed")
 		if len(outString) > 0 {
-			log.Warn("[git-lfs] stdout: ", outString)
+			c.logger.Warn("[git-lfs] stdout: ", outString)
 		}
 		if len(errString) > 0 {
-			log.Warn("[git-lfs] stderr: ", errString)
+			c.logger.Warn("[git-lfs] stderr: ", errString)
 		}
 		return err
 	}

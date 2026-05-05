@@ -2,8 +2,10 @@ package logger
 
 import (
 	"image/color"
+	"os"
 
 	"charm.land/lipgloss/v2"
+	"github.com/charmbracelet/colorprofile"
 )
 
 type Color uint8
@@ -16,6 +18,9 @@ const (
 	ColorYellow
 	ColorWhite
 )
+
+var profile = colorprofile.Detect(os.Stdout, os.Environ())
+var complete = lipgloss.Complete(profile)
 
 var DefaultColors map[Color]color.Color = map[Color]color.Color{
 	ColorCyan:   complete(lipgloss.Color("37"), lipgloss.Color("14"), lipgloss.Color("#70C0BA")),

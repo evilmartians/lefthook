@@ -48,7 +48,7 @@ func (l *Lefthook) Install(ctx context.Context, args InstallArgs, hooks []string
 	var remotesSynced bool
 	for _, remote := range cfg.Remotes {
 		if remote.Configured() {
-			if err = l.repo.SyncRemote(remote.GitURL, remote.Ref, args.Force); err != nil {
+			if err = l.syncRemote(remote.GitURL, remote.Ref, args.Force); err != nil {
 				l.logger.Warnf("Couldn't sync from %s. Will continue anyway: %s", remote.GitURL, err)
 				continue
 			}
@@ -145,7 +145,7 @@ func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Con
 				continue
 			}
 			if l.shouldRefetch(remote) {
-				if serr := l.repo.SyncRemote(remote.GitURL, remote.Ref, false); serr != nil {
+				if serr := l.syncRemote(remote.GitURL, remote.Ref, false); serr != nil {
 					ref, err := l.findAvailableRemoteRef(remote.GitURL)
 					if err != nil {
 						l.logger.Warnf("Couldn't sync from %s. Will continue without that remote.", remote.GitURL)
@@ -574,4 +574,40 @@ func (l *Lefthook) unsetHooksPathConfig(local, global string) error {
 	}
 
 	return nil
+}
+
+// syncRemote clones or pulls the latest changes for a git repository that was
+// specified as a remote config repository. If successful, the path to the root
+// of the repository will be returned.
+func (l *Lefthook) syncRemote(url, ref string, force bool) error {
+	remotesPath := l.repo.RemotesFolder()
+
+	err := l.repo.Fs.MkdirAll(remotesPath, remotesFolderMode)
+	if err != nil && !errors.Is(err, os.ErrExist) {
+		return err
+	}
+
+	l.logger.Spinner.AddName("fetching remotes")
+	l.logger.Spinner.Start()
+	defer l.logger.Spinner.Stop()
+	defer l.logger.Spinner.RemoveName("fetching remotes")
+
+	directoryName := RemoteDirectoryName(url, ref)
+	remotePath := filepath.Join(remotesPath, directoryName)
+
+	if force {
+		err = l.repo.Fs.RemoveAll(remotePath)
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err = l.repo.Fs.Stat(remotePath)
+		if err == nil {
+			l.logger.Debugf("Updating remote config repository: %s", path)
+			return l.repo.UpdateRemote(remotePath, ref)
+		}
+	}
+
+	l.logger.Debugf("Cloning remote config repository: %v/%v", dest, directoryName)
+	return l.repo.CloneRemote(remotesPath, directoryName, url, ref)
 }
