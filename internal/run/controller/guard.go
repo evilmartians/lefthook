@@ -18,8 +18,8 @@ func (e *FailOnChangesError) Error() string {
 }
 
 type guard struct {
-	git    *git.Repository
-	logger *logger.Logger
+	git    *git.Repo
+	logger *logger.ExecutionLogger
 
 	stashUnstagedChanges bool
 	failOnChanges        bool
@@ -27,7 +27,7 @@ type guard struct {
 }
 
 func newGuard(
-	repo *git.Repository,
+	repo *git.Repo,
 	logger *logger.ExecutionLogger,
 	stashUnstagedChanges bool,
 	failOnChanges bool,
@@ -83,7 +83,7 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 		return err
 	}
 
-	logger.NewBuilder(g.lobber).
+	logger.NewBuilder(g.logger).
 		WithPrefix("[lefthook] ").
 		WithLevel(logger.LevelDebug).
 		WriteLines("hide partially staged files: ", partiallyStagedFiles).

@@ -2,13 +2,11 @@ package logger
 
 import (
 	"fmt"
-	"image/color"
 	"io"
 	"os"
 	"sync"
 
 	"charm.land/lipgloss/v2"
-	"github.com/charmbracelet/colorprofile"
 )
 
 const (
@@ -28,8 +26,6 @@ const (
 	LevelDebug
 )
 
-var profile = colorprofile.Detect(os.Stdout, os.Environ())
-var complete = lipgloss.Complete(profile)
 var border = lipgloss.NewStyle().
 	BorderStyle(lipgloss.NormalBorder()).
 	BorderLeft(true).
@@ -39,7 +35,7 @@ type Logger struct {
 	mu     sync.Mutex
 	level  Level
 	out    io.Writer
-	colors map[Color]color.Color
+	colors ColorsSetting
 
 	Spinner *Spinner
 }
@@ -53,8 +49,13 @@ func New(out io.Writer) *Logger {
 	}
 }
 
-func (l *Logger) Error(args ...string) {
-	message := border.BorderForeground(l.colors[ColorRed]).Render(args...)
+func (l *Logger) Error(args ...any) {
+	strArgs := make([]string, 0, len(args))
+	for _, arg := range args {
+		strArgs = append(strArgs, fmt.Sprintf("%v", arg))
+	}
+
+	message := border.BorderForeground(l.colors.get(ColorRed)).Render(strArgs...)
 	l.log(LevelError, message)
 }
 
@@ -62,8 +63,12 @@ func (l *Logger) Errorf(format string, args ...any) {
 	l.Error(fmt.Sprintf(format, args...))
 }
 
-func (l *Logger) Warn(args ...string) {
-	message := border.BorderForeground(l.colors[ColorYellow]).Render(args...)
+func (l *Logger) Warn(args ...any) {
+	strArgs := make([]string, 0, len(args))
+	for _, arg := range args {
+		strArgs = append(strArgs, fmt.Sprintf("%v", arg))
+	}
+	message := border.BorderForeground(l.colors.get(ColorYellow)).Render(strArgs...)
 	l.log(LevelWarn, message)
 }
 
@@ -83,12 +88,17 @@ func (l *Logger) Debugf(format string, args ...any) {
 	l.Debug(fmt.Sprintf(format, args...))
 }
 
-func (l *Logger) Debug(args ...string) {
-	message := border.BorderForeground(l.colors[ColorGray]).Render(args...)
+func (l *Logger) Debug(args ...any) {
+	strArgs := make([]string, 0, len(args))
+	for _, arg := range args {
+		strArgs = append(strArgs, fmt.Sprintf("%v", arg))
+	}
+
+	message := border.BorderForeground(l.colors.get(ColorGray)).Render(strArgs...)
 	l.log(LevelDebug, message)
 }
 
-func (l *logger) log(level Level, args ...any) {
+func (l *Logger) log(level Level, args ...any) {
 	if l.level < level {
 		return
 	}
@@ -109,7 +119,7 @@ func (l *Logger) SetLevel(level Level) {
 }
 
 func (l *Logger) NoColors() bool {
-	return l.colors == NoColors
+	return l.colors.kind == colorsDisabled
 }
 
 func isEnvEnabled(env string) bool {
@@ -138,7 +148,7 @@ func defaultLogLevel() Level {
 	return LevelInfo
 }
 
-func defaultColors() map[Color]color.Color {
+func defaultColors() ColorsSetting {
 	if isEnvEnabled(envForceColor) {
 		return DefaultColors
 	}

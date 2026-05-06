@@ -11,53 +11,77 @@ import (
 type Color uint8
 
 const (
-	ColorCyan Color = iota
+	ColorWhite Color = iota
+	ColorCyan
 	ColorGray
 	ColorGreen
 	ColorRed
 	ColorYellow
-	ColorWhite
 )
+
+type colorsFlag int
+
+const (
+	colorsEnabled colorsFlag = iota
+	colorsDisabled
+	colorsCustom
+)
+
+type ColorsSetting struct {
+	kind   colorsFlag
+	colors map[Color]color.Color
+}
+
+func (c ColorsSetting) get(color Color) color.Color {
+	return c.colors[color]
+}
 
 var profile = colorprofile.Detect(os.Stdout, os.Environ())
 var complete = lipgloss.Complete(profile)
 
-var DefaultColors map[Color]color.Color = map[Color]color.Color{
-	ColorCyan:   complete(lipgloss.Color("37"), lipgloss.Color("14"), lipgloss.Color("#70C0BA")),
-	ColorGray:   complete(lipgloss.Color("7"), lipgloss.Color("244"), lipgloss.Color("#808080")),
-	ColorGreen:  complete(lipgloss.Color("2"), lipgloss.Color("148"), lipgloss.Color("#32cd32")),
-	ColorRed:    complete(lipgloss.Color("9"), lipgloss.Color("196"), lipgloss.Color("#ff6347")),
-	ColorYellow: complete(lipgloss.Color("11"), lipgloss.Color("191"), lipgloss.Color("#ffaa00")),
+var DefaultColors ColorsSetting = ColorsSetting{
+	kind: colorsEnabled,
+	colors: map[Color]color.Color{
+		ColorCyan:   complete(lipgloss.Color("37"), lipgloss.Color("14"), lipgloss.Color("#70C0BA")),
+		ColorGray:   complete(lipgloss.Color("7"), lipgloss.Color("244"), lipgloss.Color("#808080")),
+		ColorGreen:  complete(lipgloss.Color("2"), lipgloss.Color("148"), lipgloss.Color("#32cd32")),
+		ColorRed:    complete(lipgloss.Color("9"), lipgloss.Color("196"), lipgloss.Color("#ff6347")),
+		ColorYellow: complete(lipgloss.Color("11"), lipgloss.Color("191"), lipgloss.Color("#ffaa00")),
+	},
 }
 
-var NoColors map[Color]color.Color = map[Color]color.Color{
-	ColorCyan:   lipgloss.NoColor{},
-	ColorGray:   lipgloss.NoColor{},
-	ColorGreen:  lipgloss.NoColor{},
-	ColorRed:    lipgloss.NoColor{},
-	ColorYellow: lipgloss.NoColor{},
+var NoColors ColorsSetting = ColorsSetting{
+	kind: colorsDisabled,
+	colors: map[Color]color.Color{
+		ColorCyan:   lipgloss.NoColor{},
+		ColorGray:   lipgloss.NoColor{},
+		ColorGreen:  lipgloss.NoColor{},
+		ColorRed:    lipgloss.NoColor{},
+		ColorYellow: lipgloss.NoColor{},
+	},
 }
 
 func (l *Logger) SetColors(colors map[Color]color.Color) {
-	l.colors = colors
+	for color, existingValue := range l.colors.colors {
+		if _, ok := colors[color]; !ok {
+			colors[color] = existingValue
+		}
+	}
+
+	l.colors = ColorsSetting{
+		kind:   colorsCustom,
+		colors: colors,
+	}
 }
 
-func (l *Logger) Cyan(s string) string {
-	return lipgloss.NewStyle().Foreground(l.colors[ColorCyan]).Render(s)
+func (l *Logger) EnableColors() {
+	l.colors = DefaultColors
 }
 
-func (l *Logger) Gray(s string) string {
-	return lipgloss.NewStyle().Foreground(l.colors[ColorGray]).Render(s)
-}
-
-func (l *Logger) Yellow(s string) string {
-	return lipgloss.NewStyle().Foreground(l.colors[ColorYellow]).Render(s)
-}
-
-func (l *Logger) Red(s string) string {
-	return lipgloss.NewStyle().Foreground(l.colors[ColorRed]).Render(s)
+func (l *Logger) DisableColors() {
+	l.colors = NoColors
 }
 
 func (l *Logger) Paint(color Color, s string) string {
-	return lipgloss.NewStyle().Foreground(l.colors[color]).Render(s)
+	return lipgloss.NewStyle().Foreground(l.colors.get(color)).Render(s)
 }

@@ -17,7 +17,7 @@ import (
 )
 
 type CommandExecutor struct {
-	logger *logger.Logger
+	logger *logger.ExecutionLogger
 }
 
 type executeArgs struct {

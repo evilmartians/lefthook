@@ -10,6 +10,7 @@ import (
 
 	"github.com/spf13/afero"
 
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/cmdtest"
 )
 
@@ -262,9 +263,10 @@ func TestPushFiles(t *testing.T) {
 			Fs:       fs,
 			RootPath: root,
 			GitPath:  gitPath,
-			Git: &CommandExecutor{
-				mu:  new(sync.Mutex),
-				cmd: cmd,
+			Git: &Commander{
+				mu:     new(sync.Mutex),
+				logger: logger.New(io.Discard),
+				cmd:    cmd,
 			},
 		}
 		repository.Setup()

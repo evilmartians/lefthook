@@ -33,12 +33,12 @@ type BuilderOptions struct {
 }
 
 type Builder struct {
-	git    *git.Repository
+	git    *git.Repo
 	logger *logger.ExecutionLogger
 	opts   BuilderOptions
 }
 
-func NewBuilder(repo *git.Repository, logger *logger.ExecutionLogger, opts BuilderOptions) *Builder {
+func NewBuilder(repo *git.Repo, logger *logger.ExecutionLogger, opts BuilderOptions) *Builder {
 	return &Builder{
 		git:    repo,
 		logger: logger,

@@ -2,10 +2,11 @@ package logger
 
 import (
 	"fmt"
+	"image/color"
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 )
 
 const (
@@ -14,15 +15,16 @@ const (
 	skipLogPadding  = 2
 )
 
-var colorBorder lipgloss.TerminalColor = lipgloss.Color("#383838")
+var colorBorder color.Color = lipgloss.Color("#383838")
 
 type ExecutionLogger struct {
-	logger   *Logger
+	*Logger
+
 	settings *ExecutionSettings
 	Spinner  *Spinner
 }
 
-func (l *logger) NewExecutionLogger(configs ...any) *ExecutionLogger {
+func (l *Logger) NewExecutionLogger(configs ...any) *ExecutionLogger {
 	settings := NewExecutionSettings()
 
 	for _, config := range configs {
@@ -35,24 +37,24 @@ func (l *logger) NewExecutionLogger(configs ...any) *ExecutionLogger {
 			for _, option := range c {
 				name, ok := option.(string)
 				if !ok {
-					logger.Warnf("Unknown output setting: %v", option)
+					l.Warnf("Unknown output setting: %v", option)
 					continue
 				}
 
 				setting, err := nameToSetting(name)
 				if err != nil {
-					logger.Warn(err)
+					l.Warn(err)
 					continue
 				}
 				settings.enable(setting)
 			}
 		case string:
-			names := strings.Split(name, ",")
+			names := strings.Split(c, ",")
 			for _, name := range names {
 				setting, err := nameToSetting(name)
 				if err != nil {
-					logger.Warn(err)
-					fallthrough
+					l.Warn(err)
+					break // fallthrough to default
 				}
 				settings.enable(setting)
 			}
@@ -62,42 +64,14 @@ func (l *logger) NewExecutionLogger(configs ...any) *ExecutionLogger {
 	}
 
 	return &ExecutionLogger{
-		logger:   logger,
+		Logger:   l,
 		settings: settings,
-		Spinner:  logger.Spinner,
+		Spinner:  l.Spinner,
 	}
 }
 
 func (el *ExecutionLogger) Enabled(setting ExecutionSetting) bool {
 	return el.settings.enabled(setting)
-}
-
-func (el *ExecutionLogger) Debug(args ...any) {
-	el.logger.Debug(args...)
-}
-
-func (el *ExecutionLogger) Info(args ...any) {
-	el.logger.Info(args...)
-}
-
-func (el *ExecutionLogger) Infof(format string, args ...any) {
-	el.logger.Infof(format, args...)
-}
-
-func (el *ExecutionLogger) Warn(args ...any) {
-	el.logger.Warn(args...)
-}
-
-func (el *ExecutionLogger) Warn(format string, args ...any) {
-	el.logger.Warnf(format, args...)
-}
-
-func (el *ExecutionLogger) log(level Level, args ...any) {
-	el.logger.log(level, args...)
-}
-
-func (el *ExecutionLogger) NoColors() bool {
-	return el.logger.colors == NoColors
 }
 
 func (el *ExecutionLogger) LogSkipped(name, reason string) {
@@ -107,16 +81,20 @@ func (el *ExecutionLogger) LogSkipped(name, reason string) {
 
 	el.Info(
 		lipgloss.NewStyle().
-			WithLeftBorder(lipgloss.NormalBorder(), ColorCyan).
-			WithPadding(skipLogPadding).
-			el.logger.Paint(ColorCyan, Bold(name)) + " " +
-			el.logger.Paint(ColorGray, "(skip)") + " " +
-			el.logger.Paint(ColorYellow, reason),
+			BorderLeft(true).
+			BorderStyle(lipgloss.NormalBorder()).
+			BorderForeground(el.Logger.colors.get(ColorCyan)).
+			PaddingLeft(skipLogPadding).
+			Render(
+				el.Logger.Paint(ColorCyan, lipgloss.NewStyle().Bold(true).Render(name)) + " " +
+					el.Logger.Paint(ColorGray, "(skip)") + " " +
+					el.Logger.Paint(ColorYellow, reason),
+			),
 	)
 }
 
 func (el *ExecutionLogger) LogSeparator() {
-	el.logger.log(LevelInfo,
+	el.Logger.log(LevelInfo,
 		lipgloss.NewStyle().
 			BorderStyle(lipgloss.NormalBorder()).
 			BorderBottom(true).
@@ -129,17 +107,17 @@ func (el *ExecutionLogger) LogSeparator() {
 
 func (el *ExecutionLogger) LogSuccess(indent int, name string, duration time.Duration) {
 	var format string
-	if el.logger.colors == NoColors {
+	if el.Logger.NoColors() {
 		format = "%s✓ %s %s"
 	} else {
 		format = "%s✔️ %s %s"
 	}
 
-	el.logger.Infof(
+	el.Logger.Infof(
 		format,
 		strings.Repeat("  ", indent),
-		el.logger.Paint(ColorGreen, name),
-		el.logger.Paint(ColorGray, fmt.Sprintf("(%.2f seconds)", duration.Seconds())),
+		el.Logger.Paint(ColorGreen, name),
+		el.Logger.Paint(ColorGray, fmt.Sprintf("(%.2f seconds)", duration.Seconds())),
 	)
 }
 
@@ -149,17 +127,17 @@ func (el *ExecutionLogger) LogFailure(indent int, name, failText string, duratio
 	}
 
 	var format string
-	if el.logger.colors == NoColors {
+	if el.Logger.NoColors() {
 		format = "%s✗ %s%s %s"
 	} else {
 		format = "%s🥊 %s%s %s"
 	}
 
-	el.logger.Infof(
+	el.Logger.Infof(
 		format,
 		strings.Repeat("  ", indent),
-		el.logger.Paint(ColorRed, name),
-		el.logger.Paint(ColorRed, failText),
-		el.logger.Paint(ColorGray, fmt.Sprintf("(%.2f seconds)", duration.Seconds())),
+		el.Logger.Paint(ColorRed, name),
+		el.Logger.Paint(ColorRed, failText),
+		el.Logger.Paint(ColorGray, fmt.Sprintf("(%.2f seconds)", duration.Seconds())),
 	)
 }

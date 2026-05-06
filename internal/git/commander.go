@@ -123,20 +123,26 @@ func (c Commander) execute(cmd []string, root string) (string, error) {
 	outString := stdout.String()
 	errString := stderr.String()
 
-	c.logger.Builder(logger.LevelDebug, "[lefthook] ").
-		Add("git: ", strings.Join(cmd, " ")).
-		Add("out: ", outString).
+	logger.NewBuilder(c.logger).
+		WithLevel(logger.LevelDebug).
+		WithPrefix("[lefthook] ").
+		WriteLines("git: ", strings.Join(cmd, " ")).
+		WriteLines("out: ", outString).
 		Log()
 
 	if err != nil {
 		if len(errString) > 0 {
-			logLevel := logger.LevelError
+			builder := logger.NewBuilder(c.logger).
+				WithLevel(logger.LevelError).
+				WithPrefix("> ")
+
 			if c.onlyDebugLogs {
-				logLevel = logger.LevelDebug
+				builder = builder.WithLevel(logger.LevelDebug)
 			}
-			c.logger.Builder(logLevel, "> ").
-				Add("", strings.Join(cmd, " ")).
-				Add("", errString).
+
+			builder.
+				WriteLines("", strings.Join(cmd, " ")).
+				WriteLines("", errString).
 				Log()
 		}
 	}

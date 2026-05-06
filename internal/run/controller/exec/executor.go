@@ -21,6 +21,6 @@ type Executor interface {
 	Execute(context.Context, Options, io.Reader, io.Writer) error
 }
 
-func New(logger *logger.Logger) Executor {
+func New(logger *logger.ExecutionLogger) Executor {
 	return CommandExecutor{logger: logger}
 }

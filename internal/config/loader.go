@@ -102,14 +102,14 @@ func (l *Loader) loadFirst(k *koanf.Koanf, root string, names []string) error {
 }
 
 // loadFirstMain loads the main config (e.g. lefthook.yml) or fallbacks to local config (e.g. lefthook-local.yml).
-func loadFirstMain(k *koanf.Koanf, filesystem afero.Fs, root string) error {
-	err := loadFirst(k, filesystem, root, MainConfigNames)
+func (l *Loader) loadFirstMain(k *koanf.Koanf, root string) error {
+	err := l.loadFirst(k, root, MainConfigNames)
 	if ok := errors.As(err, &ConfigNotFoundError{}); ok {
 		var hasLocalConfig bool
 	OUT:
 		for _, extension := range Extensions {
 			for _, name := range LocalConfigNames {
-				if ok, _ := afero.Exists(filesystem, filepath.Join(root, name+extension)); ok {
+				if ok, _ := afero.Exists(l.repo.Fs, filepath.Join(root, name+extension)); ok {
 					hasLocalConfig = true
 					break OUT
 				}
@@ -130,7 +130,7 @@ func (l *Loader) loadMain(root string) (*koanf.Koanf, error) {
 
 	configOverridePath := os.Getenv("LEFTHOOK_CONFIG")
 	if len(configOverridePath) == 0 {
-		if err := loadFirstMain(main, l.repo.Fs, root); err != nil {
+		if err := l.loadFirstMain(main, root); err != nil {
 			return nil, err
 		}
 
@@ -138,10 +138,10 @@ func (l *Loader) loadMain(root string) (*koanf.Koanf, error) {
 	}
 
 	if !filepath.IsAbs(configOverridePath) {
-		configOverride = filepath.Join(root, configOverridePath)
+		configOverridePath = filepath.Join(root, configOverridePath)
 	}
-	if ok, _ := afero.Exists(l.repo.Fs, configOverride); !ok {
-		return nil, ConfigNotFoundError{fmt.Sprintf("Config file \"%s\" not found!", configOverride)}
+	if ok, _ := afero.Exists(l.repo.Fs, configOverridePath); !ok {
+		return nil, ConfigNotFoundError{fmt.Sprintf("Config file \"%s\" not found!", configOverridePath)}
 	}
 
 	if err := l.loadConfig(main, configOverridePath); err != nil {
@@ -182,7 +182,7 @@ func (l *Loader) LoadSecondary(main *koanf.Koanf) (*koanf.Koanf, error) {
 
 	// Load optional local config (e.g. lefthook-local.yml)
 	var noLocal bool
-	if err := loadFirst(secondary, l.repo.Fs, l.repo.RootPath, LocalConfigNames); err != nil {
+	if err := l.loadFirst(secondary, l.repo.RootPath, LocalConfigNames); err != nil {
 		if ok := errors.As(err, &ConfigNotFoundError{}); !ok {
 			return nil, err
 		}
@@ -202,7 +202,7 @@ func (l *Loader) LoadSecondary(main *koanf.Koanf) (*koanf.Koanf, error) {
 
 func (l *Loader) LoadKoanf() (*koanf.Koanf, *koanf.Koanf, error) {
 	// Load main lefthook.yml
-	main, err := loadMain(l.repo.Fs, l.repo.RootPath)
+	main, err := l.loadMain(l.repo.RootPath)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -240,19 +240,18 @@ func (l *Loader) Unmarshal(main *koanf.Koanf, secondary *koanf.Koanf) (*Config, 
 	case string:
 		switch colors {
 		case "on":
-			l.logger.SetColors(logger.DefaultColors)
+			l.logger.EnableColors()
 		case "off":
-			l.logger.SetColors(logger.NoColors)
+			l.logger.DisableColors()
 		}
 	case bool:
 		if colors {
-			l.logger.SetColors(logger.DefaultColors)
+			l.logger.EnableColors()
 		} else {
-			l.logger.SetColors(logger.NoColors)
+			l.logger.DisableColors()
 		}
 	case map[string]any:
 		newColors := make(map[logger.Color]color.Color)
-		maps.Copy(newColors, logger.DefaultColors)
 
 		for name, code := range colors {
 			var colorCode string
@@ -260,7 +259,7 @@ func (l *Loader) Unmarshal(main *koanf.Koanf, secondary *koanf.Koanf) (*Config, 
 			case int:
 				colorCode = strconv.Itoa(cCode)
 			case string:
-				colorCode = code
+				colorCode = cCode
 			default:
 				continue
 			}

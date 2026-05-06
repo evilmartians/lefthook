@@ -18,7 +18,7 @@ import (
 )
 
 type CommandExecutor struct {
-	logger *logger.Logger
+	logger *logger.ExecutionLogger
 }
 
 type executeArgs struct {
@@ -52,7 +52,7 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 			fmt.Sprintf("%s=%s", name, os.ExpandEnv(value)),
 		)
 	}
-	if c.logger.NoColors() {
+	if e.logger.NoColors() {
 		envs = append(envs, "NO_COLOR=true")
 	}
 

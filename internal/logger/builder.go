@@ -7,7 +7,7 @@ import (
 
 // Builder introduces a way to build a multiline log message and print it at once.
 type Builder struct {
-	logger  *Logger
+	logger  logger
 	level   Level
 	builder strings.Builder
 	prefix  string
@@ -38,13 +38,13 @@ func (b *Builder) WithLevel(level Level) *Builder {
 
 func (b *Builder) WriteLines(prefix string, out any) *Builder {
 	var lines []string
-	switch v := data.(type) {
+	switch v := out.(type) {
 	case string:
 		lines = strings.Split(strings.TrimSpace(v), "\n")
 	case []string:
 		lines = v
 	default:
-		lines = strings.Split(fmt.Sprint(data), "\n")
+		lines = strings.Split(fmt.Sprint(out), "\n")
 	}
 
 	var i int

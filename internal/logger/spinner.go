@@ -73,7 +73,7 @@ func (s *Spinner) RemoveName(nameToRemove string) {
 	}
 
 	j := 0
-	for _, name := range l.names {
+	for _, name := range s.names {
 		if name == nameToRemove {
 			continue
 		}
@@ -124,7 +124,7 @@ func terminalWidth() int {
 	}
 
 	// Try to get terminal size
-	width, _, err := term.GetSize(int(os.Stdout.Fd()))
+	width, _, err := term.GetSize(os.Stdout.Fd())
 	if err != nil {
 		return 0 // Can't determine size, don't constrain
 	}
@@ -195,20 +195,4 @@ func pluralize(count int) string {
 		return ""
 	}
 	return "s"
-}
-
-// terminalWidth attempts to detect the current terminal width.
-func terminalWidth() int {
-	// Check if we're writing to a TTY
-	if !isatty.IsTerminal(os.Stdout.Fd()) {
-		return 0 // Not a terminal, don't constrain
-	}
-
-	// Try to get terminal size
-	width, _, err := term.GetSize(int(os.Stdout.Fd()))
-	if err != nil {
-		return 0 // Can't determine size, don't constrain
-	}
-
-	return width
 }

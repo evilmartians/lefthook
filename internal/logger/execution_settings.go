@@ -25,7 +25,7 @@ func NewExecutionSettings() *ExecutionSettings {
 	return new(ExecutionSettings)
 }
 
-func (s *ExecutionSettings) apply(setting ExecutionSetting) {
+func (s *ExecutionSettings) enable(setting ExecutionSetting) {
 	(*s) |= setting
 }
 
