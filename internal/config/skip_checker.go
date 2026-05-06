@@ -10,10 +10,10 @@ import (
 
 type SkipChecker struct {
 	exec   *commandExecutor
-	logger *logger.Logger
+	logger *logger.ExecutionLogger
 }
 
-func NewSkipChecker(logger *logger.Logger, cmd system.Command) *SkipChecker {
+func NewSkipChecker(logger *logger.ExecutionLogger, cmd system.Command) *SkipChecker {
 	return &SkipChecker{
 		exec: &commandExecutor{
 			cmd:    cmd,

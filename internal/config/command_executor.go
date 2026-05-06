@@ -10,7 +10,7 @@ import (
 
 // commandExecutor implements execution of a skip checks passed in a `run` option.
 type commandExecutor struct {
-	logger *logger.Logger
+	logger *logger.ExecutionLogger
 	cmd    system.Command
 }
 

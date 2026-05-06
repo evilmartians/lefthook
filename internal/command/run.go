@@ -102,7 +102,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 		}
 	}
 
-	hook, err := resolveHook(cfg, args.Hook)
+	hook, err := l.resolveHook(cfg, args.Hook)
 	if err != nil {
 		return err
 	}
@@ -131,7 +131,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	hook.Scripts = nil
 	args.RunOnlyJobs = append(args.RunOnlyJobs, args.RunOnlyCommands...)
 
-	return runHook(ctx, hook, l.repo, exLogger, run.Options{
+	return l.runHook(ctx, hook, l.repo, exLogger, run.Options{
 		DisableTTY:        cfg.NoTTY || args.NoTTY,
 		SkipLFS:           cfg.SkipLFS || args.SkipLFS,
 		Templates:         cfg.Templates,
@@ -149,7 +149,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	})
 }
 
-func resolveHook(cfg *config.Config, hookName string) (*config.Hook, error) {
+func (l *Lefthook) resolveHook(cfg *config.Config, hookName string) (*config.Hook, error) {
 	hook, ok := cfg.Hooks[hookName]
 	if !ok {
 		if config.KnownHook(hookName) {
@@ -243,7 +243,7 @@ func shouldFailOnChangesDiff(fromArg *bool, fromHook *bool) bool {
 	return ok
 }
 
-func runHook(
+func (l *Lefthook) runHook(
 	ctx context.Context,
 	hook *config.Hook,
 	repo *git.Repo,
@@ -267,7 +267,7 @@ func runHook(
 		return errors.New("Interrupted")
 	}
 
-	logResults(exLogger, time.Since(startTime), results)
+	l.logSummary(exLogger, time.Since(startTime), results)
 
 	for _, result := range results {
 		if result.Failure() {
@@ -278,7 +278,7 @@ func runHook(
 	return nil
 }
 
-func logResults(
+func (l *Lefthook) logSummary(
 	exLogger *logger.ExecutionLogger,
 	duration time.Duration,
 	results []result.Result,
@@ -289,7 +289,7 @@ func logResults(
 		}
 
 		if len(results) == 0 {
-			if exLogger.Enabled(LogEmptySummary) {
+			if exLogger.Enabled(logger.LogEmptySummary) {
 				exLogger.Infof(
 					"%s %s %s",
 					l.logger.Paint(logger.ColorCyan, "summary:"),

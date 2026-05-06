@@ -8,6 +8,7 @@ import (
 	"github.com/kaptinlin/jsonschema"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 )
 
 type ValidateArgs struct {
@@ -15,7 +16,8 @@ type ValidateArgs struct {
 }
 
 func (l *Lefthook) Validate(_ctx context.Context, args ValidateArgs) error {
-	main, secondary, err := config.LoadKoanf(l.fs, l.repo)
+	loader := config.NewLoader(l.repo, l.logger)
+	main, secondary, err := loader.LoadKoanf()
 	if err != nil {
 		return err
 	}
@@ -29,7 +31,7 @@ func (l *Lefthook) Validate(_ctx context.Context, args ValidateArgs) error {
 	result := schema.Validate(main.Raw())
 	if !result.IsValid() {
 		details := result.ToList()
-		logValidationErrors(0, *details)
+		l.logValidationErrors(0, *details)
 
 		return errors.New("validation failed for main config")
 	}
@@ -37,7 +39,7 @@ func (l *Lefthook) Validate(_ctx context.Context, args ValidateArgs) error {
 	result = schema.Validate(secondary.Raw())
 	if !result.IsValid() {
 		details := result.ToList()
-		logValidationErrors(0, *details)
+		l.logValidationErrors(0, *details)
 
 		return errors.New("validation failed for secondary config")
 	}
@@ -46,7 +48,7 @@ func (l *Lefthook) Validate(_ctx context.Context, args ValidateArgs) error {
 	return nil
 }
 
-func logValidationErrors(indent int, details jsonschema.List) {
+func (l *Lefthook) logValidationErrors(indent int, details jsonschema.List) {
 	if details.Valid {
 		return
 	}
@@ -58,7 +60,7 @@ func logValidationErrors(indent int, details jsonschema.List) {
 	}
 
 	for _, d := range details.Details {
-		logValidationErrors(indent, d)
+		l.logValidationErrors(indent, d)
 	}
 }
 
@@ -75,12 +77,12 @@ func (l *Lefthook) logDetail(indent int, details jsonschema.List) {
 	if len(errors) == 0 {
 		option = l.logger.Paint(logger.ColorGray, option)
 	} else {
-		option = l.logger.Paint(logger.ColorYello, option)
+		option = l.logger.Paint(logger.ColorYellow, option)
 	}
 
 	if len(details.Details) > 0 {
 		l.logger.Info(option)
 	} else {
-		l.logger.Info(option, l.logger.Red(strings.Join(errors, ",")))
+		l.logger.Info(option, l.logger.Paint(logger.ColorRed, strings.Join(errors, ",")))
 	}
 }

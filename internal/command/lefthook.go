@@ -32,7 +32,7 @@ const (
 )
 
 type Lefthook struct {
-	Logger *logger.Logger
+	logger *logger.Logger
 	fs     afero.Fs
 	repo   *git.Repo
 	colors string
@@ -43,9 +43,9 @@ func NewLefthook(verbose bool, colors string) (*Lefthook, error) {
 	l := logger.New(os.Stdout)
 	switch colors {
 	case "on", "yes", "true", "1":
-		l.SetColors(logger.DefaultColors)
+		l.EnableColors()
 	case "off", "no", "false", "0":
-		l.SetColors(logger.NoColors)
+		l.DisableColors()
 	}
 
 	if verbose || isEnvEnabled(EnvVerbose) {
@@ -59,7 +59,7 @@ func NewLefthook(verbose bool, colors string) (*Lefthook, error) {
 	}
 
 	return &Lefthook{
-		Logger: l,
+		logger: l,
 		fs:     fs,
 		repo:   repo,
 		colors: colors,
@@ -67,7 +67,8 @@ func NewLefthook(verbose bool, colors string) (*Lefthook, error) {
 }
 
 func (l *Lefthook) LoadConfig() (*config.Config, error) {
-	cfg, err := config.Load(l.fs, l.repo)
+	loader := config.NewLoader(l.repo, l.logger)
+	cfg, err := loader.Load()
 
 	// Reset colors // TODO: Handle colors map
 	// log.SetColors(l.colors)
@@ -76,7 +77,9 @@ func (l *Lefthook) LoadConfig() (*config.Config, error) {
 }
 
 func (l *Lefthook) reloadConfig(cfg *config.Config) (*config.Config, error) {
-	l.Logger.Debug("Reloading config...")
+	l.logger.Debug("Reloading config...")
+
+	loader := config.NewLoader(l.repo, l.logger)
 
 	buffer := new(bytes.Buffer)
 	if err := cfg.Dump(config.JSONCompactFormat, buffer); err != nil {
@@ -88,12 +91,12 @@ func (l *Lefthook) reloadConfig(cfg *config.Config) (*config.Config, error) {
 		return nil, err
 	}
 
-	secondary, err := config.LoadSecondary(main, l.fs, l.repo)
+	secondary, err := loader.LoadSecondary(main)
 	if err != nil {
 		return nil, err
 	}
 
-	return config.Unmarshal(main, secondary)
+	return loader.Unmarshal(main, secondary)
 }
 
 // Tests a file whether it is a lefthook-created file.
@@ -104,7 +107,7 @@ func (l *Lefthook) isLefthookFile(path string) bool {
 	}
 	defer func() {
 		if cErr := file.Close(); cErr != nil {
-			l.Logger.Warnf("Could not close %s: %s", file.Name(), cErr)
+			l.logger.Warnf("Could not close %s: %s", file.Name(), cErr)
 		}
 	}()
 
@@ -116,7 +119,7 @@ func (l *Lefthook) isLefthookFile(path string) bool {
 		}
 	}
 	if err = scanner.Err(); err != nil {
-		l.Logger.Warnf("Could not read %s: %s", file.Name(), err)
+		l.logger.Warnf("Could not read %s: %s", file.Name(), err)
 	}
 
 	return false
@@ -145,7 +148,7 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 	}
 	if exists {
 		if force {
-			l.Logger.Infof("\nFile %s.old already exists, overwriting\n", hook)
+			l.logger.Infof("\nFile %s.old already exists, overwriting\n", hook)
 		} else {
 			return fmt.Errorf("can't rename %s to %s.old - file already exists", hook, hook)
 		}
@@ -156,7 +159,7 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 		return err
 	}
 
-	l.Logger.Infof("Renamed %s to %s.old\n", hookPath, hookPath)
+	l.logger.Infof("Renamed %s to %s.old\n", hookPath, hookPath)
 	return nil
 }
 

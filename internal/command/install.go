@@ -18,15 +18,17 @@ import (
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/git"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/templates"
 )
 
 const (
-	configFileMode   = 0o666
-	checksumFileMode = 0o644
-	hooksDirMode     = 0o755
-	timestampBase    = 10
-	timestampBitsize = 64
+	configFileMode    = 0o666
+	checksumFileMode  = 0o644
+	hooksDirMode      = 0o755
+	timestampBase     = 10
+	timestampBitsize  = 64
+	remotesFolderMode = 0o755
 )
 
 var (
@@ -273,7 +275,7 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, hooks []string, force
 	var success bool
 	defer func() {
 		if !success {
-			l.logger.Info(l.logger.Cyan("sync hooks: ❌"))
+			l.logger.Info(l.logger.Paint(logger.ColorCyan, "sync hooks: ❌"))
 		}
 	}()
 
@@ -334,9 +336,9 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, hooks []string, force
 
 	success = true
 	if len(hookNames) > 0 {
-		l.logger.Info(l.logger.Cyan("sync hooks: ✔️"), l.logger.Gray("("+strings.Join(hookNames, ", ")+")"))
+		l.logger.Info(l.logger.Paint(logger.ColorCyan, "sync hooks: ✔️"), l.logger.Paint(logger.ColorCyan, "("+strings.Join(hookNames, ", ")+")"))
 	} else {
-		l.logger.Info(l.logger.Cyan("sync hooks: ✔️ "))
+		l.logger.Info(l.logger.Paint(logger.ColorCyan, "sync hooks: ✔️ "))
 	}
 
 	return nil
@@ -592,7 +594,7 @@ func (l *Lefthook) syncRemote(url, ref string, force bool) error {
 	defer l.logger.Spinner.Stop()
 	defer l.logger.Spinner.RemoveName("fetching remotes")
 
-	directoryName := RemoteDirectoryName(url, ref)
+	directoryName := git.RemoteDirectoryName(url, ref)
 	remotePath := filepath.Join(remotesPath, directoryName)
 
 	if force {
@@ -603,11 +605,11 @@ func (l *Lefthook) syncRemote(url, ref string, force bool) error {
 	} else {
 		_, err = l.repo.Fs.Stat(remotePath)
 		if err == nil {
-			l.logger.Debugf("Updating remote config repository: %s", path)
+			l.logger.Debugf("Updating remote config repository: %s", remotePath)
 			return l.repo.UpdateRemote(remotePath, ref)
 		}
 	}
 
-	l.logger.Debugf("Cloning remote config repository: %v/%v", dest, directoryName)
+	l.logger.Debugf("Cloning remote config repository: %v/%v", remotePath, directoryName)
 	return l.repo.CloneRemote(remotesPath, directoryName, url, ref)
 }

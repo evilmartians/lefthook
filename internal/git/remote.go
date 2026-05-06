@@ -5,10 +5,7 @@ import (
 	"strings"
 )
 
-const (
-	remotesFolder     = "lefthook-remotes"
-	remotesFolderMode = 0o755
-)
+const remotesFolder = "lefthook-remotes"
 
 // RemoteFolder returns the path to the folder where the remote
 // repository is located.
