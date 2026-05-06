@@ -43,7 +43,10 @@ func (l *Logger) NewExecutionLogger(configs ...any) *ExecutionLogger {
 			for _, option := range c {
 				name, ok := option.(string)
 				if !ok {
-					l.Warnf("Unknown output setting: %v", option)
+					l.Warnf("Unknown output setting: %#v", option)
+					continue
+				}
+				if len(name) == 0 {
 					continue
 				}
 
@@ -57,6 +60,10 @@ func (l *Logger) NewExecutionLogger(configs ...any) *ExecutionLogger {
 		case string:
 			names := strings.Split(c, ",")
 			for _, name := range names {
+				if len(name) == 0 {
+					continue
+				}
+
 				setting, err := nameToSetting(name)
 				if err != nil {
 					l.Warn(err)
@@ -183,7 +190,7 @@ func (el *ExecutionLogger) LogMeta(hookName string) {
 			lipgloss.Top,
 			lipgloss.NewStyle().
 				Border(lipgloss.RoundedBorder(), true, false, true, true).
-				BorderForeground(el.Logger.colors.get(ColorGray)).
+				BorderForeground(colorBorder).
 				Padding(0, 1).
 				Render(
 					el.Logger.Paint(ColorCyan, name),
@@ -191,7 +198,7 @@ func (el *ExecutionLogger) LogMeta(hookName string) {
 				),
 			lipgloss.NewStyle().
 				Border(lipgloss.RoundedBorder(), true, true, true, false).
-				BorderForeground(el.Logger.colors.get(ColorGray)).
+				BorderForeground(colorBorder).
 				Padding(0, 1).
 				Render(
 					el.Logger.Paint(ColorGray, "hook: "),

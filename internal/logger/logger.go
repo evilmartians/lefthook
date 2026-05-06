@@ -66,7 +66,7 @@ func (l *Logger) Errorf(format string, args ...any) {
 func (l *Logger) Warn(args ...any) {
 	strArgs := make([]string, 0, len(args))
 	for _, arg := range args {
-		strArgs = append(strArgs, fmt.Sprintf("%v", arg))
+		strArgs = append(strArgs, l.Paint(ColorYellow, fmt.Sprintf("%v", arg)))
 	}
 	message := border.BorderForeground(l.colors.get(ColorYellow)).Render(strArgs...)
 	l.log(LevelWarn, message)

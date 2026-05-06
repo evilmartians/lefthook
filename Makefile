@@ -2,7 +2,7 @@ COMMIT_HASH = $(shell git rev-parse HEAD)
 
 .PHONY: build
 build:
-	go build -ldflags "-s -w -X github.com/evilmartians/lefthook/v2/internal/version.commit=$(COMMIT_HASH)" -o lefthook
+	go build -ldflags "-s -w -X github.com/evilmartians/lefthook/v2/internal/version.commit=$(COMMIT_HASH) -X github.com/evilmartians/lefthook/v2/internal/version.dev=true" -o lefthook
 
 .PHONY: build-with-coverage
 build-with-coverage:

@@ -48,16 +48,16 @@ func nameToSetting(name string) (ExecutionSetting, error) {
 		setting = LogEmptySummary
 	case "skips":
 		setting = LogSkips
-	case "execution":
+	case "execution", "jobs":
 		setting = LogExecution
-	case "execution_output":
+	case "execution_output", "jobs_out":
 		setting = LogExecutionOutput
-	case "execution_info":
+	case "execution_info", "jobs_info":
 		setting = LogExecutionInfo
 	case "setup":
 		setting = LogSetup
 	default:
-		return 0, fmt.Errorf("Unknown output setting: %v", name)
+		return 0, fmt.Errorf("Unknown output setting: %#v", name)
 	}
 	return setting, nil
 }
