@@ -226,6 +226,14 @@ func Unmarshal(main *koanf.Koanf, secondary *koanf.Koanf) (*Config, error) {
 	return &config, nil
 }
 
+func validateHook(hook *Hook) error {
+	if hook.StashUnstagedChanges != nil && hook.Name != PreCommitHookName {
+		return fmt.Errorf("hook %s: stash_unstaged_changes is only supported for pre-commit", hook.Name)
+	}
+
+	return nil
+}
+
 // loadRemotes merges remote configs to the current one.
 func loadRemotes(k *koanf.Koanf, filesystem afero.Fs, repo *git.Repository, remotes []*Remote) error {
 	for _, remote := range remotes {
@@ -436,6 +444,10 @@ func addHook(name string, main, secondary *koanf.Koanf, c *Config) error {
 
 	if tags := os.Getenv("LEFTHOOK_EXCLUDE"); tags != "" {
 		hook.ExcludeTags = append(hook.ExcludeTags, strings.Split(tags, ",")...)
+	}
+
+	if err := validateHook(&hook); err != nil {
+		return err
 	}
 
 	c.Hooks[name] = &hook

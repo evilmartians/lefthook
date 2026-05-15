@@ -43,6 +43,10 @@ func (l *Lefthook) Validate(_ctx context.Context, args ValidateArgs) error {
 		return errors.New("validation failed for secondary config")
 	}
 
+	if _, err := config.Unmarshal(main, secondary); err != nil {
+		return err
+	}
+
 	log.Info("All good")
 	return nil
 }
