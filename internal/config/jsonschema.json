@@ -154,6 +154,9 @@
         "follow": {
           "type": "boolean"
         },
+        "stash_unstaged_changes": {
+          "type": "boolean"
+        },
         "fail_on_changes": {
           "type": "string",
           "enum": [
@@ -497,7 +500,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2026.02.28.",
+  "$comment": "Last updated on 2026.05.15.",
   "properties": {
     "min_version": {
       "type": "string",
@@ -689,6 +692,9 @@
         "type": "boolean"
       },
       "follow": {
+        "type": "boolean"
+      },
+      "stash_unstaged_changes": {
         "type": "boolean"
       },
       "fail_on_changes": {
