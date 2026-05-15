@@ -153,7 +153,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 		return result.Failure(name, job.FailText, executionTime)
 	}
 
-	if config.HookUsesStagedFiles(scope.hookName) && job.StageFixed && !scope.opts.NoStageFixed {
+	if config.HookUsesStagedFiles(scope.hookName) && scope.stashUnstagedChanges && job.StageFixed && !scope.opts.NoStageFixed {
 		if len(files) == 0 {
 			var err error
 			files, err = c.git.StagedFiles()

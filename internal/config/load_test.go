@@ -1113,6 +1113,47 @@ run = "echo 1"
 				},
 			},
 		},
+		{
+			name: "stash_unstaged_changes configs",
+			yaml: `
+pre-commit:
+  stash_unstaged_changes: false
+  commands:
+    echo:
+      run: echo 1
+`,
+			json: `
+{
+  "pre-commit": {
+    "stash_unstaged_changes": false,
+    "commands": {
+      "echo": { "run": "echo 1" }
+    }
+  }
+}`,
+			toml: `
+[pre-commit]
+stash_unstaged_changes = false
+
+[pre-commit.commands.echo]
+run = "echo 1"
+`,
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				Hooks: map[string]*Hook{
+					"pre-commit": {
+						Name:                 "pre-commit",
+						StashUnstagedChanges: new(false),
+						Commands: map[string]*Command{
+							"echo": {
+								Run: "echo 1",
+							},
+						},
+					},
+				},
+			},
+		},
 	} {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Build()
@@ -1151,6 +1192,24 @@ run = "echo 1"
 			assert.NoError(fs.Remove(tomlConfig))
 		})
 	}
+
+	t.Run("stash_unstaged_changes outside pre-commit", func(t *testing.T) {
+		assert := assert.New(t)
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Build()
+
+		configPath := filepath.Join(root, "lefthook.yml")
+		assert.NoError(fs.WriteFile(configPath, []byte(`
+pre-push:
+  stash_unstaged_changes: false
+  commands:
+    echo:
+      run: echo 1
+`), 0o644))
+
+		_, err := Load(fs.Fs, repo)
+		assert.EqualError(err, "hook pre-push: stash_unstaged_changes is only supported for pre-commit")
+	})
 
 	type remote struct {
 		RemoteConfigPath string

@@ -578,6 +578,23 @@ func TestRunAll(t *testing.T) {
 				"git add --force -- .*scripts.*script.sh",
 			},
 		},
+		"with pre-commit and stash_unstaged_changes=false": {
+			hookName: "pre-commit",
+			existingFiles: []string{
+				filepath.Join(root, "README.md"),
+			},
+			hook: configtest.ParseHook(`
+        stash_unstaged_changes: false
+        jobs:
+          - name: ok
+            run: success
+            stage_fixed: true
+      `),
+			success: []result.Result{succeeded("ok")},
+			gitCommands: []string{
+				"git diff --name-only --cached --diff-filter=ACMR",
+			},
+		},
 		"with pre-push skip": {
 			hookName: "pre-push",
 			existingFiles: []string{

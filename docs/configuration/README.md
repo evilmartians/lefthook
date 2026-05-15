@@ -57,6 +57,7 @@ The `-local` config can be used without a main config file. This is useful when 
   - [`parallel`](./parallel.md)
   - [`piped`](./piped.md)
   - [`follow`](./follow.md)
+  - [`stash_unstaged_changes`](./stash_unstaged_changes.md)
   - [`fail_on_changes`](./fail_on_changes.md)
   - [`fail_on_changes_diff`](./fail_on_changes_diff.md)
   - [`exclude_tags`](./exclude_tags.md)

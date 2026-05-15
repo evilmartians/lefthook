@@ -6,13 +6,15 @@ const ChecksumFileName = "lefthook.checksum"
 // GhostHookName - the hook which logs are not shown and which is used for synchronizing hooks.
 const GhostHookName = "prepare-commit-msg"
 
+const PreCommitHookName = "pre-commit"
+
 // AvailableHooks - list of hooks taken from https://git-scm.com/docs/githooks.
 // Keep the order of the hooks same here for easy syncing.
 var AvailableHooks = map[string]struct{}{
 	"applypatch-msg":        {},
 	"pre-applypatch":        {},
 	"post-applypatch":       {},
-	"pre-commit":            {},
+	PreCommitHookName:       {},
 	"pre-merge-commit":      {},
 	"prepare-commit-msg":    {},
 	"commit-msg":            {},
@@ -40,7 +42,7 @@ var AvailableHooks = map[string]struct{}{
 }
 
 func HookUsesStagedFiles(hook string) bool {
-	return hook == "pre-commit"
+	return hook == PreCommitHookName
 }
 
 func HookUsesPushFiles(hook string) bool {

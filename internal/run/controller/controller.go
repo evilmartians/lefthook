@@ -84,7 +84,7 @@ func (c *Controller) RunHook(ctx context.Context, opts Options, hook *config.Hoo
 		defer log.StopSpinner()
 	}
 
-	guard := newGuard(c.git, !opts.NoStageFixed && config.HookUsesStagedFiles(hook.Name), opts.FailOnChanges, opts.FailOnChangesDiff)
+	guard := newGuard(c.git, !opts.NoStageFixed && hook.StashesUnstagedChanges(), opts.FailOnChanges, opts.FailOnChangesDiff)
 	scope := newScope(hook, opts)
 	err := guard.wrap(func() {
 		if hook.Parallel {

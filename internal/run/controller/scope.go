@@ -11,17 +11,18 @@ import (
 type scope struct {
 	follow bool
 
-	glob         []string
-	tags         []string
-	excludeTags  []string // Consider removing this setting
-	names        []string
-	fileTypes    []string
-	excludeFiles []string
-	env          map[string]string
-	root         string
-	hookName     string
-	filesCmd     string
-	opts         Options
+	glob                 []string
+	tags                 []string
+	excludeTags          []string // Consider removing this setting
+	names                []string
+	fileTypes            []string
+	excludeFiles         []string
+	env                  map[string]string
+	root                 string
+	hookName             string
+	filesCmd             string
+	stashUnstagedChanges bool
+	opts                 Options
 }
 
 func newScope(hook *config.Hook, opts Options) *scope {
@@ -38,13 +39,14 @@ func newScope(hook *config.Hook, opts Options) *scope {
 	}
 
 	return &scope{
-		hookName:     hook.Name,
-		follow:       hook.Follow,
-		filesCmd:     hook.Files,
-		excludeTags:  hook.ExcludeTags,
-		excludeFiles: excludeFiles,
-		env:          make(map[string]string),
-		opts:         opts,
+		hookName:             hook.Name,
+		follow:               hook.Follow,
+		filesCmd:             hook.Files,
+		stashUnstagedChanges: hook.StashesUnstagedChanges(),
+		excludeTags:          hook.ExcludeTags,
+		excludeFiles:         excludeFiles,
+		env:                  make(map[string]string),
+		opts:                 opts,
 	}
 }
 
