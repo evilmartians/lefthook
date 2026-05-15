@@ -94,7 +94,7 @@ func (el *ExecutionLogger) LogSkipped(name, reason string) {
 	el.Logger.Info(
 		lipgloss.NewStyle().
 			BorderLeft(true).
-			BorderStyle(lipgloss.NormalBorder()).
+			BorderStyle(lipgloss.ThickBorder()).
 			BorderForeground(el.Logger.colors.get(ColorCyan)).
 			PaddingLeft(padding).
 			Render(
@@ -141,7 +141,7 @@ func (el *ExecutionLogger) LogExecution(name string, err error, out io.Reader) {
 				BorderStyle(lipgloss.ThickBorder()).
 				BorderLeft(true).
 				BorderForeground(el.Logger.colors.get(color)).
-				Padding(padding).
+				PaddingLeft(padding).
 				Render(execLog),
 		)
 	}

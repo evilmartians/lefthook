@@ -31,6 +31,7 @@ type Replacer struct {
 
 func New(
 	git *git.Repo,
+	logger *logger.ExecutionLogger,
 	root string,
 	filesCmd string,
 ) Replacer {
@@ -50,7 +51,8 @@ func New(
 	)
 
 	return Replacer{
-		cache: make(map[string]*entry),
+		logger: logger,
+		cache:  make(map[string]*entry),
 		files: map[string]func() ([]string, error){
 			config.SubStagedFiles: staged,
 			config.SubPushFiles:   push,
@@ -85,11 +87,12 @@ func (r Replacer) AddGitArgs(args []string) Replacer {
 	return r
 }
 
-func NewMocked(files []string) Replacer {
+func NewMocked(logger *logger.ExecutionLogger, files []string) Replacer {
 	forceFilesFn := func() ([]string, error) { return files, nil } //nolint:unparam
 
 	return Replacer{
-		cache: make(map[string]*entry),
+		logger: logger,
+		cache:  make(map[string]*entry),
 		files: map[string]func() ([]string, error){
 			config.SubStagedFiles: forceFilesFn,
 			config.SubPushFiles:   forceFilesFn,

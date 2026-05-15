@@ -22,7 +22,7 @@ func (c *Controller) setup(
 	c.logger.Spinner.Stop()
 	defer c.logger.Spinner.Start()
 
-	replacer := replacer.New(c.git, "", "").
+	replacer := replacer.New(c.git, c.logger, "", "").
 		AddTemplates(opts.Templates).
 		AddGitArgs(opts.GitArgs)
 

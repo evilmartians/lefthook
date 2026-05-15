@@ -42,11 +42,11 @@ var complete = lipgloss.Complete(profile)
 var DefaultColors ColorsSetting = ColorsSetting{
 	kind: colorsEnabled,
 	colors: map[Color]color.Color{
-		ColorCyan:   complete(lipgloss.Color("37"), lipgloss.Color("14"), lipgloss.Color("#70C0BA")),
+		ColorCyan:   complete(lipgloss.Color("14"), lipgloss.Color("73"), lipgloss.Color("#70C0BA")),
 		ColorGray:   complete(lipgloss.Color("7"), lipgloss.Color("244"), lipgloss.Color("#808080")),
-		ColorGreen:  complete(lipgloss.Color("2"), lipgloss.Color("148"), lipgloss.Color("#32cd32")),
-		ColorRed:    complete(lipgloss.Color("9"), lipgloss.Color("196"), lipgloss.Color("#ff6347")),
-		ColorYellow: complete(lipgloss.Color("11"), lipgloss.Color("191"), lipgloss.Color("#ffaa00")),
+		ColorGreen:  complete(lipgloss.Color("10"), lipgloss.Color("64"), lipgloss.Color("#04B575")),
+		ColorRed:    complete(lipgloss.Color("9"), lipgloss.Color("203"), lipgloss.Color("#EB4268")),
+		ColorYellow: complete(lipgloss.Color("11"), lipgloss.Color("214"), lipgloss.Color("#EF9F27")),
 	},
 }
 

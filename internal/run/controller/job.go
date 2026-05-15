@@ -161,7 +161,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 				return result.Success(name, executionTime)
 			}
 
-			files = filter.New(c.git.Fs, filter.Params{
+			files = filter.New(c.git.Fs, c.logger, filter.Params{
 				Glob:         scope.glob,
 				Root:         scope.root,
 				ExcludeFiles: scope.excludeFiles,

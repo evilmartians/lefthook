@@ -47,8 +47,8 @@ type Filter struct {
 	fs     afero.Fs
 }
 
-func New(fs afero.Fs, params Params) *Filter {
-	return &Filter{fs: fs, Params: params}
+func New(fs afero.Fs, logger *logger.ExecutionLogger, params Params) *Filter {
+	return &Filter{fs: fs, Params: params, logger: logger}
 }
 
 func (f *Filter) Apply(files []string) []string {
