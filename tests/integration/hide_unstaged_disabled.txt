@@ -1,0 +1,41 @@
+[windows] skip
+
+exec git init
+exec lefthook install
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+exec git commit -m 'initial commit'
+
+exec lefthook run edit_file
+exec git add -A
+exec lefthook run edit_file
+exec git status --short
+stdout 'AM newfile.txt'
+
+env CAPTURE_PARTIAL_FILE=1
+exec lefthook run pre-commit
+exec cat observed.txt
+cmp stdout observed.txt.expected
+exec git status --short
+stdout 'AM newfile.txt'
+
+-- lefthook.yml --
+min_version: 1.1.1
+pre-commit:
+  stash_unstaged_changes: false
+  commands:
+    capture_file:
+      run: |
+        if test -n "$CAPTURE_PARTIAL_FILE"; then
+          cat newfile.txt > observed.txt
+        fi
+
+edit_file:
+  commands:
+    echo:
+      run: echo newline >> newfile.txt
+
+-- observed.txt.expected --
+newline
+newline
