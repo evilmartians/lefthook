@@ -50,30 +50,19 @@ func New(out io.Writer) *Logger {
 }
 
 func (l *Logger) Error(args ...any) {
-	strArgs := make([]string, 0, len(args))
-	for _, arg := range args {
-		strArgs = append(strArgs, fmt.Sprintf("%v", arg))
-	}
-
-	message := border.BorderForeground(l.colors.get(ColorRed)).Render(strArgs...)
-	l.log(LevelError, message)
+	l.log(LevelError, args...)
 }
 
 func (l *Logger) Errorf(format string, args ...any) {
-	l.Error(fmt.Sprintf(format, args...))
+	l.log(LevelError, fmt.Sprintf(format, args...))
 }
 
 func (l *Logger) Warn(args ...any) {
-	strArgs := make([]string, 0, len(args))
-	for _, arg := range args {
-		strArgs = append(strArgs, l.Paint(ColorYellow, fmt.Sprintf("%v", arg)))
-	}
-	message := border.BorderForeground(l.colors.get(ColorYellow)).Render(strArgs...)
-	l.log(LevelWarn, message)
+	l.log(LevelWarn, args...)
 }
 
 func (l *Logger) Warnf(format string, args ...any) {
-	l.Warn(fmt.Sprintf(format, args...))
+	l.log(LevelWarn, fmt.Sprintf(format, args...))
 }
 
 func (l *Logger) Info(args ...any) {
@@ -81,26 +70,45 @@ func (l *Logger) Info(args ...any) {
 }
 
 func (l *Logger) Infof(format string, args ...any) {
-	l.Info(fmt.Sprintf(format, args...))
+	l.log(LevelInfo, fmt.Sprintf(format, args...))
 }
 
 func (l *Logger) Debugf(format string, args ...any) {
-	l.Debug(fmt.Sprintf(format, args...))
+	l.log(LevelDebug, fmt.Sprintf(format, args...))
 }
 
 func (l *Logger) Debug(args ...any) {
-	strArgs := make([]string, 0, len(args))
-	for _, arg := range args {
-		strArgs = append(strArgs, fmt.Sprintf("%v", arg))
-	}
-
-	message := border.BorderForeground(l.colors.get(ColorGray)).Render(strArgs...)
-	l.log(LevelDebug, message)
+	l.log(LevelDebug, args...)
 }
 
 func (l *Logger) log(level Level, args ...any) {
 	if l.level < level {
 		return
+	}
+
+	var message string
+	switch level {
+	case LevelDebug:
+		strArgs := make([]string, 0, len(args))
+		for _, arg := range args {
+			strArgs = append(strArgs, l.Paint(ColorGray, fmt.Sprintf("%v", arg)))
+		}
+		message = border.BorderForeground(l.colors.get(ColorGray)).Render(strArgs...)
+	case LevelWarn:
+		strArgs := make([]string, 0, len(args))
+		for _, arg := range args {
+			strArgs = append(strArgs, l.Paint(ColorYellow, fmt.Sprintf("%v", arg)))
+		}
+		message = border.BorderForeground(l.colors.get(ColorYellow)).Render(strArgs...)
+	case LevelError:
+		strArgs := make([]string, 0, len(args))
+		for _, arg := range args {
+			strArgs = append(strArgs, fmt.Sprintf("%v", arg))
+		}
+
+		message = border.BorderForeground(l.colors.get(ColorRed)).Render(strArgs...)
+	default:
+		message = fmt.Sprint(args...)
 	}
 
 	l.mu.Lock()
@@ -111,7 +119,7 @@ func (l *Logger) log(level Level, args ...any) {
 		defer l.Spinner.Start()
 	}
 
-	_, _ = fmt.Fprintln(l.out, args...)
+	_, _ = fmt.Fprintln(l.out, message)
 }
 
 func (l *Logger) SetLevel(level Level) {

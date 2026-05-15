@@ -53,8 +53,11 @@ func (b *Builder) WriteLines(prefix string, out any) *Builder {
 		if len(line) == 0 {
 			continue
 		}
+
 		if i == 0 {
-			b.builder.WriteString(strings.Repeat(" ", len(b.prefix)))
+			if b.builder.Len() > len(b.prefix) {
+				b.builder.WriteString(strings.Repeat(" ", len(b.prefix)))
+			}
 			b.builder.WriteString(prefix)
 		} else {
 			b.builder.WriteString(strings.Repeat(" ", len(b.prefix)+len(prefix)))
