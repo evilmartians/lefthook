@@ -38,15 +38,16 @@ func (b *RepositoryBuilder) Fs(fs afero.Fs) *RepositoryBuilder {
 func (b *RepositoryBuilder) Build() *git.Repo {
 	logger := loggertest.New()
 
-	return &git.Repo{
+	repo := &git.Repo{
 		Fs:        b.fs,
 		Git:       git.NewCommander(b.cmd, logger),
-		Logger:    logger,
 		RootPath:  b.root,
 		GitPath:   GitPath(b.root),
 		HooksPath: filepath.Join(GitPath(b.root), "hooks"),
 		InfoPath:  filepath.Join(GitPath(b.root), "info"),
 	}
+
+	return repo.WithLogger(logger)
 }
 
 func GitPath(root string) string {

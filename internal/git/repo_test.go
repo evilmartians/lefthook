@@ -36,7 +36,7 @@ func TestPartiallyStagedFiles(t *testing.T) {
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
 			logger := loggertest.New()
 			repository := &Repo{
-				Logger: logger,
+				logger: logger,
 				Git:    NewCommander(cmdtest.NewOrdered(t, tt.git), logger),
 			}
 			repository.Setup()
@@ -151,7 +151,7 @@ func TestChangeset(t *testing.T) {
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
 			logger := loggertest.New()
 			repository := &Repo{
-				Logger: logger,
+				logger: logger,
 				Git: &Commander{
 					mu:        new(sync.Mutex),
 					logger:    logger,
@@ -210,9 +210,9 @@ func TestPushFiles(t *testing.T) {
 		logger := loggertest.New()
 		repository := &Repo{
 			Fs:       fs,
-			Logger:   logger,
 			RootPath: root,
 			Git:      NewCommander(cmd, logger),
+			logger:   logger,
 		}
 		repository.Setup()
 
@@ -260,15 +260,13 @@ func TestPushFiles(t *testing.T) {
 			}
 		})
 
+		logger := loggertest.New()
 		repository := &Repo{
 			Fs:       fs,
 			RootPath: root,
 			GitPath:  gitPath,
-			Git: &Commander{
-				mu:     new(sync.Mutex),
-				logger: loggertest.New(),
-				cmd:    cmd,
-			},
+			Git:      NewCommander(cmd, logger),
+			logger:   logger,
 		}
 		repository.Setup()
 

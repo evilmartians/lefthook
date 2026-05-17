@@ -55,9 +55,10 @@ var (
 
 // Repo represents a git repository.
 type Repo struct {
-	Fs        afero.Fs
-	Git       *Commander
-	Logger    *logger.Logger
+	Fs     afero.Fs
+	Git    *Commander
+	logger *logger.Logger
+
 	HooksPath string
 	RootPath  string
 	GitPath   string
@@ -113,17 +114,23 @@ func NewRepo(
 	r := &Repo{
 		Fs:        fs,
 		Git:       commander,
+		logger:    logger,
 		HooksPath: hooksPath,
 		RootPath:  rootPath,
 		GitPath:   gitPath,
 		InfoPath:  infoPath,
-		Logger:    logger,
 	}
 
 	// TODO: Rename to something like "Init()"
 	r.Setup()
 
 	return r, nil
+}
+
+func (repo *Repo) WithLogger(logger *logger.Logger) *Repo {
+	repo.logger = logger
+	repo.Git.logger = logger
+	return repo
 }
 
 // Precompute runs various Git commands in the background so the results are ready.
@@ -426,17 +433,17 @@ func (r *Repo) PrintDiff(files []string) {
 
 	diffCmd := make([]string, 0, 4) //nolint:mnd // 3 or 4 elements
 	diffCmd = append(diffCmd, "git", "diff")
-	if !r.Logger.NoColors() {
+	if !r.logger.NoColors() {
 		diffCmd = append(diffCmd, "--color")
 	}
 	diffCmd = append(diffCmd, "--")
 	diff, err := r.Git.BatchedCmd(diffCmd, files)
 	if err != nil {
-		r.Logger.Warnf("Couldn't diff changed files: %s", err)
+		r.logger.Warnf("Couldn't diff changed files: %s", err)
 		return
 	}
 
-	r.Logger.Warn(diff)
+	r.logger.Warn(diff)
 }
 
 func (r *Repo) statusShort() ([]string, error) {
@@ -545,7 +552,7 @@ func (r *Repo) readOriginHead() string {
 	}
 	defer func() {
 		if err := file.Close(); err != nil {
-			r.Logger.Warnf("Could not close %s: %s", originHead, err)
+			r.logger.Warnf("Could not close %s: %s", originHead, err)
 		}
 	}()
 
