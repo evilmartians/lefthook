@@ -13,7 +13,13 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
+
+func commandExecutor() CommandExecutor {
+	return CommandExecutor{logger: loggertest.NewExecution()}
+}
 
 func TestExecute(t *testing.T) {
 	tmpDir := t.TempDir()
@@ -83,7 +89,7 @@ func TestExecute(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			var buf bytes.Buffer
-			err := CommandExecutor{}.Execute(context.Background(), tt.opts, nil, &buf)
+			err := commandExecutor().Execute(context.Background(), tt.opts, nil, &buf)
 
 			if tt.wantErr {
 				assert.Error(t, err)
@@ -112,7 +118,7 @@ func TestExecute_ContextCancellation(t *testing.T) {
 	}
 
 	start := time.Now()
-	err := CommandExecutor{}.Execute(ctx, opts, nil, &buf)
+	err := commandExecutor().Execute(ctx, opts, nil, &buf)
 	elapsed := time.Since(start)
 
 	assert.Error(t, err)
@@ -130,7 +136,7 @@ func TestExecute_UseStdin(t *testing.T) {
 		UseStdin: true,
 	}
 
-	err := CommandExecutor{}.Execute(context.Background(), opts, in, &buf)
+	err := commandExecutor().Execute(context.Background(), opts, in, &buf)
 	assert.NoError(t, err)
 	assert.Contains(t, buf.String(), "from-stdin")
 }
@@ -158,7 +164,7 @@ func TestExecute_ConcurrentOutputIsolation_Interactive(t *testing.T) {
 				Commands:    []string{cmd},
 				Interactive: true,
 			}
-			err := CommandExecutor{}.Execute(context.Background(), opts, nil, &bufs[id])
+			err := commandExecutor().Execute(context.Background(), opts, nil, &bufs[id])
 			assert.NoError(t, err)
 		}(i)
 	}
@@ -209,7 +215,7 @@ func TestExecute_ConcurrentOutputIsolation(t *testing.T) {
 				Root:     tmpDir,
 				Commands: []string{cmd},
 			}
-			err := CommandExecutor{}.Execute(context.Background(), opts, nil, &bufs[id])
+			err := commandExecutor().Execute(context.Background(), opts, nil, &bufs[id])
 			assert.NoError(t, err)
 		}(i)
 	}

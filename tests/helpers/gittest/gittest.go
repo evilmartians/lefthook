@@ -1,14 +1,13 @@
 package gittest
 
 import (
-	"io"
 	"path/filepath"
 
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/v2/internal/git"
-	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/system"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
 
 type RepositoryBuilder struct {
@@ -37,7 +36,7 @@ func (b *RepositoryBuilder) Fs(fs afero.Fs) *RepositoryBuilder {
 }
 
 func (b *RepositoryBuilder) Build() *git.Repo {
-	logger := logger.New(io.Discard)
+	logger := loggertest.New()
 
 	return &git.Repo{
 		Fs:        b.fs,

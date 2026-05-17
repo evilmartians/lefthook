@@ -10,6 +10,7 @@ import (
 
 	"github.com/evilmartians/lefthook/v2/tests/helpers/cmdtest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/gittest"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
 
 func TestRun(t *testing.T) {
@@ -139,8 +140,9 @@ post-commit:
 			assert := assert.New(t)
 			fs := afero.NewMemMapFs()
 			lefthook := &Lefthook{
-				fs:   fs,
-				repo: gittest.NewRepositoryBuilder().Cmd(cmdtest.NewDumb()).Fs(fs).Root(root).Build(),
+				logger: loggertest.New(),
+				fs:     fs,
+				repo:   gittest.NewRepositoryBuilder().Cmd(cmdtest.NewDumb()).Fs(fs).Root(root).Build(),
 			}
 			lefthook.repo.Setup()
 

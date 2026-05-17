@@ -10,8 +10,8 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/cmdtest"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
 
 func TestPartiallyStagedFiles(t *testing.T) {
@@ -34,11 +34,10 @@ func TestPartiallyStagedFiles(t *testing.T) {
 		},
 	} {
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
+			logger := loggertest.New()
 			repository := &Repo{
-				Git: &Commander{
-					mu:  new(sync.Mutex),
-					cmd: cmdtest.NewOrdered(t, tt.git),
-				},
+				Logger: logger,
+				Git:    NewCommander(cmdtest.NewOrdered(t, tt.git), logger),
 			}
 			repository.Setup()
 
@@ -150,9 +149,12 @@ func TestChangeset(t *testing.T) {
 		},
 	} {
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
+			logger := loggertest.New()
 			repository := &Repo{
+				Logger: logger,
 				Git: &Commander{
 					mu:        new(sync.Mutex),
+					logger:    logger,
 					cmd:       cmdtest.NewOrdered(t, tt.git),
 					maxCmdLen: 7000,
 				},
@@ -205,13 +207,12 @@ func TestPushFiles(t *testing.T) {
 			}
 		})
 
+		logger := loggertest.New()
 		repository := &Repo{
 			Fs:       fs,
+			Logger:   logger,
 			RootPath: root,
-			Git: &Commander{
-				mu:  new(sync.Mutex),
-				cmd: cmd,
-			},
+			Git:      NewCommander(cmd, logger),
 		}
 		repository.Setup()
 
@@ -265,7 +266,7 @@ func TestPushFiles(t *testing.T) {
 			GitPath:  gitPath,
 			Git: &Commander{
 				mu:     new(sync.Mutex),
-				logger: logger.New(io.Discard),
+				logger: loggertest.New(),
 				cmd:    cmd,
 			},
 		}

@@ -19,6 +19,7 @@ import (
 	"github.com/evilmartians/lefthook/v2/tests/helpers/cmdtest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/configtest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/gittest"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
 
 type (
@@ -42,38 +43,6 @@ func (e executor) Execute(_ctx context.Context, opts exec.Options, _in io.Reader
 
 	return err
 }
-
-// func (g *gitCmd) WithoutEnvs(...string) system.Command {
-// 	return g
-// }
-//
-// func (g *gitCmd) Run(cmd []string, _root string, _in io.Reader, out io.Writer, _errOut io.Writer) error {
-// 	g.mux.Lock()
-// 	g.commands = append(g.commands, strings.Join(cmd, " "))
-// 	g.mux.Unlock()
-//
-// 	cmdLine := strings.Join(cmd, " ")
-// 	if cmdLine == "git diff --name-only --cached --diff-filter=ACMR" ||
-// 		cmdLine == "git diff --name-only --cached --diff-filter=ACMRD" ||
-// 		cmdLine == "git diff --name-only HEAD @{push}" {
-// 		root, _ := filepath.Abs("src")
-// 		_, err := out.Write([]byte(strings.Join([]string{
-// 			filepath.Join(root, "scripts", "script.sh"),
-// 			filepath.Join(root, "README.md"),
-// 		}, "\n")))
-// 		if err != nil {
-// 			return err
-// 		}
-// 	}
-//
-// 	return nil
-// }
-//
-// func (g *gitCmd) reset() {
-// 	g.mux.Lock()
-// 	g.commands = []string{}
-// 	g.mux.Unlock()
-// }
 
 func TestRunAll(t *testing.T) {
 	root, err := filepath.Abs("src")
@@ -641,6 +610,7 @@ func TestRunAll(t *testing.T) {
 			Fs(fs).
 			Build()
 		controller := &Controller{
+			logger:   loggertest.NewExecution(),
 			git:      repo,
 			executor: executor{},
 			cmd:      cmdtest.NewTracking(nil), // lfs hooks ignored in this test

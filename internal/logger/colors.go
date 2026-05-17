@@ -36,8 +36,10 @@ func (c ColorsSetting) get(color Color) color.Color {
 	return c.colors[color]
 }
 
-var profile = colorprofile.Detect(os.Stdout, os.Environ())
-var complete = lipgloss.Complete(profile)
+var (
+	profile  = colorprofile.Detect(os.Stdout, os.Environ())
+	complete = lipgloss.Complete(profile)
+)
 
 var DefaultColors ColorsSetting = ColorsSetting{
 	kind: colorsEnabled,

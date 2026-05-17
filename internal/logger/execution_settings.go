@@ -2,8 +2,10 @@ package logger
 
 import "fmt"
 
-type ExecutionSettings int16
-type ExecutionSetting = ExecutionSettings
+type (
+	ExecutionSettings int16
+	ExecutionSetting  = ExecutionSettings
+)
 
 const (
 	LogMeta            ExecutionSettings = 1 << iota // meta
@@ -50,7 +52,7 @@ func nameToSetting(name string) (ExecutionSetting, error) {
 		setting = LogSkips
 	case "execution", "jobs":
 		setting = LogExecution
-	case "execution_output", "jobs_out":
+	case "execution_out", "jobs_out":
 		setting = LogExecutionOutput
 	case "execution_info", "jobs_info":
 		setting = LogExecutionInfo

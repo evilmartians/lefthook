@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"charm.land/lipgloss/v2"
+
 	"github.com/evilmartians/lefthook/v2/internal/version"
 )
 
@@ -91,22 +92,22 @@ func (el *ExecutionLogger) LogSkipped(name, reason string) {
 		return
 	}
 
-	el.Logger.Info(
+	el.Info(
 		lipgloss.NewStyle().
 			BorderLeft(true).
 			BorderStyle(lipgloss.ThickBorder()).
 			BorderForeground(el.Logger.colors.get(ColorCyan)).
 			PaddingLeft(padding).
 			Render(
-				el.Logger.Paint(ColorCyan, lipgloss.NewStyle().Bold(true).Render(name)) + " " +
-					el.Logger.Paint(ColorGray, "(skip)") + " " +
-					el.Logger.Paint(ColorYellow, reason),
+				el.Paint(ColorCyan, lipgloss.NewStyle().Bold(true).Render(name)) + " " +
+					el.Paint(ColorGray, "(skip)") + " " +
+					el.Paint(ColorYellow, reason),
 			),
 	)
 }
 
 func (el *ExecutionLogger) LogSeparator() {
-	el.Logger.log(LevelInfo,
+	el.log(LevelInfo,
 		lipgloss.NewStyle().
 			BorderStyle(lipgloss.NormalBorder()).
 			BorderBottom(true).
@@ -136,7 +137,7 @@ func (el *ExecutionLogger) LogExecution(name string, err error, out io.Reader) {
 	}
 
 	if execLog != "" {
-		el.Logger.Info(
+		el.Info(
 			lipgloss.NewStyle().
 				BorderStyle(lipgloss.ThickBorder()).
 				BorderLeft(true).
@@ -151,11 +152,11 @@ func (el *ExecutionLogger) LogExecution(name string, err error, out io.Reader) {
 	}
 
 	if out != nil {
-		el.Logger.Info(out)
+		el.Info(out)
 	}
 
 	if err != nil {
-		el.Logger.Infof("%s", err)
+		el.Infof("%s", err)
 	}
 }
 
@@ -166,13 +167,13 @@ func (el *ExecutionLogger) LogSetup(r io.Reader) {
 			return
 		}
 
-		el.Logger.Info(
+		el.Info(
 			lipgloss.NewStyle().
 				BorderStyle(lipgloss.ThickBorder()).
 				BorderLeft(true).
 				BorderForeground(el.Logger.colors.get(ColorYellow)).
 				Padding(padding).
-				Render(el.Logger.Paint(ColorYellow, "setup ❯ ")),
+				Render(el.Paint(ColorYellow, "setup ❯ ")),
 		)
 
 		_, _ = io.Copy(os.Stdout, r)
@@ -181,11 +182,11 @@ func (el *ExecutionLogger) LogSetup(r io.Reader) {
 
 func (el *ExecutionLogger) LogMeta(hookName string) {
 	name := "🥊 lefthook "
-	if el.Logger.NoColors() {
+	if el.NoColors() {
 		name = "lefthook "
 	}
 
-	el.Logger.Info(
+	el.Info(
 		lipgloss.JoinHorizontal(
 			lipgloss.Top,
 			lipgloss.NewStyle().
@@ -193,15 +194,15 @@ func (el *ExecutionLogger) LogMeta(hookName string) {
 				BorderForeground(colorBorder).
 				Padding(0, 1).
 				Render(
-					el.Logger.Paint(ColorCyan, name),
-					el.Logger.Paint(ColorGray, fmt.Sprintf("v%s", version.Version(false))),
+					el.Paint(ColorCyan, name),
+					el.Paint(ColorGray, fmt.Sprintf("v%s", version.Version(false))),
 				),
 			lipgloss.NewStyle().
 				Border(lipgloss.RoundedBorder(), true, true, true, false).
 				BorderForeground(colorBorder).
 				Padding(0, 1).
 				Render(
-					el.Logger.Paint(ColorGray, "hook: "),
+					el.Paint(ColorGray, "hook: "),
 					lipgloss.NewStyle().Bold(true).Render(hookName),
 				),
 		),
@@ -210,17 +211,17 @@ func (el *ExecutionLogger) LogMeta(hookName string) {
 
 func (el *ExecutionLogger) LogSuccess(indent int, name string, duration time.Duration) {
 	var format string
-	if el.Logger.NoColors() {
+	if el.NoColors() {
 		format = "%s✓ %s %s"
 	} else {
 		format = "%s✔️ %s %s"
 	}
 
-	el.Logger.Infof(
+	el.Infof(
 		format,
 		strings.Repeat("  ", indent),
-		el.Logger.Paint(ColorGreen, name),
-		el.Logger.Paint(ColorGray, fmt.Sprintf("(%.2f seconds)", duration.Seconds())),
+		el.Paint(ColorGreen, name),
+		el.Paint(ColorGray, fmt.Sprintf("(%.2f seconds)", duration.Seconds())),
 	)
 }
 
@@ -230,17 +231,17 @@ func (el *ExecutionLogger) LogFailure(indent int, name, failText string, duratio
 	}
 
 	var format string
-	if el.Logger.NoColors() {
+	if el.NoColors() {
 		format = "%s✗ %s%s %s"
 	} else {
 		format = "%s🥊 %s%s %s"
 	}
 
-	el.Logger.Infof(
+	el.Infof(
 		format,
 		strings.Repeat("  ", indent),
-		el.Logger.Paint(ColorRed, name),
-		el.Logger.Paint(ColorRed, failText),
-		el.Logger.Paint(ColorGray, fmt.Sprintf("(%.2f seconds)", duration.Seconds())),
+		el.Paint(ColorRed, name),
+		el.Paint(ColorRed, failText),
+		el.Paint(ColorGray, fmt.Sprintf("(%.2f seconds)", duration.Seconds())),
 	)
 }

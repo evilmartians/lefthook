@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/v2/internal/git"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
 
 func TestLefthookAdd(t *testing.T) {
@@ -127,7 +128,8 @@ source_dir_local: .source_dir_local
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			fs := afero.NewMemMapFs()
 			lefthook := &Lefthook{
-				fs: fs,
+				logger: loggertest.New(),
+				fs:     fs,
 				repo: &git.Repo{
 					Fs:        fs,
 					HooksPath: hooksPath,

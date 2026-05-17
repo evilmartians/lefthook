@@ -129,7 +129,7 @@ func NewRepo(
 // Precompute runs various Git commands in the background so the results are ready.
 // This returns a function which can be used to wait for the result. This should
 // be invoked to ensure we're not holding any locks on the Git repository.
-// TODO: Rename to something with "cache"
+// TODO: Rename to something with "cache".
 func (r *Repo) Precompute() func() {
 	var wg sync.WaitGroup
 
