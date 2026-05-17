@@ -7,7 +7,7 @@ exec lefthook install
 
 # This should fail because README.md is modified
 ! exec lefthook run pre-commit --all-files
-stdout '│  Error: files were modified by a hook, and fail_on_changes is enabled'
+stderr 'Error: files were modified by a hook, and fail_on_changes is enabled'
 
 -- README.md --
 This is a readme.

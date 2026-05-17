@@ -72,7 +72,7 @@ func (l *Lefthook) logDetail(indent int, details jsonschema.List) {
 		}
 	}
 
-	option := strings.Repeat(" ", indent) + strings.TrimLeft(details.InstanceLocation, "/") + ":"
+	option := strings.Repeat(" ", indent) + strings.TrimLeft(details.InstanceLocation, "/") + ": "
 
 	if len(errors) == 0 {
 		option = l.logger.Paint(logger.ColorGray, option)

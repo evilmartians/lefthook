@@ -45,17 +45,17 @@ func nameToSetting(name string) (ExecutionSetting, error) {
 	case "failure":
 		setting = LogFailure
 	case "summary":
-		setting = LogSummary
+		setting = LogSummary | LogSuccess | LogFailure
 	case "empty_summary":
 		setting = LogEmptySummary
 	case "skips":
 		setting = LogSkips
 	case "execution", "jobs":
-		setting = LogExecution
+		setting = LogExecution | LogExecutionOutput | LogExecutionInfo
 	case "execution_out", "jobs_out":
-		setting = LogExecutionOutput
+		setting = LogExecution | LogExecutionOutput
 	case "execution_info", "jobs_info":
-		setting = LogExecutionInfo
+		setting = LogExecution | LogExecutionInfo
 	case "setup":
 		setting = LogSetup
 	default:

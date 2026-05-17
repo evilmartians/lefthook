@@ -1,6 +1,6 @@
 exec git init
 ! exec lefthook run pre-commit
-stdout 'required lefthook version \(v13.1.1\) is higher than current'
+stderr 'required lefthook version \(v13.1.1\) is higher than current'
 
 -- lefthook.yml --
 min_version: v13.1.1
