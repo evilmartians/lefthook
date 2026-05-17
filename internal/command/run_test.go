@@ -144,7 +144,7 @@ post-commit:
 				fs:     fs,
 				repo:   gittest.NewRepositoryBuilder().Cmd(cmdtest.NewDumb()).Fs(fs).Root(root).Build(),
 			}
-			lefthook.repo.Setup()
+			lefthook.repo.ResetCache()
 
 			// Create files that should exist
 			for _, path := range tt.existingDirs {

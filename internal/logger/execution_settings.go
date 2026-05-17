@@ -59,7 +59,7 @@ func nameToSetting(name string) (ExecutionSetting, error) {
 	case "setup":
 		setting = LogSetup
 	default:
-		return 0, fmt.Errorf("Unknown output setting: %#v", name)
+		return 0, fmt.Errorf("unknown output setting: %#v", name)
 	}
 	return setting, nil
 }

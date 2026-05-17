@@ -39,7 +39,7 @@ func TestPartiallyStagedFiles(t *testing.T) {
 				logger: logger,
 				Git:    NewCommander(cmdtest.NewOrdered(t, tt.git), logger),
 			}
-			repository.Setup()
+			repository.ResetCache()
 
 			files, err := repository.PartiallyStagedFiles()
 			if tt.error && err != nil {
@@ -159,7 +159,7 @@ func TestChangeset(t *testing.T) {
 					maxCmdLen: 7000,
 				},
 			}
-			repository.Setup()
+			repository.ResetCache()
 
 			changeset, err := repository.Changeset()
 			if err != nil {
@@ -214,7 +214,7 @@ func TestPushFiles(t *testing.T) {
 			Git:      NewCommander(cmd, logger),
 			logger:   logger,
 		}
-		repository.Setup()
+		repository.ResetCache()
 
 		files, err := repository.PushFiles()
 		if err != nil {
@@ -268,7 +268,7 @@ func TestPushFiles(t *testing.T) {
 			Git:      NewCommander(cmd, logger),
 			logger:   logger,
 		}
-		repository.Setup()
+		repository.ResetCache()
 
 		files, err := repository.PushFiles()
 		if err != nil {

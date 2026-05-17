@@ -28,7 +28,7 @@ type Spinner struct {
 
 func NewSpinner() *Spinner {
 	return &Spinner{
-		names:         make([]string, 0, 10), // reduce extra allocations
+		names:         make([]string, 0, 10), //nolint:mnd // reduce extra allocations
 		terminalWidth: terminalWidth(),
 		spinner: spinner.New(
 			spinner.CharSets[spinnerCharSet],

@@ -628,7 +628,7 @@ func TestRunAll(t *testing.T) {
 
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
-			repo.Setup()
+			repo.ResetCache()
 			cmdExecutor.Reset()
 
 			opts := Options{

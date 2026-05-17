@@ -35,7 +35,6 @@ type Lefthook struct {
 	logger *logger.Logger
 	fs     afero.Fs
 	repo   *git.Repo
-	colors string
 }
 
 // NewLefthook returns an instance of Lefthook.
@@ -62,18 +61,12 @@ func NewLefthook(verbose bool, colors string) (*Lefthook, error) {
 		logger: l,
 		fs:     fs,
 		repo:   repo,
-		colors: colors,
 	}, nil
 }
 
 func (l *Lefthook) LoadConfig() (*config.Config, error) {
 	loader := config.NewLoader(l.repo, l.logger)
-	cfg, err := loader.Load()
-
-	// Reset colors // TODO: Handle colors map
-	// log.SetColors(l.colors)
-
-	return cfg, err
+	return loader.Load()
 }
 
 func (l *Lefthook) reloadConfig(cfg *config.Config) (*config.Config, error) {

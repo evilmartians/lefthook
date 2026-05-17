@@ -29,7 +29,7 @@ const (
 var border = lipgloss.NewStyle().
 	BorderStyle(lipgloss.NormalBorder()).
 	BorderLeft(true).
-	PaddingLeft(2)
+	PaddingLeft(2) //nolint:mnd
 
 type Logger struct {
 	mu     sync.Mutex
@@ -107,7 +107,7 @@ func (l *Logger) log(level Level, args ...any) {
 		}
 
 		message = border.BorderForeground(l.colors.get(ColorRed)).Render(strArgs...)
-	default:
+	case LevelInfo:
 		message = fmt.Sprint(args...)
 	}
 

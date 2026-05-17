@@ -50,7 +50,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 		return nil
 	}
 
-	waitPrecompute := l.repo.Precompute()
+	waitPrecompute := l.repo.CacheGitCommands()
 	defer waitPrecompute()
 
 	if args.Verbose {

@@ -121,8 +121,7 @@ func NewRepo(
 		InfoPath:  infoPath,
 	}
 
-	// TODO: Rename to something like "Init()"
-	r.Setup()
+	r.ResetCache()
 
 	return r, nil
 }
@@ -133,11 +132,10 @@ func (repo *Repo) WithLogger(logger *logger.Logger) *Repo {
 	return repo
 }
 
-// Precompute runs various Git commands in the background so the results are ready.
+// CacheGitCommands runs various Git commands in the background so the results are ready.
 // This returns a function which can be used to wait for the result. This should
 // be invoked to ensure we're not holding any locks on the Git repository.
-// TODO: Rename to something with "cache".
-func (r *Repo) Precompute() func() {
+func (r *Repo) CacheGitCommands() func() {
 	var wg sync.WaitGroup
 
 	wg.Go(func() {
@@ -155,11 +153,11 @@ func (r *Repo) Precompute() func() {
 	return wg.Wait
 }
 
-// Setup must be called after you've constructed a Repository directly.
+// ResetCache must be called after you've constructed a Repository directly.
 // It's not necessary to invoke if you've used NewRepository.
 //
 // This can also be called multiple times to reset the cache.
-func (r *Repo) Setup() {
+func (r *Repo) ResetCache() {
 	r.stagedFilesOnce = sync.OnceValues(func() ([]string, error) {
 		return r.FindExistingFiles(cmdStagedFiles, "")
 	})
