@@ -23,13 +23,13 @@ func Version(verbose bool) string {
 	result := strings.Builder{}
 	result.WriteString(version)
 
+	if dev == "true" {
+		result.WriteString("-dev")
+	}
+
 	if verbose {
 		result.WriteString(" ")
 		result.WriteString(commit)
-	}
-
-	if dev == "true" {
-		result.WriteString("-dev")
 	}
 
 	return result.String()

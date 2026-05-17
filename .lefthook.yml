@@ -12,16 +12,14 @@ pre-commit:
     - run: command -v typos || brew install typos-cli
     - run: command -v lychee || brew install lychee
   jobs:
-    - name: lint & test
+    - name: golang
       glob: "*.go"
       group:
         jobs:
           - run: make lint
-            tags: lint
             stage_fixed: true
 
           - run: make test
-            tags: test
 
     - name: check links
       tags: docs
@@ -30,7 +28,7 @@ pre-commit:
       exclude:
         - CHANGELOG.md
 
-    - name: fix typos
+    - name: typos
       tags: lint
       run: typos --write-changes {staged_files}
       exclude:
