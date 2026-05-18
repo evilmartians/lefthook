@@ -9,6 +9,8 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/logger"
 )
 
+var errRestorationConflict = errors.New("conflict while merging unstaged changes")
+
 type FailOnChangesError struct {
 	changedFiles []string
 }
@@ -85,25 +87,42 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 		Log()
 
 	if err := g.git.RevertUnstagedChanges(partiallyStagedFiles); err != nil {
-		g.logger.Warnf("Failed to hide unstaged files: %s\n", err)
+		g.logger.Warnf("Failed to hide unstaged files: %s", err)
 		return err
 	}
-
-	defer func() {
-		if err := g.git.RestoreUnstagedChanges(); err != nil {
-			g.logger.Warnf("Failed to restore unstaged files: %s\n", err)
-			return
-		}
-	}()
 
 	wrappedErr := fn()
 
 	var failOnChangesErr *FailOnChangesError
 	if errors.As(wrappedErr, &failOnChangesErr) {
 		if err := g.git.RevertUnstagedChanges(failOnChangesErr.changedFiles); err != nil {
-			g.logger.Warnf("Failed to hide unstaged files: %s\n", err)
+			g.logger.Warnf("Failed to revert file changes: %s", err)
 			return wrappedErr
 		}
+	}
+
+	if !g.git.CanRestoreUnstagedChanges() {
+		if wrappedErr != nil {
+			g.logger.Error("Error: ", wrappedErr)
+		}
+		wrappedErr = errRestorationConflict
+
+		if err := g.git.RevertAllUnstagedChanges(); err != nil {
+			g.logger.Warnf("Failed to restore initial worktree state: %s", err)
+			return err
+		}
+
+		logger.NewBuilder(g.logger).
+			WithLevel(logger.LevelWarn).
+			WriteLines("", "Unable to restore previously hidden unstaged changes.").
+			WriteLines("", "This may happen when changes introduced by the hook conflict with your unstaged changes.").
+			WriteLines("", "Stage all changes with `git add -A` and try again.").
+			Log()
+	}
+
+	if err := g.git.RestoreUnstagedChanges(); err != nil {
+		g.logger.Warnf("Failed to restore unstaged files: %s", err)
+		return err
 	}
 
 	return wrappedErr

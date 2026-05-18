@@ -45,12 +45,13 @@ var (
 		"--git-path", "info",
 		"--git-dir",
 	}
-	cmdAllFiles     = []string{"git", "ls-files", "--cached"}
-	cmdCreateStash  = []string{"git", "stash", "create"}
-	cmdStageFiles   = []string{"git", "add", "--force", "--"}
-	cmdRemotes      = []string{"git", "branch", "--remotes"}
-	cmdHideUnstaged = []string{"git", "checkout", "--force", "--"}
-	cmdGitVersion   = []string{"git", "version"}
+	cmdAllFiles        = []string{"git", "ls-files", "--cached"}
+	cmdCreateStash     = []string{"git", "stash", "create"}
+	cmdStageFiles      = []string{"git", "add", "--force", "--"}
+	cmdRemotes         = []string{"git", "branch", "--remotes"}
+	cmdHideUnstaged    = []string{"git", "checkout", "--force", "--"}
+	cmdHideAllUnstaged = []string{"git", "checkout", "."}
+	cmdGitVersion      = []string{"git", "version"}
 )
 
 // Repo represents a git repository.
@@ -305,6 +306,44 @@ func (r *Repo) RevertUnstagedChanges(files []string) error {
 	return err
 }
 
+func (r *Repo) RevertAllUnstagedChanges() error {
+	_, err := r.Git.Cmd(cmdHideAllUnstaged)
+
+	return err
+}
+
+// CanRestoreUnstagedChanges checks is a patch with previously unstaged changes
+// can be applied to the current worktree.
+func (r *Repo) CanRestoreUnstagedChanges() bool {
+	if ok, _ := afero.Exists(r.Fs, r.unstagedPatchPath); !ok {
+		return true
+	}
+
+	stat, err := r.Fs.Stat(r.unstagedPatchPath)
+	if err != nil {
+		return true
+	}
+
+	if stat.Size() == 0 {
+		return true
+	}
+
+	_, err = r.Git.Cmd([]string{
+		"git",
+		"apply",
+		"-v",
+		"--whitespace=nowarn",
+		"--recount",
+		"--unidiff-zero",
+		"--check",
+		"--",
+		r.unstagedPatchPath,
+	})
+
+	return err == nil
+}
+
+// RestoreUnstagedChanges applies the patch with previously unstaged changes.
 func (r *Repo) RestoreUnstagedChanges() error {
 	if ok, _ := afero.Exists(r.Fs, r.unstagedPatchPath); !ok {
 		return nil
