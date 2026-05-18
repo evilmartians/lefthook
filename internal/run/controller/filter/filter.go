@@ -11,7 +11,7 @@ import (
 	"github.com/gobwas/glob"
 	"github.com/spf13/afero"
 
-	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 )
 
 type fileTypeFilter struct {
@@ -43,11 +43,12 @@ type Params struct {
 type Filter struct {
 	Params
 
-	fs afero.Fs
+	logger *logger.ExecutionLogger
+	fs     afero.Fs
 }
 
-func New(fs afero.Fs, params Params) *Filter {
-	return &Filter{fs: fs, Params: params}
+func New(fs afero.Fs, logger *logger.ExecutionLogger, params Params) *Filter {
+	return &Filter{fs: fs, Params: params, logger: logger}
 }
 
 func (f *Filter) Apply(files []string) []string {
@@ -55,15 +56,17 @@ func (f *Filter) Apply(files []string) []string {
 		return nil
 	}
 
-	b := log.Builder(log.DebugLevel, "[lefthook] ").
-		Add("filtered [ ]: ", files)
+	b := logger.NewBuilder(f.logger).
+		WithPrefix("[lefthook] ").
+		WithLevel(logger.LevelDebug).
+		WriteLines("filtered [ ]: ", files)
 
 	files = byGlob(files, f.Glob, f.GlobMatcher)
 	files = byExclude(files, f.ExcludeFiles, f.GlobMatcher)
 	files = byRoot(files, f.Root)
-	files = byType(f.fs, files, f.FileTypes)
+	files = f.byType(f.fs, files, f.FileTypes)
 
-	b.Add("filtered [x]: ", files).
+	b.WriteLines("filtered [x]: ", files).
 		Log()
 
 	return files
@@ -201,12 +204,12 @@ func byRoot(vs []string, matcher string) []string {
 // byType filters files by one or more file type predicates.
 // To add a new type: add a typeX constant, handle it in parseFileTypeFilter,
 // and add the corresponding guard below.
-func byType(fs afero.Fs, vs []string, types []string) []string {
+func (f *Filter) byType(fs afero.Fs, vs []string, types []string) []string {
 	if len(types) == 0 {
 		return vs
 	}
 
-	filter := parseFileTypeFilter(types)
+	filter := f.parseFileTypeFilter(types)
 
 	vsf := make([]string, 0)
 	for _, v := range vs {
@@ -219,7 +222,7 @@ func byType(fs afero.Fs, vs []string, types []string) []string {
 			fileInfo, err = fs.Stat(v)
 		}
 		if err != nil {
-			log.Errorf("Couldn't check file type of %s: %s", v, err)
+			f.logger.Errorf("Couldn't check file type of %s: %s", v, err)
 			continue
 		}
 
@@ -243,7 +246,7 @@ func byType(fs afero.Fs, vs []string, types []string) []string {
 				continue
 			}
 
-			text := checkIsText(fs, v)
+			text := f.checkIsText(v)
 			binary := !text
 
 			if filter.simpleTypes&typeText != 0 && binary {
@@ -262,7 +265,7 @@ func byType(fs afero.Fs, vs []string, types []string) []string {
 			var found bool
 			fileMimeType, err := mimetype.DetectFile(v)
 			if err != nil {
-				log.Errorf("Couldn't check mime type of file %s: %s", v, err)
+				f.logger.Errorf("Couldn't check mime type of file %s: %s", v, err)
 				continue
 			}
 			for _, mime := range filter.mimeTypes {
@@ -281,7 +284,7 @@ func byType(fs afero.Fs, vs []string, types []string) []string {
 	return vsf
 }
 
-func parseFileTypeFilter(types []string) fileTypeFilter {
+func (f *Filter) parseFileTypeFilter(types []string) fileTypeFilter {
 	var filter fileTypeFilter
 
 	for _, t := range types {
@@ -301,24 +304,24 @@ func parseFileTypeFilter(types []string) fileTypeFilter {
 		case strings.Contains(t, "/") && mimetype.Lookup(t) != nil:
 			filter.mimeTypes = append(filter.mimeTypes, t)
 		default:
-			log.Warn("Unknown filter type: ", t)
+			f.logger.Warn("Unknown filter type: ", t)
 		}
 	}
 
 	return filter
 }
 
-func checkIsText(fs afero.Fs, filepath string) bool {
-	file, err := fs.Open(filepath)
+func (f *Filter) checkIsText(filepath string) bool {
+	file, err := f.fs.Open(filepath)
 	if err != nil {
-		log.Error("Couldn't open file for content detecting: ", err)
+		f.logger.Error("Couldn't open file for content detecting: ", err)
 		return false
 	}
 
 	buf := make([]byte, detectBufSize)
 	n, err := io.ReadFull(file, buf)
 	if err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, io.ErrUnexpectedEOF) {
-		log.Error("Couldn't read file for content detecting: ", err)
+		f.logger.Error("Couldn't read file for content detecting: ", err)
 		return false
 	}
 

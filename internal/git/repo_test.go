@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/v2/tests/helpers/cmdtest"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
 
 func TestPartiallyStagedFiles(t *testing.T) {
@@ -33,13 +34,12 @@ func TestPartiallyStagedFiles(t *testing.T) {
 		},
 	} {
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			repository := &Repository{
-				Git: &CommandExecutor{
-					mu:  new(sync.Mutex),
-					cmd: cmdtest.NewOrdered(t, tt.git),
-				},
+			logger := loggertest.New()
+			repository := &Repo{
+				logger: logger,
+				Git:    NewCommander(cmdtest.NewOrdered(t, tt.git), logger),
 			}
-			repository.Setup()
+			repository.ResetCache()
 
 			files, err := repository.PartiallyStagedFiles()
 			if tt.error && err != nil {
@@ -149,14 +149,17 @@ func TestChangeset(t *testing.T) {
 		},
 	} {
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			repository := &Repository{
-				Git: &CommandExecutor{
+			logger := loggertest.New()
+			repository := &Repo{
+				logger: logger,
+				Git: &Commander{
 					mu:        new(sync.Mutex),
+					logger:    logger,
 					cmd:       cmdtest.NewOrdered(t, tt.git),
 					maxCmdLen: 7000,
 				},
 			}
-			repository.Setup()
+			repository.ResetCache()
 
 			changeset, err := repository.Changeset()
 			if err != nil {
@@ -204,15 +207,14 @@ func TestPushFiles(t *testing.T) {
 			}
 		})
 
-		repository := &Repository{
+		logger := loggertest.New()
+		repository := &Repo{
 			Fs:       fs,
 			RootPath: root,
-			Git: &CommandExecutor{
-				mu:  new(sync.Mutex),
-				cmd: cmd,
-			},
+			Git:      NewCommander(cmd, logger),
+			logger:   logger,
 		}
-		repository.Setup()
+		repository.ResetCache()
 
 		files, err := repository.PushFiles()
 		if err != nil {
@@ -258,16 +260,15 @@ func TestPushFiles(t *testing.T) {
 			}
 		})
 
-		repository := &Repository{
+		logger := loggertest.New()
+		repository := &Repo{
 			Fs:       fs,
 			RootPath: root,
 			GitPath:  gitPath,
-			Git: &CommandExecutor{
-				mu:  new(sync.Mutex),
-				cmd: cmd,
-			},
+			Git:      NewCommander(cmd, logger),
+			logger:   logger,
 		}
-		repository.Setup()
+		repository.ResetCache()
 
 		files, err := repository.PushFiles()
 		if err != nil {

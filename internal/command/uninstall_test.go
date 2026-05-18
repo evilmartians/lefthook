@@ -9,6 +9,7 @@ import (
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/gittest"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
 
 func TestLefthookUninstall(t *testing.T) {
@@ -100,8 +101,9 @@ func TestLefthookUninstall(t *testing.T) {
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			fs := afero.NewMemMapFs()
 			lefthook := &Lefthook{
-				fs:   fs,
-				repo: gittest.NewRepositoryBuilder().Fs(fs).Root(root).Build(),
+				logger: loggertest.New(),
+				fs:     fs,
+				repo:   gittest.NewRepositoryBuilder().Fs(fs).Root(root).Build(),
 			}
 
 			// Create config and checksum file

@@ -21,7 +21,7 @@ import (
 
 	"github.com/schollz/progressbar/v3"
 
-	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/version"
 )
 
@@ -70,12 +70,14 @@ type Options struct {
 }
 
 type Updater struct {
+	logger     *logger.Logger
 	client     *http.Client
 	releaseURL string
 }
 
-func New() *Updater {
+func New(logger *logger.Logger) *Updater {
 	return &Updater{
+		logger:     logger,
 		client:     &http.Client{Timeout: timeout},
 		releaseURL: latestReleaseURL,
 	}
@@ -90,7 +92,7 @@ func (u *Updater) SelfUpdate(ctx context.Context, opts Options) error {
 	latestVersion := strings.TrimPrefix(rel.TagName, "v")
 
 	if latestVersion == version.Version(false) && !opts.Force {
-		log.Infof("Up to date: %s\n", latestVersion)
+		u.logger.Infof("Up to date: %s", latestVersion)
 		return nil
 	}
 
@@ -99,7 +101,7 @@ func (u *Updater) SelfUpdate(ctx context.Context, opts Options) error {
 		wantedAsset += ".exe"
 	}
 
-	log.Debugf("Searching assets for %s", wantedAsset)
+	u.logger.Debugf("Searching assets for %s", wantedAsset)
 
 	var downloadURL string
 	var checksumURL string
@@ -121,22 +123,22 @@ func (u *Updater) SelfUpdate(ctx context.Context, opts Options) error {
 	}
 
 	if len(downloadURL) == 0 {
-		log.Warnf("Couldn't find the right asset to download. Wanted: %s\n", wantedAsset)
+		u.logger.Warnf("Couldn't find the right asset to download. Wanted: %s", wantedAsset)
 		return errNoAsset
 	}
 
 	if len(checksumURL) == 0 {
-		log.Warn("Couldn't find checksums")
+		u.logger.Warn("Couldn't find checksums")
 	}
 
 	if !opts.Yes {
-		log.Infof("Update %s to %s? %s ", log.Cyan("lefthook"), log.Yellow(latestVersion), log.Gray("[Y/n]"))
+		u.logger.Infof("Update lefthook to %s? %s ", latestVersion, "[Y/n]")
 		scanner := bufio.NewScanner(os.Stdin)
 		scanner.Scan()
 		ans := scanner.Text()
 
 		if len(ans) > 0 && ans[0] != 'y' && ans[0] != 'Y' {
-			log.Debug("Update rejected")
+			u.logger.Debug("Update rejected")
 			return nil
 		}
 	}
@@ -150,7 +152,7 @@ func (u *Updater) SelfUpdate(ctx context.Context, opts Options) error {
 	defer func() {
 		if _, dErr := os.Stat(destPath); !errors.Is(dErr, fs.ErrNotExist) {
 			if dErr = os.Remove(destPath); dErr != nil {
-				log.Warnf("Could not remove %s: %s", destPath, dErr)
+				u.logger.Warnf("Could not remove %s: %s", destPath, dErr)
 			}
 		}
 	}()
@@ -167,20 +169,20 @@ func (u *Updater) SelfUpdate(ctx context.Context, opts Options) error {
 	defer func() {
 		if _, dErr := os.Stat(backupPath); !errors.Is(dErr, fs.ErrNotExist) {
 			if dErr = os.Remove(backupPath); dErr != nil {
-				log.Warnf("Could not remove %s: %s", backupPath, dErr)
+				u.logger.Warnf("Could not remove %s: %s", backupPath, dErr)
 			}
 		}
 	}()
 
-	log.Debugf("mv %s %s", lefthookExePath, backupPath)
+	u.logger.Debugf("mv %s %s", lefthookExePath, backupPath)
 	if err = os.Rename(lefthookExePath, backupPath); err != nil {
 		return fmt.Errorf("failed to backup lefthook executable: %w", err)
 	}
 
-	log.Debugf("mv %s %s", destPath, lefthookExePath)
+	u.logger.Debugf("mv %s %s", destPath, lefthookExePath)
 	err = os.Rename(destPath, lefthookExePath)
 	if err != nil {
-		log.Errorf("Failed to replace the lefthook executable: %s", err)
+		u.logger.Errorf("Failed to replace the lefthook executable: %s", err)
 		if err = os.Rename(backupPath, lefthookExePath); err != nil {
 			return fmt.Errorf("failed to recover from backup: %w", err)
 		}
@@ -188,9 +190,9 @@ func (u *Updater) SelfUpdate(ctx context.Context, opts Options) error {
 		return errUpdateFailed
 	}
 
-	log.Debugf("chmod +x %s", lefthookExePath)
+	u.logger.Debugf("chmod +x %s", lefthookExePath)
 	if err = os.Chmod(lefthookExePath, modExecutable); err != nil {
-		log.Errorf("Failed to set executable file mode: %s", err)
+		u.logger.Errorf("Failed to set executable file mode: %s", err)
 		if err = os.Rename(backupPath, lefthookExePath); err != nil {
 			return fmt.Errorf("failed to recover from backup: %w", err)
 		}
@@ -233,7 +235,7 @@ func (u *Updater) fetchLatestRelease(ctx context.Context) (*release, error) {
 }
 
 func (u *Updater) download(ctx context.Context, name, fileURL, checksumURL, path string) (bool, error) {
-	log.Debugf("Downloading %s to %s", fileURL, path)
+	u.logger.Debugf("Downloading %s to %s", fileURL, path)
 
 	filereq, err := http.NewRequestWithContext(ctx, http.MethodGet, fileURL, nil)
 	if err != nil {
@@ -251,7 +253,7 @@ func (u *Updater) download(ctx context.Context, name, fileURL, checksumURL, path
 	}
 	defer func() {
 		if cErr := resp.Body.Close(); cErr != nil {
-			log.Warnf("Could not close %s response body: %s", resp.Request.URL, cErr)
+			u.logger.Warnf("Could not close %s response body: %s", resp.Request.URL, cErr)
 		}
 	}()
 
@@ -261,7 +263,7 @@ func (u *Updater) download(ctx context.Context, name, fileURL, checksumURL, path
 	}
 	defer func() {
 		if cErr := checksumResp.Body.Close(); cErr != nil {
-			log.Warnf("Could not close %s response body: %s", checksumResp.Request.URL, cErr)
+			u.logger.Warnf("Could not close %s response body: %s", checksumResp.Request.URL, cErr)
 		}
 	}()
 
@@ -277,7 +279,6 @@ func (u *Updater) download(ctx context.Context, name, fileURL, checksumURL, path
 	if err = errors.Join(err, file.Close()); err != nil {
 		return false, fmt.Errorf("failed to download the file: %w", err)
 	}
-	log.Debug()
 
 	hashsum := hex.EncodeToString(fileHasher.Sum(nil))
 
@@ -288,14 +289,14 @@ func (u *Updater) download(ctx context.Context, name, fileURL, checksumURL, path
 			continue
 		}
 
-		log.Debugf("Checking %s %s", sums[0], sums[1])
+		u.logger.Debugf("Checking %s %s", sums[0], sums[1])
 		if sums[1] == name {
 			if sums[0] == hashsum {
 				if err = bar.Finish(); err != nil {
-					log.Debugf("Progressbar error: %s", err)
+					u.logger.Debugf("Progressbar error: %s", err)
 				}
 
-				log.Debugf("Match %s %s", sums[0], sums[1])
+				u.logger.Debugf("Match %s %s", sums[0], sums[1])
 
 				return true, nil
 			} else {
@@ -307,7 +308,7 @@ func (u *Updater) download(ctx context.Context, name, fileURL, checksumURL, path
 		return false, fmt.Errorf("scan checksum response body: %w", err)
 	}
 
-	log.Debugf("No matches found for %s %s", name, hashsum)
+	u.logger.Debugf("No matches found for %s %s", name, hashsum)
 
 	return false, nil
 }

@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
-	"github.com/evilmartians/lefthook/v2/internal/log"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/command"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/exec"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/filter"
@@ -34,8 +33,8 @@ func (c *Controller) runJob(ctx context.Context, scope *scope, id string, job *c
 
 	startTime := time.Now()
 	if job.Interactive && !scope.opts.DisableTTY && !scope.follow {
-		log.StopSpinner()
-		defer log.StartSpinner()
+		c.logger.Spinner.Stop()
+		defer c.logger.Spinner.Start()
 	}
 
 	if len(job.Run) != 0 || len(job.Script) != 0 {
@@ -55,7 +54,7 @@ func (c *Controller) runJob(ctx context.Context, scope *scope, id string, job *c
 		groupName := utils.FirstNonBlank(job.Name, "group ("+id+")")
 
 		if reason := c.skipReason(extendedScope, job, groupName); len(reason) > 0 {
-			log.Skip(groupName, reason)
+			c.logger.LogSkipped(groupName, reason)
 
 			return result.Skip(groupName)
 		}
@@ -87,12 +86,12 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 	logName := strings.Join(append(scope.names, name), " ❯ ")
 
 	if reason := c.skipReason(scope, job, name); len(reason) > 0 {
-		log.Skip(logName, reason)
+		c.logger.LogSkipped(logName, reason)
 
 		return result.Skip(name)
 	}
 
-	builder := command.NewBuilder(c.git, command.BuilderOptions{
+	builder := command.NewBuilder(c.git, c.logger, command.BuilderOptions{
 		HookName:    scope.hookName,
 		ForceFiles:  scope.opts.Files,
 		Force:       scope.opts.Force,
@@ -117,7 +116,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 		ExcludeFiles: scope.excludeFiles,
 	})
 	if err != nil {
-		log.Skip(logName, err.Error())
+		c.logger.LogSkipped(logName, err.Error())
 
 		var skipErr command.SkipError
 		if errors.As(err, &skipErr) {
@@ -158,11 +157,11 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 			var err error
 			files, err = c.git.StagedFiles()
 			if err != nil {
-				log.Warn("Couldn't stage fixed files:", err)
+				c.logger.Warn("Couldn't stage fixed files:", err)
 				return result.Success(name, executionTime)
 			}
 
-			files = filter.New(c.git.Fs, filter.Params{
+			files = filter.New(c.git.Fs, c.logger, filter.Params{
 				Glob:         scope.glob,
 				Root:         scope.root,
 				ExcludeFiles: scope.excludeFiles,
@@ -185,7 +184,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 
 func (c *Controller) addStagedFiles(files []string) {
 	if err := c.git.AddFiles(files); err != nil {
-		log.Warn("Couldn't stage fixed files:", err)
+		c.logger.Warn("Couldn't stage fixed files:", err)
 	}
 }
 

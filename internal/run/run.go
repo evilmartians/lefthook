@@ -5,6 +5,7 @@ import (
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/git"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller"
 	"github.com/evilmartians/lefthook/v2/internal/run/result"
 )
@@ -21,8 +22,9 @@ type Options = controller.Options
 func Run(
 	ctx context.Context,
 	hook *config.Hook,
-	repo *git.Repository,
+	repo *git.Repo,
+	logger *logger.ExecutionLogger,
 	opts Options,
 ) ([]result.Result, error) {
-	return controller.NewController(repo).RunHook(ctx, opts, hook)
+	return controller.NewController(repo, logger).RunHook(ctx, opts, hook)
 }

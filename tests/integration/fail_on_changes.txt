@@ -5,10 +5,10 @@ exec git config user.name "Your Name"
 exec git add file.txt
 
 ! exec lefthook run pre-commit --fail-on-changes
-stdout '│  Error: files were modified by a hook, and fail_on_changes is enabled'
+stderr 'Error: files were modified by a hook, and fail_on_changes is enabled'
 
 ! exec lefthook run hook-setting
-stdout '│  Error: files were modified by a hook, and fail_on_changes is enabled'
+stderr 'Error: files were modified by a hook, and fail_on_changes is enabled'
 
 exec lefthook run hook-setting --fail-on-changes=false
 

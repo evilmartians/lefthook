@@ -497,7 +497,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2026.02.28.",
+  "$comment": "Last updated on 2026.05.17.",
   "properties": {
     "min_version": {
       "type": "string",

@@ -9,14 +9,17 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/system"
 
 	"github.com/mattn/go-isatty"
 	"github.com/mattn/go-tty"
 )
 
-type CommandExecutor struct{}
+type CommandExecutor struct {
+	logger *logger.ExecutionLogger
+}
+
 type executeArgs struct {
 	in   io.Reader
 	out  io.Writer
@@ -31,7 +34,7 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 			defer tty.Close()
 			in = tty.Input()
 		} else {
-			log.Errorf("Couldn't enable TTY input: %s\n", err)
+			e.logger.Errorf("Couldn't enable TTY input: %s\n", err)
 		}
 	}
 
@@ -43,10 +46,7 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 			fmt.Sprintf("%s=%s", name, os.ExpandEnv(value)),
 		)
 	}
-	switch log.Colors() {
-	case log.ColorOn:
-		envs = append(envs, "CLICOLOR_FORCE=true")
-	case log.ColorOff:
+	if e.logger.NoColors() {
 		envs = append(envs, "NO_COLOR=true")
 	}
 
@@ -69,7 +69,7 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *executeArgs) error {
 	sh, err := system.Sh()
 	if err != nil {
-		log.Errorf("Couldn't find sh.exe: %s\n", err)
+		e.logger.Errorf("Couldn't find sh.exe: %s\n", err)
 		return err
 	}
 
@@ -77,7 +77,7 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 	// options for {staged_files}, '{staged_files}', and "{staged_files}".
 	// cmdStrQuoted := strings.ReplaceAll(strings.ReplaceAll(cmdstr, "\\", "\\\\"), "\"", "\\\"")
 	cmdLine := "\"" + sh + "\"" + " -c " + "\"" + cmdstr + "\""
-	log.Debug("[lefthook] run: ", cmdLine)
+	e.logger.Debug("[lefthook] run: ", cmdLine)
 
 	command := exec.CommandContext(ctx, sh)
 	command.SysProcAttr = &syscall.SysProcAttr{

@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/filter"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
 
 func Test_getNChars(t *testing.T) {
@@ -191,7 +193,8 @@ func Test_ReplaceAndSplit(t *testing.T) {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			assert := assert.New(t)
 			r := Replacer{
-				cache: tt.cache,
+				logger: loggertest.NewExecution(),
+				cache:  tt.cache,
 				files: map[string]func() ([]string, error){
 					config.SubStagedFiles: func() ([]string, error) { return nil, nil },
 					config.SubPushFiles:   func() ([]string, error) { return nil, nil },
@@ -208,18 +211,19 @@ func Test_ReplaceAndSplit(t *testing.T) {
 }
 
 func Test_ReplaceAndSplit_CustomTemplates(t *testing.T) {
+	fs := afero.NewMemMapFs()
 	t.Run("custom templates should not be escaped", func(t *testing.T) {
 		assert := assert.New(t)
 
 		// Create a replacer with custom templates (note: keys include braces)
-		r := NewMocked([]string{"file1.js"}).AddTemplates(
+		r := NewMocked(loggertest.NewExecution(), []string{"file1.js"}).AddTemplates(
 			map[string]string{
 				"use-mise": `eval "$(mise env)"`,
 			},
 		)
 
 		// Discover templates in the command (use empty filter)
-		emptyFilter := &filter.Filter{}
+		emptyFilter := filter.New(fs, loggertest.NewExecution(), filter.Params{})
 		err := r.Discover("{use-mise} prettier {staged_files}", emptyFilter)
 		assert.NoError(err)
 
@@ -235,10 +239,10 @@ func Test_ReplaceAndSplit_CustomTemplates(t *testing.T) {
 		assert := assert.New(t)
 
 		// Create a replacer with a file that needs escaping
-		r := NewMocked([]string{"file with spaces.js"})
+		r := NewMocked(loggertest.NewExecution(), []string{"file with spaces.js"})
 
 		// Discover templates in the command (use empty filter)
-		emptyFilter := &filter.Filter{}
+		emptyFilter := filter.New(fs, loggertest.NewExecution(), filter.Params{})
 		err := r.Discover("prettier {staged_files}", emptyFilter)
 		assert.NoError(err)
 

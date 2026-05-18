@@ -7,6 +7,7 @@ import (
 
 	"github.com/evilmartians/lefthook/v2/internal/git"
 	"github.com/evilmartians/lefthook/v2/internal/system"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
 
 type mockCmd struct{}
@@ -24,7 +25,7 @@ func (mc mockCmd) Run(cmd []string, _root string, _in io.Reader, _out io.Writer,
 }
 
 func TestSkipChecker_Check(t *testing.T) {
-	skipChecker := NewSkipChecker(mockCmd{})
+	skipChecker := NewSkipChecker(loggertest.NewExecution(), mockCmd{})
 
 	for _, tt := range [...]struct {
 		name       string

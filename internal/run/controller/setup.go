@@ -5,7 +5,6 @@ import (
 	"io"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
-	"github.com/evilmartians/lefthook/v2/internal/log"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/command/replacer"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/exec"
 	"github.com/evilmartians/lefthook/v2/internal/system"
@@ -20,10 +19,10 @@ func (c *Controller) setup(
 		return nil
 	}
 
-	log.StopSpinner()
-	defer log.StartSpinner()
+	c.logger.Spinner.Stop()
+	defer c.logger.Spinner.Start()
 
-	replacer := replacer.New(c.git, "", "").
+	replacer := replacer.New(c.git, c.logger, "", "").
 		AddTemplates(opts.Templates).
 		AddGitArgs(opts.GitArgs)
 
@@ -38,7 +37,7 @@ func (c *Controller) setup(
 	}
 
 	r, w := io.Pipe()
-	log.LogSetup(r)
+	c.logger.LogSetup(r)
 
 	err := c.executor.Execute(ctx, exec.Options{Commands: commands}, system.NullReader, w)
 	_ = w.Close()

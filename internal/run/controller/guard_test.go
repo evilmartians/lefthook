@@ -9,6 +9,7 @@ import (
 
 	"github.com/evilmartians/lefthook/v2/tests/helpers/cmdtest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/gittest"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
 
 func Test_guard_wrap(t *testing.T) {
@@ -193,8 +194,8 @@ func Test_guard_wrap(t *testing.T) {
 				Fs(afero.NewMemMapFs()).
 				Root("root").
 				Build()
-			repo.Setup()
-			g := newGuard(repo, tt.stashUnstagedChanges, tt.failOnChanges, tt.failOnChangesDiff)
+			repo.ResetCache()
+			g := newGuard(repo, loggertest.NewExecution(), tt.stashUnstagedChanges, tt.failOnChanges, tt.failOnChangesDiff)
 
 			var beenCalled bool
 			err := g.wrap(func() { beenCalled = true })

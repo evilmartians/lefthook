@@ -2,6 +2,7 @@ package version
 
 import (
 	"errors"
+	"strings"
 
 	"golang.org/x/mod/semver"
 )
@@ -9,19 +10,29 @@ import (
 const version = "2.1.6"
 
 var (
-	// Is set via -X github.com/evilmartians/lefthook/internal/version.commit={commit}.
+	// Is set via -X github.com/evilmartians/lefthook/v2/internal/version.commit={commit}.
 	commit string
+	// Is set via -X github.com/evilmartians/lefthook/v2/internal/version.dev=true.
+	dev string
 
 	ErrInvalidVersion   = errors.New("invalid version format")
 	ErrUncoveredVersion = errors.New("version is lower than required")
 )
 
 func Version(verbose bool) string {
-	if verbose {
-		return version + " " + commit
+	result := strings.Builder{}
+	result.WriteString(version)
+
+	if dev == "true" {
+		result.WriteString("-dev")
 	}
 
-	return version
+	if verbose {
+		result.WriteString(" ")
+		result.WriteString(commit)
+	}
+
+	return result.String()
 }
 
 func Check(wanted, given string) error {

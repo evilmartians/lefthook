@@ -12,6 +12,7 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/cmdtest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/gittest"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
 
 func TestLefthookInstall(t *testing.T) {
@@ -333,8 +334,9 @@ remotes:
 				Cmd(cmdtest.NewOrdered(t, gitCmds)).
 				Build()
 			lefthook := &Lefthook{
-				fs:   fs,
-				repo: repo,
+				logger: loggertest.New(),
+				fs:     fs,
+				repo:   repo,
 			}
 
 			// Create configuration file
@@ -625,8 +627,9 @@ remotes:
 
 			repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Cmd(cmdtest.NewOrdered(t, gitCmds)).Build()
 			lefthook := &Lefthook{
-				fs:   fs,
-				repo: repo,
+				logger: loggertest.New(),
+				fs:     fs,
+				repo:   repo,
 			}
 
 			// Create configuration file
@@ -646,7 +649,7 @@ remotes:
 				assert.NoError(afero.WriteFile(fs, path, []byte(content), 0o755))
 			}
 
-			cfg, err := config.Load(lefthook.fs, repo)
+			cfg, err := config.NewLoader(repo, loggertest.New()).Load()
 			assert.NoError(err)
 
 			// Create hooks
@@ -743,8 +746,9 @@ remotes:
 		fs := afero.NewMemMapFs()
 		repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Build()
 		lefthook := &Lefthook{
-			fs:   fs,
-			repo: repo,
+			logger: loggertest.New(),
+			fs:     fs,
+			repo:   repo,
 		}
 
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
@@ -757,7 +761,7 @@ remotes:
 				assert.NoError(fs.Chtimes(configPath, timestamp, timestamp))
 			}
 
-			cfg, err := config.Load(lefthook.fs, repo)
+			cfg, err := config.NewLoader(repo, loggertest.New()).Load()
 			assert.NoError(err)
 
 			remote := cfg.Remotes[0]
@@ -928,8 +932,9 @@ pre-commit:
 				Cmd(cmdtest.NewOrdered(t, tt.git)).
 				Build()
 			lefthook := &Lefthook{
-				fs:   fs,
-				repo: repo,
+				logger: loggertest.New(),
+				fs:     fs,
+				repo:   repo,
 			}
 
 			// Create configuration file

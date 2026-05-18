@@ -87,9 +87,9 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 func (b *Builder) buildReplacer(params *JobParams) replacer.Replacer {
 	var r replacer.Replacer
 	if len(b.opts.ForceFiles) > 0 {
-		r = replacer.NewMocked(b.opts.ForceFiles)
+		r = replacer.NewMocked(b.logger, b.opts.ForceFiles)
 	} else {
-		r = replacer.New(b.git, params.Root, params.FilesCmd)
+		r = replacer.New(b.git, b.logger, params.Root, params.FilesCmd)
 	}
 
 	return r.
@@ -101,7 +101,7 @@ func (b *Builder) buildReplacer(params *JobParams) replacer.Replacer {
 }
 
 func (b *Builder) buildFilter(params *JobParams) *filter.Filter {
-	return filter.New(b.git.Fs, filter.Params{
+	return filter.New(b.git.Fs, b.logger, filter.Params{
 		Glob:         params.Glob,
 		ExcludeFiles: params.ExcludeFiles,
 		Root:         params.Root,

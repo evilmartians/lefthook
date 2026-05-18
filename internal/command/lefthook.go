@@ -17,8 +17,7 @@ import (
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/git"
-	"github.com/evilmartians/lefthook/v2/internal/log"
-	"github.com/evilmartians/lefthook/v2/internal/system"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/templates"
 )
 
@@ -33,59 +32,47 @@ const (
 )
 
 type Lefthook struct {
+	logger *logger.Logger
 	fs     afero.Fs
-	repo   *git.Repository
-	colors string
+	repo   *git.Repo
 }
 
 // NewLefthook returns an instance of Lefthook.
 func NewLefthook(verbose bool, colors string) (*Lefthook, error) {
-	fs := afero.NewOsFs()
-
-	if isEnvEnabled(EnvVerbose) {
-		verbose = true
-	}
-
-	if verbose {
-		log.SetLevel(log.DebugLevel)
-	}
-
+	l := logger.New(os.Stdout)
 	switch colors {
-	case "auto", "":
-		if isEnvEnabled(envClicolorForce) {
-			colors = "on"
-		}
-
-		if isEnvEnabled(envNoColor) {
-			colors = "off"
-		}
-	case "on":
-		// Try to overwrite the lipgloss ENV handling.
-		_ = os.Unsetenv(envNoColor)
-		_ = os.Unsetenv(envClicolor)
+	case "on", "yes", "true", "1":
+		l.EnableColors()
+	case "off", "no", "false", "0":
+		l.DisableColors()
 	}
 
-	log.SetColors(colors)
+	if verbose || isEnvEnabled(EnvVerbose) {
+		l.SetLevel(logger.LevelDebug)
+	}
 
-	repo, err := git.NewRepository(fs, git.NewExecutor(system.Cmd))
+	fs := afero.NewOsFs()
+	repo, err := git.NewRepo(fs, l)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Lefthook{fs: fs, repo: repo, colors: colors}, nil
+	return &Lefthook{
+		logger: l,
+		fs:     fs,
+		repo:   repo,
+	}, nil
 }
 
 func (l *Lefthook) LoadConfig() (*config.Config, error) {
-	cfg, err := config.Load(l.fs, l.repo)
-
-	// Reset colors
-	log.SetColors(l.colors)
-
-	return cfg, err
+	loader := config.NewLoader(l.repo, l.logger)
+	return loader.Load()
 }
 
 func (l *Lefthook) reloadConfig(cfg *config.Config) (*config.Config, error) {
-	log.Debug("Reloading config...")
+	l.logger.Debug("Reloading config...")
+
+	loader := config.NewLoader(l.repo, l.logger)
 
 	buffer := new(bytes.Buffer)
 	if err := cfg.Dump(config.JSONCompactFormat, buffer); err != nil {
@@ -97,12 +84,12 @@ func (l *Lefthook) reloadConfig(cfg *config.Config) (*config.Config, error) {
 		return nil, err
 	}
 
-	secondary, err := config.LoadSecondary(main, l.fs, l.repo)
+	secondary, err := loader.LoadSecondary(main)
 	if err != nil {
 		return nil, err
 	}
 
-	return config.Unmarshal(main, secondary)
+	return loader.Unmarshal(main, secondary)
 }
 
 // Tests a file whether it is a lefthook-created file.
@@ -113,7 +100,7 @@ func (l *Lefthook) isLefthookFile(path string) bool {
 	}
 	defer func() {
 		if cErr := file.Close(); cErr != nil {
-			log.Warnf("Could not close %s: %s", file.Name(), cErr)
+			l.logger.Warnf("Could not close %s: %s", file.Name(), cErr)
 		}
 	}()
 
@@ -125,7 +112,7 @@ func (l *Lefthook) isLefthookFile(path string) bool {
 		}
 	}
 	if err = scanner.Err(); err != nil {
-		log.Warnf("Could not read %s: %s", file.Name(), err)
+		l.logger.Warnf("Could not read %s: %s", file.Name(), err)
 	}
 
 	return false
@@ -154,7 +141,7 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 	}
 	if exists {
 		if force {
-			log.Infof("\nFile %s.old already exists, overwriting\n", hook)
+			l.logger.Infof("\nFile %s.old already exists, overwriting\n", hook)
 		} else {
 			return fmt.Errorf("can't rename %s to %s.old - file already exists", hook, hook)
 		}
@@ -165,7 +152,7 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 		return err
 	}
 
-	log.Infof("Renamed %s to %s.old\n", hookPath, hookPath)
+	l.logger.Infof("Renamed %s to %s.old\n", hookPath, hookPath)
 	return nil
 }
 

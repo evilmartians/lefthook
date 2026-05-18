@@ -8,7 +8,7 @@ import (
 	"github.com/kaptinlin/jsonschema"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
-	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 )
 
 type ValidateArgs struct {
@@ -16,7 +16,8 @@ type ValidateArgs struct {
 }
 
 func (l *Lefthook) Validate(_ctx context.Context, args ValidateArgs) error {
-	main, secondary, err := config.LoadKoanf(l.fs, l.repo)
+	loader := config.NewLoader(l.repo, l.logger)
+	main, secondary, err := loader.LoadKoanf()
 	if err != nil {
 		return err
 	}
@@ -30,7 +31,7 @@ func (l *Lefthook) Validate(_ctx context.Context, args ValidateArgs) error {
 	result := schema.Validate(main.Raw())
 	if !result.IsValid() {
 		details := result.ToList()
-		logValidationErrors(0, *details)
+		l.logValidationErrors(0, *details)
 
 		return errors.New("validation failed for main config")
 	}
@@ -38,32 +39,32 @@ func (l *Lefthook) Validate(_ctx context.Context, args ValidateArgs) error {
 	result = schema.Validate(secondary.Raw())
 	if !result.IsValid() {
 		details := result.ToList()
-		logValidationErrors(0, *details)
+		l.logValidationErrors(0, *details)
 
 		return errors.New("validation failed for secondary config")
 	}
 
-	log.Info("All good")
+	l.logger.Info("All good")
 	return nil
 }
 
-func logValidationErrors(indent int, details jsonschema.List) {
+func (l *Lefthook) logValidationErrors(indent int, details jsonschema.List) {
 	if details.Valid {
 		return
 	}
 
 	if len(details.InstanceLocation) > 0 {
-		logDetail(indent, details)
+		l.logDetail(indent, details)
 
 		indent += 2
 	}
 
 	for _, d := range details.Details {
-		logValidationErrors(indent, d)
+		l.logValidationErrors(indent, d)
 	}
 }
 
-func logDetail(indent int, details jsonschema.List) {
+func (l *Lefthook) logDetail(indent int, details jsonschema.List) {
 	var errors []string
 	if len(details.Errors) > 0 {
 		for _, err := range details.Errors {
@@ -71,17 +72,17 @@ func logDetail(indent int, details jsonschema.List) {
 		}
 	}
 
-	option := strings.Repeat(" ", indent) + strings.TrimLeft(details.InstanceLocation, "/") + ":"
+	option := strings.Repeat(" ", indent) + strings.TrimLeft(details.InstanceLocation, "/") + ": "
 
 	if len(errors) == 0 {
-		option = log.Gray(option)
+		option = l.logger.Paint(logger.ColorGray, option)
 	} else {
-		option = log.Yellow(option)
+		option = l.logger.Paint(logger.ColorYellow, option)
 	}
 
 	if len(details.Details) > 0 {
-		log.Info(option)
+		l.logger.Info(option)
 	} else {
-		log.Info(option, log.Red(strings.Join(errors, ",")))
+		l.logger.Info(option, l.logger.Paint(logger.ColorRed, strings.Join(errors, ",")))
 	}
 }

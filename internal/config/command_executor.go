@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
 // commandExecutor implements execution of a skip checks passed in a `run` option.
 type commandExecutor struct {
-	cmd system.Command
+	logger *logger.ExecutionLogger
+	cmd    system.Command
 }
 
 // cmd runs plain string command in a subshell returning the success of it.
@@ -21,7 +22,7 @@ func (c *commandExecutor) execute(commandLine string) bool {
 
 	sh, err := system.Sh()
 	if err != nil {
-		log.Errorf("`sh` executable not found: %s\n", err)
+		c.logger.Errorf("`sh` executable not found: %s\n", err)
 		return false
 	}
 
@@ -32,13 +33,15 @@ func (c *commandExecutor) execute(commandLine string) bool {
 
 	err = c.cmd.Run(args, "", system.NullReader, stdout, stderr)
 
-	b := log.Builder(log.DebugLevel, "[lefthook] ").
-		Add("run: ", strings.Join(args, " ")).
-		Add("out: ", stdout.String()).
-		Add("err: ", stderr.String())
+	b := logger.NewBuilder(c.logger).
+		WithPrefix("[lefthook] ").
+		WithLevel(logger.LevelDebug).
+		WriteLines("run: ", strings.Join(args, " ")).
+		WriteLines("out: ", stdout.String()).
+		WriteLines("err: ", stderr.String())
 
 	if err != nil {
-		b.Add("!:   ", err.Error())
+		b.WriteLines("!:   ", err.Error())
 	}
 
 	b.Log()

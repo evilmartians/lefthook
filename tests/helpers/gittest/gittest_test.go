@@ -7,7 +7,6 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/evilmartians/lefthook/v2/internal/git"
 	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
@@ -21,7 +20,6 @@ func TestBuilder(t *testing.T) {
 	assert.Equal(filepath.Join("root", ".git"), repo.GitPath)
 	assert.Equal(filepath.Join("root", ".git", "info"), repo.InfoPath)
 	assert.Equal(filepath.Join("root", ".git", "hooks"), repo.HooksPath)
-	assert.Equal(git.NewExecutor(cmd), repo.Git)
 	assert.Equal(fs, repo.Fs)
 }
 

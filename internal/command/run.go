@@ -12,7 +12,7 @@ import (
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/git"
-	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/run"
 	"github.com/evilmartians/lefthook/v2/internal/run/result"
 	"github.com/evilmartians/lefthook/v2/internal/version"
@@ -50,11 +50,11 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 		return nil
 	}
 
-	waitPrecompute := l.repo.Precompute()
+	waitPrecompute := l.repo.CacheGitCommands()
 	defer waitPrecompute()
 
 	if args.Verbose {
-		log.SetLevel(log.DebugLevel)
+		l.logger.SetLevel(logger.LevelDebug)
 	}
 
 	// Load config
@@ -62,7 +62,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	if err != nil {
 		var errNotFound config.ConfigNotFoundError
 		if ok := errors.As(err, &errNotFound); ok {
-			log.Warn(err.Error())
+			l.logger.Warn(err.Error())
 			return nil
 		}
 		return err
@@ -78,16 +78,15 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	_, ok := cfg.Hooks[args.Hook]
 	isGhostHook := args.Hook == config.GhostHookName && !ok && !args.Verbose
 	if isGhostHook {
-		log.SetLevel(log.WarnLevel)
+		l.logger.SetLevel(logger.LevelWarn)
 	}
 
 	enableLogTags := os.Getenv(envOutput)
 
-	log.InitSettings()
-	log.ApplySettings(enableLogTags, cfg.Output)
+	exLogger := l.logger.NewExecutionLogger(enableLogTags, cfg.Output)
 
-	if log.Settings.LogMeta() {
-		log.LogMeta(args.Hook)
+	if exLogger.Enabled(logger.LogMeta) {
+		exLogger.LogMeta(args.Hook)
 	}
 
 	if !args.NoAutoInstall && !cfg.NoAutoInstall {
@@ -95,7 +94,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 		var newCfg *config.Config
 		newCfg, err = l.syncHooks(cfg, !isGhostHook)
 		if err != nil {
-			log.Warnf(
+			l.logger.Warnf(
 				"⚠️  There was a problem with synchronizing git hooks. Run 'lefthook install' manually.\n   Error: %s", err,
 			)
 		} else {
@@ -103,7 +102,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 		}
 	}
 
-	hook, err := resolveHook(cfg, args.Hook)
+	hook, err := l.resolveHook(cfg, args.Hook)
 	if err != nil {
 		return err
 	}
@@ -132,7 +131,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	hook.Scripts = nil
 	args.RunOnlyJobs = append(args.RunOnlyJobs, args.RunOnlyCommands...)
 
-	return runHook(ctx, hook, l.repo, run.Options{
+	return l.runHook(ctx, hook, l.repo, exLogger, run.Options{
 		DisableTTY:        cfg.NoTTY || args.NoTTY,
 		SkipLFS:           cfg.SkipLFS || args.SkipLFS,
 		Templates:         cfg.Templates,
@@ -150,11 +149,11 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	})
 }
 
-func resolveHook(cfg *config.Config, hookName string) (*config.Hook, error) {
+func (l *Lefthook) resolveHook(cfg *config.Config, hookName string) (*config.Hook, error) {
 	hook, ok := cfg.Hooks[hookName]
 	if !ok {
 		if config.KnownHook(hookName) {
-			log.Debugf("[lefthook] skip: Hook %s doesn't exist in the config", hookName)
+			l.logger.Debugf("[lefthook] skip: Hook %s doesn't exist in the config", hookName)
 			return nil, nil
 		}
 		return nil, fmt.Errorf("hook %s doesn't exist in the config", hookName)
@@ -167,7 +166,7 @@ func resolveHook(cfg *config.Config, hookName string) (*config.Hook, error) {
 	return hook, nil
 }
 
-func getFiles(repo *git.Repository, args RunArgs) ([]string, error) {
+func getFiles(repo *git.Repo, args RunArgs) ([]string, error) {
 	if args.FilesFromStdin {
 		paths, err := io.ReadAll(os.Stdin)
 		if err != nil {
@@ -185,7 +184,7 @@ func getFiles(repo *git.Repository, args RunArgs) ([]string, error) {
 	return args.Files, nil
 }
 
-func getSourceDirs(repo *git.Repository, cfg *config.Config) []string {
+func getSourceDirs(repo *git.Repo, cfg *config.Config) []string {
 	sourceDirs := []string{
 		filepath.Join(repo.RootPath, cfg.SourceDir),
 		filepath.Join(repo.RootPath, cfg.SourceDirLocal),
@@ -244,12 +243,18 @@ func shouldFailOnChangesDiff(fromArg *bool, fromHook *bool) bool {
 	return ok
 }
 
-func runHook(ctx context.Context, hook *config.Hook, repo *git.Repository, opts run.Options) error {
+func (l *Lefthook) runHook(
+	ctx context.Context,
+	hook *config.Hook,
+	repo *git.Repo,
+	exLogger *logger.ExecutionLogger,
+	opts run.Options,
+) error {
 	ctx, stop := signal.NotifyContext(ctx, os.Interrupt)
 	defer stop()
 
 	startTime := time.Now()
-	results, err := run.Run(ctx, hook, repo, opts)
+	results, err := run.Run(ctx, hook, repo, exLogger, opts)
 	if err != nil {
 		var failOnChangesErr *run.FailOnChangesError
 		if errors.As(err, &failOnChangesErr) {
@@ -262,7 +267,7 @@ func runHook(ctx context.Context, hook *config.Hook, repo *git.Repository, opts 
 		return errors.New("Interrupted")
 	}
 
-	printSummary(time.Since(startTime), results)
+	l.logSummary(exLogger, time.Since(startTime), results)
 
 	for _, result := range results {
 		if result.Failure() {
@@ -273,64 +278,61 @@ func runHook(ctx context.Context, hook *config.Hook, repo *git.Repository, opts 
 	return nil
 }
 
-func printSummary(
+func (l *Lefthook) logSummary(
+	exLogger *logger.ExecutionLogger,
 	duration time.Duration,
 	results []result.Result,
 ) {
-	if log.Settings.LogSummary() {
-		summaryPrint := log.Separate
-
-		if !log.Settings.LogExecution() {
-			summaryPrint = func(s string) { log.Info(s) }
+	if exLogger.Enabled(logger.LogSummary) {
+		if exLogger.Enabled(logger.LogExecution) {
+			exLogger.LogSeparator()
 		}
 
 		if len(results) == 0 {
-			if log.Settings.LogEmptySummary() {
-				summaryPrint(
-					fmt.Sprintf(
-						"%s %s %s",
-						log.Cyan("summary:"),
-						log.Gray("(skip)"),
-						log.Yellow("empty"),
-					),
+			if exLogger.Enabled(logger.LogEmptySummary) {
+				exLogger.Infof(
+					"%s %s %s",
+					l.logger.Paint(logger.ColorCyan, "summary:"),
+					l.logger.Paint(logger.ColorGray, "(skip)"),
+					l.logger.Paint(logger.ColorYellow, "empty"),
 				)
 			}
 			return
 		}
 
-		summaryPrint(
-			log.Cyan("summary: ") + log.Gray(fmt.Sprintf("(done in %.2f seconds)", duration.Seconds())),
+		exLogger.Info(
+			l.logger.Paint(logger.ColorCyan, "summary: ") + l.logger.Paint(logger.ColorGray, fmt.Sprintf("(done in %.2f seconds)", duration.Seconds())),
 		)
 	}
 
-	logResults(0, results)
+	logResults(0, exLogger, results)
 }
 
-func logResults(indent int, results []result.Result) {
-	if log.Settings.LogSuccess() {
+func logResults(indent int, exLogger *logger.ExecutionLogger, results []result.Result) {
+	if exLogger.Enabled(logger.LogSuccess) {
 		for _, result := range results {
 			if !result.Success() {
 				continue
 			}
 
-			log.Success(indent, result.Name, result.Duration)
+			exLogger.LogSuccess(indent, result.Name, result.Duration)
 
 			if len(result.Sub) > 0 {
-				logResults(indent+1, result.Sub)
+				logResults(indent+1, exLogger, result.Sub)
 			}
 		}
 	}
 
-	if log.Settings.LogFailure() {
+	if exLogger.Enabled(logger.LogFailure) {
 		for _, result := range results {
 			if !result.Failure() {
 				continue
 			}
 
-			log.Failure(indent, result.Name, result.Text(), result.Duration)
+			exLogger.LogFailure(indent, result.Name, result.Text(), result.Duration)
 
 			if len(result.Sub) > 0 {
-				logResults(indent+1, result.Sub)
+				logResults(indent+1, exLogger, result.Sub)
 			}
 		}
 	}

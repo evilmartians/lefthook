@@ -32,7 +32,7 @@ builds:
     flags:
       - -trimpath
     ldflags:
-      - -s -w -X github.com/evilmartians/lefthook/internal/version.commit={{.Commit}}
+      - -s -w -X github.com/evilmartians/lefthook/v2/internal/version.commit={{.Commit}}
 
   # Full lefthook binary
   - id: lefthook

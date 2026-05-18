@@ -6,8 +6,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-
-	"github.com/evilmartians/lefthook/v2/internal/log"
 )
 
 type State struct {
@@ -26,11 +24,11 @@ var (
 	cmdParentCommits = []string{"git", "show", "--no-patch", `--format="%P"`}
 )
 
-func (r *Repository) State() State {
+func (r *Repo) State() State {
 	return r.stateOnce()
 }
 
-func (r *Repository) state() State {
+func (r *Repo) state() State {
 	var state State
 
 	branch := r.branch()
@@ -64,7 +62,7 @@ func (r *Repository) state() State {
 	return state
 }
 
-func (r *Repository) branch() string {
+func (r *Repo) branch() string {
 	headFile := filepath.Join(r.GitPath, "HEAD")
 	if _, err := r.Fs.Stat(headFile); os.IsNotExist(err) {
 		return ""
@@ -75,9 +73,7 @@ func (r *Repository) branch() string {
 		return ""
 	}
 	defer func() {
-		if cErr := file.Close(); cErr != nil {
-			log.Warnf("Could not close %s: %s", headFile, cErr)
-		}
+		_ = file.Close()
 	}()
 
 	scanner := bufio.NewScanner(file)
@@ -89,21 +85,18 @@ func (r *Repository) branch() string {
 			return match[1]
 		}
 	}
-	if err = scanner.Err(); err != nil {
-		log.Warnf("Could not read %s: %s", file.Name(), err)
-	}
 
 	return ""
 }
 
-func (r *Repository) inMergeState() bool {
+func (r *Repo) inMergeState() bool {
 	if _, err := r.Fs.Stat(filepath.Join(r.GitPath, "MERGE_HEAD")); os.IsNotExist(err) {
 		return false
 	}
 	return true
 }
 
-func (r *Repository) inRebaseState() bool {
+func (r *Repo) inRebaseState() bool {
 	if _, mergeErr := r.Fs.Stat(filepath.Join(r.GitPath, "rebase-merge")); os.IsNotExist(mergeErr) {
 		if _, applyErr := r.Fs.Stat(filepath.Join(r.GitPath, "rebase-apply")); os.IsNotExist(applyErr) {
 			return false
@@ -113,7 +106,7 @@ func (r *Repository) inRebaseState() bool {
 	return true
 }
 
-func (r *Repository) inMergeCommitState() bool {
+func (r *Repo) inMergeCommitState() bool {
 	parents, err := r.Git.Cmd(cmdParentCommits)
 	if err != nil {
 		return false

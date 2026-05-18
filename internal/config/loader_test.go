@@ -10,10 +10,11 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/evilmartians/lefthook/v2/tests/helpers/gittest"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
 
 //gocyclo:ignore
-func TestLoad(t *testing.T) {
+func TestLoader(t *testing.T) {
 	root, err := filepath.Abs("")
 	assert.NoError(t, err)
 
@@ -1067,7 +1068,7 @@ pre-commit:
 
 			t.Setenv("LEFTHOOK_CONFIG", tt.pathOverride)
 
-			result, err := Load(fs.Fs, repo)
+			result, err := NewLoader(repo, loggertest.New()).Load()
 			assert.NoError(err)
 			assert.Equal(tt.result, result)
 		})
@@ -1119,12 +1120,13 @@ run = "echo 1"
 
 		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
 			assert := assert.New(t)
+			loader := NewLoader(repo, loggertest.New())
 
 			// YAML
 			yamlConfig := filepath.Join(root, "lefthook.yml")
 			assert.NoError(fs.WriteFile(yamlConfig, []byte(tt.yaml), 0o644))
 
-			result, err := Load(fs.Fs, repo)
+			result, err := loader.Load()
 			assert.NoError(err)
 			assert.Equal(result, tt.result)
 
@@ -1134,7 +1136,7 @@ run = "echo 1"
 			jsonConfig := filepath.Join(root, "lefthook.json")
 			assert.NoError(fs.WriteFile(jsonConfig, []byte(tt.json), 0o644))
 
-			result, err = Load(fs.Fs, repo)
+			result, err = loader.Load()
 			assert.NoError(err)
 			assert.Equal(result, tt.result)
 
@@ -1144,7 +1146,7 @@ run = "echo 1"
 			tomlConfig := filepath.Join(root, "lefthook.toml")
 			assert.NoError(fs.WriteFile(tomlConfig, []byte(tt.toml), 0o644))
 
-			result, err = Load(fs.Fs, repo)
+			result, err = loader.Load()
 			assert.NoError(err)
 			assert.Equal(result, tt.result)
 
@@ -1278,7 +1280,7 @@ pre-commit:
 				assert.NoError(fs.WriteFile(remote.RemoteConfigPath, []byte(remote.Content), 0o644))
 			}
 
-			result, err := Load(fs.Fs, repo)
+			result, err := NewLoader(repo, loggertest.New()).Load()
 			assert.NoError(err)
 			assert.Equal(result, tt.result)
 		})

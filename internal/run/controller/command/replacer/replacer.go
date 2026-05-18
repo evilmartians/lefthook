@@ -11,7 +11,7 @@ import (
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/git"
-	"github.com/evilmartians/lefthook/v2/internal/log"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/filter"
 )
 
@@ -23,13 +23,15 @@ type entry struct {
 }
 
 type Replacer struct {
+	logger    *logger.ExecutionLogger
 	cache     map[string]*entry
 	files     map[string]func() ([]string, error)
 	templates map[string]string
 }
 
 func New(
-	git *git.Repository,
+	git *git.Repo,
+	logger *logger.ExecutionLogger,
 	root string,
 	filesCmd string,
 ) Replacer {
@@ -49,7 +51,8 @@ func New(
 	)
 
 	return Replacer{
-		cache: make(map[string]*entry),
+		logger: logger,
+		cache:  make(map[string]*entry),
 		files: map[string]func() ([]string, error){
 			config.SubStagedFiles: staged,
 			config.SubPushFiles:   push,
@@ -84,11 +87,12 @@ func (r Replacer) AddGitArgs(args []string) Replacer {
 	return r
 }
 
-func NewMocked(files []string) Replacer {
+func NewMocked(logger *logger.ExecutionLogger, files []string) Replacer {
 	forceFilesFn := func() ([]string, error) { return files, nil } //nolint:unparam
 
 	return Replacer{
-		cache: make(map[string]*entry),
+		logger: logger,
+		cache:  make(map[string]*entry),
 		files: map[string]func() ([]string, error){
 			config.SubStagedFiles: forceFilesFn,
 			config.SubPushFiles:   forceFilesFn,
@@ -193,7 +197,7 @@ func (r Replacer) ReplaceAndSplit(command string, maxlen int) ([]string, []strin
 		if _, ok := r.files[template]; ok {
 			allFiles = append(allFiles, entry.items...)
 			// Only escape file templates, not custom templates
-			entry.items = escapeFiles(entry.items)
+			entry.items = r.escapeFiles(entry.items)
 		}
 	}
 
@@ -217,7 +221,7 @@ func (r Replacer) ReplaceAndSplit(command string, maxlen int) ([]string, []strin
 			result = replaceQuoted(result, template, added)
 		}
 
-		log.Debug("[lefthook] job: ", result)
+		r.logger.Debug("[lefthook] job: ", result)
 		commands = append(commands, result)
 		if exhausted >= len(r.cache) {
 			break
@@ -228,7 +232,7 @@ func (r Replacer) ReplaceAndSplit(command string, maxlen int) ([]string, []strin
 }
 
 // Escape file names to prevent unexpected bugs.
-func escapeFiles(files []string) []string {
+func (r Replacer) escapeFiles(files []string) []string {
 	var filesEsc []string
 	for _, fileName := range files {
 		if len(fileName) > 0 {
@@ -236,8 +240,10 @@ func escapeFiles(files []string) []string {
 		}
 	}
 
-	log.Builder(log.DebugLevel, "[lefthook] ").
-		Add("files after escaping: ", filesEsc).
+	logger.NewBuilder(r.logger).
+		WithPrefix("[lefthook] ").
+		WithLevel(logger.LevelDebug).
+		WriteLines("files after escaping: ", filesEsc).
 		Log()
 
 	return filesEsc
