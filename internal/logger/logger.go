@@ -103,7 +103,7 @@ func (l *Logger) log(level Level, args ...any) {
 	case LevelError:
 		strArgs := make([]string, 0, len(args))
 		for _, arg := range args {
-			strArgs = append(strArgs, fmt.Sprintf("%v", arg))
+			strArgs = append(strArgs, l.Paint(ColorRed, fmt.Sprintf("%v", arg)))
 		}
 
 		message = border.BorderForeground(l.colors.get(ColorRed)).Render(strArgs...)

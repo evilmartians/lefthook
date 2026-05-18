@@ -63,7 +63,7 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 
 	partiallyStagedFiles, err := g.git.PartiallyStagedFiles()
 	if err != nil {
-		g.logger.Warnf("Couldn't find partially staged files: %s\n", err)
+		g.logger.Warnf("Failed to find partially staged files: %s\n", err)
 		return err
 	}
 
@@ -73,13 +73,8 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 
 	g.logger.Debug("[lefthook] saving partially staged files")
 
-	if err := g.git.SaveUnstaged(partiallyStagedFiles); err != nil {
-		g.logger.Warnf("Couldn't save unstaged changes: %s\n", err)
-		return err
-	}
-
-	if err := g.git.StashUnstaged(); err != nil {
-		g.logger.Warnf("Couldn't stash partially staged files: %s\n", err)
+	if err := g.git.SaveUnstagedChanges(partiallyStagedFiles); err != nil {
+		g.logger.Warnf("Failed to save unstaged changes: %s\n", err)
 		return err
 	}
 
@@ -90,28 +85,25 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 		Log()
 
 	if err := g.git.RevertUnstagedChanges(partiallyStagedFiles); err != nil {
-		g.logger.Warnf("Couldn't hide unstaged files: %s\n", err)
+		g.logger.Warnf("Failed to hide unstaged files: %s\n", err)
 		return err
 	}
+
+	defer func() {
+		if err := g.git.RestoreUnstagedChanges(); err != nil {
+			g.logger.Warnf("Failed to restore unstaged files: %s\n", err)
+			return
+		}
+	}()
 
 	wrappedErr := fn()
 
 	var failOnChangesErr *FailOnChangesError
 	if errors.As(wrappedErr, &failOnChangesErr) {
 		if err := g.git.RevertUnstagedChanges(failOnChangesErr.changedFiles); err != nil {
-			g.logger.Warnf("Couldn't hide unstaged files: %s\n", err)
+			g.logger.Warnf("Failed to hide unstaged files: %s\n", err)
 			return wrappedErr
 		}
-	}
-
-	if err := g.git.RestoreUnstaged(); err != nil {
-		g.logger.Warnf("Couldn't restore unstaged files: %s\n", err)
-		return wrappedErr
-	}
-
-	if err := g.git.DropUnstagedStash(); err != nil {
-		g.logger.Warnf("Couldn't remove unstaged files backup: %s\n", err)
-		return wrappedErr
 	}
 
 	return wrappedErr
@@ -125,14 +117,14 @@ func (g *guard) withFailOnChanges(fn func()) error {
 
 	changesetBefore, err := g.git.Changeset()
 	if err != nil {
-		return fmt.Errorf("couldn't calculate changeset: %w", err)
+		return fmt.Errorf("changeset calculation failed: %w", err)
 	}
 
 	fn()
 
 	changesetAfter, err := g.git.Changeset()
 	if err != nil {
-		return fmt.Errorf("couldn't calculate changeset: %w", err)
+		return fmt.Errorf("changeset calculation failed: %w", err)
 	}
 	if !maps.Equal(changesetBefore, changesetAfter) {
 		changedFiles := g.printDiff(changesetBefore, changesetAfter)
