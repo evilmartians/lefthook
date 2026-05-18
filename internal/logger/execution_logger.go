@@ -110,7 +110,7 @@ func (el *ExecutionLogger) LogSeparator() {
 	el.log(LevelInfo,
 		lipgloss.NewStyle().
 			BorderStyle(lipgloss.NormalBorder()).
-			BorderBottom(true).
+			BorderTop(true).
 			BorderForeground(colorBorder).
 			Width(separatorWidth).
 			MarginLeft(separatorMargin).

@@ -1,6 +1,10 @@
 assert_lefthook_installed: true
 skip_lfs: true
 
+colors:
+  cyan: "4"
+  green: "4"
+
 output:
   - meta
   - summary

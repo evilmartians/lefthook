@@ -284,7 +284,7 @@ func (l *Lefthook) logSummary(
 	results []result.Result,
 ) {
 	if exLogger.Enabled(logger.LogSummary) {
-		if !exLogger.Enabled(logger.LogExecution) {
+		if exLogger.Enabled(logger.LogExecution) {
 			exLogger.LogSeparator()
 		}
 
