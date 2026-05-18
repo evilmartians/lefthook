@@ -252,7 +252,33 @@ func (r *Repo) PartiallyStagedFiles() ([]string, error) {
 	return partiallyStaged, nil
 }
 
-func (r *Repo) SaveUnstaged(files []string) error {
+func (r *Repo) SaveUnstagedChanges(files []string) error {
+	stashHash, err := r.Git.Cmd(cmdCreateStash)
+	if err != nil {
+		return err
+	}
+
+	if err = r.saveUnstaged(files); err != nil {
+		return err
+	}
+
+	_, err = r.Git.Cmd([]string{
+		"git",
+		"stash",
+		"store",
+		"--quiet",
+		"--message",
+		stashMessage,
+		stashHash,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Repo) saveUnstaged(files []string) error {
 	_, err := r.Git.BatchedCmd(
 		[]string{
 			"git",
@@ -279,7 +305,7 @@ func (r *Repo) RevertUnstagedChanges(files []string) error {
 	return err
 }
 
-func (r *Repo) RestoreUnstaged() error {
+func (r *Repo) RestoreUnstagedChanges() error {
 	if ok, _ := afero.Exists(r.Fs, r.unstagedPatchPath); !ok {
 		return nil
 	}
@@ -292,7 +318,7 @@ func (r *Repo) RestoreUnstaged() error {
 	if stat.Size() == 0 {
 		err = r.Fs.Remove(r.unstagedPatchPath)
 		if err != nil {
-			return fmt.Errorf("couldn't remove the patch %s: %w", r.unstagedPatchPath, err)
+			return fmt.Errorf("failed to remove the patch %s: %w", r.unstagedPatchPath, err)
 		}
 
 		return nil
@@ -309,40 +335,22 @@ func (r *Repo) RestoreUnstaged() error {
 		r.unstagedPatchPath,
 	})
 	if err != nil {
-		return fmt.Errorf("couldn't apply the patch %s: %w", r.unstagedPatchPath, err)
+		return fmt.Errorf("failed to apply the patch %s: %w", r.unstagedPatchPath, err)
 	}
 
 	err = r.Fs.Remove(r.unstagedPatchPath)
 	if err != nil {
-		return fmt.Errorf("couldn't remove the patch %s: %w", r.unstagedPatchPath, err)
+		return fmt.Errorf("failed to remove the patch %s: %w", r.unstagedPatchPath, err)
+	}
+
+	if err = r.dropUnstagedStash(); err != nil {
+		return fmt.Errorf("failed to remove unstaged files backup: %w", err)
 	}
 
 	return nil
 }
 
-func (r *Repo) StashUnstaged() error {
-	stashHash, err := r.Git.Cmd(cmdCreateStash)
-	if err != nil {
-		return err
-	}
-
-	_, err = r.Git.Cmd([]string{
-		"git",
-		"stash",
-		"store",
-		"--quiet",
-		"--message",
-		stashMessage,
-		stashHash,
-	})
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (r *Repo) DropUnstagedStash() error {
+func (r *Repo) dropUnstagedStash() error {
 	lines, err := r.Git.CmdLines(cmdListStash)
 	if err != nil {
 		return err
@@ -437,7 +445,7 @@ func (r *Repo) PrintDiff(files []string) {
 	diffCmd = append(diffCmd, "--")
 	diff, err := r.Git.BatchedCmd(diffCmd, files)
 	if err != nil {
-		r.logger.Warnf("Couldn't diff changed files: %s", err)
+		r.logger.Warnf("Failed to diff changed files: %s", err)
 		return
 	}
 
