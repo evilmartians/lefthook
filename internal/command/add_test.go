@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/evilmartians/lefthook/v2/internal/git"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/gittest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
 
@@ -18,7 +18,6 @@ func TestLefthookAdd(t *testing.T) {
 	}
 
 	configPath := filepath.Join(root, "lefthook.yml")
-	hooksPath := filepath.Join(root, ".git", "hooks")
 
 	hookPath := func(hook string) string {
 		return filepath.Join(root, ".git", "hooks", hook)
@@ -127,14 +126,12 @@ source_dir_local: .source_dir_local
 	} {
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			fs := afero.NewMemMapFs()
+			logger := loggertest.New()
+			repo := gittest.NewRepositoryBuilder().Fs(fs).Root(root).Build()
 			lefthook := &Lefthook{
-				logger: loggertest.New(),
+				logger: logger,
 				fs:     fs,
-				repo: &git.Repo{
-					Fs:        fs,
-					HooksPath: hooksPath,
-					RootPath:  root,
-				},
+				repo:   repo,
 			}
 
 			if len(tt.config) > 0 {
