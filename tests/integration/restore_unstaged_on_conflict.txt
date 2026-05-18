@@ -29,8 +29,8 @@ stderr '\s*conflict while merging unstaged changes\s*'
 -- lefthook.yml --
 pre-commit:
   jobs:
-    - run: sed -i '' 's/lineStaged/line42/' a.txt
-    - run: sed -i '' 's/lineCommited/line42/' b.txt
+    - run: echo "line1\nline42\nline3\n" > a.txt
+    - run: echo "line1\nline42\nline3\n" > b.txt
 
 -- a.txt --
 line1
