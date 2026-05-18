@@ -20,8 +20,9 @@ func (e *FailOnChangesError) Error() string {
 }
 
 type guard struct {
-	git    *git.Repo
-	logger *logger.ExecutionLogger
+	git             *git.Repo
+	logger          *logger.ExecutionLogger
+	stageFixedFiles *stageFixedFiles
 
 	stashUnstagedChanges bool
 	failOnChanges        bool
@@ -31,6 +32,7 @@ type guard struct {
 func newGuard(
 	repo *git.Repo,
 	logger *logger.ExecutionLogger,
+	stageFixedFiles *stageFixedFiles,
 	stashUnstagedChanges bool,
 	failOnChanges bool,
 	failOnChangesDiff bool,
@@ -39,6 +41,7 @@ func newGuard(
 		git:                  repo,
 		logger:               logger,
 		stashUnstagedChanges: stashUnstagedChanges,
+		stageFixedFiles:      stageFixedFiles,
 		failOnChanges:        failOnChanges,
 		failOnChangesDiff:    failOnChangesDiff,
 	}
@@ -70,7 +73,13 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 	}
 
 	if len(partiallyStagedFiles) == 0 {
-		return fn()
+		resErr := fn()
+
+		if err := g.git.AddFiles(g.stageFixedFiles.Files()); err != nil {
+			g.logger.Warn("Couldn't stage fixed files:", err)
+		}
+
+		return resErr
 	}
 
 	g.logger.Debug("[lefthook] saving partially staged files")
@@ -101,7 +110,11 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 		}
 	}
 
-	if !g.git.CanRestoreUnstagedChanges() {
+	if g.git.CanRestoreUnstagedChanges() {
+		if err := g.git.AddFiles(g.stageFixedFiles.Files()); err != nil {
+			g.logger.Warn("Couldn't stage fixed files:", err)
+		}
+	} else {
 		if wrappedErr != nil {
 			g.logger.Error("Error: ", wrappedErr)
 		}

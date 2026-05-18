@@ -469,8 +469,7 @@ func TestRunAll(t *testing.T) {
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
-				"git add --force -- .*script.sh.*README.md",
-				"git add --force -- .*script.sh.*README.md",
+				"git add --force -- (.*README.md.*script.sh|.*script.sh.*README.md)",
 			},
 		},
 		"with pre-commit skip": {
@@ -495,8 +494,8 @@ func TestRunAll(t *testing.T) {
 			gitCommands: []string{
 				"git status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
-				"git add --force -- .*README.md",
 				"git diff --name-only --cached --diff-filter=ACMRD",
+				"git add --force -- .*README.md",
 			},
 		},
 		"with pre-commit skip but forced": {
@@ -610,10 +609,11 @@ func TestRunAll(t *testing.T) {
 			Fs(fs).
 			Build()
 		controller := &Controller{
-			logger:   loggertest.NewExecution(),
-			git:      repo,
-			executor: executor{},
-			cmd:      cmdtest.NewTracking(nil), // lfs hooks ignored in this test
+			logger:          loggertest.NewExecution(),
+			stageFixedFiles: newStageFixedFiles(),
+			git:             repo,
+			executor:        executor{},
+			cmd:             cmdtest.NewTracking(nil), // lfs hooks ignored in this test
 		}
 		cmdExecutor.Reset()
 

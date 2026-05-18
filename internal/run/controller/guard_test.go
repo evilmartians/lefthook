@@ -195,7 +195,14 @@ func Test_guard_wrap(t *testing.T) {
 				Root("root").
 				Build()
 			repo.ResetCache()
-			g := newGuard(repo, loggertest.NewExecution(), tt.stashUnstagedChanges, tt.failOnChanges, tt.failOnChangesDiff)
+			g := newGuard(
+				repo,
+				loggertest.NewExecution(),
+				newStageFixedFiles(),
+				tt.stashUnstagedChanges,
+				tt.failOnChanges,
+				tt.failOnChangesDiff,
+			)
 
 			var beenCalled bool
 			err := g.wrap(func() { beenCalled = true })
