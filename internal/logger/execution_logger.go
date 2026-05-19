@@ -95,7 +95,7 @@ func (el *ExecutionLogger) LogSkipped(name, reason string) {
 	el.Info(
 		lipgloss.NewStyle().
 			BorderLeft(true).
-			BorderStyle(lipgloss.ThickBorder()).
+			BorderStyle(lipgloss.NormalBorder()).
 			BorderForeground(el.Logger.colors.get(ColorCyan)).
 			PaddingLeft(padding).
 			Render(
@@ -109,12 +109,8 @@ func (el *ExecutionLogger) LogSkipped(name, reason string) {
 func (el *ExecutionLogger) LogSeparator() {
 	el.log(LevelInfo,
 		lipgloss.NewStyle().
-			BorderStyle(lipgloss.NormalBorder()).
-			BorderTop(true).
-			BorderForeground(colorBorder).
-			Width(separatorWidth).
-			MarginLeft(separatorMargin).
-			Render(""),
+			Foreground(colorBorder).
+			Render("  "+strings.Repeat("─", separatorWidth)),
 	)
 }
 
@@ -156,7 +152,7 @@ func (el *ExecutionLogger) LogExecution(name string, err error, out io.Reader) {
 	}
 
 	if err != nil {
-		el.Infof("%s", err)
+		el.Info(el.Paint(ColorRed, err.Error()))
 	}
 }
 
