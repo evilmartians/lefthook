@@ -48,7 +48,7 @@ var DefaultColors ColorsSetting = ColorsSetting{
 		ColorGray:   complete(lipgloss.Color("8"), lipgloss.Color("102"), lipgloss.Color("#878787")),
 		ColorGreen:  complete(lipgloss.Color("2"), lipgloss.Color("34"), lipgloss.Color("#00AF00")),
 		ColorRed:    complete(lipgloss.Color("9"), lipgloss.Color("203"), lipgloss.Color("#FF5F5F")),
-		ColorYellow: complete(lipgloss.Color("11"), lipgloss.Color("220"), lipgloss.Color("#FFD700")),
+		ColorYellow: complete(lipgloss.Color("3"), lipgloss.Color("3"), lipgloss.Color("#808000")),
 	},
 }
 
@@ -64,6 +64,10 @@ var NoColors ColorsSetting = ColorsSetting{
 }
 
 func (l *Logger) SetColors(colors map[Color]color.Color) {
+	if l.colorsForced {
+		return
+	}
+
 	for color, existingValue := range l.colors.colors {
 		if _, ok := colors[color]; !ok {
 			colors[color] = existingValue
@@ -74,14 +78,25 @@ func (l *Logger) SetColors(colors map[Color]color.Color) {
 		kind:   colorsCustom,
 		colors: colors,
 	}
+	l.colorsForced = true
 }
 
 func (l *Logger) EnableColors() {
+	if l.colorsForced {
+		return
+	}
+
 	l.colors = DefaultColors
+	l.colorsForced = true
 }
 
 func (l *Logger) DisableColors() {
+	if l.colorsForced {
+		return
+	}
+
 	l.colors = NoColors
+	l.colorsForced = true
 }
 
 func (l *Logger) Paint(color Color, s string) string {

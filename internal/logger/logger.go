@@ -32,10 +32,11 @@ var border = lipgloss.NewStyle().
 	PaddingLeft(2) //nolint:mnd
 
 type Logger struct {
-	mu     sync.Mutex
-	level  Level
-	out    io.Writer
-	colors ColorsSetting
+	mu           sync.Mutex
+	level        Level
+	out          io.Writer
+	colors       ColorsSetting
+	colorsForced bool
 
 	Spinner *Spinner
 }
