@@ -48,7 +48,7 @@ var DefaultColors ColorsSetting = ColorsSetting{
 		ColorGray:   complete(lipgloss.Color("8"), lipgloss.Color("102"), lipgloss.Color("#878787")),
 		ColorGreen:  complete(lipgloss.Color("2"), lipgloss.Color("34"), lipgloss.Color("#00AF00")),
 		ColorRed:    complete(lipgloss.Color("9"), lipgloss.Color("203"), lipgloss.Color("#FF5F5F")),
-		ColorYellow: complete(lipgloss.Color("11"), lipgloss.Color("220"), lipgloss.Color("#FFD700")),
+		ColorYellow: complete(lipgloss.Color("3"), lipgloss.Color("3"), lipgloss.Color("#808000")),
 	},
 }
 

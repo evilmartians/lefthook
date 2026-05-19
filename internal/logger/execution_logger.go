@@ -99,7 +99,7 @@ func (el *ExecutionLogger) LogSkipped(name, reason string) {
 			BorderForeground(el.Logger.colors.get(ColorCyan)).
 			PaddingLeft(padding).
 			Render(
-				el.Paint(ColorCyan, lipgloss.NewStyle().Bold(true).Render(name)) + " " +
+				el.Paint(ColorCyan, name) + " " +
 					el.Paint(ColorGray, "(skip)") + " " +
 					el.Paint(ColorYellow, reason),
 			),
@@ -172,7 +172,7 @@ func (el *ExecutionLogger) LogSetup(r io.Reader) {
 				BorderStyle(lipgloss.ThickBorder()).
 				BorderLeft(true).
 				BorderForeground(el.Logger.colors.get(ColorYellow)).
-				Padding(padding).
+				PaddingLeft(padding).
 				Render(el.Paint(ColorYellow, "setup ❯ ")),
 		)
 
