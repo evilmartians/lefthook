@@ -1,5 +1,15 @@
 # Change log
 
+## 2.1.7 (2026-05-19)
+
+- fix: use contrast colors ([#1420](https://github.com/evilmartians/lefthook/pull/1420)) by [@mrexox]()
+- fix: apply stage_fixed only if it is safe ([#1418](https://github.com/evilmartians/lefthook/pull/1418)) by [@mrexox]()
+- fix: try to always restore unstaged changes ([#1417](https://github.com/evilmartians/lefthook/pull/1417)) by [@mrexox]()
+- fix: always restore unstaged changes ([#1416](https://github.com/evilmartians/lefthook/pull/1416)) by [@mrexox]()
+- refactor: add new logger without a global state ([#1385](https://github.com/evilmartians/lefthook/pull/1385)) by [@mrexox]()
+- fix: linter, sacrifice optimization for readability by [@mrexox]()
+- fix: separate fallback push branch from pathspecs ([#1396](https://github.com/evilmartians/lefthook/pull/1396)) by [@lawrence3699]()
+
 ## 2.1.6 (2026-04-16)
 
 - fix: normalize lefthook path for sh script ([#1383](https://github.com/evilmartians/lefthook/pull/1383)) by [@AndrewKahr](https://github.com/AndrewKahr)
@@ -1196,3 +1206,4 @@ gem 'lefthook'
 [@jeonghoon11]: https://github.com/jeonghoon11
 [@supitsdu]: https://github.com/supitsdu
 [@ivy]: https://github.com/ivy
+[@lawrence3699]: https://github.com/lawrence3699
