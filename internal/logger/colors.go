@@ -64,6 +64,10 @@ var NoColors ColorsSetting = ColorsSetting{
 }
 
 func (l *Logger) SetColors(colors map[Color]color.Color) {
+	if l.colorsForced {
+		return
+	}
+
 	for color, existingValue := range l.colors.colors {
 		if _, ok := colors[color]; !ok {
 			colors[color] = existingValue
@@ -74,14 +78,25 @@ func (l *Logger) SetColors(colors map[Color]color.Color) {
 		kind:   colorsCustom,
 		colors: colors,
 	}
+	l.colorsForced = true
 }
 
 func (l *Logger) EnableColors() {
+	if l.colorsForced {
+		return
+	}
+
 	l.colors = DefaultColors
+	l.colorsForced = true
 }
 
 func (l *Logger) DisableColors() {
+	if l.colorsForced {
+		return
+	}
+
 	l.colors = NoColors
+	l.colorsForced = true
 }
 
 func (l *Logger) Paint(color Color, s string) string {
