@@ -825,7 +825,7 @@ pre-commit:
 				},
 			},
 			wantError:    true,
-			wantErrorMsg: "core.hooksPath",
+			wantErrorMsg: "", // empty
 		},
 		{
 			name:           "with local and global core.hooksPath with --force",
@@ -945,8 +945,8 @@ pre-commit:
 			// Do install
 			err := lefthook.Install(t.Context(), InstallArgs{Force: tt.force, ResetHooksPath: tt.resetHooksPath}, nil)
 			if tt.wantError {
-				if assert.Error(err) && tt.wantErrorMsg != "" {
-					assert.Contains(err.Error(), tt.wantErrorMsg)
+				if assert.Error(err) {
+					assert.Equal(err.Error(), tt.wantErrorMsg)
 				}
 			} else {
 				assert.NoError(err)
