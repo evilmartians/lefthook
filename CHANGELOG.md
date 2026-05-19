@@ -1,5 +1,9 @@
 # Change log
 
+## 2.1.8 (2026-05-19)
+
+- fix: do not warn if local hooks path is equal to default hooks path ([#1421](https://github.com/evilmartians/lefthook/pull/1421)) by [@mrexox]()
+
 ## 2.1.7 (2026-05-19)
 
 - fix: use contrast colors ([#1420](https://github.com/evilmartians/lefthook/pull/1420)) by [@mrexox]()
