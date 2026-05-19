@@ -2,18 +2,18 @@ package controller
 
 import "sync"
 
-type stageFixedFiles struct {
+type stageFilesList struct {
 	mu    sync.Mutex
 	files map[string]struct{}
 }
 
-func newStageFixedFiles() *stageFixedFiles {
-	return &stageFixedFiles{
+func newStageFilesList() *stageFilesList {
+	return &stageFilesList{
 		files: make(map[string]struct{}),
 	}
 }
 
-func (f *stageFixedFiles) Add(files []string) {
+func (f *stageFilesList) Add(files []string) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
@@ -22,7 +22,7 @@ func (f *stageFixedFiles) Add(files []string) {
 	}
 }
 
-func (f *stageFixedFiles) Files() []string {
+func (f *stageFilesList) Files() []string {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 

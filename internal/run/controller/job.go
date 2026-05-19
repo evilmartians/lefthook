@@ -183,7 +183,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 }
 
 func (c *Controller) addStagedFiles(files []string) {
-	c.stageFixedFiles.Add(files)
+	c.filesToStage.Add(files)
 }
 
 func (c *Controller) skipReason(scope *scope, job *config.Job, name string) string {

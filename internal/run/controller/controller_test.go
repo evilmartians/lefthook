@@ -609,11 +609,11 @@ func TestRunAll(t *testing.T) {
 			Fs(fs).
 			Build()
 		controller := &Controller{
-			logger:          loggertest.NewExecution(),
-			stageFixedFiles: newStageFixedFiles(),
-			git:             repo,
-			executor:        executor{},
-			cmd:             cmdtest.NewTracking(nil), // lfs hooks ignored in this test
+			logger:       loggertest.NewExecution(),
+			filesToStage: newStageFilesList(),
+			git:          repo,
+			executor:     executor{},
+			cmd:          cmdtest.NewTracking(nil), // lfs hooks ignored in this test
 		}
 		cmdExecutor.Reset()
 
