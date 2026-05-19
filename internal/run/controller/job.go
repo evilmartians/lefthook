@@ -183,9 +183,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 }
 
 func (c *Controller) addStagedFiles(files []string) {
-	if err := c.git.AddFiles(files); err != nil {
-		c.logger.Warn("Couldn't stage fixed files:", err)
-	}
+	c.filesToStage.Add(files)
 }
 
 func (c *Controller) skipReason(scope *scope, job *config.Job, name string) string {

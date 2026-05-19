@@ -19,12 +19,13 @@ import (
 )
 
 type Controller struct {
-	git         *git.Repo
-	logger      *logger.ExecutionLogger
-	cachedStdin io.Reader
-	executor    exec.Executor
-	cmd         system.CommandWithContext
-	skipChecker *config.SkipChecker
+	git          *git.Repo
+	logger       *logger.ExecutionLogger
+	cachedStdin  io.Reader
+	executor     exec.Executor
+	cmd          system.CommandWithContext
+	skipChecker  *config.SkipChecker
+	filesToStage *stageFilesList
 }
 
 type Options struct {
@@ -59,7 +60,8 @@ func NewController(repo *git.Repo, logger *logger.ExecutionLogger) *Controller {
 		// Command interface (for LFS hooks)
 		cmd: system.Cmd,
 
-		skipChecker: config.NewSkipChecker(logger, system.Cmd),
+		skipChecker:  config.NewSkipChecker(logger, system.Cmd),
+		filesToStage: newStageFilesList(),
 	}
 }
 
@@ -89,6 +91,7 @@ func (c *Controller) RunHook(ctx context.Context, opts Options, hook *config.Hoo
 	guard := newGuard(
 		c.git,
 		c.logger,
+		c.filesToStage,
 		!opts.NoStageFixed && config.HookUsesStagedFiles(hook.Name),
 		opts.FailOnChanges,
 		opts.FailOnChangesDiff,

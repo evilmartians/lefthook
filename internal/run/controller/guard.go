@@ -20,8 +20,9 @@ func (e *FailOnChangesError) Error() string {
 }
 
 type guard struct {
-	git    *git.Repo
-	logger *logger.ExecutionLogger
+	git          *git.Repo
+	logger       *logger.ExecutionLogger
+	filesToStage *stageFilesList
 
 	stashUnstagedChanges bool
 	failOnChanges        bool
@@ -31,6 +32,7 @@ type guard struct {
 func newGuard(
 	repo *git.Repo,
 	logger *logger.ExecutionLogger,
+	filesToStage *stageFilesList,
 	stashUnstagedChanges bool,
 	failOnChanges bool,
 	failOnChangesDiff bool,
@@ -39,6 +41,7 @@ func newGuard(
 		git:                  repo,
 		logger:               logger,
 		stashUnstagedChanges: stashUnstagedChanges,
+		filesToStage:         filesToStage,
 		failOnChanges:        failOnChanges,
 		failOnChangesDiff:    failOnChangesDiff,
 	}
@@ -58,6 +61,10 @@ func (g *guard) wrap(fn func()) error {
 	)
 }
 
+// withHiddenUnstagedChanges hides unstaged changes, runs `fn()`, then restores them.
+//
+// If the changes can't be restored, the hook changes are reverted and you'll be
+// prompted to stage your changes first — to avoid any risk of losing them.
 func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 	if !g.stashUnstagedChanges {
 		return fn()
@@ -70,7 +77,13 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 	}
 
 	if len(partiallyStagedFiles) == 0 {
-		return fn()
+		resErr := fn()
+
+		if err := g.git.AddFiles(g.filesToStage.Files()); err != nil {
+			g.logger.Warn("Couldn't stage fixed files:", err)
+		}
+
+		return resErr
 	}
 
 	g.logger.Debug("[lefthook] saving partially staged files")
@@ -101,7 +114,11 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 		}
 	}
 
-	if !g.git.CanRestoreUnstagedChanges() {
+	if g.git.CanRestoreUnstagedChanges() {
+		if err := g.git.AddFiles(g.filesToStage.Files()); err != nil {
+			g.logger.Warn("Couldn't stage fixed files:", err)
+		}
+	} else {
 		if wrappedErr != nil {
 			g.logger.Error("Error: ", wrappedErr)
 		}
