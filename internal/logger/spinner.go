@@ -46,10 +46,6 @@ func (s *Spinner) Stop() {
 	s.spinner.Stop()
 }
 
-func (s *Spinner) active() bool {
-	return s.spinner.Active()
-}
-
 func (s *Spinner) AddName(name string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()

@@ -115,10 +115,8 @@ func (l *Logger) log(level Level, args ...any) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	if l.Spinner.active() {
-		l.Spinner.Stop()
-		defer l.Spinner.Start()
-	}
+	l.Spinner.Stop()
+	defer l.Spinner.Start()
 
 	_, _ = fmt.Fprintln(l.out, message)
 }
