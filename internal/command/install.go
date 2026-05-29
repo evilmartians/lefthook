@@ -584,6 +584,13 @@ func (l *Lefthook) unsetHooksPathConfig(local, global string) error {
 		l.logger.Warn("global core.hooksPath has been unset.")
 	}
 
+	paths, err := git.Paths(l.repo.Git)
+	if err != nil {
+		return err
+	}
+
+	l.repo.HooksPath = paths.HooksPath
+
 	return nil
 }
 
