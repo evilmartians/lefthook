@@ -1,5 +1,10 @@
 # Change log
 
+## 2.1.9 (2026-05-29)
+
+- fix: update hooks path after resetting ([#1431](https://github.com/evilmartians/lefthook/pull/1431)) by [@mrexox]()
+- deps: May 2026 ([#1415](https://github.com/evilmartians/lefthook/pull/1415)) by [@mrexox]()
+
 ## 2.1.8 (2026-05-19)
 
 - fix: do not warn if local hooks path is equal to default hooks path ([#1421](https://github.com/evilmartians/lefthook/pull/1421)) by [@mrexox]()
