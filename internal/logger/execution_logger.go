@@ -177,28 +177,35 @@ func (el *ExecutionLogger) LogSetup(r io.Reader) {
 }
 
 func (el *ExecutionLogger) LogMeta(hookName string) {
-	name := "🥊 lefthook "
+	var (
+		name   = "🥊 lefthook "
+		color1 = el.colors.get(ColorGray)
+		color2 = colorBorder
+		style  = lipgloss.NewStyle().BorderForegroundBlend(
+			color1,
+			color2,
+			color1,
+			color2,
+			color1,
+			color2,
+			color1,
+		)
+	)
 	if el.NoColors() {
 		name = "lefthook "
+		style = lipgloss.NewStyle().BorderForeground(color1)
 	}
 
 	el.Info(
 		lipgloss.JoinHorizontal(
 			lipgloss.Top,
-			lipgloss.NewStyle().
-				Border(lipgloss.RoundedBorder(), true, false, true, true).
-				BorderForeground(colorBorder).
+			style.
+				Border(lipgloss.RoundedBorder(), true, true, true, true).
 				Padding(0, 1).
 				Render(
 					el.Paint(ColorCyan, name),
 					el.Paint(ColorGray, fmt.Sprintf("v%s", version.Version(false))),
-				),
-			lipgloss.NewStyle().
-				Border(lipgloss.RoundedBorder(), true, true, true, false).
-				BorderForeground(colorBorder).
-				Padding(0, 1).
-				Render(
-					el.Paint(ColorGray, "hook: "),
+					el.Paint(ColorGray, "  hook: "),
 					lipgloss.NewStyle().Bold(true).Render(hookName),
 				),
 		),
