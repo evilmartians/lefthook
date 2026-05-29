@@ -1,0 +1,15 @@
+exec git init
+
+exec git config --local core.hooksPath /different-path
+
+! exec lefthook install
+exec lefthook install --reset-hooks-path
+! stderr .
+
+exists .git/hooks/pre-commit
+! exists .git/hooks/pre-push
+
+-- lefthook.yml --
+pre-commit:
+  jobs:
+    - run: echo

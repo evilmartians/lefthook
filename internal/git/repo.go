@@ -38,20 +38,13 @@ var (
 	cmdStagedFilesWithDeleted = []string{"git", "diff", "--name-only", "--cached", "--diff-filter=ACMRD"}
 	cmdStatusShort            = []string{"git", "status", "--short", "--porcelain", "-z"}
 	cmdListStash              = []string{"git", "stash", "list"}
-	cmdPaths                  = []string{
-		"git", "rev-parse", "--path-format=absolute",
-		"--show-toplevel",
-		"--git-path", "hooks",
-		"--git-path", "info",
-		"--git-dir",
-	}
-	cmdAllFiles        = []string{"git", "ls-files", "--cached"}
-	cmdCreateStash     = []string{"git", "stash", "create"}
-	cmdStageFiles      = []string{"git", "add", "--force", "--"}
-	cmdRemotes         = []string{"git", "branch", "--remotes"}
-	cmdHideUnstaged    = []string{"git", "checkout", "--force", "--"}
-	cmdHideAllUnstaged = []string{"git", "checkout", "."}
-	cmdGitVersion      = []string{"git", "version"}
+	cmdAllFiles               = []string{"git", "ls-files", "--cached"}
+	cmdCreateStash            = []string{"git", "stash", "create"}
+	cmdStageFiles             = []string{"git", "add", "--force", "--"}
+	cmdRemotes                = []string{"git", "branch", "--remotes"}
+	cmdHideUnstaged           = []string{"git", "checkout", "--force", "--"}
+	cmdHideAllUnstaged        = []string{"git", "checkout", "."}
+	cmdGitVersion             = []string{"git", "version"}
 )
 
 // Repo represents a git repository.
@@ -92,16 +85,15 @@ func NewRepo(
 		}
 	}
 
-	paths, err := commander.Cmd(cmdPaths)
+	paths, err := Paths(commander)
 	if err != nil {
 		return nil, err
 	}
 
-	pathsSplit := strings.Split(paths, "\n")
-	rootPath := pathsSplit[0]
-	hooksPath := pathsSplit[1]
-	infoPath := filepath.Clean(pathsSplit[2])
-	gitPath := pathsSplit[3]
+	rootPath := paths.RootPath
+	hooksPath := paths.HooksPath
+	infoPath := paths.InfoPath
+	gitPath := paths.GitPath
 
 	if exists, _ := afero.DirExists(fs, infoPath); !exists {
 		err = fs.Mkdir(infoPath, infoDirMode)

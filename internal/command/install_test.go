@@ -867,6 +867,10 @@ pre-commit:
 				{
 					Command: "git config --global --unset-all core.hooksPath",
 				},
+				{
+					Command: "git rev-parse --path-format=absolute --show-toplevel --git-path hooks --git-path info --git-dir",
+					Output:  "a\n" + filepath.Join(gittest.GitPath(root), "hooks") + "\na\na",
+				},
 			},
 			wantError: false,
 			wantExist: []string{
@@ -911,6 +915,10 @@ pre-commit:
 				},
 				{
 					Command: "git config --local --unset-all core.hooksPath",
+				},
+				{
+					Command: "git rev-parse --path-format=absolute --show-toplevel --git-path hooks --git-path info --git-dir",
+					Output:  "a\n" + filepath.Join(gittest.GitPath(root), "hooks") + "\na\na",
 				},
 			},
 			wantError: false,
