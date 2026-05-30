@@ -19,22 +19,23 @@ func Dump(ctx context.Context, app *app.App, args DumpArgs) error {
 		return err
 	}
 
-	var format config.DumpFormat
-
-	switch args.Format {
-	case "yaml":
-		format = config.YAMLFormat
-	case "json":
-		format = config.JSONFormat
-	case "toml":
-		format = config.TOMLFormat
-	default:
-		format = config.YAMLFormat
-	}
-
+	format := parseFormat(args.Format)
 	if err := cfg.Dump(format, os.Stdout); err != nil {
 		return fmt.Errorf("couldn't dump config: %w", err)
 	}
 
 	return nil
+}
+
+func parseFormat(arg string) config.DumpFormat {
+	switch arg {
+	case "yaml":
+		return config.YAMLFormat
+	case "json":
+		return config.JSONFormat
+	case "toml":
+		return config.TOMLFormat
+	default:
+		return config.YAMLFormat
+	}
 }

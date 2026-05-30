@@ -2,7 +2,6 @@ package app
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -283,6 +282,13 @@ func (s *HooksService) unsetHooksPathConfig(local, global string) error {
 		s.logger.Warn("global core.hooksPath has been unset.")
 	}
 
+	paths, err := git.Paths(s.repo.Git)
+	if err != nil {
+		return err
+	}
+
+	s.repo.HooksPath = paths.HooksPath
+
 	return nil
 }
 
@@ -294,26 +300,33 @@ func formatHooksPathError(local, global string) error {
 
 	if hasLocal {
 		fmt.Fprintf(&errMsg, "core.hooksPath is set locally to '%s'\n", local)
-		hints = append(hints, "hint:   git config --unset-all --local core.hooksPath")
+		hints = append(hints, "   git config --unset-all --local core.hooksPath")
 	}
 	if hasGlobal {
 		fmt.Fprintf(&errMsg, "core.hooksPath is set globally to '%s'\n", global)
-		hints = append(hints, "hint:   git config --unset-all --global core.hooksPath")
+		hints = append(hints, "   git config --unset-all --global core.hooksPath")
 	}
+	errMsg.WriteString("Custom hooks paths are not supported by default.\n")
 	errMsg.WriteString("\n")
-	errMsg.WriteString("hint: Unset it:\n")
+	errMsg.WriteString("Reset core.hooksPath automatically:\n")
+	errMsg.WriteString("  lefthook install --reset-hooks-path\n")
+	errMsg.WriteString("\n")
+	errMsg.WriteString("Remove it manually:\n")
 	errMsg.WriteString(strings.Join(hints, "\n"))
-	errMsg.WriteString("\nhint:\n")
-	errMsg.WriteString("hint: Run 'lefthook install --reset-hooks-path' to automatically unset it.\n")
+	errMsg.WriteString("\n\n")
 
+	// Determine path: use global path if only global is defined, otherwise use local path
 	path := local
 	if !hasLocal && hasGlobal {
 		path = global
 	}
-	errMsg.WriteString("hint:\n")
-	fmt.Fprintf(&errMsg, "hint: Run 'lefthook install --force' to install hooks anyway in '%s'.", path)
+	errMsg.WriteString("Force installation into current hooks path:\n")
+	errMsg.WriteString("  lefthook install --force\n\n")
+	errMsg.WriteString("  Target:\n")
+	errMsg.WriteString("  ")
+	errMsg.WriteString(path)
 
-	return errors.New(errMsg.String())
+	return errMsg.String()
 }
 
 func collectRoots(cfg *config.Config) []string {

@@ -23,12 +23,12 @@ func New(fs afero.Fs, verbose bool, colors string) (*App, error) {
 	l := logger.New(os.Stdout)
 	switch colors {
 	case "on", "yes", "true", "1":
-		l.SetColors(logger.DefaultColors)
+		l.EnableColors()
 	case "off", "no", "false", "0":
-		l.SetColors(logger.NoColors)
+		l.DisableColors()
 	}
 
-	if verbose {
+	if verbose || isEnvEnabled(EnvVerbose) {
 		l.SetLevel(logger.LevelDebug)
 	}
 
