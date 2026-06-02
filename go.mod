@@ -23,7 +23,7 @@ require (
 	github.com/knadh/koanf/v2 v2.3.5
 	github.com/mattn/go-tty v0.0.8
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/rogpeppe/go-internal v1.14.1
+	github.com/rogpeppe/go-internal v1.15.0
 	github.com/schollz/progressbar/v3 v3.19.0
 	github.com/spf13/afero v1.15.0
 	github.com/stretchr/testify v1.11.1
