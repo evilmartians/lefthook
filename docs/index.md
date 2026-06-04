@@ -34,11 +34,11 @@ Run linters on `pre-commit` hook.
 pre-commit:
   parallel: true
   jobs:
-    - run: yarn run stylelint --fix {staged_files}
+    - run: yarn run stylelint --fix '{staged_files}'
       glob: "*.css"
       stage_fixed: true
 
-    - run: yarn run eslint --fix "{staged_files}"
+    - run: yarn run eslint --fix '{staged_files}'
       glob:
         - "*.ts"
         - "*.js"
