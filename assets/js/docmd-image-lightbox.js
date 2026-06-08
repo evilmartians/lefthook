@@ -1,12 +1,6 @@
 /*!
- * docmd (v0.6.9)
+ * docmd (v0.8.6)
  * Copyright (c) 2025-present docmd.io
  * License: MIT
  */
-document.addEventListener("DOMContentLoaded",function(){const t=document.createElement("div");t.className="docmd-lightbox",t.innerHTML=`
-    <div class="docmd-lightbox-content">
-      <img src="" alt="">
-      <div class="docmd-lightbox-caption"></div>
-    </div>
-    <div class="docmd-lightbox-close">&times;</div>
-  `,document.body.appendChild(t);const l=t.querySelector("img"),d=t.querySelector(".docmd-lightbox-caption"),s=t.querySelector(".docmd-lightbox-close");document.querySelectorAll("img.lightbox, .image-gallery img").forEach(function(e){e.style.cursor="zoom-in",e.addEventListener("click",function(){const r=this.getAttribute("src");let i=this.getAttribute("alt")||"";const c=this.closest("figure");if(c){const n=c.querySelector("figcaption");n&&(i=n.textContent)}l.setAttribute("src",r),d.textContent=i,t.style.display="flex",document.body.style.overflow="hidden"})}),s.addEventListener("click",o),t.addEventListener("click",function(e){e.target===t&&o()}),document.addEventListener("keydown",function(e){e.key==="Escape"&&t.style.display==="flex"&&o()});function o(){t.style.display="none",document.body.style.overflow=""}});
+document.addEventListener("DOMContentLoaded",function(){const t=document.createElement("div");t.className="docmd-lightbox";const o=document.createElement("div");o.className="docmd-lightbox-content";const n=document.createElement("img");n.src="",n.alt="";const l=document.createElement("div");l.className="docmd-lightbox-caption",o.appendChild(n),o.appendChild(l);const c=document.createElement("div");c.className="docmd-lightbox-close",c.innerHTML="&times;",t.appendChild(o),t.appendChild(c),document.body.appendChild(t);const r=t.querySelector("img"),m=t.querySelector(".docmd-lightbox-caption"),g=t.querySelector(".docmd-lightbox-close");document.querySelectorAll("img.lightbox, .image-gallery img").forEach(function(e){e.style.cursor="zoom-in",e.addEventListener("click",function(){const u=this.getAttribute("src");let d=this.getAttribute("alt")||"";const s=this.closest("figure");if(s){const a=s.querySelector("figcaption");a&&(d=a.textContent)}r.setAttribute("src",u),m.textContent=d,t.style.display="flex",document.body.style.overflow="hidden"})}),g.addEventListener("click",i),t.addEventListener("click",function(e){e.target===t&&i()}),document.addEventListener("keydown",function(e){e.key==="Escape"&&t.style.display==="flex"&&i()});function i(){t.style.display="none",document.body.style.overflow=""}});

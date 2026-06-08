@@ -1,6 +1,6 @@
 <!--
   ---------------------------------------------------------------
-  docmd : the minimalist, zero-config documentation generator.
+  docmd : the zero-config documentation engine.
   @website https://docmd.io
   [docmd-source] - Please do not remove this header.
   ---------------------------------------------------------------
@@ -8,14 +8,13 @@
 
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="generator" content="docmd v0.5.x">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script>/**
+  <head>
+    <meta charset="UTF-8">
+    <meta name="generator" content="docmd v0.5.x">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>/**
  * --------------------------------------------------------------------
- * docmd : the minimalist, zero-config documentation generator.
+ * docmd : the zero-config documentation engine.
  *
  * @package     @docmd/core (and ecosystem)
  * @website     https://docmd.io
@@ -67,54 +66,56 @@
       }
     </style>
     
-      <script>
-        var root = "../../";
-        if (root && !root.endsWith('/')) root += '/';
-        if (root === '') root = './';
-        window.DOCMD_ROOT = root;
+    <script>
+      var root = "../../";
+      if (root && !root.endsWith('/')) root += '/';
+      if (root === '') root = './';
+      window.DOCMD_ROOT = root;
 
-        var siteRoot = "../../";
-        if (siteRoot && !siteRoot.endsWith('/')) siteRoot += '/';
-        if (siteRoot === '') siteRoot = './';
-        window.DOCMD_SITE_ROOT = siteRoot;
+      var siteRoot = "../../";
+      if (siteRoot && !siteRoot.endsWith('/')) siteRoot += '/';
+      if (siteRoot === '') siteRoot = './';
+      window.DOCMD_SITE_ROOT = siteRoot;
 
-        window.DOCMD_APPEARANCE = "system";
-        window.DOCMD_VERSION_ROOT = "/";
-      </script>
-      <title>
-        Manual
-      </title>
-      <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mpz5rgxb">
-        <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mpz5rgxb">
-        
-          <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=mpz5rgxb"
-            id="hljs-light" >
-
-          <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=mpz5rgxb"
-            id="hljs-dark" disabled>
-          
-            
+      window.DOCMD_APPEARANCE = "system";
+      window.DOCMD_VERSION_ROOT = "/";
+      window.DOCMD_BASE = "/";
+      window.DOCMD_LOCALE = "";
+      window.DOCMD_DEFAULT_LOCALE = "";
+    </script>
+    <title>
+      Manual : Lefthook
+    </title>
+    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mq51361i">
+    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mq51361i">
+    
+    <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=mq51361i" id="hljs-light" >
+    <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=mq51361i" id="hljs-dark" disabled>
+    
+    
 <meta name="description" content="Lefthook documentation.">
 <link rel="canonical" href="https://lefthook.dev/installation/manual/">
-<meta property="og:title" content="Manual : Lefthook">
+<meta property="og:title" content="Manual - Lefthook">
 <meta property="og:description" content="Lefthook documentation.">
 <meta property="og:url" content="https://lefthook.dev/installation/manual/">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://lefthook.dev/assets/lefthook.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Manual">
+<meta name="twitter:title" content="Manual - Lefthook">
 <meta name="twitter:description" content="Lefthook documentation.">
 <meta name="twitter:image" content="https://lefthook.dev/assets/lefthook.png">
 
 
 
-              
-                <link rel="stylesheet"
-                  href="../../assets/css/lefthook.css?v=mpz5rgxb">
-                
-                  <script>/**
+<link rel="stylesheet" href="../../assets/css/docmd-git.css?v=mq51361i" >
+<link rel="stylesheet" href="../../assets/css/docmd-openapi.css?v=mq51361i" >
+
+    
+      <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mq51361i">
+    
+    <script>/**
  * --------------------------------------------------------------------
- * docmd : the minimalist, zero-config documentation generator.
+ * docmd : the zero-config documentation engine.
  *
  * @package     @docmd/core (and ecosystem)
  * @website     https://docmd.io
@@ -160,32 +161,30 @@
     console.error('Theme init failed', e);
   }
 })();</script>
-</head>
+  </head>
+  <body
+    class="sidebar-collapsible"
+    data-default-collapsed="false"
+    data-copy-code-enabled="true" data-spa-enabled="true" data-source-file="docs/installation/manual.md">
 
-<body
-  class="sidebar-collapsible"
-  data-default-collapsed="false"
-  data-copy-code-enabled="true" data-spa-enabled="true" data-source-file="docs/installation/manual.md">
+    <a href="#main-content" class="skip-link">skipToContent</a>
 
-  <a href="#main-content" class="skip-link">Skip to main content</a>
-
-  
-
-        
-          <aside class="sidebar">
-            <div class="sidebar-header">
-              
-                <a href="/" class="logo-link">
-                  <img
-                    src="../../assets/lefthook.png"
-                    alt="Logo" class="logo-light" >
-                      <img
-                        src="../../assets/lefthook.png"
-                        alt="Logo" class="logo-dark" >
-                </a>
-                
-                    <span class="mobile-view sidebar-menu-button float-right">
-                      
+    
+    
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          
+            <a href="/" class="logo-link">
+              <img
+                src="../../assets/lefthook.png"
+                alt="Logo" class="logo-light" >
+              <img
+                src="../../assets/lefthook.png"
+                alt="Logo" class="logo-dark" >
+            </a>
+          
+          <span class="mobile-view sidebar-menu-button float-right">
+            
 <svg class="lucide-icon icon-menu " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-menu"
   xmlns="http://www.w3.org/2000/svg"
@@ -203,22 +202,22 @@
   <path d="M4 19h16" />
 </svg>
 
-                    </span>
-            </div>
+          </span>
+        </div>
+        <div class="sidebar-top-group">
+          
+          
+          
+          
+        </div>
+        
 
-            <div class="sidebar-top-group">
-              
-                  
-            </div>
-
-            
-
-<nav class="sidebar-nav" aria-label="Main Navigation">
+<nav class="sidebar-nav" aria-label="mainNavigation">
   <ul>
     
       <li class="active-parent collapsible expanded nav-group"  aria-expanded="true" >
       
-        <a href="../../install" class=" nav-group"
+        <a href="../../install/" class=" nav-group"
           >
            
 <svg class="lucide-icon icon-rocket " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
@@ -270,7 +269,7 @@
             
       <li class="" >
       
-        <a href="../../installation/ruby" class=" "
+        <a href="../../installation/ruby/" class=" "
           >
           
           <span class="nav-item-title">
@@ -286,7 +285,7 @@
     
       <li class="" >
       
-        <a href="../../installation/node" class=" "
+        <a href="../../installation/node/" class=" "
           >
           
           <span class="nav-item-title">
@@ -302,7 +301,7 @@
     
       <li class="" >
       
-        <a href="../../installation/go" class=" "
+        <a href="../../installation/go/" class=" "
           >
           
           <span class="nav-item-title">
@@ -318,7 +317,7 @@
     
       <li class="" >
       
-        <a href="../../installation/python" class=" "
+        <a href="../../installation/python/" class=" "
           >
           
           <span class="nav-item-title">
@@ -334,7 +333,7 @@
     
       <li class="" >
       
-        <a href="../../installation/swift" class=" "
+        <a href="../../installation/swift/" class=" "
           >
           
           <span class="nav-item-title">
@@ -350,7 +349,7 @@
     
       <li class="" >
       
-        <a href="../../installation/homebrew" class=" "
+        <a href="../../installation/homebrew/" class=" "
           >
           
           <span class="nav-item-title">
@@ -366,7 +365,7 @@
     
       <li class="" >
       
-        <a href="../../installation/winget" class=" "
+        <a href="../../installation/winget/" class=" "
           >
           
           <span class="nav-item-title">
@@ -382,7 +381,7 @@
     
       <li class="" >
       
-        <a href="../../installation/scoop" class=" "
+        <a href="../../installation/scoop/" class=" "
           >
           
           <span class="nav-item-title">
@@ -398,7 +397,7 @@
     
       <li class="" >
       
-        <a href="../../installation/deb" class=" "
+        <a href="../../installation/deb/" class=" "
           >
           
           <span class="nav-item-title">
@@ -414,7 +413,7 @@
     
       <li class="" >
       
-        <a href="../../installation/rpm" class=" "
+        <a href="../../installation/rpm/" class=" "
           >
           
           <span class="nav-item-title">
@@ -430,7 +429,7 @@
     
       <li class="" >
       
-        <a href="../../installation/alpine" class=" "
+        <a href="../../installation/alpine/" class=" "
           >
           
           <span class="nav-item-title">
@@ -446,7 +445,7 @@
     
       <li class="" >
       
-        <a href="../../installation/arch" class=" "
+        <a href="../../installation/arch/" class=" "
           >
           
           <span class="nav-item-title">
@@ -462,7 +461,7 @@
     
       <li class="" >
       
-        <a href="../../installation/snap" class=" "
+        <a href="../../installation/snap/" class=" "
           >
           
           <span class="nav-item-title">
@@ -478,7 +477,7 @@
     
       <li class="" >
       
-        <a href="../../installation/devbox" class=" "
+        <a href="../../installation/devbox/" class=" "
           >
           
           <span class="nav-item-title">
@@ -494,7 +493,7 @@
     
       <li class="" >
       
-        <a href="../../installation/mise" class=" "
+        <a href="../../installation/mise/" class=" "
           >
           
           <span class="nav-item-title">
@@ -510,7 +509,7 @@
     
       <li class="active" >
       
-        <a href="../../installation/manual" class="active "
+        <a href="../../installation/manual/" class="active "
           >
           
           <span class="nav-item-title">
@@ -530,7 +529,7 @@
     
       <li class="collapsible nav-group"  aria-expanded="false" >
       
-        <a href="../../configuration" class=" nav-group"
+        <a href="../../configuration/" class=" nav-group"
           >
            
 <svg class="lucide-icon icon-settings " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
@@ -580,7 +579,7 @@
             
       <li class="" >
       
-        <a href="../../configuration/assert_lefthook_installed" class=" "
+        <a href="../../configuration/assert_lefthook_installed/" class=" "
           >
           
           <span class="nav-item-title">
@@ -596,7 +595,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/colors" class=" "
+        <a href="../../configuration/colors/" class=" "
           >
           
           <span class="nav-item-title">
@@ -612,7 +611,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/extends" class=" "
+        <a href="../../configuration/extends/" class=" "
           >
           
           <span class="nav-item-title">
@@ -628,7 +627,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/install_non_git_hooks" class=" "
+        <a href="../../configuration/install_non_git_hooks/" class=" "
           >
           
           <span class="nav-item-title">
@@ -644,7 +643,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/lefthook" class=" "
+        <a href="../../configuration/lefthook/" class=" "
           >
           
           <span class="nav-item-title">
@@ -660,7 +659,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/min_version" class=" "
+        <a href="../../configuration/min_version/" class=" "
           >
           
           <span class="nav-item-title">
@@ -676,7 +675,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/no_auto_install" class=" "
+        <a href="../../configuration/no_auto_install/" class=" "
           >
           
           <span class="nav-item-title">
@@ -692,7 +691,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/no_tty" class=" "
+        <a href="../../configuration/no_tty/" class=" "
           >
           
           <span class="nav-item-title">
@@ -708,7 +707,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/output" class=" "
+        <a href="../../configuration/output/" class=" "
           >
           
           <span class="nav-item-title">
@@ -724,7 +723,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/rc" class=" "
+        <a href="../../configuration/rc/" class=" "
           >
           
           <span class="nav-item-title">
@@ -740,7 +739,7 @@
     
       <li class="collapsible nav-group"  aria-expanded="false" >
       
-        <a href="../../configuration/remotes" class=" nav-group"
+        <a href="../../configuration/remotes/" class=" nav-group"
           >
           
           <span class="nav-item-title">
@@ -773,7 +772,7 @@
             
       <li class="" >
       
-        <a href="../../configuration/git_url" class=" "
+        <a href="../../configuration/git_url/" class=" "
           >
           
           <span class="nav-item-title">
@@ -789,7 +788,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/ref" class=" "
+        <a href="../../configuration/ref/" class=" "
           >
           
           <span class="nav-item-title">
@@ -805,7 +804,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/refetch" class=" "
+        <a href="../../configuration/refetch/" class=" "
           >
           
           <span class="nav-item-title">
@@ -821,7 +820,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/refetch_frequency" class=" "
+        <a href="../../configuration/refetch_frequency/" class=" "
           >
           
           <span class="nav-item-title">
@@ -837,7 +836,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/configs" class=" "
+        <a href="../../configuration/configs/" class=" "
           >
           
           <span class="nav-item-title">
@@ -857,7 +856,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/source_dir" class=" "
+        <a href="../../configuration/source_dir/" class=" "
           >
           
           <span class="nav-item-title">
@@ -873,7 +872,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/source_dir_local" class=" "
+        <a href="../../configuration/source_dir_local/" class=" "
           >
           
           <span class="nav-item-title">
@@ -889,7 +888,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/skip_lfs" class=" "
+        <a href="../../configuration/skip_lfs/" class=" "
           >
           
           <span class="nav-item-title">
@@ -905,7 +904,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/glob_matcher" class=" "
+        <a href="../../configuration/glob_matcher/" class=" "
           >
           
           <span class="nav-item-title">
@@ -921,7 +920,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/templates" class=" "
+        <a href="../../configuration/templates/" class=" "
           >
           
           <span class="nav-item-title">
@@ -937,7 +936,7 @@
     
       <li class="collapsible nav-group"  aria-expanded="false" >
       
-        <a href="../../configuration/Hook" class=" nav-group"
+        <a href="../../configuration/Hook/" class=" nav-group"
           >
           
           <span class="nav-item-title">
@@ -970,7 +969,7 @@
             
       <li class="" >
       
-        <a href="../../configuration/parallel" class=" "
+        <a href="../../configuration/parallel/" class=" "
           >
           
           <span class="nav-item-title">
@@ -986,7 +985,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/piped" class=" "
+        <a href="../../configuration/piped/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1002,7 +1001,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/follow" class=" "
+        <a href="../../configuration/follow/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1018,7 +1017,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/files-global" class=" "
+        <a href="../../configuration/files-global/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1034,7 +1033,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/fail_on_changes" class=" "
+        <a href="../../configuration/fail_on_changes/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1050,7 +1049,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/fail_on_changes_diff" class=" "
+        <a href="../../configuration/fail_on_changes_diff/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1066,7 +1065,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/exclude_tags" class=" "
+        <a href="../../configuration/exclude_tags/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1082,7 +1081,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/exclude" class=" "
+        <a href="../../configuration/exclude/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1098,7 +1097,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/only" class=" "
+        <a href="../../configuration/only/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1114,7 +1113,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/skip" class=" "
+        <a href="../../configuration/skip/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1130,7 +1129,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/setup" class=" "
+        <a href="../../configuration/setup/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1146,7 +1145,7 @@
     
       <li class="collapsible nav-group"  aria-expanded="false" >
       
-        <a href="../../configuration/jobs" class=" nav-group"
+        <a href="../../configuration/jobs/" class=" nav-group"
           >
           
           <span class="nav-item-title">
@@ -1179,7 +1178,7 @@
             
       <li class="" >
       
-        <a href="../../configuration/name" class=" "
+        <a href="../../configuration/name/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1195,7 +1194,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/run" class=" "
+        <a href="../../configuration/run/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1211,7 +1210,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/script" class=" "
+        <a href="../../configuration/script/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1227,7 +1226,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/runner" class=" "
+        <a href="../../configuration/runner/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1243,7 +1242,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/args" class=" "
+        <a href="../../configuration/args/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1259,7 +1258,7 @@
     
       <li class="collapsible nav-group"  aria-expanded="false" >
       
-        <a href="../../configuration/group" class=" nav-group"
+        <a href="../../configuration/group/" class=" nav-group"
           >
           
           <span class="nav-item-title">
@@ -1292,7 +1291,7 @@
             
       <li class="" >
       
-        <a href="../../configuration/parallel" class=" "
+        <a href="../../configuration/parallel/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1308,7 +1307,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/piped" class=" "
+        <a href="../../configuration/piped/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1324,7 +1323,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/jobs" class=" "
+        <a href="../../configuration/jobs/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1344,7 +1343,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/skip" class=" "
+        <a href="../../configuration/skip/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1360,7 +1359,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/only" class=" "
+        <a href="../../configuration/only/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1376,7 +1375,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/tags" class=" "
+        <a href="../../configuration/tags/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1392,7 +1391,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/glob" class=" "
+        <a href="../../configuration/glob/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1408,7 +1407,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/files" class=" "
+        <a href="../../configuration/files/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1424,7 +1423,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/file_types" class=" "
+        <a href="../../configuration/file_types/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1440,7 +1439,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/env" class=" "
+        <a href="../../configuration/env/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1456,7 +1455,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/root" class=" "
+        <a href="../../configuration/root/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1472,7 +1471,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/exclude" class=" "
+        <a href="../../configuration/exclude/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1488,7 +1487,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/fail_text" class=" "
+        <a href="../../configuration/fail_text/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1504,7 +1503,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/stage_fixed" class=" "
+        <a href="../../configuration/stage_fixed/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1520,7 +1519,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/interactive" class=" "
+        <a href="../../configuration/interactive/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1536,7 +1535,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/use_stdin" class=" "
+        <a href="../../configuration/use_stdin/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1556,7 +1555,7 @@
     
       <li class="collapsible nav-group"  aria-expanded="false" >
       
-        <a href="../../configuration/Commands" class=" nav-group"
+        <a href="../../configuration/Commands/" class=" nav-group"
           >
           
           <span class="nav-item-title">
@@ -1589,7 +1588,7 @@
             
       <li class="" >
       
-        <a href="../../configuration/run" class=" "
+        <a href="../../configuration/run/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1605,7 +1604,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/skip" class=" "
+        <a href="../../configuration/skip/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1621,7 +1620,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/only" class=" "
+        <a href="../../configuration/only/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1637,7 +1636,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/tags" class=" "
+        <a href="../../configuration/tags/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1653,7 +1652,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/glob" class=" "
+        <a href="../../configuration/glob/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1669,7 +1668,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/files" class=" "
+        <a href="../../configuration/files/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1685,7 +1684,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/file_types" class=" "
+        <a href="../../configuration/file_types/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1701,7 +1700,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/env" class=" "
+        <a href="../../configuration/env/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1717,7 +1716,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/root" class=" "
+        <a href="../../configuration/root/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1733,7 +1732,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/exclude" class=" "
+        <a href="../../configuration/exclude/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1749,7 +1748,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/fail_text" class=" "
+        <a href="../../configuration/fail_text/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1765,7 +1764,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/stage_fixed" class=" "
+        <a href="../../configuration/stage_fixed/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1781,7 +1780,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/interactive" class=" "
+        <a href="../../configuration/interactive/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1797,7 +1796,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/use_stdin" class=" "
+        <a href="../../configuration/use_stdin/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1813,7 +1812,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/priority" class=" "
+        <a href="../../configuration/priority/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1833,7 +1832,7 @@
     
       <li class="collapsible nav-group"  aria-expanded="false" >
       
-        <a href="../../configuration/Scripts" class=" nav-group"
+        <a href="../../configuration/Scripts/" class=" nav-group"
           >
           
           <span class="nav-item-title">
@@ -1866,7 +1865,7 @@
             
       <li class="" >
       
-        <a href="../../configuration/runner" class=" "
+        <a href="../../configuration/runner/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1882,7 +1881,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/args" class=" "
+        <a href="../../configuration/args/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1898,7 +1897,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/skip" class=" "
+        <a href="../../configuration/skip/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1914,7 +1913,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/only" class=" "
+        <a href="../../configuration/only/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1930,7 +1929,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/tags" class=" "
+        <a href="../../configuration/tags/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1946,7 +1945,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/env" class=" "
+        <a href="../../configuration/env/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1962,7 +1961,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/fail_text" class=" "
+        <a href="../../configuration/fail_text/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1978,7 +1977,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/stage_fixed" class=" "
+        <a href="../../configuration/stage_fixed/" class=" "
           >
           
           <span class="nav-item-title">
@@ -1994,7 +1993,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/interactive" class=" "
+        <a href="../../configuration/interactive/" class=" "
           >
           
           <span class="nav-item-title">
@@ -2010,7 +2009,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/use_stdin" class=" "
+        <a href="../../configuration/use_stdin/" class=" "
           >
           
           <span class="nav-item-title">
@@ -2026,7 +2025,7 @@
     
       <li class="" >
       
-        <a href="../../configuration/priority" class=" "
+        <a href="../../configuration/priority/" class=" "
           >
           
           <span class="nav-item-title">
@@ -2102,7 +2101,7 @@
             
       <li class="" >
       
-        <a href="../../usage/commands/install" class=" "
+        <a href="../../usage/commands/install/" class=" "
           >
            
 <svg class="lucide-icon icon-chevron-right " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
@@ -2134,7 +2133,7 @@
     
       <li class="" >
       
-        <a href="../../usage/commands/uninstall" class=" "
+        <a href="../../usage/commands/uninstall/" class=" "
           >
            
 <svg class="lucide-icon icon-chevron-right " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
@@ -2166,7 +2165,7 @@
     
       <li class="" >
       
-        <a href="../../usage/commands/run" class=" "
+        <a href="../../usage/commands/run/" class=" "
           >
            
 <svg class="lucide-icon icon-chevron-right " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
@@ -2198,7 +2197,7 @@
     
       <li class="" >
       
-        <a href="../../usage/commands/add" class=" "
+        <a href="../../usage/commands/add/" class=" "
           >
            
 <svg class="lucide-icon icon-chevron-right " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
@@ -2230,7 +2229,7 @@
     
       <li class="" >
       
-        <a href="../../usage/commands/validate" class=" "
+        <a href="../../usage/commands/validate/" class=" "
           >
            
 <svg class="lucide-icon icon-chevron-right " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
@@ -2262,7 +2261,7 @@
     
       <li class="" >
       
-        <a href="../../usage/commands/dump" class=" "
+        <a href="../../usage/commands/dump/" class=" "
           >
            
 <svg class="lucide-icon icon-chevron-right " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
@@ -2294,7 +2293,7 @@
     
       <li class="" >
       
-        <a href="../../usage/commands/check-install" class=" "
+        <a href="../../usage/commands/check-install/" class=" "
           >
            
 <svg class="lucide-icon icon-chevron-right " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
@@ -2326,7 +2325,7 @@
     
       <li class="" >
       
-        <a href="../../usage/commands/self-update" class=" "
+        <a href="../../usage/commands/self-update/" class=" "
           >
            
 <svg class="lucide-icon icon-chevron-right " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
@@ -2406,7 +2405,7 @@
             
       <li class="" >
       
-        <a href="../../usage/envs/LEFTHOOK" class=" "
+        <a href="../../usage/envs/LEFTHOOK/" class=" "
           >
           
           <span class="nav-item-title">
@@ -2422,7 +2421,7 @@
     
       <li class="" >
       
-        <a href="../../usage/envs/LEFTHOOK_VERBOSE" class=" "
+        <a href="../../usage/envs/LEFTHOOK_VERBOSE/" class=" "
           >
           
           <span class="nav-item-title">
@@ -2438,7 +2437,7 @@
     
       <li class="" >
       
-        <a href="../../usage/envs/LEFTHOOK_OUTPUT" class=" "
+        <a href="../../usage/envs/LEFTHOOK_OUTPUT/" class=" "
           >
           
           <span class="nav-item-title">
@@ -2454,7 +2453,7 @@
     
       <li class="" >
       
-        <a href="../../usage/envs/LEFTHOOK_CONFIG" class=" "
+        <a href="../../usage/envs/LEFTHOOK_CONFIG/" class=" "
           >
           
           <span class="nav-item-title">
@@ -2470,7 +2469,7 @@
     
       <li class="" >
       
-        <a href="../../usage/envs/LEFTHOOK_EXCLUDE" class=" "
+        <a href="../../usage/envs/LEFTHOOK_EXCLUDE/" class=" "
           >
           
           <span class="nav-item-title">
@@ -2486,7 +2485,7 @@
     
       <li class="" >
       
-        <a href="../../usage/envs/CLICOLOR_FORCE" class=" "
+        <a href="../../usage/envs/CLICOLOR_FORCE/" class=" "
           >
           
           <span class="nav-item-title">
@@ -2502,7 +2501,7 @@
     
       <li class="" >
       
-        <a href="../../usage/envs/NO_COLOR" class=" "
+        <a href="../../usage/envs/NO_COLOR/" class=" "
           >
           
           <span class="nav-item-title">
@@ -2518,7 +2517,7 @@
     
       <li class="" >
       
-        <a href="../../usage/envs/CI" class=" "
+        <a href="../../usage/envs/CI/" class=" "
           >
           
           <span class="nav-item-title">
@@ -2592,7 +2591,7 @@
             
       <li class="" >
       
-        <a href="../../examples/lefthook-local" class=" "
+        <a href="../../examples/lefthook-local/" class=" "
           >
           
           <span class="nav-item-title">
@@ -2608,7 +2607,7 @@
     
       <li class="" >
       
-        <a href="../../examples/wrap-commands" class=" "
+        <a href="../../examples/wrap-commands/" class=" "
           >
           
           <span class="nav-item-title">
@@ -2624,7 +2623,7 @@
     
       <li class="" >
       
-        <a href="../../examples/stage_fixed" class=" "
+        <a href="../../examples/stage_fixed/" class=" "
           >
           
           <span class="nav-item-title">
@@ -2640,7 +2639,7 @@
     
       <li class="" >
       
-        <a href="../../examples/filters" class=" "
+        <a href="../../examples/filters/" class=" "
           >
           
           <span class="nav-item-title">
@@ -2656,7 +2655,7 @@
     
       <li class="" >
       
-        <a href="../../examples/skip" class=" "
+        <a href="../../examples/skip/" class=" "
           >
           
           <span class="nav-item-title">
@@ -2672,7 +2671,7 @@
     
       <li class="" >
       
-        <a href="../../examples/remotes" class=" "
+        <a href="../../examples/remotes/" class=" "
           >
           
           <span class="nav-item-title">
@@ -2688,7 +2687,7 @@
     
       <li class="" >
       
-        <a href="../../examples/commitlint" class=" "
+        <a href="../../examples/commitlint/" class=" "
           >
           
           <span class="nav-item-title">
@@ -2708,7 +2707,7 @@
     
       <li class="" >
       
-        <a href="../../misc/contributors" class=" "
+        <a href="../../misc/contributors/" class=" "
           >
            
 <svg class="lucide-icon icon-users-round " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
@@ -2793,24 +2792,25 @@
     
   </ul>
 </nav>
-
-              <div class="sidebar-bottom-group mt-auto">
-                
-                    
-              </div>
-          </aside>
+        <div class="sidebar-bottom-group mt-auto">
           
-            <div class="main-content-wrapper">
+          
+          
+          
+        </div>
+      </aside>
+      
+      <div class="main-content-wrapper">
+        
+        
+          <header class="page-header">
+            <div class="header-left">
               
-                    
-                      <header class="page-header">
-                        <div class="header-left">
-                          
-                            <button id="sidebar-toggle-button" class="sidebar-toggle-button"
-                              aria-label="Toggle Sidebar">
-                              
-<svg class="lucide-icon icon-panel-left-close " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
-  class="lucide lucide-panel-left-close"
+                <button id="sidebar-toggle-button" class="sidebar-toggle-button"
+                  aria-label="toggleSidebar">
+                  
+<svg class="lucide-icon icon-chevron-left " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
+  class="lucide lucide-chevron-left"
   xmlns="http://www.w3.org/2000/svg"
   width="24"
   height="24"
@@ -2821,28 +2821,25 @@
   stroke-linecap="round"
   stroke-linejoin="round"
 >
-  <rect width="18" height="18" x="3" y="3" rx="2" />
-  <path d="M9 3v18" />
-  <path d="m16 15-3-3 3-3" />
+  <path d="m15 18-6-6 6-6" />
 </svg>
 
-                            </button>
-                            
-                              <div class="header-titles-wrapper">
-                                <span class="header-title">
-                                  Manual
-                                </span>
-                              </div>
-                        </div>
-
-                        <div class="header-right">
-                          
-                            
+                </button>
+              
+              <div class="header-titles-wrapper">
+                <span class="header-title">
+                  Manual
+                </span>
+              </div>
+            </div>
+            <div class="header-right">
+              
+                
 
 
 <div class="docmd-options-menu">
     
-    <button class="docmd-search-trigger" aria-label="Search">
+    <button class="docmd-search-trigger" aria-label="search">
         
 <svg class="lucide-icon icon-search " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-search"
@@ -2860,13 +2857,17 @@
   <circle cx="11" cy="11" r="8" />
 </svg>
 
-        <span class="search-label">Search</span>
+        <span class="search-label">search</span>
         <span class="search-keys"><kbd class="docmd-kbd">⌘</kbd><kbd class="docmd-kbd">K</kbd></span>
     </button>
     
 
     
-    <button class="theme-toggle-button" aria-label="Toggle theme">
+
+    
+
+    
+    <button class="theme-toggle-button" aria-label="toggleTheme">
         
 <svg class="lucide-icon icon-sun icon-sun" width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-sun"
@@ -2912,24 +2913,27 @@
     
 </div>
 
-                              
-                        </div>
-                      </header>
-                      
-                        <div class="content-theme-cover">
-                          <main class="content-area" id="main-content">
-                            <div class="content-layout">
-                              <div class="main-content">
-                                
-                                  <nav aria-label="breadcrumb" class="docmd-breadcrumbs">
-                                    <ol>
-                                      
-                                        <li class="breadcrumb-item " >
-                                          
-                                            <a href="../../install">Installation</a>
-                                          
-                                          
-                                            <span class="breadcrumb-separator">
+              
+            </div>
+          </header>
+        
+        <div class="content-theme-cover">
+          <main class="content-area" id="main-content">
+            <div class="content-layout">
+              <div class="main-content">
+                <div class="docmd-breadcrumbs-row">
+                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22Manual%22%0A---%0A%0A%23%20Manual%20installation%20with%20prebuilt%20executable%0A%0ADownload%20binaries%20from%20%5Blatest%20release%5D(https%3A%2F%2Fgithub.com%2Fevilmartians%2Flefthook%2Freleases%2Flatest)%20and%20install%20manually.%0A" style="display: none;"></div>
+                  
+                    <nav aria-label="breadcrumb" class="docmd-breadcrumbs">
+                      <ol>
+                        
+                        
+                          <li class="breadcrumb-item " >
+                            
+                              <a href="../../install/">Installation</a>
+                            
+                            
+                              <span class="breadcrumb-separator">
 <svg class="lucide-icon icon-chevron-right " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-chevron-right"
   xmlns="http://www.w3.org/2000/svg"
@@ -2945,59 +2949,173 @@
   <path d="m9 18 6-6-6-6" />
 </svg>
 </span>
-                                          
-                                        </li>
-                                      
-                                        <li class="breadcrumb-item active" aria-current=&quot;page&quot;>
-                                          
-                                            <span>Manual</span>
-                                          
-                                          
-                                        </li>
-                                      
-                                    </ol>
-                                  </nav>
-                                
-                                
-                                    <h1 id="manual-installation-with-prebuilt-executable">Manual installation with prebuilt executable</h1>
+                            
+                          </li>
+                        
+                          <li class="breadcrumb-item active" aria-current=&quot;page&quot;>
+                            
+                              <span>Manual</span>
+                            
+                            
+                          </li>
+                        
+                      </ol>
+                    </nav>
+                  
+
+                  
+                    <div class="docmd-copy-widgets">
+                      
+                        <button class="docmd-copy-btn docmd-copy-raw-btn" data-copied="copiedToClipboard" title="copyMarkdown" aria-label="copyMarkdown">
+                          <span class="docmd-btn-icon">
+<svg class="lucide-icon icon-copy " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
+  class="lucide lucide-copy"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+  <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+</svg>
+</span>
+                        </button>
+                      
+                      
+                        <button class="docmd-copy-btn docmd-copy-context-btn" data-copied="copiedToClipboard" title="copyContext">
+                          <span class="docmd-btn-icon">
+<svg class="lucide-icon icon-message-square " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
+  class="lucide lucide-message-square"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z" />
+</svg>
+</span>
+                          <span class="docmd-btn-text">copyContext</span>
+                        </button>
+                      
+                    </div>
+                  
+                </div>
+                
+                <h1 id="manual-installation-with-prebuilt-executable" class="docmd-heading"><a href="#manual-installation-with-prebuilt-executable" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Manual installation with prebuilt executable</h1>
 <p>Download binaries from <a href="https://github.com/evilmartians/lefthook/releases/latest">latest release</a> and install manually.</p>
 
-                                      
-                              </div>
-                              <div class="toc-sidebar">
-                                
+                
+              </div>
+              <div class="toc-sidebar">
+                
 
 
-                              </div>
+              </div>
+            </div>
+            <div class="page-footer-actions">
+              
+              
+                <span class="git-last-updated" data-timestamp="1780912090000">
+                  <svg class="git-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  <span class="git-label">Last updated:</span>
+                  <span class="git-time" data-timestamp="1780912090000"></span>
+                  
+                  <div class="git-commit-tooltip" role="tooltip">
+                    <div class="git-tooltip-title">Recent commits</div>
+                    <ul class="git-commit-list">
+                      
+                        <li class="git-commit-item">
+                          <div class="git-commit-avatar" title="Valentin Kiselev">
+                            
+                              <img src="https://www.gravatar.com/avatar/fce8c6aadd661388bd7629fef7f88f1c?d=mp&amp;s=64" alt="Valentin Kiselev">
+                            
+                          </div>
+                          <div class="git-commit-details">
+                            <div class="git-commit-message" title="docs: upgrade docmd (#1442)">docs: upgrade docmd (#1442)</div>
+                            <div class="git-commit-meta">
+                              <span class="git-commit-author">Valentin Kiselev</span>
+                              <span class="git-commit-date" data-timestamp="1780912090000"></span>
                             </div>
-                            <div class="page-footer-actions">
-                              
-                            </div>
-                          </main>
-                          
+                          </div>
+                        </li>
+                      
+                    </ul>
+                  </div>
+                  
+                </span>
+              
+              <span class="git-spacer"></span>
+              
+                <a href="https://github.com/evilmartians/lefthook/edit/master/docs/installation/manual.md" target="_blank" rel="noopener noreferrer" class="edit-link">
+                  
+<svg class="lucide-icon icon-pencil " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
+  class="lucide lucide-pencil"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+  <path d="m15 5 4 4" />
+</svg>
+
+                  Edit this page
+                </a>
+              
+            </div>
+          </main>
+          
 
 
 <footer class="page-footer">
-    <div class="footer-content">
-        <div class="user-footer">© 2026 Lefthook. Evil Martians.</div>
-        
-        <div class="branding-footer">
-            Built with <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path><path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"></path><path d="m18 15-2-2"></path><path d="m15 18-2-2"></path></svg> <a href="https://docmd.io" target="_blank" rel="noopener">docmd.</a>
-        </div>
-        
-    </div>
+  <div class="footer-content">
+    <div class="user-footer">© 2026 Lefthook. Evil Martians.</div>
+    
+      <div class="branding-footer">
+        builtWith <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path><path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"></path><path d="m18 15-2-2"></path><path d="m15 18-2-2"></path></svg> <a href="https://docmd.io" target="_blank" rel="noopener">docmd.</a>
+      </div>
+    
+  </div>
 </footer>
 
-                        </div>
-            </div>
-            <script src="../../assets/js/docmd-main.js?v=mpz5rgxb"></script>
-            <script src="../../assets/js/docmd-image-lightbox.js?v=mpz5rgxb" ></script>
+        </div>
+      </div>
+      
+      <script src="../../assets/js/docmd-main.js?v=mq51361i"></script>
+      
+      <script src="../../assets/js/docmd-git.js?v=mq51361i"></script>
+      <script src="../../assets/js/docmd-image-lightbox.js?v=mq51361i" ></script>
 <script src="https://cdn.jsdelivr.net/npm/minisearch@7.2.0/dist/umd/index.min.js" ></script>
-<script src="../../assets/js/docmd-search.js?v=mpz5rgxb" ></script>
-<script src="../../assets/js/init-mermaid.js?v=mpz5rgxb" type="module"></script>
+<script src="../../assets/js/docmd-search.js?v=mq51361i" ></script>
+<script src="../../assets/js/init-mermaid.js?v=mq51361i" type="module"></script>
+<script src="../../assets/js/docmd-git.js?v=mq51361i" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
-  <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;">
+  <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;" data-show-confidence="false" data-show-filters="true"
+       data-search-placeholder="Search documentation..."
+       data-search-no-results="No results found."
+       data-search-error="Failed to load search index."
+       data-search-initial="Type to start searching..."
+       data-search-navigate="to navigate"
+       data-search-escape="to close">
       <div class="docmd-search-box">
           <div class="docmd-search-header">
               <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon icon-search"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
@@ -3061,7 +3179,7 @@
       })();
     </script>
 
-              
-</body>
-
+<script>window.__git_config={"repo":"https://github.com/evilmartians/lefthook","branch":"master","editLink":true,"lastUpdated":true,"commitHistory":true,"maxCommits":5,"dateFormat":"relative"};window.__git_i18n={"lastUpdated":"Last updated","recentCommits":"Recent commits","viewCommitHistory":"View commit history","editOnGitHub":"Edit on GitHub","editOnGitLab":"Edit on GitLab","editOnBitbucket":"Edit on Bitbucket","editThisPage":"Edit this page","justNow":"just now","minutesAgo":"{n}m ago","hoursAgo":"{n}h ago","daysAgo":"{n}d ago"}</script>
+      
+  </body>
 </html>

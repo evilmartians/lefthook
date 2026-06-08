@@ -1,0 +1,636 @@
+{
+  "title": "Lefthook",
+  "description": "",
+  "pages": [
+    {
+      "title": "args",
+      "url": "https://lefthook.dev/configuration/args/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "assert_lefthook_installed",
+      "url": "https://lefthook.dev/configuration/assert_lefthook_installed/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "colors",
+      "url": "https://lefthook.dev/configuration/colors/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "commands",
+      "url": "https://lefthook.dev/configuration/Commands/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "configs",
+      "url": "https://lefthook.dev/configuration/configs/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "env",
+      "url": "https://lefthook.dev/configuration/env/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "exclude_tags",
+      "url": "https://lefthook.dev/configuration/exclude_tags/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "exclude",
+      "url": "https://lefthook.dev/configuration/exclude/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "extends",
+      "url": "https://lefthook.dev/configuration/extends/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "fail_on_changes_diff",
+      "url": "https://lefthook.dev/configuration/fail_on_changes_diff/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "fail_on_changes",
+      "url": "https://lefthook.dev/configuration/fail_on_changes/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "fail_text",
+      "url": "https://lefthook.dev/configuration/fail_text/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "file_types",
+      "url": "https://lefthook.dev/configuration/file_types/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "files (hook-level)",
+      "url": "https://lefthook.dev/configuration/files-global/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "files (job-level)",
+      "url": "https://lefthook.dev/configuration/files/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "follow",
+      "url": "https://lefthook.dev/configuration/follow/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "git_url",
+      "url": "https://lefthook.dev/configuration/git_url/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "glob_matcher",
+      "url": "https://lefthook.dev/configuration/glob_matcher/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "glob",
+      "url": "https://lefthook.dev/configuration/glob/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "group",
+      "url": "https://lefthook.dev/configuration/group/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Hook",
+      "url": "https://lefthook.dev/configuration/Hook/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Untitled",
+      "url": "https://lefthook.dev/configuration/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Configuration",
+      "url": "https://lefthook.dev/configuration/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "install_non_git_hooks",
+      "url": "https://lefthook.dev/configuration/install_non_git_hooks/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "interactive",
+      "url": "https://lefthook.dev/configuration/interactive/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "jobs",
+      "url": "https://lefthook.dev/configuration/jobs/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "lefthook",
+      "url": "https://lefthook.dev/configuration/lefthook/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "min_version",
+      "url": "https://lefthook.dev/configuration/min_version/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "name",
+      "url": "https://lefthook.dev/configuration/name/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "no_auto_install",
+      "url": "https://lefthook.dev/configuration/no_auto_install/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "no_tty",
+      "url": "https://lefthook.dev/configuration/no_tty/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "only",
+      "url": "https://lefthook.dev/configuration/only/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "output",
+      "url": "https://lefthook.dev/configuration/output/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "parallel",
+      "url": "https://lefthook.dev/configuration/parallel/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "piped",
+      "url": "https://lefthook.dev/configuration/piped/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "priority",
+      "url": "https://lefthook.dev/configuration/priority/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "rc",
+      "url": "https://lefthook.dev/configuration/rc/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "ref",
+      "url": "https://lefthook.dev/configuration/ref/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "refetch_frequency",
+      "url": "https://lefthook.dev/configuration/refetch_frequency/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "refetch",
+      "url": "https://lefthook.dev/configuration/refetch/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "remotes",
+      "url": "https://lefthook.dev/configuration/remotes/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "root",
+      "url": "https://lefthook.dev/configuration/root/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "run",
+      "url": "https://lefthook.dev/configuration/run/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "runner",
+      "url": "https://lefthook.dev/configuration/runner/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "script",
+      "url": "https://lefthook.dev/configuration/script/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Scripts",
+      "url": "https://lefthook.dev/configuration/Scripts/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "setup",
+      "url": "https://lefthook.dev/configuration/setup/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "skip_lfs",
+      "url": "https://lefthook.dev/configuration/skip_lfs/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "skip",
+      "url": "https://lefthook.dev/configuration/skip/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "source_dir_local",
+      "url": "https://lefthook.dev/configuration/source_dir_local/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "source_dir",
+      "url": "https://lefthook.dev/configuration/source_dir/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "stage_fixed",
+      "url": "https://lefthook.dev/configuration/stage_fixed/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "tags",
+      "url": "https://lefthook.dev/configuration/tags/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "templates",
+      "url": "https://lefthook.dev/configuration/templates/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "use_stdin",
+      "url": "https://lefthook.dev/configuration/use_stdin/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Commitlint and commitzen",
+      "url": "https://lefthook.dev/examples/commitlint/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Filters",
+      "url": "https://lefthook.dev/examples/filters/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "lefthook-local.yml",
+      "url": "https://lefthook.dev/examples/lefthook-local/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Remotes",
+      "url": "https://lefthook.dev/examples/remotes/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Skip or run on condition",
+      "url": "https://lefthook.dev/examples/skip/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Stage fixed files",
+      "url": "https://lefthook.dev/examples/stage_fixed/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Wrap commands in local config",
+      "url": "https://lefthook.dev/examples/wrap-commands/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "What is Lefthook?",
+      "url": "https://lefthook.dev/",
+      "description": "Welcome to Lefthook documentation",
+      "priority": "high"
+    },
+    {
+      "title": "Install Lefthook",
+      "url": "https://lefthook.dev/install/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Alpine",
+      "url": "https://lefthook.dev/installation/alpine/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Arch Linux",
+      "url": "https://lefthook.dev/installation/arch/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Debian-based",
+      "url": "https://lefthook.dev/installation/deb/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Devbox",
+      "url": "https://lefthook.dev/installation/devbox/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Go",
+      "url": "https://lefthook.dev/installation/go/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Homebrew",
+      "url": "https://lefthook.dev/installation/homebrew/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Manual",
+      "url": "https://lefthook.dev/installation/manual/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Mise",
+      "url": "https://lefthook.dev/installation/mise/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "NPM",
+      "url": "https://lefthook.dev/installation/node/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Python",
+      "url": "https://lefthook.dev/installation/python/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "RPM-based",
+      "url": "https://lefthook.dev/installation/rpm/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Ruby",
+      "url": "https://lefthook.dev/installation/ruby/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Scoop",
+      "url": "https://lefthook.dev/installation/scoop/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Snap",
+      "url": "https://lefthook.dev/installation/snap/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Swift",
+      "url": "https://lefthook.dev/installation/swift/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Winget",
+      "url": "https://lefthook.dev/installation/winget/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Contributors",
+      "url": "https://lefthook.dev/misc/contributors/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "lefthook add",
+      "url": "https://lefthook.dev/usage/commands/add/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "lefthook check-install",
+      "url": "https://lefthook.dev/usage/commands/check-install/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "lefthook dump",
+      "url": "https://lefthook.dev/usage/commands/dump/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "lefthook install",
+      "url": "https://lefthook.dev/usage/commands/install/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "lefthook run",
+      "url": "https://lefthook.dev/usage/commands/run/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "lefthook self-update",
+      "url": "https://lefthook.dev/usage/commands/self-update/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "lefthook uninstall",
+      "url": "https://lefthook.dev/usage/commands/uninstall/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "lefthook validate",
+      "url": "https://lefthook.dev/usage/commands/validate/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "lefthook version",
+      "url": "https://lefthook.dev/usage/commands/version/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "CI",
+      "url": "https://lefthook.dev/usage/envs/CI/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "CLICOLOR_FORCE",
+      "url": "https://lefthook.dev/usage/envs/CLICOLOR_FORCE/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "LEFTHOOK_BIN",
+      "url": "https://lefthook.dev/usage/envs/LEFTHOOK_BIN/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "LEFTHOOK_CONFIG",
+      "url": "https://lefthook.dev/usage/envs/LEFTHOOK_CONFIG/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "LEFTHOOK_EXCLUDE",
+      "url": "https://lefthook.dev/usage/envs/LEFTHOOK_EXCLUDE/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "LEFTHOOK_OUTPUT",
+      "url": "https://lefthook.dev/usage/envs/LEFTHOOK_OUTPUT/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "LEFTHOOK_VERBOSE",
+      "url": "https://lefthook.dev/usage/envs/LEFTHOOK_VERBOSE/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "LEFTHOOK",
+      "url": "https://lefthook.dev/usage/envs/LEFTHOOK/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "NO_COLOR",
+      "url": "https://lefthook.dev/usage/envs/NO_COLOR/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Capture ARGS from git in the script",
+      "url": "https://lefthook.dev/usage/features/git-args/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Git LFS support",
+      "url": "https://lefthook.dev/usage/features/git-lfs/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Interactive commands",
+      "url": "https://lefthook.dev/usage/features/interactive/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Local config",
+      "url": "https://lefthook.dev/usage/features/local/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Pass stdin to a command or script",
+      "url": "https://lefthook.dev/usage/features/pass-stdin/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
+      "title": "Usage",
+      "url": "https://lefthook.dev/usage/",
+      "description": "",
+      "priority": "medium"
+    }
+  ]
+}
