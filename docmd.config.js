@@ -1,15 +1,15 @@
 module.exports = {
-  siteTitle: "Lefthook",
-  siteUrl: "https://lefthook.dev",
+  title: "Lefthook",
+  url: "https://lefthook.dev",
+  favicon: "/assets/favicon.svg",
+  src: "docs",
+  out: "site",
   logo: {
     light: "/assets/lefthook.png",
     dark: "/assets/lefthook.png",
     alt: "Logo",
     href: "/"
   },
-  favicon: "/assets/favicon.svg",
-  srcDir: "docs",
-  outputDir: "site",
   layout: {
     spa: true,
     header: {
@@ -44,12 +44,11 @@ module.exports = {
   autoTitleFromH1: true,
   copyCode: true,
   pageNavigation: false,
-  editLink: {
-    enabled: false,
-    baseUrl: "https://github.com/evilmartians/lefthook/edit/main/docs",
-    text: "Edit this page"
-  },
   plugins: {
+    git: {
+      repo: "https://github.com/evilmartians/lefthook",
+      branch: "master"
+    },
     seo: {
       defaultDescription: "Lefthook documentation.",
       openGraph: {
