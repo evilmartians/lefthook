@@ -1,6 +1,6 @@
 module github.com/evilmartians/lefthook/v2
 
-go 1.26.3
+go 1.26.4
 
 require (
 	charm.land/lipgloss/v2 v2.0.3
@@ -13,7 +13,7 @@ require (
 	github.com/gobwas/glob v0.2.3
 	github.com/goccy/go-yaml v1.19.2
 	github.com/invopop/jsonschema v0.14.0
-	github.com/kaptinlin/jsonschema v0.7.15
+	github.com/kaptinlin/jsonschema v0.8.0
 	github.com/knadh/koanf/maps v0.1.2
 	github.com/knadh/koanf/parsers/json v1.0.0
 	github.com/knadh/koanf/parsers/toml/v2 v2.2.1
@@ -42,11 +42,9 @@ require (
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
-	github.com/go-json-experiment/json v0.0.0-20260520185125-572e7c383686 // indirect
+	github.com/go-json-experiment/json v0.0.0-20260601182631-00ed12fed2a6 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
-	github.com/kaptinlin/go-i18n v0.4.9 // indirect
-	github.com/kaptinlin/jsonpointer v0.4.25 // indirect
-	github.com/kaptinlin/messageformat-go v0.6.4 // indirect
+	github.com/kaptinlin/jsonpointer v0.4.26 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
