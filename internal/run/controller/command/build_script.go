@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alessio/shellescape"
+	"al.essio.dev/pkg/shellescape"
 
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/command/replacer"
 	"github.com/evilmartians/lefthook/v2/internal/system"
