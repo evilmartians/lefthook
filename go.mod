@@ -61,7 +61,7 @@ require (
 )
 
 require (
-	github.com/alessio/shellescape v1.4.1
+	al.essio.dev/pkg/shellescape v1.6.0
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
