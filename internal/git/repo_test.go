@@ -179,6 +179,42 @@ func TestChangeset(t *testing.T) {
 	}
 }
 
+func TestPrintDiff(t *testing.T) {
+	for name, tt := range map[string]struct {
+		colors  bool
+		files   []string
+		command string
+	}{
+		"with colors enabled appends --color": {
+			colors:  true,
+			files:   []string{"file2", "file1"},
+			command: "git diff --color -- file1 file2",
+		},
+		"with colors disabled omits --color": {
+			colors:  false,
+			files:   []string{"file2", "file1"},
+			command: "git diff -- file1 file2",
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			log := loggertest.New()
+			if tt.colors {
+				log = loggertest.NewWithColors()
+			}
+
+			repository := &Repo{
+				logger: log,
+				Git: NewCommander(
+					cmdtest.NewOrdered(t, []cmdtest.Out{{Command: tt.command, Output: "diff output"}}),
+					log,
+				),
+			}
+
+			repository.PrintDiff(tt.files)
+		})
+	}
+}
+
 func TestPushFiles(t *testing.T) {
 	t.Run("falls back to ls-tree for initial push without upstream", func(t *testing.T) {
 		fs := afero.NewMemMapFs()

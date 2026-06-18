@@ -7,9 +7,19 @@ import (
 )
 
 func New() *logger.Logger {
-	return logger.New(io.Discard)
+	// Disable colors by default so test output is deterministic
+	// regardless of environment variables such as `NO_COLOR`.
+	l := logger.New(io.Discard)
+	l.DisableColors()
+	return l
+}
+
+func NewWithColors() *logger.Logger {
+	l := logger.New(io.Discard)
+	l.EnableColors()
+	return l
 }
 
 func NewExecution() *logger.ExecutionLogger {
-	return logger.New(io.Discard).NewExecutionLogger()
+	return New().NewExecutionLogger()
 }
