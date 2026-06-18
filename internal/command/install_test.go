@@ -29,6 +29,10 @@ func TestLefthookInstall(t *testing.T) {
 		return filepath.Join(gittest.GitPath(root), "info", file)
 	}
 
+	projectPath := func(file string) string {
+		return filepath.Join(root, file)
+	}
+
 	for n, tt := range [...]struct {
 		name, config, checksum  string
 		force                   bool
@@ -310,6 +314,53 @@ remotes:
 				{
 					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.0") + " checkout FETCH_HEAD",
 				},
+			},
+		},
+		{
+			name: "simple config with ai",
+			config: `
+ai:
+  claude:
+    Stop: validate
+  codex:
+    Stop: validate
+
+validate:
+  jobs:
+    - run: go test ./...
+`,
+			wantExist: []string{
+				configPath,
+				projectPath(".claude/settings.json"),
+				projectPath(".codex/hooks.json"),
+				infoPath(config.ChecksumFileName),
+			},
+			wantNotExist: []string{
+				hookPath(config.GhostHookName),
+			},
+		},
+		{
+			name: "simple invalid config with ai",
+			config: `
+ai:
+  claude:
+    Stop: validate1
+  codex:
+    Stop: validate
+
+validate:
+  jobs:
+    - run: go test ./...
+`,
+			wantError: true,
+			wantExist: []string{
+				configPath,
+				infoPath(config.ChecksumFileName),
+			},
+			wantNotExist: []string{
+				projectPath(".claude/settings.json"),
+				projectPath(".codex/hooks.json"),
+				hookPath(config.GhostHookName),
 			},
 		},
 	} {
