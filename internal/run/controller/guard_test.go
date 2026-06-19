@@ -52,7 +52,7 @@ func Test_guard_wrap(t *testing.T) {
 				{Command: "git hash-object -- file1 file2", Output: "0\n1\n"},
 				{Command: "git status --short --porcelain -z", Output: " M file1\x00 M file2\x00"},
 				{Command: "git hash-object -- file1 file2", Output: "2\n3\n"},
-				{Command: "git diff --color -- file1 file2", Output: "diff --git a/file1 b/file1\n..."},
+				{Command: "git diff -- file1 file2", Output: "diff --git a/file1 b/file1\n..."},
 			},
 			err: &FailOnChangesError{[]string{"file1", "file2"}},
 		},
@@ -130,7 +130,7 @@ func Test_guard_wrap(t *testing.T) {
 				// job run
 				{Command: "git status --short --porcelain -z", Output: "AM file1\x00"},
 				{Command: "git hash-object -- file1", Output: "hash2\n"},
-				{Command: "git diff --color -- file1", Output: "diff --git a/file1 b/file1\n..."},
+				{Command: "git diff -- file1", Output: "diff --git a/file1 b/file1\n..."},
 				{Command: "git checkout --force -- file1", Output: ""},
 				{Command: "git stash list", Output: "0: my stash\n1: lefthook auto backup\n2: my second stash\n"},
 				{Command: "git stash drop --quiet -- 1", Output: ""},
