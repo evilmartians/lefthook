@@ -9,11 +9,11 @@ description: "Welcome to Lefthook documentation"
 - Powerful
 - Simple
 
-## How lefthook works?
+## How does lefthook work?
 
 You
 
-- Configure [`lefthook.yml`](./configuration.md)
+- Create [`lefthook.yml`](./configuration.md) configuration file
 - Run `lefthook install`
 
 Lefthook installs the configured hooks into `.git/hooks/`. Hook is a simple script that calls `lefthook run {hook-name}` when executed.
