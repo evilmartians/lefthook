@@ -9,7 +9,7 @@ description: "Welcome to Lefthook documentation"
 - Powerful
 - Simple
 
-## How lefthook works?
+## How does lefthook work?
 
 You
 
