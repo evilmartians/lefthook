@@ -7,29 +7,30 @@
 -->
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"
+  >
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>404 : Page Not Found</title>
 
   <!-- Force absolute paths for assets using relativePathToRoot (which we will set to '/') -->
   <link rel="icon" href="/assets/favicon.svg">
 
   <!-- 1. Core CSS -->
-  <link rel="stylesheet" href="/assets/css/docmd-main.css?v=mqkyequb">
+  <link rel="stylesheet" href="/assets/css/docmd-main.css?v=mqrqxaet">
 
   <!-- 2. Highlight.js (Theme aware) -->
   
-  <link rel="stylesheet" href="/assets/css/docmd-highlight-light.css?v=mqkyequb" id="hljs-light" >
-  <link rel="stylesheet" href="/assets/css/docmd-highlight-dark.css?v=mqkyequb" id="hljs-dark" disabled>
+  <link rel="stylesheet" href="/assets/css/docmd-highlight-light.css?v=mqrqxaet" id="hljs-light" >
+  <link rel="stylesheet" href="/assets/css/docmd-highlight-dark.css?v=mqrqxaet" id="hljs-dark" disabled>
 
   <!-- 3. Theme CSS -->
   
 
   <!-- 4. Custom CSS -->
   
-    <link rel="stylesheet" href="/assets/css/lefthook.css?v=mqkyequb">
+    <link rel="stylesheet" href="/assets/css/lefthook.css?v=mqrqxaet">
   
 
   <!-- 5. Theme Init (Dark Mode logic) -->
@@ -50,9 +51,27 @@
 (function () {
   try {
     // 1. Determine Theme
+    //
+    // Resolve from three sources, in priority order:
+    //   1. localStorage explicit user choice (light / dark)
+    //   2. window.DOCMD_APPEARANCE  (current canonical name, set by EJS templates)
+    //   3. window.DOCMD_DEFAULT_MODE (legacy alias kept for pre-0.8.7 outputs)
+    //   4. 'light' as the final fallback
+    //
+    // Note: localStorage is only honoured when it holds an explicit
+    // 'light' or 'dark' value. A stored 'system' value (from a prior
+    // session where the user picked "follow system") must NOT win over
+    // a freshly resolved config value — the resolved value will itself
+    // be 'system' in that case and the OS preference check below takes
+    // over, so this is a no-op for the in-session behaviour but keeps
+    // any future storage migration simple.
     var localValue = localStorage.getItem('docmd-theme');
-    var configValue = window.DOCMD_DEFAULT_MODE || 'light';
-    var theme = localValue ? localValue : configValue;
+    var configValue = window.DOCMD_APPEARANCE
+      || window.DOCMD_DEFAULT_MODE
+      || 'light';
+    var theme = (localValue === 'light' || localValue === 'dark')
+      ? localValue
+      : configValue;
 
     if (theme === 'system') {
       theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -81,6 +100,7 @@
     console.error('Theme init failed', e);
   }
 })();</script>
+
   <style>
     body {
       display: flex;
@@ -89,43 +109,144 @@
       justify-content: center;
       min-height: 100vh;
       text-align: center;
-      padding: 20px;
+      padding: 32px 20px;
       background-color: var(--bg-color);
       color: var(--text-color);
+      position: relative;
+      overflow-x: hidden;
     }
+
+    /* Soft halo behind the card — picks up --link-color / --glow-color from the active theme */
+    body::before {
+      content: "";
+      position: absolute;
+      top: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 720px;
+      height: 720px;
+      max-width: 140vw;
+      background: radial-gradient(circle at center, var(--glow-color, rgba(6, 138, 213, 0.12)) 0%, transparent 65%);
+      filter: blur(20px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .docmd-404 {
+      position: relative;
+      z-index: 1;
+      max-width: 480px;
+      width: 100%;
+      padding: 40px 32px;
+      border-radius: var(--radius-xl, 12px);
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06));
+    }
+
+    .docmd-404__code {
+      font-size: 6rem;
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      margin: 0 0 12px;
+      color: var(--link-color);
+      opacity: 0.9;
+    }
+
+    .docmd-404__title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0 0 8px;
+      color: var(--text-heading, var(--text-color));
+    }
+
+    .docmd-404__msg {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--text-muted);
+      margin: 0 0 28px;
+    }
+
+    .docmd-404__actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .docmd-404__btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 18px;
+      border-radius: var(--radius-md, 6px);
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, filter 0.15s ease;
+    }
+
+    .docmd-404__btn--primary {
+      background-color: var(--link-color);
+      color: #fff;
+    }
+    .docmd-404__btn--primary:hover,
+    .docmd-404__btn--primary:focus {
+      transform: translateY(-1px);
+      text-decoration: none;
+      color: #fff;
+      filter: brightness(0.92);
+    }
+
+    .docmd-404__btn--ghost {
+      background-color: transparent;
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+    }
+    .docmd-404__btn--ghost:hover,
+    .docmd-404__btn--ghost:focus {
+      background-color: var(--sidebar-bg);
+      text-decoration: none;
+      color: var(--text-color);
+    }
+
+    /* Logo switch — matches the existing light/dark convention */
     .error-logo { height: 60px; margin-bottom: 2rem; width: auto; display: block; }
     .error-logo.light { display: var(--display-light, block); }
     .error-logo.dark { display: var(--display-dark, none); }
-
-    /* Simple theme logic for logo if JS fails */
     @media (prefers-color-scheme: dark) {
       :root[data-theme="system"] .error-logo.light { display: none; }
       :root[data-theme="system"] .error-logo.dark { display: block; }
     }
     :root[data-theme="dark"] .error-logo.light { display: none; }
     :root[data-theme="dark"] .error-logo.dark { display: block; }
-
-    h1 { font-size: 5rem; margin: 0; line-height: 1; color: var(--link-color); font-weight: 700; }
-    h2 { font-size: 2rem; margin: 1rem 0; }
-    p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 2rem; max-width: 500px; }
-    .docmd-button { font-size: 1.1rem; padding: 0.8rem 1.5rem; }
   </style>
 </head>
 <body>
-  
+  <main class="docmd-404" role="main" aria-labelledby="docmd-404-title">
     
-      <img src="/assets/lefthook.png" class="error-logo light" alt="Logo">
+      
+        <img src="/assets/lefthook.png" class="error-logo light" alt="Logo">
+      
+      
+        <img src="/assets/lefthook.png" class="error-logo dark" alt="Logo">
+      
     
-    
-      <img src="/assets/lefthook.png" class="error-logo dark" alt="Logo">
-    
-  
 
-  <h1>404</h1>
-  <h2>pageNotFound</h2>
-  <p>The page you are looking for does not exist or has been moved.</p>
-  <a href="/" class="docmd-button">
-    returnHome
-  </a>
+    <div class="docmd-404__code" aria-hidden="true">errorCode404</div>
+    <h1 id="docmd-404-title" class="docmd-404__title">pageNotFound</h1>
+    <p class="docmd-404__msg">The page you are looking for does not exist or has been moved.</p>
+    <div class="docmd-404__actions">
+      <a href="/" class="docmd-404__btn docmd-404__btn--primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span>returnHome</span>
+      </a>
+      <a href="javascript:history.length > 1 ? history.back() : (location.href = '/')" class="docmd-404__btn docmd-404__btn--ghost">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg>
+        <span>goBack</span>
+      </a>
+    </div>
+  </main>
 </body>
 </html>

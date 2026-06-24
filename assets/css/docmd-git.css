@@ -98,8 +98,8 @@
   letter-spacing: 0.025em;
   color: var(--text-light);
   margin-bottom: 0.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--border-color);
+  /* padding-bottom: 0.5rem; */
+  /* border-bottom: 1px solid var(--border-color); */
 }
 
 /* ── Commit List ─────────────────────────────────────────────────── */
@@ -111,7 +111,6 @@
   gap: 0.625rem;
   padding: 0.5rem 0;
 }
-.git-commit-item:not(:last-child) { border-bottom: 1px solid var(--border-color); }
 
 .git-commit-avatar {
   width: 1.75rem;
@@ -146,15 +145,15 @@
 
 .git-commit-meta {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 0.5rem;
-  font-size: 0.6875rem;
+  font-size: 0.7rem;
   color: var(--text-light);
   margin-top: 0.125rem;
 }
 
 .git-commit-author { font-weight: 500; }
-.git-commit-date { opacity: 0.8; }
+.git-commit-date {font-size: .8em;color: var(--sidebar-text);}
 
 /* ── Dark mode ───────────────────────────────────────────────────── */
 [data-theme="dark"] .git-commit-tooltip { box-shadow: var(--shadow-lg); }
