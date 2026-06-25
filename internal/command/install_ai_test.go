@@ -342,6 +342,11 @@ func TestUninstallAIHooks(t *testing.T) {
 			existingFiles: map[string]string{},
 			wantRemoved:   []string{claudePath, codexPath},
 		},
+		"handles empty files": {
+			existingFiles: map[string]string{
+				claudePath: "",
+			},
+		},
 	} {
 		t.Run(n, func(t *testing.T) {
 			assert := assert.New(t)
