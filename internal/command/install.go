@@ -76,7 +76,7 @@ func (l *Lefthook) Install(ctx context.Context, args InstallArgs, hooks []string
 			return err
 		}
 
-		if err = l.installAIHooks(cfg.AI); err != nil {
+		if err = l.installAIHooks(cfg.AI, cfg); err != nil {
 			return err
 		}
 	}

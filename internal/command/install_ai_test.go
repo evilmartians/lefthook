@@ -3,6 +3,7 @@ package command
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -281,7 +282,7 @@ func TestInstallAIHooks(t *testing.T) {
 				assert.NoError(afero.WriteFile(fs, path, []byte(content), checksumFileMode))
 			}
 
-			err := l.installAIHooks(tt.ai)
+			err := l.installAIHooks(tt.ai, &config.Config{Lefthook: "lefthook"})
 			assert.NoError(err)
 
 			if tt.wantClaude != nil {
@@ -321,6 +322,48 @@ func TestInstallAIHooks(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestResolveLefthookBin(t *testing.T) {
+	t.Run("uses config lefthook setting", func(t *testing.T) {
+		bin, quote := resolveLefthookBin(&config.Config{Lefthook: "bundle exec lefthook"})
+		assert.Equal(t, "bundle exec lefthook", bin)
+		assert.False(t, quote)
+	})
+
+	t.Run("falls back to lefthook name", func(t *testing.T) {
+		bin, quote := resolveLefthookBin(nil)
+		if _, err := os.Executable(); err != nil {
+			assert.Equal(t, "lefthook", bin)
+			assert.False(t, quote)
+			return
+		}
+
+		assert.NotEmpty(t, bin)
+	})
+}
+
+func TestIsLefthookRunCommand(t *testing.T) {
+	for n, tt := range map[string]struct {
+		cmd  string
+		want bool
+	}{
+		"legacy name":            {cmd: "lefthook run lint", want: true},
+		"absolute path":          {cmd: "/home/user/repo/lefthook run lint", want: true},
+		"quoted path with space": {cmd: "'/home/user/my repo/lefthook' run lint", want: true},
+		"windows path":           {cmd: `C:\tools\lefthook.exe run lint`, want: true},
+		"user command":           {cmd: "./custom.sh lint", want: false},
+		"other binary":           {cmd: "/usr/bin/other run lint", want: false},
+	} {
+		t.Run(n, func(t *testing.T) {
+			assert.Equal(t, tt.want, isLefthookRunCommand(tt.cmd))
+		})
+	}
+}
+
+func TestLefthookRunCommand(t *testing.T) {
+	assert.Equal(t, "lefthook run lint", lefthookRunCommand("lefthook", "lint", false))
+	assert.Equal(t, "'/my path/lefthook' run lint", lefthookRunCommand("/my path/lefthook", "lint", true))
 }
 
 func TestValidateAIHooks(t *testing.T) {

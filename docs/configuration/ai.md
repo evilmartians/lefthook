@@ -20,9 +20,11 @@ Keys under each provider must be that provider's hook event names. See the provi
 
 ## Merge behaviour
 
-Lefthook reads any existing provider file and **preserves** entries that were not written by lefthook. On every `lefthook install` run, stale lefthook-generated entries (commands whose text starts with `lefthook run `) are replaced with fresh ones derived from the current config, so the file stays up to date without accumulating duplicates.
+Lefthook reads any existing provider file and **preserves** entries that were not written by lefthook. On every `lefthook install` run, stale lefthook-generated entries are replaced with fresh ones derived from the current config, so the file stays up to date without accumulating duplicates.
 
 Running `lefthook uninstall` reverses this: lefthook-generated entries are stripped from the provider files while user-authored entries are preserved. A provider file that contained only lefthook-generated entries is removed entirely.
+
+Generated hook commands use the `lefthook` config value when set, otherwise the absolute path of the lefthook binary that ran `install` (via `os.Executable()`), so AI tools do not depend on `lefthook` being on `PATH`.
 
 ## Example
 

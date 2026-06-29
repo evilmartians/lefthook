@@ -1,5 +1,6 @@
 package version
 
+// Package version reports the lefthook release and build metadata for hooks testing.
 import (
 	"errors"
 	"strings"
