@@ -21,6 +21,8 @@ func TestLefthookUninstall(t *testing.T) {
 	configPath := filepath.Join(root, "lefthook.yml")
 	checksumPath := filepath.Join(gittest.GitPath(root), "info", config.ChecksumFileName)
 
+	claudePath := filepath.Join(root, claudeSettingsDir, claudeSettingsFile)
+
 	hookPath := func(hook string) string {
 		return filepath.Join(gittest.GitPath(root), "hooks", hook)
 	}
@@ -29,6 +31,7 @@ func TestLefthookUninstall(t *testing.T) {
 		name, config            string
 		args                    UninstallArgs
 		existingHooks           map[string]string
+		aiFiles                 map[string]string
 		wantExist, wantNotExist []string
 	}{
 		{
@@ -54,8 +57,10 @@ func TestLefthookUninstall(t *testing.T) {
 				"pre-commit":  "not a lefthook hook",
 				"post-commit": "\n# LEFTHOOK file\n",
 			},
-			config:    "# empty",
-			wantExist: []string{configPath},
+			config: "# empty",
+			wantExist: []string{
+				configPath,
+			},
 			wantNotExist: []string{
 				checksumPath,
 				hookPath("pre-commit"),
@@ -97,6 +102,24 @@ func TestLefthookUninstall(t *testing.T) {
 				hookPath("post-commit.old"),
 			},
 		},
+		{
+			name: "continues when AI hook uninstall fails",
+			existingHooks: map[string]string{
+				"post-commit": "# LEFTHOOK",
+			},
+			aiFiles: map[string]string{
+				claudePath: `{invalid json`,
+			},
+			config: "# empty",
+			wantExist: []string{
+				configPath,
+				claudePath, // AI file remains because uninstallAIHooks failed
+			},
+			wantNotExist: []string{
+				checksumPath,
+				hookPath("post-commit"),
+			},
+		},
 	} {
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			fs := afero.NewMemMapFs()
@@ -111,6 +134,7 @@ func TestLefthookUninstall(t *testing.T) {
 			if err != nil {
 				t.Errorf("unexpected error: %s", err)
 			}
+
 			err = afero.WriteFile(fs, checksumPath, []byte("CHECKSUM"), 0o644)
 			if err != nil {
 				t.Errorf("unexpected error: %s", err)
@@ -119,16 +143,30 @@ func TestLefthookUninstall(t *testing.T) {
 			// Prepare files that should exist
 			for hook, content := range tt.existingHooks {
 				path := hookPath(hook)
+
 				if err = fs.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
+
 				if err = afero.WriteFile(fs, path, []byte(content), 0o755); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
+			}
+
+			// Prepare AI files
+			for path, content := range tt.aiFiles {
+				if err = fs.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+					t.Errorf("unexpected error: %s", err)
+				}
+
+				if err = afero.WriteFile(fs, path, []byte(content), 0o644); err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
 			}
 
 			// Do uninstall
 			err = lefthook.Uninstall(t.Context(), tt.args)
+			// AI uninstall errors are intentionally swallowed.
 			if err != nil {
 				t.Errorf("unexpected error: %s", err)
 			}
@@ -139,6 +177,7 @@ func TestLefthookUninstall(t *testing.T) {
 				if err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
+
 				if !ok {
 					t.Errorf("expected %s to exist", file)
 				}
@@ -150,6 +189,7 @@ func TestLefthookUninstall(t *testing.T) {
 				if err != nil {
 					t.Errorf("unexpected error: %s", err)
 				}
+
 				if ok {
 					t.Errorf("expected %s to not exist", file)
 				}

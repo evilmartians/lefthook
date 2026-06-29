@@ -30,6 +30,10 @@ func (l *Lefthook) Uninstall(_ctx context.Context, args UninstallArgs) error {
 		l.logger.Errorf("Failed removing %s: %s", l.checksumFilePath(), err)
 	}
 
+	if err := l.uninstallAIHooks(); err != nil {
+		l.logger.Errorf("Failed removing AI hooks: %s", err)
+	}
+
 	if args.RemoveConfig {
 		for _, name := range append(config.MainConfigNames, config.LocalConfigNames...) {
 			for _, extension := range []string{
