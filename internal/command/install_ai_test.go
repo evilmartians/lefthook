@@ -26,11 +26,16 @@ func TestInstallAIHooks(t *testing.T) {
 		return filepath.Join(root, codexHooksDir, codexHooksFile)
 	}
 
+	cursorPath := func() string {
+		return filepath.Join(root, cursorHooksDir, cursorHooksFile)
+	}
+
 	for n, tt := range map[string]struct {
 		ai            *config.AI
 		existingFiles map[string]string
 		wantClaude    map[string]any
 		wantCodex     map[string]any
+		wantCursor    map[string]any
 	}{
 		"claude only - creates settings.json": {
 			ai: &config.AI{
@@ -69,6 +74,23 @@ func TestInstallAIHooks(t *testing.T) {
 									"command": "lefthook run security-check",
 								},
 							},
+						},
+					},
+				},
+			},
+		},
+		"cursor only - creates hooks.json": {
+			ai: &config.AI{
+				Cursor: map[string]string{
+					"stop": "validate",
+				},
+			},
+			wantCursor: map[string]any{
+				"version": float64(cursorHooksVersion),
+				"hooks": map[string]any{
+					"stop": []any{
+						map[string]any{
+							"command": "lefthook run validate",
 						},
 					},
 				},
@@ -190,6 +212,57 @@ func TestInstallAIHooks(t *testing.T) {
 				},
 			},
 		},
+		"cursor merges with existing settings preserving non-lefthook entries": {
+			ai: &config.AI{
+				Cursor: map[string]string{
+					"stop": "validate",
+				},
+			},
+			existingFiles: map[string]string{
+				cursorPath(): `{
+  "version": 1,
+  "hooks": {
+    "stop": [
+      { "command": "./custom.sh" }
+    ]
+  }
+}`,
+			},
+			wantCursor: map[string]any{
+				"version": float64(cursorHooksVersion),
+				"hooks": map[string]any{
+					"stop": []any{
+						map[string]any{"command": "./custom.sh"},
+						map[string]any{"command": "lefthook run validate"},
+					},
+				},
+			},
+		},
+		"cursor replaces stale lefthook entries on re-install": {
+			ai: &config.AI{
+				Cursor: map[string]string{
+					"stop": "validate",
+				},
+			},
+			existingFiles: map[string]string{
+				cursorPath(): `{
+  "version": 1,
+  "hooks": {
+    "stop": [
+      { "command": "lefthook run old-hook" }
+    ]
+  }
+}`,
+			},
+			wantCursor: map[string]any{
+				"version": float64(cursorHooksVersion),
+				"hooks": map[string]any{
+					"stop": []any{
+						map[string]any{"command": "lefthook run validate"},
+					},
+				},
+			},
+		},
 	} {
 		t.Run(fmt.Sprintf("TestInstallAIHooks/%s", n), func(t *testing.T) {
 			assert := assert.New(t)
@@ -234,6 +307,18 @@ func TestInstallAIHooks(t *testing.T) {
 				exists, _ := afero.Exists(fs, codexPath())
 				assert.False(exists, "codex hooks file should not exist")
 			}
+
+			if tt.wantCursor != nil {
+				data, readErr := afero.ReadFile(fs, cursorPath())
+				assert.NoError(readErr)
+
+				var got map[string]any
+				assert.NoError(json.Unmarshal(data, &got))
+				assert.Equal(tt.wantCursor, got)
+			} else {
+				exists, _ := afero.Exists(fs, cursorPath())
+				assert.False(exists, "cursor hooks file should not exist")
+			}
 		})
 	}
 }
@@ -252,6 +337,7 @@ func TestValidateAIHooks(t *testing.T) {
 			ai: &config.AI{
 				Claude: map[string]string{"Stop": "validate"},
 				Codex:  map[string]string{"PreToolUse": "security-check"},
+				Cursor: map[string]string{"stop": "validate"},
 			},
 		},
 		"missing claude reference": {
@@ -263,6 +349,12 @@ func TestValidateAIHooks(t *testing.T) {
 		"missing codex reference": {
 			ai: &config.AI{
 				Codex: map[string]string{"Stop": "missing"},
+			},
+			wantErr: errAIHooksMisconfigured,
+		},
+		"missing cursor reference": {
+			ai: &config.AI{
+				Cursor: map[string]string{"stop": "missing"},
 			},
 			wantErr: errAIHooksMisconfigured,
 		},
@@ -294,6 +386,7 @@ func TestUninstallAIHooks(t *testing.T) {
 
 	claudePath := filepath.Join(root, claudeSettingsDir, claudeSettingsFile)
 	codexPath := filepath.Join(root, codexHooksDir, codexHooksFile)
+	cursorPath := filepath.Join(root, cursorHooksDir, cursorHooksFile)
 
 	const lefthookOnly = `{
   "hooks": {
@@ -309,6 +402,25 @@ func TestUninstallAIHooks(t *testing.T) {
     "Stop": [
       { "hooks": [{ "type": "command", "command": "lefthook run validate" }] },
       { "hooks": [{ "type": "command", "command": "./custom.sh" }] }
+    ]
+  }
+}`
+
+	const cursorLefthookOnly = `{
+  "version": 1,
+  "hooks": {
+    "stop": [
+      { "command": "lefthook run validate" }
+    ]
+  }
+}`
+
+	const cursorMixed = `{
+  "version": 1,
+  "hooks": {
+    "stop": [
+      { "command": "lefthook run validate" },
+      { "command": "./custom.sh" }
     ]
   }
 }`
@@ -341,7 +453,24 @@ func TestUninstallAIHooks(t *testing.T) {
 		},
 		"handles missing files": {
 			existingFiles: map[string]string{},
-			wantRemoved:   []string{claudePath, codexPath},
+			wantRemoved:   []string{claudePath, codexPath, cursorPath},
+		},
+		"removes cursor file with only lefthook entries": {
+			existingFiles: map[string]string{cursorPath: cursorLefthookOnly},
+			wantRemoved:   []string{cursorPath},
+		},
+		"preserves cursor user entries": {
+			existingFiles: map[string]string{cursorPath: cursorMixed},
+			wantContent: map[string]map[string]any{
+				cursorPath: {
+					"version": float64(1),
+					"hooks": map[string]any{
+						"stop": []any{
+							map[string]any{"command": "./custom.sh"},
+						},
+					},
+				},
+			},
 		},
 		"handles empty files": {
 			existingFiles: map[string]string{

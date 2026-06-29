@@ -82,6 +82,48 @@ validate:
 				},
 			},
 		},
+		"with cursor hooks": {
+			files: map[string]string{
+				"lefthook.yml": `
+ai:
+  cursor:
+    stop: validate
+    preToolUse: security-check
+
+validate:
+  jobs:
+    - run: go test ./...
+
+security-check:
+  jobs:
+    - run: ./scripts/security.sh
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				AI: &AI{
+					Cursor: map[string]string{
+						"stop":       "validate",
+						"preToolUse": "security-check",
+					},
+				},
+				Hooks: map[string]*Hook{
+					"validate": {
+						Name: "validate",
+						Jobs: []*Job{
+							{Run: "go test ./..."},
+						},
+					},
+					"security-check": {
+						Name: "security-check",
+						Jobs: []*Job{
+							{Run: "./scripts/security.sh"},
+						},
+					},
+				},
+			},
+		},
 		"with both claude and codex hooks": {
 			files: map[string]string{
 				"lefthook.yml": `

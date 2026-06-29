@@ -14,13 +14,26 @@ import (
 // settings file. User-authored entries are preserved; a file that contained only
 // lefthook-managed entries is removed entirely.
 func (l *Lefthook) uninstallAIHooks() error {
-	paths := []string{
-		filepath.Join(l.repo.RootPath, claudeSettingsDir, claudeSettingsFile),
-		filepath.Join(l.repo.RootPath, codexHooksDir, codexHooksFile),
+	paths := []struct {
+		path  string
+		strip func(map[string]any) map[string]any
+	}{
+		{
+			path:  filepath.Join(l.repo.RootPath, claudeSettingsDir, claudeSettingsFile),
+			strip: stripLefthookEntries,
+		},
+		{
+			path:  filepath.Join(l.repo.RootPath, codexHooksDir, codexHooksFile),
+			strip: stripLefthookEntries,
+		},
+		{
+			path:  filepath.Join(l.repo.RootPath, cursorHooksDir, cursorHooksFile),
+			strip: stripCursorLefthookEntries,
+		},
 	}
 
-	for _, path := range paths {
-		if err := l.removeAIHookEntries(path); err != nil {
+	for _, p := range paths {
+		if err := l.removeAIHookEntries(p.path, p.strip); err != nil {
 			return err
 		}
 	}
@@ -30,7 +43,7 @@ func (l *Lefthook) uninstallAIHooks() error {
 
 // removeAIHookEntries reads a provider settings file, strips lefthook-managed
 // entries, and writes the result back. If nothing remains, the file is removed.
-func (l *Lefthook) removeAIHookEntries(path string) error {
+func (l *Lefthook) removeAIHookEntries(path string, strip func(map[string]any) map[string]any) error {
 	data, err := afero.ReadFile(l.fs, path)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil
@@ -47,11 +60,13 @@ func (l *Lefthook) removeAIHookEntries(path string) error {
 		return fmt.Errorf("could not parse %s: %w", path, err)
 	}
 
-	mergedHooks := stripLefthookEntries(existing)
+	mergedHooks := strip(existing)
 	if len(mergedHooks) > 0 {
 		existing["hooks"] = mergedHooks
 	} else {
 		delete(existing, "hooks")
+		// Cursor hooks files only contain version + hooks; drop version when hooks are gone.
+		delete(existing, "version")
 	}
 
 	if len(existing) == 0 {

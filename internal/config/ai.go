@@ -13,6 +13,8 @@ package config
 //	    PreToolUse: security-check
 //	  codex:
 //	    Stop: validate
+//	  cursor:
+//	    stop: validate
 type AI struct {
 	// Claude maps Claude Code event names to lefthook hook names.
 	// The generated file is .claude/settings.json.
@@ -21,4 +23,8 @@ type AI struct {
 	// Codex maps Codex CLI event names to lefthook hook names.
 	// The generated file is .codex/hooks.json.
 	Codex map[string]string `json:"codex,omitempty" jsonschema:"description=Codex CLI hook mappings (event name -> lefthook hook name). Generates .codex/hooks.json." mapstructure:"codex,omitempty" toml:"codex,omitempty" yaml:"codex,omitempty"`
+
+	// Cursor maps Cursor hook event names to lefthook hook names.
+	// The generated file is .cursor/hooks.json.
+	Cursor map[string]string `json:"cursor,omitempty" jsonschema:"description=Cursor hook mappings (event name -> lefthook hook name). Generates .cursor/hooks.json." mapstructure:"cursor,omitempty" toml:"cursor,omitempty" yaml:"cursor,omitempty"`
 }

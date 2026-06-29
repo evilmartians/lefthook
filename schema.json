@@ -17,6 +17,13 @@
           },
           "type": "object",
           "description": "Codex CLI hook mappings (event name -\u003e lefthook hook name). Generates .codex/hooks.json."
+        },
+        "cursor": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object",
+          "description": "Cursor hook mappings (event name -\u003e lefthook hook name). Generates .cursor/hooks.json."
         }
       },
       "additionalProperties": false,
@@ -517,7 +524,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2026.06.18.",
+  "$comment": "Last updated on 2026.06.29.",
   "properties": {
     "min_version": {
       "type": "string",
