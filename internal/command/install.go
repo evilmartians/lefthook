@@ -72,7 +72,7 @@ func (l *Lefthook) Install(ctx context.Context, args InstallArgs, hooks []string
 	}
 
 	if cfg.AI != nil {
-		if err = validateAIHooks(cfg.AI, cfg.Hooks); err != nil {
+		if err = l.validateAIHooks(cfg.AI, cfg.Hooks); err != nil {
 			return err
 		}
 

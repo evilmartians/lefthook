@@ -24,27 +24,32 @@ const (
 	lefthookRunPrefix = "lefthook run "
 )
 
+var errAIHooksMisconfigured = errors.New("ai hooks misconfigured")
+
+func checkAIHookReferences(provider string, events map[string]string, hooks map[string]*config.Hook) []string {
+	var missing []string
+	for event, hookName := range events {
+		if _, ok := hooks[hookName]; !ok {
+			missing = append(missing, fmt.Sprintf("ai.%s.%s -> %q", provider, event, hookName))
+		}
+	}
+	return missing
+}
+
 // validateAIHooks ensures every hook name referenced under the ai: key points to
 // a hook that is actually defined in the config. This catches typos early instead
 // of silently writing a `lefthook run <typo>` command that fails when the agent
 // event fires.
-func validateAIHooks(ai *config.AI, hooks map[string]*config.Hook) error {
-	var missing []string
-
-	check := func(provider string, events map[string]string) {
-		for event, hookName := range events {
-			if _, ok := hooks[hookName]; !ok {
-				missing = append(missing, fmt.Sprintf("ai.%s.%s -> %q", provider, event, hookName))
-			}
-		}
-	}
-
-	check("claude", ai.Claude)
-	check("codex", ai.Codex)
+func (l *Lefthook) validateAIHooks(ai *config.AI, hooks map[string]*config.Hook) error {
+	missing := checkAIHookReferences("claude", ai.Claude, hooks)
+	missing = append(missing, checkAIHookReferences("codex", ai.Codex, hooks)...)
 
 	if len(missing) > 0 {
 		slices.Sort(missing)
-		return fmt.Errorf("ai config references undefined hooks: %s", strings.Join(missing, ", "))
+		for _, msg := range missing {
+			l.logger.Errorf("%s", msg)
+		}
+		return errAIHooksMisconfigured
 	}
 
 	return nil
@@ -209,70 +214,4 @@ func buildHookEntry(hookName string) map[string]any {
 			},
 		},
 	}
-}
-
-// uninstallAIHooks removes lefthook-managed entries from every known provider
-// settings file. User-authored entries are preserved; a file that contained only
-// lefthook-managed entries is removed entirely.
-func (l *Lefthook) uninstallAIHooks() error {
-	paths := []string{
-		filepath.Join(l.repo.RootPath, claudeSettingsDir, claudeSettingsFile),
-		filepath.Join(l.repo.RootPath, codexHooksDir, codexHooksFile),
-	}
-
-	for _, path := range paths {
-		if err := l.removeAIHookEntries(path); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// removeAIHookEntries reads a provider settings file, strips lefthook-managed
-// entries, and writes the result back. If nothing remains, the file is removed.
-func (l *Lefthook) removeAIHookEntries(path string) error {
-	data, err := afero.ReadFile(l.fs, path)
-	if errors.Is(err, os.ErrNotExist) {
-		return nil
-	}
-	if err != nil {
-		return fmt.Errorf("could not read %s: %w", path, err)
-	}
-	if len(data) == 0 {
-		return nil
-	}
-
-	existing := make(map[string]any)
-	if err = json.Unmarshal(data, &existing); err != nil {
-		return fmt.Errorf("could not parse %s: %w", path, err)
-	}
-
-	mergedHooks := stripLefthookEntries(existing)
-	if len(mergedHooks) > 0 {
-		existing["hooks"] = mergedHooks
-	} else {
-		delete(existing, "hooks")
-	}
-
-	if len(existing) == 0 {
-		if err = l.fs.Remove(path); err != nil {
-			return fmt.Errorf("could not remove %s: %w", path, err)
-		}
-		l.logger.Debugf("%s removed", path)
-		return nil
-	}
-
-	out, err := json.MarshalIndent(existing, "", "  ")
-	if err != nil {
-		return fmt.Errorf("could not marshal %s: %w", path, err)
-	}
-	out = append(out, '\n')
-
-	if err = afero.WriteFile(l.fs, path, out, checksumFileMode); err != nil {
-		return err
-	}
-
-	l.logger.Debugf("%s updated", path)
-	return nil
 }

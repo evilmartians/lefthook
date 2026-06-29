@@ -246,7 +246,7 @@ func TestValidateAIHooks(t *testing.T) {
 
 	for n, tt := range map[string]struct {
 		ai      *config.AI
-		wantErr string
+		wantErr error
 	}{
 		"all references resolve": {
 			ai: &config.AI{
@@ -258,30 +258,31 @@ func TestValidateAIHooks(t *testing.T) {
 			ai: &config.AI{
 				Claude: map[string]string{"Stop": "no-such-hook"},
 			},
-			wantErr: `ai config references undefined hooks: ai.claude.Stop -> "no-such-hook"`,
+			wantErr: errAIHooksMisconfigured,
 		},
 		"missing codex reference": {
 			ai: &config.AI{
 				Codex: map[string]string{"Stop": "missing"},
 			},
-			wantErr: `ai config references undefined hooks: ai.codex.Stop -> "missing"`,
+			wantErr: errAIHooksMisconfigured,
 		},
 		"multiple missing references are sorted": {
 			ai: &config.AI{
 				Claude: map[string]string{"Stop": "zzz"},
 				Codex:  map[string]string{"Stop": "aaa"},
 			},
-			wantErr: `ai config references undefined hooks: ai.claude.Stop -> "zzz", ai.codex.Stop -> "aaa"`,
+			wantErr: errAIHooksMisconfigured,
 		},
 	} {
 		t.Run(n, func(t *testing.T) {
 			assert := assert.New(t)
 
-			err := validateAIHooks(tt.ai, hooks)
-			if tt.wantErr == "" {
+			l := &Lefthook{logger: loggertest.New()}
+			err := l.validateAIHooks(tt.ai, hooks)
+			if tt.wantErr == nil {
 				assert.NoError(err)
 			} else {
-				assert.EqualError(err, tt.wantErr)
+				assert.ErrorIs(err, tt.wantErr)
 			}
 		})
 	}
