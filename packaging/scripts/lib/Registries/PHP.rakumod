@@ -4,6 +4,7 @@ unit class Registries::PHP does Registry::Package;
 
 use Constants;
 use SystemAPI;
+use Registries::PHP::Publishing;
 
 my constant PHP = PKG-ROOT.child("php");
 my constant %PHP-DISTS = (
@@ -42,7 +43,14 @@ method prepare {
 }
 
 method publish {
-  $!sys.in-dir(PHP, {
-    $!sys.run("composer", "validate");
-  });
+  my $repo-url = %*ENV<LEFTHOOK_COMPOSER_REPO>;
+  die "LEFTHOOK_COMPOSER_REPO is not set (git URL of the Packagist mirror repository)"
+    unless $repo-url;
+
+  publish-composer-package(
+    repo-url    => $repo-url,
+    package-dir => PHP,
+    binaries    => %PHP-DISTS,
+    sys         => $!sys,
+  );
 }

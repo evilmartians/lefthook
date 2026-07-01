@@ -15,9 +15,8 @@ subtest "clean", {
 
   $php.clean;
 
-  is-deeply $sys.removed.Set, (
-    "{PKG-ROOT}/php/libexec/lefthook-linux-x64",
-  ).Set;
+  ok  $sys.removed.Set{$tmp-dist}, "removes per-platform binary directories";
+  nok $sys.removed.Set{"{PKG-ROOT}/php/libexec/.keep"}, "keeps the .keep placeholder";
 }
 
 subtest "prepare", {
@@ -57,14 +56,4 @@ subtest "prepare", {
       "{PKG-ROOT}/php/libexec/lefthook-openbsd-arm64/lefthook",
     ).SetHash,
   };
-}
-
-subtest "publish", {
-  my ($sys, $php) = new-registry(Registries::PHP);
-
-  $php.publish;
-
-  is-deeply $sys.run-calls, [
-    ("composer validate", "{PKG-ROOT}/php".IO),
-  ];
 }

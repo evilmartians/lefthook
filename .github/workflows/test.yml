@@ -63,6 +63,8 @@ jobs:
 
   packaging:
     runs-on: ubuntu-latest
+    env:
+      LEFTHOOK_COMPOSER_REPO: ${{ vars.LEFTHOOK_COMPOSER_REPO || 'git@github.com:evilmartians/lefthook-composer.git' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
