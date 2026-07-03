@@ -24,6 +24,13 @@
           },
           "type": "object",
           "description": "Cursor hook mappings (event name -\u003e lefthook hook name). Generates .cursor/hooks.json."
+        },
+        "copilot": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object",
+          "description": "Copilot hooks mapping. Generates .github/hooks.json."
         }
       },
       "additionalProperties": false,
@@ -524,7 +531,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2026.06.29.",
+  "$comment": "Last updated on 2026.07.03.",
   "properties": {
     "min_version": {
       "type": "string",

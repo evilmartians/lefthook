@@ -10,6 +10,34 @@ output:
   - summary
   - jobs
 
+ai:
+  copilot:
+    postToolUse: lint
+
+lint:
+  parallel: true
+  jobs:
+    - name: golang
+      glob: "*.go"
+      group:
+        jobs:
+          - run: make lint
+
+    - name: check links
+      tags: docs
+      run: lychee --max-concurrency 3 -- {staged_files}
+      glob: '*.md'
+      exclude:
+        - CHANGELOG.md
+
+    - name: typos
+      tags: lint
+      run: typos --write-changes {files}
+      files: git ls-files --others --exclude-standard
+      exclude:
+        - "*.svg"
+        - "*.png"
+
 pre-commit:
   parallel: true
   setup:

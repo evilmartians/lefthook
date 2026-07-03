@@ -7,14 +7,16 @@ package config
 //
 // Example lefthook.yml:
 //
-//	ai:
-//	  claude:
-//	    Stop: validate
-//	    PreToolUse: security-check
-//	  codex:
-//	    Stop: validate
-//	  cursor:
-//	    stop: validate
+//		ai:
+//		  claude:
+//		    Stop: validate
+//		    PreToolUse: security-check
+//		  codex:
+//		    Stop: validate
+//		  cursor:
+//		    stop: validate
+//	   copilot:
+//	     postToolUse: validate
 type AI struct {
 	// Claude maps Claude Code event names to lefthook hook names.
 	// The generated file is .claude/settings.json.
@@ -27,4 +29,8 @@ type AI struct {
 	// Cursor maps Cursor hook event names to lefthook hook names.
 	// The generated file is .cursor/hooks.json.
 	Cursor map[string]string `json:"cursor,omitempty" jsonschema:"description=Cursor hook mappings (event name -> lefthook hook name). Generates .cursor/hooks.json." mapstructure:"cursor,omitempty" toml:"cursor,omitempty" yaml:"cursor,omitempty"`
+
+	// Copilot is for GitHub Copilot agent.
+	// The generated file is .github/hooks.json
+	Copilot map[string]string `json:"copilot,omitempty" jsonschema:"description=Copilot hooks mapping. Generates .github/hooks.json." mapstructure:"copilot,omitempty" toml:"copilot,omitempty" yaml:"copilot,omitempty"`
 }

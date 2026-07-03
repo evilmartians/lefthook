@@ -31,12 +31,17 @@ func TestInstallAIHooks(t *testing.T) {
 		return filepath.Join(root, cursorHooksDir, cursorHooksFile)
 	}
 
+	copilotPath := func() string {
+		return filepath.Join(root, copilotHooksDir, copilotHooksFile)
+	}
+
 	for n, tt := range map[string]struct {
 		ai            *config.AI
 		existingFiles map[string]string
 		wantClaude    map[string]any
 		wantCodex     map[string]any
 		wantCursor    map[string]any
+		wantCopilot   map[string]any
 	}{
 		"claude only - creates settings.json": {
 			ai: &config.AI{
@@ -90,6 +95,23 @@ func TestInstallAIHooks(t *testing.T) {
 				"version": float64(cursorHooksVersion),
 				"hooks": map[string]any{
 					"stop": []any{
+						map[string]any{
+							"command": "lefthook run validate",
+						},
+					},
+				},
+			},
+		},
+		"copilot only - creates hooks.json": {
+			ai: &config.AI{
+				Copilot: map[string]string{
+					"postToolUse": "validate",
+				},
+			},
+			wantCopilot: map[string]any{
+				"version": float64(copilotHooksVersion),
+				"hooks": map[string]any{
+					"postToolUse": []any{
 						map[string]any{
 							"command": "lefthook run validate",
 						},
@@ -264,6 +286,57 @@ func TestInstallAIHooks(t *testing.T) {
 				},
 			},
 		},
+		"copilot merges with existing settings preserving non-lefthook entries": {
+			ai: &config.AI{
+				Copilot: map[string]string{
+					"postToolUse": "validate",
+				},
+			},
+			existingFiles: map[string]string{
+				copilotPath(): `{
+  "version": 1,
+  "hooks": {
+    "postToolUse": [
+      { "command": "./custom.sh" }
+    ]
+  }
+}`,
+			},
+			wantCopilot: map[string]any{
+				"version": float64(copilotHooksVersion),
+				"hooks": map[string]any{
+					"postToolUse": []any{
+						map[string]any{"command": "./custom.sh"},
+						map[string]any{"command": "lefthook run validate"},
+					},
+				},
+			},
+		},
+		"copilot replaces stale lefthook entries on re-install": {
+			ai: &config.AI{
+				Copilot: map[string]string{
+					"postToolUse": "validate",
+				},
+			},
+			existingFiles: map[string]string{
+				copilotPath(): `{
+  "version": 1,
+  "hooks": {
+    "postToolUse": [
+      { "command": "lefthook run old-hook" }
+    ]
+  }
+}`,
+			},
+			wantCopilot: map[string]any{
+				"version": float64(copilotHooksVersion),
+				"hooks": map[string]any{
+					"postToolUse": []any{
+						map[string]any{"command": "lefthook run validate"},
+					},
+				},
+			},
+		},
 	} {
 		t.Run(fmt.Sprintf("TestInstallAIHooks/%s", n), func(t *testing.T) {
 			assert := assert.New(t)
@@ -319,6 +392,18 @@ func TestInstallAIHooks(t *testing.T) {
 			} else {
 				exists, _ := afero.Exists(fs, cursorPath())
 				assert.False(exists, "cursor hooks file should not exist")
+			}
+
+			if tt.wantCopilot != nil {
+				data, readErr := afero.ReadFile(fs, copilotPath())
+				assert.NoError(readErr)
+
+				var got map[string]any
+				assert.NoError(json.Unmarshal(data, &got))
+				assert.Equal(tt.wantCopilot, got)
+			} else {
+				exists, _ := afero.Exists(fs, copilotPath())
+				assert.False(exists, "copilot hooks file should not exist")
 			}
 		})
 	}
@@ -378,9 +463,10 @@ func TestValidateAIHooks(t *testing.T) {
 	}{
 		"all references resolve": {
 			ai: &config.AI{
-				Claude: map[string]string{"Stop": "validate"},
-				Codex:  map[string]string{"PreToolUse": "security-check"},
-				Cursor: map[string]string{"stop": "validate"},
+				Claude:  map[string]string{"Stop": "validate"},
+				Codex:   map[string]string{"PreToolUse": "security-check"},
+				Cursor:  map[string]string{"stop": "validate"},
+				Copilot: map[string]string{"postToolUse": "validate"},
 			},
 		},
 		"missing claude reference": {
@@ -403,8 +489,15 @@ func TestValidateAIHooks(t *testing.T) {
 		},
 		"multiple missing references are sorted": {
 			ai: &config.AI{
-				Claude: map[string]string{"Stop": "zzz"},
-				Codex:  map[string]string{"Stop": "aaa"},
+				Claude:  map[string]string{"Stop": "zzz"},
+				Codex:   map[string]string{"Stop": "aaa"},
+				Copilot: map[string]string{"postToolUse": "mmm"},
+			},
+			wantErr: errAIHooksMisconfigured,
+		},
+		"missing copilot reference": {
+			ai: &config.AI{
+				Copilot: map[string]string{"postToolUse": "missing"},
 			},
 			wantErr: errAIHooksMisconfigured,
 		},
@@ -430,6 +523,7 @@ func TestUninstallAIHooks(t *testing.T) {
 	claudePath := filepath.Join(root, claudeSettingsDir, claudeSettingsFile)
 	codexPath := filepath.Join(root, codexHooksDir, codexHooksFile)
 	cursorPath := filepath.Join(root, cursorHooksDir, cursorHooksFile)
+	copilotPath := filepath.Join(root, copilotHooksDir, copilotHooksFile)
 
 	const lefthookOnly = `{
   "hooks": {
@@ -468,6 +562,25 @@ func TestUninstallAIHooks(t *testing.T) {
   }
 }`
 
+	const copilotLefthookOnly = `{
+  "version": 1,
+  "hooks": {
+    "postToolUse": [
+      { "command": "lefthook run validate" }
+    ]
+  }
+}`
+
+	const copilotMixed = `{
+  "version": 1,
+  "hooks": {
+    "postToolUse": [
+      { "command": "lefthook run validate" },
+      { "command": "./custom.sh" }
+    ]
+  }
+}`
+
 	for n, tt := range map[string]struct {
 		existingFiles map[string]string
 		wantRemoved   []string
@@ -496,7 +609,7 @@ func TestUninstallAIHooks(t *testing.T) {
 		},
 		"handles missing files": {
 			existingFiles: map[string]string{},
-			wantRemoved:   []string{claudePath, codexPath, cursorPath},
+			wantRemoved:   []string{claudePath, codexPath, cursorPath, copilotPath},
 		},
 		"removes cursor file with only lefthook entries": {
 			existingFiles: map[string]string{cursorPath: cursorLefthookOnly},
@@ -509,6 +622,23 @@ func TestUninstallAIHooks(t *testing.T) {
 					"version": float64(1),
 					"hooks": map[string]any{
 						"stop": []any{
+							map[string]any{"command": "./custom.sh"},
+						},
+					},
+				},
+			},
+		},
+		"removes copilot file with only lefthook entries": {
+			existingFiles: map[string]string{copilotPath: copilotLefthookOnly},
+			wantRemoved:   []string{copilotPath},
+		},
+		"preserves copilot user entries": {
+			existingFiles: map[string]string{copilotPath: copilotMixed},
+			wantContent: map[string]map[string]any{
+				copilotPath: {
+					"version": float64(1),
+					"hooks": map[string]any{
+						"postToolUse": []any{
 							map[string]any{"command": "./custom.sh"},
 						},
 					},

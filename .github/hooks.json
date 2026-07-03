@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "postToolUse": [
+      {
+        "command": "/Users/ian/go/bin/lefthook run lint"
+      }
+    ]
+  },
+  "version": 1
+}

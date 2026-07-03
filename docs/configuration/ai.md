@@ -15,6 +15,7 @@ Each sub-key is a provider name. Its value is a map from the provider's **event 
 | `claude` | `.claude/settings.json` | [Claude Code hooks](https://code.claude.com/docs/en/hooks.md) |
 | `codex` | `.codex/hooks.json` | [Codex CLI hooks](https://developers.openai.com/codex/hooks) |
 | `cursor` | `.cursor/hooks.json` | [Cursor hooks](https://cursor.com/docs/agent/hooks) |
+| `copilot` | `.github/hooks.json` | [GitHub Copilot hooks](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/use-hooks) |
 
 Keys under each provider must be that provider's hook event names. See the provider's hooks documentation for the supported events and their behaviour.
 
@@ -40,6 +41,8 @@ ai:
   cursor:
     stop: validate
     preToolUse: security-check
+  copilot:
+    postToolUse: validate
 
 validate:
   jobs:
@@ -100,6 +103,19 @@ And `.cursor/hooks.json`:
     ],
     "preToolUse": [
       { "command": "lefthook run security-check" }
+    ]
+  }
+}
+```
+
+And `.github/hooks.json`:
+
+```json
+{
+  "version": 1,
+  "hooks": {
+    "postToolUse": [
+      { "command": "lefthook run validate" }
     ]
   }
 }

@@ -30,6 +30,10 @@ func (l *Lefthook) uninstallAIHooks() error {
 			path:  filepath.Join(l.repo.RootPath, cursorHooksDir, cursorHooksFile),
 			strip: stripCursorLefthookEntries,
 		},
+		{
+			path:  filepath.Join(l.repo.RootPath, copilotHooksDir, copilotHooksFile),
+			strip: stripCopilotLefthookEntries,
+		},
 	}
 
 	for _, p := range paths {
@@ -65,7 +69,7 @@ func (l *Lefthook) removeAIHookEntries(path string, strip func(map[string]any) m
 		existing["hooks"] = mergedHooks
 	} else {
 		delete(existing, "hooks")
-		// Cursor hooks files only contain version + hooks; drop version when hooks are gone.
+		// Cursor and Copilot hooks files only contain version + hooks; drop version when hooks are gone.
 		delete(existing, "version")
 	}
 

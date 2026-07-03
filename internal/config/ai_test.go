@@ -169,6 +169,48 @@ security-check:
 				},
 			},
 		},
+		"with copilot hooks": {
+			files: map[string]string{
+				"lefthook.yml": `
+ai:
+  copilot:
+    postToolUse: validate
+    preToolUse: security-check
+
+validate:
+  jobs:
+    - run: go test ./...
+
+security-check:
+  jobs:
+    - run: ./scripts/security.sh
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				AI: &AI{
+					Copilot: map[string]string{
+						"postToolUse": "validate",
+						"preToolUse":  "security-check",
+					},
+				},
+				Hooks: map[string]*Hook{
+					"validate": {
+						Name: "validate",
+						Jobs: []*Job{
+							{Run: "go test ./..."},
+						},
+					},
+					"security-check": {
+						Name: "security-check",
+						Jobs: []*Job{
+							{Run: "./scripts/security.sh"},
+						},
+					},
+				},
+			},
+		},
 		"without ai section": {
 			files: map[string]string{
 				"lefthook.yml": `
