@@ -22,6 +22,7 @@ func TestLefthookUninstall(t *testing.T) {
 	checksumPath := filepath.Join(gittest.GitPath(root), "info", config.ChecksumFileName)
 
 	claudePath := filepath.Join(root, claudeSettingsDir, claudeSettingsFile)
+	copilotPath := filepath.Join(root, copilotHooksDir, copilotHooksFile)
 
 	hookPath := func(hook string) string {
 		return filepath.Join(gittest.GitPath(root), "hooks", hook)
@@ -103,21 +104,23 @@ func TestLefthookUninstall(t *testing.T) {
 			},
 		},
 		{
-			name: "continues when AI hook uninstall fails",
+			name: "removes copilot file even when other ai files fail to parse",
 			existingHooks: map[string]string{
 				"post-commit": "# LEFTHOOK",
 			},
 			aiFiles: map[string]string{
-				claudePath: `{invalid json`,
+				claudePath:  `{invalid json`,
+				copilotPath: `{invalid json`,
 			},
 			config: "# empty",
 			wantExist: []string{
 				configPath,
-				claudePath, // AI file remains because uninstallAIHooks failed
+				claudePath,
 			},
 			wantNotExist: []string{
 				checksumPath,
 				hookPath("post-commit"),
+				copilotPath,
 			},
 		},
 	} {
@@ -166,7 +169,6 @@ func TestLefthookUninstall(t *testing.T) {
 
 			// Do uninstall
 			err = lefthook.Uninstall(t.Context(), tt.args)
-			// AI uninstall errors are intentionally swallowed.
 			if err != nil {
 				t.Errorf("unexpected error: %s", err)
 			}

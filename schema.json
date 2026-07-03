@@ -30,7 +30,7 @@
             "type": "string"
           },
           "type": "object",
-          "description": "Copilot hooks mapping. Generates .github/hooks.json."
+          "description": "Copilot hooks mapping. Generates .github/hooks/lefthook.json."
         }
       },
       "additionalProperties": false,

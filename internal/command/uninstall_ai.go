@@ -10,10 +10,11 @@ import (
 	"github.com/spf13/afero"
 )
 
-// uninstallAIHooks removes lefthook-managed entries from every known provider
-// settings file. User-authored entries are preserved; a file that contained only
-// lefthook-managed entries is removed entirely.
+// uninstallAIHooks removes lefthook-managed entries from Claude/Codex/Cursor
+// settings and removes the lefthook-managed Copilot file entirely.
 func (l *Lefthook) uninstallAIHooks() error {
+	var firstErr error
+
 	paths := []struct {
 		path  string
 		strip func(map[string]any) map[string]any
@@ -30,23 +31,36 @@ func (l *Lefthook) uninstallAIHooks() error {
 			path:  filepath.Join(l.repo.RootPath, cursorHooksDir, cursorHooksFile),
 			strip: stripCursorLefthookEntries,
 		},
-		{
-			path:  filepath.Join(l.repo.RootPath, copilotHooksDir, copilotHooksFile),
-			strip: stripCopilotLefthookEntries,
-		},
 	}
 
 	for _, p := range paths {
 		if err := l.removeAIHookEntries(p.path, p.strip); err != nil {
-			return err
+			if firstErr == nil {
+				firstErr = err
+			}
 		}
 	}
 
-	return nil
+	if err := l.removeAIHookFile(filepath.Join(l.repo.RootPath, copilotHooksDir, copilotHooksFile)); err != nil && firstErr == nil {
+		firstErr = err
+	}
+
+	return firstErr
 }
 
-// removeAIHookEntries reads a provider settings file, strips lefthook-managed
-// entries, and writes the result back. If nothing remains, the file is removed.
+func (l *Lefthook) removeAIHookFile(path string) error {
+	err := l.fs.Remove(path)
+	switch {
+	case err == nil:
+		l.logger.Debugf("%s removed", path)
+		return nil
+	case errors.Is(err, os.ErrNotExist):
+		return nil
+	default:
+		return fmt.Errorf("could not remove %s: %w", path, err)
+	}
+}
+
 func (l *Lefthook) removeAIHookEntries(path string, strip func(map[string]any) map[string]any) error {
 	data, err := afero.ReadFile(l.fs, path)
 	if errors.Is(err, os.ErrNotExist) {
@@ -69,28 +83,12 @@ func (l *Lefthook) removeAIHookEntries(path string, strip func(map[string]any) m
 		existing["hooks"] = mergedHooks
 	} else {
 		delete(existing, "hooks")
-		// Cursor and Copilot hooks files only contain version + hooks; drop version when hooks are gone.
 		delete(existing, "version")
 	}
 
 	if len(existing) == 0 {
-		if err = l.fs.Remove(path); err != nil {
-			return fmt.Errorf("could not remove %s: %w", path, err)
-		}
-		l.logger.Debugf("%s removed", path)
-		return nil
+		return l.removeAIHookFile(path)
 	}
 
-	out, err := json.MarshalIndent(existing, "", "  ")
-	if err != nil {
-		return fmt.Errorf("could not marshal %s: %w", path, err)
-	}
-	out = append(out, '\n')
-
-	if err = afero.WriteFile(l.fs, path, out, checksumFileMode); err != nil {
-		return err
-	}
-
-	l.logger.Debugf("%s updated", path)
-	return nil
+	return l.writeJSONFile(path, existing)
 }

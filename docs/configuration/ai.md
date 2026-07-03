@@ -4,7 +4,7 @@ title: "ai"
 
 # `ai`
 
-Declare LLM agent hooks directly in `lefthook.yml`. During `lefthook install`, lefthook generates (or merges into) the provider-specific settings file so that the agent calls `lefthook run <hook>` when the event fires.
+Declare LLM agent hooks directly in `lefthook.yml`. During `lefthook install`, lefthook generates the provider-specific settings file so that the agent calls `lefthook run <hook>` when the event fires.
 
 Each sub-key is a provider name. Its value is a map from the provider's **event name** to a **lefthook hook name** defined elsewhere in the same config.
 
@@ -15,15 +15,15 @@ Each sub-key is a provider name. Its value is a map from the provider's **event 
 | `claude` | `.claude/settings.json` | [Claude Code hooks](https://code.claude.com/docs/en/hooks.md) |
 | `codex` | `.codex/hooks.json` | [Codex CLI hooks](https://developers.openai.com/codex/hooks) |
 | `cursor` | `.cursor/hooks.json` | [Cursor hooks](https://cursor.com/docs/agent/hooks) |
-| `copilot` | `.github/hooks.json` | [GitHub Copilot hooks](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/use-hooks) |
+| `copilot` | `.github/hooks/lefthook.json` | [GitHub Copilot hooks](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/use-hooks) |
 
 Keys under each provider must be that provider's hook event names. See the provider's hooks documentation for the supported events and their behaviour.
 
-## Merge behaviour
+## Install and uninstall behaviour
 
-Lefthook reads any existing provider file and **preserves** entries that were not written by lefthook. On every `lefthook install` run, stale lefthook-generated entries are replaced with fresh ones derived from the current config, so the file stays up to date without accumulating duplicates.
+Claude, Codex, and Cursor preserve user-authored entries in their settings files. On `lefthook install`, old lefthook-managed entries are replaced with fresh ones derived from the current config. On `lefthook uninstall`, lefthook-managed entries are stripped while user-authored entries stay intact.
 
-Running `lefthook uninstall` reverses this: lefthook-generated entries are stripped from the provider files while user-authored entries are preserved. A provider file that contained only lefthook-generated entries is removed entirely.
+Copilot is handled differently: `lefthook install` rewrites `.github/hooks/lefthook.json` from scratch, and `lefthook uninstall` removes that file entirely.
 
 Generated hook commands use the `lefthook` config value when set, otherwise the absolute path of the lefthook binary that ran `install` (via `os.Executable()`), so AI tools do not depend on `lefthook` being on `PATH`.
 
@@ -108,7 +108,7 @@ And `.cursor/hooks.json`:
 }
 ```
 
-And `.github/hooks.json`:
+And `.github/hooks/lefthook.json`:
 
 ```json
 {

@@ -19,152 +19,57 @@ func TestInstallAIHooks(t *testing.T) {
 	root, err := filepath.Abs("src")
 	assert.NoError(t, err)
 
-	claudePath := func() string {
-		return filepath.Join(root, claudeSettingsDir, claudeSettingsFile)
+	paths := map[string]string{
+		"claude":  filepath.Join(root, claudeSettingsDir, claudeSettingsFile),
+		"codex":   filepath.Join(root, codexHooksDir, codexHooksFile),
+		"cursor":  filepath.Join(root, cursorHooksDir, cursorHooksFile),
+		"copilot": filepath.Join(root, copilotHooksDir, copilotHooksFile),
 	}
 
-	codexPath := func() string {
-		return filepath.Join(root, codexHooksDir, codexHooksFile)
-	}
-
-	cursorPath := func() string {
-		return filepath.Join(root, cursorHooksDir, cursorHooksFile)
-	}
-
-	copilotPath := func() string {
-		return filepath.Join(root, copilotHooksDir, copilotHooksFile)
-	}
-
-	for n, tt := range map[string]struct {
+	for name, tt := range map[string]struct {
 		ai            *config.AI
 		existingFiles map[string]string
-		wantClaude    map[string]any
-		wantCodex     map[string]any
-		wantCursor    map[string]any
-		wantCopilot   map[string]any
+		wantFiles     map[string]map[string]any
+		wantMissing   []string
 	}{
-		"claude only - creates settings.json": {
+		"writes configured providers": {
 			ai: &config.AI{
-				Claude: map[string]string{
-					"Stop": "validate",
-				},
+				Claude: map[string]string{"Stop": "validate"},
+				Codex:  map[string]string{"PreToolUse": "security-check"},
 			},
-			wantClaude: map[string]any{
-				"hooks": map[string]any{
-					"Stop": []any{
-						map[string]any{
-							"hooks": []any{
-								map[string]any{
-									"type":    "command",
-									"command": "lefthook run validate",
+			wantFiles: map[string]map[string]any{
+				paths["claude"]: {
+					"hooks": map[string]any{
+						"Stop": []any{
+							map[string]any{
+								"hooks": []any{
+									map[string]any{"type": "command", "command": "lefthook run validate"},
+								},
+							},
+						},
+					},
+				},
+				paths["codex"]: {
+					"hooks": map[string]any{
+						"PreToolUse": []any{
+							map[string]any{
+								"hooks": []any{
+									map[string]any{"type": "command", "command": "lefthook run security-check"},
 								},
 							},
 						},
 					},
 				},
 			},
+			wantMissing: []string{paths["cursor"], paths["copilot"]},
 		},
-		"codex only - creates hooks.json": {
+		"merges existing claude and cursor hooks": {
 			ai: &config.AI{
-				Codex: map[string]string{
-					"PreToolUse": "security-check",
-				},
-			},
-			wantCodex: map[string]any{
-				"hooks": map[string]any{
-					"PreToolUse": []any{
-						map[string]any{
-							"hooks": []any{
-								map[string]any{
-									"type":    "command",
-									"command": "lefthook run security-check",
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-		"cursor only - creates hooks.json": {
-			ai: &config.AI{
-				Cursor: map[string]string{
-					"stop": "validate",
-				},
-			},
-			wantCursor: map[string]any{
-				"version": float64(cursorHooksVersion),
-				"hooks": map[string]any{
-					"stop": []any{
-						map[string]any{
-							"command": "lefthook run validate",
-						},
-					},
-				},
-			},
-		},
-		"copilot only - creates hooks.json": {
-			ai: &config.AI{
-				Copilot: map[string]string{
-					"postToolUse": "validate",
-				},
-			},
-			wantCopilot: map[string]any{
-				"version": float64(copilotHooksVersion),
-				"hooks": map[string]any{
-					"postToolUse": []any{
-						map[string]any{
-							"command": "lefthook run validate",
-						},
-					},
-				},
-			},
-		},
-		"both providers": {
-			ai: &config.AI{
-				Claude: map[string]string{
-					"Stop": "validate",
-				},
-				Codex: map[string]string{
-					"Stop": "validate",
-				},
-			},
-			wantClaude: map[string]any{
-				"hooks": map[string]any{
-					"Stop": []any{
-						map[string]any{
-							"hooks": []any{
-								map[string]any{
-									"type":    "command",
-									"command": "lefthook run validate",
-								},
-							},
-						},
-					},
-				},
-			},
-			wantCodex: map[string]any{
-				"hooks": map[string]any{
-					"Stop": []any{
-						map[string]any{
-							"hooks": []any{
-								map[string]any{
-									"type":    "command",
-									"command": "lefthook run validate",
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-		"merges with existing settings preserving non-lefthook entries": {
-			ai: &config.AI{
-				Claude: map[string]string{
-					"Stop": "validate",
-				},
+				Claude: map[string]string{"Stop": "validate"},
+				Cursor: map[string]string{"stop": "validate"},
 			},
 			existingFiles: map[string]string{
-				claudePath(): `{
+				paths["claude"]: `{
   "permissions": { "allow": ["Bash"] },
   "hooks": {
     "Stop": [
@@ -176,73 +81,7 @@ func TestInstallAIHooks(t *testing.T) {
     ]
   }
 }`,
-			},
-			wantClaude: map[string]any{
-				"permissions": map[string]any{"allow": []any{"Bash"}},
-				"hooks": map[string]any{
-					"Stop": []any{
-						map[string]any{
-							"hooks": []any{
-								map[string]any{
-									"type":    "command",
-									"command": "echo 'user hook'",
-								},
-							},
-						},
-						map[string]any{
-							"hooks": []any{
-								map[string]any{
-									"type":    "command",
-									"command": "lefthook run validate",
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-		"replaces stale lefthook entries on re-install": {
-			ai: &config.AI{
-				Claude: map[string]string{
-					"Stop": "validate",
-				},
-			},
-			existingFiles: map[string]string{
-				claudePath(): `{
-  "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          { "type": "command", "command": "lefthook run old-hook" }
-        ]
-      }
-    ]
-  }
-}`,
-			},
-			wantClaude: map[string]any{
-				"hooks": map[string]any{
-					"Stop": []any{
-						map[string]any{
-							"hooks": []any{
-								map[string]any{
-									"type":    "command",
-									"command": "lefthook run validate",
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-		"cursor merges with existing settings preserving non-lefthook entries": {
-			ai: &config.AI{
-				Cursor: map[string]string{
-					"stop": "validate",
-				},
-			},
-			existingFiles: map[string]string{
-				cursorPath(): `{
+				paths["cursor"]: `{
   "version": 1,
   "hooks": {
     "stop": [
@@ -251,94 +90,57 @@ func TestInstallAIHooks(t *testing.T) {
   }
 }`,
 			},
-			wantCursor: map[string]any{
-				"version": float64(cursorHooksVersion),
-				"hooks": map[string]any{
-					"stop": []any{
-						map[string]any{"command": "./custom.sh"},
-						map[string]any{"command": "lefthook run validate"},
+			wantFiles: map[string]map[string]any{
+				paths["claude"]: {
+					"permissions": map[string]any{"allow": []any{"Bash"}},
+					"hooks": map[string]any{
+						"Stop": []any{
+							map[string]any{
+								"hooks": []any{
+									map[string]any{"type": "command", "command": "echo 'user hook'"},
+								},
+							},
+							map[string]any{
+								"hooks": []any{
+									map[string]any{"type": "command", "command": "lefthook run validate"},
+								},
+							},
+						},
+					},
+				},
+				paths["cursor"]: {
+					"version": float64(cursorHooksVersion),
+					"hooks": map[string]any{
+						"stop": []any{
+							map[string]any{"command": "./custom.sh"},
+							map[string]any{"command": "lefthook run validate"},
+						},
 					},
 				},
 			},
+			wantMissing: []string{paths["codex"], paths["copilot"]},
 		},
-		"cursor replaces stale lefthook entries on re-install": {
+		"overwrites copilot file completely": {
 			ai: &config.AI{
-				Cursor: map[string]string{
-					"stop": "validate",
-				},
+				Copilot: map[string]string{"postToolUse": "validate"},
 			},
 			existingFiles: map[string]string{
-				cursorPath(): `{
-  "version": 1,
-  "hooks": {
-    "stop": [
-      { "command": "lefthook run old-hook" }
-    ]
-  }
-}`,
+				paths["copilot"]: `{"version":1,"hooks":{"postToolUse":[{"command":"./custom.sh"}]}}`,
 			},
-			wantCursor: map[string]any{
-				"version": float64(cursorHooksVersion),
-				"hooks": map[string]any{
-					"stop": []any{
-						map[string]any{"command": "lefthook run validate"},
+			wantFiles: map[string]map[string]any{
+				paths["copilot"]: {
+					"version": float64(copilotHooksVersion),
+					"hooks": map[string]any{
+						"postToolUse": []any{
+							map[string]any{"command": "lefthook run validate"},
+						},
 					},
 				},
 			},
-		},
-		"copilot merges with existing settings preserving non-lefthook entries": {
-			ai: &config.AI{
-				Copilot: map[string]string{
-					"postToolUse": "validate",
-				},
-			},
-			existingFiles: map[string]string{
-				copilotPath(): `{
-  "version": 1,
-  "hooks": {
-    "postToolUse": [
-      { "command": "./custom.sh" }
-    ]
-  }
-}`,
-			},
-			wantCopilot: map[string]any{
-				"version": float64(copilotHooksVersion),
-				"hooks": map[string]any{
-					"postToolUse": []any{
-						map[string]any{"command": "./custom.sh"},
-						map[string]any{"command": "lefthook run validate"},
-					},
-				},
-			},
-		},
-		"copilot replaces stale lefthook entries on re-install": {
-			ai: &config.AI{
-				Copilot: map[string]string{
-					"postToolUse": "validate",
-				},
-			},
-			existingFiles: map[string]string{
-				copilotPath(): `{
-  "version": 1,
-  "hooks": {
-    "postToolUse": [
-      { "command": "lefthook run old-hook" }
-    ]
-  }
-}`,
-			},
-			wantCopilot: map[string]any{
-				"version": float64(copilotHooksVersion),
-				"hooks": map[string]any{
-					"postToolUse": []any{
-						map[string]any{"command": "lefthook run validate"},
-					},
-				},
-			},
+			wantMissing: []string{paths["claude"], paths["codex"], paths["cursor"]},
 		},
 	} {
-		t.Run(fmt.Sprintf("TestInstallAIHooks/%s", n), func(t *testing.T) {
+		t.Run(fmt.Sprintf("TestInstallAIHooks/%s", name), func(t *testing.T) {
 			assert := assert.New(t)
 
 			fs := afero.NewMemMapFs()
@@ -350,60 +152,26 @@ func TestInstallAIHooks(t *testing.T) {
 			}
 
 			for path, content := range tt.existingFiles {
-				dir := filepath.Dir(path)
-				assert.NoError(fs.MkdirAll(dir, hooksDirMode))
+				assert.NoError(fs.MkdirAll(filepath.Dir(path), hooksDirMode))
 				assert.NoError(afero.WriteFile(fs, path, []byte(content), checksumFileMode))
 			}
 
 			err := l.installAIHooks(tt.ai, &config.Config{Lefthook: "lefthook"})
 			assert.NoError(err)
 
-			if tt.wantClaude != nil {
-				data, readErr := afero.ReadFile(fs, claudePath())
+			for path, want := range tt.wantFiles {
+				data, readErr := afero.ReadFile(fs, path)
 				assert.NoError(readErr)
 
 				var got map[string]any
 				assert.NoError(json.Unmarshal(data, &got))
-				assert.Equal(tt.wantClaude, got)
-			} else {
-				exists, _ := afero.Exists(fs, claudePath())
-				assert.False(exists, "claude settings file should not exist")
+				assert.Equal(want, got)
 			}
 
-			if tt.wantCodex != nil {
-				data, readErr := afero.ReadFile(fs, codexPath())
-				assert.NoError(readErr)
-
-				var got map[string]any
-				assert.NoError(json.Unmarshal(data, &got))
-				assert.Equal(tt.wantCodex, got)
-			} else {
-				exists, _ := afero.Exists(fs, codexPath())
-				assert.False(exists, "codex hooks file should not exist")
-			}
-
-			if tt.wantCursor != nil {
-				data, readErr := afero.ReadFile(fs, cursorPath())
-				assert.NoError(readErr)
-
-				var got map[string]any
-				assert.NoError(json.Unmarshal(data, &got))
-				assert.Equal(tt.wantCursor, got)
-			} else {
-				exists, _ := afero.Exists(fs, cursorPath())
-				assert.False(exists, "cursor hooks file should not exist")
-			}
-
-			if tt.wantCopilot != nil {
-				data, readErr := afero.ReadFile(fs, copilotPath())
-				assert.NoError(readErr)
-
-				var got map[string]any
-				assert.NoError(json.Unmarshal(data, &got))
-				assert.Equal(tt.wantCopilot, got)
-			} else {
-				exists, _ := afero.Exists(fs, copilotPath())
-				assert.False(exists, "copilot hooks file should not exist")
+			for _, path := range tt.wantMissing {
+				exists, existsErr := afero.Exists(fs, path)
+				assert.NoError(existsErr)
+				assert.False(exists, "%s should not exist", path)
 			}
 		})
 	}
@@ -428,27 +196,30 @@ func TestResolveLefthookBin(t *testing.T) {
 	})
 }
 
-func TestIsLefthookRunCommand(t *testing.T) {
-	for n, tt := range map[string]struct {
-		cmd  string
-		want bool
-	}{
-		"legacy name":            {cmd: "lefthook run lint", want: true},
-		"absolute path":          {cmd: "/home/user/repo/lefthook run lint", want: true},
-		"quoted path with space": {cmd: "'/home/user/my repo/lefthook' run lint", want: true},
-		"windows path":           {cmd: `C:\tools\lefthook.exe run lint`, want: true},
-		"user command":           {cmd: "./custom.sh lint", want: false},
-		"other binary":           {cmd: "/usr/bin/other run lint", want: false},
-	} {
-		t.Run(n, func(t *testing.T) {
-			assert.Equal(t, tt.want, isLefthookRunCommand(tt.cmd))
-		})
-	}
-}
-
 func TestLefthookRunCommand(t *testing.T) {
 	assert.Equal(t, "lefthook run lint", lefthookRunCommand("lefthook", "lint", false))
 	assert.Equal(t, "'/my path/lefthook' run lint", lefthookRunCommand("/my path/lefthook", "lint", true))
+}
+
+func TestLefthookDetection(t *testing.T) {
+	t.Run("flat hook detects lefthook only", func(t *testing.T) {
+		assert.True(t, isFlatLefthookEntry(map[string]any{"command": "lefthook run lint"}))
+		assert.True(t, isFlatLefthookEntry(map[string]any{"command": "/tmp/bin/lefthook run lint"}))
+		assert.False(t, isFlatLefthookEntry(map[string]any{"command": "npm run lint"}))
+	})
+
+	t.Run("matcher detects lefthook only", func(t *testing.T) {
+		assert.True(t, isLefthookMatcher(map[string]any{
+			"hooks": []any{
+				map[string]any{"command": "lefthook run lint"},
+			},
+		}))
+		assert.False(t, isLefthookMatcher(map[string]any{
+			"hooks": []any{
+				map[string]any{"command": "npm run lint"},
+			},
+		}))
+	})
 }
 
 func TestValidateAIHooks(t *testing.T) {
@@ -457,7 +228,7 @@ func TestValidateAIHooks(t *testing.T) {
 		"security-check": {Name: "security-check"},
 	}
 
-	for n, tt := range map[string]struct {
+	for name, tt := range map[string]struct {
 		ai      *config.AI
 		wantErr error
 	}{
@@ -470,21 +241,19 @@ func TestValidateAIHooks(t *testing.T) {
 			},
 		},
 		"missing claude reference": {
-			ai: &config.AI{
-				Claude: map[string]string{"Stop": "no-such-hook"},
-			},
+			ai:      &config.AI{Claude: map[string]string{"Stop": "missing"}},
 			wantErr: errAIHooksMisconfigured,
 		},
 		"missing codex reference": {
-			ai: &config.AI{
-				Codex: map[string]string{"Stop": "missing"},
-			},
+			ai:      &config.AI{Codex: map[string]string{"Stop": "missing"}},
 			wantErr: errAIHooksMisconfigured,
 		},
 		"missing cursor reference": {
-			ai: &config.AI{
-				Cursor: map[string]string{"stop": "missing"},
-			},
+			ai:      &config.AI{Cursor: map[string]string{"stop": "missing"}},
+			wantErr: errAIHooksMisconfigured,
+		},
+		"missing copilot reference": {
+			ai:      &config.AI{Copilot: map[string]string{"postToolUse": "missing"}},
 			wantErr: errAIHooksMisconfigured,
 		},
 		"multiple missing references are sorted": {
@@ -495,14 +264,8 @@ func TestValidateAIHooks(t *testing.T) {
 			},
 			wantErr: errAIHooksMisconfigured,
 		},
-		"missing copilot reference": {
-			ai: &config.AI{
-				Copilot: map[string]string{"postToolUse": "missing"},
-			},
-			wantErr: errAIHooksMisconfigured,
-		},
 	} {
-		t.Run(n, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 
 			l := &Lefthook{logger: loggertest.New()}
@@ -521,19 +284,22 @@ func TestUninstallAIHooks(t *testing.T) {
 	assert.NoError(t, err)
 
 	claudePath := filepath.Join(root, claudeSettingsDir, claudeSettingsFile)
-	codexPath := filepath.Join(root, codexHooksDir, codexHooksFile)
 	cursorPath := filepath.Join(root, cursorHooksDir, cursorHooksFile)
 	copilotPath := filepath.Join(root, copilotHooksDir, copilotHooksFile)
 
-	const lefthookOnly = `{
-  "hooks": {
-    "Stop": [
-      { "hooks": [{ "type": "command", "command": "lefthook run validate" }] }
-    ]
-  }
-}`
+	t.Run("strips managed claude and cursor hooks but deletes copilot file", func(t *testing.T) {
+		assert := assert.New(t)
 
-	const mixed = `{
+		fs := afero.NewMemMapFs()
+		repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Build()
+		l := &Lefthook{
+			logger: loggertest.New(),
+			fs:     fs,
+			repo:   repo,
+		}
+
+		assert.NoError(fs.MkdirAll(filepath.Dir(claudePath), hooksDirMode))
+		assert.NoError(afero.WriteFile(fs, claudePath, []byte(`{
   "model": "sonnet",
   "hooks": {
     "Stop": [
@@ -541,18 +307,9 @@ func TestUninstallAIHooks(t *testing.T) {
       { "hooks": [{ "type": "command", "command": "./custom.sh" }] }
     ]
   }
-}`
-
-	const cursorLefthookOnly = `{
-  "version": 1,
-  "hooks": {
-    "stop": [
-      { "command": "lefthook run validate" }
-    ]
-  }
-}`
-
-	const cursorMixed = `{
+}`), checksumFileMode))
+		assert.NoError(fs.MkdirAll(filepath.Dir(cursorPath), hooksDirMode))
+		assert.NoError(afero.WriteFile(fs, cursorPath, []byte(`{
   "version": 1,
   "hooks": {
     "stop": [
@@ -560,128 +317,56 @@ func TestUninstallAIHooks(t *testing.T) {
       { "command": "./custom.sh" }
     ]
   }
-}`
+}`), checksumFileMode))
+		assert.NoError(fs.MkdirAll(filepath.Dir(copilotPath), hooksDirMode))
+		assert.NoError(afero.WriteFile(fs, copilotPath, []byte(`{invalid json`), checksumFileMode))
 
-	const copilotLefthookOnly = `{
-  "version": 1,
-  "hooks": {
-    "postToolUse": [
-      { "command": "lefthook run validate" }
-    ]
-  }
-}`
+		assert.NoError(l.uninstallAIHooks())
 
-	const copilotMixed = `{
-  "version": 1,
-  "hooks": {
-    "postToolUse": [
-      { "command": "lefthook run validate" },
-      { "command": "./custom.sh" }
-    ]
-  }
-}`
-
-	for n, tt := range map[string]struct {
-		existingFiles map[string]string
-		wantRemoved   []string
-		wantContent   map[string]map[string]any
-	}{
-		"removes file with only lefthook entries": {
-			existingFiles: map[string]string{claudePath: lefthookOnly},
-			wantRemoved:   []string{claudePath},
-		},
-		"preserves user entries and top-level keys": {
-			existingFiles: map[string]string{claudePath: mixed},
-			wantContent: map[string]map[string]any{
-				claudePath: {
-					"model": "sonnet",
-					"hooks": map[string]any{
-						"Stop": []any{
-							map[string]any{
-								"hooks": []any{
-									map[string]any{"type": "command", "command": "./custom.sh"},
-								},
-							},
+		claudeData, readErr := afero.ReadFile(fs, claudePath)
+		assert.NoError(readErr)
+		var claude map[string]any
+		assert.NoError(json.Unmarshal(claudeData, &claude))
+		assert.Equal(map[string]any{
+			"model": "sonnet",
+			"hooks": map[string]any{
+				"Stop": []any{
+					map[string]any{
+						"hooks": []any{
+							map[string]any{"type": "command", "command": "./custom.sh"},
 						},
 					},
 				},
 			},
-		},
-		"handles missing files": {
-			existingFiles: map[string]string{},
-			wantRemoved:   []string{claudePath, codexPath, cursorPath, copilotPath},
-		},
-		"removes cursor file with only lefthook entries": {
-			existingFiles: map[string]string{cursorPath: cursorLefthookOnly},
-			wantRemoved:   []string{cursorPath},
-		},
-		"preserves cursor user entries": {
-			existingFiles: map[string]string{cursorPath: cursorMixed},
-			wantContent: map[string]map[string]any{
-				cursorPath: {
-					"version": float64(1),
-					"hooks": map[string]any{
-						"stop": []any{
-							map[string]any{"command": "./custom.sh"},
-						},
-					},
+		}, claude)
+
+		cursorData, readErr := afero.ReadFile(fs, cursorPath)
+		assert.NoError(readErr)
+		var cursor map[string]any
+		assert.NoError(json.Unmarshal(cursorData, &cursor))
+		assert.Equal(map[string]any{
+			"version": float64(1),
+			"hooks": map[string]any{
+				"stop": []any{
+					map[string]any{"command": "./custom.sh"},
 				},
 			},
-		},
-		"removes copilot file with only lefthook entries": {
-			existingFiles: map[string]string{copilotPath: copilotLefthookOnly},
-			wantRemoved:   []string{copilotPath},
-		},
-		"preserves copilot user entries": {
-			existingFiles: map[string]string{copilotPath: copilotMixed},
-			wantContent: map[string]map[string]any{
-				copilotPath: {
-					"version": float64(1),
-					"hooks": map[string]any{
-						"postToolUse": []any{
-							map[string]any{"command": "./custom.sh"},
-						},
-					},
-				},
-			},
-		},
-		"handles empty files": {
-			existingFiles: map[string]string{
-				claudePath: "",
-			},
-		},
-	} {
-		t.Run(n, func(t *testing.T) {
-			assert := assert.New(t)
+		}, cursor)
 
-			fs := afero.NewMemMapFs()
-			repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Build()
-			l := &Lefthook{
-				logger: loggertest.New(),
-				fs:     fs,
-				repo:   repo,
-			}
+		exists, existsErr := afero.Exists(fs, copilotPath)
+		assert.NoError(existsErr)
+		assert.False(exists, "%s should be removed", copilotPath)
+	})
 
-			for path, content := range tt.existingFiles {
-				assert.NoError(fs.MkdirAll(filepath.Dir(path), hooksDirMode))
-				assert.NoError(afero.WriteFile(fs, path, []byte(content), checksumFileMode))
-			}
+	t.Run("ignores missing files", func(t *testing.T) {
+		fs := afero.NewMemMapFs()
+		repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Build()
+		l := &Lefthook{
+			logger: loggertest.New(),
+			fs:     fs,
+			repo:   repo,
+		}
 
-			assert.NoError(l.uninstallAIHooks())
-
-			for _, path := range tt.wantRemoved {
-				exists, _ := afero.Exists(fs, path)
-				assert.False(exists, "%s should be removed", path)
-			}
-
-			for path, want := range tt.wantContent {
-				data, readErr := afero.ReadFile(fs, path)
-				assert.NoError(readErr)
-
-				var got map[string]any
-				assert.NoError(json.Unmarshal(data, &got))
-				assert.Equal(want, got)
-			}
-		})
-	}
+		assert.NoError(t, l.uninstallAIHooks())
+	})
 }

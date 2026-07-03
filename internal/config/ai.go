@@ -3,20 +3,20 @@ package config
 // AI holds LLM agent hook integration settings. Each sub-key is a provider name
 // whose value is a map from the provider's event name to a lefthook hook name.
 // During `lefthook install` the corresponding provider settings file is generated
-// (or merged) so that the LLM agent calls `lefthook run <hook>` on that event.
+// so that the LLM agent calls `lefthook run <hook>` on that event.
 //
 // Example lefthook.yml:
 //
-//		ai:
-//		  claude:
-//		    Stop: validate
-//		    PreToolUse: security-check
-//		  codex:
-//		    Stop: validate
-//		  cursor:
-//		    stop: validate
-//	   copilot:
-//	     postToolUse: validate
+//	ai:
+//	  claude:
+//	    Stop: validate
+//	    PreToolUse: security-check
+//	  codex:
+//	    Stop: validate
+//	  cursor:
+//	    stop: validate
+//	  copilot:
+//	    postToolUse: validate
 type AI struct {
 	// Claude maps Claude Code event names to lefthook hook names.
 	// The generated file is .claude/settings.json.
@@ -31,6 +31,6 @@ type AI struct {
 	Cursor map[string]string `json:"cursor,omitempty" jsonschema:"description=Cursor hook mappings (event name -> lefthook hook name). Generates .cursor/hooks.json." mapstructure:"cursor,omitempty" toml:"cursor,omitempty" yaml:"cursor,omitempty"`
 
 	// Copilot is for GitHub Copilot agent.
-	// The generated file is .github/hooks.json
-	Copilot map[string]string `json:"copilot,omitempty" jsonschema:"description=Copilot hooks mapping. Generates .github/hooks.json." mapstructure:"copilot,omitempty" toml:"copilot,omitempty" yaml:"copilot,omitempty"`
+	// The generated file is .github/hooks/lefthook.json.
+	Copilot map[string]string `json:"copilot,omitempty" jsonschema:"description=Copilot hooks mapping. Generates .github/hooks/lefthook.json." mapstructure:"copilot,omitempty" toml:"copilot,omitempty" yaml:"copilot,omitempty"`
 }

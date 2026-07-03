@@ -340,6 +340,53 @@ validate:
 			},
 		},
 		{
+			name: "install removes stale ai files when provider list changes",
+			config: `
+ai:
+  claude:
+    Stop: validate
+
+validate:
+  jobs:
+    - run: go test ./...
+`,
+			existingFiles: map[string]string{
+				projectPath(".codex/hooks.json"):           `{"hooks":{"Stop":[{"hooks":[{"type":"command","command":"lefthook run old-hook"}]}]}}`,
+				projectPath(".github/hooks/lefthook.json"): `{"version":1,"hooks":{"postToolUse":[{"command":"lefthook run old-hook"}]}}`,
+			},
+			wantExist: []string{
+				configPath,
+				projectPath(".claude/settings.json"),
+				projectPath(".codex/hooks.json"),
+				infoPath(config.ChecksumFileName),
+			},
+			wantNotExist: []string{
+				projectPath(".github/hooks/lefthook.json"),
+				hookPath(config.GhostHookName),
+			},
+		},
+		{
+			name: "install removes stale ai files when ai section is removed",
+			config: `
+validate:
+  jobs:
+    - run: go test ./...
+`,
+			existingFiles: map[string]string{
+				projectPath(".claude/settings.json"):       `{"hooks":{"Stop":[{"hooks":[{"type":"command","command":"lefthook run validate"}]}]}}`,
+				projectPath(".github/hooks/lefthook.json"): `{"version":1,"hooks":{"postToolUse":[{"command":"lefthook run validate"}]}}`,
+			},
+			wantExist: []string{
+				configPath,
+				projectPath(".claude/settings.json"),
+				infoPath(config.ChecksumFileName),
+			},
+			wantNotExist: []string{
+				projectPath(".github/hooks/lefthook.json"),
+				hookPath(config.GhostHookName),
+			},
+		},
+		{
 			name: "simple invalid config with ai",
 			config: `
 ai:

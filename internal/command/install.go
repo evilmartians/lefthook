@@ -75,7 +75,13 @@ func (l *Lefthook) Install(ctx context.Context, args InstallArgs, hooks []string
 		if err = l.validateAIHooks(cfg.AI, cfg.Hooks); err != nil {
 			return err
 		}
+	}
 
+	if err = l.removeAIHookFile(filepath.Join(l.repo.RootPath, copilotHooksDir, copilotHooksFile)); err != nil {
+		return err
+	}
+
+	if cfg.AI != nil {
 		if err = l.installAIHooks(cfg.AI, cfg); err != nil {
 			return err
 		}
