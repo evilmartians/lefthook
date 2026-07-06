@@ -24,7 +24,7 @@ require (
 	github.com/mattn/go-tty v0.0.8
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rogpeppe/go-internal v1.15.0
-	github.com/schollz/progressbar/v3 v3.19.0
+	github.com/schollz/progressbar/v3 v3.19.1
 	github.com/spf13/afero v1.15.0
 	github.com/stretchr/testify v1.11.1
 	github.com/tidwall/jsonc v0.3.3
@@ -69,6 +69,6 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	go.yaml.in/yaml/v3 v3.0.4
 	golang.org/x/sys v0.46.0 // indirect
-	golang.org/x/term v0.41.0 // indirect
+	golang.org/x/term v0.44.0 // indirect
 	golang.org/x/text v0.38.0 // indirect
 )
