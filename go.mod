@@ -13,7 +13,7 @@ require (
 	github.com/gobwas/glob v0.2.3
 	github.com/goccy/go-yaml v1.19.2
 	github.com/invopop/jsonschema v0.14.0
-	github.com/kaptinlin/jsonschema v0.9.2
+	github.com/kaptinlin/jsonschema v0.9.3
 	github.com/knadh/koanf/maps v0.1.2
 	github.com/knadh/koanf/parsers/json v1.0.0
 	github.com/knadh/koanf/parsers/toml/v2 v2.2.1
@@ -42,9 +42,9 @@ require (
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
-	github.com/go-json-experiment/json v0.0.0-20260601182631-00ed12fed2a6 // indirect
+	github.com/go-json-experiment/json v0.0.0-20260623181947-01eb4420fa68 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
-	github.com/kaptinlin/jsonpointer v0.4.26 // indirect
+	github.com/kaptinlin/jsonpointer v0.4.27 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
