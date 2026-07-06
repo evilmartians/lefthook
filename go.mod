@@ -3,7 +3,7 @@ module github.com/evilmartians/lefthook/v2
 go 1.26.4
 
 require (
-	charm.land/lipgloss/v2 v2.0.4
+	charm.land/lipgloss/v2 v2.0.5
 	github.com/bmatcuk/doublestar/v4 v4.10.0
 	github.com/briandowns/spinner v1.23.2
 	github.com/charmbracelet/colorprofile v0.4.3
@@ -68,7 +68,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.4.2
 	github.com/rivo/uniseg v0.4.7 // indirect
 	go.yaml.in/yaml/v3 v3.0.4
-	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/sys v0.46.0 // indirect
 	golang.org/x/term v0.41.0 // indirect
 	golang.org/x/text v0.38.0 // indirect
 )
