@@ -1,0 +1,39 @@
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+
+exec lefthook run echo-args -- 'a b' 'paren (x).txt' 'dollar $HOME' 'semi;colon' 'amp&ersand' 'back`tick' -Flag
+stdout 'ARGC: 7'
+stdout 'ARG: \[a b\]'
+stdout 'ARG: \[paren \(x\)\.txt\]'
+stdout 'ARG: \[dollar \$HOME\]'
+stdout 'ARG: \[semi;colon\]'
+stdout 'ARG: \[amp&ersand\]'
+stdout 'ARG: \[back`tick\]'
+stdout 'ARG: \[-Flag\]'
+
+# Args containing quotes survive on POSIX systems. On Windows the wrapper
+# command line built in internal/run/controller/exec/exec_windows.go doesn't
+# escape embedded double quotes, so they get mangled by the msys sh argument
+# parsing — a separate pre-existing issue not related to arg forwarding.
+[!windows] exec lefthook run echo-args -- 'it''s' 'double"quote'
+[!windows] stdout 'ARGC: 2'
+[!windows] stdout 'ARG: \[it''s\]'
+[!windows] stdout 'ARG: \[double"quote\]'
+
+-- lefthook.yml --
+output:
+  - execution_out
+
+echo-args:
+  jobs:
+    - script: echo.sh
+      runner: sh
+
+-- .lefthook/echo-args/echo.sh --
+#!/usr/bin/env sh
+
+echo "ARGC: $#"
+for arg in "$@"; do
+  echo "ARG: [$arg]"
+done
