@@ -12,14 +12,10 @@ stdout 'ARG: \[amp&ersand\]'
 stdout 'ARG: \[back`tick\]'
 stdout 'ARG: \[-Flag\]'
 
-# Args containing quotes survive on POSIX systems. On Windows the wrapper
-# command line built in internal/run/controller/exec/exec_windows.go doesn't
-# escape embedded double quotes, so they get mangled by the msys sh argument
-# parsing — a separate pre-existing issue not related to arg forwarding.
-[!windows] exec lefthook run echo-args -- 'it''s' 'double"quote'
-[!windows] stdout 'ARGC: 2'
-[!windows] stdout 'ARG: \[it''s\]'
-[!windows] stdout 'ARG: \[double"quote\]'
+exec lefthook run echo-args -- 'it''s' 'double"quote'
+stdout 'ARGC: 2'
+stdout 'ARG: \[it''s\]'
+stdout 'ARG: \[double"quote\]'
 
 -- lefthook.yml --
 output:
