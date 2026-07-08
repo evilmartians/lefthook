@@ -1,5 +1,16 @@
 # Change log
 
+## 2.1.10 (2026-07-08)
+
+- deps: July 2026 ([#1463](https://github.com/evilmartians/lefthook/pull/1463)) by [@mrexox]()
+- feat: AI coding agents integration ([#1448](https://github.com/evilmartians/lefthook/pull/1448)) by [@viralpraxis]()
+- docs: fix language ([#1453](https://github.com/evilmartians/lefthook/pull/1453)) by [@pflanze]()
+- fix: make test suite stable when `NO_COLOR` is set ([#1449](https://github.com/evilmartians/lefthook/pull/1449)) by [@viralpraxis]()
+- deps: June 2026 ([#1447](https://github.com/evilmartians/lefthook/pull/1447)) by [@mrexox]()
+- deps: migrate shellescape to al.essio.dev/pkg/shellescape ([#1443](https://github.com/evilmartians/lefthook/pull/1443)) by [@maguowei]()
+- docs: upgrade docmd ([#1442](https://github.com/evilmartians/lefthook/pull/1442)) by [@mrexox]()
+- docs: use single quotes in example to handle filepaths with $ by [@mrexox]()
+
 ## 2.1.9 (2026-05-29)
 
 - fix: update hooks path after resetting ([#1431](https://github.com/evilmartians/lefthook/pull/1431)) by [@mrexox]()
@@ -1203,16 +1214,19 @@ Now it's possible to use Lefthook from Gemfile.
 gem 'lefthook'
 ```
 
+[@franzramadhan]: https://github.com/franzramadhan
+[@ivy]: https://github.com/ivy
+[@jasonwbarnett]: https://github.com/jasonwbarnett
+[@jeonghoon11]: https://github.com/jeonghoon11
+[@joevin-sql-docto]: https://github.com/joevin-slq-docto
+[@lawrence3699]: https://github.com/lawrence3699
+[@maguowei]: https://github.com/maguowei
+[@michael-pplx]: https://github.com/michael-pplx
 [@mrexox]: https://github.com/mrexox
 [@olivier-lacroix]: https://github.com/olivier-lacroix
-[@michael-pplx]: https://github.com/michael-pplx
-[@siler]: https://github.com/siler
-[@technicalpickles]: https://github.com/technicalpickles
-[@jasonwbarnett]: https://github.com/jasonwbarnett
+[@pflanze]: https://github.com/pflanze
 [@scop]: https://github.com/scop
-[@franzramadhan]: https://github.com/franzramadhan
-[@joevin-sql-docto]: https://github.com/joevin-slq-docto
-[@jeonghoon11]: https://github.com/jeonghoon11
+[@siler]: https://github.com/siler
 [@supitsdu]: https://github.com/supitsdu
-[@ivy]: https://github.com/ivy
-[@lawrence3699]: https://github.com/lawrence3699
+[@technicalpickles]: https://github.com/technicalpickles
+[@viralpraxis]: https://github.com/viralpraxis
