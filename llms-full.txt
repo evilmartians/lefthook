@@ -10,7 +10,9 @@
 title: "ai"
 ---
 
-# `ai`
+# `ai` 🧪 (beta)
+
+> This is a beta feature and still in development.
 
 Declare LLM agent hooks directly in `lefthook.yml`. During `lefthook install`, lefthook generates the provider-specific settings file so that the agent calls `lefthook run <hook>` when the event fires.
 
@@ -1222,10 +1224,10 @@ Lefthook supports the following file names for the main config:
 
 | Format | Acceptable config names |
 |-------|-----------|
-| YAML  |`lefthook.yml`<br />`lefthook.yaml`<br />`.lefthook.yml`<br />`.lefthook.yaml`<br />`.config/lefthook.yml`<br />`.config/lefthook.yaml` |
-| TOML  | `lefthook.toml` <br />`.lefthook.toml` <br />`.config/lefthook.toml` |
-| JSON  | `lefthook.json` <br />`.lefthook.json` <br />`.config/lefthook.json` |
-| JSONC | `lefthook.jsonc` <br />`.lefthook.jsonc` <br />`.config/lefthook.jsonc` |
+| YAML  | `lefthook.yml` `lefthook.yaml` `.lefthook.yml` `.lefthook.yaml` `.config/lefthook.yml` `.config/lefthook.yaml` |
+| TOML  | `lefthook.toml`  `.lefthook.toml`  `.config/lefthook.toml` |
+| JSON  | `lefthook.json`  `.lefthook.json`  `.config/lefthook.json` |
+| JSONC | `lefthook.jsonc`  `.lefthook.jsonc`  `.config/lefthook.jsonc` |
 
 If there are more than 1 file in the project, only one will be used, and you'll never know which one. So, please, use one format in a project.
 

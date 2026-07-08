@@ -104,11 +104,11 @@
     <title>
       Configuration : Lefthook
     </title>
-    <link id="site-favicon" rel="icon" href="../assets/favicon.svg?v=mrc00s8i">
-    <link rel="stylesheet" href="../assets/css/docmd-main.css?v=mrc00s8i">
+    <link id="site-favicon" rel="icon" href="../assets/favicon.svg?v=mrc0hup5">
+    <link rel="stylesheet" href="../assets/css/docmd-main.css?v=mrc0hup5">
     
-    <link rel="stylesheet" href="../assets/css/docmd-highlight-light.css?v=mrc00s8i" id="hljs-light" >
-    <link rel="stylesheet" href="../assets/css/docmd-highlight-dark.css?v=mrc00s8i" id="hljs-dark" disabled>
+    <link rel="stylesheet" href="../assets/css/docmd-highlight-light.css?v=mrc0hup5" id="hljs-light" >
+    <link rel="stylesheet" href="../assets/css/docmd-highlight-dark.css?v=mrc0hup5" id="hljs-dark" disabled>
     
     
 <meta name="description" content="Lefthook documentation.">
@@ -125,11 +125,11 @@
 
 
 
-<link rel="stylesheet" href="../assets/css/docmd-git.css?v=mrc00s8i" >
-<link rel="stylesheet" href="../assets/css/docmd-openapi.css?v=mrc00s8i" >
+<link rel="stylesheet" href="../assets/css/docmd-git.css?v=mrc0hup5" >
+<link rel="stylesheet" href="../assets/css/docmd-openapi.css?v=mrc0hup5" >
 
     
-      <link rel="stylesheet" href="../assets/css/lefthook.css?v=mrc00s8i">
+      <link rel="stylesheet" href="../assets/css/lefthook.css?v=mrc0hup5">
     
     <script>/**
  * --------------------------------------------------------------------
@@ -615,6 +615,22 @@
             
       <li class="" >
       
+        <a href="../configuration/ai/" class=" "
+          >
+          
+          <span class="nav-item-title">
+            ai 🧪 (beta)
+            </span>
+          
+          
+        </a>
+        
+
+        
+      </li>
+    
+      <li class="" >
+      
         <a href="../configuration/assert_lefthook_installed/" class=" "
           >
           
@@ -652,6 +668,22 @@
           
           <span class="nav-item-title">
             extends
+            </span>
+          
+          
+        </a>
+        
+
+        
+      </li>
+    
+      <li class="" >
+      
+        <a href="../configuration/glob_matcher/" class=" "
+          >
+          
+          <span class="nav-item-title">
+            glob_matcher
             </span>
           
           
@@ -929,22 +961,6 @@
           
           <span class="nav-item-title">
             skip_lfs
-            </span>
-          
-          
-        </a>
-        
-
-        
-      </li>
-    
-      <li class="" >
-      
-        <a href="../configuration/glob_matcher/" class=" "
-          >
-          
-          <span class="nav-item-title">
-            glob_matcher
             </span>
           
           
@@ -2960,7 +2976,7 @@
             <div class="content-layout">
               <div class="main-content">
                 <div class="docmd-breadcrumbs-row">
-                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22Configuration%22%0A---%0A%0A%23%20Config%20file%20name%0A%0ALefthook%20supports%20the%20following%20file%20names%20for%20the%20main%20config%3A%0A%0A%7C%20Format%20%7C%20Acceptable%20config%20names%20%7C%0A%7C-------%7C-----------%7C%0A%7C%20YAML%20%20%7C%60lefthook.yml%60%3Cbr%20%2F%3E%60lefthook.yaml%60%3Cbr%20%2F%3E%60.lefthook.yml%60%3Cbr%20%2F%3E%60.lefthook.yaml%60%3Cbr%20%2F%3E%60.config%2Flefthook.yml%60%3Cbr%20%2F%3E%60.config%2Flefthook.yaml%60%20%7C%0A%7C%20TOML%20%20%7C%20%60lefthook.toml%60%20%3Cbr%20%2F%3E%60.lefthook.toml%60%20%3Cbr%20%2F%3E%60.config%2Flefthook.toml%60%20%7C%0A%7C%20JSON%20%20%7C%20%60lefthook.json%60%20%3Cbr%20%2F%3E%60.lefthook.json%60%20%3Cbr%20%2F%3E%60.config%2Flefthook.json%60%20%7C%0A%7C%20JSONC%20%7C%20%60lefthook.jsonc%60%20%3Cbr%20%2F%3E%60.lefthook.jsonc%60%20%3Cbr%20%2F%3E%60.config%2Flefthook.jsonc%60%20%7C%0A%0AIf%20there%20are%20more%20than%201%20file%20in%20the%20project%2C%20only%20one%20will%20be%20used%2C%20and%20you&#039;ll%20never%20know%20which%20one.%20So%2C%20please%2C%20use%20one%20format%20in%20a%20project.%0A%0AFilenames%20without%20the%20leading%20dot%20will%20also%20be%20looked%20up%20from%20the%20%5B%60.config%60%20subdirectory%5D(https%3A%2F%2Fgithub.com%2Fpi0%2Fconfig-dir).%0A%0ALefthook%20also%20merges%20an%20extra%20config%20with%20the%20name%20%60lefthook-local%60.%20All%20supported%20formats%20can%20be%20applied%20to%20this%20%60-local%60%20config.%20If%20you%20name%20your%20main%20config%20with%20the%20leading%20dot%2C%20like%20%60.lefthook.json%60%2C%20the%20%60-local%60%20config%20also%20must%20be%20named%20with%20the%20leading%20dot%3A%20%60.lefthook-local.json%60.%0A%0AThe%20%60-local%60%20config%20can%20be%20used%20without%20a%20main%20config%20file.%20This%20is%20useful%20when%20you%20want%20to%20use%20lefthook%20locally%20without%20imposing%20it%20on%20your%20teammates%20%E2%80%93%20just%20create%20a%20%60lefthook-local.yml%60%20file%20and%20add%20it%20to%20your%20global%20%60.gitignore%60.%0A%0A" style="display: none;"></div>
+                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22Configuration%22%0A---%0A%0A%23%20Config%20file%20name%0A%0ALefthook%20supports%20the%20following%20file%20names%20for%20the%20main%20config%3A%0A%0A%7C%20Format%20%7C%20Acceptable%20config%20names%20%7C%0A%7C-------%7C-----------%7C%0A%7C%20YAML%20%20%7C%20%60lefthook.yml%60%20%60lefthook.yaml%60%20%60.lefthook.yml%60%20%60.lefthook.yaml%60%20%60.config%2Flefthook.yml%60%20%60.config%2Flefthook.yaml%60%20%7C%0A%7C%20TOML%20%20%7C%20%60lefthook.toml%60%20%20%60.lefthook.toml%60%20%20%60.config%2Flefthook.toml%60%20%7C%0A%7C%20JSON%20%20%7C%20%60lefthook.json%60%20%20%60.lefthook.json%60%20%20%60.config%2Flefthook.json%60%20%7C%0A%7C%20JSONC%20%7C%20%60lefthook.jsonc%60%20%20%60.lefthook.jsonc%60%20%20%60.config%2Flefthook.jsonc%60%20%7C%0A%0AIf%20there%20are%20more%20than%201%20file%20in%20the%20project%2C%20only%20one%20will%20be%20used%2C%20and%20you&#039;ll%20never%20know%20which%20one.%20So%2C%20please%2C%20use%20one%20format%20in%20a%20project.%0A%0AFilenames%20without%20the%20leading%20dot%20will%20also%20be%20looked%20up%20from%20the%20%5B%60.config%60%20subdirectory%5D(https%3A%2F%2Fgithub.com%2Fpi0%2Fconfig-dir).%0A%0ALefthook%20also%20merges%20an%20extra%20config%20with%20the%20name%20%60lefthook-local%60.%20All%20supported%20formats%20can%20be%20applied%20to%20this%20%60-local%60%20config.%20If%20you%20name%20your%20main%20config%20with%20the%20leading%20dot%2C%20like%20%60.lefthook.json%60%2C%20the%20%60-local%60%20config%20also%20must%20be%20named%20with%20the%20leading%20dot%3A%20%60.lefthook-local.json%60.%0A%0AThe%20%60-local%60%20config%20can%20be%20used%20without%20a%20main%20config%20file.%20This%20is%20useful%20when%20you%20want%20to%20use%20lefthook%20locally%20without%20imposing%20it%20on%20your%20teammates%20%E2%80%93%20just%20create%20a%20%60lefthook-local.yml%60%20file%20and%20add%20it%20to%20your%20global%20%60.gitignore%60.%0A%0A" style="display: none;"></div>
                   
                     <nav aria-label="breadcrumb" class="docmd-breadcrumbs">
                       <ol>
@@ -3037,19 +3053,19 @@
 <tbody>
 <tr>
 <td>YAML</td>
-<td><code>lefthook.yml</code>&lt;br /&gt;<code>lefthook.yaml</code>&lt;br /&gt;<code>.lefthook.yml</code>&lt;br /&gt;<code>.lefthook.yaml</code>&lt;br /&gt;<code>.config/lefthook.yml</code>&lt;br /&gt;<code>.config/lefthook.yaml</code></td>
+<td><code>lefthook.yml</code> <code>lefthook.yaml</code> <code>.lefthook.yml</code> <code>.lefthook.yaml</code> <code>.config/lefthook.yml</code> <code>.config/lefthook.yaml</code></td>
 </tr>
 <tr>
 <td>TOML</td>
-<td><code>lefthook.toml</code> &lt;br /&gt;<code>.lefthook.toml</code> &lt;br /&gt;<code>.config/lefthook.toml</code></td>
+<td><code>lefthook.toml</code>  <code>.lefthook.toml</code>  <code>.config/lefthook.toml</code></td>
 </tr>
 <tr>
 <td>JSON</td>
-<td><code>lefthook.json</code> &lt;br /&gt;<code>.lefthook.json</code> &lt;br /&gt;<code>.config/lefthook.json</code></td>
+<td><code>lefthook.json</code>  <code>.lefthook.json</code>  <code>.config/lefthook.json</code></td>
 </tr>
 <tr>
 <td>JSONC</td>
-<td><code>lefthook.jsonc</code> &lt;br /&gt;<code>.lefthook.jsonc</code> &lt;br /&gt;<code>.config/lefthook.jsonc</code></td>
+<td><code>lefthook.jsonc</code>  <code>.lefthook.jsonc</code>  <code>.config/lefthook.jsonc</code></td>
 </tr>
 </tbody>
 </table>
@@ -3069,29 +3085,29 @@
             <div class="page-footer-actions">
               
               
-                <span class="git-last-updated" data-timestamp="1783510347000">
+                <span class="git-last-updated" data-timestamp="1783511135000">
                   <svg class="git-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
                   <span class="git-label">Last updated:</span>
-                  <span class="git-time" data-timestamp="1783510347000"></span>
+                  <span class="git-time" data-timestamp="1783511135000"></span>
                   
                   <div class="git-commit-tooltip" role="tooltip">
                     <div class="git-tooltip-title">Recent commits</div>
                     <ul class="git-commit-list">
                       
                         <li class="git-commit-item">
-                          <div class="git-commit-avatar" title="Iaroslav">
+                          <div class="git-commit-avatar" title="Valentin Kiselev">
                             
-                              <img src="https://www.gravatar.com/avatar/e078621f08741e5a93a8e4eb7323b720?d=mp&amp;s=64" alt="Iaroslav">
+                              <img src="https://www.gravatar.com/avatar/fce8c6aadd661388bd7629fef7f88f1c?d=mp&amp;s=64" alt="Valentin Kiselev">
                             
                           </div>
                           <div class="git-commit-details">
-                            <div class="git-commit-message" title="feat: AI coding agents integration (#1448)">feat: AI coding agents integration (#...</div>
+                            <div class="git-commit-message" title="docs: fix links to new beta feature">docs: fix links to new beta feature</div>
                             <div class="git-commit-meta">
-                              <span class="git-commit-author">Iaroslav</span>
-                              <span class="git-commit-date" data-timestamp="1783510347000"></span>
+                              <span class="git-commit-author">Valentin Kiselev</span>
+                              <span class="git-commit-date" data-timestamp="1783511135000"></span>
                             </div>
                           </div>
                         </li>
@@ -3143,14 +3159,14 @@
         </div>
       </div>
       
-      <script src="../assets/js/docmd-main.js?v=mrc00s8i"></script>
+      <script src="../assets/js/docmd-main.js?v=mrc0hup5"></script>
       
-      <script src="../assets/js/docmd-git.js?v=mrc00s8i"></script>
-      <script src="../assets/js/docmd-image-lightbox.js?v=mrc00s8i" ></script>
+      <script src="../assets/js/docmd-git.js?v=mrc0hup5"></script>
+      <script src="../assets/js/docmd-image-lightbox.js?v=mrc0hup5" ></script>
 <script src="https://cdn.jsdelivr.net/npm/minisearch@7.2.0/dist/umd/index.min.js" ></script>
-<script src="../assets/js/docmd-search.js?v=mrc00s8i" ></script>
-<script src="../assets/js/init-mermaid.js?v=mrc00s8i" type="module"></script>
-<script src="../assets/js/docmd-git.js?v=mrc00s8i" type="module"></script>
+<script src="../assets/js/docmd-search.js?v=mrc0hup5" ></script>
+<script src="../assets/js/init-mermaid.js?v=mrc0hup5" type="module"></script>
+<script src="../assets/js/docmd-git.js?v=mrc0hup5" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;" data-show-confidence="false" data-show-filters="true"
