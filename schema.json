@@ -2,6 +2,40 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://json.schemastore.org/lefthook.json",
   "$defs": {
+    "AI": {
+      "properties": {
+        "claude": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object",
+          "description": "Claude Code hook mappings (event name -\u003e lefthook hook name). Generates .claude/settings.json."
+        },
+        "codex": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object",
+          "description": "Codex CLI hook mappings (event name -\u003e lefthook hook name). Generates .codex/hooks.json."
+        },
+        "cursor": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object",
+          "description": "Cursor hook mappings (event name -\u003e lefthook hook name). Generates .cursor/hooks.json."
+        },
+        "copilot": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object",
+          "description": "Copilot hooks mapping. Generates .github/hooks/lefthook.json."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
     "Command": {
       "properties": {
         "run": {
@@ -497,7 +531,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2026.05.17.",
+  "$comment": "Last updated on 2026.07.03.",
   "properties": {
     "min_version": {
       "type": "string",
@@ -591,6 +625,10 @@
       },
       "type": "object",
       "description": "Custom templates for replacements in run commands."
+    },
+    "ai": {
+      "$ref": "#/$defs/AI",
+      "description": "LLM agent hook integration. Generates provider-specific settings files during lefthook install."
     },
     "$schema": {
       "type": "string"

@@ -58,6 +58,8 @@ type Config struct {
 
 	Templates map[string]string `json:"templates,omitempty" jsonschema:"description=Custom templates for replacements in run commands." mapstructure:"templates,omitempty"`
 
+	AI *AI `json:"ai,omitempty" jsonschema:"description=LLM agent hook integration. Generates provider-specific settings files during lefthook install." mapstructure:"ai,omitempty" toml:"ai,omitempty" yaml:"ai,omitempty"`
+
 	Hooks map[string]*Hook `jsonschema:"-" mapstructure:"-"`
 }
 

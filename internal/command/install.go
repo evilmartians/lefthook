@@ -67,7 +67,27 @@ func (l *Lefthook) Install(ctx context.Context, args InstallArgs, hooks []string
 		}
 	}
 
-	return l.installHooks(cfg, hooks, args)
+	if err = l.installHooks(cfg, hooks, args); err != nil {
+		return err
+	}
+
+	if cfg.AI != nil {
+		if err = l.validateAIHooks(cfg.AI, cfg.Hooks); err != nil {
+			return err
+		}
+	}
+
+	if err = l.removeAIHookFile(filepath.Join(l.repo.RootPath, copilotHooksDir, copilotHooksFile)); err != nil {
+		return err
+	}
+
+	if cfg.AI != nil {
+		if err = l.installAIHooks(cfg.AI, cfg); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // installHooks is the single entry point for creating hook files.
