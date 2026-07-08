@@ -21,6 +21,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://lefthook.dev/configuration/ai/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://lefthook.dev/configuration/args/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

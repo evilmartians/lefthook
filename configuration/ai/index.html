@@ -102,7 +102,7 @@
       window.DOCMD_DEFAULT_LOCALE = "";
     </script>
     <title>
-      templates : Lefthook
+      ai : Lefthook
     </title>
     <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mrc00s8i">
     <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mrc00s8i">
@@ -112,14 +112,14 @@
     
     
 <meta name="description" content="Lefthook documentation.">
-<link rel="canonical" href="https://lefthook.dev/configuration/templates/">
-<meta property="og:title" content="templates - Lefthook">
+<link rel="canonical" href="https://lefthook.dev/configuration/ai/">
+<meta property="og:title" content="ai - Lefthook">
 <meta property="og:description" content="Lefthook documentation.">
-<meta property="og:url" content="https://lefthook.dev/configuration/templates/">
+<meta property="og:url" content="https://lefthook.dev/configuration/ai/">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://lefthook.dev/assets/lefthook.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="templates - Lefthook">
+<meta name="twitter:title" content="ai - Lefthook">
 <meta name="twitter:description" content="Lefthook documentation.">
 <meta name="twitter:image" content="https://lefthook.dev/assets/lefthook.png">
 
@@ -201,7 +201,7 @@
   <body
     class="sidebar-collapsible"
     data-default-collapsed="false"
-    data-copy-code-enabled="true" data-spa-enabled="true" data-source-file="docs/configuration/templates.md">
+    data-copy-code-enabled="true" data-spa-enabled="true" data-source-file="docs/configuration/ai.md">
 
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
@@ -563,7 +563,7 @@
         
       </li>
     
-      <li class="active-parent collapsible expanded nav-group"  aria-expanded="true" >
+      <li class="collapsible nav-group"  aria-expanded="false" >
       
         <a href="../../configuration/" class=" nav-group"
           >
@@ -954,9 +954,9 @@
         
       </li>
     
-      <li class="active" >
+      <li class="" >
       
-        <a href="../../configuration/templates/" class="active "
+        <a href="../../configuration/templates/" class=" "
           >
           
           <span class="nav-item-title">
@@ -2866,7 +2866,7 @@
               
               <div class="header-titles-wrapper">
                 <span class="header-title">
-                  templates
+                  ai
                 </span>
               </div>
             </div>
@@ -2960,45 +2960,9 @@
             <div class="content-layout">
               <div class="main-content">
                 <div class="docmd-breadcrumbs-row">
-                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22templates%22%0A---%0A%0A%23%20%60templates%60%0A%0A%3A%3A%3A%20callout%20tip%20New%20feature%0AAdded%20in%20lefthook%20%601.10.8%60%0A%3A%3A%3A%0A%0AProvide%20custom%20replacement%20for%20templates%20in%20%60run%60%20values.%0A%0AWith%20%60templates%60%20you%20can%20specify%20what%20can%20be%20overridden%20via%20%60lefthook-local.yml%60%20without%20a%20need%20to%20overwrite%20every%20jobs%20in%20your%20configuration.%0A%0A%23%23%23%23%20Override%20with%20lefthook-local.yml%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Atemplates%3A%0A%20%20dip%3A%20%23%20empty%0A%0Apre-commit%3A%0A%20%20jobs%3A%0A%20%20%20%20%23%20Will%20run%3A%20%60bundle%20exec%20rubocop%20--%20file1%20file2%20file3%20...%60%0A%20%20%20%20-%20run%3A%20%7Bdip%7D%20bundle%20exec%20rubocop%20--%20%7Bstaged_files%7D%0A%60%60%60%0A%0A%60%60%60yml%0A%23%20lefthook-local.yml%0A%0Atemplates%3A%0A%20%20dip%3A%20dip%20%23%20Will%20run%3A%20%60dip%20bundle%20exec%20rubocop%20--%20file1%20file2%20file3%20...%60%0A%60%60%60%0A%0A%23%23%23%23%20Reduce%20redundancy%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Atemplates%3A%0A%20%20wrapper%3A%20docker-compose%20run%20--rm%20-v%20%24(pwd)%3A%2Fapp%20service%0A%0Apre-commit%3A%0A%20%20jobs%3A%0A%20%20%20%20-%20run%3A%20%7Bwrapper%7D%20yarn%20format%0A%20%20%20%20-%20run%3A%20%7Bwrapper%7D%20yarn%20lint%0A%20%20%20%20-%20run%3A%20%7Bwrapper%7D%20yarn%20test%0A%60%60%60%0A" style="display: none;"></div>
+                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22ai%22%0A---%0A%0A%23%20%60ai%60%0A%0ADeclare%20LLM%20agent%20hooks%20directly%20in%20%60lefthook.yml%60.%20During%20%60lefthook%20install%60%2C%20lefthook%20generates%20the%20provider-specific%20settings%20file%20so%20that%20the%20agent%20calls%20%60lefthook%20run%20%3Chook%3E%60%20when%20the%20event%20fires.%0A%0AEach%20sub-key%20is%20a%20provider%20name.%20Its%20value%20is%20a%20map%20from%20the%20provider&#039;s%20**event%20name**%20to%20a%20**lefthook%20hook%20name**%20defined%20elsewhere%20in%20the%20same%20config.%0A%0A%23%23%20Supported%20providers%0A%0A%7C%20Provider%20%7C%20Generated%20file%20%7C%20Docs%20%7C%0A%7C---%7C---%7C---%7C%0A%7C%20%60claude%60%20%7C%20%60.claude%2Fsettings.json%60%20%7C%20%5BClaude%20Code%20hooks%5D(https%3A%2F%2Fcode.claude.com%2Fdocs%2Fen%2Fhooks.md)%20%7C%0A%7C%20%60codex%60%20%7C%20%60.codex%2Fhooks.json%60%20%7C%20%5BCodex%20CLI%20hooks%5D(https%3A%2F%2Fdevelopers.openai.com%2Fcodex%2Fhooks)%20%7C%0A%7C%20%60cursor%60%20%7C%20%60.cursor%2Fhooks.json%60%20%7C%20%5BCursor%20hooks%5D(https%3A%2F%2Fcursor.com%2Fdocs%2Fagent%2Fhooks)%20%7C%0A%7C%20%60copilot%60%20%7C%20%60.github%2Fhooks%2Flefthook.json%60%20%7C%20%5BGitHub%20Copilot%20hooks%5D(https%3A%2F%2Fdocs.github.com%2Fen%2Fcopilot%2Fhow-tos%2Fcopilot-cli%2Fcustomize-copilot%2Fuse-hooks)%20%7C%0A%0AKeys%20under%20each%20provider%20must%20be%20that%20provider&#039;s%20hook%20event%20names.%20See%20the%20provider&#039;s%20hooks%20documentation%20for%20the%20supported%20events%20and%20their%20behaviour.%0A%0A%23%23%20Install%20and%20uninstall%20behaviour%0A%0AClaude%2C%20Codex%2C%20and%20Cursor%20preserve%20user-authored%20entries%20in%20their%20settings%20files.%20On%20%60lefthook%20install%60%2C%20old%20lefthook-managed%20entries%20are%20replaced%20with%20fresh%20ones%20derived%20from%20the%20current%20config.%20On%20%60lefthook%20uninstall%60%2C%20lefthook-managed%20entries%20are%20stripped%20while%20user-authored%20entries%20stay%20intact.%0A%0ACopilot%20is%20handled%20differently%3A%20%60lefthook%20install%60%20rewrites%20%60.github%2Fhooks%2Flefthook.json%60%20from%20scratch%2C%20and%20%60lefthook%20uninstall%60%20removes%20that%20file%20entirely.%0A%0AGenerated%20hook%20commands%20use%20the%20%60lefthook%60%20config%20value%20when%20set%2C%20otherwise%20the%20absolute%20path%20of%20the%20lefthook%20binary%20that%20ran%20%60install%60%20(via%20%60os.Executable()%60)%2C%20so%20AI%20tools%20do%20not%20depend%20on%20%60lefthook%60%20being%20on%20%60PATH%60.%0A%0A%23%23%20Example%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Aai%3A%0A%20%20claude%3A%0A%20%20%20%20Stop%3A%20validate%0A%20%20%20%20PreToolUse%3A%20security-check%0A%20%20codex%3A%0A%20%20%20%20Stop%3A%20validate%0A%20%20cursor%3A%0A%20%20%20%20stop%3A%20validate%0A%20%20%20%20preToolUse%3A%20security-check%0A%20%20copilot%3A%0A%20%20%20%20postToolUse%3A%20validate%0A%0Avalidate%3A%0A%20%20jobs%3A%0A%20%20%20%20-%20run%3A%20go%20test%20.%2F...%0A%0Asecurity-check%3A%0A%20%20jobs%3A%0A%20%20%20%20-%20run%3A%20.%2Fscripts%2Fsecurity.sh%0A%60%60%60%0A%0ARunning%20%60lefthook%20install%60%20creates%20(or%20updates)%20%60.claude%2Fsettings.json%60%3A%0A%0A%60%60%60json%0A%7B%0A%20%20%22hooks%22%3A%20%7B%0A%20%20%20%20%22Stop%22%3A%20%5B%0A%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%22hooks%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%7B%20%22type%22%3A%20%22command%22%2C%20%22command%22%3A%20%22lefthook%20run%20validate%22%20%7D%0A%20%20%20%20%20%20%20%20%5D%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%5D%2C%0A%20%20%20%20%22PreToolUse%22%3A%20%5B%0A%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%22hooks%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%7B%20%22type%22%3A%20%22command%22%2C%20%22command%22%3A%20%22lefthook%20run%20security-check%22%20%7D%0A%20%20%20%20%20%20%20%20%5D%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%5D%0A%20%20%7D%0A%7D%0A%60%60%60%0A%0AAnd%20%60.codex%2Fhooks.json%60%3A%0A%0A%60%60%60json%0A%7B%0A%20%20%22hooks%22%3A%20%7B%0A%20%20%20%20%22Stop%22%3A%20%5B%0A%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%22hooks%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%7B%20%22type%22%3A%20%22command%22%2C%20%22command%22%3A%20%22lefthook%20run%20validate%22%20%7D%0A%20%20%20%20%20%20%20%20%5D%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%5D%0A%20%20%7D%0A%7D%0A%60%60%60%0A%0AAnd%20%60.cursor%2Fhooks.json%60%3A%0A%0A%60%60%60json%0A%7B%0A%20%20%22version%22%3A%201%2C%0A%20%20%22hooks%22%3A%20%7B%0A%20%20%20%20%22stop%22%3A%20%5B%0A%20%20%20%20%20%20%7B%20%22command%22%3A%20%22lefthook%20run%20validate%22%20%7D%0A%20%20%20%20%5D%2C%0A%20%20%20%20%22preToolUse%22%3A%20%5B%0A%20%20%20%20%20%20%7B%20%22command%22%3A%20%22lefthook%20run%20security-check%22%20%7D%0A%20%20%20%20%5D%0A%20%20%7D%0A%7D%0A%60%60%60%0A%0AAnd%20%60.github%2Fhooks%2Flefthook.json%60%3A%0A%0A%60%60%60json%0A%7B%0A%20%20%22version%22%3A%201%2C%0A%20%20%22hooks%22%3A%20%7B%0A%20%20%20%20%22postToolUse%22%3A%20%5B%0A%20%20%20%20%20%20%7B%20%22command%22%3A%20%22lefthook%20run%20validate%22%20%7D%0A%20%20%20%20%5D%0A%20%20%7D%0A%7D%0A%60%60%60%0A" style="display: none;"></div>
                   
-                    <nav aria-label="breadcrumb" class="docmd-breadcrumbs">
-                      <ol>
-                        
-                        
-                          <li class="breadcrumb-item " >
-                            
-                              <a href="../../configuration/">Configuration</a>
-                            
-                            
-                              <span class="breadcrumb-separator">
-<svg class="lucide-icon icon-chevron-right " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
-  class="lucide lucide-chevron-right"
-  xmlns="http://www.w3.org/2000/svg"
-  width="24"
-  height="24"
-  viewBox="0 0 24 24"
-  fill="none"
-  stroke="currentColor"
-  stroke-width="2"
-  stroke-linecap="round"
-  stroke-linejoin="round"
->
-  <path d="m9 18 6-6-6-6" />
-</svg>
-</span>
-                            
-                          </li>
-                        
-                          <li class="breadcrumb-item active" aria-current=&quot;page&quot;>
-                            
-                              <span>templates</span>
-                            
-                            
-                          </li>
-                        
-                      </ol>
-                    </nav>
+                    <div class="docmd-breadcrumbs-spacer"></div>
                   
 
                   
@@ -3049,39 +3013,124 @@
                   
                 </div>
                 
-                <h1 id="templates" class="docmd-heading"><a href="#templates" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a><code>templates</code></h1>
-<div class="docmd-container callout callout-tip"><div class="callout-title">New feature</div><div class="callout-content">
-<p>Added in lefthook <code>1.10.8</code></p>
-</div></div>
-<p>Provide custom replacement for templates in <code>run</code> values.</p>
-<p>With <code>templates</code> you can specify what can be overridden via <code>lefthook-local.yml</code> without a need to overwrite every jobs in your configuration.</p>
-<h4 id="templates-override-with-lefthook-localyml" class="docmd-heading"><a href="#templates-override-with-lefthook-localyml" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Override with lefthook-local.yml</h4>
+                <h1 id="ai" class="docmd-heading"><a href="#ai" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a><code>ai</code></h1>
+<p>Declare LLM agent hooks directly in <code>lefthook.yml</code>. During <code>lefthook install</code>, lefthook generates the provider-specific settings file so that the agent calls <code>lefthook run &lt;hook&gt;</code> when the event fires.</p>
+<p>Each sub-key is a provider name. Its value is a map from the provider’s <strong>event name</strong> to a <strong>lefthook hook name</strong> defined elsewhere in the same config.</p>
+<h2 id="ai-supported-providers" class="docmd-heading"><a href="#ai-supported-providers" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Supported providers</h2>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>Provider</th>
+<th>Generated file</th>
+<th>Docs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>claude</code></td>
+<td><code>.claude/settings.json</code></td>
+<td><a href="https://code.claude.com/docs/en/hooks.md">Claude Code hooks</a></td>
+</tr>
+<tr>
+<td><code>codex</code></td>
+<td><code>.codex/hooks.json</code></td>
+<td><a href="https://developers.openai.com/codex/hooks">Codex CLI hooks</a></td>
+</tr>
+<tr>
+<td><code>cursor</code></td>
+<td><code>.cursor/hooks.json</code></td>
+<td><a href="https://cursor.com/docs/agent/hooks">Cursor hooks</a></td>
+</tr>
+<tr>
+<td><code>copilot</code></td>
+<td><code>.github/hooks/lefthook.json</code></td>
+<td><a href="https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/use-hooks">GitHub Copilot hooks</a></td>
+</tr>
+</tbody>
+</table>
+</div><p>Keys under each provider must be that provider’s hook event names. See the provider’s hooks documentation for the supported events and their behaviour.</p>
+<h2 id="ai-install-and-uninstall-behaviour" class="docmd-heading"><a href="#ai-install-and-uninstall-behaviour" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Install and uninstall behaviour</h2>
+<p>Claude, Codex, and Cursor preserve user-authored entries in their settings files. On <code>lefthook install</code>, old lefthook-managed entries are replaced with fresh ones derived from the current config. On <code>lefthook uninstall</code>, lefthook-managed entries are stripped while user-authored entries stay intact.</p>
+<p>Copilot is handled differently: <code>lefthook install</code> rewrites <code>.github/hooks/lefthook.json</code> from scratch, and <code>lefthook uninstall</code> removes that file entirely.</p>
+<p>Generated hook commands use the <code>lefthook</code> config value when set, otherwise the absolute path of the lefthook binary that ran <code>install</code> (via <code>os.Executable()</code>), so AI tools do not depend on <code>lefthook</code> being on <code>PATH</code>.</p>
+<h2 id="ai-example" class="docmd-heading"><a href="#ai-example" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Example</h2>
 <pre class="hljs"><code class="language-yml"><span class="hljs-comment"># lefthook.yml</span>
 
-templates<span class="hljs-punctuation">:</span>
-  dip<span class="hljs-punctuation">:</span> <span class="hljs-comment"># empty</span>
+ai<span class="hljs-punctuation">:</span>
+  claude<span class="hljs-punctuation">:</span>
+    Stop<span class="hljs-punctuation">:</span> validate
+    PreToolUse<span class="hljs-punctuation">:</span> security<span class="hljs-punctuation">-</span>check
+  codex<span class="hljs-punctuation">:</span>
+    Stop<span class="hljs-punctuation">:</span> validate
+  cursor<span class="hljs-punctuation">:</span>
+    stop<span class="hljs-punctuation">:</span> validate
+    preToolUse<span class="hljs-punctuation">:</span> security<span class="hljs-punctuation">-</span>check
+  copilot<span class="hljs-punctuation">:</span>
+    postToolUse<span class="hljs-punctuation">:</span> validate
 
-pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:</span>
+validate<span class="hljs-punctuation">:</span>
   jobs<span class="hljs-punctuation">:</span>
-    <span class="hljs-comment"># Will run: `bundle exec rubocop -- file1 file2 file3 ...`</span>
-    <span class="hljs-punctuation">-</span> run<span class="hljs-punctuation">:</span> {dip} bundle exec rubocop <span class="hljs-punctuation">--</span> {staged_files}
-</code></pre>
-<pre class="hljs"><code class="language-yml"><span class="hljs-comment"># lefthook-local.yml</span>
+    <span class="hljs-punctuation">-</span> run<span class="hljs-punctuation">:</span> <span class="hljs-keyword">go</span> test .<span class="hljs-punctuation">/</span>...
 
-templates<span class="hljs-punctuation">:</span>
-  dip<span class="hljs-punctuation">:</span> dip <span class="hljs-comment"># Will run: `dip bundle exec rubocop -- file1 file2 file3 ...`</span>
-</code></pre>
-<h4 id="templates-reduce-redundancy" class="docmd-heading"><a href="#templates-reduce-redundancy" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Reduce redundancy</h4>
-<pre class="hljs"><code class="language-yml"><span class="hljs-comment"># lefthook.yml</span>
-
-templates<span class="hljs-punctuation">:</span>
-  wrapper<span class="hljs-punctuation">:</span> <span class="hljs-keyword">docker</span><span class="hljs-punctuation">-</span>compose run <span class="hljs-punctuation">--</span><span class="hljs-keyword">rm</span> <span class="hljs-punctuation">-</span>v <span class="hljs-title function_">$</span>(pwd)<span class="hljs-punctuation">:/</span>app service
-
-pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:</span>
+security<span class="hljs-punctuation">-</span>check<span class="hljs-punctuation">:</span>
   jobs<span class="hljs-punctuation">:</span>
-    <span class="hljs-punctuation">-</span> run<span class="hljs-punctuation">:</span> {wrapper} <span class="hljs-keyword">yarn</span> format
-    <span class="hljs-punctuation">-</span> run<span class="hljs-punctuation">:</span> {wrapper} <span class="hljs-keyword">yarn</span> lint
-    <span class="hljs-punctuation">-</span> run<span class="hljs-punctuation">:</span> {wrapper} <span class="hljs-keyword">yarn</span> test
+    <span class="hljs-punctuation">-</span> run<span class="hljs-punctuation">:</span> .<span class="hljs-punctuation">/</span>scripts<span class="hljs-punctuation">/</span>security.<span class="hljs-keyword">sh</span>
+</code></pre>
+<p>Running <code>lefthook install</code> creates (or updates) <code>.claude/settings.json</code>:</p>
+<pre class="hljs"><code class="language-json">{
+  <span class="hljs-string">&quot;hooks&quot;</span><span class="hljs-punctuation">:</span> {
+    <span class="hljs-string">&quot;Stop&quot;</span><span class="hljs-punctuation">:</span> [
+      {
+        <span class="hljs-string">&quot;hooks&quot;</span><span class="hljs-punctuation">:</span> [
+          { <span class="hljs-string">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;command&quot;</span>, <span class="hljs-string">&quot;command&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;lefthook run validate&quot;</span> }
+        ]
+      }
+    ],
+    <span class="hljs-string">&quot;PreToolUse&quot;</span><span class="hljs-punctuation">:</span> [
+      {
+        <span class="hljs-string">&quot;hooks&quot;</span><span class="hljs-punctuation">:</span> [
+          { <span class="hljs-string">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;command&quot;</span>, <span class="hljs-string">&quot;command&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;lefthook run security-check&quot;</span> }
+        ]
+      }
+    ]
+  }
+}
+</code></pre>
+<p>And <code>.codex/hooks.json</code>:</p>
+<pre class="hljs"><code class="language-json">{
+  <span class="hljs-string">&quot;hooks&quot;</span><span class="hljs-punctuation">:</span> {
+    <span class="hljs-string">&quot;Stop&quot;</span><span class="hljs-punctuation">:</span> [
+      {
+        <span class="hljs-string">&quot;hooks&quot;</span><span class="hljs-punctuation">:</span> [
+          { <span class="hljs-string">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;command&quot;</span>, <span class="hljs-string">&quot;command&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;lefthook run validate&quot;</span> }
+        ]
+      }
+    ]
+  }
+}
+</code></pre>
+<p>And <code>.cursor/hooks.json</code>:</p>
+<pre class="hljs"><code class="language-json">{
+  <span class="hljs-string">&quot;version&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span>,
+  <span class="hljs-string">&quot;hooks&quot;</span><span class="hljs-punctuation">:</span> {
+    <span class="hljs-string">&quot;stop&quot;</span><span class="hljs-punctuation">:</span> [
+      { <span class="hljs-string">&quot;command&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;lefthook run validate&quot;</span> }
+    ],
+    <span class="hljs-string">&quot;preToolUse&quot;</span><span class="hljs-punctuation">:</span> [
+      { <span class="hljs-string">&quot;command&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;lefthook run security-check&quot;</span> }
+    ]
+  }
+}
+</code></pre>
+<p>And <code>.github/hooks/lefthook.json</code>:</p>
+<pre class="hljs"><code class="language-json">{
+  <span class="hljs-string">&quot;version&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span>,
+  <span class="hljs-string">&quot;hooks&quot;</span><span class="hljs-punctuation">:</span> {
+    <span class="hljs-string">&quot;postToolUse&quot;</span><span class="hljs-punctuation">:</span> [
+      { <span class="hljs-string">&quot;command&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;lefthook run validate&quot;</span> }
+    ]
+  }
+}
 </code></pre>
 
                 
@@ -3110,15 +3159,19 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
     <ul class="toc-list">
       
         <li class="toc-item toc-level-1">
-          <a href="#templates" class="toc-link">templates</a>
+          <a href="#ai" class="toc-link">ai</a>
         </li>
       
-        <li class="toc-item toc-level-4">
-          <a href="#templates-override-with-lefthook-localyml" class="toc-link">Override with lefthook-local.yml</a>
+        <li class="toc-item toc-level-2">
+          <a href="#ai-supported-providers" class="toc-link">Supported providers</a>
         </li>
       
-        <li class="toc-item toc-level-4">
-          <a href="#templates-reduce-redundancy" class="toc-link">Reduce redundancy</a>
+        <li class="toc-item toc-level-2">
+          <a href="#ai-install-and-uninstall-behaviour" class="toc-link">Install and uninstall behaviour</a>
+        </li>
+      
+        <li class="toc-item toc-level-2">
+          <a href="#ai-example" class="toc-link">Example</a>
         </li>
       
     </ul>
@@ -3163,7 +3216,7 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
               
               <span class="git-spacer"></span>
               
-                <a href="https://github.com/evilmartians/lefthook/edit/master/docs/configuration/templates.md" target="_blank" rel="noopener noreferrer" class="edit-link">
+                <a href="https://github.com/evilmartians/lefthook/edit/master/docs/configuration/ai.md" target="_blank" rel="noopener noreferrer" class="edit-link">
                   
 <svg class="lucide-icon icon-pencil " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
   class="lucide lucide-pencil"

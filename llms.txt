@@ -4,6 +4,7 @@
 
 ## Documentation Files
 
+- [ai](https://lefthook.dev/configuration/ai/)
 - [args](https://lefthook.dev/configuration/args/)
 - [assert_lefthook_installed](https://lefthook.dev/configuration/assert_lefthook_installed/)
 - [colors](https://lefthook.dev/configuration/colors/)

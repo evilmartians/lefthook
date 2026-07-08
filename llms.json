@@ -3,6 +3,12 @@
   "description": "",
   "pages": [
     {
+      "title": "ai",
+      "url": "https://lefthook.dev/configuration/ai/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
       "title": "args",
       "url": "https://lefthook.dev/configuration/args/",
       "description": "",
