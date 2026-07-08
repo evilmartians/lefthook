@@ -19,6 +19,8 @@ registries/pypi/lefthook/bin/
 registries/pypi/build/
 registries/rubygems/pkg/
 registries/rubygems/libexec/
+registries/php/libexec/
+!registries/php/libexec/.keep
 registries/npm-bundled/bin/
 registries/npm/*/bin/
 !registries/npm/*/package.json
