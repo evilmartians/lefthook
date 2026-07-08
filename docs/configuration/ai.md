@@ -2,7 +2,9 @@
 title: "ai"
 ---
 
-# `ai`
+# `ai` 🧪 (beta)
+
+> This is a beta feature and still in development.
 
 Declare LLM agent hooks directly in `lefthook.yml`. During `lefthook install`, lefthook generates the provider-specific settings file so that the agent calls `lefthook run <hook>` when the event fires.
 

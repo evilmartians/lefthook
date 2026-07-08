@@ -144,6 +144,10 @@ module.exports = {
       icon: "settings",
       children: [
         {
+          title: "ai 🧪 (beta)",
+          path: "/configuration/ai"
+        },
+        {
           title: "assert_lefthook_installed",
           path: "/configuration/assert_lefthook_installed"
         },
@@ -154,6 +158,10 @@ module.exports = {
         {
           title: "extends",
           path: "/configuration/extends"
+        },
+        {
+          title: "glob_matcher",
+          path: "/configuration/glob_matcher"
         },
         {
           title: "install_non_git_hooks",
@@ -220,10 +228,6 @@ module.exports = {
         {
           title: "skip_lfs",
           path: "/configuration/skip_lfs"
-        },
-        {
-          title: "glob_matcher",
-          path: "/configuration/glob_matcher"
         },
         {
           title: "templates",
