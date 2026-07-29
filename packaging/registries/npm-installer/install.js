@@ -20,7 +20,7 @@ async function install() {
     fs.chmodSync(exePath, "755")
   }
   // run install
-  chp.spawnSync(exePath, ['install',  '-f'], {
+  chp.spawnSync(exePath, ['install'], {
     cwd: process.env.INIT_CWD || process.cwd(),
     stdio: 'inherit',
   })
