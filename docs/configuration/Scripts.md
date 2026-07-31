@@ -47,3 +47,15 @@ commit-msg:
 ```
 
 When you try to commit `git commit -m "bad commit text"` script `template_checker` will be executed. Since commit text doesn't match the described pattern the commit process will be interrupted.
+
+Use [`args`](./args.md) to append arguments to a script. Arguments passed by
+Git are omitted when `args` is configured, so use the `{0}` template if they
+should be preserved.
+
+```yml
+commit-msg:
+  scripts:
+    "template_checker":
+      runner: bash
+      args: "{0}"
+```
