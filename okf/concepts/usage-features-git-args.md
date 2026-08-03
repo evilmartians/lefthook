@@ -6,7 +6,7 @@ path: /usage/features/git-args/
 updated: 2026-08-03
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-03T09:38:01.717Z"
+  generated_at: "2026-08-03T09:42:48.617Z"
 ---
 ---
 title: "Capture ARGS from git in the script"

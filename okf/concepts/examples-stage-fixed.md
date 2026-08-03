@@ -6,7 +6,7 @@ path: /examples/stage_fixed/
 updated: 2026-08-03
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-03T09:38:01.708Z"
+  generated_at: "2026-08-03T09:42:48.598Z"
 ---
 # Stage fixed files
 

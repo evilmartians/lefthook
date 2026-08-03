@@ -104,11 +104,11 @@
     
     
 
-    <link id="site-favicon" rel="icon" href="./assets/favicon.svg?v=msd1deho">
-    <link rel="stylesheet" href="./assets/css/docmd-main.css?v=msd1deho">
+    <link id="site-favicon" rel="icon" href="./assets/favicon.svg?v=msd1jjk0">
+    <link rel="stylesheet" href="./assets/css/docmd-main.css?v=msd1jjk0">
     
-    <link rel="stylesheet" href="./assets/css/docmd-highlight-light.css?v=msd1deho" id="hljs-light" >
-    <link rel="stylesheet" href="./assets/css/docmd-highlight-dark.css?v=msd1deho" id="hljs-dark" disabled>
+    <link rel="stylesheet" href="./assets/css/docmd-highlight-light.css?v=msd1jjk0" id="hljs-light" >
+    <link rel="stylesheet" href="./assets/css/docmd-highlight-dark.css?v=msd1jjk0" id="hljs-dark" disabled>
     
     
 <meta name="description" content="Welcome to Lefthook documentation">
@@ -125,11 +125,11 @@
 
 
 
-<link rel="stylesheet" href="./assets/css/docmd-git.css?v=msd1deho" >
-<link rel="stylesheet" href="./assets/css/docmd-openapi.css?v=msd1deho" >
+<link rel="stylesheet" href="./assets/css/docmd-git.css?v=msd1jjk0" >
+<link rel="stylesheet" href="./assets/css/docmd-openapi.css?v=msd1jjk0" >
 
     
-      <link rel="stylesheet" href="./assets/css/lefthook.css?v=msd1deho">
+      <link rel="stylesheet" href="./assets/css/lefthook.css?v=msd1jjk0">
     
     
   </head>
@@ -2911,7 +2911,7 @@
             <div class="content-layout">
               <div class="main-content">
                 <div class="docmd-breadcrumbs-row">
-                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22What%20is%20Lefthook%3F%22%0Adescription%3A%20%22Welcome%20to%20Lefthook%20documentation%22%0A---%0A%0A**Lefthook**%20is%20a%20Git%20hooks%20manager.%20It%20is%0A%0A-%20Fast%0A-%20Powerful%0A-%20Simple%0A%0A%23%23%20How%20does%20lefthook%20work%3F%0A%0AYou%0A%0A-%20Create%20%5B%60lefthook.yml%60%5D(.%2Fconfiguration.md)%20configuration%20file%0A-%20Run%20%60lefthook%20install%60%0A%0ALefthook%20installs%20the%20configured%20hooks%20into%20%60.git%2Fhooks%2F%60.%20Hook%20is%20a%20simple%20script%20that%20calls%20%60lefthook%20run%20%7Bhook-name%7D%60%20when%20executed.%0A%0A%23%23%20How%20to%20install%20lefthook%3F%0A%0AThe%20most%20common%20way%20is%20to%20use%20the%20package%20manager%20of%20your%20project%2C%20e.g.%20%5Bgem%5D(.%2Finstallation%2Fruby.md)%20or%20%5Bnpm%20package%5D(.%2Finstallation%2Fnode.md).%0A%0AYou%20can%20also%20install%20lefthook%20via%20%5BHomebrew%5D(.%2Finstallation%2Fhomebrew.md)%2C%20%5B%60winget%60%5D(.%2Finstallation%2Fwinget.md)%2C%20%5B%60yum%60%5D(.%2Finstallation%2Frpm.md)%2C%20%5B%60apt%60%5D(.%2Finstallation%2Fdeb.md)%2C%20%5B%60apk%60%5D(.%2Finstallation%2Falpine.md)%2C%20%5B%60scoop%60%5D(.%2Finstallation%2Fscoop.md)%0A%0A%23%23%20Example%20configuration%0A%0ARun%20linters%20on%20%60pre-commit%60%20hook.%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Apre-commit%3A%0A%20%20parallel%3A%20true%0A%20%20jobs%3A%0A%20%20%20%20-%20run%3A%20yarn%20run%20stylelint%20--fix%20&#039;%7Bstaged_files%7D&#039;%0A%20%20%20%20%20%20glob%3A%20%22*.css%22%0A%20%20%20%20%20%20stage_fixed%3A%20true%0A%0A%20%20%20%20-%20run%3A%20yarn%20run%20eslint%20--fix%20&#039;%7Bstaged_files%7D&#039;%0A%20%20%20%20%20%20glob%3A%0A%20%20%20%20%20%20%20%20-%20%22*.ts%22%0A%20%20%20%20%20%20%20%20-%20%22*.js%22%0A%20%20%20%20%20%20%20%20-%20%22*.tsx%22%0A%20%20%20%20%20%20%20%20-%20%22*.jsx%22%0A%20%20%20%20%20%20stage_fixed%3A%20true%0A%60%60%60%0A%0A---%0A%0A%3Cbr%20%2F%3E%0A%0A%3Cimg%20src%3D%22https%3A%2F%2Fcdn.evilmartians.com%2Fbadges%2Flogo-no-label.svg%22%20alt%3D%22Evil%20Martians%20logo%22%20width%3D%2222%22%20height%3D%2216%22%20%2F%3E%0A%0A%3Cb%3ELefthook%3C%2Fb%3E%20is%20built%20by%20%3Cb%3E%3Ca%20href%3D%22https%3A%2F%2Fevilmartians.com%2F%22%3EEvil%20Martians%3C%2Fa%3E%3C%2Fb%3E%2C%20an%20American%20design%20and%20engineering%20consultancy%20for%20%3Cb%3Edeveloper%20tools%2C%20AI%2C%20and%20cybersecurity%20startups%3C%2Fb%3E.%0A" style="display: none;"></div>
+                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22What%20is%20Lefthook%3F%22%0Adescription%3A%20%22Welcome%20to%20Lefthook%20documentation%22%0A---%0A%0A**Lefthook**%20is%20a%20Git%20hooks%20manager.%20It%20is%0A%0A-%20Fast%0A-%20Powerful%0A-%20Simple%0A%0A%23%23%20How%20does%20lefthook%20work%3F%0A%0AYou%0A%0A-%20Create%20%5B%60lefthook.yml%60%5D(.%2Fconfiguration.md)%20configuration%20file%0A-%20Run%20%60lefthook%20install%60%0A%0ALefthook%20installs%20the%20configured%20hooks%20into%20%60.git%2Fhooks%2F%60.%20Hook%20is%20a%20simple%20script%20that%20calls%20%60lefthook%20run%20%7Bhook-name%7D%60%20when%20executed.%0A%0A%23%23%20How%20to%20install%20lefthook%3F%0A%0AThe%20most%20common%20way%20is%20to%20use%20the%20package%20manager%20of%20your%20project%2C%20e.g.%20%5Bgem%5D(.%2Finstallation%2Fruby.md)%20or%20%5Bnpm%20package%5D(.%2Finstallation%2Fnode.md).%0A%0AYou%20can%20also%20install%20lefthook%20via%20%5BHomebrew%5D(.%2Finstallation%2Fhomebrew.md)%2C%20%5B%60winget%60%5D(.%2Finstallation%2Fwinget.md)%2C%20%5B%60yum%60%5D(.%2Finstallation%2Frpm.md)%2C%20%5B%60apt%60%5D(.%2Finstallation%2Fdeb.md)%2C%20%5B%60apk%60%5D(.%2Finstallation%2Falpine.md)%2C%20%5B%60scoop%60%5D(.%2Finstallation%2Fscoop.md)%0A%0A%23%23%20Example%20configuration%0A%0ARun%20linters%20on%20%60pre-commit%60%20hook.%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Apre-commit%3A%0A%20%20parallel%3A%20true%0A%20%20jobs%3A%0A%20%20%20%20-%20run%3A%20yarn%20run%20stylelint%20--fix%20&#039;%7Bstaged_files%7D&#039;%0A%20%20%20%20%20%20glob%3A%20%22*.css%22%0A%20%20%20%20%20%20stage_fixed%3A%20true%0A%0A%20%20%20%20-%20run%3A%20yarn%20run%20eslint%20--fix%20&#039;%7Bstaged_files%7D&#039;%0A%20%20%20%20%20%20glob%3A%0A%20%20%20%20%20%20%20%20-%20%22*.ts%22%0A%20%20%20%20%20%20%20%20-%20%22*.js%22%0A%20%20%20%20%20%20%20%20-%20%22*.tsx%22%0A%20%20%20%20%20%20%20%20-%20%22*.jsx%22%0A%20%20%20%20%20%20stage_fixed%3A%20true%0A%60%60%60%0A%0A---%0A%0A**Lefthook**%20is%20built%20by%20**%5BEvil%20Martians%5D(https%3A%2F%2Fevilmartians.com%2F)**%2C%20an%20American%20design%20and%20engineering%20consultancy%20for%20**developer%20tools%2C%20AI%2C%20and%20cybersecurity%20startups**.%0A" style="display: none;"></div>
                   
                     <div class="docmd-breadcrumbs-spacer"></div>
                   
@@ -3000,9 +3000,7 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
       stage_fixed<span class="hljs-punctuation">:</span> <span class="hljs-keyword">true</span>
 </code></pre>
 <hr>
-<p>&lt;br /&gt;</p>
-<p>&lt;img src=“<a href="https://cdn.evilmartians.com/badges/logo-no-label.svg">https://cdn.evilmartians.com/badges/logo-no-label.svg</a>” alt=“Evil Martians logo” width=“22” height=“16” /&gt;</p>
-<p>&lt;b&gt;Lefthook&lt;/b&gt; is built by &lt;b&gt;&lt;a href=“<a href="https://evilmartians.com/">https://evilmartians.com/</a>”&gt;Evil Martians&lt;/a&gt;&lt;/b&gt;, an American design and engineering consultancy for &lt;b&gt;developer tools, AI, and cybersecurity startups&lt;/b&gt;.</p>
+<p><strong>Lefthook</strong> is built by <strong><a href="https://evilmartians.com/">Evil Martians</a></strong>, an American design and engineering consultancy for <strong>developer tools, AI, and cybersecurity startups</strong>.</p>
 
                 
               </div>
@@ -3051,13 +3049,13 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
             <div class="page-footer-actions">
               
               
-                <span class="git-last-updated" data-timestamp="1785749861000">
+                <span class="git-last-updated" data-timestamp="1785750141000">
                   <svg class="git-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
                   <span class="git-label">Last updated:</span>
-                  <span class="git-time" data-timestamp="1785749861000"></span>
+                  <span class="git-time" data-timestamp="1785750141000"></span>
                   
                   <div class="git-commit-tooltip" role="tooltip">
                     <div class="git-tooltip-title">Recent commits</div>
@@ -3070,10 +3068,10 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
                             
                           </div>
                           <div class="git-commit-details">
-                            <div class="git-commit-message" title="docs: update docmd (#1481)">docs: update docmd (#1481)</div>
+                            <div class="git-commit-message" title="docs: fix em notice">docs: fix em notice</div>
                             <div class="git-commit-meta">
                               <span class="git-commit-author">Valentin Kiselev</span>
-                              <span class="git-commit-date" data-timestamp="1785749861000"></span>
+                              <span class="git-commit-date" data-timestamp="1785750141000"></span>
                             </div>
                           </div>
                         </li>
@@ -3125,13 +3123,13 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
         </div>
       </div>
       
-      <script src="./assets/js/docmd-main.js?v=msd1deho"></script>
+      <script src="./assets/js/docmd-main.js?v=msd1jjk0"></script>
       
-      <script src="./assets/js/docmd-git.js?v=msd1deho"></script>
-      <script src="./assets/js/docmd-image-lightbox.js?v=msd1deho" ></script>
-<script src="./assets/js/vendor/minisearch.js?v=msd1deho" ></script>
-<script src="./assets/js/docmd-search.js?v=msd1deho" ></script>
-<script src="./assets/js/docmd-git.js?v=msd1deho" type="module"></script>
+      <script src="./assets/js/docmd-git.js?v=msd1jjk0"></script>
+      <script src="./assets/js/docmd-image-lightbox.js?v=msd1jjk0" ></script>
+<script src="./assets/js/vendor/minisearch.js?v=msd1jjk0" ></script>
+<script src="./assets/js/docmd-search.js?v=msd1jjk0" ></script>
+<script src="./assets/js/docmd-git.js?v=msd1jjk0" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;" data-show-confidence="false" data-show-filters="true"
