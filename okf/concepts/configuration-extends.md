@@ -1,0 +1,43 @@
+---
+type: concept
+title: extends
+source: "https://lefthook.dev/configuration/extends/"
+path: /configuration/extends/
+updated: 2026-08-03
+okf:
+  generated_by: "@docmd/plugin-okf"
+  generated_at: "2026-08-03T09:38:01.694Z"
+---
+---
+title: "extends"
+---
+
+# `extends`
+
+You can extend your config with another one YAML file. Its content will be merged. Extends for `lefthook.yml`, `lefthook-local.yml`, and [`remotes`](./remotes.md) configs are handled separately, so you can have different extends in these files.
+
+You can use asterisk to make a glob.
+
+#### Example
+
+```yml
+# lefthook.yml
+
+extends:
+  - /home/user/work/lefthook-extend.yml
+  - /home/user/work/lefthook-extend-2.yml
+  - lefthook-extends/file.yml
+  - ../extend.yml
+  - projects/*/specific-lefthook-config.yml
+```
+
+::: callout info Note
+Settings are applied in this order:
+
+- `lefthook.yml` – main config file
+- `extends` – configs specified in [extends](./extends.md) option
+- `remotes` – configs specified in [remotes](./remotes.md) option
+- `lefthook-local.yml` – local config file
+
+So, `extends` override settings from `lefthook.yml`, `remotes` override `extends`, and `lefthook-local.yml` can override everything.
+:::

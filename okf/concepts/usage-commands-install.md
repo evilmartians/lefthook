@@ -1,0 +1,31 @@
+---
+type: concept
+title: "lefthook install"
+source: "https://lefthook.dev/usage/commands/install/"
+path: /usage/commands/install/
+updated: 2026-08-03
+okf:
+  generated_by: "@docmd/plugin-okf"
+  generated_at: "2026-08-03T09:38:01.714Z"
+---
+---
+title: "lefthook install"
+---
+
+## `lefthook install`
+
+Creates an empty `lefthook.yml` if a configuration file does not exist.
+
+Installs configured hooks to Git hooks.
+
+::: callout info Note
+Reinstall is not required when you modify `lefthook.yml`, the configuration file is read every time a git hook is run.
+:::
+
+::: callout info Note
+NPM package `lefthook` installs the hooks in a postinstall script automatically. For projects not using NPM package run `lefthook install` after cloning the repo.
+:::
+
+### Installing specific hooks
+
+You can install only specific hooks by running `lefthook install <hook-1> <hook-2> ...`.

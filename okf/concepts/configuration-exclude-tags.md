@@ -1,0 +1,70 @@
+---
+type: concept
+title: exclude_tags
+source: "https://lefthook.dev/configuration/exclude_tags/"
+path: /configuration/exclude_tags/
+updated: 2026-08-03
+okf:
+  generated_by: "@docmd/plugin-okf"
+  generated_at: "2026-08-03T09:38:01.694Z"
+---
+---
+title: "exclude_tags"
+---
+
+# `exclude_tags`
+
+[Tags](./tags.md) or command names that you want to exclude. This option can be overwritten with `LEFTHOOK_EXCLUDE` env variable.
+
+#### Example
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  exclude_tags: frontend
+  commands:
+    lint:
+      tags: frontend
+      ...
+    test:
+      tags: frontend
+      ...
+    check-syntax:
+      tags: documentation
+```
+
+```bash
+lefthook run pre-commit # will only run check-syntax command
+```
+
+::: callout tip
+Useful in `lefthook-local.yml` to skip specific commands locally without modifying the shared config.
+:::
+
+```yml
+# lefthook.yml
+
+pre-push:
+  commands:
+    packages-audit:
+      tags:
+        - frontend
+        - security
+      run: yarn audit
+    gems-audit:
+      tags:
+        - backend
+        - security
+      run: bundle audit
+```
+
+You can skip commands by tags:
+
+```yml
+# lefthook-local.yml
+
+pre-push:
+  exclude_tags:
+    - frontend
+```

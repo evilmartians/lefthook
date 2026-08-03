@@ -1,0 +1,47 @@
+---
+type: concept
+title: "Capture ARGS from git in the script"
+source: "https://lefthook.dev/usage/features/git-args/"
+path: /usage/features/git-args/
+updated: 2026-08-03
+okf:
+  generated_by: "@docmd/plugin-okf"
+  generated_at: "2026-08-03T09:38:01.717Z"
+---
+---
+title: "Capture ARGS from git in the script"
+---
+
+# Capture ARGS from git in the script
+
+Lefthook passes Git arguments to your commands and scripts.
+
+```
+├── .lefthook
+│   └── prepare-commit-msg
+│       └── message.sh
+└── lefthook.yml
+```
+
+```yml
+# lefthook.yml
+
+prepare-commit-msg:
+  jobs:
+    - script: "message.sh"
+      runner: bash
+    - run: echo "Git args: {1} {2} {3}"
+```
+
+```bash
+# .lefthook/prepare-commit-msg/message.sh
+
+# Arguments get passed from Git
+
+COMMIT_MSG_FILE=$1
+COMMIT_SOURCE=$2
+SHA1=$3
+
+# ...
+```
+

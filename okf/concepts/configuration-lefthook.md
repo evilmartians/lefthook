@@ -1,0 +1,80 @@
+---
+type: concept
+title: lefthook
+source: "https://lefthook.dev/configuration/lefthook/"
+path: /configuration/lefthook/
+updated: 2026-08-03
+okf:
+  generated_by: "@docmd/plugin-okf"
+  generated_at: "2026-08-03T09:38:01.699Z"
+---
+---
+title: "lefthook"
+---
+
+# `lefthook`
+
+**Default:** `null`
+
+::: callout tip New feature
+Added in lefthook `1.10.5`
+:::
+
+Provide a full path to lefthook executable or a command to run lefthook. Bourne shell (`sh`) syntax is supported.
+
+::: callout warn
+This option does not merge from `remotes` or `extends` for security reasons. It does get merged from `lefthook-local.yml` if specified.
+:::
+
+There are three reasons you may want to specify `lefthook`:
+
+1. You want to force using specific lefthook version from your dependencies (e.g. npm package)
+1. You use PnP loader for your JS/TS project, and your `package.json` with lefthook dependency locates in a subfolder
+1. You want to make sure you use concrete lefthook executable path and want to defined it in `lefthook-local.yml`
+
+#### Specify lefthook executable
+
+```yml
+# lefthook.yml
+
+lefthook: /usr/bin/lefthook
+
+pre-commit:
+  jobs:
+    - run: yarn lint
+```
+
+#### Specify a command to run lefthook
+
+```yml
+# lefthook.yml
+
+lefthook: |
+  cd project-with-lefthook
+  pnpm lefthook
+
+pre-commit:
+  jobs:
+    - run: yarn lint
+      root: project-with-lefthook
+```
+
+#### Force using a version from Rubygems
+
+```yml
+# lefthook.yml
+
+lefthook: bundle exec lefthook
+
+pre-commit:
+  jobs:
+    - run: bundle exec rubocop -- {staged_files}
+```
+
+#### Enable debug logs
+
+```yml
+# lefthook-local.yml
+
+lefthook: LEFTHOOK_VERBOSE=1 lefthook
+```

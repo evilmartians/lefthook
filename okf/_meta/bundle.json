@@ -1,0 +1,1082 @@
+{
+  "okf_version": "0.8.17",
+  "bundle": {
+    "name": "lefthook",
+    "title": "Lefthook",
+    "description": "",
+    "url": "https://lefthook.dev",
+    "generated_by": "@docmd/plugin-okf",
+    "generated_at": "2026-08-03T09:38:01.719Z",
+    "default_type": "concept"
+  },
+  "stats": {
+    "concepts": 106,
+    "by_type": {
+      "concept": 106
+    },
+    "locales": [],
+    "versions": []
+  },
+  "concepts": [
+    {
+      "id": "configuration-commands",
+      "type": "concept",
+      "title": "commands",
+      "path": "/configuration/Commands/",
+      "file": "concepts/configuration-commands.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-hook",
+      "type": "concept",
+      "title": "Hook",
+      "path": "/configuration/Hook/",
+      "file": "concepts/configuration-hook.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration",
+      "type": "concept",
+      "title": "Untitled",
+      "path": "/configuration/",
+      "file": "concepts/configuration.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-scripts",
+      "type": "concept",
+      "title": "Scripts",
+      "path": "/configuration/Scripts/",
+      "file": "concepts/configuration-scripts.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-ai",
+      "type": "concept",
+      "title": "ai",
+      "path": "/configuration/ai/",
+      "file": "concepts/configuration-ai.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-args",
+      "type": "concept",
+      "title": "args",
+      "path": "/configuration/args/",
+      "file": "concepts/configuration-args.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-assert-lefthook-installed",
+      "type": "concept",
+      "title": "assert_lefthook_installed",
+      "path": "/configuration/assert_lefthook_installed/",
+      "file": "concepts/configuration-assert-lefthook-installed.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-colors",
+      "type": "concept",
+      "title": "colors",
+      "path": "/configuration/colors/",
+      "file": "concepts/configuration-colors.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-configs",
+      "type": "concept",
+      "title": "configs",
+      "path": "/configuration/configs/",
+      "file": "concepts/configuration-configs.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-env",
+      "type": "concept",
+      "title": "env",
+      "path": "/configuration/env/",
+      "file": "concepts/configuration-env.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-exclude",
+      "type": "concept",
+      "title": "exclude",
+      "path": "/configuration/exclude/",
+      "file": "concepts/configuration-exclude.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-exclude-tags",
+      "type": "concept",
+      "title": "exclude_tags",
+      "path": "/configuration/exclude_tags/",
+      "file": "concepts/configuration-exclude-tags.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-extends",
+      "type": "concept",
+      "title": "extends",
+      "path": "/configuration/extends/",
+      "file": "concepts/configuration-extends.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-fail-on-changes",
+      "type": "concept",
+      "title": "fail_on_changes",
+      "path": "/configuration/fail_on_changes/",
+      "file": "concepts/configuration-fail-on-changes.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-fail-on-changes-diff",
+      "type": "concept",
+      "title": "fail_on_changes_diff",
+      "path": "/configuration/fail_on_changes_diff/",
+      "file": "concepts/configuration-fail-on-changes-diff.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-fail-text",
+      "type": "concept",
+      "title": "fail_text",
+      "path": "/configuration/fail_text/",
+      "file": "concepts/configuration-fail-text.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-file-types",
+      "type": "concept",
+      "title": "file_types",
+      "path": "/configuration/file_types/",
+      "file": "concepts/configuration-file-types.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-files-global",
+      "type": "concept",
+      "title": "files (hook-level)",
+      "path": "/configuration/files-global/",
+      "file": "concepts/configuration-files-global.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-files",
+      "type": "concept",
+      "title": "files (job-level)",
+      "path": "/configuration/files/",
+      "file": "concepts/configuration-files.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-follow",
+      "type": "concept",
+      "title": "follow",
+      "path": "/configuration/follow/",
+      "file": "concepts/configuration-follow.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-git-url",
+      "type": "concept",
+      "title": "git_url",
+      "path": "/configuration/git_url/",
+      "file": "concepts/configuration-git-url.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-glob",
+      "type": "concept",
+      "title": "glob",
+      "path": "/configuration/glob/",
+      "file": "concepts/configuration-glob.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-glob-matcher",
+      "type": "concept",
+      "title": "glob_matcher",
+      "path": "/configuration/glob_matcher/",
+      "file": "concepts/configuration-glob-matcher.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-group",
+      "type": "concept",
+      "title": "group",
+      "path": "/configuration/group/",
+      "file": "concepts/configuration-group.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-install-non-git-hooks",
+      "type": "concept",
+      "title": "install_non_git_hooks",
+      "path": "/configuration/install_non_git_hooks/",
+      "file": "concepts/configuration-install-non-git-hooks.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-interactive",
+      "type": "concept",
+      "title": "interactive",
+      "path": "/configuration/interactive/",
+      "file": "concepts/configuration-interactive.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-jobs",
+      "type": "concept",
+      "title": "jobs",
+      "path": "/configuration/jobs/",
+      "file": "concepts/configuration-jobs.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-lefthook",
+      "type": "concept",
+      "title": "lefthook",
+      "path": "/configuration/lefthook/",
+      "file": "concepts/configuration-lefthook.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-min-version",
+      "type": "concept",
+      "title": "min_version",
+      "path": "/configuration/min_version/",
+      "file": "concepts/configuration-min-version.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-name",
+      "type": "concept",
+      "title": "name",
+      "path": "/configuration/name/",
+      "file": "concepts/configuration-name.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-no-auto-install",
+      "type": "concept",
+      "title": "no_auto_install",
+      "path": "/configuration/no_auto_install/",
+      "file": "concepts/configuration-no-auto-install.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-no-tty",
+      "type": "concept",
+      "title": "no_tty",
+      "path": "/configuration/no_tty/",
+      "file": "concepts/configuration-no-tty.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-only",
+      "type": "concept",
+      "title": "only",
+      "path": "/configuration/only/",
+      "file": "concepts/configuration-only.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-output",
+      "type": "concept",
+      "title": "output",
+      "path": "/configuration/output/",
+      "file": "concepts/configuration-output.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-parallel",
+      "type": "concept",
+      "title": "parallel",
+      "path": "/configuration/parallel/",
+      "file": "concepts/configuration-parallel.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-piped",
+      "type": "concept",
+      "title": "piped",
+      "path": "/configuration/piped/",
+      "file": "concepts/configuration-piped.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-priority",
+      "type": "concept",
+      "title": "priority",
+      "path": "/configuration/priority/",
+      "file": "concepts/configuration-priority.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-rc",
+      "type": "concept",
+      "title": "rc",
+      "path": "/configuration/rc/",
+      "file": "concepts/configuration-rc.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-ref",
+      "type": "concept",
+      "title": "ref",
+      "path": "/configuration/ref/",
+      "file": "concepts/configuration-ref.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-refetch",
+      "type": "concept",
+      "title": "refetch",
+      "path": "/configuration/refetch/",
+      "file": "concepts/configuration-refetch.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-refetch-frequency",
+      "type": "concept",
+      "title": "refetch_frequency",
+      "path": "/configuration/refetch_frequency/",
+      "file": "concepts/configuration-refetch-frequency.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-remotes",
+      "type": "concept",
+      "title": "remotes",
+      "path": "/configuration/remotes/",
+      "file": "concepts/configuration-remotes.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-root",
+      "type": "concept",
+      "title": "root",
+      "path": "/configuration/root/",
+      "file": "concepts/configuration-root.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-run",
+      "type": "concept",
+      "title": "run",
+      "path": "/configuration/run/",
+      "file": "concepts/configuration-run.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-runner",
+      "type": "concept",
+      "title": "runner",
+      "path": "/configuration/runner/",
+      "file": "concepts/configuration-runner.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-script",
+      "type": "concept",
+      "title": "script",
+      "path": "/configuration/script/",
+      "file": "concepts/configuration-script.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-setup",
+      "type": "concept",
+      "title": "setup",
+      "path": "/configuration/setup/",
+      "file": "concepts/configuration-setup.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-skip",
+      "type": "concept",
+      "title": "skip",
+      "path": "/configuration/skip/",
+      "file": "concepts/configuration-skip.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-skip-lfs",
+      "type": "concept",
+      "title": "skip_lfs",
+      "path": "/configuration/skip_lfs/",
+      "file": "concepts/configuration-skip-lfs.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-source-dir",
+      "type": "concept",
+      "title": "source_dir",
+      "path": "/configuration/source_dir/",
+      "file": "concepts/configuration-source-dir.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-source-dir-local",
+      "type": "concept",
+      "title": "source_dir_local",
+      "path": "/configuration/source_dir_local/",
+      "file": "concepts/configuration-source-dir-local.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-stage-fixed",
+      "type": "concept",
+      "title": "stage_fixed",
+      "path": "/configuration/stage_fixed/",
+      "file": "concepts/configuration-stage-fixed.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-tags",
+      "type": "concept",
+      "title": "tags",
+      "path": "/configuration/tags/",
+      "file": "concepts/configuration-tags.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-templates",
+      "type": "concept",
+      "title": "templates",
+      "path": "/configuration/templates/",
+      "file": "concepts/configuration-templates.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration-use-stdin",
+      "type": "concept",
+      "title": "use_stdin",
+      "path": "/configuration/use_stdin/",
+      "file": "concepts/configuration-use-stdin.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "configuration",
+      "type": "concept",
+      "title": "Configuration",
+      "path": "/configuration/",
+      "file": "concepts/configuration.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "examples-commitlint",
+      "type": "concept",
+      "title": "Commitlint and commitzen",
+      "path": "/examples/commitlint/",
+      "file": "concepts/examples-commitlint.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "examples-filters",
+      "type": "concept",
+      "title": "Filters",
+      "path": "/examples/filters/",
+      "file": "concepts/examples-filters.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "examples-lefthook-local",
+      "type": "concept",
+      "title": "lefthook-local.yml",
+      "path": "/examples/lefthook-local/",
+      "file": "concepts/examples-lefthook-local.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "examples-remotes",
+      "type": "concept",
+      "title": "Remotes",
+      "path": "/examples/remotes/",
+      "file": "concepts/examples-remotes.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "examples-skip",
+      "type": "concept",
+      "title": "Skip or run on condition",
+      "path": "/examples/skip/",
+      "file": "concepts/examples-skip.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "examples-stage-fixed",
+      "type": "concept",
+      "title": "Stage fixed files",
+      "path": "/examples/stage_fixed/",
+      "file": "concepts/examples-stage-fixed.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "examples-wrap-commands",
+      "type": "concept",
+      "title": "Wrap commands in local config",
+      "path": "/examples/wrap-commands/",
+      "file": "concepts/examples-wrap-commands.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "root",
+      "type": "concept",
+      "title": "What is Lefthook?",
+      "path": "/",
+      "file": "concepts/root.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "install",
+      "type": "concept",
+      "title": "Install Lefthook",
+      "path": "/install/",
+      "file": "concepts/install.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "installation-alpine",
+      "type": "concept",
+      "title": "Alpine",
+      "path": "/installation/alpine/",
+      "file": "concepts/installation-alpine.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "installation-arch",
+      "type": "concept",
+      "title": "Arch Linux",
+      "path": "/installation/arch/",
+      "file": "concepts/installation-arch.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "installation-deb",
+      "type": "concept",
+      "title": "Debian-based",
+      "path": "/installation/deb/",
+      "file": "concepts/installation-deb.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "installation-devbox",
+      "type": "concept",
+      "title": "Devbox",
+      "path": "/installation/devbox/",
+      "file": "concepts/installation-devbox.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "installation-go",
+      "type": "concept",
+      "title": "Go",
+      "path": "/installation/go/",
+      "file": "concepts/installation-go.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "installation-homebrew",
+      "type": "concept",
+      "title": "Homebrew",
+      "path": "/installation/homebrew/",
+      "file": "concepts/installation-homebrew.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "installation-manual",
+      "type": "concept",
+      "title": "Manual",
+      "path": "/installation/manual/",
+      "file": "concepts/installation-manual.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "installation-mise",
+      "type": "concept",
+      "title": "Mise",
+      "path": "/installation/mise/",
+      "file": "concepts/installation-mise.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "installation-node",
+      "type": "concept",
+      "title": "NPM",
+      "path": "/installation/node/",
+      "file": "concepts/installation-node.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "installation-python",
+      "type": "concept",
+      "title": "Python",
+      "path": "/installation/python/",
+      "file": "concepts/installation-python.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "installation-rpm",
+      "type": "concept",
+      "title": "RPM-based",
+      "path": "/installation/rpm/",
+      "file": "concepts/installation-rpm.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "installation-ruby",
+      "type": "concept",
+      "title": "Ruby",
+      "path": "/installation/ruby/",
+      "file": "concepts/installation-ruby.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "installation-scoop",
+      "type": "concept",
+      "title": "Scoop",
+      "path": "/installation/scoop/",
+      "file": "concepts/installation-scoop.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "installation-snap",
+      "type": "concept",
+      "title": "Snap",
+      "path": "/installation/snap/",
+      "file": "concepts/installation-snap.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "installation-swift",
+      "type": "concept",
+      "title": "Swift",
+      "path": "/installation/swift/",
+      "file": "concepts/installation-swift.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "installation-winget",
+      "type": "concept",
+      "title": "Winget",
+      "path": "/installation/winget/",
+      "file": "concepts/installation-winget.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "misc-contributors",
+      "type": "concept",
+      "title": "Contributors",
+      "path": "/misc/contributors/",
+      "file": "concepts/misc-contributors.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-commands-add",
+      "type": "concept",
+      "title": "lefthook add",
+      "path": "/usage/commands/add/",
+      "file": "concepts/usage-commands-add.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-commands-check-install",
+      "type": "concept",
+      "title": "lefthook check-install",
+      "path": "/usage/commands/check-install/",
+      "file": "concepts/usage-commands-check-install.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-commands-dump",
+      "type": "concept",
+      "title": "lefthook dump",
+      "path": "/usage/commands/dump/",
+      "file": "concepts/usage-commands-dump.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-commands-install",
+      "type": "concept",
+      "title": "lefthook install",
+      "path": "/usage/commands/install/",
+      "file": "concepts/usage-commands-install.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-commands-run",
+      "type": "concept",
+      "title": "lefthook run",
+      "path": "/usage/commands/run/",
+      "file": "concepts/usage-commands-run.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-commands-self-update",
+      "type": "concept",
+      "title": "lefthook self-update",
+      "path": "/usage/commands/self-update/",
+      "file": "concepts/usage-commands-self-update.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-commands-uninstall",
+      "type": "concept",
+      "title": "lefthook uninstall",
+      "path": "/usage/commands/uninstall/",
+      "file": "concepts/usage-commands-uninstall.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-commands-validate",
+      "type": "concept",
+      "title": "lefthook validate",
+      "path": "/usage/commands/validate/",
+      "file": "concepts/usage-commands-validate.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-commands-version",
+      "type": "concept",
+      "title": "lefthook version",
+      "path": "/usage/commands/version/",
+      "file": "concepts/usage-commands-version.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-envs-ci",
+      "type": "concept",
+      "title": "CI",
+      "path": "/usage/envs/CI/",
+      "file": "concepts/usage-envs-ci.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-envs-clicolor-force",
+      "type": "concept",
+      "title": "CLICOLOR_FORCE",
+      "path": "/usage/envs/CLICOLOR_FORCE/",
+      "file": "concepts/usage-envs-clicolor-force.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-envs-lefthook",
+      "type": "concept",
+      "title": "LEFTHOOK",
+      "path": "/usage/envs/LEFTHOOK/",
+      "file": "concepts/usage-envs-lefthook.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-envs-lefthook-bin",
+      "type": "concept",
+      "title": "LEFTHOOK_BIN",
+      "path": "/usage/envs/LEFTHOOK_BIN/",
+      "file": "concepts/usage-envs-lefthook-bin.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-envs-lefthook-config",
+      "type": "concept",
+      "title": "LEFTHOOK_CONFIG",
+      "path": "/usage/envs/LEFTHOOK_CONFIG/",
+      "file": "concepts/usage-envs-lefthook-config.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-envs-lefthook-exclude",
+      "type": "concept",
+      "title": "LEFTHOOK_EXCLUDE",
+      "path": "/usage/envs/LEFTHOOK_EXCLUDE/",
+      "file": "concepts/usage-envs-lefthook-exclude.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-envs-lefthook-output",
+      "type": "concept",
+      "title": "LEFTHOOK_OUTPUT",
+      "path": "/usage/envs/LEFTHOOK_OUTPUT/",
+      "file": "concepts/usage-envs-lefthook-output.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-envs-lefthook-verbose",
+      "type": "concept",
+      "title": "LEFTHOOK_VERBOSE",
+      "path": "/usage/envs/LEFTHOOK_VERBOSE/",
+      "file": "concepts/usage-envs-lefthook-verbose.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-envs-no-color",
+      "type": "concept",
+      "title": "NO_COLOR",
+      "path": "/usage/envs/NO_COLOR/",
+      "file": "concepts/usage-envs-no-color.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-features-git-args",
+      "type": "concept",
+      "title": "Capture ARGS from git in the script",
+      "path": "/usage/features/git-args/",
+      "file": "concepts/usage-features-git-args.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-features-git-lfs",
+      "type": "concept",
+      "title": "Git LFS support",
+      "path": "/usage/features/git-lfs/",
+      "file": "concepts/usage-features-git-lfs.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-features-interactive",
+      "type": "concept",
+      "title": "Interactive commands",
+      "path": "/usage/features/interactive/",
+      "file": "concepts/usage-features-interactive.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-features-local",
+      "type": "concept",
+      "title": "Local config",
+      "path": "/usage/features/local/",
+      "file": "concepts/usage-features-local.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-features-pass-stdin",
+      "type": "concept",
+      "title": "Pass stdin to a command or script",
+      "path": "/usage/features/pass-stdin/",
+      "file": "concepts/usage-features-pass-stdin.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage",
+      "type": "concept",
+      "title": "Usage",
+      "path": "/usage/",
+      "file": "concepts/usage.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    }
+  ]
+}

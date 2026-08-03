@@ -10,8 +10,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta name="generator" content="docmd v">
+    <meta name="generator" content="docmd v0.8.17">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <script>
+      var root = "../../";
+      if (root && !root.endsWith('/')) root += '/';
+      if (root === '') root = './';
+      window.DOCMD_ROOT = root;
+
+      window.DOCMD_SITE_ROOT = "/";
+
+      window.DOCMD_APPEARANCE = "system";
+      window.DOCMD_VERSION_ROOT = "/";
+      window.DOCMD_BASE = "/";
+      window.DOCMD_LOCALE = "";
+      window.DOCMD_DEFAULT_LOCALE = "";
+    </script>
     <script>/**
  * --------------------------------------------------------------------
  * docmd : the zero-config documentation engine.
@@ -83,32 +98,17 @@
         visibility: hidden;
       }
     </style>
-    
-    <script>
-      var root = "../../";
-      if (root && !root.endsWith('/')) root += '/';
-      if (root === '') root = './';
-      window.DOCMD_ROOT = root;
-
-      var siteRoot = "../../";
-      if (siteRoot && !siteRoot.endsWith('/')) siteRoot += '/';
-      if (siteRoot === '') siteRoot = './';
-      window.DOCMD_SITE_ROOT = siteRoot;
-
-      window.DOCMD_APPEARANCE = "system";
-      window.DOCMD_VERSION_ROOT = "/";
-      window.DOCMD_BASE = "/";
-      window.DOCMD_LOCALE = "";
-      window.DOCMD_DEFAULT_LOCALE = "";
-    </script>
     <title>
       script : Lefthook
     </title>
-    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mrc0wnvh">
-    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mrc0wnvh">
     
-    <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=mrc0wnvh" id="hljs-light" >
-    <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=mrc0wnvh" id="hljs-dark" disabled>
+    
+
+    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=msd1deho">
+    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=msd1deho">
+    
+    <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=msd1deho" id="hljs-light" >
+    <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=msd1deho" id="hljs-dark" disabled>
     
     
 <meta name="description" content="Lefthook documentation.">
@@ -125,78 +125,13 @@
 
 
 
-<link rel="stylesheet" href="../../assets/css/docmd-git.css?v=mrc0wnvh" >
-<link rel="stylesheet" href="../../assets/css/docmd-openapi.css?v=mrc0wnvh" >
+<link rel="stylesheet" href="../../assets/css/docmd-git.css?v=msd1deho" >
+<link rel="stylesheet" href="../../assets/css/docmd-openapi.css?v=msd1deho" >
 
     
-      <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mrc0wnvh">
+      <link rel="stylesheet" href="../../assets/css/lefthook.css?v=msd1deho">
     
-    <script>/**
- * --------------------------------------------------------------------
- * docmd : the zero-config documentation engine.
- *
- * @package     @docmd/core (and ecosystem)
- * @website     https://docmd.io
- * @repository  https://github.com/docmd-io/docmd
- * @license     MIT
- * @copyright   Copyright (c) 2025-present docmd.io
- *
- * [docmd-source] - Please do not remove this header.
- * --------------------------------------------------------------------
- */
-
-(function () {
-  try {
-    // 1. Determine Theme
-    //
-    // Resolve from three sources, in priority order:
-    //   1. localStorage explicit user choice (light / dark)
-    //   2. window.DOCMD_APPEARANCE  (current canonical name, set by EJS templates)
-    //   3. window.DOCMD_DEFAULT_MODE (legacy alias kept for pre-0.8.7 outputs)
-    //   4. 'light' as the final fallback
-    //
-    // Note: localStorage is only honoured when it holds an explicit
-    // 'light' or 'dark' value. A stored 'system' value (from a prior
-    // session where the user picked "follow system") must NOT win over
-    // a freshly resolved config value — the resolved value will itself
-    // be 'system' in that case and the OS preference check below takes
-    // over, so this is a no-op for the in-session behaviour but keeps
-    // any future storage migration simple.
-    var localValue = localStorage.getItem('docmd-theme');
-    var configValue = window.DOCMD_APPEARANCE
-      || window.DOCMD_DEFAULT_MODE
-      || 'light';
-    var theme = (localValue === 'light' || localValue === 'dark')
-      ? localValue
-      : configValue;
-
-    if (theme === 'system') {
-      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
-
-    // 2. Apply to Root
-    document.documentElement.setAttribute('data-theme', theme);
-
-    // 3. Highlight.js Toggle Strategy
-    var lightLink = document.getElementById('hljs-light');
-    var darkLink = document.getElementById('hljs-dark');
-
-    if (lightLink && darkLink) {
-      if (theme === 'dark') {
-        lightLink.disabled = true;
-        darkLink.disabled = false;
-      } else {
-        lightLink.disabled = false;
-        darkLink.disabled = true;
-      }
-    }
-
-    document.documentElement.style.visibility = "visible";
-  } catch (e) {
-    document.documentElement.style.visibility = "visible";
-    console.error('Theme init failed', e);
-  }
-})();</script>
+    
   </head>
   <body
     class="sidebar-collapsible"
@@ -210,7 +145,7 @@
       <aside class="sidebar">
         <div class="sidebar-header">
           
-            <a href="/" class="logo-link">
+<a href="../../" class="logo-link">
               <img
                 src="../../assets/lefthook.png"
                 alt="Logo" class="logo-light" >
@@ -2976,7 +2911,7 @@
             <div class="content-layout">
               <div class="main-content">
                 <div class="docmd-breadcrumbs-row">
-                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22script%22%0A---%0A%0A%23%20%60script%60%0A%0AName%20of%20a%20script%20to%20execute.%20The%20rules%20are%20the%20same%20as%20for%20%5B%60scripts%60%5D(.%2FScripts.md)%0A%0A%23%23%23%23%20Example%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Apre-commit%3A%0A%20%20jobs%3A%0A%20%20%20%20-%20script%3A%20linter.sh%0A%20%20%20%20%20%20runner%3A%20bash%0A%60%60%60%0A%0A%60%60%60bash%0A%23%20.lefthook%2Fpre-commit%2Flinter.sh%0A%0Aecho%20%22Everything%20is%20OK%22%0A%60%60%60%0A" style="display: none;"></div>
+                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22script%22%0A---%0A%0A%23%20%60script%60%0A%0AName%20of%20a%20script%20to%20execute.%20The%20rules%20are%20the%20same%20as%20for%20%5B%60scripts%60%5D(.%2FScripts.md)%0A%0AUse%20%5B%60args%60%5D(.%2Fargs.md)%20to%20append%20arguments%20to%20the%20script.%20Configuring%20%60args%60%0Areplaces%20arguments%20passed%20by%20Git%20unless%20the%20%60%7B0%7D%60%20template%20is%20included.%0A%0A%23%23%23%23%20Example%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Apre-commit%3A%0A%20%20jobs%3A%0A%20%20%20%20-%20script%3A%20linter.sh%0A%20%20%20%20%20%20runner%3A%20bash%0A%20%20%20%20%20%20args%3A%20%22%7Bstaged_files%7D%22%0A%60%60%60%0A%0A%60%60%60bash%0A%23%20.lefthook%2Fpre-commit%2Flinter.sh%0A%0Aecho%20%22Everything%20is%20OK%22%0A%60%60%60%0A" style="display: none;"></div>
                   
                     <nav aria-label="breadcrumb" class="docmd-breadcrumbs">
                       <ol>
@@ -3115,6 +3050,8 @@
                 
                 <h1 id="script" class="docmd-heading"><a href="#script" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a><code>script</code></h1>
 <p>Name of a script to execute. The rules are the same as for <a href="../Scripts/"><code>scripts</code></a></p>
+<p>Use <a href="../args/"><code>args</code></a> to append arguments to the script. Configuring <code>args</code><br>
+replaces arguments passed by Git unless the <code>{0}</code> template is included.</p>
 <h4 id="script-example" class="docmd-heading"><a href="#script-example" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Example</h4>
 <pre class="hljs"><code class="language-yml"><span class="hljs-comment"># lefthook.yml</span>
 
@@ -3122,6 +3059,7 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
   jobs<span class="hljs-punctuation">:</span>
     <span class="hljs-punctuation">-</span> script<span class="hljs-punctuation">:</span> linter.<span class="hljs-keyword">sh</span>
       runner<span class="hljs-punctuation">:</span> <span class="hljs-keyword">bash</span>
+      args<span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;{staged_files}&quot;</span>
 </code></pre>
 <pre class="hljs"><code class="language-bash"><span class="hljs-comment"># .lefthook/pre-commit/linter.sh</span>
 
@@ -3130,6 +3068,7 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
 
                 
               </div>
+              
               <div class="toc-sidebar">
                 
 
@@ -3165,17 +3104,18 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
   </div>
 
               </div>
+              
             </div>
             <div class="page-footer-actions">
               
               
-                <span class="git-last-updated" data-timestamp="1783511782000">
+                <span class="git-last-updated" data-timestamp="1785749861000">
                   <svg class="git-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
                   <span class="git-label">Last updated:</span>
-                  <span class="git-time" data-timestamp="1783511782000"></span>
+                  <span class="git-time" data-timestamp="1785749861000"></span>
                   
                   <div class="git-commit-tooltip" role="tooltip">
                     <div class="git-tooltip-title">Recent commits</div>
@@ -3188,10 +3128,10 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
                             
                           </div>
                           <div class="git-commit-details">
-                            <div class="git-commit-message" title="2.1.10: add experimental ai hooks">2.1.10: add experimental ai hooks</div>
+                            <div class="git-commit-message" title="docs: update docmd (#1481)">docs: update docmd (#1481)</div>
                             <div class="git-commit-meta">
                               <span class="git-commit-author">Valentin Kiselev</span>
-                              <span class="git-commit-date" data-timestamp="1783511782000"></span>
+                              <span class="git-commit-date" data-timestamp="1785749861000"></span>
                             </div>
                           </div>
                         </li>
@@ -3243,20 +3183,21 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
         </div>
       </div>
       
-      <script src="../../assets/js/docmd-main.js?v=mrc0wnvh"></script>
+      <script src="../../assets/js/docmd-main.js?v=msd1deho"></script>
       
-      <script src="../../assets/js/docmd-git.js?v=mrc0wnvh"></script>
-      <script src="../../assets/js/docmd-image-lightbox.js?v=mrc0wnvh" ></script>
-<script src="https://cdn.jsdelivr.net/npm/minisearch@7.2.0/dist/umd/index.min.js" ></script>
-<script src="../../assets/js/docmd-search.js?v=mrc0wnvh" ></script>
-<script src="../../assets/js/init-mermaid.js?v=mrc0wnvh" type="module"></script>
-<script src="../../assets/js/docmd-git.js?v=mrc0wnvh" type="module"></script>
+      <script src="../../assets/js/docmd-git.js?v=msd1deho"></script>
+      <script src="../../assets/js/docmd-image-lightbox.js?v=msd1deho" ></script>
+<script src="../../assets/js/vendor/minisearch.js?v=msd1deho" ></script>
+<script src="../../assets/js/docmd-search.js?v=msd1deho" ></script>
+<script src="../../assets/js/docmd-git.js?v=msd1deho" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;" data-show-confidence="false" data-show-filters="true"
        data-search-placeholder="Search documentation..."
        data-search-no-results="No results found."
        data-search-error="Failed to load search index."
+       data-search-offline="Search requires a web server. Open this site via http://localhost instead of file:// to enable search."
+       data-search-offline-build="Search is disabled because these docs were built with the --offline flag. Rebuild the site without the flag to enable search."
        data-search-initial="Type to start searching..."
        data-search-navigate="to navigate"
        data-search-escape="to close">

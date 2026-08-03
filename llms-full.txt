@@ -1907,7 +1907,7 @@ You can provide multiple remote configs if you want to share yours lefthook conf
 
 You can use [`extends`](./extends.md) but the paths must be relative to the remote repository root.
 
-If you provide [`scripts`](./scripts.md) in a remote config file, the [scripts](./source_dir.md) folder must also be in the **root of the repository**.
+If you provide [`scripts`](./scripts.md) in a remote config file, the [script `source_dir`](./source_dir.md) must also be in the **root of the remote repository**.
 
 ::: callout info Note
 Configs are merged in this order: `lefthook.yml` → `remotes` → `lefthook-local.yml`. For simplicity, keep jobs in remote configs independent from other steps.
@@ -2205,6 +2205,9 @@ title: "script"
 
 Name of a script to execute. The rules are the same as for [`scripts`](./Scripts.md)
 
+Use [`args`](./args.md) to append arguments to the script. Configuring `args`
+replaces arguments passed by Git unless the `{0}` template is included.
+
 #### Example
 
 ```yml
@@ -2214,6 +2217,7 @@ pre-commit:
   jobs:
     - script: linter.sh
       runner: bash
+      args: "{staged_files}"
 ```
 
 ```bash
@@ -2276,6 +2280,18 @@ commit-msg:
 ```
 
 When you try to commit `git commit -m "bad commit text"` script `template_checker` will be executed. Since commit text doesn't match the described pattern the commit process will be interrupted.
+
+Use [`args`](./args.md) to append arguments to a script. Arguments passed by
+Git are omitted when `args` is configured, so use the `{0}` template if they
+should be preserved.
+
+```yml
+commit-msg:
+  scripts:
+    "template_checker":
+      runner: bash
+      args: "{0}"
+```
 
 
 ---
@@ -3061,8 +3077,11 @@ pre-commit:
 
 ---
 
-<a href="https://evilmartians.com/?utm_source=lefthook">
-<img src="https://evilmartians.com/badges/sponsored-by-evil-martians.svg" alt="Sponsored by Evil Martians" width="100%" height="54"></a>
+<br />
+
+<img src="https://cdn.evilmartians.com/badges/logo-no-label.svg" alt="Evil Martians logo" width="22" height="16" />
+
+<b>Lefthook</b> is built by <b><a href="https://evilmartians.com/">Evil Martians</a></b>, an American design and engineering consultancy for <b>developer tools, AI, and cybersecurity startups</b>.
 
 
 ---
