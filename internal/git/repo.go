@@ -315,8 +315,11 @@ func (r *Repo) saveAllUnstaged() error {
 		r.unstagedAllPatchPath,
 		"--",
 	})
+	if err != nil {
+		return fmt.Errorf("failed to save all unstaged changes: %w", err)
+	}
 
-	return err
+	return nil
 }
 
 func (r *Repo) RevertUnstagedChanges(files []string) error {
@@ -373,7 +376,11 @@ func (r *Repo) RestoreAllUnstagedChanges() error {
 }
 
 func (r *Repo) restoreUnstagedChanges(patchPath string) error {
-	if ok, _ := afero.Exists(r.Fs, patchPath); !ok {
+	exists, err := afero.Exists(r.Fs, patchPath)
+	if err != nil {
+		return fmt.Errorf("failed to inspect the patch %s: %w", patchPath, err)
+	}
+	if !exists {
 		return nil
 	}
 
@@ -399,7 +406,11 @@ func (r *Repo) restoreUnstagedChanges(patchPath string) error {
 	}
 
 	for _, path := range []string{r.unstagedPatchPath, r.unstagedAllPatchPath} {
-		if ok, _ := afero.Exists(r.Fs, path); !ok {
+		exists, existsErr := afero.Exists(r.Fs, path)
+		if existsErr != nil {
+			return fmt.Errorf("failed to inspect the patch %s: %w", path, existsErr)
+		}
+		if !exists {
 			continue
 		}
 		if err = r.Fs.Remove(path); err != nil {
