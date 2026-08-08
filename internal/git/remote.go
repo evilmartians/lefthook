@@ -90,7 +90,13 @@ func RemoteDirectoryName(url, ref string) string {
 	)
 
 	if ref != "" {
-		name = name + "-" + ref
+		// A ref containing a path separator (e.g. a branch named
+		// "feat/test-branch") must not turn into a path separator here:
+		// RemoteFolder() joins this name onto the remotes directory as a
+		// single component, and a "/" would make it create/look up a
+		// nested directory instead, breaking checkout and causing the
+		// remote to be treated as stale (and re-cloned) on every run.
+		name = name + "-" + strings.ReplaceAll(ref, "/", "-")
 	}
 
 	return name
