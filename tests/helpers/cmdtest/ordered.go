@@ -11,6 +11,8 @@ import (
 type Out struct {
 	Command string
 	Output  string
+	// Err is returned instead of running the command, to simulate a failing git call.
+	Err error
 }
 
 // OrderedCmd contains predefined list of commands and makes sure actual calls are the same.
@@ -45,5 +47,5 @@ func (c *OrderedCmd) Run(command []string, root string, in io.Reader, out io.Wri
 	_, _ = out.Write([]byte(checkCmd.Output))
 	c.outs = c.outs[1:]
 
-	return nil
+	return checkCmd.Err
 }
