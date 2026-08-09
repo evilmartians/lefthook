@@ -96,7 +96,16 @@ func RemoteDirectoryName(url, ref string) string {
 		// single component, and a "/" would make it create/look up a
 		// nested directory instead, breaking checkout and causing the
 		// remote to be treated as stale (and re-cloned) on every run.
-		name = name + "-" + strings.ReplaceAll(ref, "/", "-")
+		//
+		// Escape literal "-" to "--" before mapping "/" to "-" so the
+		// encoding can't collide: every single "-" in the result came
+		// from a "/" in the ref, and every "--" came from a literal "-".
+		// A plain "/" -> "-" replacement would otherwise alias distinct
+		// refs onto the same directory (e.g. "feat/a-b" and "feat/a/b"
+		// both becoming "feat-a-b"), letting one ref's checkout silently
+		// overwrite the other's.
+		escaped := strings.ReplaceAll(ref, "-", "--")
+		name = name + "-" + strings.ReplaceAll(escaped, "/", "-")
 	}
 
 	return name
