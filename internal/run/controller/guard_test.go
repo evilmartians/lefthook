@@ -289,6 +289,7 @@ func Test_guard_wrap_stageFixed(t *testing.T) {
 			err := g.wrap(func() { beenCalled = true })
 			if tt.err != nil {
 				assert.ErrorIs(err, tt.err)
+				assert.ErrorContains(err, "couldn't stage fixed files")
 			} else {
 				assert.NoError(err)
 			}

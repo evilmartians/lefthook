@@ -81,7 +81,7 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 
 		if err := g.git.AddFiles(g.filesToStage.Files()); err != nil {
 			g.logger.Warn("Couldn't stage fixed files:", err)
-			resErr = errors.Join(resErr, err)
+			resErr = errors.Join(resErr, fmt.Errorf("couldn't stage fixed files: %w", err))
 		}
 
 		return resErr
@@ -118,7 +118,7 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 	if g.git.CanRestoreUnstagedChanges() {
 		if err := g.git.AddFiles(g.filesToStage.Files()); err != nil {
 			g.logger.Warn("Couldn't stage fixed files:", err)
-			wrappedErr = errors.Join(wrappedErr, err)
+			wrappedErr = errors.Join(wrappedErr, fmt.Errorf("couldn't stage fixed files: %w", err))
 		}
 	} else {
 		if wrappedErr != nil {
