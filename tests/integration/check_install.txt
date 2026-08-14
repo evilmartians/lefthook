@@ -1,0 +1,13 @@
+! exec lefthook check-install
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+! exec lefthook check-install
+exec lefthook install
+exec lefthook check-install
+
+-- lefthook.yml --
+pre-commit:
+  jobs:
+    - run: echo hello, test

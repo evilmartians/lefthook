@@ -1,0 +1,85 @@
+assert_lefthook_installed: true
+skip_lfs: true
+
+colors:
+  cyan: "4"
+  green: "4"
+
+output:
+  - meta
+  - summary
+  - jobs
+
+ai:
+  copilot:
+    postToolUse: lint
+
+lint:
+  parallel: true
+  jobs:
+    - name: golang
+      glob: "*.go"
+      group:
+        jobs:
+          - run: make lint
+
+    - name: check links
+      tags: docs
+      run: lychee --max-concurrency 3 -- {staged_files}
+      glob: '*.md'
+      exclude:
+        - CHANGELOG.md
+
+    - name: typos
+      tags: lint
+      run: typos --write-changes {files}
+      files: git ls-files --others --exclude-standard
+      exclude:
+        - "*.svg"
+        - "*.png"
+
+pre-commit:
+  parallel: true
+  setup:
+    - run: command -v typos || brew install typos-cli
+    - run: command -v lychee || brew install lychee
+  jobs:
+    - name: golang
+      glob: "*.go"
+      group:
+        jobs:
+          - run: make lint
+            stage_fixed: true
+
+          - run: make test
+
+    - name: check links
+      tags: docs
+      run: lychee --max-concurrency 3 -- {staged_files}
+      glob: '*.md'
+      exclude:
+        - CHANGELOG.md
+
+    - name: typos
+      tags: lint
+      run: typos --write-changes {staged_files}
+      exclude:
+        - "*.svg"
+        - "*.png"
+      stage_fixed: true
+
+    - name: update JSON schema
+      tags: docs
+      run: |
+        go generate gen/jsonschema.go > internal/config/jsonschema.json
+        go generate gen/jsonschema.go > schema.json
+        git add internal/config/jsonschema.json
+        git add schema.json
+      glob:
+        - 'gen/jsonschema.go'
+        - 'internal/config/command.go'
+        - 'internal/config/config.go'
+        - 'internal/config/hook.go'
+        - 'internal/config/job.go'
+        - 'internal/config/remote.go'
+        - 'internal/config/script.go'

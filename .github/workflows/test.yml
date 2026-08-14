@@ -1,0 +1,112 @@
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+name: Test
+jobs:
+  unit:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - name: Install Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Test
+        run: go test $(go list ./... | grep -v '/gen$') -coverprofile coverage.out
+      - name: Report coverage
+        uses: codecov/codecov-action@v6
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unit
+          name: ${{ join(matrix.*, ' ') }}
+
+  integration:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      GOCOVERDIR: ${{ github.workspace }}/_icoverdir_
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - name: Install Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Prepare lefthook
+        run: |
+          mkdir _icoverdir_
+          go install -cover
+      - name: Run integration tests
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          command: go test integration_test.go -tags=integration
+      - name: Collect coverage
+        run: |
+          go tool covdata textfmt -i _icoverdir_ -o coverage.out
+      - name: Report coverage
+        uses: codecov/codecov-action@v6
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: integration
+          name: integration-${{ join(matrix.*, ' ') }}
+
+  packaging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - name: Install Raku
+        uses: Raku/setup-raku@v1
+      - name: Run packaging tests
+        run: |
+          cd packaging/scripts/
+          zef install . --deps-only
+          raku -I lib t/*.rakutest
+
+          raku prepare.raku --target=npm --dry-run
+          raku prepare.raku --target=rubygems --dry-run
+          raku prepare.raku --target=pypi --dry-run
+          raku prepare.raku --target=aur --dry-run
+          raku prepare.raku --target=aur-bin --dry-run
+
+          raku publish.raku --target=npm --dry-run
+          mkdir -p ../registries/rubygems/pkg
+          touch ../registries/rubygems/pkg/lefthook_99.gem
+          raku publish.raku --target=rubygems --dry-run
+          raku publish.raku --target=pypi --dry-run
+          raku publish.raku --target=aur --dry-run
+          raku publish.raku --target=aur-bin --dry-run
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - name: Install Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Build binaries
+        uses: goreleaser/goreleaser-action@v7
+        with:
+          distribution: goreleaser
+          version: '~> v2'
+          args: release --snapshot --skip=publish --skip=snapcraft --skip=validate --clean --verbose
+      - name: Tar binaries to preserve executable bit
+        run: 'tar -cvf lefthook-binaries.tar --directory dist/ $(find dist/ -executable -type f -printf "%P\0" | xargs --null)'
+      - name: Upload binaries as artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: Executables
+          path: lefthook-binaries.tar

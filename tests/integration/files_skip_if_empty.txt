@@ -1,0 +1,19 @@
+# https://github.com/evilmartians/lefthook/issues/1232
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec lefthook run test
+! stdout 'FILES DETECTED'
+
+-- lefthook.yml --
+output:
+  - execution_out
+
+test:
+  jobs:
+    - run: echo FILES DETECTED {files}
+      files: echo
+
+    - run: echo FILES DETECTED
+      files: echo
+

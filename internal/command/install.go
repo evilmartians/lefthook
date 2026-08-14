@@ -1,0 +1,651 @@
+package command
+
+import (
+	"bufio"
+	"context"
+	"errors"
+	"fmt"
+	"os"
+	"path/filepath"
+	"regexp"
+	"slices"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/gobwas/glob"
+	"github.com/spf13/afero"
+
+	"github.com/evilmartians/lefthook/v2/internal/config"
+	"github.com/evilmartians/lefthook/v2/internal/git"
+	"github.com/evilmartians/lefthook/v2/internal/logger"
+	"github.com/evilmartians/lefthook/v2/internal/templates"
+)
+
+const (
+	configFileMode    = 0o666
+	checksumFileMode  = 0o644
+	hooksDirMode      = 0o755
+	timestampBase     = 10
+	timestampBitsize  = 64
+	remotesFolderMode = 0o755
+)
+
+var (
+	lefthookChecksumRegexp = regexp.MustCompile(`(\w+)\s+(\d+)(?:\s+([\w,-]+))?`)
+	errNoConfig            = errors.New("no lefthook config found")
+)
+
+type InstallArgs struct {
+	Force          bool
+	ResetHooksPath bool
+}
+
+func (l *Lefthook) Install(ctx context.Context, args InstallArgs, hooks []string) error {
+	cfg, err := l.readOrCreateConfig()
+	if err != nil {
+		return err
+	}
+
+	var remotesSynced bool
+	for _, remote := range cfg.Remotes {
+		if remote.Configured() {
+			if err = l.syncRemote(remote.GitURL, remote.Ref, args.Force); err != nil {
+				l.logger.Warnf("Couldn't sync from %s. Will continue anyway: %s", remote.GitURL, err)
+				continue
+			}
+
+			remotesSynced = true
+		}
+	}
+
+	if remotesSynced {
+		// Reread the config file with synced remotes
+		cfg, err = l.readOrCreateConfig()
+		if err != nil {
+			return err
+		}
+	}
+
+	if err = l.installHooks(cfg, hooks, args); err != nil {
+		return err
+	}
+
+	if cfg.AI != nil {
+		if err = l.validateAIHooks(cfg.AI, cfg.Hooks); err != nil {
+			return err
+		}
+	}
+
+	if err = l.removeAIHookFile(filepath.Join(l.repo.RootPath, copilotHooksDir, copilotHooksFile)); err != nil {
+		return err
+	}
+
+	if cfg.AI != nil {
+		if err = l.installAIHooks(cfg.AI, cfg); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// installHooks is the single entry point for creating hook files.
+// It ensures core.hooksPath is checked before any hooks are written,
+// preventing silent overwrites of global hook directories.
+func (l *Lefthook) installHooks(cfg *config.Config, hooks []string, args InstallArgs) error {
+	if err := l.ensureHooksPathUnset(args.Force, args.ResetHooksPath); err != nil {
+		return err
+	}
+
+	return l.createHooksIfNeeded(cfg, hooks, args.Force)
+}
+
+func (l *Lefthook) readOrCreateConfig() (*config.Config, error) {
+	l.logger.Debug("config dir: ", l.repo.RootPath)
+
+	if !l.configExists(l.repo.RootPath) {
+		l.logger.Info("Config not found, creating...")
+		if err := l.createConfig(l.repo.RootPath); err != nil {
+			return nil, err
+		}
+	}
+
+	return l.LoadConfig()
+}
+
+func (l *Lefthook) configExists(path string) bool {
+	configPath, _ := l.findMainConfig(path)
+	return configPath != ""
+}
+
+func (l *Lefthook) findMainConfig(path string) (string, error) {
+	configOverride := os.Getenv("LEFTHOOK_CONFIG")
+	if len(configOverride) != 0 {
+		if !filepath.IsAbs(configOverride) {
+			configOverride = filepath.Join(path, configOverride)
+		}
+		if ok, _ := afero.Exists(l.fs, configOverride); !ok {
+			return "", fmt.Errorf("couldn't find config from LEFTHOOK_CONFIG: %s", configOverride)
+		}
+		return configOverride, nil
+	}
+
+	for _, name := range config.MainConfigNames {
+		for _, extension := range config.Extensions {
+			configPath := filepath.Join(path, name+extension)
+			if ok, _ := afero.Exists(l.fs, configPath); ok {
+				return configPath, nil
+			}
+		}
+	}
+
+	return "", errNoConfig
+}
+
+func (l *Lefthook) createConfig(path string) error {
+	file := filepath.Join(path, config.DefaultConfigName)
+
+	err := afero.WriteFile(l.fs, file, templates.Config(), configFileMode)
+	if err != nil {
+		return err
+	}
+
+	l.logger.Info("Added config:", file)
+
+	return nil
+}
+
+func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Config, error) {
+	var remotesSynced bool
+
+	//nolint:nestif
+	if fetchRemotes {
+		fetchedRemotes := make(map[string]struct{})
+		for _, remote := range cfg.Remotes {
+			if !remote.Configured() {
+				continue
+			}
+			if l.shouldRefetch(remote) {
+				if serr := l.syncRemote(remote.GitURL, remote.Ref, false); serr != nil {
+					ref, err := l.findAvailableRemoteRef(remote.GitURL)
+					if err != nil {
+						l.logger.Warnf("Couldn't sync from %s. Will continue without that remote.", remote.GitURL)
+						continue
+					}
+
+					if ref != "" {
+						l.logger.Warnf("Couldn't sync %s %s. Will continue with fallback version: %s.", remote.GitURL, remote.Ref, ref)
+					} else {
+						l.logger.Warnf("Couldn't sync %s %s. Will continue with old version.", remote.GitURL, remote.Ref)
+					}
+
+					remote.Ref = ref
+				}
+
+				remotesSynced = true
+			}
+
+			fetchedRemotes[l.repo.RemoteFolder(remote.GitURL, remote.Ref)] = struct{}{}
+		}
+
+		if remotesSynced {
+			var err error
+
+			// Reread the config file with synced remotes
+			cfg, err = l.reloadConfig(cfg)
+			if err != nil {
+				return nil, fmt.Errorf("failed to reread the config: %w", err)
+			}
+		}
+
+		if len(fetchedRemotes) > 0 {
+			// Delete stale remotes
+			entries, err := afero.ReadDir(l.fs, l.repo.RemotesFolder())
+			if err != nil {
+				return nil, err
+			}
+			for _, entry := range entries {
+				remotePath := filepath.Join(l.repo.RemotesFolder(), entry.Name())
+				if _, ok := fetchedRemotes[remotePath]; !ok {
+					l.logger.Debug("Removing stale remote: ", remotePath)
+
+					if err = l.fs.RemoveAll(remotePath); err != nil {
+						l.logger.Error("failed to drop stale remote path: ", remotePath)
+					}
+				}
+			}
+		}
+	}
+
+	ok, hooks := l.checkHooksSynchronized(cfg)
+	if ok {
+		return cfg, nil
+	}
+
+	// Don't rely on config checksum if remotes were refetched
+	if err := l.installHooks(cfg, hooks, InstallArgs{}); err != nil {
+		l.logger.Warnf("Skipping hook sync: %s", err)
+		return cfg, nil
+	}
+	return cfg, nil
+}
+
+func (l *Lefthook) shouldRefetch(remote *config.Remote) bool {
+	if remote.Refetch || remote.RefetchFrequency == "always" {
+		return true
+	}
+	if remote.RefetchFrequency == "never" {
+		return false
+	}
+
+	var lastFetchTime time.Time
+	remotePath := l.repo.RemoteFolder(remote.GitURL, remote.Ref)
+	info, err := l.fs.Stat(filepath.Join(remotePath, ".git", "FETCH_HEAD"))
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return true
+		}
+
+		l.logger.Warnf("Failed to detect last fetch time: %s", err)
+		return false
+	}
+
+	if len(remote.RefetchFrequency) == 0 {
+		return false
+	}
+
+	lastFetchTime = info.ModTime()
+	timedelta, err := time.ParseDuration(remote.RefetchFrequency)
+	if err != nil {
+		l.logger.Warnf("Couldn't parse refetch frequency %s. Will continue anyway: %s", remote.RefetchFrequency, err)
+		return false
+	}
+
+	return time.Now().After(lastFetchTime.Add(timedelta))
+}
+
+func (l *Lefthook) findAvailableRemoteRef(url string) (string, error) {
+	entries, err := afero.ReadDir(l.fs, l.repo.RemotesFolder())
+	if err != nil {
+		return "", err
+	}
+
+	repoName := git.RemoteDirectoryName(url, "")
+	g := glob.MustCompile(repoName + "*")
+	for _, info := range slices.Backward(entries) {
+		if g.Match(info.Name()) {
+			if info.Name() == repoName {
+				return "", nil
+			}
+
+			oldRef := strings.Replace(info.Name(), repoName, "", 1)
+			return oldRef[1:], nil
+		}
+	}
+	return "", errors.New("not found")
+}
+
+func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, hooks []string, force bool) error {
+	onlyHooks := make(map[string]struct{})
+	for _, hook := range hooks {
+		onlyHooks[hook] = struct{}{}
+	}
+
+	var success bool
+	defer func() {
+		if !success {
+			l.logger.Info(l.logger.Paint(logger.ColorCyan, "sync hooks: ❌"))
+		}
+	}()
+
+	checksum, err := cfg.Md5()
+	if err != nil {
+		return fmt.Errorf("could not calculate checksum: %w", err)
+	}
+
+	if err = l.ensureHooksDirExists(); err != nil {
+		return fmt.Errorf("could not create hooks dir: %w", err)
+	}
+
+	roots := collectRoots(cfg)
+
+	hookNames := make([]string, 0, len(cfg.Hooks)+1)
+	for hook := range cfg.Hooks {
+		if _, ok := onlyHooks[hook]; len(onlyHooks) > 0 && !ok {
+			l.logger.Debug("skip installing: ", hook)
+			continue
+		}
+
+		if err = l.cleanHook(hook, force); err != nil {
+			return fmt.Errorf("could not replace the hook: %w", err)
+		}
+
+		if _, ok := config.AvailableHooks[hook]; !ok && !cfg.InstallNonGitHooks {
+			continue
+		}
+
+		hookNames = append(hookNames, hook)
+
+		templateArgs := templates.Args{
+			Rc:                      cfg.Rc,
+			AssertLefthookInstalled: cfg.AssertLefthookInstalled,
+			Roots:                   roots,
+			LefthookPath:            cfg.Lefthook,
+		}
+		if err = l.addHook(hook, templateArgs); err != nil {
+			return fmt.Errorf("could not add the hook: %w", err)
+		}
+	}
+
+	if len(onlyHooks) == 0 && len(cfg.Hooks) == 0 {
+		templateArgs := templates.Args{
+			Rc:                      cfg.Rc,
+			AssertLefthookInstalled: cfg.AssertLefthookInstalled,
+			Roots:                   roots,
+			LefthookPath:            cfg.Lefthook,
+		}
+		if err = l.addHook(config.GhostHookName, templateArgs); err != nil {
+			return nil
+		}
+	}
+
+	if err = l.addChecksumFile(checksum, hooks); err != nil {
+		return fmt.Errorf("could not create a checksum file: %w", err)
+	}
+
+	success = true
+	if len(hookNames) > 0 {
+		l.logger.Info(l.logger.Paint(logger.ColorCyan, "sync hooks: ✔️"), l.logger.Paint(logger.ColorCyan, "("+strings.Join(hookNames, ", ")+")"))
+	} else {
+		l.logger.Info(l.logger.Paint(logger.ColorCyan, "sync hooks: ✔️ "))
+	}
+
+	return nil
+}
+
+func collectRoots(cfg *config.Config) []string {
+	rootsMap := make(map[string]struct{})
+	for _, hook := range cfg.Hooks {
+		for _, command := range hook.Commands {
+			if len(command.Root) > 0 {
+				rootsMap[strings.Trim(command.Root, "/")] = struct{}{}
+			}
+		}
+		collectAllJobRoots(rootsMap, hook.Jobs)
+	}
+	roots := make([]string, 0, len(rootsMap))
+	for root := range rootsMap {
+		roots = append(roots, root)
+	}
+	return roots
+}
+
+func collectAllJobRoots(roots map[string]struct{}, jobs []*config.Job) {
+	for _, job := range jobs {
+		if len(job.Root) > 0 {
+			root := strings.Trim(job.Root, "/")
+			if _, ok := roots[root]; !ok {
+				roots[root] = struct{}{}
+			}
+		}
+
+		if job.Group != nil {
+			collectAllJobRoots(roots, job.Group.Jobs)
+		}
+	}
+}
+
+// checkHooksSynchronized checks is config hooks synchronized and returns the
+// list of hooks which are synchronized.
+func (l *Lefthook) checkHooksSynchronized(cfg *config.Config) (bool, []string) {
+	// Check checksum in a checksum file
+	file, err := l.fs.Open(l.checksumFilePath())
+	if err != nil {
+		return false, nil
+	}
+	defer func() {
+		if cErr := file.Close(); cErr != nil {
+			l.logger.Warnf("Could not close %s: %s", file.Name(), cErr)
+		}
+	}()
+
+	scanner := bufio.NewScanner(file)
+
+	var storedChecksum string
+	var storedTimestamp int64
+	var storedHooks []string
+
+	// Checksum format:
+	// <md5sum> <timestamp> <hook1,hook2,hook3>
+	for scanner.Scan() {
+		match := lefthookChecksumRegexp.FindStringSubmatch(scanner.Text())
+		if match != nil {
+			storedChecksum = match[1]
+			storedTimestamp, err = strconv.ParseInt(match[2], timestampBase, timestampBitsize)
+			if err != nil {
+				return false, nil
+			}
+			if len(match[3]) > 0 {
+				storedHooks = strings.Split(match[3], ",")
+			}
+
+			break
+		}
+	}
+	if err = scanner.Err(); err != nil {
+		l.logger.Warnf("Could not read %s: %s", file.Name(), err)
+		return false, nil
+	}
+
+	if len(storedChecksum) == 0 {
+		return false, storedHooks
+	}
+
+	configTimestamp, err := l.configLastUpdateTimestamp()
+	if err != nil {
+		return false, storedHooks
+	}
+
+	if storedTimestamp == configTimestamp {
+		return true, storedHooks
+	}
+
+	configChecksum, err := cfg.Md5()
+	if err != nil {
+		return false, storedHooks
+	}
+
+	return storedChecksum == configChecksum, storedHooks
+}
+
+func (l *Lefthook) configLastUpdateTimestamp() (int64, error) {
+	configPath, err := l.findMainConfig(l.repo.RootPath)
+	if err != nil {
+		return 0, err
+	}
+
+	config, err := l.fs.Stat(configPath)
+	if err != nil {
+		return 0, err
+	}
+
+	return config.ModTime().Unix(), nil
+}
+
+func (l *Lefthook) addChecksumFile(checksum string, hooks []string) error {
+	timestamp, err := l.configLastUpdateTimestamp()
+	if err != nil {
+		return fmt.Errorf("unable to get config update timestamp: %w", err)
+	}
+
+	return afero.WriteFile(
+		l.fs, l.checksumFilePath(), templates.Checksum(checksum, timestamp, hooks), checksumFileMode,
+	)
+}
+
+func (l *Lefthook) checksumFilePath() string {
+	return filepath.Join(l.repo.InfoPath, config.ChecksumFileName)
+}
+
+func (l *Lefthook) ensureHooksDirExists() error {
+	exists, err := afero.Exists(l.fs, l.repo.HooksPath)
+	if !exists || err != nil {
+		err = l.fs.MkdirAll(l.repo.HooksPath, hooksDirMode)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// getHooksPathConfig checks if core.hooksPath is configured locally or globally.
+func (l *Lefthook) getHooksPathConfig() (local, global string) {
+	local, _ = l.repo.Git.Cmd([]string{"git", "config", "--local", "core.hooksPath"})
+	global, _ = l.repo.Git.Cmd([]string{"git", "config", "--global", "core.hooksPath"})
+	return
+}
+
+// ensureHooksPathUnset ensures core.hooksPath is not configured.
+//
+// In general using lefthook doesn't make sense with global hooks.
+// Local hooks make sense only in terms of migratio from other hook managers.
+func (l *Lefthook) ensureHooksPathUnset(force, resetHooksPath bool) error {
+	local, global := l.getHooksPathConfig()
+	defaultHooksPath := filepath.Join(l.repo.RootPath, ".git", "hooks")
+
+	// Ignore if hooks path is equal to default git hooks path
+	hasLocal := len(local) > 0 && filepath.Clean(local) != filepath.Clean(defaultHooksPath)
+	hasGlobal := len(global) > 0
+
+	if !hasLocal && !hasGlobal {
+		return nil
+	}
+
+	// If neither force nor resetHooksPath, returns an error with instructions.
+	if !force && !resetHooksPath {
+		l.logger.Error(formatHooksPathError(local, global))
+		return errors.New("") // empty error since we already log message
+	}
+
+	if hasLocal {
+		l.logger.Warnf("core.hooksPath is set locally to '%s'", local)
+	}
+	if hasGlobal {
+		l.logger.Warnf("core.hooksPath is set globally to '%s'", global)
+	}
+
+	if resetHooksPath {
+		return l.unsetHooksPathConfig(local, global)
+	}
+
+	// Local setting takes precedence.
+	path := local
+	if !hasLocal && hasGlobal {
+		path = global
+	}
+	l.logger.Warnf("Installing hooks anyway in '%s'", path)
+
+	return nil
+}
+
+// formatHooksPathError formats an error message for core.hooksPath conflicts.
+func formatHooksPathError(local, global string) string {
+	var errMsg strings.Builder
+	var hints []string
+	hasLocal := len(local) > 0
+	hasGlobal := len(global) > 0
+
+	if hasLocal {
+		fmt.Fprintf(&errMsg, "core.hooksPath is set locally to '%s'\n", local)
+		hints = append(hints, "   git config --unset-all --local core.hooksPath")
+	}
+	if hasGlobal {
+		fmt.Fprintf(&errMsg, "core.hooksPath is set globally to '%s'\n", global)
+		hints = append(hints, "   git config --unset-all --global core.hooksPath")
+	}
+	errMsg.WriteString("Custom hooks paths are not supported by default.\n")
+	errMsg.WriteString("\n")
+	errMsg.WriteString("Reset core.hooksPath automatically:\n")
+	errMsg.WriteString("  lefthook install --reset-hooks-path\n")
+	errMsg.WriteString("\n")
+	errMsg.WriteString("Remove it manually:\n")
+	errMsg.WriteString(strings.Join(hints, "\n"))
+	errMsg.WriteString("\n\n")
+
+	// Determine path: use global path if only global is defined, otherwise use local path
+	path := local
+	if !hasLocal && hasGlobal {
+		path = global
+	}
+	errMsg.WriteString("Force installation into current hooks path:\n")
+	errMsg.WriteString("  lefthook install --force\n\n")
+	errMsg.WriteString("  Target:\n")
+	errMsg.WriteString("  ")
+	errMsg.WriteString(path)
+
+	return errMsg.String()
+}
+
+// unsetHooksPathConfig removes core.hooksPath configuration.
+func (l *Lefthook) unsetHooksPathConfig(local, global string) error {
+	if len(local) > 0 {
+		if _, err := l.repo.Git.Cmd([]string{"git", "config", "--local", "--unset-all", "core.hooksPath"}); err != nil {
+			return fmt.Errorf("failed to unset local core.hooksPath: %w", err)
+		}
+		l.logger.Warn("local core.hooksPath has been unset.")
+	}
+
+	if len(global) > 0 {
+		if _, err := l.repo.Git.Cmd([]string{"git", "config", "--global", "--unset-all", "core.hooksPath"}); err != nil {
+			return fmt.Errorf("failed to unset global core.hooksPath: %w", err)
+		}
+		l.logger.Warn("global core.hooksPath has been unset.")
+	}
+
+	paths, err := git.Paths(l.repo.Git)
+	if err != nil {
+		return err
+	}
+
+	l.repo.HooksPath = paths.HooksPath
+
+	return nil
+}
+
+// syncRemote clones or pulls the latest changes for a git repository that was
+// specified as a remote config repository. If successful, the path to the root
+// of the repository will be returned.
+func (l *Lefthook) syncRemote(url, ref string, force bool) error {
+	remotesPath := l.repo.RemotesFolder()
+
+	err := l.repo.Fs.MkdirAll(remotesPath, remotesFolderMode)
+	if err != nil && !errors.Is(err, os.ErrExist) {
+		return err
+	}
+
+	l.logger.Spinner.AddName("fetching remotes")
+	l.logger.Spinner.Start()
+	defer l.logger.Spinner.Stop()
+	defer l.logger.Spinner.RemoveName("fetching remotes")
+
+	directoryName := git.RemoteDirectoryName(url, ref)
+	remotePath := filepath.Join(remotesPath, directoryName)
+
+	if force {
+		err = l.repo.Fs.RemoveAll(remotePath)
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err = l.repo.Fs.Stat(remotePath)
+		if err == nil {
+			l.logger.Debugf("Updating remote config repository: %s", remotePath)
+			return l.repo.UpdateRemote(remotePath, ref)
+		}
+	}
+
+	l.logger.Debugf("Cloning remote config repository: %v/%v", remotePath, directoryName)
+	return l.repo.CloneRemote(remotesPath, directoryName, url, ref)
+}

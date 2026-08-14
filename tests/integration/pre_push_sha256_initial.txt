@@ -1,0 +1,24 @@
+[windows] skip
+
+exec git init --object-format=sha256
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git branch -m main
+exec git add -A
+exec git commit -m "initial"
+exec git init --bare --object-format=sha256 ../remote.git
+exec git remote add origin ../remote.git
+exec lefthook install
+exec git push -u origin main
+stdout 'PUSH README.md lefthook.yml'
+! stderr 'no upstream configured'
+! stderr 'ambiguous argument'
+exec git --git-dir ../remote.git rev-parse refs/heads/main
+
+-- lefthook.yml --
+pre-push:
+  jobs:
+    - run: echo PUSH {push_files}
+
+-- README.md --
+hello

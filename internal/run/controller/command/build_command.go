@@ -1,0 +1,111 @@
+package command
+
+import (
+	"strings"
+
+	"al.essio.dev/pkg/shellescape"
+
+	"github.com/evilmartians/lefthook/v2/internal/config"
+	"github.com/evilmartians/lefthook/v2/internal/run/controller/command/replacer"
+	"github.com/evilmartians/lefthook/v2/internal/run/controller/filter"
+	"github.com/evilmartians/lefthook/v2/internal/system"
+)
+
+func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
+	if err := params.validateCommand(); err != nil {
+		return nil, nil, err
+	}
+
+	replacer := b.buildReplacer(params)
+	filter := b.buildFilter(params)
+
+	command := strings.Join([]string{params.Run, params.Args}, " ")
+	err := replacer.Discover(command, filter)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Checking substitutions and skipping execution if it is empty.
+	if !b.opts.Force && replacer.HasEmpty() {
+		return nil, nil, SkipError{"no files for inspection"}
+	}
+
+	// Special case when `files` option specified but not referenced in `run`: return if the result is empty.
+	if !b.opts.Force && len(params.FilesCmd) > 0 && replacer.Empty(config.SubFiles) {
+		files, err := replacer.Files(config.SubFiles, filter)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		if len(files) == 0 {
+			return nil, nil, SkipError{"no files for inspection"}
+		}
+	}
+
+	commands, replacedFiles := replacer.ReplaceAndSplit(command, system.MaxCmdLen())
+
+	if b.opts.Force || len(replacedFiles) != 0 {
+		return commands, replacedFiles, nil
+	}
+
+	// Skip if no files were staged (including deleted)
+	//nolint:nestif
+	if config.HookUsesStagedFiles(b.opts.HookName) {
+		files, err := replacer.Files(config.SubStagedFiles, filter)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		if len(files) == 0 {
+			files, err = b.git.StagedFilesWithDeleted()
+			if err != nil {
+				return nil, nil, err
+			}
+
+			if len(filter.Apply(files)) == 0 {
+				return nil, nil, SkipError{"no matching staged files"}
+			}
+		}
+	}
+
+	// Skip if no files were to be pushed
+	if config.HookUsesPushFiles(b.opts.HookName) {
+		files, err := replacer.Files(config.SubPushFiles, filter)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		if len(files) == 0 {
+			return nil, nil, SkipError{"no matching push files"}
+		}
+	}
+
+	return commands, replacedFiles, nil
+}
+
+// buildReplacer creates the replacer with all supported templates for files and arguments.
+func (b *Builder) buildReplacer(params *JobParams) replacer.Replacer {
+	var r replacer.Replacer
+	if len(b.opts.ForceFiles) > 0 {
+		r = replacer.NewMocked(b.logger, b.opts.ForceFiles)
+	} else {
+		r = replacer.New(b.git, b.logger, params.Root, params.FilesCmd)
+	}
+
+	return r.
+		AddTemplates(b.opts.Templates).
+		AddTemplates(map[string]string{
+			"lefthook_job_name": shellescape.Quote(params.Name),
+		}).
+		AddGitArgs(b.opts.GitArgs)
+}
+
+func (b *Builder) buildFilter(params *JobParams) *filter.Filter {
+	return filter.New(b.git.Fs, b.logger, filter.Params{
+		Glob:         params.Glob,
+		ExcludeFiles: params.ExcludeFiles,
+		Root:         params.Root,
+		FileTypes:    params.FileTypes,
+		GlobMatcher:  b.opts.GlobMatcher,
+	})
+}

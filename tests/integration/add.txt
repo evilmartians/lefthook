@@ -1,0 +1,13 @@
+[windows] skip
+
+exec git init
+exec lefthook add pre-commit
+! stderr .
+exists .git/hooks/pre-commit
+! exists .lefthook/pre-commit
+
+exec lefthook add pre-push --dirs
+! stderr .
+exists .git/hooks/pre-push
+exists .lefthook/pre-push
+exists .lefthook-local/pre-push

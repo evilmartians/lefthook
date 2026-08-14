@@ -1,0 +1,28 @@
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+exec lefthook install
+exec lefthook run hook
+stdout '\s*1\s*2\s*'
+
+-- lefthook.yml --
+output:
+  - execution_out
+hook:
+  jobs:
+    - run: echo 1
+    - skip: true
+      group:
+        jobs:
+          - run: echo must not be printed
+          - run: echo must not be printed
+    - group:
+        jobs:
+          - run: echo 2
+          - run: echo must not be printed
+            skip: true
+          - skip: true
+            group:
+              jobs:
+                - run: echo must not be printed

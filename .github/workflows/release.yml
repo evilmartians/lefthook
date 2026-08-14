@@ -1,0 +1,262 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "*"
+
+permissions:
+  attestations: write
+  contents: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Fetch all tags
+        run: git fetch --force --tags
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
+      - name: Install Snapcraft
+        uses: samuelmeuli/action-snapcraft@v2
+
+      - name: Prevent from snapcraft fail
+        run: |
+          mkdir -p $HOME/.cache/snapcraft/download
+          mkdir -p $HOME/.cache/snapcraft/stage-packages
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: 'v2.10.2'
+          args: release --clean --verbose
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+
+      - name: Generate artifact attestations
+        uses: actions/attest@v4
+        with:
+          subject-checksums: dist/lefthook_checksums.txt
+
+      - name: Preserve artifacts permissions with tar
+        run: tar -cvf dist.tar dist/
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist.tar
+
+  publish-npm:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - run: git fetch --force --tags
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+      - run: tar -xvf dist.tar
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - uses: Raku/setup-raku@v1
+      - name: Publish to NPM
+        env:
+          NPM_API_KEY: ${{ secrets.NPM_API_KEY }}
+        run: |
+          raku packaging/scripts/prepare.raku --target=npm
+          raku packaging/scripts/publish.raku --target=npm
+
+  publish-gem:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - run: git fetch --force --tags
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+      - run: tar -xvf dist.tar
+
+      - uses: Raku/setup-raku@v1
+      - name: Publish to Rubygems
+        env:
+          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+        run: |
+          mkdir -p ~/.gem/
+          cat << EOF > ~/.gem/credentials
+          ---
+          :rubygems_api_key: ${RUBYGEMS_API_KEY}
+          EOF
+          chmod 0600 ~/.gem/credentials
+          raku packaging/scripts/prepare.raku --target=rubygems
+          raku packaging/scripts/publish.raku --target=rubygems
+
+  publish-pypi:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - run: git fetch --force --tags
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+      - run: tar -xvf dist.tar
+
+      - name: Setup uv with python
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: false
+          python-version: "3.12"
+          version: "latest"
+
+      - uses: Raku/setup-raku@v1
+      - name: Publish to PyPI
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_KEY }}
+        run: |
+          raku packaging/scripts/prepare.raku --target=pypi
+          raku packaging/scripts/publish.raku --target=pypi
+
+  publish-homebrew:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update Homebrew formula
+        uses: dawidd6/action-homebrew-bump-formula@v3
+        with:
+          formula: lefthook
+          token: ${{ secrets.HOMEBREW_TOKEN }}
+
+  publish-winget:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish to Winget
+        uses: vedantmgoyal2009/winget-releaser@v2
+        with:
+          identifier: evilmartians.lefthook
+          fork-user: mrexox
+          token: ${{ secrets.WINGET_TOKEN }}
+
+  publish-distro-packages:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+      - run: tar -xvf dist.tar
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --upgrade cloudsmith-cli
+
+      - name: Push packages to Cloudsmith
+        env:
+          CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
+        run: |
+          cloudsmith push deb evilmartians/lefthook/any-distro/any-version dist/lefthook_*_amd64.deb
+          cloudsmith push deb evilmartians/lefthook/any-distro/any-version dist/lefthook_*_arm64.deb
+          cloudsmith push rpm evilmartians/lefthook/any-distro/any-version dist/lefthook_*_amd64.rpm
+          cloudsmith push rpm evilmartians/lefthook/any-distro/any-version dist/lefthook_*_arm64.rpm
+          cloudsmith push alpine evilmartians/lefthook/alpine/any-version dist/lefthook_*_amd64.apk
+          cloudsmith push alpine evilmartians/lefthook/alpine/any-version dist/lefthook_*_arm64.apk
+
+  publish-aur_lefthook:
+    needs: build
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: Raku/setup-raku@v1
+      - name: Update AUR package
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm openssh git go base-devel curl
+
+          useradd -m -G wheel runner
+          echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+          chown -R runner:runner .
+
+          su runner -c '
+            mkdir -p ~/.ssh
+            echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/aur
+            chmod 600 ~/.ssh/aur
+            echo "Host aur.archlinux.org" >> ~/.ssh/config
+            echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
+            echo "  User aur" >> ~/.ssh/config
+            ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
+
+            raku packaging/scripts/publish.raku --target=aur
+          '
+
+  publish-aur_lefthook-bin:
+    needs: build
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: Raku/setup-raku@v1
+      - name: Update AUR package
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm openssh git base-devel curl
+
+          useradd -m -G wheel runner
+          echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+          chown -R runner:runner .
+
+          su runner -c '
+            mkdir -p ~/.ssh
+            echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/aur
+            chmod 600 ~/.ssh/aur
+            echo "Host aur.archlinux.org" >> ~/.ssh/config
+            echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
+            echo "  User aur" >> ~/.ssh/config
+            ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
+
+            raku packaging/scripts/publish.raku --target=aur-bin
+          '

@@ -1,0 +1,39 @@
+#!/usr/bin/env ruby
+
+require "rubygems"
+
+platform = Gem::Platform.new(RUBY_PLATFORM)
+arch =
+  case platform.cpu.sub(/\Auniversal\./, '')
+  when /\Aarm64/ then "arm64" # Apple reports arm64e on M1 macs
+  when /aarch64/ then "arm64"
+  when "x86_64"  then "x64"
+  when "x64"     then "x64" # Windows with MINGW64 reports RUBY_PLATFORM as "x64-mingw32"
+  else raise "Unknown architecture: #{platform.cpu}"
+  end
+
+os =
+  case platform.os
+  when "linux"   then "linux"
+  when "darwin"  then "darwin"  # MacOS
+  when "windows" then "windows"
+  when "mingw32" then "windows" # Windows with MINGW64 reports RUBY_PLATFORM as "x64-mingw32"
+  when "mingw"   then "windows"
+  when "freebsd" then "freebsd"
+  when "openbsd" then "openbsd"
+  else raise "Unknown OS: #{platform.os}"
+  end
+
+binary = "lefthook-#{os}-#{arch}/lefthook"
+binary = "#{binary}.exe" if os == "windows"
+
+args = $*.map { |x| x.include?(' ') ? "'" + x + "'" : x }
+cmd = File.expand_path "#{File.dirname(__FILE__)}/../libexec/#{binary}"
+
+unless File.exist?(cmd)
+  raise "Invalid platform. Lefthook wasn't build for #{RUBY_PLATFORM}"
+end
+
+pid = spawn("#{cmd} #{args.join(' ')}")
+Process.wait(pid)
+exit($?.exitstatus)

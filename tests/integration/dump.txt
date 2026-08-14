@@ -1,0 +1,145 @@
+[windows] skip
+
+exec git init
+exec lefthook dump
+cmp stdout lefthook-dumped.yml
+! stderr .
+
+exec lefthook dump --format=json
+cmp stdout lefthook-dumped.json
+! stderr .
+
+exec lefthook dump -f toml
+cmp stdout lefthook-dumped.toml
+! stderr .
+
+-- lefthook.yml --
+colors:
+  cyan: 14
+  gray: 244
+  green: '#32CD32'
+  red: '#FF1493'
+  yellow: '#F0E68C'
+pre-commit:
+  follow: true
+  commands:
+    lint:
+      interactive: true
+      skip:
+        - merge
+        - rebase
+        - ref: main
+      run: yarn lint {staged_files}
+    test:
+      skip: merge
+      glob: "*.js"
+      run: yarn test
+  scripts:
+    "my-script.sh":
+      runner: bash
+      use_stdin: true
+      stage_fixed: true
+      env:
+        FOO: bar
+-- lefthook-dumped.yml --
+colors:
+  cyan: 14
+  gray: 244
+  green: '#32CD32'
+  red: '#FF1493'
+  yellow: '#F0E68C'
+pre-commit:
+  follow: true
+  commands:
+    lint:
+      run: yarn lint {staged_files}
+      skip:
+        - merge
+        - rebase
+        - ref: main
+      interactive: true
+    test:
+      run: yarn test
+      skip: merge
+      glob:
+        - '*.js'
+  scripts:
+    my-script.sh:
+      runner: bash
+      env:
+        FOO: bar
+      use_stdin: true
+      stage_fixed: true
+-- lefthook-dumped.json --
+{
+  "colors": {
+    "cyan": 14,
+    "gray": 244,
+    "green": "#32CD32",
+    "red": "#FF1493",
+    "yellow": "#F0E68C"
+  },
+  "pre-commit": {
+    "follow": true,
+    "commands": {
+      "lint": {
+        "run": "yarn lint {staged_files}",
+        "skip": [
+          "merge",
+          "rebase",
+          {
+            "ref": "main"
+          }
+        ],
+        "interactive": true
+      },
+      "test": {
+        "run": "yarn test",
+        "skip": "merge",
+        "glob": [
+          "*.js"
+        ]
+      }
+    },
+    "scripts": {
+      "my-script.sh": {
+        "runner": "bash",
+        "env": {
+          "FOO": "bar"
+        },
+        "use_stdin": true,
+        "stage_fixed": true
+      }
+    }
+  }
+}
+-- lefthook-dumped.toml --
+[colors]
+cyan = 14
+gray = 244
+green = '#32CD32'
+red = '#FF1493'
+yellow = '#F0E68C'
+
+[pre-commit]
+follow = true
+
+[pre-commit.commands]
+[pre-commit.commands.lint]
+run = 'yarn lint {staged_files}'
+skip = ['merge', 'rebase', {ref = 'main'}]
+interactive = true
+
+[pre-commit.commands.test]
+run = 'yarn test'
+skip = 'merge'
+glob = ['*.js']
+
+[pre-commit.scripts]
+[pre-commit.scripts.'my-script.sh']
+runner = 'bash'
+use_stdin = true
+stage_fixed = true
+
+[pre-commit.scripts.'my-script.sh'.env]
+FOO = 'bar'

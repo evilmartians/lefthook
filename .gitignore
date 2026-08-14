@@ -1,0 +1,10 @@
+/lefthook
+/lefthook-local.yml
+/bin/
+/dist/
+/book/
+/site/
+/vscode/
+/.idea/
+
+tmp/

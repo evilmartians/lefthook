@@ -1,0 +1,24 @@
+exec git init
+exec lefthook install
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+exec git status --short
+exec git commit -m 'test stage_fixed'
+exec git status --short
+! stdout .
+
+-- lefthook.yml --
+min_version: 1.1.1
+pre-commit:
+  jobs:
+    - stage_fixed: true
+      run: |
+        echo newline >> "[file].js"
+        echo newline >> file.txt
+
+-- file.txt --
+sometext
+
+-- [file].js --
+somecode

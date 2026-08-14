@@ -1,0 +1,28 @@
+name: Publish Docs
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  gh-pages:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup docmd
+        run: npm install -g @docmd/core@0.8.17
+
+      - run: docmd build
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
+        if: ${{ github.ref == 'refs/heads/master' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          cname: lefthook.dev

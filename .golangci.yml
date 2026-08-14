@@ -1,0 +1,93 @@
+version: "2"
+
+linters:
+  default: none
+  enable:
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - containedctx
+    - contextcheck
+    - copyloopvar
+    - dogsled
+    - dupl
+    - dupword
+    - durationcheck
+    - errcheck
+    - errchkjson
+    - errname
+    - errorlint
+    - exhaustive
+    - forbidigo
+    - gochecknoinits
+    - goconst
+    - gocritic
+    - gocyclo
+    - godoclint
+    - godot
+    - godox
+    - goheader
+    - goprintffuncname
+    - govet
+    - ineffassign
+    - intrange
+    - makezero
+    - mirror
+    - misspell
+    - mnd
+    - modernize
+    - nestif
+    - noctx
+    - nolintlint
+    - perfsprint
+    - prealloc
+    - predeclared
+    - reassign
+    - revive
+    - staticcheck
+    - tagalign
+    - usetesting
+    - unconvert
+    - unparam
+    - unused
+    - usestdlibvars
+    - whitespace
+  settings:
+    gocritic:
+      disabled-checks:
+        - hugeParam
+      enabled-tags:
+        - performance
+    govet:
+      enable:
+        - shadow
+    goconst:
+      ignore-string-values:
+        - "false"
+    misspell:
+      locale: US
+    perfsprint:
+      strconcat: false
+    revive:
+      rules:
+        - name: unused-parameter
+          disabled: true
+    unused:
+      field-writes-are-uses: false
+      post-statements-are-reads: true
+      exported-fields-are-used: false
+      local-variables-are-used: false
+      generated-is-used: false
+
+formatters:
+  enable:
+    - gci
+    - gofumpt
+    - goimports
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/evilmartians/lefthook)

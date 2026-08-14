@@ -1,0 +1,25 @@
+# Raku precompilation
+.precomp/
+
+# Python precompilation
+__pycache__/
+/registries/pypi/lefthook.egg-info/
+
+# READMEs
+/registries/npm-*/README.md
+/registries/npm/*/README.md
+
+# schemas
+/registries/npm/*/schema.json
+/registries/npm-bundled/schema.json
+/registries/npm-installer/schema.json
+
+# binaries
+registries/pypi/lefthook/bin/
+registries/pypi/build/
+registries/rubygems/pkg/
+registries/rubygems/libexec/
+registries/npm-bundled/bin/
+registries/npm/*/bin/
+!registries/npm/*/package.json
+!registries/npm/lefthook/bin/index.js

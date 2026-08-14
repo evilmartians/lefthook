@@ -1,0 +1,72 @@
+[windows] skip
+
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec lefthook install
+exec git add -A
+exec git commit -m 'test'
+exec lefthook run filters
+stdout '.*all ❯\s+html lefthook.yml lua-script perl-script python-script shell-script\s+┃.*'
+stdout '.*shell ❯\s+shell-script\s+┃.*'
+stdout '.*perl ❯\s+perl-script\s+┃.*'
+stdout '.*python ❯\s+python-script\s+┃.*'
+stdout '.*html ❯\s+html\s+┃.*'
+stdout '.*scripts ❯\s+lua-script perl-script shell-script\s*'
+
+-- lefthook.yml --
+output:
+  - execution
+  - skips
+filters:
+  piped: true
+  jobs:
+    - name: all
+      run: echo {all_files}
+    - name: shell
+      run: echo {all_files}
+      file_types: text/x-sh
+    - name: perl
+      run: echo {all_files}
+      file_types: text/x-perl
+    - name: python
+      run: echo {all_files}
+      file_types: text/x-python
+    - name: html
+      run: echo {all_files}
+      file_types: text/html
+    - name: scripts
+      run: echo {all_files}
+      file_types:
+        - text/x-shellscript
+        - text/x-perl
+        - text/x-lua
+
+-- shell-script --
+#!/bin/sh
+
+echo 'Hello'
+
+-- perl-script --
+#!/usr/bin/env perl
+
+say 'Hello'
+
+-- python-script --
+#!/usr/bin/env python
+
+if __name__ == '__main__':
+  print("Hello")
+
+-- html --
+<html>
+<header></header>
+<body>
+  <h1>Hello</h1>
+</body>
+</html>
+
+-- lua-script --
+#!/usr/bin/env lua
+
+print("Hello")
