@@ -115,11 +115,14 @@ func (l *Lefthook) readOrCreateConfig() (*config.Config, error) {
 }
 
 func (l *Lefthook) configExists(path string) bool {
-	configPath, _ := l.findMainConfig(path)
+	configPath, _ := l.findConfig(path)
 	return configPath != ""
 }
 
-func (l *Lefthook) findMainConfig(path string) (string, error) {
+// findConfig returns the path of the config lefthook is going to use. A local
+// config (e.g. lefthook-local.yml) can be used without a main one, so it is
+// searched for as a fallback.
+func (l *Lefthook) findConfig(path string) (string, error) {
 	configOverride := os.Getenv("LEFTHOOK_CONFIG")
 	if len(configOverride) != 0 {
 		if !filepath.IsAbs(configOverride) {
@@ -131,7 +134,7 @@ func (l *Lefthook) findMainConfig(path string) (string, error) {
 		return configOverride, nil
 	}
 
-	for _, name := range config.MainConfigNames {
+	for _, name := range slices.Concat(config.MainConfigNames, config.LocalConfigNames) {
 		for _, extension := range config.Extensions {
 			configPath := filepath.Join(path, name+extension)
 			if ok, _ := afero.Exists(l.fs, configPath); ok {
@@ -460,7 +463,7 @@ func (l *Lefthook) checkHooksSynchronized(cfg *config.Config) (bool, []string) {
 }
 
 func (l *Lefthook) configLastUpdateTimestamp() (int64, error) {
-	configPath, err := l.findMainConfig(l.repo.RootPath)
+	configPath, err := l.findConfig(l.repo.RootPath)
 	if err != nil {
 		return 0, err
 	}
