@@ -3,10 +3,10 @@ type: concept
 title: follow
 source: "https://lefthook.dev/configuration/follow/"
 path: /configuration/follow/
-updated: 2026-08-03
+updated: 2026-08-17
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-03T09:42:48.576Z"
+  generated_at: "2026-08-17T13:11:15.249Z"
 ---
 ---
 title: "follow"
