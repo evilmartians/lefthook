@@ -6,12 +6,14 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	osexec "os/exec"
 	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
 	"time"
 
+	"github.com/creack/pty"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
@@ -123,6 +125,40 @@ func TestExecute_ContextCancellation(t *testing.T) {
 
 	assert.Error(t, err)
 	assert.Less(t, elapsed, 5*time.Second, "should return promptly after context cancellation")
+}
+
+func TestStartWithInheritedSize(t *testing.T) {
+	parentPTY, parentTTY, err := pty.Open()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = parentPTY.Close() }()
+	defer func() { _ = parentTTY.Close() }()
+
+	expected := &pty.Winsize{Rows: 40, Cols: 120}
+	err = pty.Setsize(parentPTY, expected)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	command := osexec.CommandContext(t.Context(), "sleep", "10")
+	childPTY, err := startWithInheritedSize(command, parentTTY)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = childPTY.Close() }()
+	defer func() {
+		_ = command.Process.Kill()
+		_ = command.Wait()
+	}()
+
+	actual, err := pty.GetsizeFull(childPTY)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, expected.Rows, actual.Rows)
+	assert.Equal(t, expected.Cols, actual.Cols)
 }
 
 func TestExecute_UseStdin(t *testing.T) {
