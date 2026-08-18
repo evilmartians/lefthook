@@ -128,37 +128,47 @@ func TestExecute_ContextCancellation(t *testing.T) {
 }
 
 func TestStartWithInheritedSize(t *testing.T) {
-	parentPTY, parentTTY, err := pty.Open()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer func() { _ = parentPTY.Close() }()
-	defer func() { _ = parentTTY.Close() }()
+	for name, tt := range map[string]struct {
+		rows uint16
+		cols uint16
+	}{
+		"standard terminal": {rows: 40, cols: 120},
+		"minimal terminal":  {rows: 1, cols: 1},
+	} {
+		t.Run(name, func(t *testing.T) {
+			parentPTY, parentTTY, err := pty.Open()
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer func() { _ = parentPTY.Close() }()
+			defer func() { _ = parentTTY.Close() }()
 
-	expected := &pty.Winsize{Rows: 40, Cols: 120}
-	err = pty.Setsize(parentPTY, expected)
-	if err != nil {
-		t.Fatal(err)
-	}
+			expected := &pty.Winsize{Rows: tt.rows, Cols: tt.cols}
+			err = pty.Setsize(parentPTY, expected)
+			if err != nil {
+				t.Fatal(err)
+			}
 
-	command := osexec.CommandContext(t.Context(), "sleep", "10")
-	childPTY, err := startWithInheritedSize(command, parentTTY)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer func() { _ = childPTY.Close() }()
-	defer func() {
-		_ = command.Process.Kill()
-		_ = command.Wait()
-	}()
+			command := osexec.CommandContext(t.Context(), "sleep", "10")
+			childPTY, err := startWithInheritedSize(command, parentTTY)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer func() { _ = childPTY.Close() }()
+			defer func() {
+				_ = command.Process.Kill()
+				_ = command.Wait()
+			}()
 
-	actual, err := pty.GetsizeFull(childPTY)
-	if err != nil {
-		t.Fatal(err)
-	}
+			actual, err := pty.GetsizeFull(childPTY)
+			if err != nil {
+				t.Fatal(err)
+			}
 
-	assert.Equal(t, expected.Rows, actual.Rows)
-	assert.Equal(t, expected.Cols, actual.Cols)
+			assert.Equal(t, expected.Rows, actual.Rows)
+			assert.Equal(t, expected.Cols, actual.Cols)
+		})
+	}
 }
 
 func TestExecute_UseStdin(t *testing.T) {
