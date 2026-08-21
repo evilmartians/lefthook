@@ -6,7 +6,7 @@ path: /installation/deb/
 updated: 2026-08-21
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-21T07:57:38.021Z"
+  generated_at: "2026-08-21T08:06:41.068Z"
 ---
 ---
 title: "Debian-based"

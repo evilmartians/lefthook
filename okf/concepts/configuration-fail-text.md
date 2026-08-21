@@ -6,7 +6,7 @@ path: /configuration/fail_text/
 updated: 2026-08-21
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-21T07:57:38.005Z"
+  generated_at: "2026-08-21T08:06:41.037Z"
 ---
 ---
 title: "fail_text"
