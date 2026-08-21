@@ -1,5 +1,19 @@
 # Change log
 
+## 2.1.11 (2026-08-21)
+
+- fix: inherit terminal size for PTY commands ([#1498](https://github.com/evilmartians/lefthook/pull/1498)) by [@mariokresic](https://github.com/mariokresic)
+- docs: correct Lefthook commit message configuration ([#1499](https://github.com/evilmartians/lefthook/pull/1499)) by [@codersjj](https://github.com/codersjj)
+- docs: hide contributors regenerate tip from the site ([#1500](https://github.com/evilmartians/lefthook/pull/1500)) by [@MikevPeeren](https://github.com/MikevPeeren)
+- docs: clarify signed-off commit example ([#1492](https://github.com/evilmartians/lefthook/pull/1492)) by [@nightcityblade](https://github.com/nightcityblade)
+- deps: bump Go to 1.26.6 ([#1495](https://github.com/evilmartians/lefthook/pull/1495)) by [@quaacxlok](https://github.com/quaacxlok)
+- docs: fix em notice by [@mrexox](https://github.com/mrexox)
+- docs: update docmd ([#1481](https://github.com/evilmartians/lefthook/pull/1481)) by [@mrexox](https://github.com/mrexox)
+- docs: fix EM mention HTML by [@mrexox](https://github.com/mrexox)
+- docs: clarify remote script folders ([#1477](https://github.com/evilmartians/lefthook/pull/1477)) by [@scop](https://github.com/scop)
+- docs: document script args ([#1479](https://github.com/evilmartians/lefthook/pull/1479)) by [@lntutor](https://github.com/lntutor)
+- docs: update em logo by [@mrexox](https://github.com/mrexox)
+
 ## 2.1.10 (2026-07-08)
 
 - deps: July 2026 ([#1463](https://github.com/evilmartians/lefthook/pull/1463)) by [@mrexox]()
