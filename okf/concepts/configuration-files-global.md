@@ -6,7 +6,7 @@ path: /configuration/files-global/
 updated: 2026-08-21
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-21T08:06:41.039Z"
+  generated_at: "2026-08-21T08:12:44.687Z"
 ---
 ---
 title: "files (hook-level)"
