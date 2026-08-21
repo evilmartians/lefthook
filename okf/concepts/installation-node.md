@@ -3,10 +3,10 @@ type: concept
 title: NPM
 source: "https://lefthook.dev/installation/node/"
 path: /installation/node/
-updated: 2026-08-17
+updated: 2026-08-21
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-17T13:12:03.084Z"
+  generated_at: "2026-08-21T07:56:19.609Z"
 ---
 ---
 title: "NPM"

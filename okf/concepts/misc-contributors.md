@@ -3,10 +3,10 @@ type: concept
 title: Contributors
 source: "https://lefthook.dev/misc/contributors/"
 path: /misc/contributors/
-updated: 2026-08-17
+updated: 2026-08-21
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-17T13:12:03.086Z"
+  generated_at: "2026-08-21T07:56:19.611Z"
 ---
 # Contributors
 
@@ -43,6 +43,4 @@ okf:
 
 If you feel you’re missing from this list, feel free to add yourself in a PR.
 
-<!---
-curl https://api.github.com/repos/evilmartians/lefthook/contributors | jq '.[] | "[" + .login + "]" + "(" + .url + ")"'
--->
+[//]: # 'curl https://api.github.com/repos/evilmartians/lefthook/contributors | jq -r ".[] | \"- [\" + .login + \"](\" + .html_url + \")\""'

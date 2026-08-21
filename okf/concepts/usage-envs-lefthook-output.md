@@ -3,10 +3,10 @@ type: concept
 title: LEFTHOOK_OUTPUT
 source: "https://lefthook.dev/usage/envs/LEFTHOOK_OUTPUT/"
 path: /usage/envs/LEFTHOOK_OUTPUT/
-updated: 2026-08-17
+updated: 2026-08-21
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-17T13:12:03.092Z"
+  generated_at: "2026-08-21T07:56:19.614Z"
 ---
 ---
 title: "LEFTHOOK_OUTPUT"

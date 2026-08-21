@@ -3,10 +3,10 @@ type: concept
 title: source_dir
 source: "https://lefthook.dev/configuration/source_dir/"
 path: /configuration/source_dir/
-updated: 2026-08-17
+updated: 2026-08-21
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-17T13:12:03.075Z"
+  generated_at: "2026-08-21T07:56:19.604Z"
 ---
 ---
 title: "source_dir"
