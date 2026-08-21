@@ -6,7 +6,7 @@ path: /configuration/skip_lfs/
 updated: 2026-08-21
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-21T07:56:19.604Z"
+  generated_at: "2026-08-21T07:57:38.015Z"
 ---
 ---
 title: "skip_lfs"

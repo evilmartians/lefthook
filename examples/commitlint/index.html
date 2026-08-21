@@ -104,11 +104,11 @@
     
     
 
-    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mt2nny83">
-    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mt2nny83">
+    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mt2npmin">
+    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mt2npmin">
     
-    <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=mt2nny83" id="hljs-light" >
-    <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=mt2nny83" id="hljs-dark" disabled>
+    <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=mt2npmin" id="hljs-light" >
+    <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=mt2npmin" id="hljs-dark" disabled>
     
     
 <meta name="description" content="Lefthook documentation.">
@@ -125,11 +125,11 @@
 
 
 
-<link rel="stylesheet" href="../../assets/css/docmd-git.css?v=mt2nny83" >
-<link rel="stylesheet" href="../../assets/css/docmd-openapi.css?v=mt2nny83" >
+<link rel="stylesheet" href="../../assets/css/docmd-git.css?v=mt2npmin" >
+<link rel="stylesheet" href="../../assets/css/docmd-openapi.css?v=mt2npmin" >
 
     
-      <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mt2nny83">
+      <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mt2npmin">
     
     
   </head>
@@ -2911,7 +2911,7 @@
             <div class="content-layout">
               <div class="main-content">
                 <div class="docmd-breadcrumbs-row">
-                  <div id="docmd-raw-markdown" data-content="%23%20Commitlint%20and%20commitzen%0A%0AUse%20lefthook%20to%20generate%20commit%20messages%20using%20commitzen%20and%20validate%20them%20with%20commitlint.%0A%0A%23%23%20Install%20dependencies%0A%0A%60%60%60bash%0Ayarn%20add%20-D%20%40commitlint%2Fcli%20%40commitlint%2Fconfig-conventional%0A%0A%23%20For%20commitzen%0Ayarn%20add%20-D%20commitizen%20cz-conventional-changelog%0A%60%60%60%0A%0A%23%23%20Configure%0A%0ASetup%20%60commitlint.config.js%60.%20Conventional%20configuration%3A%0A%0A%60%60%60js%0A%2F%2F%20commitlint.config.js%0A%0Amodule.exports%20%3D%20%7Bextends%3A%20%5B&#039;%40commitlint%2Fconfig-conventional&#039;%5D%7D%3B%0A%60%60%60%0A%0AIf%20you%20are%20using%20commitzen%2C%20make%20sure%20to%20add%20this%20in%20%60package.json%60%3A%0A%0A%60%60%60json%0A%22config%22%3A%20%7B%0A%20%20%22commitizen%22%3A%20%7B%0A%20%20%20%20%22path%22%3A%20%22.%2Fnode_modules%2Fcz-conventional-changelog%22%0A%20%20%7D%0A%7D%0A%60%60%60%0A%0AConfigure%20lefthook%3A%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0A%23%20Build%20commit%20messages%0Aprepare-commit-msg%3A%0A%20%20commands%3A%0A%20%20%20%20commitzen%3A%0A%20%20%20%20%20%20interactive%3A%20true%0A%20%20%20%20%20%20run%3A%20yarn%20run%20cz%20--hook%20%23%20Or%20npx%20cz%20--hook%0A%20%20%20%20%20%20env%3A%0A%20%20%20%20%20%20%20%20LEFTHOOK%3A%200%0A%0A%23%20Validate%20commit%20messages%0Acommit-msg%3A%0A%20%20commands%3A%0A%20%20%20%20%22lint%20commit%20message%22%3A%0A%20%20%20%20%20%20run%3A%20yarn%20run%20commitlint%20--edit%20%7B1%7D%0A%60%60%60%0A%0A%0A%23%23%20Test%20it%0A%0A%60%60%60bash%0A%23%20You%20can%20type%20it%20without%20message%2C%20if%20you%20are%20using%20commitzen%0Agit%20commit%0A%0A%23%20Or%20provide%20a%20commit%20message%20is%20using%20only%20commitlint%0Agit%20commit%20-am%20&#039;fix%3A%20typo&#039;%0A%60%60%60%0A" style="display: none;"></div>
+                  <div id="docmd-raw-markdown" data-content="%23%20Commitlint%20and%20commitzen%0A%0AUse%20lefthook%20to%20generate%20commit%20messages%20using%20commitzen%20and%20validate%20them%20with%20commitlint.%0A%0A%23%23%20Install%20dependencies%0A%0A%60%60%60bash%0Ayarn%20add%20-D%20%40commitlint%2Fcli%20%40commitlint%2Fconfig-conventional%0A%0A%23%20For%20commitzen%0Ayarn%20add%20-D%20commitizen%20cz-conventional-changelog%0A%60%60%60%0A%0A%23%23%20Configure%0A%0ASetup%20%60commitlint.config.js%60.%20Conventional%20configuration%3A%0A%0A%60%60%60js%0A%2F%2F%20commitlint.config.js%0A%0Amodule.exports%20%3D%20%7Bextends%3A%20%5B&#039;%40commitlint%2Fconfig-conventional&#039;%5D%7D%3B%0A%60%60%60%0A%0AIf%20you%20are%20using%20commitzen%2C%20make%20sure%20to%20add%20this%20in%20%60package.json%60%3A%0A%0A%60%60%60json%0A%22config%22%3A%20%7B%0A%20%20%22commitizen%22%3A%20%7B%0A%20%20%20%20%22path%22%3A%20%22.%2Fnode_modules%2Fcz-conventional-changelog%22%0A%20%20%7D%0A%7D%0A%60%60%60%0A%0AConfigure%20lefthook%3A%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0A%23%20Build%20commit%20messages%0Aprepare-commit-msg%3A%0A%20%20commands%3A%0A%20%20%20%20commitzen%3A%0A%20%20%20%20%20%20interactive%3A%20true%0A%20%20%20%20%20%20run%3A%20yarn%20run%20cz%20--hook%20%23%20Or%20npx%20cz%20--hook%0A%20%20%20%20%20%20env%3A%0A%20%20%20%20%20%20%20%20LEFTHOOK%3A%20%220%22%0A%0A%23%20Validate%20commit%20messages%0Acommit-msg%3A%0A%20%20commands%3A%0A%20%20%20%20%22lint%20commit%20message%22%3A%0A%20%20%20%20%20%20run%3A%20yarn%20run%20commitlint%20--edit%20%7B1%7D%0A%60%60%60%0A%0A%0A%23%23%20Test%20it%0A%0A%60%60%60bash%0A%23%20You%20can%20type%20it%20without%20message%2C%20if%20you%20are%20using%20commitzen%0Agit%20commit%0A%0A%23%20Or%20provide%20a%20commit%20message%20is%20using%20only%20commitlint%0Agit%20commit%20-am%20&#039;fix%3A%20typo&#039;%0A%60%60%60%0A" style="display: none;"></div>
                   
                     <nav aria-label="breadcrumb" class="docmd-breadcrumbs">
                       <ol>
@@ -3031,7 +3031,7 @@ prepare<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuatio
       interactive<span class="hljs-punctuation">:</span> <span class="hljs-keyword">true</span>
       run<span class="hljs-punctuation">:</span> <span class="hljs-keyword">yarn</span> run cz <span class="hljs-punctuation">--</span>hook <span class="hljs-comment"># Or npx cz --hook</span>
       env<span class="hljs-punctuation">:</span>
-        LEFTHOOK<span class="hljs-punctuation">:</span> <span class="hljs-number">0</span>
+        LEFTHOOK<span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;0&quot;</span>
 
 <span class="hljs-comment"># Validate commit messages</span>
 commit<span class="hljs-punctuation">-</span>msg<span class="hljs-punctuation">:</span>
@@ -3098,29 +3098,29 @@ commit<span class="hljs-punctuation">-</span>msg<span class="hljs-punctuation">:
             <div class="page-footer-actions">
               
               
-                <span class="git-last-updated" data-timestamp="1787298955000">
+                <span class="git-last-updated" data-timestamp="1787299037000">
                   <svg class="git-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
                   <span class="git-label">Last updated:</span>
-                  <span class="git-time" data-timestamp="1787298955000"></span>
+                  <span class="git-time" data-timestamp="1787299037000"></span>
                   
                   <div class="git-commit-tooltip" role="tooltip">
                     <div class="git-tooltip-title">Recent commits</div>
                     <ul class="git-commit-list">
                       
                         <li class="git-commit-item">
-                          <div class="git-commit-avatar" title="MikevPeeren">
+                          <div class="git-commit-avatar" title="Shane">
                             
-                              <img src="https://www.gravatar.com/avatar/e3a96843138d77380c744463ab8b3302?d=mp&amp;s=64" alt="MikevPeeren">
+                              <img src="https://www.gravatar.com/avatar/306b444021d07fcebc360b11fb4611b8?d=mp&amp;s=64" alt="Shane">
                             
                           </div>
                           <div class="git-commit-details">
-                            <div class="git-commit-message" title="docs: hide contributors regenerate tip from the site (#1500)">docs: hide contributors regenerate ti...</div>
+                            <div class="git-commit-message" title="docs: correct Lefthook commit message configuration (#1499)">docs: correct Lefthook commit message...</div>
                             <div class="git-commit-meta">
-                              <span class="git-commit-author">MikevPeeren</span>
-                              <span class="git-commit-date" data-timestamp="1787298955000"></span>
+                              <span class="git-commit-author">Shane</span>
+                              <span class="git-commit-date" data-timestamp="1787299037000"></span>
                             </div>
                           </div>
                         </li>
@@ -3172,13 +3172,13 @@ commit<span class="hljs-punctuation">-</span>msg<span class="hljs-punctuation">:
         </div>
       </div>
       
-      <script src="../../assets/js/docmd-main.js?v=mt2nny83"></script>
+      <script src="../../assets/js/docmd-main.js?v=mt2npmin"></script>
       
-      <script src="../../assets/js/docmd-git.js?v=mt2nny83"></script>
-      <script src="../../assets/js/docmd-image-lightbox.js?v=mt2nny83" ></script>
-<script src="../../assets/js/vendor/minisearch.js?v=mt2nny83" ></script>
-<script src="../../assets/js/docmd-search.js?v=mt2nny83" ></script>
-<script src="../../assets/js/docmd-git.js?v=mt2nny83" type="module"></script>
+      <script src="../../assets/js/docmd-git.js?v=mt2npmin"></script>
+      <script src="../../assets/js/docmd-image-lightbox.js?v=mt2npmin" ></script>
+<script src="../../assets/js/vendor/minisearch.js?v=mt2npmin" ></script>
+<script src="../../assets/js/docmd-search.js?v=mt2npmin" ></script>
+<script src="../../assets/js/docmd-git.js?v=mt2npmin" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;" data-show-confidence="false" data-show-filters="true"

@@ -6,7 +6,7 @@ path: /examples/commitlint/
 updated: 2026-08-21
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-21T07:56:19.606Z"
+  generated_at: "2026-08-21T07:57:38.018Z"
 ---
 # Commitlint and commitzen
 
@@ -53,7 +53,7 @@ prepare-commit-msg:
       interactive: true
       run: yarn run cz --hook # Or npx cz --hook
       env:
-        LEFTHOOK: 0
+        LEFTHOOK: "0"
 
 # Validate commit messages
 commit-msg:

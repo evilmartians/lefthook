@@ -6,7 +6,7 @@ path: /configuration/stage_fixed/
 updated: 2026-08-21
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-21T07:56:19.605Z"
+  generated_at: "2026-08-21T07:57:38.016Z"
 ---
 ---
 title: "stage_fixed"
