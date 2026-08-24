@@ -14,7 +14,7 @@ require (
 	github.com/goccy/go-yaml v1.19.2
 	github.com/invopop/jsonschema v0.14.0
 	github.com/kaptinlin/jsonschema v0.9.3
-	github.com/knadh/koanf/maps v0.1.2
+	github.com/knadh/koanf/maps v0.1.3
 	github.com/knadh/koanf/parsers/json v1.0.0
 	github.com/knadh/koanf/parsers/toml/v2 v2.2.1
 	github.com/knadh/koanf/parsers/yaml v1.1.0
