@@ -82,8 +82,15 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	}
 
 	enableLogTags := os.Getenv(envOutput)
+	output := cfg.Output
+	if enableLogTags != "" {
+		output = enableLogTags
+		if enableLogTags == "false" {
+			output = false
+		}
+	}
 
-	exLogger := l.logger.NewExecutionLogger(enableLogTags, cfg.Output)
+	exLogger := l.logger.NewExecutionLogger(output)
 
 	if exLogger.Enabled(logger.LogMeta) {
 		exLogger.LogMeta(args.Hook)
