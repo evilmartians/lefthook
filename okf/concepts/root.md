@@ -4,10 +4,10 @@ title: "What is Lefthook?"
 description: "Welcome to Lefthook documentation"
 source: "https://lefthook.dev/"
 path: /
-updated: 2026-08-21
+updated: 2026-08-25
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-21T08:12:44.706Z"
+  generated_at: "2026-08-25T14:37:43.181Z"
 ---
 ---
 title: "What is Lefthook?"
