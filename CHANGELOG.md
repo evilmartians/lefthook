@@ -1,5 +1,11 @@
 # Change log
 
+## 2.1.12 (2026-08-28)
+
+- fix: fail the hook when staging fixed files errors ([#1484](https://github.com/evilmartians/lefthook/pull/1484)) by [@teddytennant](https://github.com/teddytennant)
+- fix: LEFTHOOK_OUTPUT precedence ([#1506](https://github.com/evilmartians/lefthook/pull/1506)) by [@Yuki9814](https://github.com/Yuki9814)
+- ci: fix npm publishing by bumping Node to 24 ([#1508](https://github.com/evilmartians/lefthook/pull/1508)) by [@mariokresic](https://github.com/mariokresic)
+
 ## 2.1.11 (2026-08-21)
 
 - fix: inherit terminal size for PTY commands ([#1498](https://github.com/evilmartians/lefthook/pull/1498)) by [@mariokresic](https://github.com/mariokresic)
