@@ -104,11 +104,11 @@
     
     
 
-    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mtcsm78c">
-    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mtcsm78c">
+    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mtcsnyjs">
+    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mtcsnyjs">
     
-    <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=mtcsm78c" id="hljs-light" >
-    <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=mtcsm78c" id="hljs-dark" disabled>
+    <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=mtcsnyjs" id="hljs-light" >
+    <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=mtcsnyjs" id="hljs-dark" disabled>
     
     
 <meta name="description" content="Lefthook documentation.">
@@ -125,11 +125,11 @@
 
 
 
-<link rel="stylesheet" href="../../assets/css/docmd-git.css?v=mtcsm78c" >
-<link rel="stylesheet" href="../../assets/css/docmd-openapi.css?v=mtcsm78c" >
+<link rel="stylesheet" href="../../assets/css/docmd-git.css?v=mtcsnyjs" >
+<link rel="stylesheet" href="../../assets/css/docmd-openapi.css?v=mtcsnyjs" >
 
     
-      <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mtcsm78c">
+      <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mtcsnyjs">
     
     
   </head>
@@ -2911,7 +2911,7 @@
             <div class="content-layout">
               <div class="main-content">
                 <div class="docmd-breadcrumbs-row">
-                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22stage_fixed%22%0A---%0A%0A%23%20%60stage_fixed%60%0A%0A**Default%3A%20%60false%60**%0A%0A%3A%3A%3A%20callout%20info%20Note%0AWorks%20**only**%20for%20the%20%60pre-commit%60%20hook.%0A%3A%3A%3A%0A%0AWhen%20set%20to%20%60true%60%20lefthook%20will%20automatically%20call%20%60git%20add%60%20on%20files%20after%20running%20the%20command%20or%20script.%20For%20a%20command%20if%20%5B%60files%60%5D(.%2Ffiles.md)%20option%20was%20specified%2C%20the%20specified%20command%20will%20be%20used%20to%20retrieve%20files%20for%20%60git%20add%60.%20For%20scripts%20and%20commands%20without%20%5B%60files%60%5D(.%2Ffiles.md)%20option%20%60%7Bstaged_files%7D%60%20template%20will%20be%20used.%20All%20filters%20(%5B%60glob%60%5D(.%2Fglob.md)%2C%20%5B%60exclude%60%5D(.%2Fexclude.md))%20will%20be%20applied%20if%20specified.%0A%0A%23%23%23%23%20Example%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Apre-commit%3A%0A%20%20commands%3A%0A%20%20%20%20lint%3A%0A%20%20%20%20%20%20run%3A%20npm%20run%20lint%20--fix%20%7Bstaged_files%7D%0A%20%20%20%20%20%20stage_fixed%3A%20true%0A%60%60%60%0A" style="display: none;"></div>
+                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22stage_fixed%22%0A---%0A%0A%23%20%60stage_fixed%60%0A%0A**Default%3A%20%60false%60**%0A%0A%3A%3A%3A%20callout%20info%20Note%0AWorks%20**only**%20for%20the%20%60pre-commit%60%20hook.%0A%3A%3A%3A%0A%0AWhen%20set%20to%20%60true%60%20lefthook%20will%20automatically%20call%20%60git%20add%60%20on%20files%20after%20running%20the%20command%20or%20script.%20For%20a%20command%20if%20%5B%60files%60%5D(.%2Ffiles.md)%20option%20was%20specified%2C%20the%20specified%20command%20will%20be%20used%20to%20retrieve%20files%20for%20%60git%20add%60.%20For%20scripts%20and%20commands%20without%20%5B%60files%60%5D(.%2Ffiles.md)%20option%20%60%7Bstaged_files%7D%60%20template%20will%20be%20used.%20All%20filters%20(%5B%60glob%60%5D(.%2Fglob.md)%2C%20%5B%60exclude%60%5D(.%2Fexclude.md))%20will%20be%20applied%20if%20specified.%0A%0AIf%20the%20%60git%20add%60%20call%20fails%2C%20the%20hook%20fails%20too.%20Otherwise%20the%20commit%20would%20silently%20go%20through%20with%20the%20unfixed%20content.%0A%0A%23%23%23%23%20Example%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Apre-commit%3A%0A%20%20commands%3A%0A%20%20%20%20lint%3A%0A%20%20%20%20%20%20run%3A%20npm%20run%20lint%20--fix%20%7Bstaged_files%7D%0A%20%20%20%20%20%20stage_fixed%3A%20true%0A%60%60%60%0A" style="display: none;"></div>
                   
                     <nav aria-label="breadcrumb" class="docmd-breadcrumbs">
                       <ol>
@@ -3054,6 +3054,7 @@
 <p>Works <strong>only</strong> for the <code>pre-commit</code> hook.</p>
 </div></div>
 <p>When set to <code>true</code> lefthook will automatically call <code>git add</code> on files after running the command or script. For a command if <a href="../files/"><code>files</code></a> option was specified, the specified command will be used to retrieve files for <code>git add</code>. For scripts and commands without <a href="../files/"><code>files</code></a> option <code>{staged_files}</code> template will be used. All filters (<a href="../glob/"><code>glob</code></a>, <a href="../exclude/"><code>exclude</code></a>) will be applied if specified.</p>
+<p>If the <code>git add</code> call fails, the hook fails too. Otherwise the commit would silently go through with the unfixed content.</p>
 <h4 id="stagefixed-example" class="docmd-heading"><a href="#stagefixed-example" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Example</h4>
 <pre class="hljs"><code class="language-yml"><span class="hljs-comment"># lefthook.yml</span>
 
@@ -3107,29 +3108,29 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
             <div class="page-footer-actions">
               
               
-                <span class="git-last-updated" data-timestamp="1787911941000">
+                <span class="git-last-updated" data-timestamp="1787912025000">
                   <svg class="git-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
                   <span class="git-label">Last updated:</span>
-                  <span class="git-time" data-timestamp="1787911941000"></span>
+                  <span class="git-time" data-timestamp="1787912025000"></span>
                   
                   <div class="git-commit-tooltip" role="tooltip">
                     <div class="git-tooltip-title">Recent commits</div>
                     <ul class="git-commit-list">
                       
                         <li class="git-commit-item">
-                          <div class="git-commit-avatar" title="Yuki9814">
+                          <div class="git-commit-avatar" title="Teddy Tennant">
                             
-                              <img src="https://www.gravatar.com/avatar/600cb7eb4b69ed9778dd1ebd85b3f40b?d=mp&amp;s=64" alt="Yuki9814">
+                              <img src="https://www.gravatar.com/avatar/0ca0e45d401f4ca8d2c2bdde74701ca0?d=mp&amp;s=64" alt="Teddy Tennant">
                             
                           </div>
                           <div class="git-commit-details">
-                            <div class="git-commit-message" title="fix: LEFTHOOK_OUTPUT precedence (#1506)">fix: LEFTHOOK_OUTPUT precedence (#1506)</div>
+                            <div class="git-commit-message" title="fix: fail the hook when staging fixed files errors (#1484)">fix: fail the hook when staging fixed...</div>
                             <div class="git-commit-meta">
-                              <span class="git-commit-author">Yuki9814</span>
-                              <span class="git-commit-date" data-timestamp="1787911941000"></span>
+                              <span class="git-commit-author">Teddy Tennant</span>
+                              <span class="git-commit-date" data-timestamp="1787912025000"></span>
                             </div>
                           </div>
                         </li>
@@ -3181,13 +3182,13 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
         </div>
       </div>
       
-      <script src="../../assets/js/docmd-main.js?v=mtcsm78c"></script>
+      <script src="../../assets/js/docmd-main.js?v=mtcsnyjs"></script>
       
-      <script src="../../assets/js/docmd-git.js?v=mtcsm78c"></script>
-      <script src="../../assets/js/docmd-image-lightbox.js?v=mtcsm78c" ></script>
-<script src="../../assets/js/vendor/minisearch.js?v=mtcsm78c" ></script>
-<script src="../../assets/js/docmd-search.js?v=mtcsm78c" ></script>
-<script src="../../assets/js/docmd-git.js?v=mtcsm78c" type="module"></script>
+      <script src="../../assets/js/docmd-git.js?v=mtcsnyjs"></script>
+      <script src="../../assets/js/docmd-image-lightbox.js?v=mtcsnyjs" ></script>
+<script src="../../assets/js/vendor/minisearch.js?v=mtcsnyjs" ></script>
+<script src="../../assets/js/docmd-search.js?v=mtcsnyjs" ></script>
+<script src="../../assets/js/docmd-git.js?v=mtcsnyjs" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;" data-show-confidence="false" data-show-filters="true"
