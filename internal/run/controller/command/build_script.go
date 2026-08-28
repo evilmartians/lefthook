@@ -85,7 +85,11 @@ func (b *Builder) buildScript(params *JobParams) ([]string, []string, error) {
 			commands, _ := replacer.ReplaceAndSplit(command, system.MaxCmdLen())
 			execs = append(execs, commands...)
 		} else {
-			args = append(args, b.opts.GitArgs...)
+			// Quote the args to pass them to the script as-is, even if they contain
+			// spaces or shell special characters.
+			for _, gitArg := range b.opts.GitArgs {
+				args = append(args, shellescape.Quote(gitArg))
+			}
 			execs = append(execs, strings.Join(args, " "))
 		}
 	}
