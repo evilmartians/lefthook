@@ -20,10 +20,11 @@ import (
 )
 
 const (
-	minGitVersion     = "2.31.0"
-	stashMessage      = "lefthook auto backup"
-	unstagedPatchName = "lefthook-unstaged.patch"
-	infoDirMode       = 0o775
+	minGitVersion        = "2.31.0"
+	stashMessage         = "lefthook auto backup"
+	unstagedPatchName    = "lefthook-unstaged.patch"
+	unstagedAllPatchName = "lefthook-unstaged-all.patch"
+	infoDirMode          = 0o775
 )
 
 var (
@@ -58,8 +59,9 @@ type Repo struct {
 	GitPath   string
 	InfoPath  string
 
-	unstagedPatchPath string
-	headBranch        string
+	unstagedPatchPath    string
+	unstagedAllPatchPath string
+	headBranch           string
 
 	stagedFilesOnce            func() ([]string, error)
 	stagedFilesWithDeletedOnce func() ([]string, error)
@@ -168,6 +170,7 @@ func (r *Repo) ResetCache() {
 	})
 
 	r.unstagedPatchPath = filepath.Join(r.InfoPath, unstagedPatchName)
+	r.unstagedAllPatchPath = filepath.Join(r.InfoPath, unstagedAllPatchName)
 }
 
 // StagedFiles returns a list of staged files which exist on file system.
@@ -255,6 +258,10 @@ func (r *Repo) SaveUnstagedChanges(files []string) error {
 		return err
 	}
 
+	if err = r.saveAllUnstaged(); err != nil {
+		return err
+	}
+
 	_, err = r.Git.Cmd([]string{
 		"git",
 		"stash",
@@ -290,6 +297,29 @@ func (r *Repo) saveUnstaged(files []string) error {
 		}, files)
 
 	return err
+}
+
+func (r *Repo) saveAllUnstaged() error {
+	_, err := r.Git.Cmd([]string{
+		"git",
+		"diff",
+		"--binary",
+		"--unified=0",
+		"--no-color",
+		"--no-ext-diff",
+		"--src-prefix=a/",
+		"--dst-prefix=b/",
+		"--patch",
+		"--submodule=short",
+		"--output",
+		r.unstagedAllPatchPath,
+		"--",
+	})
+	if err != nil {
+		return fmt.Errorf("failed to save all unstaged changes: %w", err)
+	}
+
+	return nil
 }
 
 func (r *Repo) RevertUnstagedChanges(files []string) error {
@@ -337,41 +367,55 @@ func (r *Repo) CanRestoreUnstagedChanges() bool {
 
 // RestoreUnstagedChanges applies the patch with previously unstaged changes.
 func (r *Repo) RestoreUnstagedChanges() error {
-	if ok, _ := afero.Exists(r.Fs, r.unstagedPatchPath); !ok {
+	return r.restoreUnstagedChanges(r.unstagedPatchPath)
+}
+
+// RestoreAllUnstagedChanges applies all unstaged changes saved before running hooks.
+func (r *Repo) RestoreAllUnstagedChanges() error {
+	return r.restoreUnstagedChanges(r.unstagedAllPatchPath)
+}
+
+func (r *Repo) restoreUnstagedChanges(patchPath string) error {
+	exists, err := afero.Exists(r.Fs, patchPath)
+	if err != nil {
+		return fmt.Errorf("failed to inspect the patch %s: %w", patchPath, err)
+	}
+	if !exists {
 		return nil
 	}
 
-	stat, err := r.Fs.Stat(r.unstagedPatchPath)
+	stat, err := r.Fs.Stat(patchPath)
 	if err != nil {
 		return err
 	}
 
-	if stat.Size() == 0 {
-		err = r.Fs.Remove(r.unstagedPatchPath)
+	if stat.Size() > 0 {
+		_, err = r.Git.Cmd([]string{
+			"git",
+			"apply",
+			"-v",
+			"--whitespace=nowarn",
+			"--recount",
+			"--unidiff-zero",
+			"--",
+			patchPath,
+		})
 		if err != nil {
-			return fmt.Errorf("failed to remove the patch %s: %w", r.unstagedPatchPath, err)
+			return fmt.Errorf("failed to apply the patch %s: %w", patchPath, err)
 		}
-
-		return nil
 	}
 
-	_, err = r.Git.Cmd([]string{
-		"git",
-		"apply",
-		"-v",
-		"--whitespace=nowarn",
-		"--recount",
-		"--unidiff-zero",
-		"--",
-		r.unstagedPatchPath,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to apply the patch %s: %w", r.unstagedPatchPath, err)
-	}
-
-	err = r.Fs.Remove(r.unstagedPatchPath)
-	if err != nil {
-		return fmt.Errorf("failed to remove the patch %s: %w", r.unstagedPatchPath, err)
+	for _, path := range []string{r.unstagedPatchPath, r.unstagedAllPatchPath} {
+		exists, existsErr := afero.Exists(r.Fs, path)
+		if existsErr != nil {
+			return fmt.Errorf("failed to inspect the patch %s: %w", path, existsErr)
+		}
+		if !exists {
+			continue
+		}
+		if err = r.Fs.Remove(path); err != nil {
+			return fmt.Errorf("failed to remove the patch %s: %w", path, err)
+		}
 	}
 
 	if err = r.dropUnstagedStash(); err != nil {
