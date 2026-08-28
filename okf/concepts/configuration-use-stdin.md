@@ -6,7 +6,7 @@ path: /configuration/use_stdin/
 updated: 2026-08-28
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-28T10:14:00.435Z"
+  generated_at: "2026-08-28T10:16:43.988Z"
 ---
 ---
 title: "use_stdin"

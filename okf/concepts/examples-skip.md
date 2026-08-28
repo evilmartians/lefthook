@@ -6,7 +6,7 @@ path: /examples/skip/
 updated: 2026-08-28
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-28T10:14:00.438Z"
+  generated_at: "2026-08-28T10:16:43.990Z"
 ---
 # Skip or run on condition
 

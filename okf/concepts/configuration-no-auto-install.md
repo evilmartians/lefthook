@@ -6,7 +6,7 @@ path: /configuration/no_auto_install/
 updated: 2026-08-28
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-28T10:14:00.422Z"
+  generated_at: "2026-08-28T10:16:43.980Z"
 ---
 ---
 title: "no_auto_install"
