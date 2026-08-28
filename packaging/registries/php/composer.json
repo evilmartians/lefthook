@@ -1,0 +1,35 @@
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "evilmartians/lefthook",
+    "description": "A single dependency-free binary to manage all your git hooks that works with any language in any environment, and in all common team workflows.",
+    "type": "library",
+    "keywords": [
+        "git",
+        "hook",
+        "hooks",
+        "manager",
+        "lefthook"
+    ],
+    "homepage": "https://github.com/evilmartians/lefthook",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Louis Midson LAJEANTY",
+            "email": "midsonlajeanty@proton.me"
+        },
+        {
+            "name": "Evil Martians",
+            "email": "lefthook@evilmartians.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/evilmartians/lefthook/issues",
+        "source": "https://github.com/evilmartians/lefthook"
+    },
+    "require": {
+        "php": ">=7.4"
+    },
+    "bin": [
+        "bin/lefthook"
+    ]
+}
