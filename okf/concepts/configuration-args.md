@@ -3,10 +3,10 @@ type: concept
 title: args
 source: "https://lefthook.dev/configuration/args/"
 path: /configuration/args/
-updated: 2026-08-25
+updated: 2026-08-28
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-25T14:37:43.146Z"
+  generated_at: "2026-08-28T10:12:38.514Z"
 ---
 ---
 title: "args"

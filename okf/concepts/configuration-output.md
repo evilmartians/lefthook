@@ -3,10 +3,10 @@ type: concept
 title: output
 source: "https://lefthook.dev/configuration/output/"
 path: /configuration/output/
-updated: 2026-08-25
+updated: 2026-08-28
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-25T14:37:43.159Z"
+  generated_at: "2026-08-28T10:12:38.528Z"
 ---
 ---
 title: "output"
@@ -38,7 +38,7 @@ output:
   - skips          # Print "skip" (i.e. no files matched)
 ```
 
-You can also *extend* this list with an environment variable `LEFTHOOK_OUTPUT`:
+You can also override this list with the environment variable `LEFTHOOK_OUTPUT`:
 
 ```bash
 LEFTHOOK_OUTPUT="meta,success,summary" lefthook run pre-commit

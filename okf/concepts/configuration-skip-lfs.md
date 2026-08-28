@@ -3,10 +3,10 @@ type: concept
 title: skip_lfs
 source: "https://lefthook.dev/configuration/skip_lfs/"
 path: /configuration/skip_lfs/
-updated: 2026-08-25
+updated: 2026-08-28
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-25T14:37:43.176Z"
+  generated_at: "2026-08-28T10:12:38.537Z"
 ---
 ---
 title: "skip_lfs"

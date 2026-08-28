@@ -104,11 +104,11 @@
     
     
 
-    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mt8rrjgn">
-    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mt8rrjgn">
+    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mtcsm78c">
+    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mtcsm78c">
     
-    <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=mt8rrjgn" id="hljs-light" >
-    <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=mt8rrjgn" id="hljs-dark" disabled>
+    <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=mtcsm78c" id="hljs-light" >
+    <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=mtcsm78c" id="hljs-dark" disabled>
     
     
 <meta name="description" content="Lefthook documentation.">
@@ -125,11 +125,11 @@
 
 
 
-<link rel="stylesheet" href="../../assets/css/docmd-git.css?v=mt8rrjgn" >
-<link rel="stylesheet" href="../../assets/css/docmd-openapi.css?v=mt8rrjgn" >
+<link rel="stylesheet" href="../../assets/css/docmd-git.css?v=mtcsm78c" >
+<link rel="stylesheet" href="../../assets/css/docmd-openapi.css?v=mtcsm78c" >
 
     
-      <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mt8rrjgn">
+      <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mtcsm78c">
     
     
   </head>
@@ -2911,7 +2911,7 @@
             <div class="content-layout">
               <div class="main-content">
                 <div class="docmd-breadcrumbs-row">
-                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22output%22%0A---%0A%0A%23%20%60output%60%0A%0AYou%20can%20manage%20verbosity%20using%20the%20%60output%60%20config.%20You%20can%20specify%20what%20to%20print%20in%20your%20output%20by%20setting%20these%20values%2C%20which%20you%20need%20to%20have%0A%0APossible%20values%20are%20%60meta%2Csummary%2Csuccess%2Cfailure%2Cexecution%2Cexecution_out%2Cexecution_info%2Cskips%60.%0ABy%20default%2C%20all%20output%20values%20are%20enabled%0A%0AYou%20can%20also%20disable%20all%20output%20with%20setting%20%60output%3A%20false%60.%20In%20this%20case%20only%20errors%20will%20be%20printed.%0A%0A%23%23%23%23%20Example%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Aoutput%3A%0A%20%20-%20meta%20%20%20%20%20%20%20%20%20%20%20%23%20Print%20lefthook%20version%0A%20%20-%20summary%20%20%20%20%20%20%20%20%23%20Print%20summary%20block%20(successful%20and%20failed%20steps)%0A%20%20-%20empty_summary%20%20%23%20Print%20summary%20heading%20when%20there%20are%20no%20steps%20to%20run%0A%20%20-%20success%20%20%20%20%20%20%20%20%23%20Print%20successful%20steps%0A%20%20-%20failure%20%20%20%20%20%20%20%20%23%20Print%20failed%20steps%20printing%0A%20%20-%20execution%20%20%20%20%20%20%23%20Print%20any%20execution%20logs%0A%20%20-%20execution_out%20%20%23%20Print%20execution%20output%0A%20%20-%20execution_info%20%23%20Print%20%60EXECUTE%20%3E%20...%60%20logging%0A%20%20-%20skips%20%20%20%20%20%20%20%20%20%20%23%20Print%20%22skip%22%20(i.e.%20no%20files%20matched)%0A%60%60%60%0A%0AYou%20can%20also%20*extend*%20this%20list%20with%20an%20environment%20variable%20%60LEFTHOOK_OUTPUT%60%3A%0A%0A%60%60%60bash%0ALEFTHOOK_OUTPUT%3D%22meta%2Csuccess%2Csummary%22%20lefthook%20run%20pre-commit%0A%60%60%60%0A" style="display: none;"></div>
+                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22output%22%0A---%0A%0A%23%20%60output%60%0A%0AYou%20can%20manage%20verbosity%20using%20the%20%60output%60%20config.%20You%20can%20specify%20what%20to%20print%20in%20your%20output%20by%20setting%20these%20values%2C%20which%20you%20need%20to%20have%0A%0APossible%20values%20are%20%60meta%2Csummary%2Csuccess%2Cfailure%2Cexecution%2Cexecution_out%2Cexecution_info%2Cskips%60.%0ABy%20default%2C%20all%20output%20values%20are%20enabled%0A%0AYou%20can%20also%20disable%20all%20output%20with%20setting%20%60output%3A%20false%60.%20In%20this%20case%20only%20errors%20will%20be%20printed.%0A%0A%23%23%23%23%20Example%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Aoutput%3A%0A%20%20-%20meta%20%20%20%20%20%20%20%20%20%20%20%23%20Print%20lefthook%20version%0A%20%20-%20summary%20%20%20%20%20%20%20%20%23%20Print%20summary%20block%20(successful%20and%20failed%20steps)%0A%20%20-%20empty_summary%20%20%23%20Print%20summary%20heading%20when%20there%20are%20no%20steps%20to%20run%0A%20%20-%20success%20%20%20%20%20%20%20%20%23%20Print%20successful%20steps%0A%20%20-%20failure%20%20%20%20%20%20%20%20%23%20Print%20failed%20steps%20printing%0A%20%20-%20execution%20%20%20%20%20%20%23%20Print%20any%20execution%20logs%0A%20%20-%20execution_out%20%20%23%20Print%20execution%20output%0A%20%20-%20execution_info%20%23%20Print%20%60EXECUTE%20%3E%20...%60%20logging%0A%20%20-%20skips%20%20%20%20%20%20%20%20%20%20%23%20Print%20%22skip%22%20(i.e.%20no%20files%20matched)%0A%60%60%60%0A%0AYou%20can%20also%20override%20this%20list%20with%20the%20environment%20variable%20%60LEFTHOOK_OUTPUT%60%3A%0A%0A%60%60%60bash%0ALEFTHOOK_OUTPUT%3D%22meta%2Csuccess%2Csummary%22%20lefthook%20run%20pre-commit%0A%60%60%60%0A" style="display: none;"></div>
                   
                     <nav aria-label="breadcrumb" class="docmd-breadcrumbs">
                       <ol>
@@ -3019,7 +3019,7 @@ output<span class="hljs-punctuation">:</span>
   <span class="hljs-punctuation">-</span> execution_info <span class="hljs-comment"># Print `EXECUTE &gt; ...` logging</span>
   <span class="hljs-punctuation">-</span> skips          <span class="hljs-comment"># Print &quot;skip&quot; (i.e. no files matched)</span>
 </code></pre>
-<p>You can also <em>extend</em> this list with an environment variable <code>LEFTHOOK_OUTPUT</code>:</p>
+<p>You can also override this list with the environment variable <code>LEFTHOOK_OUTPUT</code>:</p>
 <pre class="hljs"><code class="language-bash">LEFTHOOK_OUTPUT<span class="hljs-punctuation">=</span><span class="hljs-string">&quot;meta,success,summary&quot;</span> lefthook run pre<span class="hljs-punctuation">-</span>commit
 </code></pre>
 
@@ -3066,29 +3066,29 @@ output<span class="hljs-punctuation">:</span>
             <div class="page-footer-actions">
               
               
-                <span class="git-last-updated" data-timestamp="1787668644000">
+                <span class="git-last-updated" data-timestamp="1787911941000">
                   <svg class="git-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
                   <span class="git-label">Last updated:</span>
-                  <span class="git-time" data-timestamp="1787668644000"></span>
+                  <span class="git-time" data-timestamp="1787911941000"></span>
                   
                   <div class="git-commit-tooltip" role="tooltip">
                     <div class="git-tooltip-title">Recent commits</div>
                     <ul class="git-commit-list">
                       
                         <li class="git-commit-item">
-                          <div class="git-commit-avatar" title="Mario Krešić">
+                          <div class="git-commit-avatar" title="Yuki9814">
                             
-                              <img src="https://www.gravatar.com/avatar/196746e46372e2ee62ff8f707a47c69e?d=mp&amp;s=64" alt="Mario Krešić">
+                              <img src="https://www.gravatar.com/avatar/600cb7eb4b69ed9778dd1ebd85b3f40b?d=mp&amp;s=64" alt="Yuki9814">
                             
                           </div>
                           <div class="git-commit-details">
-                            <div class="git-commit-message" title="ci: fix npm publishing by bumping Node to 24 (#1508)">ci: fix npm publishing by bumping Nod...</div>
+                            <div class="git-commit-message" title="fix: LEFTHOOK_OUTPUT precedence (#1506)">fix: LEFTHOOK_OUTPUT precedence (#1506)</div>
                             <div class="git-commit-meta">
-                              <span class="git-commit-author">Mario Krešić</span>
-                              <span class="git-commit-date" data-timestamp="1787668644000"></span>
+                              <span class="git-commit-author">Yuki9814</span>
+                              <span class="git-commit-date" data-timestamp="1787911941000"></span>
                             </div>
                           </div>
                         </li>
@@ -3140,13 +3140,13 @@ output<span class="hljs-punctuation">:</span>
         </div>
       </div>
       
-      <script src="../../assets/js/docmd-main.js?v=mt8rrjgn"></script>
+      <script src="../../assets/js/docmd-main.js?v=mtcsm78c"></script>
       
-      <script src="../../assets/js/docmd-git.js?v=mt8rrjgn"></script>
-      <script src="../../assets/js/docmd-image-lightbox.js?v=mt8rrjgn" ></script>
-<script src="../../assets/js/vendor/minisearch.js?v=mt8rrjgn" ></script>
-<script src="../../assets/js/docmd-search.js?v=mt8rrjgn" ></script>
-<script src="../../assets/js/docmd-git.js?v=mt8rrjgn" type="module"></script>
+      <script src="../../assets/js/docmd-git.js?v=mtcsm78c"></script>
+      <script src="../../assets/js/docmd-image-lightbox.js?v=mtcsm78c" ></script>
+<script src="../../assets/js/vendor/minisearch.js?v=mtcsm78c" ></script>
+<script src="../../assets/js/docmd-search.js?v=mtcsm78c" ></script>
+<script src="../../assets/js/docmd-git.js?v=mtcsm78c" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;" data-show-confidence="false" data-show-filters="true"

@@ -1593,7 +1593,7 @@ output:
   - skips          # Print "skip" (i.e. no files matched)
 ```
 
-You can also *extend* this list with an environment variable `LEFTHOOK_OUTPUT`:
+You can also override this list with the environment variable `LEFTHOOK_OUTPUT`:
 
 ```bash
 LEFTHOOK_OUTPUT="meta,success,summary" lefthook run pre-commit

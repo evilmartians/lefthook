@@ -3,10 +3,10 @@ type: concept
 title: NO_COLOR
 source: "https://lefthook.dev/usage/envs/NO_COLOR/"
 path: /usage/envs/NO_COLOR/
-updated: 2026-08-25
+updated: 2026-08-28
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-25T14:37:43.193Z"
+  generated_at: "2026-08-28T10:12:38.559Z"
 ---
 ---
 title: "NO_COLOR"
