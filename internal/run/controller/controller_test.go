@@ -60,6 +60,8 @@ func TestRunAll(t *testing.T) {
 		gitCommands      []string
 		force            bool
 		skipLFS          bool
+		runOnlyJobs      []string
+		wantErr          bool
 	}{
 		"empty hook": {
 			hookName: "post-commit",
@@ -570,6 +572,28 @@ func TestRunAll(t *testing.T) {
 				"git diff --name-only HEAD @{push}",
 			},
 		},
+		"with --job matching an existing job": {
+			hookName: "post-commit",
+			hook: configtest.ParseHook(`
+        jobs:
+          - name: test
+            run: success
+          - name: lint
+            run: fail
+      `),
+			runOnlyJobs: []string{"test"},
+			success:     []result.Result{succeeded("test")},
+		},
+		"with --job matching nothing": {
+			hookName: "post-commit",
+			hook: configtest.ParseHook(`
+        jobs:
+          - name: test
+            run: success
+      `),
+			runOnlyJobs: []string{"nonexistent"},
+			wantErr:     true,
+		},
 		"with LFS disabled": {
 			hookName: "post-checkout",
 			skipLFS:  true,
@@ -632,13 +656,18 @@ func TestRunAll(t *testing.T) {
 			cmdExecutor.Reset()
 
 			opts := Options{
-				GitArgs:    tt.args,
-				Force:      tt.force,
-				SkipLFS:    tt.skipLFS,
-				SourceDirs: tt.sourceDirs,
+				GitArgs:     tt.args,
+				Force:       tt.force,
+				SkipLFS:     tt.skipLFS,
+				SourceDirs:  tt.sourceDirs,
+				RunOnlyJobs: tt.runOnlyJobs,
 			}
 			tt.hook.Name = tt.hookName
 			results, err := controller.RunHook(t.Context(), opts, tt.hook)
+			if tt.wantErr {
+				assert.Error(err)
+				return
+			}
 			assert.NoError(err)
 
 			var success, fail []result.Result

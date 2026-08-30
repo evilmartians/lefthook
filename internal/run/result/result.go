@@ -27,6 +27,10 @@ func (r Result) Failure() bool {
 	return r.status == failure
 }
 
+func (r Result) Skip() bool {
+	return r.status == skip
+}
+
 func (r Result) Text() string {
 	return r.text
 }
