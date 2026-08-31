@@ -10,7 +10,7 @@ fi
 
 {{- if .Rc}}
 {{/* Load rc file, which may export ENV variables */}}
-[ -f {{.Rc}} ] && . {{.Rc}}
+[ -f "{{.Rc}}" ] && . "{{.Rc}}"
 {{- end}}
 
 call_lefthook()
@@ -21,7 +21,7 @@ call_lefthook()
   {{ if .LefthookPath -}}
   elif test -n "{{ .LefthookPath }}"
   then
-    {{ .LefthookPath }} "$@"
+    "{{ .LefthookPath }}" "$@"
   {{ end -}}
   elif lefthook{{.Extension}} -h >/dev/null 2>&1
   then
@@ -33,9 +33,9 @@ call_lefthook()
     lefthook.bat "$@"
   {{ end -}}
   {{ if .LefthookPathCurrent -}}
-  elif {{ .LefthookPathCurrent }} -h >/dev/null 2>&1
+  elif "{{ .LefthookPathCurrent }}" -h >/dev/null 2>&1
   then
-    {{ .LefthookPathCurrent }} "$@"
+    "{{ .LefthookPathCurrent }}" "$@"
   {{ end -}}
   else
     dir="$(git rev-parse --show-toplevel)"
