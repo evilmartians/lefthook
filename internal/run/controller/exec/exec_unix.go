@@ -80,7 +80,7 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 	e.logger.Debug("[lefthook] run: ", cmdstr)
 	command := exec.CommandContext(ctx, "sh", "-c", cmdstr)
 	command.Dir = args.root
-	command.Env = append(os.Environ(), args.envs...)
+	command.Env = withLefthookEnv(append(os.Environ(), args.envs...))
 
 	switch {
 	case args.interactive || args.useStdin:
