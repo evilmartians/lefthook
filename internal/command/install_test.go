@@ -43,8 +43,28 @@ func TestLefthookInstall(t *testing.T) {
 		wantError               bool
 	}{
 		{
-			name:      "without a config file",
+			name: "without a config file",
 			wantExist: []string{configPath},
+		},
+		{
+			name: "with lefthook-local.yml only",
+			existingFiles: map[string]string{
+				projectPath("lefthook-local.yml"): `
+pre-commit:
+  jobs:
+    - name: check
+      run: echo check
+`,
+			},
+			wantExist: []string{
+				projectPath("lefthook-local.yml"),
+				hookPath("pre-commit"),
+				infoPath(config.ChecksumFileName),
+			},
+			wantNotExist: []string{
+				configPath,
+				hookPath(config.GhostHookName),
+			},
 		},
 		{
 			name: "simple default config",
