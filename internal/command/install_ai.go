@@ -60,7 +60,7 @@ func lefthookRunCommand(bin, hookName string, quoteBin bool) string {
 		bin = shellQuotePath(bin)
 	}
 
-	return bin + lefthookRunSuffix + hookName
+	return "LEFTHOOK_AGENT=1 " + bin + lefthookRunSuffix + hookName
 }
 
 func shellQuotePath(path string) string {
