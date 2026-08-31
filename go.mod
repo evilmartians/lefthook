@@ -16,7 +16,7 @@ require (
 	github.com/kaptinlin/jsonschema v0.9.3
 	github.com/knadh/koanf/maps v0.1.3
 	github.com/knadh/koanf/parsers/json v1.0.0
-	github.com/knadh/koanf/parsers/toml/v2 v2.2.1
+	github.com/knadh/koanf/parsers/toml/v2 v2.2.2
 	github.com/knadh/koanf/parsers/yaml v1.1.1
 	github.com/knadh/koanf/providers/fs v1.0.1
 	github.com/knadh/koanf/providers/rawbytes v1.0.0
