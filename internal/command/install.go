@@ -115,8 +115,29 @@ func (l *Lefthook) readOrCreateConfig() (*config.Config, error) {
 }
 
 func (l *Lefthook) configExists(path string) bool {
-	configPath, _ := l.findMainConfig(path)
-	return configPath != ""
+	_, err := l.findConfig(path)
+	return err == nil
+}
+
+func (l *Lefthook) findConfig(path string) (string, error) {
+	if configPath, err := l.findMainConfig(path); err == nil {
+		return configPath, nil
+	}
+
+	return l.findLocalConfig(path)
+}
+
+func (l *Lefthook) findLocalConfig(path string) (string, error) {
+	for _, name := range config.LocalConfigNames {
+		for _, extension := range config.Extensions {
+			configPath := filepath.Join(path, name+extension)
+			if ok, _ := afero.Exists(l.fs, configPath); ok {
+				return configPath, nil
+			}
+		}
+	}
+
+	return "", errNoConfig
 }
 
 func (l *Lefthook) findMainConfig(path string) (string, error) {
@@ -460,7 +481,7 @@ func (l *Lefthook) checkHooksSynchronized(cfg *config.Config) (bool, []string) {
 }
 
 func (l *Lefthook) configLastUpdateTimestamp() (int64, error) {
-	configPath, err := l.findMainConfig(l.repo.RootPath)
+	configPath, err := l.findConfig(l.repo.RootPath)
 	if err != nil {
 		return 0, err
 	}
