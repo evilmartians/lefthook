@@ -44,11 +44,11 @@ func Hook(hookName string, args Args) []byte {
 	if err = t.Execute(buf, hookTmplData{
 		HookName:                hookName,
 		Extension:               getExtension(),
-		Rc:                      args.Rc,
+		Rc:                      shellDoubleQuote(filepath.ToSlash(args.Rc)),
 		AssertLefthookInstalled: args.AssertLefthookInstalled,
 		Roots:                   args.Roots,
-		LefthookPath:            filepath.ToSlash(strings.ReplaceAll(strings.TrimSpace(args.LefthookPath), "\n", ";")),
-		LefthookPathCurrent:     filepath.ToSlash(lefthookPathCurrent),
+		LefthookPath:            shellDoubleQuote(filepath.ToSlash(strings.ReplaceAll(strings.TrimSpace(args.LefthookPath), "\n", ";"))),
+		LefthookPathCurrent:     shellDoubleQuote(filepath.ToSlash(lefthookPathCurrent)),
 	}); err != nil {
 		panic(err)
 	}
@@ -74,4 +74,18 @@ func getExtension() string {
 		return ".exe"
 	}
 	return ""
+}
+
+// shellDoubleQuote escapes a path for use inside double quotes in /bin/sh.
+func shellDoubleQuote(s string) string {
+	if s == "" {
+		return ""
+	}
+	replacer := strings.NewReplacer(
+		`\`, `\\`,
+		`"`, `\"`,
+		`$`, `\$`,
+		"`", "\\`",
+	)
+	return replacer.Replace(s)
 }
