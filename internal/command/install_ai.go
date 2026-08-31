@@ -52,7 +52,7 @@ func resolveLefthookBin(cfg *config.Config) string {
 }
 
 func lefthookRunCommand(bin, hookName string) string {
-	return bin + lefthookRunSuffix + hookName
+	return "LEFTHOOK_AGENT=1 " + bin + lefthookRunSuffix + hookName
 }
 
 func checkAIHookReferences(provider string, events map[string]string, hooks map[string]*config.Hook) []string {
