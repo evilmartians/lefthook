@@ -26,7 +26,9 @@ type Args struct {
 type hookTmplData struct {
 	HookName                string
 	Extension               string
-	LefthookPath            string
+	LefthookPathTest        string
+	LefthookPathInvoke      string
+	LefthookPathCurrentTest string
 	LefthookPathCurrent     string
 	Rc                      string
 	Roots                   []string
@@ -38,17 +40,22 @@ func Hook(hookName string, args Args) []byte {
 	if err != nil {
 		lefthookPathCurrent = ""
 	}
+	lefthookPathCurrent = filepath.ToSlash(lefthookPathCurrent)
+
+	lefthookPath := filepath.ToSlash(strings.ReplaceAll(strings.TrimSpace(args.LefthookPath), "\n", ";"))
 
 	buf := &bytes.Buffer{}
 	t := template.Must(template.ParseFS(templatesFS, "hook.tmpl"))
 	if err = t.Execute(buf, hookTmplData{
 		HookName:                hookName,
 		Extension:               getExtension(),
-		Rc:                      shellDoubleQuote(filepath.ToSlash(args.Rc)),
+		Rc:                      shellWordForPath(filepath.ToSlash(args.Rc)),
 		AssertLefthookInstalled: args.AssertLefthookInstalled,
 		Roots:                   args.Roots,
-		LefthookPath:            shellDoubleQuote(filepath.ToSlash(strings.ReplaceAll(strings.TrimSpace(args.LefthookPath), "\n", ";"))),
-		LefthookPathCurrent:     shellDoubleQuote(filepath.ToSlash(lefthookPathCurrent)),
+		LefthookPathTest:        shellWordForTest(lefthookPath),
+		LefthookPathInvoke:      shellInvokeForLefthookPath(lefthookPath),
+		LefthookPathCurrentTest: shellWordForPath(lefthookPathCurrent),
+		LefthookPathCurrent:     shellWordForPath(lefthookPathCurrent),
 	}); err != nil {
 		panic(err)
 	}
@@ -76,16 +83,57 @@ func getExtension() string {
 	return ""
 }
 
-// shellDoubleQuote escapes a path for use inside double quotes in /bin/sh.
-func shellDoubleQuote(s string) string {
-	if s == "" {
+// shellWordForPath returns a /bin/sh word for a filesystem path, quoting only when needed.
+func shellWordForPath(path string) string {
+	if path == "" {
 		return ""
 	}
+	if !strings.Contains(path, " ") {
+		return path
+	}
+
+	return `"` + shellEscapeDoubleQuote(path) + `"`
+}
+
+// shellWordForTest returns a double-quoted /bin/sh word for test -n / test -f checks.
+func shellWordForTest(value string) string {
+	if value == "" {
+		return `""`
+	}
+
+	return `"` + shellEscapeDoubleQuote(value) + `"`
+}
+
+// shellInvokeForLefthookPath preserves arbitrary shell commands while quoting path-like values.
+func shellInvokeForLefthookPath(value string) string {
+	if value == "" {
+		return ""
+	}
+	if looksLikeFilePath(value) {
+		return shellWordForPath(value)
+	}
+
+	return value
+}
+
+func looksLikeFilePath(value string) bool {
+	if filepath.IsAbs(value) {
+		return true
+	}
+	if strings.HasPrefix(value, "./") || strings.HasPrefix(value, "../") {
+		return true
+	}
+
+	return strings.Contains(value, "/") &&
+		!strings.Contains(value, " exec ") &&
+		!strings.Contains(value, " run ")
+}
+
+// shellEscapeDoubleQuote escapes characters that break double-quoted /bin/sh words.
+func shellEscapeDoubleQuote(value string) string {
 	replacer := strings.NewReplacer(
 		`\`, `\\`,
 		`"`, `\"`,
-		`$`, `\$`,
-		"`", "\\`",
 	)
-	return replacer.Replace(s)
+	return replacer.Replace(value)
 }

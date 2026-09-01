@@ -31,9 +31,35 @@ func TestHook_QuotesRcPathWithSpaces(t *testing.T) {
 	}
 }
 
-func TestShellDoubleQuoteEscapesEmbeddedQuotes(t *testing.T) {
-	got := shellDoubleQuote(`a"b\c$`)
-	if got != `a\"b\\c\$` {
+func TestHook_PreservesRcShellExpansion(t *testing.T) {
+	rc := `${XDG_CONFIG_HOME:-$HOME/.config}/lefthookrc`
+	out := string(Hook("pre-commit", Args{Rc: rc}))
+
+	if strings.Contains(out, `\$HOME`) || strings.Contains(out, `\$XDG_CONFIG_HOME`) {
+		t.Fatalf("rc path should preserve shell expansion tokens:\n%s", out)
+	}
+	if !strings.Contains(out, `[ -f ${XDG_CONFIG_HOME:-$HOME/.config}/lefthookrc ]`) {
+		t.Fatalf("expected unquoted rc path with shell expansion in:\n%s", out)
+	}
+}
+
+func TestHook_PreservesConfiguredShellCommand(t *testing.T) {
+	out := string(Hook("pre-commit", Args{LefthookPath: "bundle exec lefthook"}))
+
+	if strings.Contains(out, `"bundle exec lefthook" "$@"`) {
+		t.Fatalf("configured shell command must not be quoted as one word:\n%s", out)
+	}
+	if !strings.Contains(out, "bundle exec lefthook \"$@\"") {
+		t.Fatalf("expected unquoted shell command invocation in:\n%s", out)
+	}
+	if !strings.Contains(out, `elif test -n "bundle exec lefthook"`) {
+		t.Fatalf("expected quoted test -n value for shell command in:\n%s", out)
+	}
+}
+
+func TestShellEscapeDoubleQuoteEscapesEmbeddedQuotes(t *testing.T) {
+	got := shellEscapeDoubleQuote(`a"b\c$`)
+	if got != `a\"b\\c$` {
 		t.Fatalf("unexpected escape: %q", got)
 	}
 }
