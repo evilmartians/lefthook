@@ -5,22 +5,45 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 )
 
 const lefthookBinEnv = "LEFTHOOK_BIN"
 
+var (
+	executablePath = os.Executable
+	evalSymlinks   = filepath.EvalSymlinks
+)
+
 // withLefthookEnv prepends the running lefthook binary's directory to PATH and
 // sets LEFTHOOK_BIN so nested hook commands like `run: lefthook validate` work
 // when git invokes hooks with a stripped PATH (see issue #1518).
-func withLefthookEnv(env []string) []string {
-	exe, err := os.Executable()
-	if err != nil || exe == "" {
-		return env
-	}
-	exe, err = filepath.EvalSymlinks(exe)
+func withLefthookEnv(env []string, log *logger.ExecutionLogger) []string {
+	exe, err := executablePath()
 	if err != nil {
+		if log != nil {
+			log.Warnf("Could not enrich hook PATH with lefthook binary: %v\n", err)
+		}
 		return env
 	}
+	if exe == "" {
+		if log != nil {
+			log.Warnf("Could not enrich hook PATH: empty executable path\n")
+		}
+		return env
+	}
+	exe, err = evalSymlinks(exe)
+	if err != nil {
+		if log != nil {
+			log.Warnf("Could not resolve lefthook binary path: %v\n", err)
+		}
+		return env
+	}
+	return enrichEnvWithLefthookBinary(env, exe)
+}
+
+func enrichEnvWithLefthookBinary(env []string, exe string) []string {
 	binDir := filepath.Dir(exe)
 
 	hasBin := false
