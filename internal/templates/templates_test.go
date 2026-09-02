@@ -3,83 +3,163 @@ package templates
 import (
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func TestHook_QuotesPathsWithSpaces(t *testing.T) {
-	binPath := filepath.Join("/tmp", "my project", "bin", "lefthook")
-	out := string(Hook("pre-commit", Args{LefthookPath: binPath}))
-
-	slashPath := filepath.ToSlash(binPath)
-	if !strings.Contains(out, `"`+slashPath+`" "$@"`) {
-		t.Fatalf("expected quoted LefthookPath invocation, got:\n%s", out)
-	}
-	if strings.Contains(out, "elif "+slashPath+" -h") {
-		t.Fatalf("unquoted path with space still present:\n%s", out)
-	}
-}
-
-func TestHook_QuotesRcPathWithSpaces(t *testing.T) {
-	rc := filepath.Join("/tmp", "my project", ".lefthookrc")
-	out := string(Hook("pre-commit", Args{Rc: rc}))
-
-	slashRc := filepath.ToSlash(rc)
-	want := `[ -f "` + slashRc + `" ] && . "` + slashRc + `"`
-	if !strings.Contains(out, want) {
-		t.Fatalf("expected quoted rc path %q in:\n%s", want, out)
+func TestLooksLikeFilePath(t *testing.T) {
+	for name, tt := range map[string]struct {
+		value string
+		want  bool
+	}{
+		"absolute path":                     {value: "/usr/local/bin/lefthook", want: true},
+		"relative path":                       {value: "./bin/lefthook", want: true},
+		"spaced filesystem path":            {value: "/tmp/my project/bin/lefthook", want: true},
+		"bundle exec command":               {value: "bundle exec lefthook", want: false},
+		"env wrapper command":               {value: "/usr/bin/env lefthook", want: false},
+		"relative wrapper with flag":        {value: "./wrapper --flag", want: false},
+		"go tool command":                   {value: "go tool lefthook", want: false},
+		"plain command without slash":       {value: "lefthook", want: false},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tt.want, looksLikeFilePath(tt.value))
+		})
 	}
 }
 
-func TestHook_PreservesRcShellExpansion(t *testing.T) {
-	rc := `${XDG_CONFIG_HOME:-$HOME/.config}/lefthookrc`
-	out := string(Hook("pre-commit", Args{Rc: rc}))
-
-	if strings.Contains(out, `\$HOME`) || strings.Contains(out, `\$XDG_CONFIG_HOME`) {
-		t.Fatalf("rc path should preserve shell expansion tokens:\n%s", out)
-	}
-	if !strings.Contains(out, `[ -f ${XDG_CONFIG_HOME:-$HOME/.config}/lefthookrc ]`) {
-		t.Fatalf("expected unquoted rc path with shell expansion in:\n%s", out)
+func TestShellWordForPath(t *testing.T) {
+	for name, tt := range map[string]struct {
+		in   string
+		want string
+	}{
+		"empty":                {in: "", want: ""},
+		"no spaces":            {in: "/usr/bin/lefthook", want: "/usr/bin/lefthook"},
+		"spaces need quoting":  {in: "/tmp/my project/lefthook", want: `"/tmp/my project/lefthook"`},
+		"preserves expansion":  {in: "${HOME}/my lefthookrc", want: `"${HOME}/my lefthookrc"`},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tt.want, shellWordForPath(tt.in))
+		})
 	}
 }
 
-func TestHook_PreservesConfiguredShellCommand(t *testing.T) {
-	out := string(Hook("pre-commit", Args{LefthookPath: "bundle exec lefthook"}))
-
-	if strings.Contains(out, `"bundle exec lefthook" "$@"`) {
-		t.Fatalf("configured shell command must not be quoted as one word:\n%s", out)
-	}
-	if !strings.Contains(out, "bundle exec lefthook \"$@\"") {
-		t.Fatalf("expected unquoted shell command invocation in:\n%s", out)
-	}
-	if !strings.Contains(out, `elif test -n "bundle exec lefthook"`) {
-		t.Fatalf("expected quoted test -n value for shell command in:\n%s", out)
+func TestShellInvokeForLefthookPath(t *testing.T) {
+	for name, tt := range map[string]struct {
+		in   string
+		want string
+	}{
+		"spaced path":     {in: "/tmp/my project/bin/lefthook", want: `"/tmp/my project/bin/lefthook"`},
+		"shell command":   {in: "bundle exec lefthook", want: "bundle exec lefthook"},
+		"env wrapper":     {in: "/usr/bin/env lefthook", want: "/usr/bin/env lefthook"},
+		"wrapper flag":    {in: "./wrapper --flag", want: "./wrapper --flag"},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tt.want, shellInvokeForLefthookPath(tt.in))
+		})
 	}
 }
 
 func TestShellEscapeDoubleQuoteEscapesEmbeddedQuotes(t *testing.T) {
-	got := shellEscapeDoubleQuote(`a"b\c$`)
-	if got != `a\"b\\c$` {
-		t.Fatalf("unexpected escape: %q", got)
+	assert.Equal(t, `a\"b\\c$`, shellEscapeDoubleQuote(`a"b\c$`))
+}
+
+func TestHook(t *testing.T) {
+	binPath := filepath.Join("/tmp", "my project", "bin", "lefthook")
+	slashPath := filepath.ToSlash(binPath)
+	rcWithSpaces := filepath.ToSlash(filepath.Join("/tmp", "my project", ".lefthookrc"))
+
+	for name, tt := range map[string]struct {
+		args        Args
+		mustContain []string
+		mustExclude []string
+	}{
+		"quotes configured path with spaces": {
+			args: Args{LefthookPath: binPath},
+			mustContain: []string{
+				`"` + slashPath + `" "$@"`,
+			},
+			mustExclude: []string{
+				"elif " + slashPath + " -h",
+			},
+		},
+		"quotes rc path with spaces": {
+			args: Args{Rc: filepath.Join("/tmp", "my project", ".lefthookrc")},
+			mustContain: []string{
+				`[ -f "` + rcWithSpaces + `" ] && . "` + rcWithSpaces + `"`,
+			},
+		},
+		"preserves rc shell expansion": {
+			args: Args{Rc: `${XDG_CONFIG_HOME:-$HOME/.config}/lefthookrc`},
+			mustContain: []string{
+				`[ -f ${XDG_CONFIG_HOME:-$HOME/.config}/lefthookrc ]`,
+			},
+			mustExclude: []string{
+				`\$HOME`,
+				`\$XDG_CONFIG_HOME`,
+			},
+		},
+		"quotes spaced rc path with shell expansion": {
+			args: Args{Rc: `${XDG_CONFIG_HOME:-$HOME/.config}/my lefthookrc`},
+			mustContain: []string{
+				`[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/my lefthookrc" ]`,
+			},
+			mustExclude: []string{
+				`\$HOME`,
+			},
+		},
+		"preserves configured shell command": {
+			args: Args{LefthookPath: "bundle exec lefthook"},
+			mustContain: []string{
+				`bundle exec lefthook "$@"`,
+				`elif test -n "bundle exec lefthook"`,
+			},
+			mustExclude: []string{
+				`"bundle exec lefthook" "$@"`,
+			},
+		},
+		"preserves env wrapper command": {
+			args: Args{LefthookPath: "/usr/bin/env lefthook"},
+			mustContain: []string{
+				`/usr/bin/env lefthook "$@"`,
+			},
+			mustExclude: []string{
+				`"/usr/bin/env lefthook" "$@"`,
+			},
+		},
+		"preserves relative wrapper command": {
+			args: Args{LefthookPath: "./wrapper --flag"},
+			mustContain: []string{
+				`./wrapper --flag "$@"`,
+			},
+			mustExclude: []string{
+				`"./wrapper --flag" "$@"`,
+			},
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			out := string(Hook("pre-commit", tt.args))
+			for _, want := range tt.mustContain {
+				assert.Contains(t, out, want)
+			}
+			for _, omit := range tt.mustExclude {
+				assert.NotContains(t, out, omit)
+			}
+		})
 	}
 }
 
 func TestHook_QuotesExecutablePathWithSpaces(t *testing.T) {
-	t.Chdir(t.TempDir())
 	binDir := filepath.Join(t.TempDir(), "space dir")
-	if err := os.MkdirAll(binDir, 0o755); err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, os.MkdirAll(binDir, 0o755))
 	bin := filepath.Join(binDir, "lefthook")
-	if err := os.WriteFile(bin, []byte("#!/bin/sh\n"), 0o755); err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, os.WriteFile(bin, []byte("#!/bin/sh\n"), 0o755))
 
-	// Simulate install-time executable path baking.
-	t.Setenv("PATH", binDir+string(os.PathListSeparator)+os.Getenv("PATH"))
+	old := hookExecutable
+	hookExecutable = func() (string, error) { return bin, nil }
+	t.Cleanup(func() { hookExecutable = old })
 
 	out := string(Hook("pre-commit", Args{}))
-	if !strings.Contains(out, `"`+filepath.ToSlash(bin)+`" "$@"`) {
-		t.Fatalf("expected quoted executable path in hook:\n%s", out)
-	}
+	assert.Contains(t, out, `"`+filepath.ToSlash(bin)+`" "$@"`)
 }
