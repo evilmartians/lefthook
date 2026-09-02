@@ -16,6 +16,9 @@ const checksumFormat = "%s %d %s\n"
 //go:embed *
 var templatesFS embed.FS
 
+// hookExecutable is os.Executable in production; tests may override it.
+var hookExecutable = os.Executable
+
 type Args struct {
 	Rc                      string
 	LefthookPath            string
@@ -36,7 +39,7 @@ type hookTmplData struct {
 }
 
 func Hook(hookName string, args Args) []byte {
-	lefthookPathCurrent, err := os.Executable()
+	lefthookPathCurrent, err := hookExecutable()
 	if err != nil {
 		lefthookPathCurrent = ""
 	}
@@ -117,6 +120,12 @@ func shellInvokeForLefthookPath(value string) string {
 }
 
 func looksLikeFilePath(value string) bool {
+	if value == "" || containsShellCommandSyntax(value) {
+		return false
+	}
+	if strings.Contains(value, " ") {
+		return strings.Contains(value, "/")
+	}
 	if filepath.IsAbs(value) {
 		return true
 	}
@@ -124,9 +133,24 @@ func looksLikeFilePath(value string) bool {
 		return true
 	}
 
-	return strings.Contains(value, "/") &&
-		!strings.Contains(value, " exec ") &&
-		!strings.Contains(value, " run ")
+	return strings.Contains(value, "/")
+}
+
+func containsShellCommandSyntax(value string) bool {
+	lower := " " + strings.ToLower(value) + " "
+	for _, token := range []string{" exec ", " run ", " tool ", " env "} {
+		if strings.Contains(lower, token) {
+			return true
+		}
+	}
+	if strings.Contains(value, " --") {
+		return true
+	}
+	if strings.Contains(value, " ") && !strings.Contains(value, "/") {
+		return true
+	}
+
+	return false
 }
 
 // shellEscapeDoubleQuote escapes characters that break double-quoted /bin/sh words.
