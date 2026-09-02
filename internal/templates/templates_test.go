@@ -21,10 +21,31 @@ func TestLooksLikeFilePath(t *testing.T) {
 		"env wrapper command":               {value: "/usr/bin/env lefthook", want: false},
 		"relative wrapper with flag":        {value: "./wrapper --flag", want: false},
 		"go tool command":                   {value: "go tool lefthook", want: false},
+		"node relative path command":        {value: "node ./bin/lefthook", want: false},
+		"relative wrapper short flag":       {value: "./wrapper -f", want: false},
 		"plain command without slash":       {value: "lefthook", want: false},
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert.Equal(t, tt.want, looksLikeFilePath(tt.value))
+		})
+	}
+}
+
+func TestShellWordForRc(t *testing.T) {
+	for name, tt := range map[string]struct {
+		in   string
+		want string
+	}{
+		"empty":                         {in: "", want: ""},
+		"plain path":                    {in: "/home/user/.lefthookrc", want: "/home/user/.lefthookrc"},
+		"spaced path":                   {in: "/tmp/my project/.lefthookrc", want: `"/tmp/my project/.lefthookrc"`},
+		"already quoted spaced path":    {in: `"/tmp/my project/.lefthookrc"`, want: `"/tmp/my project/.lefthookrc"`},
+		"expansion without spaces":      {in: "${XDG_CONFIG_HOME:-$HOME/.config}/lefthookrc", want: "${XDG_CONFIG_HOME:-$HOME/.config}/lefthookrc"},
+		"expansion with spaces":         {in: `${XDG_CONFIG_HOME:-$HOME/.config}/my lefthookrc`, want: `"${XDG_CONFIG_HOME:-$HOME/.config}/my lefthookrc"`},
+		"already quoted expansion path": {in: `"${XDG_CONFIG_HOME:-$HOME/.config}/my lefthookrc"`, want: `"${XDG_CONFIG_HOME:-$HOME/.config}/my lefthookrc"`},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tt.want, shellWordForRc(tt.in))
 		})
 	}
 }
@@ -54,6 +75,8 @@ func TestShellInvokeForLefthookPath(t *testing.T) {
 		"shell command":   {in: "bundle exec lefthook", want: "bundle exec lefthook"},
 		"env wrapper":     {in: "/usr/bin/env lefthook", want: "/usr/bin/env lefthook"},
 		"wrapper flag":    {in: "./wrapper --flag", want: "./wrapper --flag"},
+		"node wrapper":    {in: "node ./bin/lefthook", want: "node ./bin/lefthook"},
+		"wrapper -f":      {in: "./wrapper -f", want: "./wrapper -f"},
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert.Equal(t, tt.want, shellInvokeForLefthookPath(tt.in))
@@ -135,6 +158,34 @@ func TestHook(t *testing.T) {
 			},
 			mustExclude: []string{
 				`"./wrapper --flag" "$@"`,
+			},
+		},
+		"preserves node wrapper command": {
+			args: Args{LefthookPath: "node ./bin/lefthook"},
+			mustContain: []string{
+				`node ./bin/lefthook "$@"`,
+			},
+			mustExclude: []string{
+				`"node ./bin/lefthook" "$@"`,
+			},
+		},
+		"preserves already quoted rc path": {
+			args: Args{Rc: `"/tmp/my project/.lefthookrc"`},
+			mustContain: []string{
+				`[ -f "/tmp/my project/.lefthookrc" ] && . "/tmp/my project/.lefthookrc"`,
+			},
+			mustExclude: []string{
+				`\"`,
+			},
+		},
+		"preserves already quoted rc expansion path": {
+			args: Args{Rc: `"${XDG_CONFIG_HOME:-$HOME/.config}/my lefthookrc"`},
+			mustContain: []string{
+				`[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/my lefthookrc" ]`,
+			},
+			mustExclude: []string{
+				`\"`,
+				`\$HOME`,
 			},
 		},
 	} {

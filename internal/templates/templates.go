@@ -52,7 +52,7 @@ func Hook(hookName string, args Args) []byte {
 	if err = t.Execute(buf, hookTmplData{
 		HookName:                hookName,
 		Extension:               getExtension(),
-		Rc:                      shellWordForPath(filepath.ToSlash(args.Rc)),
+		Rc:                      shellWordForRc(filepath.ToSlash(args.Rc)),
 		AssertLefthookInstalled: args.AssertLefthookInstalled,
 		Roots:                   args.Roots,
 		LefthookPathTest:        shellWordForTest(lefthookPath),
@@ -84,6 +84,25 @@ func getExtension() string {
 		return ".exe"
 	}
 	return ""
+}
+
+// shellWordForRc returns a /bin/sh word for an rc file path or documented shell expression.
+func shellWordForRc(value string) string {
+	if value == "" {
+		return ""
+	}
+	trimmed := strings.TrimSpace(value)
+	if strings.HasPrefix(trimmed, `"`) && strings.HasSuffix(trimmed, `"`) {
+		return trimmed
+	}
+	if strings.Contains(trimmed, "$") {
+		if strings.Contains(trimmed, " ") {
+			return `"` + shellEscapeDoubleQuote(trimmed) + `"`
+		}
+		return trimmed
+	}
+
+	return shellWordForPath(trimmed)
 }
 
 // shellWordForPath returns a /bin/sh word for a filesystem path, quoting only when needed.
@@ -137,17 +156,26 @@ func looksLikeFilePath(value string) bool {
 }
 
 func containsShellCommandSyntax(value string) bool {
+	if strings.Contains(value, ";") {
+		return true
+	}
 	lower := " " + strings.ToLower(value) + " "
 	for _, token := range []string{" exec ", " run ", " tool ", " env "} {
 		if strings.Contains(lower, token) {
 			return true
 		}
 	}
-	if strings.Contains(value, " --") {
+	if strings.Contains(value, " --") || strings.Contains(value, " -") {
 		return true
 	}
-	if strings.Contains(value, " ") && !strings.Contains(value, "/") {
+	if strings.Contains(value, " ") && strings.Contains(value, "=") {
 		return true
+	}
+	if idx := strings.Index(value, " "); idx > 0 {
+		first := value[:idx]
+		if !strings.Contains(first, "/") && !filepath.IsAbs(first) {
+			return true
+		}
 	}
 
 	return false
