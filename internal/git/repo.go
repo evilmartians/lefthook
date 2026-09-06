@@ -284,7 +284,7 @@ func (r *Repo) SaveUnstagedChanges(files []string) error {
 	// A linked worktree's git dir has no `info` folder until something
 	// creates it.
 	if err = r.Fs.MkdirAll(r.unstagedPatchDir(), infoDirMode); err != nil {
-		return err
+		return fmt.Errorf("failed to create the unstaged patch directory %s: %w", r.unstagedPatchDir(), err)
 	}
 
 	if err = r.saveUnstaged(files); err != nil {
