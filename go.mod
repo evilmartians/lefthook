@@ -1,6 +1,6 @@
 module github.com/evilmartians/lefthook/v2
 
-go 1.26.4
+go 1.26.6
 
 require (
 	charm.land/lipgloss/v2 v2.0.5

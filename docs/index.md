@@ -49,5 +49,4 @@ pre-commit:
 
 ---
 
-<a href="https://evilmartians.com/?utm_source=lefthook">
-<img src="https://evilmartians.com/badges/sponsored-by-evil-martians.svg" alt="Sponsored by Evil Martians" width="100%" height="54"></a>
+**Lefthook** is built by **[Evil Martians](https://evilmartians.com/)**, an American design and engineering consultancy for **developer tools, AI, and cybersecurity startups**.

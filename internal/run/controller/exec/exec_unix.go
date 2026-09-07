@@ -92,7 +92,7 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 			return err
 		}
 	case isatty.IsTerminal(os.Stdout.Fd()):
-		p, err := pty.Start(command)
+		p, err := startWithInheritedSize(command, os.Stdout)
 		if err != nil {
 			return err
 		}
@@ -126,4 +126,18 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 	defer func() { _ = command.Process.Kill() }()
 
 	return command.Wait()
+}
+
+func startWithInheritedSize(command *exec.Cmd, terminal *os.File) (*os.File, error) {
+	size, err := pty.GetsizeFull(terminal)
+	if err != nil {
+		return nil, fmt.Errorf("get terminal size: %w", err)
+	}
+
+	p, err := pty.StartWithSize(command, size)
+	if err != nil {
+		return nil, fmt.Errorf("start command with PTY: %w", err)
+	}
+
+	return p, nil
 }

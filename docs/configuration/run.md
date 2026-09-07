@@ -131,7 +131,7 @@ pre-commit:
 
 #### Git arguments
 
-Make sure commits are signed.
+Prevent commits from containing multiple sign-offs.
 
 ```yml
 # lefthook.yml

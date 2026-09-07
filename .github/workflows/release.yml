@@ -73,11 +73,11 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Update npm
-        run: npm install -g npm@latest
+        run: npm install -g npm@12
 
       - uses: Raku/setup-raku@v1
       - name: Publish to NPM

@@ -8,7 +8,7 @@ You can provide multiple remote configs if you want to share yours lefthook conf
 
 You can use [`extends`](./extends.md) but the paths must be relative to the remote repository root.
 
-If you provide [`scripts`](./scripts.md) in a remote config file, the [scripts](./source_dir.md) folder must also be in the **root of the repository**.
+If you provide [`scripts`](./scripts.md) in a remote config file, the [script `source_dir`](./source_dir.md) must also be in the **root of the remote repository**.
 
 ::: callout info Note
 Configs are merged in this order: `lefthook.yml` → `remotes` → `lefthook-local.yml`. For simplicity, keep jobs in remote configs independent from other steps.
