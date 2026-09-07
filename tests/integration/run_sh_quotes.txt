@@ -1,0 +1,32 @@
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+
+exec lefthook run quotes
+stdout '<hello world>'
+stdout '<it''s>'
+stdout '<quote"double>'
+stdout '<v a l>'
+stdout 'NO CI'
+
+-- lefthook.yml --
+output:
+  - execution_out
+
+quotes:
+  jobs:
+    - name: double quotes keep words together
+      run: printf '<%s>' "hello world"
+    - name: single quote inside double quotes
+      run: printf '<%s>' "it's"
+    - name: double quote inside single quotes
+      run: printf '<%s>' 'quote"double'
+    - name: quoted variable expansion
+      run: X='v a l'; printf '<%s>' "$X"
+    - name: multiline run with quotes
+      run: |
+        if [ -z "$LEFTHOOK_TEST_UNSET_VAR" ]; then
+          echo "NO CI"
+        else
+          echo "CI"
+        fi
