@@ -1,0 +1,53 @@
+#!/usr/bin/env php
+<?php
+
+$arch = strtolower(php_uname('m'));
+
+if (strpos($arch, 'arm64') === 0 || strpos($arch, 'aarch64') !== false) {
+    $arch = 'arm64'; // Apple Silicon reports arm64/arm64e, Linux reports aarch64.
+} elseif ($arch === 'x86_64' || $arch === 'amd64' || $arch === 'x64') {
+    $arch = 'x64';
+} else {
+    fwrite(STDERR, "lefthook: unknown architecture: " . php_uname('m') . "\n");
+    exit(1);
+}
+
+$os = strtolower(PHP_OS);
+
+if (strpos($os, 'win') !== false) {
+    $os = 'windows';
+} elseif (strpos($os, 'darwin') !== false) {
+    $os = 'darwin';
+} elseif (strpos($os, 'linux') !== false) {
+    $os = 'linux';
+} elseif (strpos($os, 'freebsd') !== false) {
+    $os = 'freebsd';
+} elseif (strpos($os, 'openbsd') !== false) {
+    $os = 'openbsd';
+} else {
+    fwrite(STDERR, "lefthook: unsupported OS: " . PHP_OS . "\n");
+    exit(1);
+}
+
+$binary = __DIR__ . "/../libexec/lefthook-$os-$arch/lefthook";
+if ($os === 'windows') {
+    $binary .= '.exe';
+}
+
+if (!is_file($binary)) {
+    fwrite(STDERR, "lefthook: no binary bundled for $os-$arch ($binary)\n");
+    exit(1);
+}
+
+$process = proc_open(
+    array_merge([$binary], array_slice($argv, 1)),
+    [STDIN, STDOUT, STDERR],
+    $pipes
+);
+
+if (!is_resource($process)) {
+    fwrite(STDERR, "lefthook: failed to start $binary\n");
+    exit(1);
+}
+
+exit(proc_close($process));
