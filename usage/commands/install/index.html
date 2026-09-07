@@ -104,11 +104,11 @@
     
     
 
-    <link id="site-favicon" rel="icon" href="../../../assets/favicon.svg?v=mtqxcs5p">
-    <link rel="stylesheet" href="../../../assets/css/docmd-main.css?v=mtqxcs5p">
+    <link id="site-favicon" rel="icon" href="../../../assets/favicon.svg?v=mtqxdoxz">
+    <link rel="stylesheet" href="../../../assets/css/docmd-main.css?v=mtqxdoxz">
     
-    <link rel="stylesheet" href="../../../assets/css/docmd-highlight-light.css?v=mtqxcs5p" id="hljs-light" >
-    <link rel="stylesheet" href="../../../assets/css/docmd-highlight-dark.css?v=mtqxcs5p" id="hljs-dark" disabled>
+    <link rel="stylesheet" href="../../../assets/css/docmd-highlight-light.css?v=mtqxdoxz" id="hljs-light" >
+    <link rel="stylesheet" href="../../../assets/css/docmd-highlight-dark.css?v=mtqxdoxz" id="hljs-dark" disabled>
     
     
 <meta name="description" content="Lefthook documentation.">
@@ -125,11 +125,11 @@
 
 
 
-<link rel="stylesheet" href="../../../assets/css/docmd-git.css?v=mtqxcs5p" >
-<link rel="stylesheet" href="../../../assets/css/docmd-openapi.css?v=mtqxcs5p" >
+<link rel="stylesheet" href="../../../assets/css/docmd-git.css?v=mtqxdoxz" >
+<link rel="stylesheet" href="../../../assets/css/docmd-openapi.css?v=mtqxdoxz" >
 
     
-      <link rel="stylesheet" href="../../../assets/css/lefthook.css?v=mtqxcs5p">
+      <link rel="stylesheet" href="../../../assets/css/lefthook.css?v=mtqxdoxz">
     
     
   </head>
@@ -2911,7 +2911,7 @@
             <div class="content-layout">
               <div class="main-content">
                 <div class="docmd-breadcrumbs-row">
-                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22lefthook%20install%22%0A---%0A%0A%23%23%20%60lefthook%20install%60%0A%0ACreates%20an%20empty%20%60lefthook.yml%60%20if%20a%20configuration%20file%20does%20not%20exist.%0A%0AInstalls%20configured%20hooks%20to%20Git%20hooks.%0A%0A%3A%3A%3A%20callout%20info%20Note%0AReinstall%20is%20not%20required%20when%20you%20modify%20%60lefthook.yml%60%2C%20the%20configuration%20file%20is%20read%20every%20time%20a%20git%20hook%20is%20run.%0A%3A%3A%3A%0A%0A%3A%3A%3A%20callout%20info%20Note%0ANPM%20package%20%60lefthook%60%20installs%20the%20hooks%20in%20a%20postinstall%20script%20automatically.%20For%20projects%20not%20using%20NPM%20package%20run%20%60lefthook%20install%60%20after%20cloning%20the%20repo.%0A%3A%3A%3A%0A%0A%23%23%23%20Installing%20specific%20hooks%0A%0AYou%20can%20install%20only%20specific%20hooks%20by%20running%20%60lefthook%20install%20%3Chook-1%3E%20%3Chook-2%3E%20...%60.%0A" style="display: none;"></div>
+                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22lefthook%20install%22%0A---%0A%0A%23%23%20%60lefthook%20install%60%0A%0ACreates%20an%20empty%20%60lefthook.yml%60%20if%20a%20configuration%20file%20does%20not%20exist.%0A%0AInstalls%20configured%20hooks%20to%20Git%20hooks.%0A%0A%3A%3A%3A%20callout%20info%20Note%0AReinstall%20is%20not%20required%20when%20you%20modify%20%60lefthook.yml%60%2C%20the%20configuration%20file%20is%20read%20every%20time%20a%20git%20hook%20is%20run.%0A%3A%3A%3A%0A%0A%3A%3A%3A%20callout%20info%20Note%0ANPM%20package%20%60lefthook%60%20installs%20the%20hooks%20in%20a%20postinstall%20script%20automatically.%20For%20projects%20not%20using%20NPM%20package%20run%20%60lefthook%20install%60%20after%20cloning%20the%20repo.%0A%0AThe%20postinstall%20script%20runs%20a%20plain%20%60lefthook%20install%60%2C%20so%20when%20%60core.hooksPath%60%20is%20set%20it%20stops%20and%20prints%20the%20same%20message%20as%20running%20the%20command%20by%20hand.%20Run%20%60lefthook%20install%20--force%60%20or%20%60lefthook%20install%20--reset-hooks-path%60%20once%2C%20deliberately%2C%20to%20resolve%20it.%0A%3A%3A%3A%0A%0A%23%23%23%20Installing%20specific%20hooks%0A%0AYou%20can%20install%20only%20specific%20hooks%20by%20running%20%60lefthook%20install%20%3Chook-1%3E%20%3Chook-2%3E%20...%60.%0A" style="display: none;"></div>
                   
                     <nav aria-label="breadcrumb" class="docmd-breadcrumbs">
                       <ol>
@@ -3008,6 +3008,7 @@
 </div></div>
 <div class="docmd-container callout callout-info"><div class="callout-title">Note</div><div class="callout-content">
 <p>NPM package <code>lefthook</code> installs the hooks in a postinstall script automatically. For projects not using NPM package run <code>lefthook install</code> after cloning the repo.</p>
+<p>The postinstall script runs a plain <code>lefthook install</code>, so when <code>core.hooksPath</code> is set it stops and prints the same message as running the command by hand. Run <code>lefthook install --force</code> or <code>lefthook install --reset-hooks-path</code> once, deliberately, to resolve it.</p>
 </div></div>
 <h3 id="lefthook-install-installing-specific-hooks" class="docmd-heading"><a href="#lefthook-install-installing-specific-hooks" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Installing specific hooks</h3>
 <p>You can install only specific hooks by running <code>lefthook install &lt;hook-1&gt; &lt;hook-2&gt; ...</code>.</p>
@@ -3055,29 +3056,29 @@
             <div class="page-footer-actions">
               
               
-                <span class="git-last-updated" data-timestamp="1788766423000">
+                <span class="git-last-updated" data-timestamp="1788766467000">
                   <svg class="git-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
                   <span class="git-label">Last updated:</span>
-                  <span class="git-time" data-timestamp="1788766423000"></span>
+                  <span class="git-time" data-timestamp="1788766467000"></span>
                   
                   <div class="git-commit-tooltip" role="tooltip">
                     <div class="git-tooltip-title">Recent commits</div>
                     <ul class="git-commit-list">
                       
                         <li class="git-commit-item">
-                          <div class="git-commit-avatar" title="Guflly">
+                          <div class="git-commit-avatar" title="Hamody We">
                             
-                              <img src="https://www.gravatar.com/avatar/46beeb48586d7a707660290bb37036ef?d=mp&amp;s=64" alt="Guflly">
+                              <img src="https://www.gravatar.com/avatar/6a6a1b25419cb0ac3a85de09c40306ce?d=mp&amp;s=64" alt="Hamody We">
                             
                           </div>
                           <div class="git-commit-details">
-                            <div class="git-commit-message" title="docs: quote template run examples (#1472)">docs: quote template run examples (#1...</div>
+                            <div class="git-commit-message" title="fix: don&#039;t force-install hooks from the npm postinstall (#1510)">fix: don&#039;t force-install hooks from t...</div>
                             <div class="git-commit-meta">
-                              <span class="git-commit-author">Guflly</span>
-                              <span class="git-commit-date" data-timestamp="1788766423000"></span>
+                              <span class="git-commit-author">Hamody We</span>
+                              <span class="git-commit-date" data-timestamp="1788766467000"></span>
                             </div>
                           </div>
                         </li>
@@ -3129,13 +3130,13 @@
         </div>
       </div>
       
-      <script src="../../../assets/js/docmd-main.js?v=mtqxcs5p"></script>
+      <script src="../../../assets/js/docmd-main.js?v=mtqxdoxz"></script>
       
-      <script src="../../../assets/js/docmd-git.js?v=mtqxcs5p"></script>
-      <script src="../../../assets/js/docmd-image-lightbox.js?v=mtqxcs5p" ></script>
-<script src="../../../assets/js/vendor/minisearch.js?v=mtqxcs5p" ></script>
-<script src="../../../assets/js/docmd-search.js?v=mtqxcs5p" ></script>
-<script src="../../../assets/js/docmd-git.js?v=mtqxcs5p" type="module"></script>
+      <script src="../../../assets/js/docmd-git.js?v=mtqxdoxz"></script>
+      <script src="../../../assets/js/docmd-image-lightbox.js?v=mtqxdoxz" ></script>
+<script src="../../../assets/js/vendor/minisearch.js?v=mtqxdoxz" ></script>
+<script src="../../../assets/js/docmd-search.js?v=mtqxdoxz" ></script>
+<script src="../../../assets/js/docmd-git.js?v=mtqxdoxz" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;" data-show-confidence="false" data-show-filters="true"

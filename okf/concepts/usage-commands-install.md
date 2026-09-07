@@ -6,7 +6,7 @@ path: /usage/commands/install/
 updated: 2026-09-07
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-07T07:34:03.560Z"
+  generated_at: "2026-09-07T07:34:45.861Z"
 ---
 ---
 title: "lefthook install"
@@ -24,6 +24,8 @@ Reinstall is not required when you modify `lefthook.yml`, the configuration file
 
 ::: callout info Note
 NPM package `lefthook` installs the hooks in a postinstall script automatically. For projects not using NPM package run `lefthook install` after cloning the repo.
+
+The postinstall script runs a plain `lefthook install`, so when `core.hooksPath` is set it stops and prints the same message as running the command by hand. Run `lefthook install --force` or `lefthook install --reset-hooks-path` once, deliberately, to resolve it.
 :::
 
 ### Installing specific hooks
