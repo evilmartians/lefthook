@@ -18,10 +18,10 @@ call_lefthook()
   if test -n "$LEFTHOOK_BIN"
   then
     "$LEFTHOOK_BIN" "$@"
-  {{ if .LefthookPath -}}
-  elif test -n "{{ .LefthookPath }}"
+  {{ if .LefthookPathInvoke -}}
+  elif test -n {{ .LefthookPathTest }}
   then
-    {{ .LefthookPath }} "$@"
+    {{ .LefthookPathInvoke }} "$@"
   {{ end -}}
   elif lefthook{{.Extension}} -h >/dev/null 2>&1
   then
@@ -33,7 +33,7 @@ call_lefthook()
     lefthook.bat "$@"
   {{ end -}}
   {{ if .LefthookPathCurrent -}}
-  elif {{ .LefthookPathCurrent }} -h >/dev/null 2>&1
+  elif {{ .LefthookPathCurrentTest }} -h >/dev/null 2>&1
   then
     {{ .LefthookPathCurrent }} "$@"
   {{ end -}}
