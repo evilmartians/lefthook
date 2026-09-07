@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/evilmartians/lefthook/v2/internal/git"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/cmdtest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/gittest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
@@ -90,9 +91,17 @@ func Test_guard_wrap(t *testing.T) {
 				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", Output: ""},
-				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
+				{Command: "git stash store --quiet --message " + git.StashMessageFor(filepath.Join("root", ".git")) + " <stash-hash>", Output: ""},
 				{Command: "git checkout --force -- file1", Output: ""},
-				{Command: "git stash list", Output: "0: my stash\n1: lefthook auto backup\n2: my second stash\n"},
+				// Entry 1 was left by an older lefthook (no tag), entry 3 belongs to another
+				// worktree (foreign tag), entry 4 is ours: only 1 and 4 get dropped.
+				{
+					Command: "git stash list",
+					Output: "0: my stash\n1: lefthook auto backup\n2: my second stash\n" +
+						"3: lefthook auto backup 0123456789abcdef\n" +
+						"4: " + git.StashMessageFor(filepath.Join("root", ".git")) + "\n",
+				},
+				{Command: "git stash drop --quiet -- 4", Output: ""},
 				{Command: "git stash drop --quiet -- 1", Output: ""},
 			},
 		},
@@ -105,7 +114,7 @@ func Test_guard_wrap(t *testing.T) {
 				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", Output: ""},
-				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
+				{Command: "git stash store --quiet --message " + git.StashMessageFor(filepath.Join("root", ".git")) + " <stash-hash>", Output: ""},
 				{Command: "git checkout --force -- file1", Output: ""},
 				{Command: "git status --short --porcelain -z", Output: "A file1\x00"},
 				// job run
@@ -124,7 +133,7 @@ func Test_guard_wrap(t *testing.T) {
 				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", Output: ""},
-				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
+				{Command: "git stash store --quiet --message " + git.StashMessageFor(filepath.Join("root", ".git")) + " <stash-hash>", Output: ""},
 				{Command: "git checkout --force -- file1", Output: ""},
 				{Command: "git status --short --porcelain -z", Output: "A  file1\x00"},
 				{Command: "git hash-object -- file1", Output: "hash1\n"},
@@ -256,7 +265,7 @@ func Test_guard_wrap_stageFixed(t *testing.T) {
 				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", Output: ""},
-				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
+				{Command: "git stash store --quiet --message " + git.StashMessageFor(filepath.Join("root", ".git")) + " <stash-hash>", Output: ""},
 				{Command: "git checkout --force -- file1", Output: ""},
 				{Command: "git add --force -- file2", Err: errStaging},
 			},
