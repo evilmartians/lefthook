@@ -3,10 +3,10 @@ type: concept
 title: templates
 source: "https://lefthook.dev/configuration/templates/"
 path: /configuration/templates/
-updated: 2026-08-28
+updated: 2026-09-07
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-08-28T10:16:43.988Z"
+  generated_at: "2026-09-07T07:34:03.546Z"
 ---
 ---
 title: "templates"
@@ -33,7 +33,7 @@ templates:
 pre-commit:
   jobs:
     # Will run: `bundle exec rubocop -- file1 file2 file3 ...`
-    - run: {dip} bundle exec rubocop -- {staged_files}
+    - run: "{dip} bundle exec rubocop -- {staged_files}"
 ```
 
 ```yml
@@ -53,7 +53,7 @@ templates:
 
 pre-commit:
   jobs:
-    - run: {wrapper} yarn format
-    - run: {wrapper} yarn lint
-    - run: {wrapper} yarn test
+    - run: "{wrapper} yarn format"
+    - run: "{wrapper} yarn lint"
+    - run: "{wrapper} yarn test"
 ```
