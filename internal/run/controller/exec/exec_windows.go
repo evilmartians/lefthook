@@ -84,7 +84,7 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 		CmdLine: cmdLine,
 	}
 	command.Dir = args.root
-	command.Env = append(os.Environ(), args.envs...)
+	command.Env = withLefthookEnv(append(os.Environ(), args.envs...), e.logger)
 
 	command.Stdout = args.out
 	command.Stdin = args.in
