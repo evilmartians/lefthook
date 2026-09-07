@@ -145,6 +145,25 @@ post-commit:
 			},
 		},
 		{
+			name: "with local config only",
+			existingFiles: map[string]string{
+				projectPath("lefthook-local.yml"): `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+`,
+			},
+			wantExist: []string{
+				hookPath("pre-commit"),
+				infoPath(config.ChecksumFileName),
+			},
+			wantNotExist: []string{
+				configPath,
+				hookPath(config.GhostHookName),
+			},
+		},
+		{
 			name: "with existing lefthook hooks",
 			config: `
 pre-commit:
