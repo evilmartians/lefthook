@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
-	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -27,28 +26,21 @@ type hookTmplData struct {
 	HookName                string
 	Extension               string
 	LefthookPath            string
-	LefthookPathCurrent     string
 	Rc                      string
 	Roots                   []string
 	AssertLefthookInstalled bool
 }
 
 func Hook(hookName string, args Args) []byte {
-	lefthookPathCurrent, err := os.Executable()
-	if err != nil {
-		lefthookPathCurrent = ""
-	}
-
 	buf := &bytes.Buffer{}
 	t := template.Must(template.ParseFS(templatesFS, "hook.tmpl"))
-	if err = t.Execute(buf, hookTmplData{
+	if err := t.Execute(buf, hookTmplData{
 		HookName:                hookName,
 		Extension:               getExtension(),
 		Rc:                      args.Rc,
 		AssertLefthookInstalled: args.AssertLefthookInstalled,
 		Roots:                   args.Roots,
 		LefthookPath:            filepath.ToSlash(strings.ReplaceAll(strings.TrimSpace(args.LefthookPath), "\n", ";")),
-		LefthookPathCurrent:     filepath.ToSlash(lefthookPathCurrent),
 	}); err != nil {
 		panic(err)
 	}
