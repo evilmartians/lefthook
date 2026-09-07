@@ -6,7 +6,7 @@ path: /examples/filters/
 updated: 2026-09-07
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-07T07:34:45.852Z"
+  generated_at: "2026-09-07T07:37:00.177Z"
 ---
 # Filters
 
