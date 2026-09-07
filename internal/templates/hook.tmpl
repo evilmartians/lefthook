@@ -33,9 +33,9 @@ call_lefthook()
     lefthook.bat "$@"
   {{ end -}}
   {{ if .LefthookPathCurrent -}}
-  elif {{ .LefthookPathCurrent }} -h >/dev/null 2>&1
+  elif {{ shellescape .LefthookPathCurrent }} -h >/dev/null 2>&1
   then
-    {{ .LefthookPathCurrent }} "$@"
+    {{ shellescape .LefthookPathCurrent }} "$@"
   {{ end -}}
   else
     dir="$(git rev-parse --show-toplevel)"

@@ -40,8 +40,10 @@ func Hook(hookName string, args Args) []byte {
 	}
 
 	buf := &bytes.Buffer{}
-	t := template.Must(template.ParseFS(templatesFS, "hook.tmpl"))
-	if err = t.Execute(buf, hookTmplData{
+	t := template.Must(template.New("hook.tmpl").Funcs(template.FuncMap{
+		"shellescape": shellescape,
+	}).ParseFS(templatesFS, "hook.tmpl"))
+	if err = t.ExecuteTemplate(buf, "hook.tmpl", hookTmplData{
 		HookName:                hookName,
 		Extension:               getExtension(),
 		Rc:                      args.Rc,
@@ -74,4 +76,14 @@ func getExtension() string {
 		return ".exe"
 	}
 	return ""
+}
+
+// shellescape wraps a value in POSIX single quotes so it is passed to the
+// generated hook verbatim. It is used for the auto-detected executable path
+// (os.Executable), which the user cannot quote themselves: a path with a
+// space was word-split and silently disabled every hook. The user-supplied
+// `lefthook` and `rc` values are intentionally not escaped, since they are
+// documented as commands and shell-expanded paths.
+func shellescape(value string) string {
+	return "'" + strings.ReplaceAll(value, "'", `'\''`) + "'"
 }
