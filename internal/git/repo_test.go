@@ -285,11 +285,11 @@ func TestPushFiles(t *testing.T) {
 			switch command {
 			case "git diff --name-only HEAD @{push}":
 				return errors.New("no upstream configured")
-			case "git diff --name-only HEAD dev --":
+			case "git diff --name-only HEAD origin/dev --":
 				_, err := out.Write([]byte("other.txt\n"))
 				return err
-			case "git diff --name-only HEAD dev":
-				return errors.New("fatal: ambiguous argument 'dev': both revision and filename")
+			case "git diff --name-only HEAD origin/dev":
+				return errors.New("fatal: ambiguous argument 'origin/dev': both revision and filename")
 			default:
 				t.Fatalf("unexpected command: %s", command)
 				return nil
@@ -312,6 +312,64 @@ func TestPushFiles(t *testing.T) {
 		}
 
 		if want := []string{"other.txt"}; len(files) != len(want) || files[0] != want[0] {
+			t.Fatalf("expected %v, got %v", want, files)
+		}
+	})
+
+	t.Run("falls back to the remote-tracking ref when no local branch of that name exists", func(t *testing.T) {
+		fs := afero.NewMemMapFs()
+		root := "/repo"
+		gitPath := filepath.Join(root, ".git")
+		originHead := filepath.Join(gitPath, "refs", "remotes", "origin", "HEAD")
+
+		if err := fs.MkdirAll(root, 0o755); err != nil {
+			t.Fatalf("unexpected error: %s", err)
+		}
+		if err := fs.MkdirAll(filepath.Dir(originHead), 0o755); err != nil {
+			t.Fatalf("unexpected error: %s", err)
+		}
+		if err := afero.WriteFile(fs, filepath.Join(root, "file.txt"), []byte("changed"), 0o644); err != nil {
+			t.Fatalf("unexpected error: %s", err)
+		}
+		if err := afero.WriteFile(fs, originHead, []byte("ref: refs/remotes/origin/main\n"), 0o644); err != nil {
+			t.Fatalf("unexpected error: %s", err)
+		}
+
+		cmd := cmdtest.NewTracking(func(command string, _ string, out io.Writer) error {
+			switch command {
+			case "git diff --name-only HEAD @{push}":
+				// A branch pushed for the first time has no upstream yet.
+				return errors.New("fatal: no upstream configured for branch 'feature'")
+			case "git diff --name-only HEAD main --":
+				// There is no local branch named "main" in this clone (e.g.
+				// someone who always branches straight off origin/main), so
+				// this must never be run.
+				return errors.New("fatal: bad revision 'main'")
+			case "git diff --name-only HEAD origin/main --":
+				_, err := out.Write([]byte("file.txt\n"))
+				return err
+			default:
+				t.Fatalf("unexpected command: %s", command)
+				return nil
+			}
+		})
+
+		logger := loggertest.New()
+		repository := &Repo{
+			Fs:       fs,
+			RootPath: root,
+			GitPath:  gitPath,
+			Git:      NewCommander(cmd, logger),
+			logger:   logger,
+		}
+		repository.ResetCache()
+
+		files, err := repository.PushFiles()
+		if err != nil {
+			t.Fatalf("unexpected error: %s", err)
+		}
+
+		if want := []string{"file.txt"}; len(files) != len(want) || files[0] != want[0] {
 			t.Fatalf("expected %v, got %v", want, files)
 		}
 	})
