@@ -10,12 +10,12 @@ Added in lefthook `1.10.0`
 
 Jobs provide a flexible way to define tasks, supporting both commands and scripts. Jobs can be grouped for advanced flow control.
 
-Named jobs are merged across [`extends`](./extends.md) and local config; unnamed jobs are appended in definition order. Groups can include other jobs with their own parallel or piped flow — `glob`, `root`, and `exclude` on a group apply to all nested jobs.
+Named jobs are merged across [`extends`](./extends.md) and local config; unnamed jobs are appended in definition order. Groups can include other jobs with their own parallel or piped flow — `glob`, `root`, `exclude`, `env`, and `files` on a group apply to all nested jobs.
 
 #### Example
 
 ::: callout info Note
-Currently, only `root`, `glob`, and `exclude` options are applied to group jobs. Other options must be set for each job individually. Submit a [feature request](https://github.com/evilmartians/lefthook/issues/new?assignees=&labels=feature+request&projects=&template=feature_request.md) if this limits your workflow.
+Currently, only `root`, `glob`, `exclude`, `env`, and `files` options are applied to group jobs. Other options must be set for each job individually. Submit a [feature request](https://github.com/evilmartians/lefthook/issues/new?assignees=&labels=feature+request&projects=&template=feature_request.md) if this limits your workflow.
 :::
 
 A configuration demonstrating a piped group running in parallel with other jobs:
