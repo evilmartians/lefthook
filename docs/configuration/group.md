@@ -25,7 +25,7 @@ pre-commit:
           - run: echo 3
 ```
 
-If you specify `env`, `root`, `glob`, `exclude`, or `files` on a group, they will be inherited to the underlying jobs. The `files` command is executed for every nested job that uses the `{files}` template; a nested job can define its own `files` to override it.
+If you specify `env`, `root`, `glob`, `exclude`, or `files` on a group, they will be inherited to the underlying jobs.
 
 ```yml
 # lefthook.yml
@@ -39,14 +39,29 @@ pre-commit:
       exclude:
         - "README.md"
       root: "subdir/"
-      files: git diff --name-only master
       group:
         parallel: true
         jobs:
-          - run: echo $E1 {files}
-          - run: echo $E1 {files}
+          - run: echo $E1
+          - run: echo $E1
             env:
               E1: bonjour
+```
+
+A `files` command set on a group is executed for every nested job that uses the `{files}` template. A nested job can define its own `files` to override it.
+
+```yml
+# lefthook.yml
+
+pre-commit:
+  jobs:
+    - glob:
+        - "*.py"
+      files: git diff --name-only master
+      group:
+        jobs:
+          - run: ruff check {files}
+          - run: ruff format --check {files}
             files: git ls-files
 ```
 
