@@ -162,6 +162,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 			}
 
 			files = filter.New(c.git.Fs, c.logger, filter.Params{
+				RepoRoot:     c.git.RootPath,
 				Glob:         scope.glob,
 				Root:         scope.root,
 				ExcludeFiles: scope.excludeFiles,
