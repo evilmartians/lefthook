@@ -3,6 +3,10 @@ package filter
 import (
 	"fmt"
 	"testing"
+
+	"github.com/spf13/afero"
+
+	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
 
 func slicesEqual(a, b []string) bool {
@@ -220,6 +224,42 @@ func TestByRoot(t *testing.T) {
 			result := byRoot(tt.source, tt.path)
 			if !slicesEqual(result, tt.result) {
 				t.Errorf("expected %v to be equal to %v", result, tt.result)
+			}
+		})
+	}
+}
+
+func TestByTypeResolvesPathsFromRepoRoot(t *testing.T) {
+	for i, tt := range [...]struct {
+		repoRoot, root string
+		source, result []string
+	}{
+		{
+			repoRoot: "/repo",
+			source:   []string{"subdir/file.txt", "subdir/missing.txt"},
+			result:   []string{"subdir/file.txt"},
+		},
+		{
+			repoRoot: "/repo",
+			root:     "subdir",
+			source:   []string{"./file.txt"},
+			result:   []string{"./file.txt"},
+		},
+		{
+			source: []string{"subdir/file.txt"},
+			result: []string{},
+		},
+	} {
+		t.Run(fmt.Sprintf("%d:", i), func(t *testing.T) {
+			fs := afero.NewMemMapFs()
+			if err := afero.WriteFile(fs, "/repo/subdir/file.txt", []byte("some text"), 0o644); err != nil {
+				t.Fatal(err)
+			}
+
+			f := New(fs, loggertest.NewExecution(), Params{RepoRoot: tt.repoRoot, Root: tt.root})
+			res := f.byType(fs, tt.source, []string{"text"})
+			if !slicesEqual(res, tt.result) {
+				t.Errorf("expected %v to be equal to %v", res, tt.result)
 			}
 		})
 	}
