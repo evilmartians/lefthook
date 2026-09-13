@@ -4,6 +4,8 @@ import (
 	"io"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestColorsSetting(t *testing.T) {
@@ -29,9 +31,7 @@ func TestColorsSetting(t *testing.T) {
 			}
 
 			painted := l.Paint(ColorRed, "text")
-			if colorful := strings.Contains(painted, "\x1b["); colorful != tt.colorful {
-				t.Errorf("expected colorful output to be %v, got: %q", tt.colorful, painted)
-			}
+			assert.Equal(t, tt.colorful, strings.Contains(painted, "\x1b["), "painted: %q", painted)
 		})
 	}
 }
