@@ -36,21 +36,27 @@ func (c ColorsSetting) get(color Color) color.Color {
 	return c.colors[color]
 }
 
+var profile = colorprofile.Detect(os.Stdout, os.Environ())
+
 var (
-	profile  = colorprofile.Detect(os.Stdout, os.Environ())
-	complete = lipgloss.Complete(profile)
+	DefaultColors ColorsSetting = colorsForProfile(profile)
+	forcedColors  ColorsSetting = colorsForProfile(max(profile, colorprofile.ANSI))
 )
 
-var DefaultColors ColorsSetting = ColorsSetting{
-	kind: colorsEnabled,
-	colors: map[Color]color.Color{
-		ColorCyan:   complete(lipgloss.Color("14"), lipgloss.Color("73"), lipgloss.Color("#5FAFAF")),
-		ColorGray:   complete(lipgloss.Color("8"), lipgloss.Color("102"), lipgloss.Color("#878787")),
-		ColorGreen:  complete(lipgloss.Color("2"), lipgloss.Color("34"), lipgloss.Color("#00AF00")),
-		ColorRed:    complete(lipgloss.Color("9"), lipgloss.Color("203"), lipgloss.Color("#FF5F5F")),
-		ColorYellow: complete(lipgloss.Color("3"), lipgloss.Color("3"), lipgloss.Color("#808000")),
-		ColorWhite:  complete(lipgloss.Color("15"), lipgloss.Color("15"), lipgloss.Color("#FFFFFF")),
-	},
+func colorsForProfile(profile colorprofile.Profile) ColorsSetting {
+	complete := lipgloss.Complete(profile)
+
+	return ColorsSetting{
+		kind: colorsEnabled,
+		colors: map[Color]color.Color{
+			ColorCyan:   complete(lipgloss.Color("14"), lipgloss.Color("73"), lipgloss.Color("#5FAFAF")),
+			ColorGray:   complete(lipgloss.Color("8"), lipgloss.Color("102"), lipgloss.Color("#878787")),
+			ColorGreen:  complete(lipgloss.Color("2"), lipgloss.Color("34"), lipgloss.Color("#00AF00")),
+			ColorRed:    complete(lipgloss.Color("9"), lipgloss.Color("203"), lipgloss.Color("#FF5F5F")),
+			ColorYellow: complete(lipgloss.Color("3"), lipgloss.Color("3"), lipgloss.Color("#808000")),
+			ColorWhite:  complete(lipgloss.Color("15"), lipgloss.Color("15"), lipgloss.Color("#FFFFFF")),
+		},
+	}
 }
 
 var NoColors ColorsSetting = ColorsSetting{
@@ -88,7 +94,7 @@ func (l *Logger) EnableColors() {
 		return
 	}
 
-	l.colors = DefaultColors
+	l.colors = forcedColors
 	l.colorsForced = true
 }
 
