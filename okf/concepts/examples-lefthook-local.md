@@ -6,7 +6,7 @@ path: /examples/lefthook-local/
 updated: 2026-09-14
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-14T08:53:02.759Z"
+  generated_at: "2026-09-14T08:53:42.262Z"
 ---
 # lefthook-local.yml
 

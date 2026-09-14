@@ -6,7 +6,7 @@ path: /installation/winget/
 updated: 2026-09-14
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-14T08:53:02.768Z"
+  generated_at: "2026-09-14T08:53:42.272Z"
 ---
 ---
 title: "Winget"

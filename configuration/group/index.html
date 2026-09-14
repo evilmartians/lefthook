@@ -104,11 +104,11 @@
     
     
 
-    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mu109boq">
-    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mu109boq">
+    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mu10a5yx">
+    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mu10a5yx">
     
-    <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=mu109boq" id="hljs-light" >
-    <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=mu109boq" id="hljs-dark" disabled>
+    <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=mu10a5yx" id="hljs-light" >
+    <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=mu10a5yx" id="hljs-dark" disabled>
     
     
 <meta name="description" content="Lefthook documentation.">
@@ -125,11 +125,11 @@
 
 
 
-<link rel="stylesheet" href="../../assets/css/docmd-git.css?v=mu109boq" >
-<link rel="stylesheet" href="../../assets/css/docmd-openapi.css?v=mu109boq" >
+<link rel="stylesheet" href="../../assets/css/docmd-git.css?v=mu10a5yx" >
+<link rel="stylesheet" href="../../assets/css/docmd-openapi.css?v=mu10a5yx" >
 
     
-      <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mu109boq">
+      <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mu10a5yx">
     
     
   </head>
@@ -2911,7 +2911,7 @@
             <div class="content-layout">
               <div class="main-content">
                 <div class="docmd-breadcrumbs-row">
-                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22group%22%0A---%0A%0A%23%20%60group%60%0A%0AYou%20can%20define%20a%20group%20of%20jobs%20and%20configure%20how%20they%20should%20execute%20using%20the%20following%20options%3A%0A%0A-%20%5B%60parallel%60%5D(.%2Fparallel.md)%3A%20Executes%20all%20jobs%20in%20the%20group%20simultaneously.%0A-%20%5B%60piped%60%5D(.%2Fpiped.md)%3A%20Executes%20jobs%20sequentially%2C%20passing%20output%20between%20them.%0A-%20%5B%60jobs%60%5D(.%2Fjobs.md)%3A%20Specifies%20the%20jobs%20within%20the%20group.%0A%0A%23%23%23%23%20Example%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Apre-commit%3A%0A%20%20jobs%3A%0A%20%20%20%20-%20group%3A%0A%20%20%20%20%20%20%20%20parallel%3A%20true%0A%20%20%20%20%20%20%20%20jobs%3A%0A%20%20%20%20%20%20%20%20%20%20-%20run%3A%20echo%201%0A%20%20%20%20%20%20%20%20%20%20-%20run%3A%20echo%202%0A%20%20%20%20%20%20%20%20%20%20-%20run%3A%20echo%203%0A%60%60%60%0A%0AIf%20you%20specify%20%60env%60%2C%20%60root%60%2C%20%60glob%60%2C%20or%20%60exclude%60%20on%20a%20group%2C%20they%20will%20be%20inherited%20to%20the%20underlying%20jobs.%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Apre-commit%3A%0A%20%20jobs%3A%0A%20%20%20%20-%20env%3A%0A%20%20%20%20%20%20%20%20E1%3A%20hello%0A%20%20%20%20%20%20glob%3A%0A%20%20%20%20%20%20%20%20-%20%22*.md%22%0A%20%20%20%20%20%20exclude%3A%0A%20%20%20%20%20%20%20%20-%20%22README.md%22%0A%20%20%20%20%20%20root%3A%20%22subdir%2F%22%0A%20%20%20%20%20%20group%3A%0A%20%20%20%20%20%20%20%20parallel%3A%20true%0A%20%20%20%20%20%20%20%20jobs%3A%0A%20%20%20%20%20%20%20%20%20%20-%20run%3A%20echo%20%24E1%0A%20%20%20%20%20%20%20%20%20%20-%20run%3A%20echo%20%24E1%0A%20%20%20%20%20%20%20%20%20%20%20%20env%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20E1%3A%20bonjour%0A%60%60%60%0A%0A%3A%3A%3A%20callout%20info%20Note%0ATo%20make%20a%20group%20mergeable%20with%20settings%20defined%20in%20local%20config%20or%20extends%20you%20have%20to%20specify%20the%20name%20of%20the%20job%20group%20belongs%20to%3A%0A%60%60%60yml%0Apre-commit%3A%0A%20%20jobs%3A%0A%20%20%20%20-%20name%3A%20a%20name%20of%20a%20group%0A%20%20%20%20%20%20group%3A%0A%20%20%20%20%20%20%20%20jobs%3A%0A%20%20%20%20%20%20%20%20%20%20-%20name%3A%20lint%0A%20%20%20%20%20%20%20%20%20%20%20%20run%3A%20yarn%20lint%0A%20%20%20%20%20%20%20%20%20%20-%20name%3A%20test%0A%20%20%20%20%20%20%20%20%20%20%20%20run%3A%20yarn%20test%0A%60%60%60%0A%3A%3A%3A%0A" style="display: none;"></div>
+                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22group%22%0A---%0A%0A%23%20%60group%60%0A%0AYou%20can%20define%20a%20group%20of%20jobs%20and%20configure%20how%20they%20should%20execute%20using%20the%20following%20options%3A%0A%0A-%20%5B%60parallel%60%5D(.%2Fparallel.md)%3A%20Executes%20all%20jobs%20in%20the%20group%20simultaneously.%0A-%20%5B%60piped%60%5D(.%2Fpiped.md)%3A%20Executes%20jobs%20sequentially%2C%20passing%20output%20between%20them.%0A-%20%5B%60jobs%60%5D(.%2Fjobs.md)%3A%20Specifies%20the%20jobs%20within%20the%20group.%0A%0A%23%23%23%23%20Example%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Apre-commit%3A%0A%20%20jobs%3A%0A%20%20%20%20-%20group%3A%0A%20%20%20%20%20%20%20%20parallel%3A%20true%0A%20%20%20%20%20%20%20%20jobs%3A%0A%20%20%20%20%20%20%20%20%20%20-%20run%3A%20echo%201%0A%20%20%20%20%20%20%20%20%20%20-%20run%3A%20echo%202%0A%20%20%20%20%20%20%20%20%20%20-%20run%3A%20echo%203%0A%60%60%60%0A%0AIf%20you%20specify%20%60env%60%2C%20%60root%60%2C%20%60glob%60%2C%20%60exclude%60%2C%20or%20%60files%60%20on%20a%20group%2C%20they%20will%20be%20inherited%20to%20the%20underlying%20jobs.%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Apre-commit%3A%0A%20%20jobs%3A%0A%20%20%20%20-%20env%3A%0A%20%20%20%20%20%20%20%20E1%3A%20hello%0A%20%20%20%20%20%20glob%3A%0A%20%20%20%20%20%20%20%20-%20%22*.md%22%0A%20%20%20%20%20%20exclude%3A%0A%20%20%20%20%20%20%20%20-%20%22README.md%22%0A%20%20%20%20%20%20root%3A%20%22subdir%2F%22%0A%20%20%20%20%20%20group%3A%0A%20%20%20%20%20%20%20%20parallel%3A%20true%0A%20%20%20%20%20%20%20%20jobs%3A%0A%20%20%20%20%20%20%20%20%20%20-%20run%3A%20echo%20%24E1%0A%20%20%20%20%20%20%20%20%20%20-%20run%3A%20echo%20%24E1%0A%20%20%20%20%20%20%20%20%20%20%20%20env%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20E1%3A%20bonjour%0A%60%60%60%0A%0AA%20%60files%60%20command%20set%20on%20a%20group%20is%20executed%20for%20every%20nested%20job%20that%20uses%20the%20%60%7Bfiles%7D%60%20template.%20A%20nested%20job%20can%20define%20its%20own%20%60files%60%20to%20override%20it.%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Apre-commit%3A%0A%20%20jobs%3A%0A%20%20%20%20-%20glob%3A%0A%20%20%20%20%20%20%20%20-%20%22*.py%22%0A%20%20%20%20%20%20files%3A%20git%20diff%20--name-only%20master%0A%20%20%20%20%20%20group%3A%0A%20%20%20%20%20%20%20%20jobs%3A%0A%20%20%20%20%20%20%20%20%20%20-%20run%3A%20ruff%20check%20%7Bfiles%7D%0A%20%20%20%20%20%20%20%20%20%20-%20run%3A%20ruff%20format%20--check%20%7Bfiles%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20files%3A%20git%20ls-files%0A%60%60%60%0A%0A%3A%3A%3A%20callout%20info%20Note%0ATo%20make%20a%20group%20mergeable%20with%20settings%20defined%20in%20local%20config%20or%20extends%20you%20have%20to%20specify%20the%20name%20of%20the%20job%20group%20belongs%20to%3A%0A%60%60%60yml%0Apre-commit%3A%0A%20%20jobs%3A%0A%20%20%20%20-%20name%3A%20a%20name%20of%20a%20group%0A%20%20%20%20%20%20group%3A%0A%20%20%20%20%20%20%20%20jobs%3A%0A%20%20%20%20%20%20%20%20%20%20-%20name%3A%20lint%0A%20%20%20%20%20%20%20%20%20%20%20%20run%3A%20yarn%20lint%0A%20%20%20%20%20%20%20%20%20%20-%20name%3A%20test%0A%20%20%20%20%20%20%20%20%20%20%20%20run%3A%20yarn%20test%0A%60%60%60%0A%3A%3A%3A%0A" style="display: none;"></div>
                   
                     <nav aria-label="breadcrumb" class="docmd-breadcrumbs">
                       <ol>
@@ -3067,7 +3067,7 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
           <span class="hljs-punctuation">-</span> run<span class="hljs-punctuation">:</span> <span class="hljs-keyword">echo</span> <span class="hljs-number">2</span>
           <span class="hljs-punctuation">-</span> run<span class="hljs-punctuation">:</span> <span class="hljs-keyword">echo</span> <span class="hljs-number">3</span>
 </code></pre>
-<p>If you specify <code>env</code>, <code>root</code>, <code>glob</code>, or <code>exclude</code> on a group, they will be inherited to the underlying jobs.</p>
+<p>If you specify <code>env</code>, <code>root</code>, <code>glob</code>, <code>exclude</code>, or <code>files</code> on a group, they will be inherited to the underlying jobs.</p>
 <pre class="hljs"><code class="language-yml"><span class="hljs-comment"># lefthook.yml</span>
 
 pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:</span>
@@ -3086,6 +3086,20 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
           <span class="hljs-punctuation">-</span> run<span class="hljs-punctuation">:</span> <span class="hljs-keyword">echo</span> <span class="hljs-variable">$E1</span>
             env<span class="hljs-punctuation">:</span>
               E1<span class="hljs-punctuation">:</span> bonjour
+</code></pre>
+<p>A <code>files</code> command set on a group is executed for every nested job that uses the <code>{files}</code> template. A nested job can define its own <code>files</code> to override it.</p>
+<pre class="hljs"><code class="language-yml"><span class="hljs-comment"># lefthook.yml</span>
+
+pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:</span>
+  jobs<span class="hljs-punctuation">:</span>
+    <span class="hljs-punctuation">-</span> glob<span class="hljs-punctuation">:</span>
+        <span class="hljs-punctuation">-</span> <span class="hljs-string">&quot;*.py&quot;</span>
+      files<span class="hljs-punctuation">:</span> <span class="hljs-keyword">git</span> diff <span class="hljs-punctuation">--</span>name<span class="hljs-punctuation">-</span>only master
+      group<span class="hljs-punctuation">:</span>
+        jobs<span class="hljs-punctuation">:</span>
+          <span class="hljs-punctuation">-</span> run<span class="hljs-punctuation">:</span> ruff check {files}
+          <span class="hljs-punctuation">-</span> run<span class="hljs-punctuation">:</span> ruff format <span class="hljs-punctuation">--</span>check {files}
+            files<span class="hljs-punctuation">:</span> <span class="hljs-keyword">git</span> <span class="hljs-keyword">ls</span><span class="hljs-punctuation">-</span>files
 </code></pre>
 <div class="docmd-container callout callout-info"><div class="callout-title">Note</div><div class="callout-content">
 <p>To make a group mergeable with settings defined in local config or extends you have to specify the name of the job group belongs to:</p>
@@ -3144,29 +3158,29 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
             <div class="page-footer-actions">
               
               
-                <span class="git-last-updated" data-timestamp="1789375959000">
+                <span class="git-last-updated" data-timestamp="1789376004000">
                   <svg class="git-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
                   <span class="git-label">Last updated:</span>
-                  <span class="git-time" data-timestamp="1789375959000"></span>
+                  <span class="git-time" data-timestamp="1789376004000"></span>
                   
                   <div class="git-commit-tooltip" role="tooltip">
                     <div class="git-tooltip-title">Recent commits</div>
                     <ul class="git-commit-list">
                       
                         <li class="git-commit-item">
-                          <div class="git-commit-avatar" title="Yash Lunawat">
+                          <div class="git-commit-avatar" title="Vladimir Babin">
                             
-                              <img src="https://www.gravatar.com/avatar/99c041d9805c0020c87c0745e1db7a9f?d=mp&amp;s=64" alt="Yash Lunawat">
+                              <img src="https://www.gravatar.com/avatar/d93186be69859f921876b5a38d688cb3?d=mp&amp;s=64" alt="Vladimir Babin">
                             
                           </div>
                           <div class="git-commit-details">
-                            <div class="git-commit-message" title="fix: force colors when colors are explicitly enabled (#1538)">fix: force colors when colors are exp...</div>
+                            <div class="git-commit-message" title="docs: document files inheritance for grouped jobs (#1536)">docs: document files inheritance for ...</div>
                             <div class="git-commit-meta">
-                              <span class="git-commit-author">Yash Lunawat</span>
-                              <span class="git-commit-date" data-timestamp="1789375959000"></span>
+                              <span class="git-commit-author">Vladimir Babin</span>
+                              <span class="git-commit-date" data-timestamp="1789376004000"></span>
                             </div>
                           </div>
                         </li>
@@ -3218,13 +3232,13 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
         </div>
       </div>
       
-      <script src="../../assets/js/docmd-main.js?v=mu109boq"></script>
+      <script src="../../assets/js/docmd-main.js?v=mu10a5yx"></script>
       
-      <script src="../../assets/js/docmd-git.js?v=mu109boq"></script>
-      <script src="../../assets/js/docmd-image-lightbox.js?v=mu109boq" ></script>
-<script src="../../assets/js/vendor/minisearch.js?v=mu109boq" ></script>
-<script src="../../assets/js/docmd-search.js?v=mu109boq" ></script>
-<script src="../../assets/js/docmd-git.js?v=mu109boq" type="module"></script>
+      <script src="../../assets/js/docmd-git.js?v=mu10a5yx"></script>
+      <script src="../../assets/js/docmd-image-lightbox.js?v=mu10a5yx" ></script>
+<script src="../../assets/js/vendor/minisearch.js?v=mu10a5yx" ></script>
+<script src="../../assets/js/docmd-search.js?v=mu10a5yx" ></script>
+<script src="../../assets/js/docmd-git.js?v=mu10a5yx" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;" data-show-confidence="false" data-show-filters="true"

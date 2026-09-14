@@ -6,7 +6,7 @@ path: /configuration/priority/
 updated: 2026-09-14
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-14T08:53:02.749Z"
+  generated_at: "2026-09-14T08:53:42.252Z"
 ---
 ---
 title: "priority"

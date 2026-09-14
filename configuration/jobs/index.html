@@ -104,11 +104,11 @@
     
     
 
-    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mu109boq">
-    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mu109boq">
+    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mu10a5yx">
+    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mu10a5yx">
     
-    <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=mu109boq" id="hljs-light" >
-    <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=mu109boq" id="hljs-dark" disabled>
+    <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=mu10a5yx" id="hljs-light" >
+    <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=mu10a5yx" id="hljs-dark" disabled>
     
     
 <meta name="description" content="Lefthook documentation.">
@@ -125,11 +125,11 @@
 
 
 
-<link rel="stylesheet" href="../../assets/css/docmd-git.css?v=mu109boq" >
-<link rel="stylesheet" href="../../assets/css/docmd-openapi.css?v=mu109boq" >
+<link rel="stylesheet" href="../../assets/css/docmd-git.css?v=mu10a5yx" >
+<link rel="stylesheet" href="../../assets/css/docmd-openapi.css?v=mu10a5yx" >
 
     
-      <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mu109boq">
+      <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mu10a5yx">
     
     
   </head>
@@ -2911,7 +2911,7 @@
             <div class="content-layout">
               <div class="main-content">
                 <div class="docmd-breadcrumbs-row">
-                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22jobs%22%0A---%0A%0A%23%20%60jobs%60%0A%0A%3A%3A%3A%20callout%20tip%20New%20feature%0AAdded%20in%20lefthook%20%601.10.0%60%0A%3A%3A%3A%0A%0AJobs%20provide%20a%20flexible%20way%20to%20define%20tasks%2C%20supporting%20both%20commands%20and%20scripts.%20Jobs%20can%20be%20grouped%20for%20advanced%20flow%20control.%0A%0ANamed%20jobs%20are%20merged%20across%20%5B%60extends%60%5D(.%2Fextends.md)%20and%20local%20config%3B%20unnamed%20jobs%20are%20appended%20in%20definition%20order.%20Groups%20can%20include%20other%20jobs%20with%20their%20own%20parallel%20or%20piped%20flow%20%E2%80%94%20%60glob%60%2C%20%60root%60%2C%20and%20%60exclude%60%20on%20a%20group%20apply%20to%20all%20nested%20jobs.%0A%0A%23%23%23%23%20Example%0A%0A%3A%3A%3A%20callout%20info%20Note%0ACurrently%2C%20only%20%60root%60%2C%20%60glob%60%2C%20and%20%60exclude%60%20options%20are%20applied%20to%20group%20jobs.%20Other%20options%20must%20be%20set%20for%20each%20job%20individually.%20Submit%20a%20%5Bfeature%20request%5D(https%3A%2F%2Fgithub.com%2Fevilmartians%2Flefthook%2Fissues%2Fnew%3Fassignees%3D%26labels%3Dfeature%2Brequest%26projects%3D%26template%3Dfeature_request.md)%20if%20this%20limits%20your%20workflow.%0A%3A%3A%3A%0A%0AA%20configuration%20demonstrating%20a%20piped%20group%20running%20in%20parallel%20with%20other%20jobs%3A%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Apre-commit%3A%0A%20%20parallel%3A%20true%0A%20%20jobs%3A%0A%20%20%20%20-%20name%3A%20migrate%0A%20%20%20%20%20%20root%3A%20backend%2F%0A%20%20%20%20%20%20glob%3A%20%22db%2Fmigrations%2F*%22%0A%20%20%20%20%20%20group%3A%0A%20%20%20%20%20%20%20%20piped%3A%20true%0A%20%20%20%20%20%20%20%20jobs%3A%0A%20%20%20%20%20%20%20%20%20%20-%20run%3A%20bundle%20install%0A%20%20%20%20%20%20%20%20%20%20-%20run%3A%20rails%20db%3Amigrate%0A%20%20%20%20-%20run%3A%20yarn%20lint%20--fix%20%7Bstaged_files%7D%0A%20%20%20%20%20%20root%3A%20frontend%2F%0A%20%20%20%20%20%20stage_fixed%3A%20true%0A%20%20%20%20-%20run%3A%20bundle%20exec%20rubocop%0A%20%20%20%20%20%20root%3A%20backend%2F%0A%20%20%20%20-%20run%3A%20golangci-lint%0A%20%20%20%20%20%20root%3A%20proxy%2F%0A%20%20%20%20-%20script%3A%20verify.sh%0A%20%20%20%20%20%20runner%3A%20bash%0A%60%60%60%0A%0AThis%20configuration%20runs%20migrate%20jobs%20in%20a%20piped%20flow%20while%20other%20jobs%20execute%20in%20parallel.%0A" style="display: none;"></div>
+                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22jobs%22%0A---%0A%0A%23%20%60jobs%60%0A%0A%3A%3A%3A%20callout%20tip%20New%20feature%0AAdded%20in%20lefthook%20%601.10.0%60%0A%3A%3A%3A%0A%0AJobs%20provide%20a%20flexible%20way%20to%20define%20tasks%2C%20supporting%20both%20commands%20and%20scripts.%20Jobs%20can%20be%20grouped%20for%20advanced%20flow%20control.%0A%0ANamed%20jobs%20are%20merged%20across%20%5B%60extends%60%5D(.%2Fextends.md)%20and%20local%20config%3B%20unnamed%20jobs%20are%20appended%20in%20definition%20order.%20Groups%20can%20include%20other%20jobs%20with%20their%20own%20parallel%20or%20piped%20flow%20%E2%80%94%20%60glob%60%2C%20%60root%60%2C%20%60exclude%60%2C%20%60env%60%2C%20and%20%60files%60%20on%20a%20group%20apply%20to%20all%20nested%20jobs.%0A%0A%23%23%23%23%20Example%0A%0A%3A%3A%3A%20callout%20info%20Note%0ACurrently%2C%20only%20%60root%60%2C%20%60glob%60%2C%20%60exclude%60%2C%20%60env%60%2C%20and%20%60files%60%20options%20are%20applied%20to%20group%20jobs.%20Other%20options%20must%20be%20set%20for%20each%20job%20individually.%20Submit%20a%20%5Bfeature%20request%5D(https%3A%2F%2Fgithub.com%2Fevilmartians%2Flefthook%2Fissues%2Fnew%3Fassignees%3D%26labels%3Dfeature%2Brequest%26projects%3D%26template%3Dfeature_request.md)%20if%20this%20limits%20your%20workflow.%0A%3A%3A%3A%0A%0AA%20configuration%20demonstrating%20a%20piped%20group%20running%20in%20parallel%20with%20other%20jobs%3A%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Apre-commit%3A%0A%20%20parallel%3A%20true%0A%20%20jobs%3A%0A%20%20%20%20-%20name%3A%20migrate%0A%20%20%20%20%20%20root%3A%20backend%2F%0A%20%20%20%20%20%20glob%3A%20%22db%2Fmigrations%2F*%22%0A%20%20%20%20%20%20group%3A%0A%20%20%20%20%20%20%20%20piped%3A%20true%0A%20%20%20%20%20%20%20%20jobs%3A%0A%20%20%20%20%20%20%20%20%20%20-%20run%3A%20bundle%20install%0A%20%20%20%20%20%20%20%20%20%20-%20run%3A%20rails%20db%3Amigrate%0A%20%20%20%20-%20run%3A%20yarn%20lint%20--fix%20%7Bstaged_files%7D%0A%20%20%20%20%20%20root%3A%20frontend%2F%0A%20%20%20%20%20%20stage_fixed%3A%20true%0A%20%20%20%20-%20run%3A%20bundle%20exec%20rubocop%0A%20%20%20%20%20%20root%3A%20backend%2F%0A%20%20%20%20-%20run%3A%20golangci-lint%0A%20%20%20%20%20%20root%3A%20proxy%2F%0A%20%20%20%20-%20script%3A%20verify.sh%0A%20%20%20%20%20%20runner%3A%20bash%0A%60%60%60%0A%0AThis%20configuration%20runs%20migrate%20jobs%20in%20a%20piped%20flow%20while%20other%20jobs%20execute%20in%20parallel.%0A" style="display: none;"></div>
                   
                     <nav aria-label="breadcrumb" class="docmd-breadcrumbs">
                       <ol>
@@ -3029,10 +3029,10 @@
 <p>Added in lefthook <code>1.10.0</code></p>
 </div></div>
 <p>Jobs provide a flexible way to define tasks, supporting both commands and scripts. Jobs can be grouped for advanced flow control.</p>
-<p>Named jobs are merged across <a href="../extends/"><code>extends</code></a> and local config; unnamed jobs are appended in definition order. Groups can include other jobs with their own parallel or piped flow — <code>glob</code>, <code>root</code>, and <code>exclude</code> on a group apply to all nested jobs.</p>
+<p>Named jobs are merged across <a href="../extends/"><code>extends</code></a> and local config; unnamed jobs are appended in definition order. Groups can include other jobs with their own parallel or piped flow — <code>glob</code>, <code>root</code>, <code>exclude</code>, <code>env</code>, and <code>files</code> on a group apply to all nested jobs.</p>
 <h4 id="jobs-example" class="docmd-heading"><a href="#jobs-example" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Example</h4>
 <div class="docmd-container callout callout-info"><div class="callout-title">Note</div><div class="callout-content">
-<p>Currently, only <code>root</code>, <code>glob</code>, and <code>exclude</code> options are applied to group jobs. Other options must be set for each job individually. Submit a <a href="https://github.com/evilmartians/lefthook/issues/new?assignees=&amp;labels=feature+request&amp;projects=&amp;template=feature_request.md">feature request</a> if this limits your workflow.</p>
+<p>Currently, only <code>root</code>, <code>glob</code>, <code>exclude</code>, <code>env</code>, and <code>files</code> options are applied to group jobs. Other options must be set for each job individually. Submit a <a href="https://github.com/evilmartians/lefthook/issues/new?assignees=&amp;labels=feature+request&amp;projects=&amp;template=feature_request.md">feature request</a> if this limits your workflow.</p>
 </div></div>
 <p>A configuration demonstrating a piped group running in parallel with other jobs:</p>
 <pre class="hljs"><code class="language-yml"><span class="hljs-comment"># lefthook.yml</span>
@@ -3103,29 +3103,29 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
             <div class="page-footer-actions">
               
               
-                <span class="git-last-updated" data-timestamp="1789375959000">
+                <span class="git-last-updated" data-timestamp="1789376004000">
                   <svg class="git-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
                   <span class="git-label">Last updated:</span>
-                  <span class="git-time" data-timestamp="1789375959000"></span>
+                  <span class="git-time" data-timestamp="1789376004000"></span>
                   
                   <div class="git-commit-tooltip" role="tooltip">
                     <div class="git-tooltip-title">Recent commits</div>
                     <ul class="git-commit-list">
                       
                         <li class="git-commit-item">
-                          <div class="git-commit-avatar" title="Yash Lunawat">
+                          <div class="git-commit-avatar" title="Vladimir Babin">
                             
-                              <img src="https://www.gravatar.com/avatar/99c041d9805c0020c87c0745e1db7a9f?d=mp&amp;s=64" alt="Yash Lunawat">
+                              <img src="https://www.gravatar.com/avatar/d93186be69859f921876b5a38d688cb3?d=mp&amp;s=64" alt="Vladimir Babin">
                             
                           </div>
                           <div class="git-commit-details">
-                            <div class="git-commit-message" title="fix: force colors when colors are explicitly enabled (#1538)">fix: force colors when colors are exp...</div>
+                            <div class="git-commit-message" title="docs: document files inheritance for grouped jobs (#1536)">docs: document files inheritance for ...</div>
                             <div class="git-commit-meta">
-                              <span class="git-commit-author">Yash Lunawat</span>
-                              <span class="git-commit-date" data-timestamp="1789375959000"></span>
+                              <span class="git-commit-author">Vladimir Babin</span>
+                              <span class="git-commit-date" data-timestamp="1789376004000"></span>
                             </div>
                           </div>
                         </li>
@@ -3177,13 +3177,13 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
         </div>
       </div>
       
-      <script src="../../assets/js/docmd-main.js?v=mu109boq"></script>
+      <script src="../../assets/js/docmd-main.js?v=mu10a5yx"></script>
       
-      <script src="../../assets/js/docmd-git.js?v=mu109boq"></script>
-      <script src="../../assets/js/docmd-image-lightbox.js?v=mu109boq" ></script>
-<script src="../../assets/js/vendor/minisearch.js?v=mu109boq" ></script>
-<script src="../../assets/js/docmd-search.js?v=mu109boq" ></script>
-<script src="../../assets/js/docmd-git.js?v=mu109boq" type="module"></script>
+      <script src="../../assets/js/docmd-git.js?v=mu10a5yx"></script>
+      <script src="../../assets/js/docmd-image-lightbox.js?v=mu10a5yx" ></script>
+<script src="../../assets/js/vendor/minisearch.js?v=mu10a5yx" ></script>
+<script src="../../assets/js/docmd-search.js?v=mu10a5yx" ></script>
+<script src="../../assets/js/docmd-git.js?v=mu10a5yx" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;" data-show-confidence="false" data-show-filters="true"

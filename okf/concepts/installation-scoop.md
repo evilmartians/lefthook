@@ -6,7 +6,7 @@ path: /installation/scoop/
 updated: 2026-09-14
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-14T08:53:02.767Z"
+  generated_at: "2026-09-14T08:53:42.270Z"
 ---
 ---
 title: "Scoop"
