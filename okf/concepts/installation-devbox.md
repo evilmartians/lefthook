@@ -6,7 +6,7 @@ path: /installation/devbox/
 updated: 2026-09-14
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-14T09:38:49.995Z"
+  generated_at: "2026-09-14T09:42:10.109Z"
 ---
 # Devbox
 
