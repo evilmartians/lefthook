@@ -8,6 +8,8 @@ title: "colors"
 
 Whether enable or disable colorful output of Lefthook. This option can be overwritten with `--colors` option. You can also provide your own color codes.
 
+With the default `auto` value colors are enabled only when Lefthook detects a color capable terminal. Setting the option (or `--colors`) to `on` forces colors even when the output is not a terminal, e.g. in CI.
+
 #### Example
 
 Disable colors.
