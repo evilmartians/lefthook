@@ -21,6 +21,7 @@ import (
 const (
 	envEnabled = "LEFTHOOK"        // "0", "false"
 	envOutput  = "LEFTHOOK_OUTPUT" // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
+	envAgent   = "LEFTHOOK_AGENT"  // "1", "true" — propagate job exit codes (Claude/Cursor agent hooks)
 )
 
 var errPipedAndParallelSet = errors.New("conflicting options 'piped' and 'parallel' are set to 'true', remove one of this option from hook group")
@@ -276,13 +277,34 @@ func (l *Lefthook) runHook(
 
 	l.logSummary(exLogger, time.Since(startTime), results)
 
-	for _, result := range results {
-		if result.Failure() {
+	agentMode := os.Getenv(envAgent) == "1" || os.Getenv(envAgent) == "true"
+	for _, res := range results {
+		if res.Failure() {
+			if agentMode {
+				return &HookExitError{Code: maxFailureExitCode(results)}
+			}
 			return errors.New("") // No error should be printed
 		}
 	}
 
 	return nil
+}
+
+func maxFailureExitCode(results []result.Result) int {
+	maxCode := 1
+	var walk func([]result.Result)
+	walk = func(rs []result.Result) {
+		for _, res := range rs {
+			if res.Failure() {
+				if code := res.ExitCode(); code > maxCode {
+					maxCode = code
+				}
+			}
+			walk(res.Sub)
+		}
+	}
+	walk(results)
+	return maxCode
 }
 
 func (l *Lefthook) logSummary(
