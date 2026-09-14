@@ -3,7 +3,6 @@ package command
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"path/filepath"
 	"testing"
 
@@ -120,6 +119,38 @@ func TestInstallAIHooks(t *testing.T) {
 			},
 			wantMissing: []string{paths["codex"], paths["copilot"]},
 		},
+		"replaces entries with an install-time absolute path": {
+			ai: &config.AI{
+				Claude: map[string]string{"Stop": "validate"},
+			},
+			existingFiles: map[string]string{
+				paths["claude"]: `{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "/Users/me/project/node_modules/lefthook-darwin-arm64/bin/lefthook run validate" }
+        ]
+      }
+    ]
+  }
+}`,
+			},
+			wantFiles: map[string]map[string]any{
+				paths["claude"]: {
+					"hooks": map[string]any{
+						"Stop": []any{
+							map[string]any{
+								"hooks": []any{
+									map[string]any{"type": "command", "command": "lefthook run validate"},
+								},
+							},
+						},
+					},
+				},
+			},
+			wantMissing: []string{paths["codex"], paths["cursor"], paths["copilot"]},
+		},
 		"overwrites copilot file completely": {
 			ai: &config.AI{
 				Copilot: map[string]string{"postToolUse": "validate"},
@@ -179,26 +210,53 @@ func TestInstallAIHooks(t *testing.T) {
 
 func TestResolveLefthookBin(t *testing.T) {
 	t.Run("uses config lefthook setting", func(t *testing.T) {
-		bin, quote := resolveLefthookBin(&config.Config{Lefthook: "bundle exec lefthook"})
-		assert.Equal(t, "bundle exec lefthook", bin)
-		assert.False(t, quote)
+		assert.Equal(t, "bundle exec lefthook", resolveLefthookBin(&config.Config{Lefthook: "bundle exec lefthook"}))
 	})
 
-	t.Run("falls back to lefthook name", func(t *testing.T) {
-		bin, quote := resolveLefthookBin(nil)
-		if _, err := os.Executable(); err != nil {
-			assert.Equal(t, "lefthook", bin)
-			assert.False(t, quote)
-			return
-		}
-
-		assert.NotEmpty(t, bin)
+	t.Run("does not embed the executable path", func(t *testing.T) {
+		assert.Contains(t, []string{lefthookBinName, npxLefthookBin}, resolveLefthookBin(nil))
 	})
 }
 
+func TestPortableLefthookBin(t *testing.T) {
+	for name, tt := range map[string]struct {
+		exe  string
+		want string
+	}{
+		"npm package": {
+			exe:  "/home/me/project/node_modules/lefthook-linux-x64/bin/lefthook",
+			want: "npx lefthook",
+		},
+		"pnpm package": {
+			exe:  "/Users/me/project/node_modules/.pnpm/lefthook-darwin-arm64@2.1.10/node_modules/lefthook-darwin-arm64/bin/lefthook",
+			want: "npx lefthook",
+		},
+		"npm package in a subfolder": {
+			exe:  "/home/me/project/frontend/node_modules/@evilmartians/lefthook/bin/lefthook-linux-x64/lefthook",
+			want: "npx lefthook",
+		},
+		"homebrew": {
+			exe:  "/opt/homebrew/bin/lefthook",
+			want: "lefthook",
+		},
+		"go install": {
+			exe:  "/home/me/go/bin/lefthook",
+			want: "lefthook",
+		},
+		"directory name only contains node_modules": {
+			exe:  "/home/me/node_modules_backup/lefthook",
+			want: "lefthook",
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tt.want, portableLefthookBin(filepath.FromSlash(tt.exe)))
+		})
+	}
+}
+
 func TestLefthookRunCommand(t *testing.T) {
-	assert.Equal(t, "lefthook run lint", lefthookRunCommand("lefthook", "lint", false))
-	assert.Equal(t, "'/my path/lefthook' run lint", lefthookRunCommand("/my path/lefthook", "lint", true))
+	assert.Equal(t, "lefthook run lint", lefthookRunCommand("lefthook", "lint"))
+	assert.Equal(t, "npx lefthook run lint", lefthookRunCommand("npx lefthook", "lint"))
 }
 
 func TestLefthookDetection(t *testing.T) {
