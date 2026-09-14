@@ -1,6 +1,6 @@
 # Change log
 
-## 2.1.13 (2026-09-14)
+## 2.1.13/2.1.14 (2026-09-14)
 
 - fix: error when --job/--command matches nothing ([#1512](https://github.com/evilmartians/lefthook/pull/1512)) by [@nityanand123gupta](https://github.com/nityanand123gupta)
 - fix: disable tty things when stdout is not TTY ([#1545](https://github.com/evilmartians/lefthook/pull/1545)) by [@mrexox](https://github.com/mrexox)
