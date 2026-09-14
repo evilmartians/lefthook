@@ -600,5 +600,12 @@ func (r *Repo) readOriginHead() string {
 		return ""
 	}
 
-	return match[reHeadBranch.SubexpIndex("name")]
+	// Return the remote-tracking ref (e.g. "origin/main"), not the bare
+	// branch name: the bare name may not exist as a local branch (a clone
+	// that never checked out the default branch has no local "main"), which
+	// makes the diff in PushFiles fail and the whole hook error out. The
+	// remote-tracking ref always exists once origin/HEAD does, and reflects
+	// what was actually fetched rather than a possibly stale/absent local
+	// branch of the same name.
+	return "origin/" + match[reOriginHeadBranch.SubexpIndex("name")]
 }
