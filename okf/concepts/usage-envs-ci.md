@@ -6,7 +6,7 @@ path: /usage/envs/CI/
 updated: 2026-09-14
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-14T09:48:12.418Z"
+  generated_at: "2026-09-14T10:20:39.572Z"
 ---
 ---
 title: "CI"

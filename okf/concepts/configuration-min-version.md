@@ -6,7 +6,7 @@ path: /configuration/min_version/
 updated: 2026-09-14
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-14T09:48:12.400Z"
+  generated_at: "2026-09-14T10:20:39.549Z"
 ---
 ---
 title: "min_version"
