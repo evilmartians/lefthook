@@ -3,7 +3,12 @@ exec git config user.email "you@example.com"
 exec git config user.name "Your Name"
 exec lefthook install
 exec git add -A
-exec git commit -m 'initial'
+exec git commit --no-verify -m 'initial'
+
+# Keep an unrelated unstaged change in the worktree
+exec echo "unrelated unstaged change\n"
+cp stdout c.txt
+grep 'unrelated unstaged change' c.txt
 
 # Stage first change
 exec echo "line1\nlineStaged\nline3\n"
@@ -18,13 +23,17 @@ grep lineUnstaged a.txt
 
 # Change that line in the hook
 ! exec git commit -m 'test'
+stderr '\s*conflict while merging unstaged changes\s*'
 
 # Must restore the state before running the hook
 grep lineUnstaged a.txt
 ! grep line42 a.txt
 grep lineCommitted b.txt
-
-stderr '\s*conflict while merging unstaged changes\s*'
+grep 'unrelated unstaged change' c.txt
+! exists .git/info/lefthook-unstaged.patch
+! exists .git/info/lefthook-unstaged-all.patch
+exec git stash list
+! stdout 'lefthook auto backup'
 
 -- lefthook.yml --
 pre-commit:
@@ -42,3 +51,5 @@ line1
 lineCommitted
 line3
 
+-- c.txt --
+committed content
