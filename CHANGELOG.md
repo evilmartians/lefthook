@@ -1,5 +1,15 @@
 # Change log
 
+## 2.1.13 (2026-09-14)
+
+- fix: error when --job/--command matches nothing ([#1512](https://github.com/evilmartians/lefthook/pull/1512)) by [@nityanand123gupta](https://github.com/nityanand123gupta)
+- fix: disable tty things when stdout is not TTY ([#1545](https://github.com/evilmartians/lefthook/pull/1545)) by [@mrexox](https://github.com/mrexox)
+- docs: document files inheritance for grouped jobs ([#1536](https://github.com/evilmartians/lefthook/pull/1536)) by [@chiliec](https://github.com/chiliec)
+- fix: force colors when colors are explicitly enabled ([#1538](https://github.com/evilmartians/lefthook/pull/1538)) by [@Yash121l](https://github.com/Yash121l)
+- fix: resolve file_types paths from the repo root ([#1537](https://github.com/evilmartians/lefthook/pull/1537)) by [@Yash121l](https://github.com/Yash121l)
+- fix: don't force-install hooks from the npm postinstall ([#1510](https://github.com/evilmartians/lefthook/pull/1510)) by [@hamodywe](https://github.com/hamodywe)
+- docs: quote template run examples ([#1472](https://github.com/evilmartians/lefthook/pull/1472)) by [@Guflly](https://github.com/Guflly)
+
 ## 2.1.12 (2026-08-28)
 
 - fix: fail the hook when staging fixed files errors ([#1484](https://github.com/evilmartians/lefthook/pull/1484)) by [@teddytennant](https://github.com/teddytennant)
