@@ -3,10 +3,10 @@ type: concept
 title: min_version
 source: "https://lefthook.dev/configuration/min_version/"
 path: /configuration/min_version/
-updated: 2026-09-07
+updated: 2026-09-14
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-07T07:37:00.160Z"
+  generated_at: "2026-09-14T08:52:44.576Z"
 ---
 ---
 title: "min_version"

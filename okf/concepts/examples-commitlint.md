@@ -3,10 +3,10 @@ type: concept
 title: "Commitlint and commitzen"
 source: "https://lefthook.dev/examples/commitlint/"
 path: /examples/commitlint/
-updated: 2026-09-07
+updated: 2026-09-14
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-07T07:37:00.177Z"
+  generated_at: "2026-09-14T08:52:44.585Z"
 ---
 # Commitlint and commitzen
 

@@ -3,10 +3,10 @@ type: concept
 title: "Stage fixed files"
 source: "https://lefthook.dev/examples/stage_fixed/"
 path: /examples/stage_fixed/
-updated: 2026-09-07
+updated: 2026-09-14
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-07T07:37:00.179Z"
+  generated_at: "2026-09-14T08:52:44.586Z"
 ---
 # Stage fixed files
 

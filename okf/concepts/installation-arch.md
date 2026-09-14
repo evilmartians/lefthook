@@ -3,10 +3,10 @@ type: concept
 title: "Arch Linux"
 source: "https://lefthook.dev/installation/arch/"
 path: /installation/arch/
-updated: 2026-09-07
+updated: 2026-09-14
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-07T07:37:00.182Z"
+  generated_at: "2026-09-14T08:52:44.588Z"
 ---
 ---
 title: "Arch Linux"

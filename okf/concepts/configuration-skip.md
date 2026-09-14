@@ -3,10 +3,10 @@ type: concept
 title: skip
 source: "https://lefthook.dev/configuration/skip/"
 path: /configuration/skip/
-updated: 2026-09-07
+updated: 2026-09-14
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-07T07:37:00.171Z"
+  generated_at: "2026-09-14T08:52:44.582Z"
 ---
 ---
 title: "skip"

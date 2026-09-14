@@ -3,10 +3,10 @@ type: concept
 title: "Git LFS support"
 source: "https://lefthook.dev/usage/features/git-lfs/"
 path: /usage/features/git-lfs/
-updated: 2026-09-07
+updated: 2026-09-14
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-07T07:37:00.200Z"
+  generated_at: "2026-09-14T08:52:44.598Z"
 ---
 ---
 title: "Git LFS support"

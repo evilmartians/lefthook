@@ -3,10 +3,10 @@ type: concept
 title: install_non_git_hooks
 source: "https://lefthook.dev/configuration/install_non_git_hooks/"
 path: /configuration/install_non_git_hooks/
-updated: 2026-09-07
+updated: 2026-09-14
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-07T07:37:00.157Z"
+  generated_at: "2026-09-14T08:52:44.575Z"
 ---
 ---
 title: "install_non_git_hooks"
