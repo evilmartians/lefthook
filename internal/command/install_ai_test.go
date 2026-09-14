@@ -213,50 +213,15 @@ func TestResolveLefthookBin(t *testing.T) {
 		assert.Equal(t, "bundle exec lefthook", resolveLefthookBin(&config.Config{Lefthook: "bundle exec lefthook"}))
 	})
 
-	t.Run("does not embed the executable path", func(t *testing.T) {
-		assert.Contains(t, []string{lefthookBinName, npxLefthookBin}, resolveLefthookBin(nil))
+	t.Run("falls back to lefthook name", func(t *testing.T) {
+		assert.Equal(t, "lefthook", resolveLefthookBin(nil))
+		assert.Equal(t, "lefthook", resolveLefthookBin(&config.Config{}))
 	})
-}
-
-func TestPortableLefthookBin(t *testing.T) {
-	for name, tt := range map[string]struct {
-		exe  string
-		want string
-	}{
-		"npm package": {
-			exe:  "/home/me/project/node_modules/lefthook-linux-x64/bin/lefthook",
-			want: "npx lefthook",
-		},
-		"pnpm package": {
-			exe:  "/Users/me/project/node_modules/.pnpm/lefthook-darwin-arm64@2.1.10/node_modules/lefthook-darwin-arm64/bin/lefthook",
-			want: "npx lefthook",
-		},
-		"npm package in a subfolder": {
-			exe:  "/home/me/project/frontend/node_modules/@evilmartians/lefthook/bin/lefthook-linux-x64/lefthook",
-			want: "npx lefthook",
-		},
-		"homebrew": {
-			exe:  "/opt/homebrew/bin/lefthook",
-			want: "lefthook",
-		},
-		"go install": {
-			exe:  "/home/me/go/bin/lefthook",
-			want: "lefthook",
-		},
-		"directory name only contains node_modules": {
-			exe:  "/home/me/node_modules_backup/lefthook",
-			want: "lefthook",
-		},
-	} {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tt.want, portableLefthookBin(filepath.FromSlash(tt.exe)))
-		})
-	}
 }
 
 func TestLefthookRunCommand(t *testing.T) {
 	assert.Equal(t, "lefthook run lint", lefthookRunCommand("lefthook", "lint"))
-	assert.Equal(t, "npx lefthook run lint", lefthookRunCommand("npx lefthook", "lint"))
+	assert.Equal(t, "pnpm exec lefthook run lint", lefthookRunCommand("pnpm exec lefthook", "lint"))
 }
 
 func TestLefthookDetection(t *testing.T) {
