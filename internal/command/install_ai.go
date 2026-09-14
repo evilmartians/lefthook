@@ -33,7 +33,6 @@ const (
 	lefthookRunSuffix = " run "
 
 	lefthookBinName = "lefthook"
-	npxLefthookBin  = "npx lefthook"
 )
 
 var errAIHooksMisconfigured = errors.New("ai hooks misconfigured")
@@ -41,28 +40,12 @@ var errAIHooksMisconfigured = errors.New("ai hooks misconfigured")
 // resolveLefthookBin returns the command to embed in generated AI hook entries.
 // These settings files are usually committed, so the command must not depend on
 // where lefthook is installed on the current machine. Prefers the config
-// "lefthook" setting, then a portable command derived from os.Executable().
+// "lefthook" setting, then the bare "lefthook" name.
 func resolveLefthookBin(cfg *config.Config) string {
 	if cfg != nil {
 		if trimmed := strings.TrimSpace(cfg.Lefthook); trimmed != "" {
 			return trimmed
 		}
-	}
-
-	exe, err := os.Executable()
-	if err != nil {
-		return lefthookBinName
-	}
-
-	return portableLefthookBin(exe)
-}
-
-// portableLefthookBin maps the path of the running lefthook executable to a
-// command that works on any machine. A binary installed from the npm package
-// lives under node_modules, which is not on PATH, so it is called via npx.
-func portableLefthookBin(exe string) string {
-	if slices.Contains(strings.Split(filepath.ToSlash(exe), "/"), "node_modules") {
-		return npxLefthookBin
 	}
 
 	return lefthookBinName

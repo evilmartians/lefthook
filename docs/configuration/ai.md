@@ -27,7 +27,7 @@ Claude, Codex, and Cursor preserve user-authored entries in their settings files
 
 Copilot is handled differently: `lefthook install` rewrites `.github/hooks/lefthook.json` from scratch, and `lefthook uninstall` removes that file entirely.
 
-Generated hook commands use the [`lefthook`](./lefthook.md) config value when set. Otherwise they use `npx lefthook` if lefthook was installed from the npm package, and plain `lefthook` in all other cases. No machine-specific path is written, so the generated files can be committed and shared.
+Generated hook commands use the [`lefthook`](./lefthook.md) config value when set. Otherwise they use plain `lefthook`, so it must be on `PATH` for the AI tool. If lefthook is installed as a project dependency, set `lefthook` to e.g. `npx lefthook` or `pnpm exec lefthook`. No machine-specific path is written, so the generated files can be committed and shared.
 
 ## Example
 
