@@ -27,14 +27,21 @@ type Spinner struct {
 }
 
 func NewSpinner() *Spinner {
+	width := terminalWidth()
+	s := spinner.New(
+		spinner.CharSets[spinnerCharSet],
+		spinnerRefreshRate,
+		spinner.WithSuffix(spinnerText),
+	)
+
+	if width == 0 { // not a TTY
+		s.Disable()
+	}
+
 	return &Spinner{
 		names:         make([]string, 0, 10), //nolint:mnd // reduce extra allocations
-		terminalWidth: terminalWidth(),
-		spinner: spinner.New(
-			spinner.CharSets[spinnerCharSet],
-			spinnerRefreshRate,
-			spinner.WithSuffix(spinnerText),
-		),
+		terminalWidth: width,
+		spinner:       s,
 	}
 }
 

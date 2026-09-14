@@ -10,8 +10,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/mattn/go-isatty"
-
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/git"
 	"github.com/evilmartians/lefthook/v2/internal/logger"
@@ -141,7 +139,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	args.RunOnlyJobs = append(args.RunOnlyJobs, args.RunOnlyCommands...)
 
 	return l.runHook(ctx, hook, l.repo, exLogger, run.Options{
-		DisableTTY:        cfg.NoTTY || args.NoTTY || !isatty.IsTerminal(os.Stdout.Fd()),
+		DisableTTY:        cfg.NoTTY || args.NoTTY,
 		SkipLFS:           cfg.SkipLFS || args.SkipLFS,
 		Templates:         cfg.Templates,
 		GlobMatcher:       cfg.GlobMatcher,
