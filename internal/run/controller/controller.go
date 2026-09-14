@@ -4,9 +4,11 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
@@ -104,8 +106,29 @@ func (c *Controller) RunHook(ctx context.Context, opts Options, hook *config.Hoo
 			results = c.sequentially(ctx, scope, hook.Jobs, hook.Piped)
 		}
 	})
+	if err != nil {
+		return results, err
+	}
 
-	return results, err
+	// If --job/--command was given but nothing in the hook matched it, every job
+	// (and therefore every top-level result, since a Group's status is `skip` only
+	// when all of its own sub-results are) was skipped rather than actually run.
+	// Without this check, a typo'd job/command name silently "succeeds" having done
+	// nothing at all.
+	if len(opts.RunOnlyJobs) > 0 && len(results) > 0 {
+		matched := false
+		for _, res := range results {
+			if !res.Skip() {
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			return results, fmt.Errorf("no job matching %s found in hook %q", strings.Join(opts.RunOnlyJobs, ", "), hook.Name)
+		}
+	}
+
+	return results, nil
 }
 
 func (c *Controller) concurrently(ctx context.Context, scope *scope, jobs []*config.Job) []result.Result {
