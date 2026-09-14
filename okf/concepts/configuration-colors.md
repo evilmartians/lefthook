@@ -6,7 +6,7 @@ path: /configuration/colors/
 updated: 2026-09-14
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-14T08:52:44.569Z"
+  generated_at: "2026-09-14T08:53:02.737Z"
 ---
 ---
 title: "colors"
@@ -17,6 +17,8 @@ title: "colors"
 **Default: `auto`**
 
 Whether enable or disable colorful output of Lefthook. This option can be overwritten with `--colors` option. You can also provide your own color codes.
+
+With the default `auto` value colors are enabled only when Lefthook detects a color capable terminal. Setting the option (or `--colors`) to `on` forces colors even when the output is not a terminal, e.g. in CI.
 
 #### Example
 

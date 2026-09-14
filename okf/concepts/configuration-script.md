@@ -6,7 +6,7 @@ path: /configuration/script/
 updated: 2026-09-14
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-14T08:52:44.582Z"
+  generated_at: "2026-09-14T08:53:02.754Z"
 ---
 ---
 title: "script"

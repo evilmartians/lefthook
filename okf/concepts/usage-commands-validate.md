@@ -6,7 +6,7 @@ path: /usage/commands/validate/
 updated: 2026-09-14
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-14T08:52:44.594Z"
+  generated_at: "2026-09-14T08:53:02.772Z"
 ---
 ---
 title: "lefthook validate"
