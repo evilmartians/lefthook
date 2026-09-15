@@ -7,6 +7,7 @@ enum Target is export(:Target) <
   npm
   rubygems
   pypi
+  php
   aur
   aur-bin
 >;
