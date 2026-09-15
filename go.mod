@@ -10,6 +10,7 @@ require (
 	github.com/charmbracelet/x/term v0.2.2
 	github.com/creack/pty v1.1.24
 	github.com/gabriel-vasile/mimetype v1.4.13
+	github.com/go-viper/mapstructure/v2 v2.4.0
 	github.com/gobwas/glob v0.2.3
 	github.com/goccy/go-yaml v1.19.2
 	github.com/invopop/jsonschema v0.14.0
@@ -22,7 +23,6 @@ require (
 	github.com/knadh/koanf/providers/rawbytes v1.0.0
 	github.com/knadh/koanf/v2 v2.3.5
 	github.com/mattn/go-tty v0.0.8
-	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rogpeppe/go-internal v1.15.0
 	github.com/schollz/progressbar/v3 v3.19.1
 	github.com/spf13/afero v1.15.0
@@ -43,7 +43,6 @@ require (
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/go-json-experiment/json v0.0.0-20260623181947-01eb4420fa68 // indirect
-	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/kaptinlin/jsonpointer v0.4.27 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
