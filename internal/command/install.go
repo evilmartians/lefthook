@@ -134,11 +134,13 @@ func (l *Lefthook) findConfig(path string) (string, error) {
 		return configOverride, nil
 	}
 
-	for _, name := range slices.Concat(config.MainConfigNames, config.LocalConfigNames) {
+	for _, names := range [][]string{config.MainConfigNames, config.LocalConfigNames} {
 		for _, extension := range config.Extensions {
-			configPath := filepath.Join(path, name+extension)
-			if ok, _ := afero.Exists(l.fs, configPath); ok {
-				return configPath, nil
+			for _, name := range names {
+				configPath := filepath.Join(path, name+extension)
+				if ok, _ := afero.Exists(l.fs, configPath); ok {
+					return configPath, nil
+				}
 			}
 		}
 	}

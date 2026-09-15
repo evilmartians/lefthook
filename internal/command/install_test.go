@@ -498,6 +498,32 @@ validate:
 	}
 }
 
+func TestFindConfigMatchesLoaderPrecedence(t *testing.T) {
+	root, err := filepath.Abs("src")
+	assert.NoError(t, err)
+	t.Setenv("LEFTHOOK_CONFIG", "")
+	for _, tt := range []struct {
+		name, want string
+		files      []string
+	}{
+		{name: "main extensions", files: []string{"lefthook.json", ".lefthook.yml"}, want: ".lefthook.yml"},
+		{name: "local extensions", files: []string{"lefthook-local.json", ".lefthook-local.yml"}, want: ".lefthook-local.yml"},
+		{name: "main before local", files: []string{"lefthook.json", "lefthook-local.yml"}, want: "lefthook.json"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			fs := afero.NewMemMapFs()
+			assert.NoError(t, fs.MkdirAll(root, 0o755))
+			for _, file := range tt.files {
+				assert.NoError(t, afero.WriteFile(fs, filepath.Join(root, file), []byte("{}"), 0o644))
+			}
+			l := &Lefthook{fs: fs}
+			path, err := l.findConfig(root)
+			assert.NoError(t, err)
+			assert.Equal(t, filepath.Join(root, tt.want), path)
+		})
+	}
+}
+
 func Test_syncHooks(t *testing.T) {
 	root, err := filepath.Abs("src")
 	assert.NoError(t, err)

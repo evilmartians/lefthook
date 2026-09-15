@@ -84,7 +84,7 @@ func (l *Lefthook) reloadConfig(cfg *config.Config) (*config.Config, error) {
 		return nil, err
 	}
 
-	secondary, err := loader.LoadSecondary(main)
+	secondary, err := loader.LoadSecondary(main, false)
 	if err != nil {
 		return nil, err
 	}
