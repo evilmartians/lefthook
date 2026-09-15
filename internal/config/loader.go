@@ -116,7 +116,8 @@ func (l *Loader) loadFirstMain(k *koanf.Koanf, root string) (bool, error) {
 	return true, nil
 }
 
-func (l *Loader) loadMain(root string) (*koanf.Koanf, bool, error) {
+// LoadMain loads the primary config and reports whether it is a local config.
+func (l *Loader) LoadMain(root string) (*koanf.Koanf, bool, error) {
 	main := koanf.New(".")
 
 	configOverridePath := os.Getenv("LEFTHOOK_CONFIG")
@@ -206,7 +207,7 @@ func (l *Loader) LoadSecondary(main *koanf.Koanf, localPrimary bool) (*koanf.Koa
 
 func (l *Loader) LoadKoanf() (*koanf.Koanf, *koanf.Koanf, error) {
 	// Load main lefthook.yml
-	main, localPrimary, err := l.loadMain(l.repo.RootPath)
+	main, localPrimary, err := l.LoadMain(l.repo.RootPath)
 	if err != nil {
 		return nil, nil, err
 	}

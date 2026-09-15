@@ -2,16 +2,12 @@ package command
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 
-	"github.com/knadh/koanf/parsers/json"
-	"github.com/knadh/koanf/providers/rawbytes"
-	"github.com/knadh/koanf/v2"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v3"
 
@@ -74,17 +70,17 @@ func (l *Lefthook) reloadConfig(cfg *config.Config) (*config.Config, error) {
 
 	loader := config.NewLoader(l.repo, l.logger)
 
-	buffer := new(bytes.Buffer)
-	if err := cfg.Dump(config.JSONCompactFormat, buffer); err != nil {
+	main, localPrimary, err := loader.LoadMain(l.repo.RootPath)
+	if err != nil {
 		return nil, err
 	}
 
-	main := koanf.New(".")
-	if err := main.Load(rawbytes.Provider(buffer.Bytes()), json.Parser()); err != nil {
+	// Keep any fallback refs selected while synchronizing the remotes.
+	if err = main.Set("remotes", cfg.Remotes); err != nil {
 		return nil, err
 	}
 
-	secondary, err := loader.LoadSecondary(main, false)
+	secondary, err := loader.LoadSecondary(main, localPrimary)
 	if err != nil {
 		return nil, err
 	}
