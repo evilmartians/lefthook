@@ -10,6 +10,8 @@ Whether enable or disable colorful output of Lefthook. This option can be overwr
 
 With the default `auto` value colors are enabled only when Lefthook detects a color capable terminal. Setting the option (or `--colors`) to `on` forces colors even when the output is not a terminal, e.g. in CI.
 
+When colors are enabled explicitly Lefthook also sets `CLICOLOR_FORCE=1` for the commands it runs, so tools like ESLint, Prettier, or Cargo keep their colors when their output is piped. An existing `CLICOLOR_FORCE` is never overwritten.
+
 #### Example
 
 Disable colors.

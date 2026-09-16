@@ -131,6 +131,12 @@ func (l *Logger) NoColors() bool {
 	return l.colors.kind == colorsDisabled
 }
 
+// ColorsForced reports whether colors were explicitly enabled, so that the
+// output is colored even when it is not a terminal.
+func (l *Logger) ColorsForced() bool {
+	return l.colorsForced && l.colors.kind != colorsDisabled
+}
+
 func isEnvEnabled(env string) bool {
 	value := os.Getenv(env)
 	if len(value) > 0 && value != "0" && value != "false" && value != "off" {

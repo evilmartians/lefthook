@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io"
 	osexec "os/exec"
 	"path/filepath"
 	"strings"
@@ -16,6 +17,7 @@ import (
 	"github.com/creack/pty"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
 
@@ -286,5 +288,66 @@ func TestExecute_ConcurrentOutputIsolation(t *testing.T) {
 			other := fmt.Sprintf("WORKER-%d", j)
 			assert.NotContains(t, output, other, "buffer %d should not contain %s output", i, other)
 		}
+	}
+}
+
+func TestExecute_Colors(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	for name, tt := range map[string]struct {
+		executionLogger func() *logger.ExecutionLogger
+		env             map[string]string
+		osEnv           map[string]string
+		wantOut         string
+	}{
+		"forced colors export CLICOLOR_FORCE": {
+			executionLogger: func() *logger.ExecutionLogger {
+				return loggertest.NewWithColors().NewExecutionLogger()
+			},
+			wantOut: "[1]",
+		},
+		"disabled colors don't export CLICOLOR_FORCE": {
+			executionLogger: func() *logger.ExecutionLogger {
+				return loggertest.New().NewExecutionLogger()
+			},
+			wantOut: "[]",
+		},
+		"auto colors don't export CLICOLOR_FORCE": {
+			executionLogger: func() *logger.ExecutionLogger {
+				return logger.New(io.Discard).NewExecutionLogger()
+			},
+			wantOut: "[]",
+		},
+		"CLICOLOR_FORCE from job env is kept": {
+			executionLogger: func() *logger.ExecutionLogger {
+				return loggertest.NewWithColors().NewExecutionLogger()
+			},
+			env:     map[string]string{"CLICOLOR_FORCE": "0"},
+			wantOut: "[0]",
+		},
+		"CLICOLOR_FORCE from the environment is kept": {
+			executionLogger: func() *logger.ExecutionLogger {
+				return loggertest.NewWithColors().NewExecutionLogger()
+			},
+			osEnv:   map[string]string{"CLICOLOR_FORCE": "0"},
+			wantOut: "[0]",
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			for key, value := range tt.osEnv {
+				t.Setenv(key, value)
+			}
+
+			var buf bytes.Buffer
+			executor := CommandExecutor{logger: tt.executionLogger()}
+			opts := Options{
+				Root:     tmpDir,
+				Commands: []string{`echo "[$CLICOLOR_FORCE]"`},
+				Env:      tt.env,
+			}
+
+			assert.NoError(t, executor.Execute(context.Background(), opts, nil, &buf))
+			assert.Contains(t, buf.String(), tt.wantOut)
+		})
 	}
 }
