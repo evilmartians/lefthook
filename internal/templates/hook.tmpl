@@ -132,13 +132,13 @@ call_lefthook()
       done
       if test -n "$LEFTHOOK_CONFIG"
       then
-        # Match the loader's resolution: absolute paths as-is, relative
-        # against the repo root. (A missing override makes lefthook itself
-        # error out, so a no-op here cannot bypass a working setup.)
-        case "$LEFTHOOK_CONFIG" in
-          /*|[A-Za-z]:*) test -f "$LEFTHOOK_CONFIG" && found=1 ;;
-          *) test -f "$dir/$LEFTHOOK_CONFIG" && found=1 ;;
-        esac
+        # Match the loader's resolution: an absolute override is used as-is
+        # (this also catches UNC and rooted Windows forms, which the plain
+        # test cannot misclassify); a relative one is resolved against the
+        # repo root. A missing override makes lefthook error out on its
+        # own, so a no-op here cannot bypass a working setup.
+        test -f "$LEFTHOOK_CONFIG" && found=1
+        test -f "$dir/$LEFTHOOK_CONFIG" && found=1
       fi
       if test -n "$found"
       then
