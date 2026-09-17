@@ -102,6 +102,22 @@ call_lefthook()
       echo "Make sure lefthook is available in your environment and re-try."
       echo "To skip these checks use --no-verify git argument or set LEFTHOOK=0 env variable."
       exit 1
+      {{- else}}
+      # Fail closed when this repository actually uses lefthook: silently
+      # exiting 0 would skip the configured hooks (e.g. a pre-push gate).
+      # Repos without a lefthook config keep the historical silent no-op,
+      # so a shared core.hooksPath can still serve many repos.
+      dir="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+      # test per candidate: `ls` with multiple operands exits non-zero if
+      # ANY is missing, which would defeat the existence check.
+      if test -f "$dir/lefthook.yml" || test -f "$dir/.lefthook.yml" || \
+         test -f "$dir/lefthook.yaml" || test -f "$dir/.config/lefthook.yml"
+      then
+        echo "ERROR: Operation is aborted due to lefthook settings."
+        echo "Make sure lefthook is available in your environment and re-try."
+        echo "To skip these checks use --no-verify git argument or set LEFTHOOK=0 env variable."
+        exit 1
+      fi
       {{- end}}
     fi
   fi
