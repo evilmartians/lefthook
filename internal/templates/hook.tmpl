@@ -108,10 +108,39 @@ call_lefthook()
       # Repos without a lefthook config keep the historical silent no-op,
       # so a shared core.hooksPath can still serve many repos.
       dir="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-      # test per candidate: `ls` with multiple operands exits non-zero if
-      # ANY is missing, which would defeat the existence check.
-      if test -f "$dir/lefthook.yml" || test -f "$dir/.lefthook.yml" || \
-         test -f "$dir/lefthook.yaml" || test -f "$dir/.config/lefthook.yml"
+      # Check every main/local config name and extension lefthook itself
+      # searches for (internal/config/loader.go: lefthook, .lefthook,
+      # .config/lefthook [+ -local variants] x .yml .yaml .json .jsonc
+      # .toml), plus the LEFTHOOK_CONFIG override (any path, resolved
+      # against the repo root).
+      found=""
+      for base in lefthook .lefthook .config/lefthook \
+                  lefthook-local .lefthook-local .config/lefthook-local
+      do
+        for ext in .yml .yaml .json .jsonc .toml
+        do
+          if test -f "$dir/$base$ext"
+          then
+            found=1
+            break
+          fi
+        done
+        if test -n "$found"
+        then
+          break
+        fi
+      done
+      if test -n "$LEFTHOOK_CONFIG"
+      then
+        # Match the loader's resolution: absolute paths as-is, relative
+        # against the repo root. (A missing override makes lefthook itself
+        # error out, so a no-op here cannot bypass a working setup.)
+        case "$LEFTHOOK_CONFIG" in
+          /*|[A-Za-z]:*) test -f "$LEFTHOOK_CONFIG" && found=1 ;;
+          *) test -f "$dir/$LEFTHOOK_CONFIG" && found=1 ;;
+        esac
+      fi
+      if test -n "$found"
       then
         echo "ERROR: Operation is aborted due to lefthook settings."
         echo "Make sure lefthook is available in your environment and re-try."
