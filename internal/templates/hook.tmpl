@@ -32,11 +32,6 @@ call_lefthook()
   then
     lefthook.bat "$@"
   {{ end -}}
-  {{ if .LefthookPathCurrent -}}
-  elif {{ .LefthookPathCurrent }} -h >/dev/null 2>&1
-  then
-    {{ .LefthookPathCurrent }} "$@"
-  {{ end -}}
   else
     dir="$(git rev-parse --show-toplevel)"
     osArch=$(uname | tr '[:upper:]' '[:lower:]')
