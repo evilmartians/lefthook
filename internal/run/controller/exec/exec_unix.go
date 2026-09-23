@@ -52,8 +52,8 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 			fmt.Sprintf("%s=%s", name, os.ExpandEnv(value)),
 		)
 	}
-	if e.logger.NoColors() {
-		envs = append(envs, "NO_COLOR=true")
+	if env, ok := colorEnv(e.logger, opts); ok {
+		envs = append(envs, env)
 	}
 
 	args := &executeArgs{
