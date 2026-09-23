@@ -1,4 +1,4 @@
-package controller
+package runner
 
 import (
 	"errors"

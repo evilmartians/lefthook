@@ -1,4 +1,4 @@
-package controller
+package runner
 
 import (
 	"context"
@@ -10,11 +10,11 @@ import (
 	"time"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
-	"github.com/evilmartians/lefthook/v2/internal/run/controller/command"
-	"github.com/evilmartians/lefthook/v2/internal/run/controller/exec"
-	"github.com/evilmartians/lefthook/v2/internal/run/controller/filter"
-	"github.com/evilmartians/lefthook/v2/internal/run/controller/utils"
-	"github.com/evilmartians/lefthook/v2/internal/run/result"
+	"github.com/evilmartians/lefthook/v2/internal/runner/executor"
+	"github.com/evilmartians/lefthook/v2/internal/runner/filter"
+	"github.com/evilmartians/lefthook/v2/internal/runner/jobcmd"
+	"github.com/evilmartians/lefthook/v2/internal/runner/result"
+	"github.com/evilmartians/lefthook/v2/internal/runner/utils"
 )
 
 const (
@@ -22,7 +22,10 @@ const (
 	emptyGroupError = "group must have `jobs`"
 )
 
-func (c *Controller) runJob(ctx context.Context, scope *scope, id string, job *config.Job) result.Result {
+// errJobTimeout is the cause of the context cancellation when a job runs out of its `timeout`.
+var errJobTimeout = errors.New("job timeout")
+
+func (c *Runner) runJob(ctx context.Context, scope *scope, id string, job *config.Job) result.Result {
 	// Check if do job is properly configured
 	if len(job.Run) > 0 && len(job.Script) > 0 {
 		return result.Failure(job.PrintableName(id), invalidJobError, 0)
@@ -78,7 +81,7 @@ func (c *Controller) runJob(ctx context.Context, scope *scope, id string, job *c
 	return result.Failure(job.PrintableName(id), invalidJobError, time.Since(startTime))
 }
 
-func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, job *config.Job) result.Result {
+func (c *Runner) runSingleJob(ctx context.Context, scope *scope, id string, job *config.Job) result.Result {
 	startTime := time.Now()
 
 	name := job.PrintableName(id)
@@ -91,7 +94,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 		return result.Skip(name)
 	}
 
-	builder := command.NewBuilder(c.git, c.logger, command.BuilderOptions{
+	builder := jobcmd.NewBuilder(c.git, c.logger, jobcmd.BuilderOptions{
 		HookName:    scope.hookName,
 		ForceFiles:  scope.opts.Files,
 		Force:       scope.opts.Force,
@@ -100,7 +103,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 		Templates:   scope.opts.Templates,
 		GlobMatcher: scope.opts.GlobMatcher,
 	})
-	commands, files, err := builder.BuildCommands(&command.JobParams{
+	commands, files, err := builder.BuildCommands(&jobcmd.JobParams{
 		Name:         name,
 		Run:          job.Run,
 		Runner:       job.Runner,
@@ -118,7 +121,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 	if err != nil {
 		c.logger.LogSkipped(logName, err.Error())
 
-		var skipErr command.SkipError
+		var skipErr jobcmd.SkipError
 		if errors.As(err, &skipErr) {
 			return result.Skip(name)
 		}
@@ -131,10 +134,10 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 
 	if job.Timeout > 0 {
 		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(ctx, job.Timeout)
+		ctx, cancel = context.WithTimeoutCause(ctx, job.Timeout, errJobTimeout)
 		defer cancel()
 	}
-	err = c.run(ctx, logName, scope.follow, exec.Options{
+	err = c.run(ctx, logName, scope.follow, executor.Options{
 		Root:        filepath.Join(c.git.RootPath, scope.root),
 		Commands:    commands,
 		Interactive: job.Interactive && !scope.opts.DisableTTY,
@@ -145,7 +148,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 	executionTime := time.Since(startTime)
 
 	if err != nil {
-		if ctx.Err() == context.DeadlineExceeded {
+		if errors.Is(context.Cause(ctx), errJobTimeout) {
 			return result.Failure(name, "timeout ("+job.Timeout.String()+")", executionTime)
 		}
 
@@ -183,11 +186,11 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 	return result.Success(name, executionTime)
 }
 
-func (c *Controller) addStagedFiles(files []string) {
+func (c *Runner) addStagedFiles(files []string) {
 	c.filesToStage.Add(files)
 }
 
-func (c *Controller) skipReason(scope *scope, job *config.Job, name string) string {
+func (c *Runner) skipReason(scope *scope, job *config.Job, name string) string {
 	if c.skipChecker.Check(c.git.State, job.Skip, job.Only) {
 		return "by condition"
 	}

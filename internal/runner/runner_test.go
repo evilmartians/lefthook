@@ -1,4 +1,4 @@
-package controller
+package runner
 
 import (
 	"context"
@@ -14,8 +14,8 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
-	"github.com/evilmartians/lefthook/v2/internal/run/controller/exec"
-	"github.com/evilmartians/lefthook/v2/internal/run/result"
+	"github.com/evilmartians/lefthook/v2/internal/runner/executor"
+	"github.com/evilmartians/lefthook/v2/internal/runner/result"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/cmdtest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/configtest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/gittest"
@@ -23,7 +23,7 @@ import (
 )
 
 type (
-	executor struct{}
+	mockExecutor struct{}
 )
 
 func succeeded(name string) result.Result {
@@ -34,7 +34,7 @@ func failed(name, failText string) result.Result {
 	return result.Failure(name, failText, time.Second)
 }
 
-func (e executor) Execute(_ctx context.Context, opts exec.Options, _in io.Reader, _out io.Writer) (err error) {
+func (e mockExecutor) Execute(_ctx context.Context, opts executor.Options, _in io.Reader, _out io.Writer) (err error) {
 	if strings.HasPrefix(opts.Commands[0], "success") {
 		err = nil
 	} else {
@@ -632,11 +632,13 @@ func TestRunAll(t *testing.T) {
 			Cmd(cmdExecutor).
 			Fs(fs).
 			Build()
-		controller := &Controller{
-			logger:       loggertest.NewExecution(),
+		log := loggertest.NewExecution()
+		runner := &Runner{
+			logger:       log,
+			stdin:        newStdin(strings.NewReader(""), log),
 			filesToStage: newStageFilesList(),
 			git:          repo,
-			executor:     executor{},
+			executor:     mockExecutor{},
 			cmd:          cmdtest.NewTracking(nil), // lfs hooks ignored in this test
 		}
 		cmdExecutor.Reset()
@@ -663,7 +665,7 @@ func TestRunAll(t *testing.T) {
 				RunOnlyJobs: tt.runOnlyJobs,
 			}
 			tt.hook.Name = tt.hookName
-			results, err := controller.RunHook(t.Context(), opts, tt.hook)
+			results, err := runner.RunHook(t.Context(), opts, tt.hook)
 			if tt.wantErr {
 				assert.Error(err)
 				return

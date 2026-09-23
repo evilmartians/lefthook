@@ -1,11 +1,11 @@
-package controller
+package runner
 
 import (
 	"maps"
 	"slices"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
-	"github.com/evilmartians/lefthook/v2/internal/run/controller/utils"
+	"github.com/evilmartians/lefthook/v2/internal/runner/utils"
 )
 
 type scope struct {

@@ -1,16 +1,16 @@
-package controller
+package runner
 
 import (
 	"context"
 	"io"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
-	"github.com/evilmartians/lefthook/v2/internal/run/controller/command/replacer"
-	"github.com/evilmartians/lefthook/v2/internal/run/controller/exec"
+	"github.com/evilmartians/lefthook/v2/internal/runner/executor"
+	"github.com/evilmartians/lefthook/v2/internal/runner/jobcmd/replacer"
 	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
-func (c *Controller) setup(
+func (c *Runner) setup(
 	ctx context.Context,
 	opts Options,
 	setupInstructions []*config.SetupInstruction,
@@ -39,7 +39,7 @@ func (c *Controller) setup(
 	r, w := io.Pipe()
 	c.logger.LogSetup(r)
 
-	err := c.executor.Execute(ctx, exec.Options{Commands: commands}, system.NullReader, w)
+	err := c.executor.Execute(ctx, executor.Options{Commands: commands}, system.NullReader, w)
 	_ = w.Close()
 
 	return err

@@ -1,4 +1,4 @@
-package command
+package jobcmd
 
 import (
 	"github.com/evilmartians/lefthook/v2/internal/config"

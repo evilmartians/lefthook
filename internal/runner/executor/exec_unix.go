@@ -1,6 +1,6 @@
 //go:build !windows
 
-package exec
+package executor
 
 import (
 	"context"
@@ -92,14 +92,7 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 			return err
 		}
 	case isatty.IsTerminal(os.Stdout.Fd()):
-		p, err := startWithInheritedSize(command, os.Stdout)
-		if err != nil {
-			return err
-		}
-
-		defer func() { _ = p.Close() }()
-
-		_, _ = io.Copy(args.out, p)
+		return runInPTY(command, os.Stdout, args.out)
 	default:
 		// No pty available (sandbox, CI, pipe). Merge stderr into
 		// stdout buffer to match pty behavior where both streams
@@ -111,9 +104,7 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 		// PID) so children like sleep(1) are cleaned up, matching the
 		// session teardown that pty.Start (setsid) provides.
 		command.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-		command.Cancel = func() error {
-			return syscall.Kill(-command.Process.Pid, syscall.SIGKILL)
-		}
+		command.Cancel = killProcessGroup(command)
 		command.Stdout = args.out
 		command.Stderr = args.out
 		command.Stdin = args.in
@@ -126,6 +117,35 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 	defer func() { _ = command.Process.Kill() }()
 
 	return command.Wait()
+}
+
+// runInPTY runs the command in a new PTY with the size of the given terminal
+// and copies the command output to out.
+func runInPTY(command *exec.Cmd, terminal *os.File, out io.Writer) error {
+	// pty.Start makes the command a session leader (setsid), so it is also
+	// the process group leader. Kill the whole group on cancel: children that
+	// ignore SIGHUP survive the session teardown otherwise.
+	command.Cancel = killProcessGroup(command)
+
+	p, err := startWithInheritedSize(command, terminal)
+	if err != nil {
+		return err
+	}
+
+	defer func() { _ = p.Close() }()
+	defer func() { _ = command.Process.Kill() }()
+
+	_, _ = io.Copy(out, p)
+
+	return command.Wait()
+}
+
+// killProcessGroup returns a cancel function that kills the process group of
+// the command. The command must be the group leader (Setpgid or Setsid).
+func killProcessGroup(command *exec.Cmd) func() error {
+	return func() error {
+		return syscall.Kill(-command.Process.Pid, syscall.SIGKILL)
+	}
 }
 
 func startWithInheritedSize(command *exec.Cmd, terminal *os.File) (*os.File, error) {

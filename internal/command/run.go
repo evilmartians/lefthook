@@ -13,8 +13,8 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/git"
 	"github.com/evilmartians/lefthook/v2/internal/logger"
-	"github.com/evilmartians/lefthook/v2/internal/run"
-	"github.com/evilmartians/lefthook/v2/internal/run/result"
+	"github.com/evilmartians/lefthook/v2/internal/runner"
+	"github.com/evilmartians/lefthook/v2/internal/runner/result"
 	"github.com/evilmartians/lefthook/v2/internal/version"
 )
 
@@ -138,7 +138,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	hook.Scripts = nil
 	args.RunOnlyJobs = append(args.RunOnlyJobs, args.RunOnlyCommands...)
 
-	return l.runHook(ctx, hook, l.repo, exLogger, run.Options{
+	return l.runHook(ctx, hook, l.repo, exLogger, runner.Options{
 		DisableTTY:        cfg.NoTTY || args.NoTTY,
 		SkipLFS:           cfg.SkipLFS || args.SkipLFS,
 		Templates:         cfg.Templates,
@@ -255,15 +255,15 @@ func (l *Lefthook) runHook(
 	hook *config.Hook,
 	repo *git.Repo,
 	exLogger *logger.ExecutionLogger,
-	opts run.Options,
+	opts runner.Options,
 ) error {
 	ctx, stop := signal.NotifyContext(ctx, os.Interrupt)
 	defer stop()
 
 	startTime := time.Now()
-	results, err := run.Run(ctx, hook, repo, exLogger, opts)
+	results, err := runner.New(repo, exLogger).RunHook(ctx, opts, hook)
 	if err != nil {
-		var failOnChangesErr *run.FailOnChangesError
+		var failOnChangesErr *runner.FailOnChangesError
 		if errors.As(err, &failOnChangesErr) {
 			return err
 		}

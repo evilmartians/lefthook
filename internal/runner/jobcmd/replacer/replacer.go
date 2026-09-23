@@ -12,7 +12,7 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/git"
 	"github.com/evilmartians/lefthook/v2/internal/logger"
-	"github.com/evilmartians/lefthook/v2/internal/run/controller/filter"
+	"github.com/evilmartians/lefthook/v2/internal/runner/filter"
 )
 
 var surroundingQuotesRegexp = regexp.MustCompile(`^'(.*)'$`)

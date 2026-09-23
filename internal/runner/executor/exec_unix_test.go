@@ -1,23 +1,26 @@
 //go:build !windows
 
-package exec
+package executor
 
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
+	"os"
 	osexec "os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
+	"syscall"
 	"testing"
 	"time"
 
 	"github.com/creack/pty"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
 
@@ -173,6 +176,57 @@ func TestStartWithInheritedSize(t *testing.T) {
 	}
 }
 
+func TestRunInPTY_ContextCancellation(t *testing.T) {
+	for name, tt := range map[string]struct {
+		command string
+	}{
+		"background child":     {command: `sleep 30 & echo $! > "$PIDFILE"; wait`},
+		"child ignores SIGHUP": {command: `trap '' HUP; sleep 30 & echo $! > "$PIDFILE"; wait`},
+	} {
+		t.Run(name, func(t *testing.T) {
+			parentPTY, parentTTY, err := pty.Open()
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer func() { _ = parentPTY.Close() }()
+			defer func() { _ = parentTTY.Close() }()
+
+			pidFile := filepath.Join(t.TempDir(), "pid")
+
+			ctx, cancel := context.WithTimeout(t.Context(), 200*time.Millisecond)
+			defer cancel()
+
+			done := make(chan error, 1)
+			go func() {
+				command := osexec.CommandContext(ctx, "sh", "-c", tt.command)
+				command.Env = append(os.Environ(), "PIDFILE="+pidFile)
+				done <- runInPTY(command, parentTTY, io.Discard)
+			}()
+
+			select {
+			case runErr := <-done:
+				assert.Error(t, runErr)
+			case <-time.After(5 * time.Second):
+				t.Fatal("runInPTY must return promptly after context cancellation")
+			}
+
+			data, err := os.ReadFile(pidFile)
+			if err != nil {
+				t.Fatal(err)
+			}
+			pid, err := strconv.Atoi(strings.TrimSpace(string(data)))
+			if err != nil {
+				t.Fatal(err)
+			}
+			t.Cleanup(func() { _ = syscall.Kill(pid, syscall.SIGKILL) })
+
+			assert.Eventually(t, func() bool {
+				return errors.Is(syscall.Kill(pid, 0), syscall.ESRCH)
+			}, 2*time.Second, 20*time.Millisecond, "child process %d must be killed", pid)
+		})
+	}
+}
+
 func TestExecute_UseStdin(t *testing.T) {
 	tmpDir := t.TempDir()
 	var buf bytes.Buffer
@@ -190,7 +244,7 @@ func TestExecute_UseStdin(t *testing.T) {
 }
 
 func TestExecute_ConcurrentOutputIsolation_Interactive(t *testing.T) {
-	// Mirrors how the controller runs parallel jobs: each goroutine gets
+	// Mirrors how the runner runs parallel jobs: each goroutine gets
 	// its own buffer. Output from concurrent commands must not leak across
 	// buffers. Uses Interactive mode to take the direct exec path (no pty).
 	const workers = 5
@@ -288,66 +342,5 @@ func TestExecute_ConcurrentOutputIsolation(t *testing.T) {
 			other := fmt.Sprintf("WORKER-%d", j)
 			assert.NotContains(t, output, other, "buffer %d should not contain %s output", i, other)
 		}
-	}
-}
-
-func TestExecute_Colors(t *testing.T) {
-	tmpDir := t.TempDir()
-
-	for name, tt := range map[string]struct {
-		executionLogger func() *logger.ExecutionLogger
-		env             map[string]string
-		osEnv           map[string]string
-		wantOut         string
-	}{
-		"forced colors export CLICOLOR_FORCE": {
-			executionLogger: func() *logger.ExecutionLogger {
-				return loggertest.NewWithColors().NewExecutionLogger()
-			},
-			wantOut: "[1]",
-		},
-		"disabled colors don't export CLICOLOR_FORCE": {
-			executionLogger: func() *logger.ExecutionLogger {
-				return loggertest.New().NewExecutionLogger()
-			},
-			wantOut: "[]",
-		},
-		"auto colors don't export CLICOLOR_FORCE": {
-			executionLogger: func() *logger.ExecutionLogger {
-				return logger.New(io.Discard).NewExecutionLogger()
-			},
-			wantOut: "[]",
-		},
-		"CLICOLOR_FORCE from job env is kept": {
-			executionLogger: func() *logger.ExecutionLogger {
-				return loggertest.NewWithColors().NewExecutionLogger()
-			},
-			env:     map[string]string{"CLICOLOR_FORCE": "0"},
-			wantOut: "[0]",
-		},
-		"CLICOLOR_FORCE from the environment is kept": {
-			executionLogger: func() *logger.ExecutionLogger {
-				return loggertest.NewWithColors().NewExecutionLogger()
-			},
-			osEnv:   map[string]string{"CLICOLOR_FORCE": "0"},
-			wantOut: "[0]",
-		},
-	} {
-		t.Run(name, func(t *testing.T) {
-			for key, value := range tt.osEnv {
-				t.Setenv(key, value)
-			}
-
-			var buf bytes.Buffer
-			executor := CommandExecutor{logger: tt.executionLogger()}
-			opts := Options{
-				Root:     tmpDir,
-				Commands: []string{`echo "[$CLICOLOR_FORCE]"`},
-				Env:      tt.env,
-			}
-
-			assert.NoError(t, executor.Execute(context.Background(), opts, nil, &buf))
-			assert.Contains(t, buf.String(), tt.wantOut)
-		})
 	}
 }

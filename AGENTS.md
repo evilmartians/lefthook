@@ -21,7 +21,7 @@ make jsonschema       # regenerate schema.json after config changes
 |---|---|
 | `cmd/` | CLI commands |
 | `internal/config/` | Config parsing, validation, JSON schema |
-| `internal/run/` | Hook runner, parallelism |
+| `internal/runner/` | Hook runner, parallelism |
 | `internal/command/` | Top-level orchestrator |
 | `internal/git/` | Git utilities |
 | `docs/` | documentation source → lefthook.dev |

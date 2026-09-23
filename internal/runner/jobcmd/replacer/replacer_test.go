@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
-	"github.com/evilmartians/lefthook/v2/internal/run/controller/filter"
+	"github.com/evilmartians/lefthook/v2/internal/runner/filter"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
 

@@ -1,4 +1,4 @@
-package controller
+package runner
 
 import (
 	"bytes"
@@ -12,7 +12,7 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/git"
 )
 
-func (c *Controller) runLFSHook(ctx context.Context, hookName string, args []string) error {
+func (c *Runner) runLFSHook(ctx context.Context, hookName string, args []string) error {
 	if !git.IsLFSHook(hookName) {
 		return nil
 	}
@@ -61,7 +61,7 @@ func (c *Controller) runLFSHook(ctx context.Context, hookName string, args []str
 			args...,
 		),
 		"",
-		c.cachedStdin,
+		c.stdin(),
 		out,
 		errOut,
 	)
