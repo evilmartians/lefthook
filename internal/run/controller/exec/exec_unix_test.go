@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
 	osexec "os/exec"
 	"path/filepath"
 	"strings"
@@ -334,6 +335,8 @@ func TestExecute_Colors(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
+			t.Setenv(envClicolorForce, "")
+			assert.NoError(t, os.Unsetenv(envClicolorForce))
 			for key, value := range tt.osEnv {
 				t.Setenv(key, value)
 			}
