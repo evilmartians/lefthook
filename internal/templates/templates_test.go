@@ -25,9 +25,9 @@ func TestShellescape(t *testing.T) {
 		value string
 		want  string
 	}{
-		"plain path":            {value: "/usr/bin/lefthook", want: `'/usr/bin/lefthook'`},
+		"plain path":            {value: "/usr/bin/lefthook", want: `/usr/bin/lefthook`},
 		"path with space":       {value: "/home/my user/bin/lefthook", want: `'/home/my user/bin/lefthook'`},
-		"embedded single quote": {value: "/home/o'brien/lefthook", want: `'/home/o'\''brien/lefthook'`},
+		"embedded single quote": {value: "/home/o'brien/lefthook", want: `'/home/o'"'"'brien/lefthook'`},
 		"metacharacters":        {value: "/tmp/$(touch pwned)", want: `'/tmp/$(touch pwned)'`},
 		"empty":                 {value: "", want: `''`},
 	} {

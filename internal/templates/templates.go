@@ -9,6 +9,8 @@ import (
 	"runtime"
 	"strings"
 	"text/template"
+
+	shellescapelib "al.essio.dev/pkg/shellescape"
 )
 
 const checksumFormat = "%s %d %s\n"
@@ -78,12 +80,6 @@ func getExtension() string {
 	return ""
 }
 
-// shellescape wraps a value in POSIX single quotes so it is passed to the
-// generated hook verbatim. It is used for the auto-detected executable path
-// (os.Executable), which the user cannot quote themselves: a path with a
-// space was word-split and silently disabled every hook. The user-supplied
-// `lefthook` and `rc` values are intentionally not escaped, since they are
-// documented as commands and shell-expanded paths.
 func shellescape(value string) string {
-	return "'" + strings.ReplaceAll(value, "'", `'\''`) + "'"
+	return shellescapelib.Quote(value)
 }
