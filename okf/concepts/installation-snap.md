@@ -3,10 +3,10 @@ type: concept
 title: Snap
 source: "https://lefthook.dev/installation/snap/"
 path: /installation/snap/
-updated: 2026-09-14
+updated: 2026-09-23
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-14T10:20:39.568Z"
+  generated_at: "2026-09-23T12:25:13.253Z"
 ---
 ---
 title: "Snap"

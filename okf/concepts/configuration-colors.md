@@ -3,10 +3,10 @@ type: concept
 title: colors
 source: "https://lefthook.dev/configuration/colors/"
 path: /configuration/colors/
-updated: 2026-09-14
+updated: 2026-09-23
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-14T10:20:39.541Z"
+  generated_at: "2026-09-23T12:25:13.218Z"
 ---
 ---
 title: "colors"
@@ -19,6 +19,8 @@ title: "colors"
 Whether enable or disable colorful output of Lefthook. This option can be overwritten with `--colors` option. You can also provide your own color codes.
 
 With the default `auto` value colors are enabled only when Lefthook detects a color capable terminal. Setting the option (or `--colors`) to `on` forces colors even when the output is not a terminal, e.g. in CI.
+
+When colors are enabled explicitly Lefthook also sets `CLICOLOR_FORCE=1` for the commands it runs, so tools like ESLint, Prettier, or Cargo keep their colors when their output is piped. An existing `CLICOLOR_FORCE` is never overwritten.
 
 #### Example
 

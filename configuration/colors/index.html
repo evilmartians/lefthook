@@ -104,11 +104,11 @@
     
     
 
-    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mu13dzv3">
-    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mu13dzv3">
+    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mue2suiv">
+    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mue2suiv">
     
-    <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=mu13dzv3" id="hljs-light" >
-    <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=mu13dzv3" id="hljs-dark" disabled>
+    <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=mue2suiv" id="hljs-light" >
+    <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=mue2suiv" id="hljs-dark" disabled>
     
     
 <meta name="description" content="Lefthook documentation.">
@@ -125,11 +125,11 @@
 
 
 
-<link rel="stylesheet" href="../../assets/css/docmd-git.css?v=mu13dzv3" >
-<link rel="stylesheet" href="../../assets/css/docmd-openapi.css?v=mu13dzv3" >
+<link rel="stylesheet" href="../../assets/css/docmd-git.css?v=mue2suiv" >
+<link rel="stylesheet" href="../../assets/css/docmd-openapi.css?v=mue2suiv" >
 
     
-      <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mu13dzv3">
+      <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mue2suiv">
     
     
   </head>
@@ -2911,7 +2911,7 @@
             <div class="content-layout">
               <div class="main-content">
                 <div class="docmd-breadcrumbs-row">
-                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22colors%22%0A---%0A%0A%23%20%60colors%60%0A%0A**Default%3A%20%60auto%60**%0A%0AWhether%20enable%20or%20disable%20colorful%20output%20of%20Lefthook.%20This%20option%20can%20be%20overwritten%20with%20%60--colors%60%20option.%20You%20can%20also%20provide%20your%20own%20color%20codes.%0A%0AWith%20the%20default%20%60auto%60%20value%20colors%20are%20enabled%20only%20when%20Lefthook%20detects%20a%20color%20capable%20terminal.%20Setting%20the%20option%20(or%20%60--colors%60)%20to%20%60on%60%20forces%20colors%20even%20when%20the%20output%20is%20not%20a%20terminal%2C%20e.g.%20in%20CI.%0A%0A%23%23%23%23%20Example%0A%0ADisable%20colors.%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Acolors%3A%20false%0A%60%60%60%0A%0ACustom%20color%20codes.%20Can%20be%20hex%20or%20ANSI%20codes.%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Acolors%3A%0A%20%20cyan%3A%2014%0A%20%20gray%3A%20244%0A%20%20green%3A%20&#039;%2332CD32&#039;%0A%20%20red%3A%20&#039;%23FF1493&#039;%0A%20%20yellow%3A%20&#039;%23F0E68C&#039;%0A%60%60%60%0A%0AControl%20via%20ENV%20variable.%0A%0A-%20Set%20%60NO_COLOR%3Dtrue%60%20to%20disable%20colored%20output%20in%20lefthook%20and%20all%20subcommands%20that%20lefthook%20calls.%0A-%20Set%20%60CLICOLOR_FORCE%3Dtrue%60%20to%20force%20colored%20output%20in%20lefthook%20and%20all%20subcommands.%0A" style="display: none;"></div>
+                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22colors%22%0A---%0A%0A%23%20%60colors%60%0A%0A**Default%3A%20%60auto%60**%0A%0AWhether%20enable%20or%20disable%20colorful%20output%20of%20Lefthook.%20This%20option%20can%20be%20overwritten%20with%20%60--colors%60%20option.%20You%20can%20also%20provide%20your%20own%20color%20codes.%0A%0AWith%20the%20default%20%60auto%60%20value%20colors%20are%20enabled%20only%20when%20Lefthook%20detects%20a%20color%20capable%20terminal.%20Setting%20the%20option%20(or%20%60--colors%60)%20to%20%60on%60%20forces%20colors%20even%20when%20the%20output%20is%20not%20a%20terminal%2C%20e.g.%20in%20CI.%0A%0AWhen%20colors%20are%20enabled%20explicitly%20Lefthook%20also%20sets%20%60CLICOLOR_FORCE%3D1%60%20for%20the%20commands%20it%20runs%2C%20so%20tools%20like%20ESLint%2C%20Prettier%2C%20or%20Cargo%20keep%20their%20colors%20when%20their%20output%20is%20piped.%20An%20existing%20%60CLICOLOR_FORCE%60%20is%20never%20overwritten.%0A%0A%23%23%23%23%20Example%0A%0ADisable%20colors.%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Acolors%3A%20false%0A%60%60%60%0A%0ACustom%20color%20codes.%20Can%20be%20hex%20or%20ANSI%20codes.%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Acolors%3A%0A%20%20cyan%3A%2014%0A%20%20gray%3A%20244%0A%20%20green%3A%20&#039;%2332CD32&#039;%0A%20%20red%3A%20&#039;%23FF1493&#039;%0A%20%20yellow%3A%20&#039;%23F0E68C&#039;%0A%60%60%60%0A%0AControl%20via%20ENV%20variable.%0A%0A-%20Set%20%60NO_COLOR%3Dtrue%60%20to%20disable%20colored%20output%20in%20lefthook%20and%20all%20subcommands%20that%20lefthook%20calls.%0A-%20Set%20%60CLICOLOR_FORCE%3Dtrue%60%20to%20force%20colored%20output%20in%20lefthook%20and%20all%20subcommands.%0A" style="display: none;"></div>
                   
                     <nav aria-label="breadcrumb" class="docmd-breadcrumbs">
                       <ol>
@@ -3004,6 +3004,7 @@
 <p><strong>Default: <code>auto</code></strong></p>
 <p>Whether enable or disable colorful output of Lefthook. This option can be overwritten with <code>--colors</code> option. You can also provide your own color codes.</p>
 <p>With the default <code>auto</code> value colors are enabled only when Lefthook detects a color capable terminal. Setting the option (or <code>--colors</code>) to <code>on</code> forces colors even when the output is not a terminal, e.g. in CI.</p>
+<p>When colors are enabled explicitly Lefthook also sets <code>CLICOLOR_FORCE=1</code> for the commands it runs, so tools like ESLint, Prettier, or Cargo keep their colors when their output is piped. An existing <code>CLICOLOR_FORCE</code> is never overwritten.</p>
 <h4 id="colors-example" class="docmd-heading"><a href="#colors-example" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Example</h4>
 <p>Disable colors.</p>
 <pre class="hljs"><code class="language-yml"><span class="hljs-comment"># lefthook.yml</span>
@@ -3069,29 +3070,29 @@ colors<span class="hljs-punctuation">:</span>
             <div class="page-footer-actions">
               
               
-                <span class="git-last-updated" data-timestamp="1789381196000">
+                <span class="git-last-updated" data-timestamp="1790166293000">
                   <svg class="git-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
                   <span class="git-label">Last updated:</span>
-                  <span class="git-time" data-timestamp="1789381196000"></span>
+                  <span class="git-time" data-timestamp="1790166293000"></span>
                   
                   <div class="git-commit-tooltip" role="tooltip">
                     <div class="git-tooltip-title">Recent commits</div>
                     <ul class="git-commit-list">
                       
                         <li class="git-commit-item">
-                          <div class="git-commit-avatar" title="Valentin Kiselev">
+                          <div class="git-commit-avatar" title="Yash Lunawat">
                             
-                              <img src="https://www.gravatar.com/avatar/fce8c6aadd661388bd7629fef7f88f1c?d=mp&amp;s=64" alt="Valentin Kiselev">
+                              <img src="https://www.gravatar.com/avatar/99c041d9805c0020c87c0745e1db7a9f?d=mp&amp;s=64" alt="Yash Lunawat">
                             
                           </div>
                           <div class="git-commit-details">
-                            <div class="git-commit-message" title="2.1.14: small fixes and spinner improvements">2.1.14: small fixes and spinner impro...</div>
+                            <div class="git-commit-message" title="feat: propagate forced colors to hook commands via CLICOLOR_FORCE (#1547)">feat: propagate forced colors to hook...</div>
                             <div class="git-commit-meta">
-                              <span class="git-commit-author">Valentin Kiselev</span>
-                              <span class="git-commit-date" data-timestamp="1789381196000"></span>
+                              <span class="git-commit-author">Yash Lunawat</span>
+                              <span class="git-commit-date" data-timestamp="1790166293000"></span>
                             </div>
                           </div>
                         </li>
@@ -3143,13 +3144,13 @@ colors<span class="hljs-punctuation">:</span>
         </div>
       </div>
       
-      <script src="../../assets/js/docmd-main.js?v=mu13dzv3"></script>
+      <script src="../../assets/js/docmd-main.js?v=mue2suiv"></script>
       
-      <script src="../../assets/js/docmd-git.js?v=mu13dzv3"></script>
-      <script src="../../assets/js/docmd-image-lightbox.js?v=mu13dzv3" ></script>
-<script src="../../assets/js/vendor/minisearch.js?v=mu13dzv3" ></script>
-<script src="../../assets/js/docmd-search.js?v=mu13dzv3" ></script>
-<script src="../../assets/js/docmd-git.js?v=mu13dzv3" type="module"></script>
+      <script src="../../assets/js/docmd-git.js?v=mue2suiv"></script>
+      <script src="../../assets/js/docmd-image-lightbox.js?v=mue2suiv" ></script>
+<script src="../../assets/js/vendor/minisearch.js?v=mue2suiv" ></script>
+<script src="../../assets/js/docmd-search.js?v=mue2suiv" ></script>
+<script src="../../assets/js/docmd-git.js?v=mue2suiv" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;" data-show-confidence="false" data-show-filters="true"
