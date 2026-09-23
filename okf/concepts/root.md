@@ -7,7 +7,7 @@ path: /
 updated: 2026-09-23
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-23T12:25:13.246Z"
+  generated_at: "2026-09-23T12:35:02.120Z"
 ---
 ---
 title: "What is Lefthook?"
