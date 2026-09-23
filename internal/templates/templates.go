@@ -9,6 +9,8 @@ import (
 	"runtime"
 	"strings"
 	"text/template"
+
+	shellescapelib "al.essio.dev/pkg/shellescape"
 )
 
 const checksumFormat = "%s %d %s\n"
@@ -40,8 +42,10 @@ func Hook(hookName string, args Args) []byte {
 	}
 
 	buf := &bytes.Buffer{}
-	t := template.Must(template.ParseFS(templatesFS, "hook.tmpl"))
-	if err = t.Execute(buf, hookTmplData{
+	t := template.Must(template.New("hook.tmpl").Funcs(template.FuncMap{
+		"shellescape": shellescape,
+	}).ParseFS(templatesFS, "hook.tmpl"))
+	if err = t.ExecuteTemplate(buf, "hook.tmpl", hookTmplData{
 		HookName:                hookName,
 		Extension:               getExtension(),
 		Rc:                      args.Rc,
@@ -74,4 +78,8 @@ func getExtension() string {
 		return ".exe"
 	}
 	return ""
+}
+
+func shellescape(value string) string {
+	return shellescapelib.Quote(value)
 }
