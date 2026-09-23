@@ -63,6 +63,8 @@ jobs:
 
   packaging:
     runs-on: ubuntu-latest
+    env:
+      LEFTHOOK_COMPOSER_REPO: ${{ vars.LEFTHOOK_COMPOSER_REPO || 'git@github.com:evilmartians/lefthook-composer.git' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -77,6 +79,7 @@ jobs:
           raku prepare.raku --target=npm --dry-run
           raku prepare.raku --target=rubygems --dry-run
           raku prepare.raku --target=pypi --dry-run
+          raku prepare.raku --target=php --dry-run
           raku prepare.raku --target=aur --dry-run
           raku prepare.raku --target=aur-bin --dry-run
 
@@ -85,6 +88,7 @@ jobs:
           touch ../registries/rubygems/pkg/lefthook_99.gem
           raku publish.raku --target=rubygems --dry-run
           raku publish.raku --target=pypi --dry-run
+          raku publish.raku --target=php --dry-run
           raku publish.raku --target=aur --dry-run
           raku publish.raku --target=aur-bin --dry-run
 
