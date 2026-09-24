@@ -115,6 +115,7 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 		}
 	}
 
+	restoreAllUnstagedChanges := false
 	if g.git.CanRestoreUnstagedChanges() {
 		if err := g.git.AddFiles(g.filesToStage.Files()); err != nil {
 			g.logger.Warn("Couldn't stage fixed files:", err)
@@ -130,6 +131,7 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 			g.logger.Warnf("Failed to restore initial worktree state: %s", err)
 			return err
 		}
+		restoreAllUnstagedChanges = true
 
 		logger.NewBuilder(g.logger).
 			WithLevel(logger.LevelWarn).
@@ -139,9 +141,15 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 			Log()
 	}
 
-	if err := g.git.RestoreUnstagedChanges(); err != nil {
-		g.logger.Warnf("Failed to restore unstaged files: %s", err)
-		return err
+	var restoreErr error
+	if restoreAllUnstagedChanges {
+		restoreErr = g.git.RestoreAllUnstagedChanges()
+	} else {
+		restoreErr = g.git.RestoreUnstagedChanges()
+	}
+	if restoreErr != nil {
+		g.logger.Warnf("Failed to restore unstaged files: %s", restoreErr)
+		return restoreErr
 	}
 
 	return wrappedErr
