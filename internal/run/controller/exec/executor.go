@@ -4,6 +4,8 @@ import (
 	"context"
 	"io"
 	"os"
+	"runtime"
+	"strings"
 
 	"github.com/evilmartians/lefthook/v2/internal/logger"
 )
@@ -35,7 +37,7 @@ func colorEnv(log *logger.ExecutionLogger, opts Options) (string, bool) {
 		return "NO_COLOR=true", true
 	}
 
-	if _, ok := opts.Env[envClicolorForce]; ok {
+	if hasEnvKey(opts.Env, envClicolorForce, runtime.GOOS == "windows") {
 		return "", false
 	}
 
@@ -48,4 +50,21 @@ func colorEnv(log *logger.ExecutionLogger, opts Options) (string, bool) {
 	}
 
 	return "", false
+}
+
+// hasEnvKey reports whether env sets key. Windows treats variable names
+// case-insensitively, so a job's clicolor_force is the same variable there.
+func hasEnvKey(env map[string]string, key string, caseInsensitive bool) bool {
+	if _, ok := env[key]; ok {
+		return true
+	}
+	if !caseInsensitive {
+		return false
+	}
+	for name := range env {
+		if strings.EqualFold(name, key) {
+			return true
+		}
+	}
+	return false
 }
