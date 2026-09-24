@@ -3,10 +3,10 @@ type: concept
 title: fail_on_changes_diff
 source: "https://lefthook.dev/configuration/fail_on_changes_diff/"
 path: /configuration/fail_on_changes_diff/
-updated: 2026-09-23
+updated: 2026-09-24
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-23T12:55:40.524Z"
+  generated_at: "2026-09-24T07:39:24.150Z"
 ---
 ---
 title: "fail_on_changes_diff"

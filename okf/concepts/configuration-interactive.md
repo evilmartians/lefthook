@@ -3,10 +3,10 @@ type: concept
 title: interactive
 source: "https://lefthook.dev/configuration/interactive/"
 path: /configuration/interactive/
-updated: 2026-09-23
+updated: 2026-09-24
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-23T12:55:40.527Z"
+  generated_at: "2026-09-24T07:39:24.155Z"
 ---
 ---
 title: "interactive"
