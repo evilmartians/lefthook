@@ -102,56 +102,57 @@ func (l *Loader) loadFirst(k *koanf.Koanf, root string, names []string) error {
 }
 
 // loadFirstMain loads the main config (e.g. lefthook.yml) or fallbacks to local config (e.g. lefthook-local.yml).
-func (l *Loader) loadFirstMain(k *koanf.Koanf, root string) error {
-	err := l.loadFirst(k, root, MainConfigNames)
-	if ok := errors.As(err, &ConfigNotFoundError{}); ok {
-		var hasLocalConfig bool
-	OUT:
-		for _, extension := range Extensions {
-			for _, name := range LocalConfigNames {
-				if ok, _ := afero.Exists(l.repo.Fs, filepath.Join(root, name+extension)); ok {
-					hasLocalConfig = true
-					break OUT
-				}
-			}
-		}
-		if !hasLocalConfig {
-			return err
-		}
-	} else if err != nil {
-		return err
+func (l *Loader) loadFirstMain(k *koanf.Koanf, root string) (bool, error) {
+	if err := l.loadFirst(k, root, MainConfigNames); err == nil {
+		return false, nil
+	} else if !errors.As(err, &ConfigNotFoundError{}) {
+		return false, err
 	}
 
-	return nil
+	if err := l.loadFirst(k, root, LocalConfigNames); err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
-func (l *Loader) loadMain(root string) (*koanf.Koanf, error) {
+// LoadMain loads the primary config and reports whether it is a local config.
+func (l *Loader) LoadMain(root string) (*koanf.Koanf, bool, error) {
 	main := koanf.New(".")
 
 	configOverridePath := os.Getenv("LEFTHOOK_CONFIG")
 	if len(configOverridePath) == 0 {
-		if err := l.loadFirstMain(main, root); err != nil {
-			return nil, err
+		localPrimary, err := l.loadFirstMain(main, root)
+		if err != nil {
+			return nil, false, err
 		}
 
-		return main, nil
+		return main, localPrimary, nil
 	}
 
 	if !filepath.IsAbs(configOverridePath) {
 		configOverridePath = filepath.Join(root, configOverridePath)
 	}
 	if ok, _ := afero.Exists(l.repo.Fs, configOverridePath); !ok {
-		return nil, ConfigNotFoundError{fmt.Sprintf("Config file \"%s\" not found!", configOverridePath)}
+		return nil, false, ConfigNotFoundError{fmt.Sprintf("Config file \"%s\" not found!", configOverridePath)}
 	}
 
 	if err := l.loadConfig(main, configOverridePath); err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
-	return main, nil
+	for _, extension := range Extensions {
+		for _, name := range LocalConfigNames {
+			if filepath.Clean(configOverridePath) == filepath.Join(root, name+extension) {
+				return main, true, nil
+			}
+		}
+	}
+
+	return main, false, nil
 }
 
-func (l *Loader) LoadSecondary(main *koanf.Koanf) (*koanf.Koanf, error) {
+func (l *Loader) LoadSecondary(main *koanf.Koanf, localPrimary bool) (*koanf.Koanf, error) {
 	// Save `extends` and `remotes`
 	extends := main.Strings("extends")
 	var remotes []*Remote
@@ -180,6 +181,10 @@ func (l *Loader) LoadSecondary(main *koanf.Koanf) (*koanf.Koanf, error) {
 	// Don't allow to set `lefthook` field from a remote config
 	secondary.Delete("lefthook")
 
+	if localPrimary {
+		return secondary, nil
+	}
+
 	// Load optional local config (e.g. lefthook-local.yml)
 	var noLocal bool
 	if err := l.loadFirst(secondary, l.repo.RootPath, LocalConfigNames); err != nil {
@@ -202,13 +207,13 @@ func (l *Loader) LoadSecondary(main *koanf.Koanf) (*koanf.Koanf, error) {
 
 func (l *Loader) LoadKoanf() (*koanf.Koanf, *koanf.Koanf, error) {
 	// Load main lefthook.yml
-	main, err := l.loadMain(l.repo.RootPath)
+	main, localPrimary, err := l.LoadMain(l.repo.RootPath)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	// Load secondary extends, remotes and lefthook-local.yml
-	secondary, err := l.LoadSecondary(main)
+	secondary, err := l.LoadSecondary(main, localPrimary)
 	if err != nil {
 		return nil, nil, err
 	}
