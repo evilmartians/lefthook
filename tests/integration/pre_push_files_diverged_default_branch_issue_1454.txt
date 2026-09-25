@@ -1,0 +1,50 @@
+[windows] skip
+
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git branch -m main
+exec git add lefthook.yml README.md
+exec git commit -m "initial"
+exec git init --bare ../remote_issue_1454.git
+exec git remote add origin ../remote_issue_1454.git
+exec git push -u origin main
+exec git remote set-head origin main
+
+# A feature branch that has never been pushed, so @{push} is not available.
+exec git checkout -b feature
+cp extra/feature.txt feature.txt
+exec git add feature.txt
+exec git commit -m "feature"
+
+# The default branch moves on after the feature branch was created.
+exec git checkout main
+cp extra/README.md README.md
+exec git commit -am "upstream"
+exec git push origin main
+exec git checkout feature
+
+exec lefthook run pre-push
+stdout 'PUSH feature.txt$'
+! stdout 'README.md'
+
+# A branch without any common history with the default branch pushes all its files.
+exec git checkout --orphan pages
+exec git commit -m "pages"
+exec lefthook run pre-push
+stdout 'PUSH README.md feature.txt lefthook.yml$'
+! stderr 'no merge base'
+
+-- lefthook.yml --
+pre-push:
+  jobs:
+    - run: echo PUSH {push_files}
+
+-- README.md --
+hello
+
+-- extra/README.md --
+hello, world
+
+-- extra/feature.txt --
+feature

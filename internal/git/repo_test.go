@@ -285,10 +285,10 @@ func TestPushFiles(t *testing.T) {
 			switch command {
 			case "git diff --name-only HEAD @{push}":
 				return errors.New("no upstream configured")
-			case "git diff --name-only HEAD origin/dev --":
+			case "git diff --name-only origin/dev...HEAD --":
 				_, err := out.Write([]byte("other.txt\n"))
 				return err
-			case "git diff --name-only HEAD origin/dev":
+			case "git diff --name-only origin/dev...HEAD":
 				return errors.New("fatal: ambiguous argument 'origin/dev': both revision and filename")
 			default:
 				t.Fatalf("unexpected command: %s", command)
@@ -340,12 +340,12 @@ func TestPushFiles(t *testing.T) {
 			case "git diff --name-only HEAD @{push}":
 				// A branch pushed for the first time has no upstream yet.
 				return errors.New("fatal: no upstream configured for branch 'feature'")
-			case "git diff --name-only HEAD main --":
+			case "git diff --name-only main...HEAD --":
 				// There is no local branch named "main" in this clone (e.g.
 				// someone who always branches straight off origin/main), so
 				// this must never be run.
 				return errors.New("fatal: bad revision 'main'")
-			case "git diff --name-only HEAD origin/main --":
+			case "git diff --name-only origin/main...HEAD --":
 				_, err := out.Write([]byte("file.txt\n"))
 				return err
 			default:
