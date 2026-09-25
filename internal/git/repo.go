@@ -32,7 +32,7 @@ var (
 	reVersion                 = regexp.MustCompile(`\d+\.\d+\.(\d+|\w+)`)
 	reStashMessage            = regexp.MustCompile(`^(?P<stash>[^ ]+):\s*` + stashMessage)
 	cmdPushFilesBase          = []string{"git", "diff", "--name-only", "HEAD", "@{push}"}
-	cmdPushFilesHead          = []string{"git", "diff", "--name-only", "HEAD"}
+	cmdPushFilesHead          = []string{"git", "diff", "--name-only"}
 	cmdLsTreeFilesHead        = []string{"git", "ls-tree", "-r", "--name-only", "HEAD"}
 	cmdStagedFiles            = []string{"git", "diff", "--name-only", "--cached", "--diff-filter=ACMR"}
 	cmdStagedFilesWithDeleted = []string{"git", "diff", "--name-only", "--cached", "--diff-filter=ACMRD"}
@@ -202,7 +202,18 @@ func (r *Repo) PushFiles() ([]string, error) {
 		return r.FindExistingFiles(cmdLsTreeFilesHead, "")
 	}
 
-	return r.FindExistingFiles(append(cmdPushFilesHead, r.headBranch, "--"), "")
+	// Compare against the merge base so that commits which landed on the
+	// default branch after HEAD diverged from it are not reported as pushed.
+	lines, err = r.Git.OnlyDebugLogs().CmdLinesWithinFolder(
+		append(cmdPushFilesHead, r.headBranch+"...HEAD", "--"), "",
+	)
+	if err != nil {
+		// HEAD shares no history with the default branch (e.g. an orphan
+		// branch), so every file in HEAD is going to be pushed.
+		return r.FindExistingFiles(cmdLsTreeFilesHead, "")
+	}
+
+	return r.extractFiles(lines, true)
 }
 
 // resolveHeadBranch determines the upstream head branch.
