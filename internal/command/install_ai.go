@@ -37,38 +37,22 @@ const (
 
 var errAIHooksMisconfigured = errors.New("ai hooks misconfigured")
 
-// resolveLefthookBin returns the lefthook executable or command to embed in
-// generated AI hook entries. Prefers the config "lefthook" setting, then
-// os.Executable(), then the bare "lefthook" name as a last resort.
-func resolveLefthookBin(cfg *config.Config) (bin string, quoteBin bool) {
+// resolveLefthookBin returns the command to embed in generated AI hook entries.
+// These settings files are usually committed, so the command must not depend on
+// where lefthook is installed on the current machine. Prefers the config
+// "lefthook" setting, then the bare "lefthook" name.
+func resolveLefthookBin(cfg *config.Config) string {
 	if cfg != nil {
 		if trimmed := strings.TrimSpace(cfg.Lefthook); trimmed != "" {
-			return trimmed, false
+			return trimmed
 		}
 	}
 
-	exe, err := os.Executable()
-	if err != nil {
-		return lefthookBinName, false
-	}
-
-	return filepath.Clean(exe), true
+	return lefthookBinName
 }
 
-func lefthookRunCommand(bin, hookName string, quoteBin bool) string {
-	if quoteBin {
-		bin = shellQuotePath(bin)
-	}
-
+func lefthookRunCommand(bin, hookName string) string {
 	return bin + lefthookRunSuffix + hookName
-}
-
-func shellQuotePath(path string) string {
-	if !strings.Contains(path, " ") {
-		return path
-	}
-
-	return "'" + strings.ReplaceAll(path, "'", "'\\''") + "'"
 }
 
 func checkAIHookReferences(provider string, events map[string]string, hooks map[string]*config.Hook) []string {
@@ -105,11 +89,11 @@ func (l *Lefthook) validateAIHooks(ai *config.AI, hooks map[string]*config.Hook)
 // installAIHooks generates provider-specific settings files for each configured
 // LLM provider under the ai: key.
 func (l *Lefthook) installAIHooks(ai *config.AI, cfg *config.Config) error {
-	bin, quoteBin := resolveLefthookBin(cfg)
+	bin := resolveLefthookBin(cfg)
 
 	if len(ai.Claude) > 0 {
 		path := filepath.Join(l.repo.RootPath, claudeSettingsDir, claudeSettingsFile)
-		if err := l.writeAIHookFile(path, ai.Claude, bin, quoteBin); err != nil {
+		if err := l.writeAIHookFile(path, ai.Claude, bin); err != nil {
 			return fmt.Errorf("could not write Claude settings: %w", err)
 		}
 		l.logger.Infof("Updated %s", path)
@@ -117,7 +101,7 @@ func (l *Lefthook) installAIHooks(ai *config.AI, cfg *config.Config) error {
 
 	if len(ai.Codex) > 0 {
 		path := filepath.Join(l.repo.RootPath, codexHooksDir, codexHooksFile)
-		if err := l.writeAIHookFile(path, ai.Codex, bin, quoteBin); err != nil {
+		if err := l.writeAIHookFile(path, ai.Codex, bin); err != nil {
 			return fmt.Errorf("could not write Codex hooks: %w", err)
 		}
 		l.logger.Infof("Updated %s", path)
@@ -125,7 +109,7 @@ func (l *Lefthook) installAIHooks(ai *config.AI, cfg *config.Config) error {
 
 	if len(ai.Cursor) > 0 {
 		path := filepath.Join(l.repo.RootPath, cursorHooksDir, cursorHooksFile)
-		if err := l.writeCursorHookFile(path, ai.Cursor, bin, quoteBin); err != nil {
+		if err := l.writeCursorHookFile(path, ai.Cursor, bin); err != nil {
 			return fmt.Errorf("could not write Cursor hooks: %w", err)
 		}
 		l.logger.Infof("Updated %s", path)
@@ -133,7 +117,7 @@ func (l *Lefthook) installAIHooks(ai *config.AI, cfg *config.Config) error {
 
 	if len(ai.Copilot) > 0 {
 		path := filepath.Join(l.repo.RootPath, copilotHooksDir, copilotHooksFile)
-		if err := l.writeCopilotHookFile(path, ai.Copilot, bin, quoteBin); err != nil {
+		if err := l.writeCopilotHookFile(path, ai.Copilot, bin); err != nil {
 			return fmt.Errorf("could not write copilot hooks: %w", err)
 		}
 		l.logger.Infof("Updated %s", path)
@@ -142,7 +126,7 @@ func (l *Lefthook) installAIHooks(ai *config.AI, cfg *config.Config) error {
 	return nil
 }
 
-func (l *Lefthook) writeAIHookFile(path string, events map[string]string, bin string, quoteBin bool) error {
+func (l *Lefthook) writeAIHookFile(path string, events map[string]string, bin string) error {
 	existing := make(map[string]any)
 
 	data, err := afero.ReadFile(l.fs, path)
@@ -157,7 +141,7 @@ func (l *Lefthook) writeAIHookFile(path string, events map[string]string, bin st
 
 	mergedHooks := stripLefthookEntries(existing)
 	for event, hookName := range events {
-		entry := buildHookEntry(hookName, bin, quoteBin)
+		entry := buildHookEntry(hookName, bin)
 		if current, ok := mergedHooks[event]; ok {
 			if arr, ok := current.([]any); ok {
 				mergedHooks[event] = append(arr, entry)
@@ -172,14 +156,14 @@ func (l *Lefthook) writeAIHookFile(path string, events map[string]string, bin st
 	return l.writeJSONFile(path, existing)
 }
 
-func (l *Lefthook) writeCursorHookFile(path string, events map[string]string, bin string, quoteBin bool) error {
-	return l.writeFlatHookFile(path, events, cursorHooksVersion, stripCursorLefthookEntries, bin, quoteBin)
+func (l *Lefthook) writeCursorHookFile(path string, events map[string]string, bin string) error {
+	return l.writeFlatHookFile(path, events, cursorHooksVersion, stripCursorLefthookEntries, bin)
 }
 
-func (l *Lefthook) writeCopilotHookFile(path string, events map[string]string, bin string, quoteBin bool) error {
+func (l *Lefthook) writeCopilotHookFile(path string, events map[string]string, bin string) error {
 	mergedHooks := make(map[string]any, len(events))
 	for event, hookName := range events {
-		mergedHooks[event] = []any{buildFlatHookEntry(hookName, bin, quoteBin)}
+		mergedHooks[event] = []any{buildFlatHookEntry(hookName, bin)}
 	}
 
 	return l.writeJSONFile(path, map[string]any{
@@ -209,7 +193,6 @@ func (l *Lefthook) writeFlatHookFile(
 	version int,
 	strip func(map[string]any) map[string]any,
 	bin string,
-	quoteBin bool,
 ) error {
 	existing := make(map[string]any)
 
@@ -225,7 +208,7 @@ func (l *Lefthook) writeFlatHookFile(
 
 	mergedHooks := strip(existing)
 	for event, hookName := range events {
-		entry := buildFlatHookEntry(hookName, bin, quoteBin)
+		entry := buildFlatHookEntry(hookName, bin)
 		if current, ok := mergedHooks[event]; ok {
 			if arr, ok := current.([]any); ok {
 				mergedHooks[event] = append(arr, entry)
@@ -280,9 +263,9 @@ func stripFlatLefthookEntries(existing map[string]any) map[string]any {
 	return mergedHooks
 }
 
-func buildFlatHookEntry(hookName, bin string, quoteBin bool) map[string]any {
+func buildFlatHookEntry(hookName, bin string) map[string]any {
 	return map[string]any{
-		"command": lefthookRunCommand(bin, hookName, quoteBin),
+		"command": lefthookRunCommand(bin, hookName),
 	}
 }
 
@@ -363,12 +346,12 @@ func isLefthookMatcher(rawMatcher any) bool {
 }
 
 // buildHookEntry constructs a single matcher group that runs lefthook for hookName.
-func buildHookEntry(hookName, bin string, quoteBin bool) map[string]any {
+func buildHookEntry(hookName, bin string) map[string]any {
 	return map[string]any{
 		"hooks": []any{
 			map[string]any{
 				"type":    "command",
-				"command": lefthookRunCommand(bin, hookName, quoteBin),
+				"command": lefthookRunCommand(bin, hookName),
 			},
 		},
 	}
