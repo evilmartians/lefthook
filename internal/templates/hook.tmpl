@@ -102,6 +102,51 @@ call_lefthook()
       echo "Make sure lefthook is available in your environment and re-try."
       echo "To skip these checks use --no-verify git argument or set LEFTHOOK=0 env variable."
       exit 1
+      {{- else}}
+      # Fail closed when this repository actually uses lefthook: silently
+      # exiting 0 would skip the configured hooks (e.g. a pre-push gate).
+      # Repos without a lefthook config keep the historical silent no-op,
+      # so a shared core.hooksPath can still serve many repos.
+      dir="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+      # Check every main/local config name and extension lefthook itself
+      # searches for (internal/config/loader.go: lefthook, .lefthook,
+      # .config/lefthook [+ -local variants] x .yml .yaml .json .jsonc
+      # .toml), plus the LEFTHOOK_CONFIG override (any path, resolved
+      # against the repo root).
+      found=""
+      for base in lefthook .lefthook .config/lefthook \
+                  lefthook-local .lefthook-local .config/lefthook-local
+      do
+        for ext in .yml .yaml .json .jsonc .toml
+        do
+          if test -f "$dir/$base$ext"
+          then
+            found=1
+            break
+          fi
+        done
+        if test -n "$found"
+        then
+          break
+        fi
+      done
+      if test -n "$LEFTHOOK_CONFIG"
+      then
+        # Match the loader's resolution: an absolute override is used as-is
+        # (this also catches UNC and rooted Windows forms, which the plain
+        # test cannot misclassify); a relative one is resolved against the
+        # repo root. A missing override makes lefthook error out on its
+        # own, so a no-op here cannot bypass a working setup.
+        test -f "$LEFTHOOK_CONFIG" && found=1
+        test -f "$dir/$LEFTHOOK_CONFIG" && found=1
+      fi
+      if test -n "$found"
+      then
+        echo "ERROR: Operation is aborted due to lefthook settings."
+        echo "Make sure lefthook is available in your environment and re-try."
+        echo "To skip these checks use --no-verify git argument or set LEFTHOOK=0 env variable."
+        exit 1
+      fi
       {{- end}}
     fi
   fi
