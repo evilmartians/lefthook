@@ -3,10 +3,10 @@ type: concept
 title: Mise
 source: "https://lefthook.dev/installation/mise/"
 path: /installation/mise/
-updated: 2026-09-24
+updated: 2026-09-28
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-24T07:39:24.182Z"
+  generated_at: "2026-09-28T09:49:41.178Z"
 ---
 # Mise
 

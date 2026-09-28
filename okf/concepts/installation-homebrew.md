@@ -3,10 +3,10 @@ type: concept
 title: Homebrew
 source: "https://lefthook.dev/installation/homebrew/"
 path: /installation/homebrew/
-updated: 2026-09-24
+updated: 2026-09-28
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-24T07:39:24.181Z"
+  generated_at: "2026-09-28T09:49:41.177Z"
 ---
 ---
 title: "Homebrew"

@@ -3,10 +3,10 @@ type: concept
 title: lefthook
 source: "https://lefthook.dev/configuration/lefthook/"
 path: /configuration/lefthook/
-updated: 2026-09-24
+updated: 2026-09-28
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-24T07:39:24.156Z"
+  generated_at: "2026-09-28T09:49:41.156Z"
 ---
 ---
 title: "lefthook"

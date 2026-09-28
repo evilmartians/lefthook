@@ -3,10 +3,10 @@ type: concept
 title: git_url
 source: "https://lefthook.dev/configuration/git_url/"
 path: /configuration/git_url/
-updated: 2026-09-24
+updated: 2026-09-28
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-24T07:39:24.153Z"
+  generated_at: "2026-09-28T09:49:41.153Z"
 ---
 ---
 title: "git_url"

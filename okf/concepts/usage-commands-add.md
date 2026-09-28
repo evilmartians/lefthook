@@ -3,10 +3,10 @@ type: concept
 title: "lefthook add"
 source: "https://lefthook.dev/usage/commands/add/"
 path: /usage/commands/add/
-updated: 2026-09-24
+updated: 2026-09-28
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-24T07:39:24.188Z"
+  generated_at: "2026-09-28T09:49:41.183Z"
 ---
 ---
 title: "lefthook add"
