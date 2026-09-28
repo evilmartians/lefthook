@@ -43,7 +43,7 @@ func TestLefthookInstall(t *testing.T) {
 		wantError               bool
 	}{
 		{
-			name: "without a config file",
+			name:      "without a config file",
 			wantExist: []string{configPath},
 		},
 		{
