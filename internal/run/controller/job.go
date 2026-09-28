@@ -150,11 +150,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 			return result.Failure(name, "timeout ("+job.Timeout.String()+")", executionTime)
 		}
 
-		failText := job.FailText
-		if failText == "" {
-			failText = err.Error()
-		}
-		return result.FailureWithCode(name, failText, executionTime, commandExitCode(err))
+		return result.FailureWithCode(name, job.FailText, executionTime, commandExitCode(err))
 	}
 
 	if config.HookUsesStagedFiles(scope.hookName) && job.StageFixed && !scope.opts.NoStageFixed {
