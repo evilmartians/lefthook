@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"maps"
-	"os/exec"
+	osexec "os/exec"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -209,7 +209,7 @@ func (c *Controller) skipReason(scope *scope, job *config.Job, name string) stri
 }
 
 func commandExitCode(err error) int {
-	var exitErr *exec.ExitError
+	var exitErr *osexec.ExitError
 	if errors.As(err, &exitErr) {
 		return exitErr.ExitCode()
 	}
