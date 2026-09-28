@@ -4,12 +4,17 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/evilmartians/lefthook/v2/internal/logger"
 )
 
-const lefthookBinEnv = "LEFTHOOK_BIN"
+const (
+	lefthookBinEnv = "LEFTHOOK_BIN"
+	// Capacity for optional LEFTHOOK_BIN + PATH entries when enriching env.
+	lefthookEnvExtraSlots = 2
+)
 
 var (
 	executablePath = os.Executable
@@ -48,7 +53,7 @@ func enrichEnvWithLefthookBinary(env []string, exe string) []string {
 
 	hasBin := false
 	hasPath := false
-	out := make([]string, 0, len(env)+2)
+	out := make([]string, 0, len(env)+lefthookEnvExtraSlots)
 
 	for _, entry := range env {
 		if strings.HasPrefix(entry, lefthookBinEnv+"=") {
@@ -79,10 +84,5 @@ func enrichEnvWithLefthookBinary(env []string, exe string) []string {
 }
 
 func pathContainsDir(pathEnv, dir string) bool {
-	for _, part := range strings.Split(pathEnv, string(os.PathListSeparator)) {
-		if part == dir {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(strings.Split(pathEnv, string(os.PathListSeparator)), dir)
 }
