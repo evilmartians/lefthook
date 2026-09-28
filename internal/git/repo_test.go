@@ -216,9 +216,10 @@ func TestPrintDiff(t *testing.T) {
 }
 
 func TestPushFiles(t *testing.T) {
+	const root = "/repo"
+
 	t.Run("falls back to ls-tree for initial push without upstream", func(t *testing.T) {
 		fs := afero.NewMemMapFs()
-		root := "/repo"
 		readme := filepath.Join(root, "README.md")
 
 		if err := fs.MkdirAll(root, 0o755); err != nil {
@@ -230,7 +231,7 @@ func TestPushFiles(t *testing.T) {
 
 		cmd := cmdtest.NewTracking(func(command string, _ string, out io.Writer) error {
 			switch command {
-			case "git diff --name-only HEAD @{push}":
+			case "git diff --name-only HEAD @{push}": //nolint:goconst
 				return errors.New("no upstream configured")
 			case "git branch --remotes":
 				return nil
@@ -264,7 +265,6 @@ func TestPushFiles(t *testing.T) {
 
 	t.Run("separates fallback branch from pathspecs", func(t *testing.T) {
 		fs := afero.NewMemMapFs()
-		root := "/repo"
 		gitPath := filepath.Join(root, ".git")
 		originHead := filepath.Join(gitPath, "refs", "remotes", "origin", "HEAD")
 
@@ -318,7 +318,6 @@ func TestPushFiles(t *testing.T) {
 
 	t.Run("falls back to the remote-tracking ref when no local branch of that name exists", func(t *testing.T) {
 		fs := afero.NewMemMapFs()
-		root := "/repo"
 		gitPath := filepath.Join(root, ".git")
 		originHead := filepath.Join(gitPath, "refs", "remotes", "origin", "HEAD")
 

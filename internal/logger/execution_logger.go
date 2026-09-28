@@ -178,22 +178,12 @@ func (el *ExecutionLogger) LogSetup(r io.Reader) {
 
 func (el *ExecutionLogger) LogMeta(hookName string) {
 	var (
-		name   = "🥊 lefthook "
-		color1 = el.colors.get(ColorGray)
-		color2 = colorBorder
-		style  = lipgloss.NewStyle().BorderForegroundBlend(
-			color1,
-			color2,
-			color1,
-			color2,
-			color1,
-			color2,
-			color1,
-		)
+		name  = "🥊 lefthook "
+		style = lipgloss.NewStyle().BorderForeground(colorBorder)
 	)
+
 	if el.NoColors() {
 		name = "lefthook "
-		style = lipgloss.NewStyle().BorderForeground(color1)
 	}
 
 	el.Info(
