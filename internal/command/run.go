@@ -277,7 +277,7 @@ func (l *Lefthook) runHook(
 
 	l.logSummary(exLogger, time.Since(startTime), results)
 
-	agentMode := os.Getenv(envAgent) == "1" || os.Getenv(envAgent) == "true"
+	agentMode := isEnvEnabled(envAgent)
 	for _, res := range results {
 		if res.Failure() {
 			if agentMode {
