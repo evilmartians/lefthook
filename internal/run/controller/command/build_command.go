@@ -27,7 +27,7 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 
 	// Checking substitutions and skipping execution if it is empty.
 	if !b.opts.Force && replacer.HasEmpty() {
-		return nil, nil, SkipError{"no files for inspection"}
+		return nil, nil, SkipError{NoFiles}
 	}
 
 	// Special case when `files` option specified but not referenced in `run`: return if the result is empty.
@@ -38,7 +38,7 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 		}
 
 		if len(files) == 0 {
-			return nil, nil, SkipError{"no files for inspection"}
+			return nil, nil, SkipError{NoFiles}
 		}
 	}
 
@@ -63,7 +63,7 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 			}
 
 			if len(filter.Apply(files)) == 0 {
-				return nil, nil, SkipError{"no matching staged files"}
+				return nil, nil, SkipError{NoStagedFiles}
 			}
 		}
 	}
@@ -76,7 +76,7 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 		}
 
 		if len(files) == 0 {
-			return nil, nil, SkipError{"no matching push files"}
+			return nil, nil, SkipError{NoPushFiles}
 		}
 	}
 
