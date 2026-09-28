@@ -256,8 +256,7 @@ func (l *Lefthook) runHook(
 	startTime := time.Now()
 	results, err := run.Run(ctx, hook, repo, exLogger, opts)
 	if err != nil {
-		var failOnChangesErr *run.FailOnChangesError
-		if errors.As(err, &failOnChangesErr) {
+		if _, ok := errors.AsType[*run.FailOnChangesError](err); ok {
 			return err
 		}
 		return fmt.Errorf("failed to run the hook: %w", err)

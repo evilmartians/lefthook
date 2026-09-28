@@ -118,8 +118,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 	if err != nil {
 		c.logger.LogSkipped(logName, err.Error())
 
-		var skipErr command.SkipError
-		if errors.As(err, &skipErr) {
+		if _, ok := errors.AsType[command.SkipError](err); ok {
 			return result.Skip(name)
 		}
 

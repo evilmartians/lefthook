@@ -88,7 +88,7 @@ func (r Replacer) AddGitArgs(args []string) Replacer {
 }
 
 func NewMocked(logger *logger.ExecutionLogger, files []string) Replacer {
-	forceFilesFn := func() ([]string, error) { return files, nil } //nolint:unparam
+	forceFilesFn := func() ([]string, error) { return files, nil }
 
 	return Replacer{
 		logger: logger,

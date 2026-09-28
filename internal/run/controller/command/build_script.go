@@ -40,7 +40,7 @@ func (b *Builder) buildScript(params *JobParams) ([]string, []string, error) {
 		}
 
 		if !b.opts.Force && replacer.HasEmpty() {
-			return nil, nil, SkipError{"no files for inspection"}
+			return nil, nil, SkipError{NoFiles}
 		}
 	}
 
@@ -62,7 +62,7 @@ func (b *Builder) buildScript(params *JobParams) ([]string, []string, error) {
 
 		if !fileInfo.Mode().IsRegular() {
 			b.logger.Debugf("[lefthook] script '%s' is not a regular file, skipping", scriptPath)
-			return nil, nil, SkipError{"not a regular file"}
+			return nil, nil, SkipError{InvalidScript}
 		}
 
 		// Make sure file is executable
