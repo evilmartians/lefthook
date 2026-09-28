@@ -60,8 +60,8 @@ github.com/knadh/koanf/providers/fs v1.0.1 h1:CfsoRTXgsuPOnXIj9LeFZju5pNnpF8woZa
 github.com/knadh/koanf/providers/fs v1.0.1/go.mod h1:FksHET+xXFNDozvj8ZCdom54OnZ6eGKJtC5FhZJKx/8=
 github.com/knadh/koanf/providers/rawbytes v1.0.1 h1:JCQoly+djX23Okr8kqtS19R7UXKleTAp62Vib2VrVYs=
 github.com/knadh/koanf/providers/rawbytes v1.0.1/go.mod h1:KxwYJf1uezTKy6PBtfE+m725NGp4GPVA7XoNTJ/PtLo=
-github.com/knadh/koanf/v2 v2.3.6 h1:JoQPSJmvS4aP0xNc8xMDr5tcrkSEInL23/Il7pITAKo=
-github.com/knadh/koanf/v2 v2.3.6/go.mod h1:gRb40VRAbd4iJMYYD5IxZ6hfuopFcXBpc9bbQpZwo28=
+github.com/knadh/koanf/v2 v2.3.7 h1:amceufOeoQcq6VFKjm7/ggJ3t0Dkqaxy5fza4j3YgTA=
+github.com/knadh/koanf/v2 v2.3.7/go.mod h1:gRb40VRAbd4iJMYYD5IxZ6hfuopFcXBpc9bbQpZwo28=
 github.com/lucasb-eyer/go-colorful v1.4.1 h1:1EO+WB73+EH8EVbzlrG3KLAfEypQWVHIBqlTf+2hNss=
 github.com/lucasb-eyer/go-colorful v1.4.1/go.mod h1:R4dSotOR9KMtayYi1e77YzuveK+i7ruzyGqttikkLy0=
 github.com/mattn/go-colorable v0.1.13 h1:fFA4WZxdEF4tXPZVKMLwD8oUnCTTo08duU7wxecdEvA=
