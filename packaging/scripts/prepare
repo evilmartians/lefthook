@@ -1,0 +1,23 @@
+#! /usr/bin/env bash
+set -euo pipefail
+
+lib="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib"
+
+case $1 in
+  npm)
+    source "$lib/npm.sh"
+    prepare_npm
+    ;;
+  rubygem)
+    source "$lib/rubygem.sh"
+    prepare_rubygem
+    ;;
+  pypi)
+    source "$lib/pypi.sh"
+    prepare_pypi
+    ;;
+  *)
+    echo "unknown target: $1"
+    exit 1
+    ;;
+esac

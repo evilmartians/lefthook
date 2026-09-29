@@ -1,0 +1,16 @@
+#! /usr/bin/env bash
+set -euo pipefail
+
+lib="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib"
+
+source "$lib/npm.sh"
+source "$lib/rubygem.sh"
+source "$lib/pypi.sh"
+source "$lib/aur.sh"
+source "$lib/aur_bin.sh"
+
+set_version_npm
+set_version_rubygem
+set_version_pypi
+set_version_aur
+set_version_aur_bin
