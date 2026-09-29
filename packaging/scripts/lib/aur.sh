@@ -35,7 +35,7 @@ publish_aur() {
 push_new_version() {
   pushd "$1"
 
-  sh -c makepkg --printsrcinfo > .SRCINFO
+  makepkg --printsrcinfo > .SRCINFO
   makepkg --noconfirm
   makepkg --install --noconfirm
 
