@@ -24,7 +24,7 @@ declare -rA PYPI_BINARIES=(
 
 set_version_pypi() {
   replace "$PYPI/pyproject.toml" \
-    'version\s*=.+$' \
+    '^\s*version\s*=.+$' \
     "version = \"${VERSION}\""
 }
 

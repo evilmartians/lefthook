@@ -29,7 +29,7 @@ publish_aur_bin() {
   sha256sum_linux_aarch64=$(fetch_sha256sum "https://github.com/evilmartians/lefthook/releases/download/v${VERSION}/lefthook_${VERSION}_Linux_aarch64.gz")
 
   cat "$pkgbuild" \
-    | sed -e "s/{{ sha256sum_linux_x68_64 }}/$sha256sum_linux_x86_64/" \
+    | sed -e "s/{{ sha256sum_linux_x86_64 }}/$sha256sum_linux_x86_64/" \
           -e "s/{{ sha256sum_linux_aarch64 }}/$sha256sum_linux_aarch64/" \
     > lefthook-bin-aur/PKGBUILD
 
