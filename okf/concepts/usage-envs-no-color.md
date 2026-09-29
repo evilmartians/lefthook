@@ -6,7 +6,7 @@ path: /usage/envs/NO_COLOR/
 updated: 2026-09-29
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-29T15:48:17.582Z"
+  generated_at: "2026-09-29T15:50:18.540Z"
 ---
 ---
 title: "NO_COLOR"
