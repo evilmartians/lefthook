@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"io"
 	"path/filepath"
 	"strings"
 
@@ -54,6 +55,11 @@ func (c *Controller) runLFSHook(ctx context.Context, hookName string, args []str
 	)
 	out := new(bytes.Buffer)
 	errOut := new(bytes.Buffer)
+	var stdin io.Reader
+	if hookName == "pre-push" {
+		// Git LFS reads ref updates from stdin for pre-push only.
+		stdin = c.cachedStdin
+	}
 	err = c.cmd.RunWithContext(
 		ctx,
 		append(
@@ -61,7 +67,7 @@ func (c *Controller) runLFSHook(ctx context.Context, hookName string, args []str
 			args...,
 		),
 		"",
-		c.cachedStdin,
+		stdin,
 		out,
 		errOut,
 	)
