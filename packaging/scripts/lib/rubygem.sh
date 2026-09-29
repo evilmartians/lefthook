@@ -44,7 +44,7 @@ publish_rubygem() {
   rake build
 
   # Ensure we publish just one package
-  local -a packages=./pkg/*
+  local -a packages=$(ls ./pkg/*)
   [[ ${#packages[@]} -eq 1 ]]
 
   for package in "${packages[@]}"
