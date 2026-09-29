@@ -48,5 +48,5 @@ version:
 	sed -i "s/go install github.com\/evilmartians\/lefthook\/v2.*/go install github.com\/evilmartians\/lefthook\/v2@v$$version/" docs/installation/go.md
 	sed -i "s/go install github.com\/evilmartians\/lefthook\/v2.*/go install github.com\/evilmartians\/lefthook\/v2@v$$version/" README.md
 	sed -i "s/go get -tool github.com\/evilmartians\/lefthook\/v2.*/go get -tool github.com\/evilmartians\/lefthook\/v2@v$$version/" README.md
-	raku packaging/scripts/set-version.raku
+	bash packaging/scripts/set-version
 	git add internal/version/version.go packaging/* docs/ README.md

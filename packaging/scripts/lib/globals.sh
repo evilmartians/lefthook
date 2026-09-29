@@ -7,9 +7,9 @@ VERSION="2.1.15"
 
 lib="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-REPO_ROOT=$(cd ${lib}/../../../ && pwd)
+REPO_ROOT=$(cd "${lib}/../../../" && pwd)
 BINS_ROOT="$REPO_ROOT/dist"
-REGISTRIES_ROOT="$(cd ${lib}/../../ && pwd)/registries"
+REGISTRIES_ROOT="$(cd "${lib}/../../" && pwd)/registries"
 
 declare -rA BINARIES=(
   [amd64-linux]="${BINS_ROOT}/no_self_update_linux_amd64_v1/lefthook"

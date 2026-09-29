@@ -22,10 +22,16 @@ declare -rA RUBYGEM_BINARIES=(
   [arm64-openbsd]="${RUBYGEMS}/libexec/lefthook-openbsd-arm64/lefthook"
 )
 
+set_version_rubygem() {
+  replace "$RUBYGEMS/lefthook.gemspec" \
+    '(spec\.version\s*)=.*$' \
+    "\1= \"${VERSION}\""
+}
+
 prepare_rubygem() {
   [[ ${#BINARIES[@]} -eq ${#RUBYGEM_BINARIES[@]} ]]
 
-  for kind in ${!BINARIES[@]}
+  for kind in "${!BINARIES[@]}"
   do
     copy "${BINARIES[$kind]}" "${RUBYGEM_BINARIES[$kind]}"
   done
@@ -41,7 +47,7 @@ publish_rubygem() {
   local -a packages=./pkg/*
   [[ ${#packages[@]} -eq 1 ]]
 
-  for package in ${packages[@]}
+  for package in "${packages[@]}"
   do
     gem push "$package"
   done

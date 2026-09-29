@@ -1,6 +1,3 @@
-# Raku precompilation
-.precomp/
-
 # Python precompilation
 __pycache__/
 /registries/pypi/lefthook.egg-info/

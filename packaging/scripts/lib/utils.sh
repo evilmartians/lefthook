@@ -7,15 +7,27 @@ _UTILS_SH=1
 #
 # Creates missing directories for the `dest_file`
 copy() {
-  local source=$1
+  local src=$1
   local dest=$2
 
-  if [[ ! -e $(dirname "$dest") ]]
+  local dest_dir
+  dest_dir="$(dirname "$dest")"
+  if [[ ! -e "$dest_dir" ]]
   then
-    mkdir -p $(dirname "$dest")
+    mkdir -p "$dest_dir"
   fi
 
-  cp "$source" "$dest"
+  cp "$src" "$dest"
+}
+
+replace() {
+  local file=$1
+  local regex=$2
+  local replacement=$3
+
+  echo "updating version in $file"
+
+  perl -pi -e "s/$regex/$replacement/" "$file"
 }
 
 fetch_sha256sum() {

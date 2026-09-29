@@ -7,14 +7,23 @@ lib=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 source "$lib/globals.sh"
 source "$lib/utils.sh"
 
+set_version_aur() {
+  local pkgbuild="$REGISTRIES_ROOT/aur/lefthook/PKGBUILD"
+
+  replace "$pkgbuild" \
+    'pkgver\s*=.*$' \
+    "pkgver=${VERSION}"
+}
+
 publish_aur() {
-  pushd $REPO_ROOT
+  pushd "$REPO_ROOT"
 
   local pkgbuild="$REGISTRIES_ROOT/aur/lefthook/PKGBUILD"
 
   git clone ssh://aur@aur.archlinux.org/lefthook.git lefthook-aur
 
-  local shasum=$(fetch_sha256sum "https://github.com/evilmartians/lefthook/archive/v${VERSION}.tar.gz")
+  local shasum
+  shasum=$(fetch_sha256sum "https://github.com/evilmartians/lefthook/archive/v${VERSION}.tar.gz")
 
   cat "$pkgbuild" | sed -e "s/{{ sha256sum }}/$shasum/" > lefthook-aur/PKGBUILD
 
@@ -24,7 +33,7 @@ publish_aur() {
 }
 
 push_new_version() {
-  pushd $1
+  pushd "$1"
 
   sh -c makepkg --printsrcinfo > .SRCINFO
   makepkg --noconfirm
@@ -33,7 +42,7 @@ push_new_version() {
   git config user.name "github-actions[bot]"
   git config user.email "github-actions[bot]@users.noreply.github.com"
   git add PKGBUILD .SRCINFO
-  git commit -m release v${VERSION}
+  git commit -m release "v${VERSION}"
   git push origin master
 
   popd

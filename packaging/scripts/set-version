@@ -1,18 +1,16 @@
-#! /usr/bin/env raku
+#! /usr/bin/env bash
 set -euo pipefail
 
-# use v6;
-#
-# use lib $?FILE.IO.parent.child("lib");
-# use Packager;
-# use Registry :Target;
-#
-# sub MAIN(
-#   Registry::Target :$target = all-registries,
-#   Bool :$dry-run = False,
-# ) {
-#   Packager.new(
-#     target  => $target,
-#     dry-run => $dry-run,
-#   ).set-version;
-# }
+lib="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib"
+
+source "$lib/npm.sh"
+source "$lib/rubygem.sh"
+source "$lib/pypi.sh"
+source "$lib/aur.sh"
+source "$lib/aur_bin.sh"
+
+set_version_npm
+set_version_rubygem
+set_version_pypi
+set_version_aur
+set_version_aur_bin

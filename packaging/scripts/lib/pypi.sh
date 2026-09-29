@@ -21,19 +21,17 @@ declare -rA PYPI_BINARIES=(
   [arm64-freebsd]="${PYPI}/lefthook/bin/lefthook-freebsd-arm64/lefthook"
   [arm64-openbsd]="${PYPI}/lefthook/bin/lefthook-openbsd-arm64/lefthook"
 )
-my constant @PLATFORMS = (
-  ("linux",   "x86_64"),
-  ("windows", "x86_64"),
-  ("darwin",  "x86_64"),
-  ("linux",   "arm64"),
-  ("windows", "arm64"),
-  ("darwin",  "arm64"),
-);
+
+set_version_pypi() {
+  replace "$PYPI/pyproject.toml" \
+    'version\s*=.+$' \
+    "version = \"${VERSION}\""
+}
 
 prepare_pypi() {
   [[ ${#BINARIES[@]} -eq ${#PYPI_BINARIES[@]} ]]
 
-  for kind in ${!BINARIES[@]}
+  for kind in "${!BINARIES[@]}"
   do
     copy "${BINARIES[$kind]}" "${PYPI_BINARIES[$kind]}"
   done

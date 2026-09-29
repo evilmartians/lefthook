@@ -12,19 +12,19 @@ NPM_BUNDLED="$REGISTRIES_ROOT/npm-bundled"
 NPM_INSTALLER="$REGISTRIES_ROOT/npm-installer"
 
 declare -ra PACKAGES=(
-  ${NPM}/lefthook-darwin-arm64/
-  ${NPM}/lefthook-darwin-x64/
-  ${NPM}/lefthook-linux-arm64/
-  ${NPM}/lefthook-linux-x64/
-  ${NPM}/lefthook-windows-arm64/
-  ${NPM}/lefthook-windows-x64/
-  ${NPM}/lefthook-freebsd-arm64/
-  ${NPM}/lefthook-freebsd-x64/
-  ${NPM}/lefthook-openbsd-arm64/
-  ${NPM}/lefthook-openbsd-x64/
-  ${NPM}/lefthook/
-  ${NPM_BUNDLED}/
-  ${NPM_INSTALLER}/
+  "${NPM}/lefthook-darwin-arm64"
+  "${NPM}/lefthook-darwin-x64"
+  "${NPM}/lefthook-linux-arm64"
+  "${NPM}/lefthook-linux-x64"
+  "${NPM}/lefthook-windows-arm64"
+  "${NPM}/lefthook-windows-x64"
+  "${NPM}/lefthook-freebsd-arm64"
+  "${NPM}/lefthook-freebsd-x64"
+  "${NPM}/lefthook-openbsd-arm64"
+  "${NPM}/lefthook-openbsd-x64"
+  "${NPM}/lefthook"
+  "${NPM_BUNDLED}"
+  "${NPM_INSTALLER}"
 )
 
 declare -rA NPM_BINARIES=(
@@ -53,8 +53,20 @@ declare -rA NPM_BUNDLED_BINARIES=(
   [arm64-openbsd]="${NPM_BUNDLED}/bin/lefthook-openbsd-arm64/lefthook"
 )
 
+set_version_npm() {
+  for package in "${PACKAGES[@]}"
+  do
+    replace "$package/package.json" '"version":\s*"[\d\w.]+"' "\"version\": \"${VERSION}\""
+  done
+
+  replace \
+    "${NPM}/lefthook/package.json" \
+    '"(lefthook-[\d\w-]+)":\s*"[\d\w.]+"' \
+    "\"\\1\": \"${VERSION}\""
+}
+
 prepare_npm() {
-  for package in ${PACKAGES[@]}
+  for package in "${PACKAGES[@]}"
   do
     copy "$REPO_ROOT/README.md" "$package/README.md"
   done
@@ -64,7 +76,7 @@ prepare_npm() {
     "${NPM_BUNDLED}/schema.json"
     "${NPM_INSTALLER}/schema.json"
   )
-  for schema in ${schemas[@]}
+  for schema in "${schemas[@]}"
   do
     copy "$REPO_ROOT/schema.json" "$schema"
   done
@@ -72,7 +84,7 @@ prepare_npm() {
   [[ ${#BINARIES[@]} -eq ${#NPM_BINARIES[@]} ]]
   [[ ${#BINARIES[@]} -eq ${#NPM_BUNDLED_BINARIES[@]} ]]
 
-  for kind in ${!BINARIES[@]}
+  for kind in "${!BINARIES[@]}"
   do
     copy "${BINARIES[$kind]}" "${NPM_BINARIES[$kind]}"
     copy "${BINARIES[$kind]}" "${NPM_BUNDLED_BINARIES[$kind]}"
@@ -80,7 +92,7 @@ prepare_npm() {
 }
 
 publish_npm() {
-  for package in ${PACKAGES[@]}
+  for package in "${PACKAGES[@]}"
   do
     pushd "$package"
     echo "Publishing $(basename "$package")"
