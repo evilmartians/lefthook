@@ -144,6 +144,40 @@ jobs:
           raku packaging/scripts/prepare.raku --target=pypi
           raku packaging/scripts/publish.raku --target=pypi
 
+  publish-composer:
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ vars.LEFTHOOK_COMPOSER_REPO != '' }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - run: git fetch --force --tags
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+      - run: tar -xvf dist.tar
+
+      - uses: Raku/setup-raku@v1
+      - name: Publish to Packagist
+        env:
+          LEFTHOOK_COMPOSER_REPO: ${{ vars.LEFTHOOK_COMPOSER_REPO }}
+          COMPOSER_SSH_KEY: ${{ secrets.COMPOSER_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$COMPOSER_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          cat >> ~/.ssh/config <<EOF
+          Host github.com
+            IdentityFile ~/.ssh/id_ed25519
+            User git
+          EOF
+          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+
+          raku packaging/scripts/prepare.raku --target=php
+          raku packaging/scripts/publish.raku --target=php
+
   publish-homebrew:
     needs: build
     runs-on: ubuntu-latest

@@ -13,6 +13,7 @@ use Registry;
 use Registries::NPM;
 use Registries::RubyGems;
 use Registries::PyPI;
+use Registries::PHP;
 use Registries::AUR;
 use Registries::AUR-Bin;
 
@@ -20,6 +21,7 @@ my constant @PACKAGE-TYPES = (
   Registries::NPM,
   Registries::RubyGems,
   Registries::PyPI,
+  Registries::PHP,
   Registries::AUR,
   Registries::AUR-Bin,
 );
