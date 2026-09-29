@@ -1,5 +1,15 @@
 # Change log
 
+## 2.1.15
+
+- fix: do not pipe stdin into post-checkout git-lfs hook ([#1523](https://github.com/evilmartians/lefthook/pull/1523)) by [@rwinkelman](https://github.com/rwinkelman)
+- fix: remove color blending ([#1558](https://github.com/evilmartians/lefthook/pull/1558)) by [@mrexox](https://github.com/mrexox)
+- fix: resolve push-files fallback against the remote-tracking ref ([#1485](https://github.com/evilmartians/lefthook/pull/1485)) by [@hamodywe](https://github.com/hamodywe)
+- test: regression for valid fish shell completion output ([#1527](https://github.com/evilmartians/lefthook/pull/1527)) by [@rwinkelman](https://github.com/rwinkelman)
+- fix: sanitize slashes in remote ref when building the checkout dir name ([#1486](https://github.com/evilmartians/lefthook/pull/1486)) by [@hamodywe](https://github.com/hamodywe)
+- fix: quote paths in the generated hook shim ([#1509](https://github.com/evilmartians/lefthook/pull/1509)) by [@addielaruee](https://github.com/addielaruee)
+- feat: propagate forced colors to hook commands via CLICOLOR_FORCE ([#1547](https://github.com/evilmartians/lefthook/pull/1547)) by [@Yash121l](https://github.com/Yash121l)
+
 ## 2.1.13/2.1.14 (2026-09-14)
 
 - fix: error when --job/--command matches nothing ([#1512](https://github.com/evilmartians/lefthook/pull/1512)) by [@nityanand123gupta](https://github.com/nityanand123gupta)
