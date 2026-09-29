@@ -3,10 +3,10 @@ type: concept
 title: "Install Lefthook"
 source: "https://lefthook.dev/install/"
 path: /install/
-updated: 2026-09-28
+updated: 2026-09-29
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-28T09:49:41.174Z"
+  generated_at: "2026-09-29T15:48:17.562Z"
 ---
 ---
 title: "Install Lefthook"

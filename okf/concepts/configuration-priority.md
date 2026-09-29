@@ -3,10 +3,10 @@ type: concept
 title: priority
 source: "https://lefthook.dev/configuration/priority/"
 path: /configuration/priority/
-updated: 2026-09-28
+updated: 2026-09-29
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-28T09:49:41.161Z"
+  generated_at: "2026-09-29T15:48:17.548Z"
 ---
 ---
 title: "priority"

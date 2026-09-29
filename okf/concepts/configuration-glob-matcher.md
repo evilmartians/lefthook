@@ -3,10 +3,10 @@ type: concept
 title: glob_matcher
 source: "https://lefthook.dev/configuration/glob_matcher/"
 path: /configuration/glob_matcher/
-updated: 2026-09-28
+updated: 2026-09-29
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-28T09:49:41.154Z"
+  generated_at: "2026-09-29T15:48:17.541Z"
 ---
 ---
 title: "glob_matcher"

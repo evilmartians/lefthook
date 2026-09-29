@@ -3,10 +3,10 @@ type: concept
 title: RPM-based
 source: "https://lefthook.dev/installation/rpm/"
 path: /installation/rpm/
-updated: 2026-09-28
+updated: 2026-09-29
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-28T09:49:41.179Z"
+  generated_at: "2026-09-29T15:48:17.568Z"
 ---
 ---
 title: "RPM-based"
