@@ -6,7 +6,7 @@ path: /configuration/exclude_tags/
 updated: 2026-09-29
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-29T15:50:18.515Z"
+  generated_at: "2026-09-29T20:11:56.037Z"
 ---
 ---
 title: "exclude_tags"
