@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"hash/fnv"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -20,17 +21,20 @@ import (
 )
 
 const (
-	minGitVersion     = "2.31.0"
-	stashMessage      = "lefthook auto backup"
-	unstagedPatchName = "lefthook-unstaged.patch"
-	infoDirMode       = 0o775
+	minGitVersion       = "2.31.0"
+	stashMessagePrefix  = "lefthook auto backup"
+	unstagedPatchName   = "lefthook-unstaged.patch"
+	unstagedPatchFolder = "info"
+	infoDirMode         = 0o775
 )
 
 var (
-	reHeadBranch              = regexp.MustCompile(`HEAD -> (?P<name>.*)$`)
-	reOriginHeadBranch        = regexp.MustCompile(`ref: refs/remotes/origin/(?P<name>.*)$`)
-	reVersion                 = regexp.MustCompile(`\d+\.\d+\.(\d+|\w+)`)
-	reStashMessage            = regexp.MustCompile(`^(?P<stash>[^ ]+):\s*` + stashMessage)
+	reHeadBranch       = regexp.MustCompile(`HEAD -> (?P<name>.*)$`)
+	reOriginHeadBranch = regexp.MustCompile(`ref: refs/remotes/origin/(?P<name>.*)$`)
+	reVersion          = regexp.MustCompile(`\d+\.\d+\.(\d+|\w+)`)
+	// The tag is optional: entries stored by older lefthook versions carry no
+	// tag and must still be recognized (and cleaned up) after an upgrade.
+	reStashMessage            = regexp.MustCompile(`^(?P<stash>[^ ]+):\s*` + stashMessagePrefix + `(?: (?P<tag>[0-9a-f]+))?$`)
 	cmdPushFilesBase          = []string{"git", "diff", "--name-only", "HEAD", "@{push}"}
 	cmdPushFilesHead          = []string{"git", "diff", "--name-only", "HEAD"}
 	cmdLsTreeFilesHead        = []string{"git", "ls-tree", "-r", "--name-only", "HEAD"}
@@ -59,6 +63,7 @@ type Repo struct {
 	InfoPath  string
 
 	unstagedPatchPath string
+	stashTag          string
 	headBranch        string
 
 	stagedFilesOnce            func() ([]string, error)
@@ -167,7 +172,32 @@ func (r *Repo) ResetCache() {
 		return r.state()
 	})
 
-	r.unstagedPatchPath = filepath.Join(r.InfoPath, unstagedPatchName)
+	r.unstagedPatchPath = filepath.Join(r.unstagedPatchDir(), unstagedPatchName)
+	r.stashTag = stashTagFor(r.GitPath)
+}
+
+// unstagedPatchDir is where the backup of unstaged changes lives: inside the
+// worktree's own git dir (`.git` for a plain checkout, `.git/worktrees/<name>`
+// for a linked worktree), never the common one shared by every worktree.
+// Otherwise concurrent commits from two linked worktrees overwrite each
+// other's backup and silently lose unstaged changes.
+func (r *Repo) unstagedPatchDir() string {
+	return filepath.Join(r.GitPath, unstagedPatchFolder)
+}
+
+// StashMessageFor returns the message used for the unstaged-changes backup
+// stash of the worktree owning `gitPath`. The stash list is shared by every
+// worktree of a repository, so the message carries a per-worktree tag and
+// cleanup only drops the entries of the worktree that created them.
+func StashMessageFor(gitPath string) string {
+	return stashMessagePrefix + " " + stashTagFor(gitPath)
+}
+
+func stashTagFor(gitPath string) string {
+	h := fnv.New64a()
+	_, _ = h.Write([]byte(filepath.Clean(gitPath)))
+
+	return fmt.Sprintf("%016x", h.Sum64())
 }
 
 // StagedFiles returns a list of staged files which exist on file system.
@@ -251,6 +281,12 @@ func (r *Repo) SaveUnstagedChanges(files []string) error {
 		return err
 	}
 
+	// A linked worktree's git dir has no `info` folder until something
+	// creates it.
+	if err = r.Fs.MkdirAll(r.unstagedPatchDir(), infoDirMode); err != nil {
+		return fmt.Errorf("failed to create the unstaged patch directory %s: %w", r.unstagedPatchDir(), err)
+	}
+
 	if err = r.saveUnstaged(files); err != nil {
 		return err
 	}
@@ -261,7 +297,7 @@ func (r *Repo) SaveUnstagedChanges(files []string) error {
 		"store",
 		"--quiet",
 		"--message",
-		stashMessage,
+		StashMessageFor(r.GitPath),
 		stashHash,
 	})
 	if err != nil {
@@ -391,6 +427,12 @@ func (r *Repo) dropUnstagedStash() error {
 		line := lines[len(lines)-i-1]
 		matches := reStashMessage.FindStringSubmatch(line)
 		if matches == nil {
+			continue
+		}
+
+		// Another worktree's backup: leave it alone. An entry without a tag
+		// was left by an older lefthook and is dropped like our own.
+		if tag := matches[reStashMessage.SubexpIndex("tag")]; tag != "" && tag != r.stashTag {
 			continue
 		}
 

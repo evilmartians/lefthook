@@ -1,0 +1,81 @@
+[windows] skip
+
+# Two linked worktrees committing at the same time must not destroy each
+# other's unstaged changes. The backup of partially staged files used to live
+# in the common git dir (shared by every worktree) under one fixed stash
+# message, so the second commit overwrote the first one's backup and both
+# reported success. See https://github.com/evilmartians/lefthook/issues/1529.
+
+chmod 0700 main/hook.sh
+chmod 0700 main/concurrent-commits.sh
+cd main
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+exec git commit -m 'init'
+exec lefthook install
+exec git worktree add -q ../linked -b linked
+
+exec ./concurrent-commits.sh
+stderr 'script-done'
+
+# Both commits landed ...
+exec git log --oneline
+stdout 'commit-main'
+exec git -C ../linked log --oneline
+stdout 'commit-linked'
+
+# ... each worktree kept its own unstaged line ...
+grep 'unstaged-main' file.txt
+! grep 'unstaged-linked' file.txt
+grep 'unstaged-linked' ../linked/file.txt
+! grep 'unstaged-main' ../linked/file.txt
+
+# ... and both backups were cleaned up.
+exec git stash list
+! stdout 'lefthook auto backup'
+
+-- main/lefthook.yml --
+pre-commit:
+  commands:
+    slow_job:
+      run: ./hook.sh
+
+-- main/hook.sh --
+#!/usr/bin/env bash
+
+sleep 2
+
+-- main/file.txt --
+base
+
+-- main/concurrent-commits.sh --
+#!/usr/bin/env bash
+
+set -e
+
+main="$PWD"
+linked="$PWD/../linked"
+
+# Partially stage file.txt in both worktrees: one staged line and one
+# unstaged line in the same file, which is what makes lefthook back up
+# the unstaged part before running the hook.
+for wt in "$main" "$linked"; do
+  name=$(basename "$wt")
+  (
+    cd "$wt"
+    echo "staged-$name" >> file.txt
+    git add file.txt
+    echo "unstaged-$name" >> file.txt
+  )
+done
+
+# The main worktree's hook sleeps for 2s, so the linked worktree's commit
+# starts while the main one still holds its backup.
+( cd "$main" && git commit -q -m commit-main ) &
+sleep 1
+( cd "$linked" && git commit -q -m commit-linked ) &
+wait
+
+>&2 echo 'script-done'
