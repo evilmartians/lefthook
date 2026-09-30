@@ -3,10 +3,10 @@ type: concept
 title: script
 source: "https://lefthook.dev/configuration/script/"
 path: /configuration/script/
-updated: 2026-09-29
+updated: 2026-09-30
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-29T20:11:56.063Z"
+  generated_at: "2026-09-30T06:44:13.267Z"
 ---
 ---
 title: "script"

@@ -3,10 +3,10 @@ type: concept
 title: LEFTHOOK_VERBOSE
 source: "https://lefthook.dev/usage/envs/LEFTHOOK_VERBOSE/"
 path: /usage/envs/LEFTHOOK_VERBOSE/
-updated: 2026-09-29
+updated: 2026-09-30
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-29T20:11:56.080Z"
+  generated_at: "2026-09-30T06:44:13.292Z"
 ---
 ---
 title: "LEFTHOOK_VERBOSE"

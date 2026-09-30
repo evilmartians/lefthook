@@ -3,10 +3,10 @@ type: concept
 title: refetch_frequency
 source: "https://lefthook.dev/configuration/refetch_frequency/"
 path: /configuration/refetch_frequency/
-updated: 2026-09-29
+updated: 2026-09-30
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-29T20:11:56.061Z"
+  generated_at: "2026-09-30T06:44:13.265Z"
 ---
 ---
 title: "refetch_frequency"

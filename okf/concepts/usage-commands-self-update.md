@@ -3,10 +3,10 @@ type: concept
 title: "lefthook self-update"
 source: "https://lefthook.dev/usage/commands/self-update/"
 path: /usage/commands/self-update/
-updated: 2026-09-29
+updated: 2026-09-30
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-29T20:11:56.076Z"
+  generated_at: "2026-09-30T06:44:13.287Z"
 ---
 ---
 title: "lefthook self-update"

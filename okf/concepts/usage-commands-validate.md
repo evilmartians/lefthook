@@ -3,10 +3,10 @@ type: concept
 title: "lefthook validate"
 source: "https://lefthook.dev/usage/commands/validate/"
 path: /usage/commands/validate/
-updated: 2026-09-29
+updated: 2026-09-30
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-09-29T20:11:56.077Z"
+  generated_at: "2026-09-30T06:44:13.288Z"
 ---
 ---
 title: "lefthook validate"
