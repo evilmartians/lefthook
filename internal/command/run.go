@@ -50,8 +50,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 		return nil
 	}
 
-	waitPrecompute := l.repo.CacheGitCommands()
-	defer waitPrecompute()
+	waitCacheWarmUp := l.repo.Cache.WarmUp()
 
 	if args.Verbose {
 		l.logger.SetLevel(logger.LevelDebug)
@@ -137,6 +136,8 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	hook.Jobs = append(hook.Jobs, config.ScriptsToJobs(hook.Scripts)...)
 	hook.Scripts = nil
 	args.RunOnlyJobs = append(args.RunOnlyJobs, args.RunOnlyCommands...)
+
+	waitCacheWarmUp()
 
 	return l.runHook(ctx, hook, l.repo, exLogger, run.Options{
 		DisableTTY:        cfg.NoTTY || args.NoTTY,

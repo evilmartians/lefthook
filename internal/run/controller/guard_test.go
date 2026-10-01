@@ -204,7 +204,7 @@ func Test_guard_wrap(t *testing.T) {
 				Fs(afero.NewMemMapFs()).
 				Root("root").
 				Build()
-			repo.ResetCache()
+			repo.Cache.Reset()
 			g := newGuard(
 				repo,
 				loggertest.NewExecution(),
