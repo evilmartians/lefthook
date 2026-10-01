@@ -6,7 +6,7 @@ path: /installation/go/
 updated: 2026-10-01
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-01T17:17:45.327Z"
+  generated_at: "2026-10-01T17:24:34.942Z"
 ---
 # Go
 
@@ -15,7 +15,7 @@ The minimum Go version required is 1.26 and you can install
 - as global package
 
 ```bash
-go install github.com/evilmartians/lefthook/v2@v2.1.15
+go install github.com/evilmartians/lefthook/v2@v2.1.16
 ```
 
 - or as a go tool in your project
