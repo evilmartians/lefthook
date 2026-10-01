@@ -52,7 +52,7 @@ func NewLefthook(verbose bool, colors string) (*Lefthook, error) {
 	}
 
 	fs := afero.NewOsFs()
-	repo, err := git.NewRepo(fs, l)
+	repo, err := git.BuildRepo(fs, l)
 	if err != nil {
 		return nil, err
 	}

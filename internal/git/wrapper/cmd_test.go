@@ -1,4 +1,4 @@
-package git
+package wrapper
 
 import (
 	"io"
@@ -25,8 +25,8 @@ func (m mockCmd) Run(cmd []string, root string, in io.Reader, out io.Writer, err
 
 func TestBatchedCmd(t *testing.T) {
 	assert := assert.New(t)
-	c := Commander{logger: loggertest.New(), cmd: mockCmd{}, mu: new(sync.Mutex), maxCmdLen: 2}
-	out, err := c.BatchedCmd([]string{"hello"}, []string{"1", "2", "3", "4"})
+	c := Cmd{logger: loggertest.New(), command: mockCmd{}, mu: new(sync.Mutex), maxCmdLen: 2}
+	out, err := c.batchedCmd([]string{"hello"}, []string{"1", "2", "3", "4"})
 	assert.NoError(err)
 
 	assert.Equal("hello\n1\nhello\n2\nhello\n3\nhello\n4\n", out)

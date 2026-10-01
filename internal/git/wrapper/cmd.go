@@ -1,4 +1,4 @@
-package git
+package wrapper
 
 import (
 	"bytes"
@@ -11,11 +11,11 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
-// Commander provides some methods that take some effect on execution and/or result data.
-type Commander struct {
-	mu     *sync.Mutex
-	logger *logger.Logger
-	cmd    system.Command
+// Cmd provides some methods that take some effect on execution and/or result data.
+type Cmd struct {
+	mu      *sync.Mutex
+	logger  *logger.Logger
+	command system.Command
 
 	// Execute command in the specific directory
 	root string
@@ -30,33 +30,33 @@ type Commander struct {
 	noTrimOut bool
 }
 
-// NewCommander returns an object that executes given commands in the OS.
-func NewCommander(cmd system.Command, logger *logger.Logger) *Commander {
-	return &Commander{
+// NewCmd returns an object that executes given commands in the OS.
+func NewCmd(command system.Command, logger *logger.Logger) *Cmd {
+	return &Cmd{
 		mu:        new(sync.Mutex),
 		logger:    logger,
-		cmd:       cmd,
+		command:   command,
 		maxCmdLen: system.MaxCmdLen(),
 	}
 }
 
-func (c Commander) WithoutEnvs(envs ...string) Commander {
-	c.cmd = c.cmd.WithoutEnvs(envs...)
+func (c Cmd) WithoutEnvs(envs ...string) Cmd {
+	c.command = c.command.WithoutEnvs(envs...)
 	return c
 }
 
-func (c Commander) OnlyDebugLogs() Commander {
+func (c Cmd) OnlyDebugLogs() Cmd {
 	c.onlyDebugLogs = true
 	return c
 }
 
-func (c Commander) WithoutTrim() Commander {
+func (c Cmd) WithoutTrim() Cmd {
 	c.noTrimOut = true
 	return c
 }
 
-// Cmd runs plain string command.
-func (c Commander) Cmd(cmd []string) (string, error) {
+// cmd runs plain string command.
+func (c Cmd) cmd(cmd []string) (string, error) {
 	out, err := c.execute(cmd, c.root)
 	if err != nil {
 		return "", err
@@ -69,13 +69,13 @@ func (c Commander) Cmd(cmd []string) (string, error) {
 	return out, nil
 }
 
-// BatchedCmd runs the command with any number of appended arguments batched in chunks to match the OS limits.
-func (c Commander) BatchedCmd(cmd []string, args []string) (string, error) {
+// batchedCmd runs the command with any number of appended arguments batched in chunks to match the OS limits.
+func (c Cmd) batchedCmd(cmd []string, args []string) (string, error) {
 	result := strings.Builder{}
 
 	argsBatched := batchByLength(args, c.maxCmdLen-len(cmd))
 	for i, batch := range argsBatched {
-		out, err := c.Cmd(append(cmd, batch...))
+		out, err := c.cmd(append(cmd, batch...))
 		if err != nil {
 			return "", fmt.Errorf("error in batch %d: %w", i, err)
 		}
@@ -86,18 +86,13 @@ func (c Commander) BatchedCmd(cmd []string, args []string) (string, error) {
 	return result.String(), nil
 }
 
-// CmdLines runs plain string command, returns its output split by newline.
-func (c Commander) CmdLines(cmd []string) ([]string, error) {
-	out, err := c.Cmd(cmd)
-	if err != nil {
-		return nil, err
-	}
-
-	return strings.Split(out, "\n"), nil
+// cmdLines runs plain string command, returns its output split by newline.
+func (c Cmd) cmdLines(cmd []string) ([]string, error) {
+	return c.cmdLinesRelative(cmd, "") // relative to current root
 }
 
-// CmdLinesWithinFolder runs plain string command, returns its output split by newline.
-func (c Commander) CmdLinesWithinFolder(cmd []string, folder string) ([]string, error) {
+// cmdLinesWithinFolder runs plain string command, returns its output split by newline.
+func (c Cmd) cmdLinesRelative(cmd []string, folder string) ([]string, error) {
 	root := filepath.Join(c.root, folder)
 	out, err := c.execute(cmd, root)
 	if err != nil {
@@ -111,7 +106,7 @@ func (c Commander) CmdLinesWithinFolder(cmd []string, folder string) ([]string, 
 	return strings.Split(out, "\n"), nil
 }
 
-func (c Commander) execute(cmd []string, root string) (string, error) {
+func (c Cmd) execute(cmd []string, root string) (string, error) {
 	if len(cmd) > 0 && cmd[0] == "git" {
 		// Preventing Git lock issues for all Git commands
 		c.mu.Lock()
@@ -119,7 +114,7 @@ func (c Commander) execute(cmd []string, root string) (string, error) {
 	}
 	stdout := new(bytes.Buffer)
 	stderr := new(bytes.Buffer)
-	err := c.cmd.Run(cmd, root, system.NullReader, stdout, stderr)
+	err := c.command.Run(cmd, root, system.NullReader, stdout, stderr)
 	outString := stdout.String()
 	errString := stderr.String()
 

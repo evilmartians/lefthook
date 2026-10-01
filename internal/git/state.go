@@ -25,7 +25,7 @@ var (
 )
 
 func (r *Repo) State() State {
-	return r.stateOnce()
+	return r.Cache.stateOnce()
 }
 
 func (r *Repo) state() State {
