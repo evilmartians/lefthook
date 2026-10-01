@@ -1,5 +1,12 @@
 # Change log
 
+## 2.1.16
+
+- fix: test staging fixed files with partially staged by [@mrexox](https://github.com/mrexox)
+- fix: preserve unrelated unstaged changes on conflict ([#1483](https://github.com/evilmartians/lefthook/pull/1483)) by [@Sakshamm-Goyal](https://github.com/Sakshamm-Goyal)
+- deps: bump mod and text deps to resolve CVEs ([#1560](https://github.com/evilmartians/lefthook/pull/1560)) by [@devindavies](https://github.com/devindavies)
+- ci: refactor publishing scripts ([#1559](https://github.com/evilmartians/lefthook/pull/1559)) by [@mrexox](https://github.com/mrexox)
+
 ## 2.1.15
 
 - fix: do not pipe stdin into post-checkout git-lfs hook ([#1523](https://github.com/evilmartians/lefthook/pull/1523)) by [@rwinkelman](https://github.com/rwinkelman)
