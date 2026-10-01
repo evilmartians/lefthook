@@ -265,6 +265,9 @@ func Test_guard_wrap_stageFixed(t *testing.T) {
 				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", Output: ""},
+				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
+					filepath.Join("root", ".git", "info", "lefthook-unstaged-all.patch") +
+					" --", Output: ""},
 				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
 				{Command: "git checkout --force -- file1", Output: ""},
 				{Command: "git add --force -- file2", Err: errStaging},
