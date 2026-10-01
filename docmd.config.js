@@ -610,6 +610,10 @@ module.exports = {
           path: "/examples/skip"
         },
         {
+          title: "Protect a branch from direct push",
+          path: "/examples/protect-branch"
+        },
+        {
           title: "Remote configs",
           path: "/examples/remotes"
         },
