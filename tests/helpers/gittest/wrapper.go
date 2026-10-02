@@ -4,7 +4,7 @@ import "github.com/evilmartians/lefthook/v2/internal/git/wrapper"
 
 type StubWrapper struct {
 	VersionFunc                   func() (string, error)
-	PathsFunc                     func() (*wrapper.PathsResult, error)
+	PathsFunc                     func() (*wrapper.Paths, error)
 	LocalHooksPathFunc            func() string
 	UnsetLocalHooksPathFunc       func() error
 	StubGlobalHooksPath           func() string
@@ -35,14 +35,14 @@ func NewStubWrapper() *StubWrapper {
 	return &StubWrapper{}
 }
 
-func (w *StubWrapper) Version() (string, error)             { return w.VersionFunc() }
-func (w *StubWrapper) Paths() (*wrapper.PathsResult, error) { return w.PathsFunc() }
-func (w *StubWrapper) LocalHooksPath() string               { return w.LocalHooksPathFunc() }
-func (w *StubWrapper) UnsetLocalHooksPath() error           { return w.UnsetLocalHooksPathFunc() }
-func (w *StubWrapper) GlobalHooksPath() string              { return w.StubGlobalHooksPath() }
-func (w *StubWrapper) UnsetGlobalHooksPath() error          { return w.UnsetLocalHooksPathFunc() }
-func (w *StubWrapper) AllFiles() ([]string, error)          { return w.AllFilesFunc() }
-func (w *StubWrapper) StagedFiles() ([]string, error)       { return w.StagedFilesFunc() }
+func (w *StubWrapper) Version() (string, error)       { return w.VersionFunc() }
+func (w *StubWrapper) Paths() (*wrapper.Paths, error) { return w.PathsFunc() }
+func (w *StubWrapper) LocalHooksPath() string         { return w.LocalHooksPathFunc() }
+func (w *StubWrapper) UnsetLocalHooksPath() error     { return w.UnsetLocalHooksPathFunc() }
+func (w *StubWrapper) GlobalHooksPath() string        { return w.StubGlobalHooksPath() }
+func (w *StubWrapper) UnsetGlobalHooksPath() error    { return w.UnsetGlobalHooksPathFunc() }
+func (w *StubWrapper) AllFiles() ([]string, error)    { return w.AllFilesFunc() }
+func (w *StubWrapper) StagedFiles() ([]string, error) { return w.StagedFilesFunc() }
 func (w *StubWrapper) StagedFilesWithDeleted() ([]string, error) {
 	return w.StagedFilesWithDeletedFunc()
 }

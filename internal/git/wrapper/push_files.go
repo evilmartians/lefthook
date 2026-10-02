@@ -3,9 +3,11 @@ package wrapper
 var cmdPushFilesBase = []string{
 	"git", "diff", "--name-only", "HEAD", "@{push}",
 }
+
 var cmdPushFilesHead = []string{
 	"git", "diff", "--name-only", "HEAD",
 }
+
 var cmdLsTreeFilesHead = []string{
 	"git", "ls-tree", "-r", "--name-only", "HEAD",
 }
@@ -16,7 +18,7 @@ var cmdLsTreeFilesHead = []string{
 // The list of files will be the best effort of:
 // 1. Trying to compare current HEAD with @{push} ref
 // 2. Trying to compare current HEAD with origin/<current-branch>
-// 3. Returning all files known to Git
+// 3. Returning all files known to Git.
 func (w *Wrapper) PushFiles() ([]string, error) {
 	pushFiles, err := w.Files(cmdPushFilesBase)
 	if err == nil {

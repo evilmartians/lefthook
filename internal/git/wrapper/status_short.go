@@ -15,6 +15,7 @@ type FileStatus struct {
 	Worktree rune
 }
 
+// StatusShort returns the current Git status for project files.
 // See https://git-scm.com/docs/git-status#_short_format.
 func (w *Wrapper) StatusShort() ([]FileStatus, error) {
 	output, err := w.cmd.WithoutTrim().cmd(cmdStatusShort) // there should be only one line with -z

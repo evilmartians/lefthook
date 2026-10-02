@@ -33,7 +33,6 @@ func TestWrapper_StatusShort(t *testing.T) {
 	w := wrapper.New(fs, cmd, logger)
 
 	result, err := w.StatusShort()
-
 	if err != nil {
 		t.Errorf("err = %v, want nil", err)
 	}
@@ -53,5 +52,4 @@ func TestWrapper_StatusShort(t *testing.T) {
 	if !cmp.Equal(result, want) {
 		t.Errorf("wrapper.StatusShort = %v, want %v", result, want)
 	}
-
 }

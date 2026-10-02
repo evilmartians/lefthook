@@ -29,7 +29,6 @@ func trimmed(seq iter.Seq[string]) iter.Seq[string] {
 			}
 		}
 	}
-
 }
 
 func unquoted(seq iter.Seq[string]) iter.Seq[string] {

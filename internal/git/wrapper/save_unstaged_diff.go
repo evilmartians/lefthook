@@ -19,7 +19,6 @@ func (w *Wrapper) SaveUnstagedDiff(files []string) error {
 			w.unstagedDiffPath(),
 			"--",
 		}, files)
-
 	if err != nil {
 		return fmt.Errorf("failed to create a diff for files: %w", err)
 	}

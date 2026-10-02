@@ -2,8 +2,10 @@ package wrapper
 
 import "regexp"
 
-var cmdListStash = []string{"git", "stash", "list"}
-var reStashMessage = regexp.MustCompile(`^(?P<stash>[^ ]+):\s*` + stashMessage)
+var (
+	cmdListStash   = []string{"git", "stash", "list"}
+	reStashMessage = regexp.MustCompile(`^(?P<stash>[^ ]+):\s*` + stashMessage)
+)
 
 func (w *Wrapper) DropStash() error {
 	lines, err := w.cmd.cmdLines(cmdListStash)

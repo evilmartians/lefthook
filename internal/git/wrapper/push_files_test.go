@@ -1,7 +1,7 @@
 package wrapper_test
 
 import (
-	"fmt"
+	"errors"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -46,7 +46,7 @@ func TestWrapper_PushFiles(t *testing.T) {
 				[]cmdtest.Out{
 					{
 						Command: "git diff --name-only HEAD @{push}",
-						Err:     fmt.Errorf("oops"),
+						Err:     errors.New("oops"),
 					},
 					{
 						Command: "git branch --remotes",
@@ -66,7 +66,7 @@ func TestWrapper_PushFiles(t *testing.T) {
 				[]cmdtest.Out{
 					{
 						Command: "git diff --name-only HEAD @{push}",
-						Err:     fmt.Errorf("oops"),
+						Err:     errors.New("oops"),
 					},
 					{
 						Command: "git branch --remotes",

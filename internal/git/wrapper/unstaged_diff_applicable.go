@@ -33,5 +33,4 @@ func (w *Wrapper) diffApplicable(diffPath string) bool {
 	})
 
 	return err == nil
-
 }

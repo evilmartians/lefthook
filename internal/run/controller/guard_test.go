@@ -271,6 +271,7 @@ func Test_guard_wrap_stageFixed(t *testing.T) {
 				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
 				{Command: "git checkout --force -- file1", Output: ""},
 				{Command: "git add --force -- file2", Err: errStaging},
+				{Command: "git stash list"},
 			},
 			err: errStaging,
 		},

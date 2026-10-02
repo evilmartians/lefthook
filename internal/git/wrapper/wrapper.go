@@ -86,7 +86,6 @@ func (w *Wrapper) resolveHeadBranch() string {
 	}
 
 	return ""
-
 }
 
 func (w *Wrapper) readOriginHead() string {

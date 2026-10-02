@@ -5,8 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/evilmartians/lefthook/v2/internal/git"
 	"github.com/google/go-cmp/cmp"
+
+	"github.com/evilmartians/lefthook/v2/internal/git"
 )
 
 func TestRemoteDirectoryName(t *testing.T) {

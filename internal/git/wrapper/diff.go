@@ -1,7 +1,9 @@
 package wrapper
 
-var cmdDiffColored = []string{"git", "diff", "--color", "--"}
-var cmdDiffNoColors = []string{"git", "diff", "--"}
+var (
+	cmdDiffColored  = []string{"git", "diff", "--color", "--"}
+	cmdDiffNoColors = []string{"git", "diff", "--"}
+)
 
 func (w *Wrapper) Diff(files []string, colors bool) (string, error) {
 	if colors {

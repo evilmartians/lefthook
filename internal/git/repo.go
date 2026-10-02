@@ -19,9 +19,7 @@ const (
 	infoDirMode   = 0o775
 )
 
-var (
-	reVersion = regexp.MustCompile(`\d+\.\d+\.(\d+|\w+)`)
-)
+var reVersion = regexp.MustCompile(`\d+\.\d+\.(\d+|\w+)`)
 
 type Paths = wrapper.Paths
 
@@ -59,7 +57,7 @@ type Wrapper interface {
 	// StagedFiles returns files added with git add
 	StagedFiles() ([]string, error)
 
-	// StagedFilesWithDeleted returns same files as StagedFiles including the deleted onces
+	// StagedFilesWithDeleted returns same files as StagedFiles including the deleted files
 	StagedFilesWithDeleted() ([]string, error)
 
 	// PushFiles returns the files that differ in local branch and the upstream branch

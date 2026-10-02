@@ -3,12 +3,13 @@ package git_test
 import (
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/spf13/afero"
+
 	"github.com/evilmartians/lefthook/v2/internal/git"
 	"github.com/evilmartians/lefthook/v2/internal/git/wrapper"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/gittest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
-	"github.com/google/go-cmp/cmp"
-	"github.com/spf13/afero"
 )
 
 func TestRepo_PartiallyStagedFiles(t *testing.T) {
@@ -30,7 +31,7 @@ func TestRepo_PartiallyStagedFiles(t *testing.T) {
 		afero.NewMemMapFs(),
 		logger,
 		w,
-		git.Paths{},
+		&git.Paths{},
 	)
 
 	result, err := repo.PartiallyStagedFiles()
@@ -133,7 +134,7 @@ func TestRepo_Changeset(t *testing.T) {
 				afero.NewMemMapFs(),
 				logger,
 				w,
-				git.Paths{},
+				&git.Paths{},
 			)
 
 			result, err := repository.Changeset()
