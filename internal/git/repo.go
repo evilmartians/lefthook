@@ -10,6 +10,7 @@ import (
 
 	"github.com/evilmartians/lefthook/v2/internal/git/wrapper"
 	"github.com/evilmartians/lefthook/v2/internal/logger"
+	"github.com/evilmartians/lefthook/v2/internal/system"
 	"github.com/evilmartians/lefthook/v2/internal/version"
 )
 
@@ -130,7 +131,7 @@ func BuildRepo(
 	fs afero.Fs,
 	logger *logger.Logger,
 ) (*Repo, error) {
-	wrapper := wrapper.New(fs, logger)
+	wrapper := wrapper.New(fs, system.Cmd, logger)
 
 	gitVersion, err := wrapper.Version()
 	if err == nil {
@@ -149,20 +150,32 @@ func BuildRepo(
 		}
 	}
 
-	r := &Repo{
-		Fs: fs,
-		Paths: Paths{
+	return NewRepo(
+		fs,
+		logger,
+		wrapper,
+		Paths{
 			Root:  paths.Root,
 			Hooks: paths.Hooks,
 			Info:  paths.Info,
 			Git:   paths.Git,
 		},
+	), nil
+}
+
+func NewRepo(
+	fs afero.Fs,
+	logger *logger.Logger,
+	wrapper Wrapper,
+	paths Paths,
+) *Repo {
+	return &Repo{
+		Fs:      fs,
+		Paths:   paths,
 		Cache:   newCache(wrapper),
 		logger:  logger,
 		wrapper: wrapper,
 	}
-
-	return r, nil
 }
 
 // func (repo *Repo) WithLogger(logger *logger.Logger) *Repo {

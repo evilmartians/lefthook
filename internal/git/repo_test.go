@@ -1,375 +1,149 @@
-package git
+package git_test
 
 import (
-	"errors"
-	"fmt"
-	"io"
-	"path/filepath"
-	"sync"
 	"testing"
 
-	"github.com/spf13/afero"
-
-	"github.com/evilmartians/lefthook/v2/tests/helpers/cmdtest"
+	"github.com/evilmartians/lefthook/v2/internal/git"
+	"github.com/evilmartians/lefthook/v2/internal/git/wrapper"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/gittest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
+	"github.com/google/go-cmp/cmp"
+	"github.com/spf13/afero"
 )
 
-func TestPartiallyStagedFiles(t *testing.T) {
-	for i, tt := range [...]struct {
-		name   string
-		git    []cmdtest.Out
-		error  bool
-		result []string
-	}{
-		{
-			git: []cmdtest.Out{
-				{
-					Command: "git status --short --porcelain -z",
-					Output: "RM new file\x00old-file\x00" +
-						"M  staged\x00" +
-						"MM staged but changed\x00",
-				},
-			},
-			result: []string{"new file", "staged but changed"},
-		},
-	} {
-		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			logger := loggertest.New()
-			repository := &Repo{
-				logger: logger,
-				Git:    NewCommander(cmdtest.NewOrdered(t, tt.git), logger),
-			}
-			repository.ResetCache()
+func TestRepo_PartiallyStagedFiles(t *testing.T) {
+	logger := loggertest.New()
+	w := gittest.NewFakeWrapper()
+	statuses := []wrapper.FileStatus{
+		{Index: ' ', Worktree: ' ', Path: "  "},
+		{Index: ' ', Worktree: 'M', Path: " M"},
+		{Index: 'M', Worktree: ' ', Path: "M "},
+		{Index: 'M', Worktree: 'M', Path: "MM"},
+		{Index: 'A', Worktree: 'M', Path: "AM"},
+		{Index: '?', Worktree: '?', Path: "??"},
+		{Index: 'M', Worktree: '?', Path: "M?"},
+		{Index: '?', Worktree: 'M', Path: "?M"},
+	}
+	w.StubStatusShort = func() ([]wrapper.FileStatus, error) { return statuses, nil }
 
-			files, err := repository.PartiallyStagedFiles()
-			if tt.error && err != nil {
-				t.Errorf("expected an error")
-			}
+	repo := git.NewRepo(
+		afero.NewMemMapFs(),
+		logger,
+		w,
+		git.Paths{},
+	)
 
-			if len(files) != len(tt.result) {
-				t.Errorf("expected %d files, but %d returned", len(tt.result), len(files))
-			}
+	result, err := repo.PartiallyStagedFiles()
+	want := []string{
+		"MM",
+		"AM",
+	}
+	if err != nil {
+		t.Errorf("err = %v, want nil", err)
+	}
 
-			for j, file := range files {
-				if tt.result[j] != file {
-					t.Errorf("file at index %d don't match: %s - %s", j, tt.result[j], file)
-				}
-			}
-		})
+	if !cmp.Equal(result, want) {
+		t.Errorf("repo.PartiallyStagedFiles() = %v, want %v", result, want)
 	}
 }
 
-func TestChangeset(t *testing.T) {
-	for i, tt := range [...]struct {
-		name        string
-		git         []cmdtest.Out
-		pathsToHash []string
+func TestRepo_Changeset(t *testing.T) {
+	for name, tt := range map[string]struct {
+		StatusShort []wrapper.FileStatus
+		HashObjects []string
 		result      map[string]string
 	}{
-		{
-			name: "no changes",
-			git: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: ""},
-			},
-			result: map[string]string{},
+		"no-changes": {
+			StatusShort: []wrapper.FileStatus{},
+			result:      map[string]string{},
 		},
-		{
-			name: "modified file",
-			git: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: " M modified.txt\x00"},
-				{Command: "git hash-object -- modified.txt", Output: "123456"},
+		"modified": {
+			StatusShort: []wrapper.FileStatus{
+				{Path: "modified.txt", Index: ' ', Worktree: 'M'},
 			},
-			pathsToHash: []string{"modified.txt"},
+			HashObjects: []string{"123456"},
 			result: map[string]string{
 				"modified.txt": "123456",
 			},
 		},
-		{
-			name: "deleted file",
-			git: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: "D  deleted.txt\x00"},
+		"deleted": {
+			StatusShort: []wrapper.FileStatus{
+				{Path: "deleted.txt", Index: 'D', Worktree: ' '},
 			},
 			result: map[string]string{
 				"deleted.txt": "deleted",
 			},
 		},
-		{
-			name: "new file",
-			git: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: "?? new.txt\x00"},
-				{Command: "git hash-object -- new.txt", Output: "654321"},
+		"new": {
+			StatusShort: []wrapper.FileStatus{
+				{Path: "new.txt", Index: '?', Worktree: '?'},
 			},
-			pathsToHash: []string{"new.txt"},
+			HashObjects: []string{"654321"},
 			result: map[string]string{
 				"new.txt": "654321",
 			},
 		},
-		{
-			name: "new dir",
-			git: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: "?? new-dir/\x00"},
+		"dir-new": {
+			StatusShort: []wrapper.FileStatus{
+				{Path: "new/", Index: '?', Worktree: '?'},
 			},
-			pathsToHash: []string{},
+			HashObjects: []string{},
 			result: map[string]string{
-				"new-dir/": "directory",
+				"new/": "directory",
 			},
 		},
-		{
-			name: "mixed changes",
-			git: []cmdtest.Out{
-				{
-					Command: "git status --short --porcelain -z",
-					Output: "M  modified.txt\x00" +
-						"CT copied to\x00copied from\x00" +
-						" D deleted.txt\x00" +
-						"?? new.txt\x00" +
-						"?? new-dir/\x00" +
-						"RM new-file\x00old-file\x00" +
-						"A  foo -> bar\x00" +
-						"MM back\\slashes\x00" +
-						"R  this is the new filename\x00R  this is really the old name, does it throw off the parser\x00" +
-						"??  leading-space\x00",
-				},
-
-				{Command: "git hash-object -- modified.txt copied to new.txt new-file foo -> bar back\\slashes this is the new filename  leading-space", Output: "123456\nc0c0c0\n654321\n758213\nfbfbfb\nbbbbbb\nffffff\ncccccc\n"},
+		"mixed": {
+			StatusShort: []wrapper.FileStatus{
+				{Path: "modified.txt", Index: 'M', Worktree: ' '},
+				{Path: "copied to", Index: 'C', Worktree: 'T'},
+				{Path: "deleted.txt", Index: ' ', Worktree: 'D'},
+				{Path: "new.txt", Index: '?', Worktree: '?'},
+				{Path: "new-dir/", Index: '?', Worktree: '?'},
+				{Path: "new-file", Index: 'R', Worktree: 'M'},
+				{Path: "foo -> bar", Index: 'A', Worktree: ' '},
+				{Path: "back\\slashes", Index: 'M', Worktree: 'M'},
 			},
-			// pathsToHash: []string{"modified.txt", "copied to", "new.txt", "new-file", "foo -> bar", `back\slashes`, "this is the new filename", " leading-space"},
+			HashObjects: []string{
+				"123456",
+				"c0c0c0",
+				"654321",
+				"758213",
+				"fbfbfb",
+				"bbbbbb",
+			},
 			result: map[string]string{
-				"modified.txt":             "123456",
-				"copied to":                "c0c0c0",
-				"deleted.txt":              "deleted",
-				"new.txt":                  "654321",
-				"new-dir/":                 "directory",
-				"new-file":                 "758213",
-				"foo -> bar":               "fbfbfb",
-				`back\slashes`:             "bbbbbb",
-				"this is the new filename": "ffffff",
-				" leading-space":           "cccccc",
+				"modified.txt": "123456",
+				"copied to":    "c0c0c0",
+				"deleted.txt":  "deleted",
+				"new.txt":      "654321",
+				"new-dir/":     "directory",
+				"new-file":     "758213",
+				"foo -> bar":   "fbfbfb",
+				`back\slashes`: "bbbbbb",
 			},
-		},
-	} {
-		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
-			logger := loggertest.New()
-			repository := &Repo{
-				logger: logger,
-				Git: &Commander{
-					mu:        new(sync.Mutex),
-					logger:    logger,
-					cmd:       cmdtest.NewOrdered(t, tt.git),
-					maxCmdLen: 7000,
-				},
-			}
-			repository.ResetCache()
-
-			changeset, err := repository.Changeset()
-			if err != nil {
-				t.Errorf("unexpected error: %s", err)
-			}
-
-			if len(changeset) != len(tt.result) {
-				t.Errorf("expected %d files, but %d returned", len(tt.result), len(changeset))
-			}
-
-			for file, hash := range tt.result {
-				if changeset[file] != hash {
-					t.Errorf("expected hash %s for file %s, but got %s", hash, file, changeset[file])
-				}
-			}
-		})
-	}
-}
-
-func TestPrintDiff(t *testing.T) {
-	for name, tt := range map[string]struct {
-		colors  bool
-		files   []string
-		command string
-	}{
-		"with colors enabled appends --color": {
-			colors:  true,
-			files:   []string{"file2", "file1"},
-			command: "git diff --color -- file1 file2",
-		},
-		"with colors disabled omits --color": {
-			colors:  false,
-			files:   []string{"file2", "file1"},
-			command: "git diff -- file1 file2",
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			log := loggertest.New()
-			if tt.colors {
-				log = loggertest.NewWithColors()
+			logger := loggertest.New()
+			w := gittest.NewFakeWrapper()
+			w.StubStatusShort = func() ([]wrapper.FileStatus, error) { return tt.StatusShort, nil }
+			w.StubHashObjects = func([]string) ([]string, error) { return tt.HashObjects, nil }
+
+			repository := git.NewRepo(
+				afero.NewMemMapFs(),
+				logger,
+				w,
+				git.Paths{},
+			)
+
+			result, err := repository.Changeset()
+			if err != nil {
+				t.Errorf("err = %v, want nil", err)
 			}
 
-			repository := &Repo{
-				logger: log,
-				Git: NewCommander(
-					cmdtest.NewOrdered(t, []cmdtest.Out{{Command: tt.command, Output: "diff output"}}),
-					log,
-				),
+			if !cmp.Equal(result, tt.result) {
+				t.Errorf("repo.Changeset() = %v, want %v", result, tt.result)
 			}
-
-			repository.PrintDiff(tt.files)
 		})
 	}
-}
-
-func TestPushFiles(t *testing.T) {
-	const root = "/repo"
-
-	t.Run("falls back to ls-tree for initial push without upstream", func(t *testing.T) {
-		fs := afero.NewMemMapFs()
-		readme := filepath.Join(root, "README.md")
-
-		if err := fs.MkdirAll(root, 0o755); err != nil {
-			t.Fatalf("unexpected error: %s", err)
-		}
-		if err := afero.WriteFile(fs, readme, []byte("readme"), 0o644); err != nil {
-			t.Fatalf("unexpected error: %s", err)
-		}
-
-		cmd := cmdtest.NewTracking(func(command string, _ string, out io.Writer) error {
-			switch command {
-			case "git diff --name-only HEAD @{push}": //nolint:goconst
-				return errors.New("no upstream configured")
-			case "git branch --remotes":
-				return nil
-			case "git ls-tree -r --name-only HEAD":
-				_, err := out.Write([]byte("README.md\nmissing.txt\n"))
-				return err
-			default:
-				t.Fatalf("unexpected command: %s", command)
-				return nil
-			}
-		})
-
-		logger := loggertest.New()
-		repository := &Repo{
-			Fs:       fs,
-			RootPath: root,
-			Git:      NewCommander(cmd, logger),
-			logger:   logger,
-		}
-		repository.ResetCache()
-
-		files, err := repository.PushFiles()
-		if err != nil {
-			t.Fatalf("unexpected error: %s", err)
-		}
-
-		if want := []string{"README.md"}; len(files) != len(want) || files[0] != want[0] {
-			t.Fatalf("expected %v, got %v", want, files)
-		}
-	})
-
-	t.Run("separates fallback branch from pathspecs", func(t *testing.T) {
-		fs := afero.NewMemMapFs()
-		gitPath := filepath.Join(root, ".git")
-		originHead := filepath.Join(gitPath, "refs", "remotes", "origin", "HEAD")
-
-		if err := fs.MkdirAll(filepath.Join(root, "dev"), 0o755); err != nil {
-			t.Fatalf("unexpected error: %s", err)
-		}
-		if err := fs.MkdirAll(filepath.Dir(originHead), 0o755); err != nil {
-			t.Fatalf("unexpected error: %s", err)
-		}
-		if err := afero.WriteFile(fs, filepath.Join(root, "other.txt"), []byte("changed"), 0o644); err != nil {
-			t.Fatalf("unexpected error: %s", err)
-		}
-		if err := afero.WriteFile(fs, originHead, []byte("ref: refs/remotes/origin/dev\n"), 0o644); err != nil {
-			t.Fatalf("unexpected error: %s", err)
-		}
-
-		cmd := cmdtest.NewTracking(func(command string, _ string, out io.Writer) error {
-			switch command {
-			case "git diff --name-only HEAD @{push}":
-				return errors.New("no upstream configured")
-			case "git diff --name-only HEAD origin/dev --":
-				_, err := out.Write([]byte("other.txt\n"))
-				return err
-			case "git diff --name-only HEAD origin/dev":
-				return errors.New("fatal: ambiguous argument 'origin/dev': both revision and filename")
-			default:
-				t.Fatalf("unexpected command: %s", command)
-				return nil
-			}
-		})
-
-		logger := loggertest.New()
-		repository := &Repo{
-			Fs:       fs,
-			RootPath: root,
-			GitPath:  gitPath,
-			Git:      NewCommander(cmd, logger),
-			logger:   logger,
-		}
-		repository.ResetCache()
-
-		files, err := repository.PushFiles()
-		if err != nil {
-			t.Fatalf("unexpected error: %s", err)
-		}
-
-		if want := []string{"other.txt"}; len(files) != len(want) || files[0] != want[0] {
-			t.Fatalf("expected %v, got %v", want, files)
-		}
-	})
-
-	t.Run("falls back to the remote-tracking ref when no local branch of that name exists", func(t *testing.T) {
-		fs := afero.NewMemMapFs()
-		gitPath := filepath.Join(root, ".git")
-		originHead := filepath.Join(gitPath, "refs", "remotes", "origin", "HEAD")
-
-		if err := fs.MkdirAll(root, 0o755); err != nil {
-			t.Fatalf("unexpected error: %s", err)
-		}
-		if err := fs.MkdirAll(filepath.Dir(originHead), 0o755); err != nil {
-			t.Fatalf("unexpected error: %s", err)
-		}
-		if err := afero.WriteFile(fs, filepath.Join(root, "file.txt"), []byte("changed"), 0o644); err != nil {
-			t.Fatalf("unexpected error: %s", err)
-		}
-		if err := afero.WriteFile(fs, originHead, []byte("ref: refs/remotes/origin/main\n"), 0o644); err != nil {
-			t.Fatalf("unexpected error: %s", err)
-		}
-
-		cmd := cmdtest.NewTracking(func(command string, _ string, out io.Writer) error {
-			switch command {
-			case "git diff --name-only HEAD @{push}":
-				// A branch pushed for the first time has no upstream yet.
-				return errors.New("fatal: no upstream configured for branch 'feature'")
-			case "git diff --name-only HEAD main --":
-				// There is no local branch named "main" in this clone (e.g.
-				// someone who always branches straight off origin/main), so
-				// this must never be run.
-				return errors.New("fatal: bad revision 'main'")
-			case "git diff --name-only HEAD origin/main --":
-				_, err := out.Write([]byte("file.txt\n"))
-				return err
-			default:
-				t.Fatalf("unexpected command: %s", command)
-				return nil
-			}
-		})
-
-		logger := loggertest.New()
-		repository := &Repo{
-			Fs:       fs,
-			RootPath: root,
-			GitPath:  gitPath,
-			Git:      NewCommander(cmd, logger),
-			logger:   logger,
-		}
-		repository.ResetCache()
-
-		files, err := repository.PushFiles()
-		if err != nil {
-			t.Fatalf("unexpected error: %s", err)
-		}
-
-		if want := []string{"file.txt"}; len(files) != len(want) || files[0] != want[0] {
-			t.Fatalf("expected %v, got %v", want, files)
-		}
-	})
 }

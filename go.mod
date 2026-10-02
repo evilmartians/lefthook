@@ -12,6 +12,7 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.13
 	github.com/gobwas/glob v0.2.3
 	github.com/goccy/go-yaml v1.19.2
+	github.com/google/go-cmp v0.6.0
 	github.com/invopop/jsonschema v0.14.0
 	github.com/kaptinlin/jsonschema v0.9.3
 	github.com/knadh/koanf/maps v0.1.2

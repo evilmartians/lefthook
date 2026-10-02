@@ -45,8 +45,8 @@ type Wrapper struct {
 	headBranch string
 }
 
-func New(fs afero.Fs, logger *logger.Logger) *Wrapper {
-	cmd := NewCmd(system.Cmd, logger)
+func New(fs afero.Fs, command system.Command, logger *logger.Logger) *Wrapper {
+	cmd := NewCmd(command, logger)
 
 	return &Wrapper{
 		fs:     fs,

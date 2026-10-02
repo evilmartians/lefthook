@@ -83,7 +83,7 @@ func (c Cmd) batchedCmd(cmd []string, args []string) (string, error) {
 		result.WriteString("\n")
 	}
 
-	return result.String(), nil
+	return strings.TrimRight(result.String(), "\n"), nil
 }
 
 // cmdLines runs plain string command, returns its output split by newline.

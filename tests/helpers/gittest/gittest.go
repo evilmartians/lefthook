@@ -7,7 +7,6 @@ import (
 
 	"github.com/evilmartians/lefthook/v2/internal/git"
 	"github.com/evilmartians/lefthook/v2/internal/system"
-	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
 
 type RepositoryBuilder struct {
@@ -35,19 +34,18 @@ func (b *RepositoryBuilder) Fs(fs afero.Fs) *RepositoryBuilder {
 	return b
 }
 
-func (b *RepositoryBuilder) Build() *git.Repo {
-	logger := loggertest.New()
-
+func (b *RepositoryBuilder) BuildRepo() *git.Repo {
 	repo := &git.Repo{
-		Fs:        b.fs,
-		Git:       git.NewCommander(b.cmd, logger),
-		RootPath:  b.root,
-		GitPath:   GitPath(b.root),
-		HooksPath: filepath.Join(GitPath(b.root), "hooks"),
-		InfoPath:  filepath.Join(GitPath(b.root), "info"),
+		Fs: b.fs,
+		Paths: git.Paths{
+			Root:  b.root,
+			Git:   GitPath(b.root),
+			Hooks: filepath.Join(GitPath(b.root), "hooks"),
+			Info:  filepath.Join(GitPath(b.root), "info"),
+		},
 	}
 
-	return repo.WithLogger(logger)
+	return repo
 }
 
 func GitPath(root string) string {

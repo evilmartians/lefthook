@@ -22,6 +22,11 @@ type OrderedCmd struct {
 	cnt  int
 }
 
+// NewOrdered returns executor that have the order defined in `outs`.
+func NewOrdered(t testing.TB, outs []Out) *OrderedCmd {
+	return &OrderedCmd{t: t, outs: outs}
+}
+
 // WithoutEnvs simply does nothing.
 func (c *OrderedCmd) WithoutEnvs(envs ...string) system.Command {
 	return c

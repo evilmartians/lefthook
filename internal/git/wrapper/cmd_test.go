@@ -2,7 +2,6 @@ package wrapper
 
 import (
 	"io"
-	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -23,11 +22,14 @@ func (m mockCmd) Run(cmd []string, root string, in io.Reader, out io.Writer, err
 	return nil
 }
 
-func TestBatchedCmd(t *testing.T) {
+func TestCmd_batchedCmd(t *testing.T) {
 	assert := assert.New(t)
-	c := Cmd{logger: loggertest.New(), command: mockCmd{}, mu: new(sync.Mutex), maxCmdLen: 2}
+
+	c := NewCmd(mockCmd{}, loggertest.New())
+	c.maxCmdLen = 2
+
 	out, err := c.batchedCmd([]string{"hello"}, []string{"1", "2", "3", "4"})
 	assert.NoError(err)
 
-	assert.Equal("hello\n1\nhello\n2\nhello\n3\nhello\n4\n", out)
+	assert.Equal("hello\n1\nhello\n2\nhello\n3\nhello\n4", out)
 }
