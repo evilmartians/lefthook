@@ -135,7 +135,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 		defer cancel()
 	}
 	err = c.run(ctx, logName, scope.follow, exec.Options{
-		Root:        filepath.Join(c.git.RootPath, scope.root),
+		Root:        filepath.Join(c.git.Paths.Root, scope.root),
 		Commands:    commands,
 		Interactive: job.Interactive && !scope.opts.DisableTTY,
 		UseStdin:    job.UseStdin,
@@ -162,7 +162,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 			}
 
 			files = filter.New(c.git.Fs, c.logger, filter.Params{
-				RepoRoot:     c.git.RootPath,
+				RepoRoot:     c.git.Paths.Root,
 				Glob:         scope.glob,
 				Root:         scope.root,
 				ExcludeFiles: scope.excludeFiles,

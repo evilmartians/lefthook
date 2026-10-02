@@ -77,7 +77,7 @@ func (l *Lefthook) Install(ctx context.Context, args InstallArgs, hooks []string
 		}
 	}
 
-	if err = l.removeAIHookFile(filepath.Join(l.repo.RootPath, copilotHooksDir, copilotHooksFile)); err != nil {
+	if err = l.removeAIHookFile(filepath.Join(l.repo.Paths.Root, copilotHooksDir, copilotHooksFile)); err != nil {
 		return err
 	}
 
@@ -102,11 +102,11 @@ func (l *Lefthook) installHooks(cfg *config.Config, hooks []string, args Install
 }
 
 func (l *Lefthook) readOrCreateConfig() (*config.Config, error) {
-	l.logger.Debug("config dir: ", l.repo.RootPath)
+	l.logger.Debug("config dir: ", l.repo.Paths.Root)
 
-	if !l.configExists(l.repo.RootPath) {
+	if !l.configExists(l.repo.Paths.Root) {
 		l.logger.Info("Config not found, creating...")
-		if err := l.createConfig(l.repo.RootPath); err != nil {
+		if err := l.createConfig(l.repo.Paths.Root); err != nil {
 			return nil, err
 		}
 	}
@@ -460,7 +460,7 @@ func (l *Lefthook) checkHooksSynchronized(cfg *config.Config) (bool, []string) {
 }
 
 func (l *Lefthook) configLastUpdateTimestamp() (int64, error) {
-	configPath, err := l.findMainConfig(l.repo.RootPath)
+	configPath, err := l.findMainConfig(l.repo.Paths.Root)
 	if err != nil {
 		return 0, err
 	}
@@ -485,13 +485,13 @@ func (l *Lefthook) addChecksumFile(checksum string, hooks []string) error {
 }
 
 func (l *Lefthook) checksumFilePath() string {
-	return filepath.Join(l.repo.InfoPath, config.ChecksumFileName)
+	return filepath.Join(l.repo.Paths.Info, config.ChecksumFileName)
 }
 
 func (l *Lefthook) ensureHooksDirExists() error {
-	exists, err := afero.Exists(l.fs, l.repo.HooksPath)
+	exists, err := afero.Exists(l.fs, l.repo.Paths.Hooks)
 	if !exists || err != nil {
-		err = l.fs.MkdirAll(l.repo.HooksPath, hooksDirMode)
+		err = l.fs.MkdirAll(l.repo.Paths.Hooks, hooksDirMode)
 		if err != nil {
 			return err
 		}
@@ -502,8 +502,9 @@ func (l *Lefthook) ensureHooksDirExists() error {
 
 // getHooksPathConfig checks if core.hooksPath is configured locally or globally.
 func (l *Lefthook) getHooksPathConfig() (local, global string) {
-	local, _ = l.repo.Git.Cmd([]string{"git", "config", "--local", "core.hooksPath"})
-	global, _ = l.repo.Git.Cmd([]string{"git", "config", "--global", "core.hooksPath"})
+	local = l.repo.LocalHooksPath()
+	global = l.repo.GlobalHooksPath()
+
 	return
 }
 
@@ -513,7 +514,7 @@ func (l *Lefthook) getHooksPathConfig() (local, global string) {
 // Local hooks make sense only in terms of migratio from other hook managers.
 func (l *Lefthook) ensureHooksPathUnset(force, resetHooksPath bool) error {
 	local, global := l.getHooksPathConfig()
-	defaultHooksPath := filepath.Join(l.repo.RootPath, ".git", "hooks")
+	defaultHooksPath := filepath.Join(l.repo.Paths.Root, ".git", "hooks")
 
 	// Ignore if hooks path is equal to default git hooks path
 	hasLocal := len(local) > 0 && filepath.Clean(local) != filepath.Clean(defaultHooksPath)
@@ -591,27 +592,20 @@ func formatHooksPathError(local, global string) string {
 // unsetHooksPathConfig removes core.hooksPath configuration.
 func (l *Lefthook) unsetHooksPathConfig(local, global string) error {
 	if len(local) > 0 {
-		if _, err := l.repo.Git.Cmd([]string{"git", "config", "--local", "--unset-all", "core.hooksPath"}); err != nil {
+		if err := l.repo.UnsetLocalHooksPath(); err != nil {
 			return fmt.Errorf("failed to unset local core.hooksPath: %w", err)
 		}
 		l.logger.Warn("local core.hooksPath has been unset.")
 	}
 
 	if len(global) > 0 {
-		if _, err := l.repo.Git.Cmd([]string{"git", "config", "--global", "--unset-all", "core.hooksPath"}); err != nil {
+		if err := l.repo.UnsetGlobalHooksPath(); err != nil {
 			return fmt.Errorf("failed to unset global core.hooksPath: %w", err)
 		}
 		l.logger.Warn("global core.hooksPath has been unset.")
 	}
 
-	paths, err := git.Paths(l.repo.Git)
-	if err != nil {
-		return err
-	}
-
-	l.repo.HooksPath = paths.HooksPath
-
-	return nil
+	return l.repo.ResetPaths()
 }
 
 // syncRemote clones or pulls the latest changes for a git repository that was

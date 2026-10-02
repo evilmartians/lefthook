@@ -60,7 +60,7 @@ func (w *Wrapper) Files(cmd []string) ([]string, error) {
 }
 
 func (w *Wrapper) FilesRelative(cmd []string, dir string) ([]string, error) {
-	lines, err := w.cmd.cmdLinesRelative(cmdAllFiles, dir)
+	lines, err := w.cmd.cmdLinesRelative(cmd, dir)
 	if err != nil {
 		return nil, err
 	}

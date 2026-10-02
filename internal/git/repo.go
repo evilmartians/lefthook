@@ -39,7 +39,7 @@ type Paths struct {
 // Repo is a Git repository controller.
 type Repo struct {
 	Fs      afero.Fs
-	Wrapper Wrapper
+	wrapper Wrapper
 	Paths   Paths
 	Cache   *Cache
 	logger  *logger.Logger
@@ -51,6 +51,18 @@ type Wrapper interface {
 
 	// Paths return required paths for lefthook to know about
 	Paths() (*wrapper.PathsResult, error)
+
+	// LocalHooksPath returns configured local hooks path
+	LocalHooksPath() string
+
+	// UnsetLocalHooksPath resets the local core.hooksPath
+	UnsetLocalHooksPath() error
+
+	// GlobalHooksPath returns configured global hooks path
+	GlobalHooksPath() string
+
+	// UnsetLocalHooksPath resets the global core.hooksPath
+	UnsetGlobalHooksPath() error
 
 	// AllFiles returns all files visible to Git
 	AllFiles() ([]string, error)
@@ -102,6 +114,15 @@ type Wrapper interface {
 
 	// State returns the current Git state
 	State() wrapper.State
+
+	// Clone fetches the remote Git repo
+	Clone(wrapper.CloneArgs) error
+
+	// Pull updates the content of the remote Git repo
+	Pull(string) error
+
+	// Fetch updates the content of the remote Git repo
+	Fetch(string, string) error
 }
 
 // BuildRepo returns a Repo or an error, if git repository it not initialized.
@@ -129,26 +150,26 @@ func BuildRepo(
 	}
 
 	r := &Repo{
-		Fs:      fs,
-		Wrapper: wrapper,
+		Fs: fs,
 		Paths: Paths{
 			Root:  paths.Root,
 			Hooks: paths.Hooks,
 			Info:  paths.Info,
 			Git:   paths.Git,
 		},
-		Cache:  newCache(wrapper),
-		logger: logger,
+		Cache:   newCache(wrapper),
+		logger:  logger,
+		wrapper: wrapper,
 	}
 
 	return r, nil
 }
 
-func (repo *Repo) WithLogger(logger *logger.Logger) *Repo {
-	repo.logger = logger
-	// repo.Git.logger = logger // TODO
-	return repo
-}
+// func (repo *Repo) WithLogger(logger *logger.Logger) *Repo {
+// 	repo.logger = logger
+// 	// repo.Git.logger = logger // TODO
+// 	return repo
+// }
 
 func checkGitVersion(strVersion string, logger *logger.Logger) {
 	gitVersion := reVersion.FindString(strVersion)
@@ -164,6 +185,22 @@ func checkGitVersion(strVersion string, logger *logger.Logger) {
 	}
 }
 
+func (r *Repo) ResetPaths() error {
+	paths, err := r.wrapper.Paths()
+	if err != nil {
+		return err
+	}
+
+	r.Paths = Paths{
+		Root:  paths.Root,
+		Hooks: paths.Hooks,
+		Info:  paths.Info,
+		Git:   paths.Git,
+	}
+
+	return nil
+}
+
 // StagedFiles returns a list of staged files which exist on file system.
 func (r *Repo) StagedFiles() ([]string, error) {
 	return r.Cache.stagedFilesOnce()
@@ -176,12 +213,12 @@ func (r *Repo) StagedFilesWithDeleted() ([]string, error) {
 
 // AllFiles returns a list of all files in repository.
 func (r *Repo) AllFiles() ([]string, error) {
-	return r.Wrapper.AllFiles()
+	return r.wrapper.AllFiles()
 }
 
 // PushFiles returns a list of files that are ready to be pushed.
 func (r *Repo) PushFiles() ([]string, error) {
-	return r.Wrapper.PushFiles()
+	return r.wrapper.PushFiles()
 }
 
 // PartiallyStagedFiles returns the list of files that have both staged and
@@ -216,47 +253,47 @@ func (r *Repo) PartiallyStagedFiles() ([]string, error) {
 }
 
 func (r *Repo) SaveUnstagedChanges(files []string) error {
-	if err := r.Wrapper.SaveUnstagedDiff(files); err != nil {
+	if err := r.wrapper.SaveUnstagedDiff(files); err != nil {
 		return err
 	}
 
-	return r.Wrapper.StoreStash()
+	return r.wrapper.StoreStash()
 }
 
 func (r *Repo) DiscardUnstagedChanges(files []string) error {
-	return r.Wrapper.DiscardUnstagedChanges(files)
+	return r.wrapper.DiscardUnstagedChanges(files)
 }
 
 func (r *Repo) DiscardAllUnstagedChanges() error {
-	return r.Wrapper.DiscardAllUnstagedChanges()
+	return r.wrapper.DiscardAllUnstagedChanges()
 }
 
 // CanRestoreUnstagedChanges checks is a patch with previously unstaged changes
 // can be applied to the current worktree.
 func (r *Repo) CanRestoreUnstagedChanges() bool {
-	return r.Wrapper.UnstagedDiffApplicable()
+	return r.wrapper.UnstagedDiffApplicable()
 }
 
 // RestoreUnstagedChanges applies the patch with previously unstaged changes.
 func (r *Repo) RestoreUnstagedChanges() error {
-	if err := r.Wrapper.ApplyUnstagedDiff(false); err != nil {
+	if err := r.wrapper.ApplyUnstagedDiff(false); err != nil {
 		return err
 	}
 
-	return r.Wrapper.DropStash()
+	return r.wrapper.DropStash()
 }
 
 // RestoreAllUnstagedChanges applies all unstaged changes saved before running hooks.
 func (r *Repo) RestoreAllUnstagedChanges() error {
-	if err := r.Wrapper.ApplyUnstagedDiff(true); err != nil {
+	if err := r.wrapper.ApplyUnstagedDiff(true); err != nil {
 		return err
 	}
 
-	return r.Wrapper.DropStash()
+	return r.wrapper.DropStash()
 }
 
 func (r *Repo) AddFiles(files []string) error {
-	return r.Wrapper.StageFiles(files)
+	return r.wrapper.StageFiles(files)
 }
 
 // Changeset returns a map of files and their hashes that are different from the index.
@@ -265,7 +302,7 @@ func (r *Repo) Changeset() (map[string]string, error) {
 	changeset := make(map[string]string)
 	pathsToHash := make([]string, 0)
 
-	statuses, err := r.Wrapper.StatusShort()
+	statuses, err := r.wrapper.StatusShort()
 	if err != nil {
 		return nil, err
 	}
@@ -287,7 +324,7 @@ func (r *Repo) Changeset() (map[string]string, error) {
 		return changeset, nil
 	}
 
-	hashes, err := r.Wrapper.HashObjects(pathsToHash)
+	hashes, err := r.wrapper.HashObjects(pathsToHash)
 	if err != nil {
 		return nil, err
 	}
@@ -299,10 +336,26 @@ func (r *Repo) Changeset() (map[string]string, error) {
 	return changeset, nil
 }
 
+func (r *Repo) LocalHooksPath() string {
+	return r.wrapper.LocalHooksPath()
+}
+
+func (r *Repo) UnsetLocalHooksPath() error {
+	return r.wrapper.UnsetLocalHooksPath()
+}
+
+func (r *Repo) GlobalHooksPath() string {
+	return r.wrapper.GlobalHooksPath()
+}
+
+func (r *Repo) UnsetGlobalHooksPath() error {
+	return r.wrapper.UnsetGlobalHooksPath()
+}
+
 func (r *Repo) PrintDiff(files []string) {
 	slices.Sort(files)
 
-	diff, err := r.Wrapper.Diff(files, !r.logger.NoColors())
+	diff, err := r.wrapper.Diff(files, !r.logger.NoColors())
 	if err != nil {
 		r.logger.Warnf("Failed to diff changed files: %s", err)
 		return
@@ -313,7 +366,7 @@ func (r *Repo) PrintDiff(files []string) {
 
 // FilesByCommandRelative accepts git command and returns its result as a list of filepaths.
 func (r *Repo) FilesByCommandRelative(command string, dir string) ([]string, error) {
-	return r.Wrapper.FilesByCommandRelative(command, dir)
+	return r.wrapper.FilesByCommandRelative(command, dir)
 }
 
 func (r *Repo) State() wrapper.State {
