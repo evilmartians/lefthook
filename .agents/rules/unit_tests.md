@@ -27,7 +27,7 @@ if !cmp.Equal(result, want) {
 }
 ```
 
-When a variable can be compared using `==` use it instead of `cmp.Equal`.
+When a variable can be compared using `==` use it instead of `cmp.Equal`. But for errors use `errors.Is` or `errors.As` depending on the context.
 
 ## Table tests
 
