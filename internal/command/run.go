@@ -194,12 +194,12 @@ func getFiles(repo *git.Repo, args RunArgs) ([]string, error) {
 
 func getSourceDirs(repo *git.Repo, cfg *config.Config) []string {
 	sourceDirs := []string{
-		filepath.Join(repo.RootPath, cfg.SourceDir),
-		filepath.Join(repo.RootPath, cfg.SourceDirLocal),
+		filepath.Join(repo.Paths.Root, cfg.SourceDir),
+		filepath.Join(repo.Paths.Root, cfg.SourceDirLocal),
 
 		// Additional source dirs to support .config/
-		filepath.Join(repo.RootPath, ".config", "lefthook"),
-		filepath.Join(repo.RootPath, ".config", "lefthook-local"),
+		filepath.Join(repo.Paths.Root, ".config", "lefthook"),
+		filepath.Join(repo.Paths.Root, ".config", "lefthook-local"),
 	}
 
 	for _, remote := range cfg.Remotes {

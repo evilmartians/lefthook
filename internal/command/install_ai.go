@@ -108,7 +108,7 @@ func (l *Lefthook) installAIHooks(ai *config.AI, cfg *config.Config) error {
 	bin, quoteBin := resolveLefthookBin(cfg)
 
 	if len(ai.Claude) > 0 {
-		path := filepath.Join(l.repo.RootPath, claudeSettingsDir, claudeSettingsFile)
+		path := filepath.Join(l.repo.Paths.Root, claudeSettingsDir, claudeSettingsFile)
 		if err := l.writeAIHookFile(path, ai.Claude, bin, quoteBin); err != nil {
 			return fmt.Errorf("could not write Claude settings: %w", err)
 		}
@@ -116,7 +116,7 @@ func (l *Lefthook) installAIHooks(ai *config.AI, cfg *config.Config) error {
 	}
 
 	if len(ai.Codex) > 0 {
-		path := filepath.Join(l.repo.RootPath, codexHooksDir, codexHooksFile)
+		path := filepath.Join(l.repo.Paths.Root, codexHooksDir, codexHooksFile)
 		if err := l.writeAIHookFile(path, ai.Codex, bin, quoteBin); err != nil {
 			return fmt.Errorf("could not write Codex hooks: %w", err)
 		}
@@ -124,7 +124,7 @@ func (l *Lefthook) installAIHooks(ai *config.AI, cfg *config.Config) error {
 	}
 
 	if len(ai.Cursor) > 0 {
-		path := filepath.Join(l.repo.RootPath, cursorHooksDir, cursorHooksFile)
+		path := filepath.Join(l.repo.Paths.Root, cursorHooksDir, cursorHooksFile)
 		if err := l.writeCursorHookFile(path, ai.Cursor, bin, quoteBin); err != nil {
 			return fmt.Errorf("could not write Cursor hooks: %w", err)
 		}
@@ -132,7 +132,7 @@ func (l *Lefthook) installAIHooks(ai *config.AI, cfg *config.Config) error {
 	}
 
 	if len(ai.Copilot) > 0 {
-		path := filepath.Join(l.repo.RootPath, copilotHooksDir, copilotHooksFile)
+		path := filepath.Join(l.repo.Paths.Root, copilotHooksDir, copilotHooksFile)
 		if err := l.writeCopilotHookFile(path, ai.Copilot, bin, quoteBin); err != nil {
 			return fmt.Errorf("could not write copilot hooks: %w", err)
 		}

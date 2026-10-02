@@ -23,8 +23,8 @@ func (c *Controller) runLFSHook(ctx context.Context, hookName string, args []str
 		return nil
 	}
 
-	lfsRequiredFile := filepath.Join(c.git.RootPath, git.LFSRequiredFile)
-	lfsConfigFile := filepath.Join(c.git.RootPath, git.LFSConfigFile)
+	lfsRequiredFile := filepath.Join(c.git.Paths.Root, git.LFSRequiredFile)
+	lfsConfigFile := filepath.Join(c.git.Paths.Root, git.LFSConfigFile)
 
 	requiredExists, err := afero.Exists(c.git.Fs, lfsRequiredFile)
 	if err != nil {
