@@ -2,6 +2,7 @@ package git
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"slices"
 	"strings"
@@ -78,7 +79,8 @@ type Wrapper interface {
 	// UnstagedDiffApplicable checks if diff with unstaged changes can be applied
 	UnstagedDiffApplicable() bool
 
-	// ApplyUnstagedDiff applies whether the all diff changes or only selected
+	// ApplyUnstagedDiff applies whether the all diff changes or only selected,
+	// returns wrapper.ErrNoUnstagedDiff when no diff was saved
 	ApplyUnstagedDiff(bool) error
 
 	// StoreStash saves the current tree into a stash for backup
@@ -265,20 +267,33 @@ func (r *Repo) CanRestoreUnstagedChanges() bool {
 
 // RestoreUnstagedChanges applies the patch with previously unstaged changes.
 func (r *Repo) RestoreUnstagedChanges() error {
-	if err := r.wrapper.ApplyUnstagedDiff(false); err != nil {
-		return err
-	}
-
-	return r.wrapper.DropStash()
+	return r.restoreUnstagedChanges(false)
 }
 
 // RestoreAllUnstagedChanges applies all unstaged changes saved before running hooks.
 func (r *Repo) RestoreAllUnstagedChanges() error {
-	if err := r.wrapper.ApplyUnstagedDiff(true); err != nil {
+	return r.restoreUnstagedChanges(true)
+}
+
+func (r *Repo) restoreUnstagedChanges(all bool) error {
+	err := r.wrapper.ApplyUnstagedDiff(all)
+	if errors.Is(err, wrapper.ErrNoUnstagedDiff) {
+		// Keep the backup if there was nothing to restore
+		r.logger.Warn(
+			"Saved unstaged changes not found. " +
+				"Restore them from the 'lefthook auto backup' stash: git stash list",
+		)
+		return nil
+	}
+	if err != nil {
 		return err
 	}
 
-	return r.wrapper.DropStash()
+	if err = r.wrapper.DropStash(); err != nil {
+		return fmt.Errorf("failed to remove unstaged files backup: %w", err)
+	}
+
+	return nil
 }
 
 func (r *Repo) AddFiles(files []string) error {

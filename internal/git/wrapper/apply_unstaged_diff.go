@@ -1,11 +1,17 @@
 package wrapper
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/spf13/afero"
 )
 
+// ErrNoUnstagedDiff is returned when there is no saved diff to apply.
+var ErrNoUnstagedDiff = errors.New("no saved unstaged diff")
+
+// ApplyUnstagedDiff applies the saved diff and removes the diff files.
+// It returns ErrNoUnstagedDiff when no diff was saved.
 func (w *Wrapper) ApplyUnstagedDiff(all bool) error {
 	var diffPath string
 	if all {
@@ -19,7 +25,7 @@ func (w *Wrapper) ApplyUnstagedDiff(all bool) error {
 		return fmt.Errorf("failed to inspect the patch %s: %w", diffPath, err)
 	}
 	if !exists {
-		return nil
+		return ErrNoUnstagedDiff
 	}
 
 	stat, err := w.fs.Stat(diffPath)

@@ -1,6 +1,7 @@
 package git_test
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -144,6 +145,126 @@ func TestRepo_Changeset(t *testing.T) {
 
 			if !cmp.Equal(result, tt.result) {
 				t.Errorf("repo.Changeset() = %v, want %v", result, tt.result)
+			}
+		})
+	}
+}
+
+func TestRepo_RestoreUnstagedChanges(t *testing.T) {
+	errApply := errors.New("apply failed")
+	errDrop := errors.New("drop failed")
+
+	for name, tt := range map[string]struct {
+		applyErr error
+		dropErr  error
+		dropped  bool
+		err      error
+	}{
+		"restores-diff": {
+			dropped: true,
+		},
+		"no-diff": {
+			applyErr: wrapper.ErrNoUnstagedDiff,
+		},
+		"apply-fails": {
+			applyErr: errApply,
+			err:      errApply,
+		},
+		"drop-fails": {
+			dropErr: errDrop,
+			dropped: true,
+			err:     errDrop,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			w := gittest.NewStubWrapper()
+			w.ApplyUnstagedDiffFunc = func(all bool) error {
+				if all {
+					t.Errorf("wrapper.ApplyUnstagedDiff(%v), want false", all)
+				}
+				return tt.applyErr
+			}
+			dropped := false
+			w.DropStashFunc = func() error {
+				dropped = true
+				return tt.dropErr
+			}
+
+			repo := git.NewRepo(
+				afero.NewMemMapFs(),
+				loggertest.New(),
+				w,
+				&git.Paths{},
+			)
+
+			err := repo.RestoreUnstagedChanges()
+
+			if !errors.Is(err, tt.err) {
+				t.Errorf("repo.RestoreUnstagedChanges() error = %v, want %v", err, tt.err)
+			}
+
+			if dropped != tt.dropped {
+				t.Errorf("stash dropped = %v, want %v", dropped, tt.dropped)
+			}
+		})
+	}
+}
+
+func TestRepo_RestoreAllUnstagedChanges(t *testing.T) {
+	errApply := errors.New("apply failed")
+	errDrop := errors.New("drop failed")
+
+	for name, tt := range map[string]struct {
+		applyErr error
+		dropErr  error
+		dropped  bool
+		err      error
+	}{
+		"restores-diff": {
+			dropped: true,
+		},
+		"no-diff": {
+			applyErr: wrapper.ErrNoUnstagedDiff,
+		},
+		"apply-fails": {
+			applyErr: errApply,
+			err:      errApply,
+		},
+		"drop-fails": {
+			dropErr: errDrop,
+			dropped: true,
+			err:     errDrop,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			w := gittest.NewStubWrapper()
+			w.ApplyUnstagedDiffFunc = func(all bool) error {
+				if !all {
+					t.Errorf("wrapper.ApplyUnstagedDiff(%v), want true", all)
+				}
+				return tt.applyErr
+			}
+			dropped := false
+			w.DropStashFunc = func() error {
+				dropped = true
+				return tt.dropErr
+			}
+
+			repo := git.NewRepo(
+				afero.NewMemMapFs(),
+				loggertest.New(),
+				w,
+				&git.Paths{},
+			)
+
+			err := repo.RestoreAllUnstagedChanges()
+
+			if !errors.Is(err, tt.err) {
+				t.Errorf("repo.RestoreAllUnstagedChanges() error = %v, want %v", err, tt.err)
+			}
+
+			if dropped != tt.dropped {
+				t.Errorf("stash dropped = %v, want %v", dropped, tt.dropped)
 			}
 		})
 	}

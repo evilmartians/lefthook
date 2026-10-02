@@ -1,5 +1,7 @@
 package wrapper
 
+import "slices"
+
 var cmdPushFilesBase = []string{
 	"git", "diff", "--name-only", "HEAD", "@{push}",
 }
@@ -20,9 +22,10 @@ var cmdLsTreeFilesHead = []string{
 // 2. Trying to compare current HEAD with origin/<current-branch>
 // 3. Returning all files known to Git.
 func (w *Wrapper) PushFiles() ([]string, error) {
-	pushFiles, err := w.Files(cmdPushFilesBase)
+	// Upstream can be unset, do not log the failure as an error
+	lines, err := w.cmd.OnlyDebugLogs().cmdLines(cmdPushFilesBase)
 	if err == nil {
-		return pushFiles, nil
+		return slices.Collect(w.selectFiles(unquoted(trimmed(slices.Values(lines))))), nil
 	}
 
 	if len(w.headBranch) == 0 {

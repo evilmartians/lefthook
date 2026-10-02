@@ -51,6 +51,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	}
 
 	waitCacheWarmUp := l.repo.Cache.WarmUp()
+	defer waitCacheWarmUp()
 
 	if args.Verbose {
 		l.logger.SetLevel(logger.LevelDebug)
