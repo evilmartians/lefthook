@@ -7,7 +7,7 @@ var cmdStagedFilesWithDeleted = []string{
 }
 
 func (w *Wrapper) StagedFilesWithDeleted() ([]string, error) {
-	lines, err := w.cmd.CmdLines(cmdStagedFilesWithDeleted)
+	lines, err := w.cmd.cmdLines(cmdStagedFilesWithDeleted)
 	if err != nil {
 		return nil, err
 	}

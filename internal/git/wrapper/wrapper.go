@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"os"
 	"path/filepath"
+	"regexp"
 	"slices"
 
 	"github.com/spf13/afero"
@@ -12,13 +13,15 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
+const (
+	unstagedPatchName    = "lefthook-unstaged.patch"
+	unstagedAllPatchName = "lefthook-unstaged-all.patch"
+)
+
 var (
-	cmdListStash       = []string{"git", "stash", "list"}
-	cmdCreateStash     = []string{"git", "stash", "create"}
-	cmdStageFiles      = []string{"git", "add", "--force", "--"}
 	cmdRemotes         = []string{"git", "branch", "--remotes"}
-	cmdHideUnstaged    = []string{"git", "checkout", "--force", "--"}
-	cmdHideAllUnstaged = []string{"git", "checkout", "."}
+	reHeadBranch       = regexp.MustCompile(`HEAD -> (?P<name>.*)$`)
+	reOriginHeadBranch = regexp.MustCompile(`ref: refs/remotes/origin/(?P<name>.*)$`)
 )
 
 // Wrapper wraps the calls to Git.
@@ -57,7 +60,7 @@ func (w *Wrapper) Files(cmd []string) ([]string, error) {
 }
 
 func (w *Wrapper) FilesRelative(cmd []string, dir string) ([]string, error) {
-	lines, err := w.cmd.CmdLinesRelative(cmdAllFiles, dir)
+	lines, err := w.cmd.cmdLinesRelative(cmdAllFiles, dir)
 	if err != nil {
 		return nil, err
 	}
@@ -67,11 +70,11 @@ func (w *Wrapper) FilesRelative(cmd []string, dir string) ([]string, error) {
 
 // resolveHeadBranch determines the upstream head branch.
 func (w *Wrapper) resolveHeadBranch() string {
-	if branch := r.readOriginHead(); len(branch) > 0 {
+	if branch := w.readOriginHead(); len(branch) > 0 {
 		return branch
 	}
 
-	branches, err := w.cmd.CmdLines(cmdRemotes)
+	branches, err := w.cmd.cmdLines(cmdRemotes)
 	if err == nil {
 		for _, branch := range branches {
 			matches := reHeadBranch.FindStringSubmatch(branch)
@@ -113,4 +116,12 @@ func (w *Wrapper) readOriginHead() string {
 	// branch name: the bare name may not exist as a local branch (a clone
 	// that never checked out the default branch has no local "main").
 	return "origin/" + match[reOriginHeadBranch.SubexpIndex("name")]
+}
+
+func (w *Wrapper) unstagedDiffPath() string {
+	return filepath.Join(w.infoPath, unstagedPatchName)
+}
+
+func (w *Wrapper) unstagedAllDiffPath() string {
+	return filepath.Join(w.infoPath, unstagedAllPatchName)
 }

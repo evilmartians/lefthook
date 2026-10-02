@@ -44,7 +44,7 @@ func (w *Wrapper) StatusShort() ([]FileStatus, error) {
 			skip = true
 		}
 
-		append(results, FileStatus{
+		results = append(results, FileStatus{
 			Path:     string(rs[3:]),
 			Index:    rs[0],
 			Worktree: rs[1],

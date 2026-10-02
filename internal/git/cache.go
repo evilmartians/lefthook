@@ -12,10 +12,10 @@ type Cache struct {
 	stagedFilesOnce            func() ([]string, error)
 	stagedFilesWithDeletedOnce func() ([]string, error)
 	statusShortOnce            func() ([]wrapper.FileStatus, error)
-	stateOnce                  func() State
+	stateOnce                  func() wrapper.State
 }
 
-func newCache(wrapper Wrapper, paths Paths) *Cache {
+func newCache(wrapper Wrapper) *Cache {
 	c := &Cache{wrapper: wrapper}
 	c.Reset()
 
@@ -43,19 +43,19 @@ func (c *Cache) WarmUp() func() {
 
 // Reset cleans up the cached values.
 func (c *Cache) Reset() {
-	stagedFilesOnce := sync.OnceValues(func() ([]string, error) {
+	c.stagedFilesOnce = sync.OnceValues(func() ([]string, error) {
 		return c.wrapper.StagedFiles()
 	})
 
-	stagedFilesWithDeletedOnce := sync.OnceValues(func() ([]string, error) {
+	c.stagedFilesWithDeletedOnce = sync.OnceValues(func() ([]string, error) {
 		return c.wrapper.StagedFilesWithDeleted()
 	})
 
-	statusShortOnce := sync.OnceValues(func() ([]wrapper.FileStatus, error) {
+	c.statusShortOnce = sync.OnceValues(func() ([]wrapper.FileStatus, error) {
 		return c.wrapper.StatusShort()
 	})
 
-	stateOnce := sync.OnceValue(func() State {
-		return r.state()
+	c.stateOnce = sync.OnceValue(func() wrapper.State {
+		return c.wrapper.State()
 	})
 }
