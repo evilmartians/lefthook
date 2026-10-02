@@ -4,7 +4,7 @@ See [AGENTS.md](AGENTS.md) for build commands, directory map, and contribution r
 
 ## Patterns
 
-**Tests** — table-driven with `map[string]struct{ ... }` keyed by description string; use `testify/assert`.
+**Tests** — follow [.agents/rules/unit_tests.md](.agents/rules/unit_tests.md).
 
 **Errors** — wrap with `fmt.Errorf("context: %w", err)`; use typed errors (structs implementing `error`) when callers need `errors.As`.
 
