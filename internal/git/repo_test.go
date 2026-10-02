@@ -13,7 +13,7 @@ import (
 
 func TestRepo_PartiallyStagedFiles(t *testing.T) {
 	logger := loggertest.New()
-	w := gittest.NewFakeWrapper()
+	w := gittest.NewStubWrapper()
 	statuses := []wrapper.FileStatus{
 		{Index: ' ', Worktree: ' ', Path: "  "},
 		{Index: ' ', Worktree: 'M', Path: " M"},
@@ -24,7 +24,7 @@ func TestRepo_PartiallyStagedFiles(t *testing.T) {
 		{Index: 'M', Worktree: '?', Path: "M?"},
 		{Index: '?', Worktree: 'M', Path: "?M"},
 	}
-	w.StubStatusShort = func() ([]wrapper.FileStatus, error) { return statuses, nil }
+	w.StatusShortFunc = func() ([]wrapper.FileStatus, error) { return statuses, nil }
 
 	repo := git.NewRepo(
 		afero.NewMemMapFs(),
@@ -125,9 +125,9 @@ func TestRepo_Changeset(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			logger := loggertest.New()
-			w := gittest.NewFakeWrapper()
-			w.StubStatusShort = func() ([]wrapper.FileStatus, error) { return tt.StatusShort, nil }
-			w.StubHashObjects = func([]string) ([]string, error) { return tt.HashObjects, nil }
+			w := gittest.NewStubWrapper()
+			w.StatusShortFunc = func() ([]wrapper.FileStatus, error) { return tt.StatusShort, nil }
+			w.HashObjectsFunc = func([]string) ([]string, error) { return tt.HashObjects, nil }
 
 			repository := git.NewRepo(
 				afero.NewMemMapFs(),

@@ -647,12 +647,12 @@ func TestRunAll(t *testing.T) {
 		}
 
 		if len(tt.branch) > 0 {
-			assert.NoError(t, afero.WriteFile(fs, filepath.Join(repo.GitPath, "HEAD"), []byte("ref: refs/heads/"+tt.branch), 0o644))
+			assert.NoError(t, afero.WriteFile(fs, filepath.Join(repo.Paths.Git, "HEAD"), []byte("ref: refs/heads/"+tt.branch), 0o644))
 		}
 
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
-			repo.ResetCache()
+			repo.Cache.Reset()
 			cmdExecutor.Reset()
 
 			opts := Options{

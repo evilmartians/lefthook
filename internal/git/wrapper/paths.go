@@ -12,14 +12,21 @@ var cmdPaths = []string{
 	"--git-dir",
 }
 
-type PathsResult struct {
-	Root  string
+type Paths struct {
+	// Project root path
+	Root string
+
+	// .git/hooks/ dir path
 	Hooks string
-	Info  string
-	Git   string
+
+	// .git/ dir path
+	Git string
+
+	// .git/info/ dir path
+	Info string
 }
 
-func (w *Wrapper) Paths() (*PathsResult, error) {
+func (w *Wrapper) Paths() (*Paths, error) {
 	paths, err := w.cmd.cmdLines(cmdPaths)
 	if err != nil {
 		return nil, err
@@ -30,7 +37,7 @@ func (w *Wrapper) Paths() (*PathsResult, error) {
 	w.infoPath = filepath.Clean(paths[2])
 	w.gitPath = paths[3]
 
-	return &PathsResult{
+	return &Paths{
 		Root:  paths[0],
 		Hooks: paths[1],
 		Info:  w.infoPath,

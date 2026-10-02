@@ -23,25 +23,13 @@ var (
 	reVersion = regexp.MustCompile(`\d+\.\d+\.(\d+|\w+)`)
 )
 
-type Paths struct {
-	// Project root path
-	Root string
-
-	// .git/hooks/ dir path
-	Hooks string
-
-	// .git/ dir path
-	Git string
-
-	// .git/info/ dir path
-	Info string
-}
+type Paths = wrapper.Paths
 
 // Repo is a Git repository controller.
 type Repo struct {
 	Fs      afero.Fs
 	wrapper Wrapper
-	Paths   Paths
+	Paths   *Paths
 	Cache   *Cache
 	logger  *logger.Logger
 }
@@ -51,7 +39,7 @@ type Wrapper interface {
 	Version() (string, error)
 
 	// Paths return required paths for lefthook to know about
-	Paths() (*wrapper.PathsResult, error)
+	Paths() (*wrapper.Paths, error)
 
 	// LocalHooksPath returns configured local hooks path
 	LocalHooksPath() string
@@ -154,12 +142,7 @@ func BuildRepo(
 		fs,
 		logger,
 		wrapper,
-		Paths{
-			Root:  paths.Root,
-			Hooks: paths.Hooks,
-			Info:  paths.Info,
-			Git:   paths.Git,
-		},
+		paths,
 	), nil
 }
 
@@ -167,7 +150,7 @@ func NewRepo(
 	fs afero.Fs,
 	logger *logger.Logger,
 	wrapper Wrapper,
-	paths Paths,
+	paths *Paths,
 ) *Repo {
 	return &Repo{
 		Fs:      fs,
@@ -204,12 +187,7 @@ func (r *Repo) ResetPaths() error {
 		return err
 	}
 
-	r.Paths = Paths{
-		Root:  paths.Root,
-		Hooks: paths.Hooks,
-		Info:  paths.Info,
-		Git:   paths.Git,
-	}
+	r.Paths = paths
 
 	return nil
 }

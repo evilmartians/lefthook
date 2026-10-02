@@ -46,7 +46,7 @@ func (c *OrderedCmd) Run(command []string, root string, in io.Reader, out io.Wri
 	checkCmd := c.outs[0]
 
 	if checkCmd.Command != cmd {
-		c.t.Errorf("%d) expected: '%s', called: '%s'", c.cnt, checkCmd.Command, cmd)
+		c.t.Errorf(`%d) "%v", want: "%v"`, c.cnt, cmd, checkCmd.Command)
 	}
 
 	_, _ = out.Write([]byte(checkCmd.Output))

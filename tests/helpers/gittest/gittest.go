@@ -6,7 +6,9 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/v2/internal/git"
+	"github.com/evilmartians/lefthook/v2/internal/git/wrapper"
 	"github.com/evilmartians/lefthook/v2/internal/system"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
 
 type RepositoryBuilder struct {
@@ -34,16 +36,20 @@ func (b *RepositoryBuilder) Fs(fs afero.Fs) *RepositoryBuilder {
 	return b
 }
 
-func (b *RepositoryBuilder) BuildRepo() *git.Repo {
-	repo := &git.Repo{
-		Fs: b.fs,
-		Paths: git.Paths{
+func (b *RepositoryBuilder) Build() *git.Repo {
+	logger := loggertest.New()
+	w := wrapper.New(b.fs, b.cmd, logger)
+	repo := git.NewRepo(
+		b.fs,
+		logger,
+		w,
+		git.Paths{
 			Root:  b.root,
 			Git:   GitPath(b.root),
 			Hooks: filepath.Join(GitPath(b.root), "hooks"),
 			Info:  filepath.Join(GitPath(b.root), "info"),
 		},
-	}
+	)
 
 	return repo
 }
