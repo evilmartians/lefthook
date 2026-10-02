@@ -100,7 +100,7 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 		WriteLines("hide partially staged files: ", partiallyStagedFiles).
 		Log()
 
-	if err := g.git.RevertUnstagedChanges(partiallyStagedFiles); err != nil {
+	if err := g.git.DiscardUnstagedChanges(partiallyStagedFiles); err != nil {
 		g.logger.Warnf("Failed to hide unstaged files: %s", err)
 		return err
 	}
@@ -109,7 +109,7 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 
 	var failOnChangesErr *FailOnChangesError
 	if errors.As(wrappedErr, &failOnChangesErr) {
-		if err := g.git.RevertUnstagedChanges(failOnChangesErr.changedFiles); err != nil {
+		if err := g.git.DiscardUnstagedChanges(failOnChangesErr.changedFiles); err != nil {
 			g.logger.Warnf("Failed to revert file changes: %s", err)
 			return wrappedErr
 		}
@@ -127,7 +127,7 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 		}
 		wrappedErr = errRestorationConflict
 
-		if err := g.git.RevertAllUnstagedChanges(); err != nil {
+		if err := g.git.DiscardAllUnstagedChanges(); err != nil {
 			g.logger.Warnf("Failed to restore initial worktree state: %s", err)
 			return err
 		}

@@ -28,7 +28,7 @@ func (w *Wrapper) PushFiles() ([]string, error) {
 	}
 
 	if len(w.headBranch) != 0 {
-		return w.Files(append(cmdPushFilesHead, r.headBranch, "--"))
+		return w.Files(append(cmdPushFilesHead, w.headBranch, "--"))
 	}
 
 	// Nothing has been pushed yet or upstream is not set

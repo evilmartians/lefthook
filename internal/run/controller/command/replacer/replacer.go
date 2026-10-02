@@ -3,7 +3,6 @@ package replacer
 import (
 	"fmt"
 	"regexp"
-	"runtime"
 	"strconv"
 	"strings"
 
@@ -40,13 +39,7 @@ func New(
 		push   = git.PushFiles
 		all    = git.AllFiles
 		cmd    = func() ([]string, error) {
-			var cmd []string
-			if runtime.GOOS == "windows" {
-				cmd = strings.Split(filesCmd, " ")
-			} else {
-				cmd = []string{"sh", "-c", filesCmd}
-			}
-			return git.FindExistingFiles(cmd, root)
+			return git.FilesByCommandRelative(filesCmd, root)
 		}
 	)
 
