@@ -1,13 +1,11 @@
 package wrapper
 
-import "slices"
-
 var cmdPushFilesBase = []string{
 	"git", "diff", "--name-only", "HEAD", "@{push}",
 }
 
 var cmdPushFilesHead = []string{
-	"git", "diff", "--name-only", "HEAD",
+	"git", "diff", "--name-only", // origin/main...HEAD
 }
 
 var cmdLsTreeFilesHead = []string{
@@ -24,8 +22,8 @@ var cmdLsTreeFilesHead = []string{
 func (w *Wrapper) PushFiles() ([]string, error) {
 	// Upstream can be unset, do not log the failure as an error
 	lines, err := w.cmd.OnlyDebugLogs().cmdLines(cmdPushFilesBase)
-	if err == nil {
-		return slices.Collect(w.selectFiles(unquoted(trimmed(slices.Values(lines))))), nil
+	if err == nil { // ignoring error for best effort
+		return w.existingFilepaths(lines), nil
 	}
 
 	if len(w.headBranch) == 0 {
@@ -33,7 +31,10 @@ func (w *Wrapper) PushFiles() ([]string, error) {
 	}
 
 	if len(w.headBranch) != 0 {
-		return w.Files(append(cmdPushFilesHead, w.headBranch, "--"))
+		lines, err = w.cmd.OnlyDebugLogs().cmdLines(append(cmdPushFilesHead, w.headBranch+"...HEAD", "--"))
+		if err == nil { // ignoring error for best effort
+			return w.existingFilepaths(lines), nil
+		}
 	}
 
 	// Nothing has been pushed yet or upstream is not set
