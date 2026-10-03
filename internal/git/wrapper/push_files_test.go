@@ -53,14 +53,38 @@ func TestWrapper_PushFiles(t *testing.T) {
 						Output:  "  origin/fix\n  origin/feat\n  origin/HEAD -> origin/main\n  origin/bug\n",
 					},
 					{
-						Command: "git diff --name-only origin/main..HEAD --",
+						Command: "git diff --name-only origin/main...HEAD --",
 						Output:  "a\nb\n",
 					},
 				},
 			),
 			want: []string{"a", "b"},
 		},
-		"ls-files": {
+		"failed-head-branch": {
+			cmd: cmdtest.NewOrdered(
+				t,
+				[]cmdtest.Out{
+					{
+						Command: "git diff --name-only HEAD @{push}",
+						Err:     errors.New("oops"),
+					},
+					{
+						Command: "git branch --remotes",
+						Output:  "  origin/fix\n  origin/feat\n  origin/HEAD -> origin/main\n  origin/bug\n",
+					},
+					{
+						Command: "git diff --name-only origin/main...HEAD --",
+						Err:     errors.New("oops"),
+					},
+					{
+						Command: "git ls-tree -r --name-only HEAD",
+						Output:  "a\n",
+					},
+				},
+			),
+			want: []string{"a"},
+		},
+		"no-head-branch": {
 			cmd: cmdtest.NewOrdered(
 				t,
 				[]cmdtest.Out{

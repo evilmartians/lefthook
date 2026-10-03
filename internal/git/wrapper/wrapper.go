@@ -65,7 +65,11 @@ func (w *Wrapper) FilesRelative(cmd []string, dir string) ([]string, error) {
 		return nil, err
 	}
 
-	return slices.Collect(w.selectFiles(unquoted(trimmed(slices.Values(lines))))), nil
+	return w.existingFilepaths(lines), nil
+}
+
+func (w *Wrapper) existingFilepaths(lines []string) []string {
+	return slices.Collect(w.selectFiles(unquoted(trimmed(slices.Values(lines)))))
 }
 
 // resolveHeadBranch determines the upstream head branch.
