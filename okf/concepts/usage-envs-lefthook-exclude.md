@@ -3,10 +3,10 @@ type: concept
 title: LEFTHOOK_EXCLUDE
 source: "https://lefthook.dev/usage/envs/LEFTHOOK_EXCLUDE/"
 path: /usage/envs/LEFTHOOK_EXCLUDE/
-updated: 2026-10-01
+updated: 2026-10-03
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-01T17:24:34.954Z"
+  generated_at: "2026-10-03T07:09:36.228Z"
 ---
 ---
 title: "LEFTHOOK_EXCLUDE"

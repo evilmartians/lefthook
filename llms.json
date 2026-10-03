@@ -357,6 +357,12 @@
       "priority": "medium"
     },
     {
+      "title": "Protect a branch from direct push",
+      "url": "https://lefthook.dev/examples/protect-branch/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
       "title": "Remotes",
       "url": "https://lefthook.dev/examples/remotes/",
       "description": "",

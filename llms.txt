@@ -63,6 +63,7 @@
 - [Commitlint and commitzen](https://lefthook.dev/examples/commitlint/)
 - [Filters](https://lefthook.dev/examples/filters/)
 - [lefthook-local.yml](https://lefthook.dev/examples/lefthook-local/)
+- [Protect a branch from direct push](https://lefthook.dev/examples/protect-branch/)
 - [Remotes](https://lefthook.dev/examples/remotes/)
 - [Skip or run on condition](https://lefthook.dev/examples/skip/)
 - [Stage fixed files](https://lefthook.dev/examples/stage_fixed/)

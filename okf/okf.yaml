@@ -5,12 +5,12 @@ bundle:
   description: ""
   url: "https://lefthook.dev"
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-01T17:24:34.958Z"
+  generated_at: "2026-10-03T07:09:36.233Z"
   default_type: concept
 stats:
-  concepts: 106
+  concepts: 107
   by_type:
-    concept: 106
+    concept: 107
   locales: 
   versions: 
 concepts:
@@ -483,6 +483,14 @@ concepts:
     title: lefthook-local.yml
     path: /examples/lefthook-local/
     file: concepts/examples-lefthook-local.md
+    locale: ""
+    version: ""
+    tags: 
+  - id: examples-protect-branch
+    type: concept
+    title: "Protect a branch from direct push"
+    path: /examples/protect-branch/
+    file: concepts/examples-protect-branch.md
     locale: ""
     version: ""
     tags: 

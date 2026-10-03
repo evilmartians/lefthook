@@ -3,10 +3,10 @@ type: concept
 title: Contributors
 source: "https://lefthook.dev/misc/contributors/"
 path: /misc/contributors/
-updated: 2026-10-01
+updated: 2026-10-03
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-01T17:24:34.947Z"
+  generated_at: "2026-10-03T07:09:36.221Z"
 ---
 # Contributors
 

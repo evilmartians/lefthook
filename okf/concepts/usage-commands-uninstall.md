@@ -3,10 +3,10 @@ type: concept
 title: "lefthook uninstall"
 source: "https://lefthook.dev/usage/commands/uninstall/"
 path: /usage/commands/uninstall/
-updated: 2026-10-01
+updated: 2026-10-03
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-01T17:24:34.950Z"
+  generated_at: "2026-10-03T07:09:36.224Z"
 ---
 ---
 title: "lefthook uninstall"

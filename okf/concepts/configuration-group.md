@@ -3,10 +3,10 @@ type: concept
 title: group
 source: "https://lefthook.dev/configuration/group/"
 path: /configuration/group/
-updated: 2026-10-01
+updated: 2026-10-03
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-01T17:24:34.918Z"
+  generated_at: "2026-10-03T07:09:36.192Z"
 ---
 ---
 title: "group"

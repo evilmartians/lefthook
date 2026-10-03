@@ -296,6 +296,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://lefthook.dev/examples/protect-branch/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://lefthook.dev/examples/remotes/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

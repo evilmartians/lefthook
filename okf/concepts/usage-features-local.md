@@ -3,10 +3,10 @@ type: concept
 title: "Local config"
 source: "https://lefthook.dev/usage/features/local/"
 path: /usage/features/local/
-updated: 2026-10-01
+updated: 2026-10-03
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-01T17:24:34.957Z"
+  generated_at: "2026-10-03T07:09:36.231Z"
 ---
 ---
 title: "Local config"
