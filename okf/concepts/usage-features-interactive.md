@@ -6,7 +6,7 @@ path: /usage/features/interactive/
 updated: 2026-10-03
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-03T20:31:45.606Z"
+  generated_at: "2026-10-03T20:39:29.651Z"
 ---
 ---
 title: "Interactive commands"
