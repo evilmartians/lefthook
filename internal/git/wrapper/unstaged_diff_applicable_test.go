@@ -46,7 +46,7 @@ func TestWrapper_UnstagedDiffApplicable(t *testing.T) {
 					t.Fatalf("unexpected error: %s", err)
 				}
 			}
-			cmd := cmdtest.NewOrdered(t, append([]cmdtest.Out{pathsOut}, tt.outs...))
+			cmd := cmdtest.NewFakeCmd(t, append([]cmdtest.Out{pathsOut}, tt.outs...))
 			w := wrapper.New(fs, cmd, loggertest.New())
 			if _, err := w.Paths(); err != nil {
 				t.Fatalf("unexpected error: %s", err)

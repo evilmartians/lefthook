@@ -32,7 +32,7 @@ func TestWrapper_Diff(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			logger := loggertest.New()
-			cmd := cmdtest.NewOrdered(t, []cmdtest.Out{{Command: tt.command, Output: "<anything>"}})
+			cmd := cmdtest.NewFakeCmd(t, []cmdtest.Out{{Command: tt.command, Output: "<anything>"}})
 
 			w := wrapper.New(fs, cmd, logger)
 

@@ -142,7 +142,7 @@ post-commit:
 			lefthook := &Lefthook{
 				logger: loggertest.New(),
 				fs:     fs,
-				repo:   gittest.NewRepositoryBuilder().Cmd(cmdtest.NewDumb()).Fs(fs).Root(root).Build(),
+				repo:   gittest.NewRepositoryBuilder().Cmd(cmdtest.NewStubCmd()).Fs(fs).Root(root).Build(),
 			}
 			lefthook.repo.Cache.Reset()
 

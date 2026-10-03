@@ -200,7 +200,7 @@ func Test_guard_wrap(t *testing.T) {
 			assert := assert.New(t)
 
 			repo := gittest.NewRepositoryBuilder().
-				Cmd(cmdtest.NewOrdered(t, tt.commands)).
+				Cmd(cmdtest.NewFakeCmd(t, tt.commands)).
 				Fs(afero.NewMemMapFs()).
 				Root("root").
 				Build()
@@ -280,7 +280,7 @@ func Test_guard_wrap_stageFixed(t *testing.T) {
 			assert := assert.New(t)
 
 			repo := gittest.NewRepositoryBuilder().
-				Cmd(cmdtest.NewOrdered(t, tt.commands)).
+				Cmd(cmdtest.NewFakeCmd(t, tt.commands)).
 				Fs(afero.NewMemMapFs()).
 				Root("root").
 				Build()

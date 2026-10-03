@@ -47,7 +47,7 @@ func TestWrapper_SaveUnstagedDiff(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			cmd := cmdtest.NewOrdered(t, tt.outs)
+			cmd := cmdtest.NewFakeCmd(t, tt.outs)
 			w := wrapper.New(fs, cmd, loggertest.New())
 			if _, err := w.Paths(); err != nil {
 				t.Fatalf("unexpected error: %s", err)

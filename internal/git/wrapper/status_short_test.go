@@ -14,7 +14,7 @@ import (
 func TestWrapper_StatusShort(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	logger := loggertest.New()
-	cmd := cmdtest.NewOrdered(t, []cmdtest.Out{
+	cmd := cmdtest.NewFakeCmd(t, []cmdtest.Out{
 		{
 			Command: "git status --short --porcelain -z",
 			Output: "RM new file\x00old-file\x00" +
