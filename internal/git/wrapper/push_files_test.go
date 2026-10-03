@@ -29,7 +29,7 @@ func TestWrapper_PushFiles(t *testing.T) {
 		err  error
 	}{
 		"@{push}": {
-			cmd: cmdtest.NewOrdered(
+			cmd: cmdtest.NewFakeCmd(
 				t,
 				[]cmdtest.Out{
 					{
@@ -41,7 +41,7 @@ func TestWrapper_PushFiles(t *testing.T) {
 			want: []string{"a", "b", "c"},
 		},
 		"head-branch": {
-			cmd: cmdtest.NewOrdered(
+			cmd: cmdtest.NewFakeCmd(
 				t,
 				[]cmdtest.Out{
 					{
@@ -61,7 +61,7 @@ func TestWrapper_PushFiles(t *testing.T) {
 			want: []string{"a", "b"},
 		},
 		"failed-head-branch": {
-			cmd: cmdtest.NewOrdered(
+			cmd: cmdtest.NewFakeCmd(
 				t,
 				[]cmdtest.Out{
 					{
@@ -85,7 +85,7 @@ func TestWrapper_PushFiles(t *testing.T) {
 			want: []string{"a"},
 		},
 		"no-head-branch": {
-			cmd: cmdtest.NewOrdered(
+			cmd: cmdtest.NewFakeCmd(
 				t,
 				[]cmdtest.Out{
 					{

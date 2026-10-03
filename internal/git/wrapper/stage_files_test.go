@@ -24,7 +24,7 @@ func TestWrapper_StageFiles(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			cmd := cmdtest.NewOrdered(t, []cmdtest.Out{
+			cmd := cmdtest.NewFakeCmd(t, []cmdtest.Out{
 				{Command: "git add --force -- a b", Err: tt.err},
 			})
 			w := wrapper.New(fs, cmd, loggertest.New())

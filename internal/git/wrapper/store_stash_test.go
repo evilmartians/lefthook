@@ -41,7 +41,7 @@ func TestWrapper_StoreStash(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			cmd := cmdtest.NewOrdered(t, tt.outs)
+			cmd := cmdtest.NewFakeCmd(t, tt.outs)
 			w := wrapper.New(fs, cmd, loggertest.New())
 
 			err := w.StoreStash()

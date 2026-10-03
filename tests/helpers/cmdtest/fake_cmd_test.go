@@ -11,11 +11,11 @@ import (
 )
 
 func TestOrderedCmd(t *testing.T) {
-	var _ system.Command = (*OrderedCmd)(nil)
+	var _ system.Command = (*FakeCmd)(nil)
 
 	errFailed := errors.New("failed")
 
-	cmd := NewOrdered(
+	cmd := NewFakeCmd(
 		t,
 		[]Out{
 			{Command: "A 1"},

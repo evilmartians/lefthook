@@ -429,7 +429,7 @@ validate:
 			repo := gittest.NewRepositoryBuilder().
 				Root(root).
 				Fs(fs).
-				Cmd(cmdtest.NewOrdered(t, gitCmds)).
+				Cmd(cmdtest.NewFakeCmd(t, gitCmds)).
 				Build()
 			lefthook := &Lefthook{
 				logger: loggertest.New(),
@@ -723,7 +723,7 @@ remotes:
 				)
 			}
 
-			repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Cmd(cmdtest.NewOrdered(t, gitCmds)).Build()
+			repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Cmd(cmdtest.NewFakeCmd(t, gitCmds)).Build()
 			lefthook := &Lefthook{
 				logger: loggertest.New(),
 				fs:     fs,
@@ -1041,7 +1041,7 @@ pre-commit:
 			repo := gittest.NewRepositoryBuilder().
 				Root(root).
 				Fs(fs).
-				Cmd(cmdtest.NewOrdered(t, tt.git)).
+				Cmd(cmdtest.NewFakeCmd(t, tt.git)).
 				Build()
 			lefthook := &Lefthook{
 				logger: loggertest.New(),

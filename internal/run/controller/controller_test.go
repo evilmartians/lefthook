@@ -610,7 +610,7 @@ func TestRunAll(t *testing.T) {
 	} {
 		fs := afero.NewMemMapFs()
 
-		cmdExecutor := cmdtest.NewTracking(func(command string, root string, out io.Writer) error {
+		cmdExecutor := cmdtest.NewSpyCmd(func(command string, root string, out io.Writer) error {
 			if command == "git diff --name-only --cached --diff-filter=ACMR" ||
 				command == "git diff --name-only --cached --diff-filter=ACMRD" ||
 				command == "git diff --name-only HEAD @{push}" {
@@ -637,7 +637,7 @@ func TestRunAll(t *testing.T) {
 			filesToStage: newStageFilesList(),
 			git:          repo,
 			executor:     executor{},
-			cmd:          cmdtest.NewTracking(nil), // lfs hooks ignored in this test
+			cmd:          cmdtest.NewSpyCmd(nil), // lfs hooks ignored in this test
 		}
 		cmdExecutor.Reset()
 

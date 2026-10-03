@@ -31,7 +31,7 @@ func TestWrapper_HashObjects(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			cmd := cmdtest.NewOrdered(t, []cmdtest.Out{tt.out})
+			cmd := cmdtest.NewFakeCmd(t, []cmdtest.Out{tt.out})
 			w := wrapper.New(fs, cmd, loggertest.New())
 
 			result, err := w.HashObjects([]string{"a", "b"})
