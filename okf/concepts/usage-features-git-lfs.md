@@ -6,7 +6,7 @@ path: /usage/features/git-lfs/
 updated: 2026-10-03
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-03T07:09:36.230Z"
+  generated_at: "2026-10-03T07:18:23.699Z"
 ---
 ---
 title: "Git LFS support"
