@@ -23,7 +23,7 @@ templates:
 pre-commit:
   jobs:
     # Will run: `bundle exec rubocop -- file1 file2 file3 ...`
-    - run: {dip} bundle exec rubocop -- {staged_files}
+    - run: "{dip} bundle exec rubocop -- {staged_files}"
 ```
 
 ```yml
@@ -43,7 +43,7 @@ templates:
 
 pre-commit:
   jobs:
-    - run: {wrapper} yarn format
-    - run: {wrapper} yarn lint
-    - run: {wrapper} yarn test
+    - run: "{wrapper} yarn format"
+    - run: "{wrapper} yarn lint"
+    - run: "{wrapper} yarn test"
 ```

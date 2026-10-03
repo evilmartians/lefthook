@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"path/filepath"
 	"testing"
 
@@ -85,10 +86,13 @@ func Test_guard_wrap(t *testing.T) {
 			failOnChanges:        false,
 			commands: []cmdtest.Out{
 				{Command: "git status --short --porcelain -z", Output: "AM file1\x00 M file2\x00 A file3\x00"},
-				{Command: "git stash create", Output: "<stash-hash>"},
 				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", Output: ""},
+				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
+					filepath.Join("root", ".git", "info", "lefthook-unstaged-all.patch") +
+					" --", Output: ""},
+				{Command: "git stash create", Output: "<stash-hash>"},
 				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
 				{Command: "git checkout --force -- file1", Output: ""},
 				{Command: "git stash list", Output: "0: my stash\n1: lefthook auto backup\n2: my second stash\n"},
@@ -100,10 +104,13 @@ func Test_guard_wrap(t *testing.T) {
 			failOnChanges:        true,
 			commands: []cmdtest.Out{
 				{Command: "git status --short --porcelain -z", Output: "AM file1\x00 M file2\x00"},
-				{Command: "git stash create", Output: "<stash-hash>"},
 				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", Output: ""},
+				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
+					filepath.Join("root", ".git", "info", "lefthook-unstaged-all.patch") +
+					" --", Output: ""},
+				{Command: "git stash create", Output: "<stash-hash>"},
 				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
 				{Command: "git checkout --force -- file1", Output: ""},
 				{Command: "git status --short --porcelain -z", Output: "A file1\x00"},
@@ -119,10 +126,13 @@ func Test_guard_wrap(t *testing.T) {
 			failOnChangesDiff:    true,
 			commands: []cmdtest.Out{
 				{Command: "git status --short --porcelain -z", Output: "AM file1\x00"},
-				{Command: "git stash create", Output: "<stash-hash>"},
 				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", Output: ""},
+				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
+					filepath.Join("root", ".git", "info", "lefthook-unstaged-all.patch") +
+					" --", Output: ""},
+				{Command: "git stash create", Output: "<stash-hash>"},
 				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
 				{Command: "git checkout --force -- file1", Output: ""},
 				{Command: "git status --short --porcelain -z", Output: "A  file1\x00"},
@@ -194,7 +204,7 @@ func Test_guard_wrap(t *testing.T) {
 				Fs(afero.NewMemMapFs()).
 				Root("root").
 				Build()
-			repo.ResetCache()
+			repo.Cache.Reset()
 			g := newGuard(
 				repo,
 				loggertest.NewExecution(),
@@ -208,6 +218,91 @@ func Test_guard_wrap(t *testing.T) {
 			err := g.wrap(func() { beenCalled = true })
 			if tt.err != nil {
 				assert.ErrorAs(tt.err, &err)
+			} else {
+				assert.NoError(err)
+			}
+
+			assert.Equal(true, beenCalled)
+		})
+	}
+}
+
+// Staging the files fixed by a hook must not fail silently: if `git add` fails, the
+// commit would proceed with the unfixed content while the summary stays green.
+func Test_guard_wrap_stageFixed(t *testing.T) {
+	errStaging := errors.New("exit status 128")
+
+	for name, tt := range map[string]struct {
+		filesToStage []string
+		commands     []cmdtest.Out
+		err          error
+	}{
+		"no files to stage": {
+			commands: []cmdtest.Out{
+				{Command: "git status --short --porcelain -z", Output: "M  file1\x00"},
+			},
+		},
+		"fixed files staged": {
+			filesToStage: []string{"file1"},
+			commands: []cmdtest.Out{
+				{Command: "git status --short --porcelain -z", Output: "M  file1\x00"},
+				{Command: "git add --force -- file1", Output: ""},
+			},
+		},
+		"staging fixed files fails": {
+			filesToStage: []string{"file1"},
+			commands: []cmdtest.Out{
+				{Command: "git status --short --porcelain -z", Output: "M  file1\x00"},
+				{Command: "git add --force -- file1", Err: errStaging},
+			},
+			err: errStaging,
+		},
+		"staging fixed files fails with partially staged": {
+			filesToStage: []string{"file2"},
+			commands: []cmdtest.Out{
+				{Command: "git status --short --porcelain -z", Output: "AM file1\x00"},
+				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
+					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
+					" -- file1", Output: ""},
+				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
+					filepath.Join("root", ".git", "info", "lefthook-unstaged-all.patch") +
+					" --", Output: ""},
+				{Command: "git stash create", Output: "<stash-hash>"},
+				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
+				{Command: "git checkout --force -- file1", Output: ""},
+				{Command: "git add --force -- file2", Err: errStaging},
+				{Command: "git stash list"},
+			},
+			err: errStaging,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert := assert.New(t)
+
+			repo := gittest.NewRepositoryBuilder().
+				Cmd(cmdtest.NewOrdered(t, tt.commands)).
+				Fs(afero.NewMemMapFs()).
+				Root("root").
+				Build()
+			repo.Cache.Reset()
+
+			filesToStage := newStageFilesList()
+			filesToStage.Add(tt.filesToStage)
+
+			g := newGuard(
+				repo,
+				loggertest.NewExecution(),
+				filesToStage,
+				true,
+				false,
+				false,
+			)
+
+			var beenCalled bool
+			err := g.wrap(func() { beenCalled = true })
+			if tt.err != nil {
+				assert.ErrorIs(err, tt.err)
+				assert.ErrorContains(err, "couldn't stage fixed files")
 			} else {
 				assert.NoError(err)
 			}

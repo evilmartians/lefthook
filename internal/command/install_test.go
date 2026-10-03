@@ -1012,7 +1012,10 @@ pre-commit:
 				},
 				{
 					Command: "git rev-parse --path-format=absolute --show-toplevel --git-path hooks --git-path info --git-dir",
-					Output:  "a\n" + filepath.Join(gittest.GitPath(root), "hooks") + "\na\na",
+					Output: root + "\n" +
+						filepath.Join(gittest.GitPath(root), "hooks") + "\n" +
+						filepath.Join(gittest.GitPath(root), "info") + "\n" +
+						gittest.GitPath(root),
 				},
 			},
 			wantError: false,
@@ -1061,7 +1064,10 @@ pre-commit:
 				},
 				{
 					Command: "git rev-parse --path-format=absolute --show-toplevel --git-path hooks --git-path info --git-dir",
-					Output:  "a\n" + filepath.Join(gittest.GitPath(root), "hooks") + "\na\na",
+					Output: root + "\n" +
+						filepath.Join(gittest.GitPath(root), "hooks") + "\n" +
+						filepath.Join(gittest.GitPath(root), "info") + "\n" +
+						gittest.GitPath(root),
 				},
 			},
 			wantError: false,

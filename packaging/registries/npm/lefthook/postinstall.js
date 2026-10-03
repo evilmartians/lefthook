@@ -7,7 +7,7 @@ function install() {
     return
   }
 
-  spawnSync(getExePath(), ["install", "-f"], {
+  spawnSync(getExePath(), ["install"], {
     cwd: process.env.INIT_CWD || process.cwd(),
     stdio: "inherit",
   });

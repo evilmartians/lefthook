@@ -29,7 +29,7 @@ func (l *Lefthook) CheckInstall(_ctx context.Context) error {
 }
 
 func (l *Lefthook) checkInstall() (installationStatus, error) {
-	if !l.configExists(l.repo.RootPath) {
+	if !l.configExists(l.repo.Paths.Root) {
 		return notInstalled, nil
 	}
 

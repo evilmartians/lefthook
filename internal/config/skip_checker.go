@@ -3,7 +3,7 @@ package config
 import (
 	"github.com/gobwas/glob"
 
-	"github.com/evilmartians/lefthook/v2/internal/git"
+	"github.com/evilmartians/lefthook/v2/internal/git/wrapper"
 	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/system"
 )
@@ -24,7 +24,7 @@ func NewSkipChecker(logger *logger.ExecutionLogger, cmd system.Command) *SkipChe
 }
 
 // Check returns the result of applying a skip/only setting which can be a branch, git state, shell command, etc.
-func (sc *SkipChecker) Check(state func() git.State, skip any, only any) bool {
+func (sc *SkipChecker) Check(state func() wrapper.State, skip any, only any) bool {
 	if skip == nil && only == nil {
 		return false
 	}
@@ -42,7 +42,7 @@ func (sc *SkipChecker) Check(state func() git.State, skip any, only any) bool {
 	return false
 }
 
-func (sc *SkipChecker) matches(state func() git.State, value any) bool {
+func (sc *SkipChecker) matches(state func() wrapper.State, value any) bool {
 	switch typedValue := value.(type) {
 	case bool:
 		return typedValue
@@ -54,7 +54,7 @@ func (sc *SkipChecker) matches(state func() git.State, value any) bool {
 	return false
 }
 
-func (sc *SkipChecker) matchesSlices(gitState func() git.State, slice []any) bool {
+func (sc *SkipChecker) matchesSlices(gitState func() wrapper.State, slice []any) bool {
 	for _, state := range slice {
 		switch typedState := state.(type) {
 		case string:
@@ -75,7 +75,7 @@ func (sc *SkipChecker) matchesSlices(gitState func() git.State, slice []any) boo
 	return false
 }
 
-func (sc *SkipChecker) matchesRef(state func() git.State, typedState map[string]any) bool {
+func (sc *SkipChecker) matchesRef(state func() wrapper.State, typedState map[string]any) bool {
 	ref, ok := typedState["ref"].(string)
 	if !ok {
 		return false

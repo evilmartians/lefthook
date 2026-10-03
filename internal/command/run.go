@@ -50,8 +50,8 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 		return nil
 	}
 
-	waitPrecompute := l.repo.CacheGitCommands()
-	defer waitPrecompute()
+	waitCacheWarmUp := l.repo.Cache.WarmUp()
+	defer waitCacheWarmUp()
 
 	if args.Verbose {
 		l.logger.SetLevel(logger.LevelDebug)
@@ -82,8 +82,15 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	}
 
 	enableLogTags := os.Getenv(envOutput)
+	output := cfg.Output
+	if enableLogTags != "" {
+		output = enableLogTags
+		if enableLogTags == "false" {
+			output = false
+		}
+	}
 
-	exLogger := l.logger.NewExecutionLogger(enableLogTags, cfg.Output)
+	exLogger := l.logger.NewExecutionLogger(output)
 
 	if exLogger.Enabled(logger.LogMeta) {
 		exLogger.LogMeta(args.Hook)
@@ -130,6 +137,8 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	hook.Jobs = append(hook.Jobs, config.ScriptsToJobs(hook.Scripts)...)
 	hook.Scripts = nil
 	args.RunOnlyJobs = append(args.RunOnlyJobs, args.RunOnlyCommands...)
+
+	waitCacheWarmUp()
 
 	return l.runHook(ctx, hook, l.repo, exLogger, run.Options{
 		DisableTTY:        cfg.NoTTY || args.NoTTY,
@@ -186,12 +195,12 @@ func getFiles(repo *git.Repo, args RunArgs) ([]string, error) {
 
 func getSourceDirs(repo *git.Repo, cfg *config.Config) []string {
 	sourceDirs := []string{
-		filepath.Join(repo.RootPath, cfg.SourceDir),
-		filepath.Join(repo.RootPath, cfg.SourceDirLocal),
+		filepath.Join(repo.Paths.Root, cfg.SourceDir),
+		filepath.Join(repo.Paths.Root, cfg.SourceDirLocal),
 
 		// Additional source dirs to support .config/
-		filepath.Join(repo.RootPath, ".config", "lefthook"),
-		filepath.Join(repo.RootPath, ".config", "lefthook-local"),
+		filepath.Join(repo.Paths.Root, ".config", "lefthook"),
+		filepath.Join(repo.Paths.Root, ".config", "lefthook-local"),
 	}
 
 	for _, remote := range cfg.Remotes {

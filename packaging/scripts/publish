@@ -1,0 +1,31 @@
+#! /usr/bin/env bash
+set -euo pipefail
+
+lib="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib"
+
+case $1 in
+  npm)
+    source "$lib/npm.sh"
+    publish_npm
+    ;;
+  rubygem)
+    source "$lib/rubygem.sh"
+    publish_rubygem
+    ;;
+  pypi)
+    source "$lib/pypi.sh"
+    publish_pypi
+    ;;
+  aur)
+    source "$lib/aur.sh"
+    publish_aur
+    ;;
+  aur-bin)
+    source "$lib/aur_bin.sh"
+    publish_aur_bin
+    ;;
+  *)
+    echo "unknown target: $1"
+    exit 1
+    ;;
+esac

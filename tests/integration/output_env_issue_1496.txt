@@ -1,0 +1,26 @@
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+
+env NO_COLOR=1
+env LEFTHOOK_OUTPUT=meta
+exec lefthook run pre-commit --no-tty --no-auto-install
+stdout 'lefthook.*hook:.*pre-commit'
+! stdout 'linting'
+! stdout 'summary:'
+! stderr .
+
+env LEFTHOOK_OUTPUT=false
+exec lefthook run pre-commit --no-tty --no-auto-install
+! stdout .
+! stderr .
+
+-- lefthook.yml --
+output:
+  - summary
+
+pre-commit:
+  commands:
+    lint:
+      run: echo linting

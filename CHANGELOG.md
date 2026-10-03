@@ -1,5 +1,52 @@
 # Change log
 
+## 2.1.16
+
+- fix: test staging fixed files with partially staged by [@mrexox](https://github.com/mrexox)
+- fix: preserve unrelated unstaged changes on conflict ([#1483](https://github.com/evilmartians/lefthook/pull/1483)) by [@Sakshamm-Goyal](https://github.com/Sakshamm-Goyal)
+- deps: bump mod and text deps to resolve CVEs ([#1560](https://github.com/evilmartians/lefthook/pull/1560)) by [@devindavies](https://github.com/devindavies)
+- ci: refactor publishing scripts ([#1559](https://github.com/evilmartians/lefthook/pull/1559)) by [@mrexox](https://github.com/mrexox)
+
+## 2.1.15
+
+- fix: do not pipe stdin into post-checkout git-lfs hook ([#1523](https://github.com/evilmartians/lefthook/pull/1523)) by [@rwinkelman](https://github.com/rwinkelman)
+- fix: remove color blending ([#1558](https://github.com/evilmartians/lefthook/pull/1558)) by [@mrexox](https://github.com/mrexox)
+- fix: resolve push-files fallback against the remote-tracking ref ([#1485](https://github.com/evilmartians/lefthook/pull/1485)) by [@hamodywe](https://github.com/hamodywe)
+- test: regression for valid fish shell completion output ([#1527](https://github.com/evilmartians/lefthook/pull/1527)) by [@rwinkelman](https://github.com/rwinkelman)
+- fix: sanitize slashes in remote ref when building the checkout dir name ([#1486](https://github.com/evilmartians/lefthook/pull/1486)) by [@hamodywe](https://github.com/hamodywe)
+- fix: quote paths in the generated hook shim ([#1509](https://github.com/evilmartians/lefthook/pull/1509)) by [@addielaruee](https://github.com/addielaruee)
+- feat: propagate forced colors to hook commands via CLICOLOR_FORCE ([#1547](https://github.com/evilmartians/lefthook/pull/1547)) by [@Yash121l](https://github.com/Yash121l)
+
+## 2.1.13/2.1.14 (2026-09-14)
+
+- fix: error when --job/--command matches nothing ([#1512](https://github.com/evilmartians/lefthook/pull/1512)) by [@nityanand123gupta](https://github.com/nityanand123gupta)
+- fix: disable tty things when stdout is not TTY ([#1545](https://github.com/evilmartians/lefthook/pull/1545)) by [@mrexox](https://github.com/mrexox)
+- docs: document files inheritance for grouped jobs ([#1536](https://github.com/evilmartians/lefthook/pull/1536)) by [@chiliec](https://github.com/chiliec)
+- fix: force colors when colors are explicitly enabled ([#1538](https://github.com/evilmartians/lefthook/pull/1538)) by [@Yash121l](https://github.com/Yash121l)
+- fix: resolve file_types paths from the repo root ([#1537](https://github.com/evilmartians/lefthook/pull/1537)) by [@Yash121l](https://github.com/Yash121l)
+- fix: don't force-install hooks from the npm postinstall ([#1510](https://github.com/evilmartians/lefthook/pull/1510)) by [@hamodywe](https://github.com/hamodywe)
+- docs: quote template run examples ([#1472](https://github.com/evilmartians/lefthook/pull/1472)) by [@Guflly](https://github.com/Guflly)
+
+## 2.1.12 (2026-08-28)
+
+- fix: fail the hook when staging fixed files errors ([#1484](https://github.com/evilmartians/lefthook/pull/1484)) by [@teddytennant](https://github.com/teddytennant)
+- fix: LEFTHOOK_OUTPUT precedence ([#1506](https://github.com/evilmartians/lefthook/pull/1506)) by [@Yuki9814](https://github.com/Yuki9814)
+- ci: fix npm publishing by bumping Node to 24 ([#1508](https://github.com/evilmartians/lefthook/pull/1508)) by [@mariokresic](https://github.com/mariokresic)
+
+## 2.1.11 (2026-08-21)
+
+- fix: inherit terminal size for PTY commands ([#1498](https://github.com/evilmartians/lefthook/pull/1498)) by [@mariokresic](https://github.com/mariokresic)
+- docs: correct Lefthook commit message configuration ([#1499](https://github.com/evilmartians/lefthook/pull/1499)) by [@codersjj](https://github.com/codersjj)
+- docs: hide contributors regenerate tip from the site ([#1500](https://github.com/evilmartians/lefthook/pull/1500)) by [@MikevPeeren](https://github.com/MikevPeeren)
+- docs: clarify signed-off commit example ([#1492](https://github.com/evilmartians/lefthook/pull/1492)) by [@nightcityblade](https://github.com/nightcityblade)
+- deps: bump Go to 1.26.6 ([#1495](https://github.com/evilmartians/lefthook/pull/1495)) by [@quaacxlok](https://github.com/quaacxlok)
+- docs: fix em notice by [@mrexox](https://github.com/mrexox)
+- docs: update docmd ([#1481](https://github.com/evilmartians/lefthook/pull/1481)) by [@mrexox](https://github.com/mrexox)
+- docs: fix EM mention HTML by [@mrexox](https://github.com/mrexox)
+- docs: clarify remote script folders ([#1477](https://github.com/evilmartians/lefthook/pull/1477)) by [@scop](https://github.com/scop)
+- docs: document script args ([#1479](https://github.com/evilmartians/lefthook/pull/1479)) by [@lntutor](https://github.com/lntutor)
+- docs: update em logo by [@mrexox](https://github.com/mrexox)
+
 ## 2.1.10 (2026-07-08)
 
 - deps: July 2026 ([#1463](https://github.com/evilmartians/lefthook/pull/1463)) by [@mrexox]()

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/bmatcuk/doublestar/v4"
@@ -33,6 +34,7 @@ const (
 )
 
 type Params struct {
+	RepoRoot     string
 	Root         string
 	Glob         []string
 	FileTypes    []string
@@ -213,13 +215,15 @@ func (f *Filter) byType(fs afero.Fs, vs []string, types []string) []string {
 
 	vsf := make([]string, 0)
 	for _, v := range vs {
+		path := f.resolve(v)
+
 		var err error
 		var fileInfo os.FileInfo
 		lfs, ok := fs.(afero.Lstater)
 		if ok {
-			fileInfo, _, err = lfs.LstatIfPossible(v)
+			fileInfo, _, err = lfs.LstatIfPossible(path)
 		} else {
-			fileInfo, err = fs.Stat(v)
+			fileInfo, err = fs.Stat(path)
 		}
 		if err != nil {
 			f.logger.Errorf("Couldn't check file type of %s: %s", v, err)
@@ -246,7 +250,7 @@ func (f *Filter) byType(fs afero.Fs, vs []string, types []string) []string {
 				continue
 			}
 
-			text := f.checkIsText(v)
+			text := f.checkIsText(path)
 			binary := !text
 
 			if filter.simpleTypes&typeText != 0 && binary {
@@ -263,7 +267,7 @@ func (f *Filter) byType(fs afero.Fs, vs []string, types []string) []string {
 			}
 
 			var found bool
-			fileMimeType, err := mimetype.DetectFile(v)
+			fileMimeType, err := mimetype.DetectFile(path)
 			if err != nil {
 				f.logger.Errorf("Couldn't check mime type of file %s: %s", v, err)
 				continue
@@ -282,6 +286,16 @@ func (f *Filter) byType(fs afero.Fs, vs []string, types []string) []string {
 	}
 
 	return vsf
+}
+
+// resolve returns the absolute path of a file reported by git, which is always
+// relative to the repository root and not to the current working directory.
+func (f *Filter) resolve(path string) string {
+	if f.RepoRoot == "" || filepath.IsAbs(path) {
+		return path
+	}
+
+	return filepath.Join(f.RepoRoot, f.Root, path)
 }
 
 func (f *Filter) parseFileTypeFilter(types []string) fileTypeFilter {

@@ -163,7 +163,7 @@ func (l *Loader) LoadSecondary(main *koanf.Koanf, localPrimary bool) (*koanf.Koa
 	secondary := koanf.New(".")
 
 	// Load main `extends`
-	if err := extend(secondary, l.repo.Fs, l.repo.RootPath, extends); err != nil {
+	if err := extend(secondary, l.repo.Fs, l.repo.Paths.Root, extends); err != nil {
 		return nil, err
 	}
 
@@ -187,7 +187,7 @@ func (l *Loader) LoadSecondary(main *koanf.Koanf, localPrimary bool) (*koanf.Koa
 
 	// Load optional local config (e.g. lefthook-local.yml)
 	var noLocal bool
-	if err := l.loadFirst(secondary, l.repo.RootPath, LocalConfigNames); err != nil {
+	if err := l.loadFirst(secondary, l.repo.Paths.Root, LocalConfigNames); err != nil {
 		if ok := errors.As(err, &ConfigNotFoundError{}); !ok {
 			return nil, err
 		}
@@ -197,7 +197,7 @@ func (l *Loader) LoadSecondary(main *koanf.Koanf, localPrimary bool) (*koanf.Koa
 	// Load local `extends`
 	localExtends := secondary.Strings("extends")
 	if !noLocal && !slices.Equal(extends, localExtends) {
-		if err := extend(secondary, l.repo.Fs, l.repo.RootPath, localExtends); err != nil {
+		if err := extend(secondary, l.repo.Fs, l.repo.Paths.Root, localExtends); err != nil {
 			return nil, err
 		}
 	}
@@ -207,7 +207,7 @@ func (l *Loader) LoadSecondary(main *koanf.Koanf, localPrimary bool) (*koanf.Koa
 
 func (l *Loader) LoadKoanf() (*koanf.Koanf, *koanf.Koanf, error) {
 	// Load main lefthook.yml
-	main, localPrimary, err := l.LoadMain(l.repo.RootPath)
+	main, localPrimary, err := l.LoadMain(l.repo.Paths.Root)
 	if err != nil {
 		return nil, nil, err
 	}

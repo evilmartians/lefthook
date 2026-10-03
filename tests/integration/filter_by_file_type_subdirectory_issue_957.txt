@@ -1,0 +1,23 @@
+[windows] skip
+
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+exec git commit -m 'test'
+cd subdir
+exec lefthook run pre-commit
+stdout '.*echo ❯\s+lefthook.yml subdir/file.txt\s*'
+
+-- lefthook.yml --
+output:
+  - execution
+  - skips
+pre-commit:
+  commands:
+    echo:
+      run: echo {all_files}
+      file_types: text
+
+-- subdir/file.txt --
+some text

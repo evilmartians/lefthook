@@ -43,7 +43,7 @@ prepare-commit-msg:
       interactive: true
       run: yarn run cz --hook # Or npx cz --hook
       env:
-        LEFTHOOK: 0
+        LEFTHOOK: "0"
 
 # Validate commit messages
 commit-msg:
