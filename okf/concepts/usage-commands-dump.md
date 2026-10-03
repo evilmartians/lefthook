@@ -6,7 +6,7 @@ path: /usage/commands/dump/
 updated: 2026-10-03
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-03T07:46:47.966Z"
+  generated_at: "2026-10-03T20:31:45.600Z"
 ---
 ---
 title: "lefthook dump"
