@@ -53,7 +53,7 @@ func TestWrapper_PushFiles(t *testing.T) {
 						Output:  "  origin/fix\n  origin/feat\n  origin/HEAD -> origin/main\n  origin/bug\n",
 					},
 					{
-						Command: "git diff --name-only HEAD origin/main --",
+						Command: "git diff --name-only origin/main..HEAD --",
 						Output:  "a\nb\n",
 					},
 				},

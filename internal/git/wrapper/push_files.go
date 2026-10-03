@@ -7,7 +7,7 @@ var cmdPushFilesBase = []string{
 }
 
 var cmdPushFilesHead = []string{
-	"git", "diff", "--name-only", "HEAD",
+	"git", "diff", "--name-only", // origin/main..HEAD
 }
 
 var cmdLsTreeFilesHead = []string{
@@ -33,7 +33,7 @@ func (w *Wrapper) PushFiles() ([]string, error) {
 	}
 
 	if len(w.headBranch) != 0 {
-		return w.Files(append(cmdPushFilesHead, w.headBranch, "--"))
+		return w.Files(append(cmdPushFilesHead, w.headBranch+"..HEAD", "--"))
 	}
 
 	// Nothing has been pushed yet or upstream is not set
