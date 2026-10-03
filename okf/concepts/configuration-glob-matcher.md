@@ -6,7 +6,7 @@ path: /configuration/glob_matcher/
 updated: 2026-10-03
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-03T07:18:23.681Z"
+  generated_at: "2026-10-03T07:46:47.948Z"
 ---
 ---
 title: "glob_matcher"
