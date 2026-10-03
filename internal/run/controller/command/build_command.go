@@ -102,7 +102,7 @@ func (b *Builder) buildReplacer(params *JobParams) replacer.Replacer {
 
 func (b *Builder) buildFilter(params *JobParams) *filter.Filter {
 	return filter.New(b.git.Fs, b.logger, filter.Params{
-		RepoRoot:     b.git.RootPath,
+		RepoRoot:     b.git.Paths.Root,
 		Glob:         params.Glob,
 		ExcludeFiles: params.ExcludeFiles,
 		Root:         params.Root,

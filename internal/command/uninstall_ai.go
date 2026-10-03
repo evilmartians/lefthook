@@ -20,15 +20,15 @@ func (l *Lefthook) uninstallAIHooks() error {
 		strip func(map[string]any) map[string]any
 	}{
 		{
-			path:  filepath.Join(l.repo.RootPath, claudeSettingsDir, claudeSettingsFile),
+			path:  filepath.Join(l.repo.Paths.Root, claudeSettingsDir, claudeSettingsFile),
 			strip: stripLefthookEntries,
 		},
 		{
-			path:  filepath.Join(l.repo.RootPath, codexHooksDir, codexHooksFile),
+			path:  filepath.Join(l.repo.Paths.Root, codexHooksDir, codexHooksFile),
 			strip: stripLefthookEntries,
 		},
 		{
-			path:  filepath.Join(l.repo.RootPath, cursorHooksDir, cursorHooksFile),
+			path:  filepath.Join(l.repo.Paths.Root, cursorHooksDir, cursorHooksFile),
 			strip: stripCursorLefthookEntries,
 		},
 	}
@@ -41,7 +41,7 @@ func (l *Lefthook) uninstallAIHooks() error {
 		}
 	}
 
-	if err := l.removeAIHookFile(filepath.Join(l.repo.RootPath, copilotHooksDir, copilotHooksFile)); err != nil && firstErr == nil {
+	if err := l.removeAIHookFile(filepath.Join(l.repo.Paths.Root, copilotHooksDir, copilotHooksFile)); err != nil && firstErr == nil {
 		firstErr = err
 	}
 

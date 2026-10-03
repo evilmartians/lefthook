@@ -16,10 +16,10 @@ func TestBuilder(t *testing.T) {
 	repo := NewRepositoryBuilder().Root("root").Fs(fs).Cmd(cmd).Build()
 
 	assert := assert.New(t)
-	assert.Equal("root", repo.RootPath)
-	assert.Equal(filepath.Join("root", ".git"), repo.GitPath)
-	assert.Equal(filepath.Join("root", ".git", "info"), repo.InfoPath)
-	assert.Equal(filepath.Join("root", ".git", "hooks"), repo.HooksPath)
+	assert.Equal("root", repo.Paths.Root)
+	assert.Equal(filepath.Join("root", ".git"), repo.Paths.Git)
+	assert.Equal(filepath.Join("root", ".git", "info"), repo.Paths.Info)
+	assert.Equal(filepath.Join("root", ".git", "hooks"), repo.Paths.Hooks)
 	assert.Equal(fs, repo.Fs)
 }
 

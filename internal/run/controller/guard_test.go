@@ -86,13 +86,13 @@ func Test_guard_wrap(t *testing.T) {
 			failOnChanges:        false,
 			commands: []cmdtest.Out{
 				{Command: "git status --short --porcelain -z", Output: "AM file1\x00 M file2\x00 A file3\x00"},
-				{Command: "git stash create", Output: "<stash-hash>"},
 				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", Output: ""},
 				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged-all.patch") +
 					" --", Output: ""},
+				{Command: "git stash create", Output: "<stash-hash>"},
 				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
 				{Command: "git checkout --force -- file1", Output: ""},
 				{Command: "git stash list", Output: "0: my stash\n1: lefthook auto backup\n2: my second stash\n"},
@@ -104,13 +104,13 @@ func Test_guard_wrap(t *testing.T) {
 			failOnChanges:        true,
 			commands: []cmdtest.Out{
 				{Command: "git status --short --porcelain -z", Output: "AM file1\x00 M file2\x00"},
-				{Command: "git stash create", Output: "<stash-hash>"},
 				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", Output: ""},
 				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged-all.patch") +
 					" --", Output: ""},
+				{Command: "git stash create", Output: "<stash-hash>"},
 				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
 				{Command: "git checkout --force -- file1", Output: ""},
 				{Command: "git status --short --porcelain -z", Output: "A file1\x00"},
@@ -126,13 +126,13 @@ func Test_guard_wrap(t *testing.T) {
 			failOnChangesDiff:    true,
 			commands: []cmdtest.Out{
 				{Command: "git status --short --porcelain -z", Output: "AM file1\x00"},
-				{Command: "git stash create", Output: "<stash-hash>"},
 				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", Output: ""},
 				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged-all.patch") +
 					" --", Output: ""},
+				{Command: "git stash create", Output: "<stash-hash>"},
 				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
 				{Command: "git checkout --force -- file1", Output: ""},
 				{Command: "git status --short --porcelain -z", Output: "A  file1\x00"},
@@ -204,7 +204,7 @@ func Test_guard_wrap(t *testing.T) {
 				Fs(afero.NewMemMapFs()).
 				Root("root").
 				Build()
-			repo.ResetCache()
+			repo.Cache.Reset()
 			g := newGuard(
 				repo,
 				loggertest.NewExecution(),
@@ -261,16 +261,17 @@ func Test_guard_wrap_stageFixed(t *testing.T) {
 			filesToStage: []string{"file2"},
 			commands: []cmdtest.Out{
 				{Command: "git status --short --porcelain -z", Output: "AM file1\x00"},
-				{Command: "git stash create", Output: "<stash-hash>"},
 				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", Output: ""},
 				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged-all.patch") +
 					" --", Output: ""},
+				{Command: "git stash create", Output: "<stash-hash>"},
 				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
 				{Command: "git checkout --force -- file1", Output: ""},
 				{Command: "git add --force -- file2", Err: errStaging},
+				{Command: "git stash list"},
 			},
 			err: errStaging,
 		},
@@ -283,7 +284,7 @@ func Test_guard_wrap_stageFixed(t *testing.T) {
 				Fs(afero.NewMemMapFs()).
 				Root("root").
 				Build()
-			repo.ResetCache()
+			repo.Cache.Reset()
 
 			filesToStage := newStageFilesList()
 			filesToStage.Add(tt.filesToStage)

@@ -3,6 +3,8 @@ package git
 import (
 	"path/filepath"
 	"strings"
+
+	"github.com/evilmartians/lefthook/v2/internal/git/wrapper"
 )
 
 const remotesFolder = "lefthook-remotes"
@@ -18,65 +20,34 @@ func (r *Repo) RemoteFolder(url string, ref string) string {
 
 // RemotesFolder returns the path to the lefthook remotes folder.
 func (r *Repo) RemotesFolder() string {
-	return filepath.Join(r.InfoPath, remotesFolder)
+	return filepath.Join(r.Paths.Info, remotesFolder)
 }
 
 func (r *Repo) UpdateRemote(path, ref string) error {
-	// This is overwriting ENVs for worktrees, otherwise it does not work.
-	git := r.Git.WithoutEnvs("GIT_DIR", "GIT_INDEX_FILE").OnlyDebugLogs()
+	var err error
 
 	if len(ref) != 0 {
-		_, err := git.Cmd([]string{
-			"git", "-C", path, "fetch", "--quiet", "--depth", "1",
-			"origin", "--", ref,
-		})
-		if err != nil {
-			return err
-		}
-
-		_, err = git.Cmd([]string{
-			"git", "-C", path, "checkout", "FETCH_HEAD",
-		})
-		if err != nil {
-			return err
-		}
+		err = r.wrapper.Fetch(ref, path)
 	} else {
-		_, err := git.Cmd([]string{"git", "-C", path, "pull", "--quiet"})
-		if err != nil {
-			return err
-		}
+		err = r.wrapper.Pull(path)
 	}
 
-	return nil
+	return err
 }
 
-func (r *Repo) CloneRemote(dest, directoryName, url, ref string) error {
-	cmdClone := []string{"git", "-C", dest, "clone", "--quiet", "--origin", "origin", "--depth", "1"}
-	if len(ref) > 0 {
-		cmdClone = append(cmdClone, "--branch", ref)
-	}
-	cmdClone = append(cmdClone, url, directoryName)
-
-	git := r.Git.WithoutEnvs("GIT_DIR", "GIT_INDEX_FILE").OnlyDebugLogs()
-	_, err := git.Cmd(cmdClone)
-	if err != nil {
+func (r *Repo) CloneRemote(root, dest, url, ref string) error {
+	if err := r.wrapper.Clone(wrapper.CloneArgs{
+		Root: root,
+		Dest: dest,
+		Url:  url,
+		Ref:  ref,
+	}); err != nil {
 		return err
 	}
 
-	path := filepath.Join(dest, directoryName)
+	path := filepath.Join(root, dest)
 	if len(ref) != 0 {
-		_, err := git.Cmd([]string{
-			"git", "-C", path, "fetch", "--quiet", "--depth", "1",
-			"origin", "--", ref,
-		})
-		if err != nil {
-			return err
-		}
-
-		_, err = git.Cmd([]string{
-			"git", "-C", path, "checkout", "FETCH_HEAD",
-		})
-		if err != nil {
+		if err := r.wrapper.Fetch(ref, path); err != nil {
 			return err
 		}
 	}

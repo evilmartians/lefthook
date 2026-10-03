@@ -52,7 +52,7 @@ func NewLefthook(verbose bool, colors string) (*Lefthook, error) {
 	}
 
 	fs := afero.NewOsFs()
-	repo, err := git.NewRepo(fs, l)
+	repo, err := git.BuildRepo(fs, l)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func (l *Lefthook) isLefthookFile(path string) bool {
 
 // Removes the hook from hooks path, saving non-lefthook hooks with .old suffix.
 func (l *Lefthook) cleanHook(hook string, force bool) error {
-	hookPath := filepath.Join(l.repo.HooksPath, hook)
+	hookPath := filepath.Join(l.repo.Paths.Hooks, hook)
 	exists, err := afero.Exists(l.fs, hookPath)
 	if err != nil {
 		return err
@@ -158,7 +158,7 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 
 // Creates a hook file using hook template.
 func (l *Lefthook) addHook(hook string, args templates.Args) error {
-	hookPath := filepath.Join(l.repo.HooksPath, hook)
+	hookPath := filepath.Join(l.repo.Paths.Hooks, hook)
 	return afero.WriteFile(
 		l.fs, hookPath, templates.Hook(hook, args), hookFileMode,
 	)

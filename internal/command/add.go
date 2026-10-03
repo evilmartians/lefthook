@@ -40,8 +40,8 @@ func (l *Lefthook) Add(_ctx context.Context, args AddArgs) error {
 	if args.CreateDirs {
 		global, local := l.getSourceDirs()
 
-		sourceDir := filepath.Join(l.repo.RootPath, global, args.Hook)
-		sourceDirLocal := filepath.Join(l.repo.RootPath, local, args.Hook)
+		sourceDir := filepath.Join(l.repo.Paths.Root, global, args.Hook)
+		sourceDirLocal := filepath.Join(l.repo.Paths.Root, local, args.Hook)
 
 		if err = l.fs.MkdirAll(sourceDir, defaultDirMode); err != nil {
 			return err

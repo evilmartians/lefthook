@@ -1,11 +1,13 @@
-package git
+package git_test
 
 import (
 	"path/filepath"
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/google/go-cmp/cmp"
+
+	"github.com/evilmartians/lefthook/v2/internal/git"
 )
 
 func TestRemoteDirectoryName(t *testing.T) {
@@ -25,10 +27,6 @@ func TestRemoteDirectoryName(t *testing.T) {
 			result: "lefthook-main",
 		},
 		"ref containing a slash": {
-			// A ref containing a slash (e.g. a branch named "feat/x") must
-			// not turn into a path separator: it would make RemoteFolder()
-			// build a nested directory instead of a single flat one.
-			// See https://github.com/evilmartians/lefthook/issues/1478
 			url:    "https://github.com/scop/lefthook-test.git",
 			ref:    "feat/test-branch",
 			result: "lefthook-test-feat-test--branch",
@@ -45,14 +43,18 @@ func TestRemoteDirectoryName(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			result := RemoteDirectoryName(tt.url, tt.ref)
-			assert.Equal(t, tt.result, result)
+			result := git.RemoteDirectoryName(tt.url, tt.ref)
+			if !cmp.Equal(result, tt.result) {
+				t.Errorf("RemoteDirectoryName() = %v, want %v", result, tt.result)
+			}
 
-			// The result must always be usable as a single path component:
-			// joining it onto a directory must not create any extra
-			// intermediate directories.
-			assert.Equal(t, result, filepath.Base(result), "result %q is not a single path component", result)
-			assert.False(t, strings.ContainsAny(result, `/\`), "result %q is not a single path component", result)
+			if result != filepath.Base(result) {
+				t.Errorf("%v must be a single path component", result)
+			}
+
+			if strings.ContainsAny(result, `/\`) {
+				t.Errorf("%v must not contain slashes", result)
+			}
 		})
 	}
 }
@@ -74,7 +76,7 @@ func TestRemoteDirectoryName_distinctRefsDoNotCollide(t *testing.T) {
 
 	seen := make(map[string]string, len(refs))
 	for _, ref := range refs {
-		result := RemoteDirectoryName(url, ref)
+		result := git.RemoteDirectoryName(url, ref)
 		if other, ok := seen[result]; ok {
 			t.Errorf("refs %q and %q both sanitize to %q", other, ref, result)
 		}
