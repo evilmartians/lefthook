@@ -2,6 +2,7 @@ package git_test
 
 import (
 	"errors"
+	"path/filepath"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -53,6 +54,7 @@ func TestRepo_Changeset(t *testing.T) {
 	for name, tt := range map[string]struct {
 		StatusShort []wrapper.FileStatus
 		HashObjects []string
+		dirs        []string
 		result      map[string]string
 	}{
 		"no-changes": {
@@ -94,6 +96,18 @@ func TestRepo_Changeset(t *testing.T) {
 				"new/": "directory",
 			},
 		},
+		"submodule": {
+			StatusShort: []wrapper.FileStatus{
+				{Path: "submodule", Index: 'A', Worktree: ' '},
+				{Path: "modified.txt", Index: ' ', Worktree: 'M'},
+			},
+			HashObjects: []string{"123456"},
+			dirs:        []string{"submodule"},
+			result: map[string]string{
+				"submodule":    "directory",
+				"modified.txt": "123456",
+			},
+		},
 		"mixed": {
 			StatusShort: []wrapper.FileStatus{
 				{Path: "modified.txt", Index: 'M', Worktree: ' '},
@@ -129,13 +143,25 @@ func TestRepo_Changeset(t *testing.T) {
 			logger := loggertest.New()
 			w := gittest.NewStubWrapper()
 			w.StatusShortFunc = func() ([]wrapper.FileStatus, error) { return tt.StatusShort, nil }
-			w.HashObjectsFunc = func([]string) ([]string, error) { return tt.HashObjects, nil }
+			w.HashObjectsFunc = func(paths []string) ([]string, error) {
+				if len(paths) != len(tt.HashObjects) {
+					t.Errorf("HashObjects(%v), want %d paths", paths, len(tt.HashObjects))
+				}
+				return tt.HashObjects, nil
+			}
+
+			fs := afero.NewMemMapFs()
+			for _, dir := range tt.dirs {
+				if err := fs.MkdirAll(filepath.Join("/repo", dir), 0o755); err != nil {
+					t.Fatal(err)
+				}
+			}
 
 			repository := git.NewRepo(
-				afero.NewMemMapFs(),
+				fs,
 				logger,
 				w,
-				&git.Paths{},
+				&git.Paths{Root: "/repo"},
 			)
 
 			result, err := repository.Changeset()

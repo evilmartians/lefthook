@@ -1,0 +1,33 @@
+exec git init foo
+exec git -C foo -c user.email=you@example.com -c user.name=Name commit --allow-empty -m init
+
+cd app
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add lefthook.yml file.txt
+exec git commit -m "firstcommit"
+exec git -c protocol.file.allow=always submodule add ../foo bar
+exec ln -s bar bar-link
+
+# A staged submodule and an untracked symlink to a directory must not break the changeset
+exec lefthook run pre-commit
+! stderr 'Unable to hash'
+
+# Changes made by a hook are still detected next to a submodule
+! exec lefthook run modify-file
+stderr 'Error: files were modified by a hook, and fail_on_changes is enabled'
+
+-- app/lefthook.yml --
+pre-commit:
+  fail_on_changes: always
+  jobs:
+    - run: "true"
+
+modify-file:
+  fail_on_changes: always
+  jobs:
+    - run: echo newline >> file.txt
+
+-- app/file.txt --
+1

@@ -3,6 +3,7 @@ package git
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 	"regexp"
 	"slices"
 	"strings"
@@ -301,7 +302,8 @@ func (r *Repo) AddFiles(files []string) error {
 }
 
 // Changeset returns a map of files and their hashes that are different from the index.
-// The hash for a deleted file is "deleted", and "directory" for a directory.
+// The hash for a deleted file is "deleted", and "directory" for a directory
+// (including submodules and symlinks to directories, which git can't hash).
 func (r *Repo) Changeset() (map[string]string, error) {
 	changeset := make(map[string]string)
 	pathsToHash := make([]string, 0)
@@ -317,6 +319,10 @@ func (r *Repo) Changeset() (map[string]string, error) {
 			continue
 		}
 		if strings.HasSuffix(status.Path, "/") {
+			changeset[status.Path] = "directory"
+			continue
+		}
+		if isDir, _ := afero.IsDir(r.Fs, filepath.Join(r.Paths.Root, status.Path)); isDir {
 			changeset[status.Path] = "directory"
 			continue
 		}
