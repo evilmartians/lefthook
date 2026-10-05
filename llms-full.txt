@@ -3252,7 +3252,7 @@ The devbox plugin for lefthook is maintained by the community. While we apprecia
 
 # Go
 
-The minimum Go version required is 1.26 and you can install
+The minimum Go version required is 1.27 and you can install
 
 - as global package
 

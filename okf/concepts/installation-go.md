@@ -6,11 +6,11 @@ path: /installation/go/
 updated: 2026-10-05
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-05T07:42:54.478Z"
+  generated_at: "2026-10-05T12:47:23.419Z"
 ---
 # Go
 
-The minimum Go version required is 1.26 and you can install
+The minimum Go version required is 1.27 and you can install
 
 - as global package
 
