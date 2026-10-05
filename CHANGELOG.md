@@ -1,5 +1,13 @@
 # Change log
 
+## 2.1.7
+
+- fix: don't hash submodules when checking fail_on_changes ([#1566](https://github.com/evilmartians/lefthook/pull/1566)) by [@tiagovilasboas](https://github.com/tiagovilasboas)
+- refactor: naming of helpers ([#1568](https://github.com/evilmartians/lefthook/pull/1568)) by [@mrexox](https://github.com/mrexox)
+- fix: diff push files against the merge base with the default branch ([#1565](https://github.com/evilmartians/lefthook/pull/1565)) by [@mrexox](https://github.com/mrexox)
+- refactor: working with git ([#1564](https://github.com/evilmartians/lefthook/pull/1564)) by [@mrexox](https://github.com/mrexox)
+- docs: add protect-branch example to docs ([#1563](https://github.com/evilmartians/lefthook/pull/1563)) by [@vim89](https://github.com/vim89)
+
 ## 2.1.16
 
 - fix: test staging fixed files with partially staged by [@mrexox](https://github.com/mrexox)
