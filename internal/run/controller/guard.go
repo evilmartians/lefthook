@@ -107,8 +107,7 @@ func (g *guard) withHiddenUnstagedChanges(fn func() error) error {
 
 	wrappedErr := fn()
 
-	var failOnChangesErr *FailOnChangesError
-	if errors.As(wrappedErr, &failOnChangesErr) {
+	if failOnChangesErr, ok := errors.AsType[*FailOnChangesError](wrappedErr); ok {
 		if err := g.git.DiscardUnstagedChanges(failOnChangesErr.changedFiles); err != nil {
 			g.logger.Warnf("Failed to revert file changes: %s", err)
 			return wrappedErr

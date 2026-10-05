@@ -63,8 +63,24 @@ linters:
       enable:
         - shadow
     goconst:
+      ignore-tests: true
+      ignore-map-keys: true
       ignore-string-values:
         - "false"
+        - "force"
+        - "verbose"
+        - "git"
+        - "diff"
+        - "origin"
+        - "stash"
+        - "checkout"
+        - "HEAD"
+        - "--name-only"
+        - "--cached"
+        - "--depth"
+        - "--quiet"
+        - "core.hooksPath"
+        - "config"
     misspell:
       locale: US
     perfsprint:
