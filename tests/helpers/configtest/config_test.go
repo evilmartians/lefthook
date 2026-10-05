@@ -1,20 +1,20 @@
-package configtest
+package configtest_test
 
 import (
-	"strconv"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/google/go-cmp/cmp"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/configtest"
 )
 
 func TestParseHook(t *testing.T) {
-	for i, tt := range [...]struct {
+	for name, tt := range map[string]struct {
 		raw  string
-		hook *config.Hook
+		want *config.Hook
 	}{
-		{
+		"space-padding": {
 			raw: `
         parallel: true
         exclude_tags:
@@ -29,40 +29,35 @@ func TestParseHook(t *testing.T) {
           "dummy.sh":
             runner: bash
       `,
-			hook: &config.Hook{
+			want: &config.Hook{
 				Parallel:    true,
 				ExcludeTags: []string{"tag1", "tag2"},
-				Jobs: []*config.Job{
-					{
-						Run: "echo",
-					},
-				},
-				Commands: map[string]*config.Command{
-					"simple": {
-						Run: "echo",
-					},
-				},
-				Scripts: map[string]*config.Script{
-					"dummy.sh": {
-						Runner: "bash",
-					},
-				},
+				Jobs:        []*config.Job{{Run: "echo"}},
+				Commands:    map[string]*config.Command{"simple": {Run: "echo"}},
+				Scripts:     map[string]*config.Script{"dummy.sh": {Runner: "bash"}},
 			},
 		},
+		"no-padding": {
+			raw:  "piped: true\njobs:\n  - run: echo\n",
+			want: &config.Hook{Piped: true, Jobs: []*config.Job{{Run: "echo"}}},
+		},
 	} {
-		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			parsed := ParseHook(tt.raw)
-			assert.New(t).Equal(tt.hook, parsed)
+		t.Run(name, func(t *testing.T) {
+			result := configtest.ParseHook(tt.raw)
+
+			if !cmp.Equal(result, tt.want) {
+				t.Errorf("configtest.ParseHook() = %v, want %v\n%s", result, tt.want, cmp.Diff(tt.want, result))
+			}
 		})
 	}
 }
 
 func TestParseJob(t *testing.T) {
-	for i, tt := range [...]struct {
-		raw string
-		job *config.Job
+	for name, tt := range map[string]struct {
+		raw  string
+		want *config.Job
 	}{
-		{
+		"space-padding": {
 			raw: `
         name: test
         run: echo
@@ -76,7 +71,7 @@ func TestParseJob(t *testing.T) {
         use_stdin: true
         stage_fixed: true
       `,
-			job: &config.Job{
+			want: &config.Job{
 				Name:       "test",
 				Run:        "echo",
 				Glob:       []string{"*.sh", "*.md"},
@@ -86,10 +81,45 @@ func TestParseJob(t *testing.T) {
 				StageFixed: true,
 			},
 		},
+		"tab-padding": {
+			raw:  "\n\t\tname: test\n\t\trun: echo\n\t",
+			want: &config.Job{Name: "test", Run: "echo"},
+		},
+		"no-padding": {
+			raw:  "name: test\nrun: echo",
+			want: &config.Job{Name: "test", Run: "echo"},
+		},
+		"leading-newlines": {
+			raw:  "\n\n\n  name: test\n  run: echo\n\n",
+			want: &config.Job{Name: "test", Run: "echo"},
+		},
 	} {
-		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			parsed := ParseJob(tt.raw)
-			assert.New(t).Equal(tt.job, parsed)
+		t.Run(name, func(t *testing.T) {
+			result := configtest.ParseJob(tt.raw)
+
+			if !cmp.Equal(result, tt.want) {
+				t.Errorf("configtest.ParseJob() = %v, want %v\n%s", result, tt.want, cmp.Diff(tt.want, result))
+			}
 		})
 	}
+}
+
+func TestParseHook_invalid(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Errorf("configtest.ParseHook() did not panic")
+		}
+	}()
+
+	configtest.ParseHook("jobs: [")
+}
+
+func TestParseJob_invalid(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Errorf("configtest.ParseJob() did not panic")
+		}
+	}()
+
+	configtest.ParseJob("glob: [")
 }

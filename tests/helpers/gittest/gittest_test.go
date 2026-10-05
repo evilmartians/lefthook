@@ -1,28 +1,67 @@
-package gittest
+package gittest_test
 
 import (
+	"io"
 	"path/filepath"
+	"strings"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/spf13/afero"
-	"github.com/stretchr/testify/assert"
 
-	"github.com/evilmartians/lefthook/v2/internal/system"
+	"github.com/evilmartians/lefthook/v2/internal/git/wrapper"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/cmdtest"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/gittest"
 )
 
-func TestBuilder(t *testing.T) {
+func TestRepositoryBuilder_Build(t *testing.T) {
 	fs := afero.NewMemMapFs()
-	cmd := system.Cmd
-	repo := NewRepositoryBuilder().Root("root").Fs(fs).Cmd(cmd).Build()
+	cmd := cmdtest.NewSpyCmd(nil)
 
-	assert := assert.New(t)
-	assert.Equal("root", repo.Paths.Root)
-	assert.Equal(filepath.Join("root", ".git"), repo.Paths.Git)
-	assert.Equal(filepath.Join("root", ".git", "info"), repo.Paths.Info)
-	assert.Equal(filepath.Join("root", ".git", "hooks"), repo.Paths.Hooks)
-	assert.Equal(fs, repo.Fs)
+	repo := gittest.NewRepositoryBuilder().Root("root").Fs(fs).Cmd(cmd).Build()
+
+	want := &wrapper.Paths{
+		Root:  "root",
+		Git:   filepath.Join("root", ".git"),
+		Info:  filepath.Join("root", ".git", "info"),
+		Hooks: filepath.Join("root", ".git", "hooks"),
+	}
+	if !cmp.Equal(repo.Paths, want) {
+		t.Errorf("repo.Paths = %v, want %v", repo.Paths, want)
+	}
+
+	if repo.Fs != fs {
+		t.Errorf("repo.Fs = %v, want %v", repo.Fs, fs)
+	}
+
+	if len(cmd.Commands) != 0 {
+		t.Errorf("cmd.Commands = %v, want empty", cmd.Commands)
+	}
+}
+
+func TestRepositoryBuilder_Build_nextCalls(t *testing.T) {
+	cmd := cmdtest.NewSpyCmd(func(_ string, _ string, out io.Writer) error {
+		_, err := out.Write([]byte(strings.Join([]string{"new", "new/hooks", "new/info", "new/.git"}, "\n")))
+		return err
+	})
+
+	repo := gittest.NewRepositoryBuilder().Root("root").Fs(afero.NewMemMapFs()).Cmd(cmd).Build()
+
+	if err := repo.ResetPaths(); err != nil {
+		t.Fatalf("repo.ResetPaths() error = %v, want nil", err)
+	}
+
+	if len(cmd.Commands) != 1 || !strings.HasPrefix(cmd.Commands[0], "git rev-parse") {
+		t.Errorf("cmd.Commands = %v, want one git rev-parse call", cmd.Commands)
+	}
+
+	if repo.Paths.Root != "new" {
+		t.Errorf("repo.Paths.Root = %v, want %v", repo.Paths.Root, "new")
+	}
 }
 
 func TestGitPath(t *testing.T) {
-	assert.Equal(t, filepath.Join("root", ".git"), GitPath("root"))
+	if result, want := gittest.GitPath("root"), filepath.Join("root", ".git"); result != want {
+		t.Errorf("gittest.GitPath() = %v, want %v", result, want)
+	}
 }
