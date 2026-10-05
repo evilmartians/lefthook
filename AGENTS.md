@@ -5,7 +5,7 @@ backwards-compatible, and dependency-light.
 
 ## Requirements
 
-- Go 1.26+ (respect `go.mod` toolchain)
+- Go 1.27+ (respect `go.mod` toolchain)
 - Git, Make
 ```
 make build            # compile
