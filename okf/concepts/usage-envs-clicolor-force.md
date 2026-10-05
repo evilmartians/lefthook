@@ -3,10 +3,10 @@ type: concept
 title: CLICOLOR_FORCE
 source: "https://lefthook.dev/usage/envs/CLICOLOR_FORCE/"
 path: /usage/envs/CLICOLOR_FORCE/
-updated: 2026-10-03
+updated: 2026-10-05
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-03T20:39:29.646Z"
+  generated_at: "2026-10-05T07:42:54.488Z"
 ---
 ---
 title: "CLICOLOR_FORCE"

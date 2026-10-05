@@ -3,10 +3,10 @@ type: concept
 title: Go
 source: "https://lefthook.dev/installation/go/"
 path: /installation/go/
-updated: 2026-10-03
+updated: 2026-10-05
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-03T20:39:29.634Z"
+  generated_at: "2026-10-05T07:42:54.478Z"
 ---
 # Go
 
@@ -15,7 +15,7 @@ The minimum Go version required is 1.26 and you can install
 - as global package
 
 ```bash
-go install github.com/evilmartians/lefthook/v2@v2.1.16
+go install github.com/evilmartians/lefthook/v2@v2.1.17
 ```
 
 - or as a go tool in your project

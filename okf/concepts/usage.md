@@ -3,10 +3,10 @@ type: concept
 title: Usage
 source: "https://lefthook.dev/usage/"
 path: /usage/
-updated: 2026-10-03
+updated: 2026-10-05
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-03T20:39:29.653Z"
+  generated_at: "2026-10-05T07:42:54.494Z"
 ---
 # Usage
 

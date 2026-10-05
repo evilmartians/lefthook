@@ -3,10 +3,10 @@ type: concept
 title: Alpine
 source: "https://lefthook.dev/installation/alpine/"
 path: /installation/alpine/
-updated: 2026-10-03
+updated: 2026-10-05
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-03T20:39:29.633Z"
+  generated_at: "2026-10-05T07:42:54.476Z"
 ---
 ---
 title: "Alpine"

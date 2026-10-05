@@ -3,10 +3,10 @@ type: concept
 title: lefthook-local.yml
 source: "https://lefthook.dev/examples/lefthook-local/"
 path: /examples/lefthook-local/
-updated: 2026-10-03
+updated: 2026-10-05
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-03T20:39:29.629Z"
+  generated_at: "2026-10-05T07:42:54.473Z"
 ---
 # lefthook-local.yml
 

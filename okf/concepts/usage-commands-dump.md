@@ -3,10 +3,10 @@ type: concept
 title: "lefthook dump"
 source: "https://lefthook.dev/usage/commands/dump/"
 path: /usage/commands/dump/
-updated: 2026-10-03
+updated: 2026-10-05
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-03T20:39:29.642Z"
+  generated_at: "2026-10-05T07:42:54.484Z"
 ---
 ---
 title: "lefthook dump"
