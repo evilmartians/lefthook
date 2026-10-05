@@ -16,7 +16,7 @@ func (w *Wrapper) SaveUnstagedDiff(files []string) error {
 			"--patch",           // output a patch that can be applied
 			"--submodule=short", // always use the default short format for submodules
 			"--output",
-			w.unstagedDiffPath(),
+			w.unstagedPatchPath(),
 			"--",
 		}, files)
 	if err != nil {
@@ -35,7 +35,7 @@ func (w *Wrapper) SaveUnstagedDiff(files []string) error {
 		"--patch",
 		"--submodule=short",
 		"--output",
-		w.unstagedAllDiffPath(),
+		w.unstagedAllPatchPath(),
 		"--",
 	})
 	if err != nil {

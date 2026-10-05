@@ -34,13 +34,13 @@ func (w *Wrapper) Paths() (*Paths, error) {
 
 	// Refresh the current paths
 	w.cmd.root = paths[0]
-	w.infoPath = filepath.Clean(paths[2])
-	w.gitPath = paths[3]
+	w.cache.infoPath = filepath.Clean(paths[2])
+	w.cache.gitPath = paths[3]
 
 	return &Paths{
 		Root:  paths[0],
 		Hooks: paths[1],
-		Info:  w.infoPath,
-		Git:   w.gitPath,
+		Info:  w.cache.infoPath,
+		Git:   w.cache.gitPath,
 	}, nil
 }

@@ -59,7 +59,7 @@ func (w *Wrapper) State() State {
 }
 
 func (w *Wrapper) branch() string {
-	headFile := filepath.Join(w.gitPath, "HEAD")
+	headFile := filepath.Join(w.cache.gitPath, "HEAD")
 	if _, err := w.fs.Stat(headFile); os.IsNotExist(err) {
 		return ""
 	}
@@ -86,15 +86,15 @@ func (w *Wrapper) branch() string {
 }
 
 func (w *Wrapper) inMergeState() bool {
-	if _, err := w.fs.Stat(filepath.Join(w.gitPath, "MERGE_HEAD")); os.IsNotExist(err) {
+	if _, err := w.fs.Stat(filepath.Join(w.cache.gitPath, "MERGE_HEAD")); os.IsNotExist(err) {
 		return false
 	}
 	return true
 }
 
 func (w *Wrapper) inRebaseState() bool {
-	if _, mergeErr := w.fs.Stat(filepath.Join(w.gitPath, "rebase-merge")); os.IsNotExist(mergeErr) {
-		if _, applyErr := w.fs.Stat(filepath.Join(w.gitPath, "rebase-apply")); os.IsNotExist(applyErr) {
+	if _, mergeErr := w.fs.Stat(filepath.Join(w.cache.gitPath, "rebase-merge")); os.IsNotExist(mergeErr) {
+		if _, applyErr := w.fs.Stat(filepath.Join(w.cache.gitPath, "rebase-apply")); os.IsNotExist(applyErr) {
 			return false
 		}
 	}

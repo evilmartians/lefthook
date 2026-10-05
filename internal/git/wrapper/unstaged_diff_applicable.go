@@ -3,7 +3,7 @@ package wrapper
 import "github.com/spf13/afero"
 
 func (w *Wrapper) UnstagedDiffApplicable() bool {
-	return w.diffApplicable(w.unstagedDiffPath())
+	return w.diffApplicable(w.unstagedPatchPath())
 }
 
 func (w *Wrapper) diffApplicable(diffPath string) bool {
