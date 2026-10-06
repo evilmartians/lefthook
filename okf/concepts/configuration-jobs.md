@@ -3,10 +3,10 @@ type: concept
 title: jobs
 source: "https://lefthook.dev/configuration/jobs/"
 path: /configuration/jobs/
-updated: 2026-10-05
+updated: 2026-10-06
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-05T12:47:23.409Z"
+  generated_at: "2026-10-06T18:07:24.583Z"
 ---
 ---
 title: "jobs"

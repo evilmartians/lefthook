@@ -3,10 +3,10 @@ type: concept
 title: "lefthook version"
 source: "https://lefthook.dev/usage/commands/version/"
 path: /usage/commands/version/
-updated: 2026-10-05
+updated: 2026-10-06
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-05T12:47:23.423Z"
+  generated_at: "2026-10-06T18:07:24.602Z"
 ---
 ---
 title: "lefthook version"

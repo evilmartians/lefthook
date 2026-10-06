@@ -3,10 +3,10 @@ type: concept
 title: exclude
 source: "https://lefthook.dev/configuration/exclude/"
 path: /configuration/exclude/
-updated: 2026-10-05
+updated: 2026-10-06
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-05T12:47:23.405Z"
+  generated_at: "2026-10-06T18:07:24.579Z"
 ---
 ---
 title: "exclude"

@@ -3,10 +3,10 @@ type: concept
 title: Swift
 source: "https://lefthook.dev/installation/swift/"
 path: /installation/swift/
-updated: 2026-10-05
+updated: 2026-10-06
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-05T12:47:23.421Z"
+  generated_at: "2026-10-06T18:07:24.599Z"
 ---
 # Swift
 

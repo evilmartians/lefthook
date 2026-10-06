@@ -3,10 +3,10 @@ type: concept
 title: "Skip or run on condition"
 source: "https://lefthook.dev/examples/skip/"
 path: /examples/skip/
-updated: 2026-10-05
+updated: 2026-10-06
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-05T12:47:23.417Z"
+  generated_at: "2026-10-06T18:07:24.594Z"
 ---
 # Skip or run on condition
 
