@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
@@ -161,6 +162,38 @@ post-commit:
 				assert.Error(err)
 			} else {
 				assert.NoError(err)
+			}
+		})
+	}
+}
+
+func Test_parseFilesFromString(t *testing.T) {
+	for name, tt := range map[string]struct {
+		paths string
+		want  []string
+	}{
+		"single-path": {
+			paths: "a",
+			want:  []string{"a"},
+		},
+		"nul-terminated": {
+			paths: "a\x00b\x00",
+			want:  []string{"a", "b"},
+		},
+		"nul-separated": {
+			paths: "a\x00b",
+			want:  []string{"a", "b"},
+		},
+		"single-nul-terminated": {
+			paths: "a\x00",
+			want:  []string{"a"},
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			result := parseFilesFromString(tt.paths)
+
+			if !cmp.Equal(result, tt.want) {
+				t.Errorf("parseFilesFromString() = %q, want %q", result, tt.want)
 			}
 		})
 	}
