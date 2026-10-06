@@ -1,0 +1,27 @@
+[windows] skip
+
+exec git init
+exec lefthook run test
+stdout 'group: .*/src$'
+stdout 'nested: .*/src/nested$'
+stdout 'outer: .*/outer$'
+
+-- lefthook.yml --
+output:
+  - execution_out
+test:
+  jobs:
+    - group:
+        root: src/
+        jobs:
+          - run: 'echo "group: $(pwd)"'
+          - run: 'echo "nested: $(pwd)"'
+            root: src/nested/
+    - root: outer/
+      group:
+        jobs:
+          - run: 'echo "outer: $(pwd)"'
+
+-- src/nested/.keep --
+
+-- outer/.keep --

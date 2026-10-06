@@ -70,6 +70,7 @@ The `-local` config can be used without a main config file. This is useful when 
     - [`runner`](./runner.md)
     - [`args`](./args.md)
     - [`group`](./group.md)
+      - [`root`](./root.md)
       - [`parallel`](./parallel.md)
       - [`piped`](./piped.md)
       - [`jobs`](./jobs.md)

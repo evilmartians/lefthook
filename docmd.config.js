@@ -311,6 +311,10 @@ module.exports = {
                   path: "/configuration/group",
                   children: [
                     {
+                      title: "root",
+                      path: "/configuration/root"
+                    },
+                    {
                       title: "parallel",
                       path: "/configuration/parallel"
                     },
