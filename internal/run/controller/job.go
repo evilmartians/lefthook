@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"maps"
+	"os"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -127,6 +128,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 
 	env := maps.Clone(scope.env)
 	maps.Copy(env, job.Env)
+	env = withGitWorkTree(env, c.git.Paths.Root)
 
 	if job.Timeout > 0 {
 		var cancel context.CancelFunc
@@ -180,6 +182,27 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 	}
 
 	return result.Success(name, executionTime)
+}
+
+// withGitWorkTree pins GIT_WORK_TREE to the repository root when GIT_DIR is set.
+//
+// Git exports GIT_DIR (but not GIT_WORK_TREE) to hooks running in a linked
+// worktree. Without GIT_WORK_TREE git treats the current directory as the top
+// of the work tree, so `git add` in a job with `root` stages files at the wrong path.
+func withGitWorkTree(env map[string]string, repoRoot string) map[string]string {
+	if len(env["GIT_WORK_TREE"]) > 0 || len(os.Getenv("GIT_WORK_TREE")) > 0 {
+		return env
+	}
+	if len(env["GIT_DIR"]) == 0 && len(os.Getenv("GIT_DIR")) == 0 {
+		return env
+	}
+
+	if env == nil {
+		env = make(map[string]string, 1)
+	}
+	env["GIT_WORK_TREE"] = repoRoot
+
+	return env
 }
 
 func (c *Controller) addStagedFiles(files []string) {
