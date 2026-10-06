@@ -1,0 +1,22 @@
+exec git init
+exec git add -A
+
+exec printf 'a.txt\0'
+cp stdout files
+stdin files
+exec lefthook run pre-commit --files-from-stdin
+stdout '^files=a\.txt$'
+
+-- lefthook.yml --
+output:
+  - execution_out
+
+pre-commit:
+  jobs:
+    - name: echo
+      glob: "*"
+      run: echo files={staged_files}
+      stage_fixed: true
+
+-- a.txt --
+a
