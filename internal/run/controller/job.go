@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"maps"
+	osexec "os/exec"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -148,7 +149,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 			return result.Failure(name, "timeout ("+job.Timeout.String()+")", executionTime)
 		}
 
-		return result.Failure(name, job.FailText, executionTime)
+		return result.FailureWithCode(name, job.FailText, executionTime, commandExitCode(err))
 	}
 
 	if config.HookUsesStagedFiles(scope.hookName) && job.StageFixed && !scope.opts.NoStageFixed {
@@ -200,4 +201,12 @@ func (c *Controller) skipReason(scope *scope, job *config.Job, name string) stri
 	}
 
 	return ""
+}
+
+func commandExitCode(err error) int {
+	var exitErr *osexec.ExitError
+	if errors.As(err, &exitErr) {
+		return exitErr.ExitCode()
+	}
+	return 1
 }
