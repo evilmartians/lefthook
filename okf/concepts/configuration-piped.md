@@ -6,7 +6,7 @@ path: /configuration/piped/
 updated: 2026-10-07
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-07T18:51:44.050Z"
+  generated_at: "2026-10-07T18:52:17.528Z"
 ---
 ---
 title: "piped"

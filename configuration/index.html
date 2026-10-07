@@ -104,11 +104,11 @@
     
     
 
-    <link id="site-favicon" rel="icon" href="../assets/favicon.svg?v=muygru2s">
-    <link rel="stylesheet" href="../assets/css/docmd-main.css?v=muygru2s">
+    <link id="site-favicon" rel="icon" href="../assets/favicon.svg?v=muygsjrb">
+    <link rel="stylesheet" href="../assets/css/docmd-main.css?v=muygsjrb">
     
-    <link rel="stylesheet" href="../assets/css/docmd-highlight-light.css?v=muygru2s" id="hljs-light" >
-    <link rel="stylesheet" href="../assets/css/docmd-highlight-dark.css?v=muygru2s" id="hljs-dark" disabled>
+    <link rel="stylesheet" href="../assets/css/docmd-highlight-light.css?v=muygsjrb" id="hljs-light" >
+    <link rel="stylesheet" href="../assets/css/docmd-highlight-dark.css?v=muygsjrb" id="hljs-dark" disabled>
     
     
 <meta name="description" content="Lefthook documentation.">
@@ -125,11 +125,11 @@
 
 
 
-<link rel="stylesheet" href="../assets/css/docmd-git.css?v=muygru2s" >
-<link rel="stylesheet" href="../assets/css/docmd-openapi.css?v=muygru2s" >
+<link rel="stylesheet" href="../assets/css/docmd-git.css?v=muygsjrb" >
+<link rel="stylesheet" href="../assets/css/docmd-openapi.css?v=muygsjrb" >
 
     
-      <link rel="stylesheet" href="../assets/css/lefthook.css?v=muygru2s">
+      <link rel="stylesheet" href="../assets/css/lefthook.css?v=muygsjrb">
     
     
   </head>
@@ -2927,7 +2927,7 @@
             <div class="content-layout">
               <div class="main-content">
                 <div class="docmd-breadcrumbs-row">
-                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22Configuration%22%0A---%0A%0A%23%20Config%20file%20name%0A%0ALefthook%20supports%20the%20following%20file%20names%20for%20the%20main%20config%3A%0A%0A%7C%20Format%20%7C%20Acceptable%20config%20names%20%7C%0A%7C-------%7C-----------%7C%0A%7C%20YAML%20%20%7C%20%60lefthook.yml%60%20%60lefthook.yaml%60%20%60.lefthook.yml%60%20%60.lefthook.yaml%60%20%60.config%2Flefthook.yml%60%20%60.config%2Flefthook.yaml%60%20%7C%0A%7C%20TOML%20%20%7C%20%60lefthook.toml%60%20%20%60.lefthook.toml%60%20%20%60.config%2Flefthook.toml%60%20%7C%0A%7C%20JSON%20%20%7C%20%60lefthook.json%60%20%20%60.lefthook.json%60%20%20%60.config%2Flefthook.json%60%20%7C%0A%7C%20JSONC%20%7C%20%60lefthook.jsonc%60%20%20%60.lefthook.jsonc%60%20%20%60.config%2Flefthook.jsonc%60%20%7C%0A%0AIf%20there%20are%20more%20than%201%20file%20in%20the%20project%2C%20only%20one%20will%20be%20used%2C%20and%20you&#039;ll%20never%20know%20which%20one.%20So%2C%20please%2C%20use%20one%20format%20in%20a%20project.%0A%0AFilenames%20without%20the%20leading%20dot%20will%20also%20be%20looked%20up%20from%20the%20%5B%60.config%60%20subdirectory%5D(https%3A%2F%2Fgithub.com%2Fpi0%2Fconfig-dir).%0A%0ALefthook%20also%20merges%20an%20extra%20config%20with%20the%20name%20%60lefthook-local%60.%20All%20supported%20formats%20can%20be%20applied%20to%20this%20%60-local%60%20config.%20If%20you%20name%20your%20main%20config%20with%20the%20leading%20dot%2C%20like%20%60.lefthook.json%60%2C%20the%20%60-local%60%20config%20also%20must%20be%20named%20with%20the%20leading%20dot%3A%20%60.lefthook-local.json%60.%0A%0AThe%20%60-local%60%20config%20can%20be%20used%20without%20a%20main%20config%20file.%20This%20is%20useful%20when%20you%20want%20to%20use%20lefthook%20locally%20without%20imposing%20it%20on%20your%20teammates%20%E2%80%93%20just%20create%20a%20%60lefthook-local.yml%60%20file%20and%20add%20it%20to%20your%20global%20%60.gitignore%60.%0A%0A" style="display: none;"></div>
+                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22Configuration%22%0A---%0A%0A%23%20Config%20file%20name%0A%0ALefthook%20supports%20the%20following%20file%20names%20for%20the%20main%20config%3A%0A%0A%7C%20Format%20%7C%20Acceptable%20config%20names%20%7C%0A%7C-------%7C-----------%7C%0A%7C%20YAML%20%20%7C%20%60lefthook.yml%60%20%60lefthook.yaml%60%20%60.lefthook.yml%60%20%60.lefthook.yaml%60%20%60.config%2Flefthook.yml%60%20%60.config%2Flefthook.yaml%60%20%7C%0A%7C%20TOML%20%20%7C%20%60lefthook.toml%60%20%20%60.lefthook.toml%60%20%20%60.config%2Flefthook.toml%60%20%7C%0A%7C%20JSON%20%20%7C%20%60lefthook.json%60%20%20%60.lefthook.json%60%20%20%60.config%2Flefthook.json%60%20%7C%0A%7C%20JSONC%20%7C%20%60lefthook.jsonc%60%20%20%60.lefthook.jsonc%60%20%20%60.config%2Flefthook.jsonc%60%20%7C%0A%0AIf%20there%20are%20more%20than%201%20file%20in%20the%20project%2C%20only%20one%20will%20be%20used%2C%20and%20you&#039;ll%20never%20know%20which%20one.%20So%2C%20please%2C%20use%20one%20format%20in%20a%20project.%0A%0AFilenames%20without%20the%20leading%20dot%20will%20also%20be%20looked%20up%20from%20the%20%5B%60.config%60%20subdirectory%5D(https%3A%2F%2Fgithub.com%2Fpi0%2Fconfig-dir).%0A%0ALefthook%20also%20merges%20an%20extra%20config%20with%20the%20name%20%60lefthook-local%60.%20All%20supported%20formats%20can%20be%20applied%20to%20this%20%60-local%60%20config.%20If%20you%20name%20your%20main%20config%20with%20the%20leading%20dot%2C%20like%20%60.lefthook.json%60%2C%20the%20%60-local%60%20config%20also%20must%20be%20named%20with%20the%20leading%20dot%3A%20%60.lefthook-local.json%60.%0A%0AThe%20%60-local%60%20config%20can%20be%20used%20without%20a%20main%20config%20file.%20This%20is%20useful%20when%20you%20want%20to%20use%20lefthook%20locally%20without%20imposing%20it%20on%20your%20teammates%20%E2%80%93%20just%20create%20a%20%60lefthook-local.yml%60%20file%20and%20add%20it%20to%20your%20global%20%60.gitignore%60.%0A%0A%23%20Editor%20support%0A%0AThe%20JSON%20schema%20for%20the%20config%20is%20published%20at%20%60https%3A%2F%2Flefthook.dev%2Fschema.json%60.%20Point%20your%20editor%20to%20it%20to%20get%20autocompletion%2C%20hover%20docs%2C%20and%20validation.%0A%0AYAML%20(with%20%5Byaml-language-server%5D(https%3A%2F%2Fgithub.com%2Fredhat-developer%2Fyaml-language-server)%2C%20e.g.%20the%20VS%20Code%20YAML%20extension)%3A%0A%0A%60%60%60yml%0A%23%20yaml-language-server%3A%20%24schema%3Dhttps%3A%2F%2Flefthook.dev%2Fschema.json%0A%0Apre-commit%3A%0A%20%20jobs%3A%0A%20%20%20%20-%20run%3A%20yarn%20lint%0A%60%60%60%0A%0AJSON%3A%0A%0A%60%60%60json%0A%7B%0A%20%20%22%24schema%22%3A%20%22https%3A%2F%2Flefthook.dev%2Fschema.json%22%2C%0A%20%20%22pre-commit%22%3A%20%7B%0A%20%20%20%20%22jobs%22%3A%20%5B%7B%20%22run%22%3A%20%22yarn%20lint%22%20%7D%5D%0A%20%20%7D%0A%7D%0A%60%60%60%0A%0ATOML%20(with%20%5BTaplo%5D(https%3A%2F%2Ftaplo.tamasfe.dev%2F))%3A%0A%0A%60%60%60toml%0A%23%3Aschema%20https%3A%2F%2Flefthook.dev%2Fschema.json%0A%0A%5B%5Bpre-commit.jobs%5D%5D%0Arun%20%3D%20%22yarn%20lint%22%0A%60%60%60%0A%0A" style="display: none;"></div>
                   
                     <nav aria-label="breadcrumb" class="docmd-breadcrumbs">
                       <ol>
@@ -3024,6 +3024,29 @@
 <p>Filenames without the leading dot will also be looked up from the <a href="https://github.com/pi0/config-dir"><code>.config</code> subdirectory</a>.</p>
 <p>Lefthook also merges an extra config with the name <code>lefthook-local</code>. All supported formats can be applied to this <code>-local</code> config. If you name your main config with the leading dot, like <code>.lefthook.json</code>, the <code>-local</code> config also must be named with the leading dot: <code>.lefthook-local.json</code>.</p>
 <p>The <code>-local</code> config can be used without a main config file. This is useful when you want to use lefthook locally without imposing it on your teammates – just create a <code>lefthook-local.yml</code> file and add it to your global <code>.gitignore</code>.</p>
+<h1 id="editor-support" class="docmd-heading"><a href="#editor-support" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Editor support</h1>
+<p>The JSON schema for the config is published at <code>https://lefthook.dev/schema.json</code>. Point your editor to it to get autocompletion, hover docs, and validation.</p>
+<p>YAML (with <a href="https://github.com/redhat-developer/yaml-language-server">yaml-language-server</a>, e.g. the VS Code YAML extension):</p>
+<pre class="hljs"><code class="language-yml"><span class="hljs-comment"># yaml-language-server: $schema=https://lefthook.dev/schema.json</span>
+
+pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:</span>
+  jobs<span class="hljs-punctuation">:</span>
+    <span class="hljs-punctuation">-</span> run<span class="hljs-punctuation">:</span> <span class="hljs-keyword">yarn</span> lint
+</code></pre>
+<p>JSON:</p>
+<pre class="hljs"><code class="language-json">{
+  <span class="hljs-string">&quot;$schema&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;https://lefthook.dev/schema.json&quot;</span>,
+  <span class="hljs-string">&quot;pre-commit&quot;</span><span class="hljs-punctuation">:</span> {
+    <span class="hljs-string">&quot;jobs&quot;</span><span class="hljs-punctuation">:</span> [{ <span class="hljs-string">&quot;run&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;yarn lint&quot;</span> }]
+  }
+}
+</code></pre>
+<p>TOML (with <a href="https://taplo.tamasfe.dev/">Taplo</a>):</p>
+<pre class="hljs"><code class="language-toml"><span class="hljs-comment">#:schema https://lefthook.dev/schema.json</span>
+
+[[pre<span class="hljs-punctuation">-</span>commit.<span class="hljs-attr">jobs</span>]]
+run <span class="hljs-punctuation">=</span> <span class="hljs-string">&quot;yarn lint&quot;</span>
+</code></pre>
 
                 
               </div>
@@ -3032,35 +3055,65 @@
                 
 
 
+  <div class="toc-container">
+    <h2 class="toc-title">On This Page<span class="mobile-view toc-menu-button float-right">
+<svg class="lucide-icon icon-chevron-down " width="1em" height="1em" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
+  class="lucide lucide-chevron-down"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m6 9 6 6 6-6" />
+</svg>
+</span></h2>
+    <ul class="toc-list">
+      
+        <li class="toc-item toc-level-1">
+          <a href="#config-file-name" class="toc-link">Config file name</a>
+        </li>
+      
+        <li class="toc-item toc-level-1">
+          <a href="#editor-support" class="toc-link">Editor support</a>
+        </li>
+      
+    </ul>
+  </div>
+
               </div>
               
             </div>
             <div class="page-footer-actions">
               
               
-                <span class="git-last-updated" data-timestamp="1791399088000">
+                <span class="git-last-updated" data-timestamp="1791399120000">
                   <svg class="git-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
                   <span class="git-label">Last updated:</span>
-                  <span class="git-time" data-timestamp="1791399088000"></span>
+                  <span class="git-time" data-timestamp="1791399120000"></span>
                   
                   <div class="git-commit-tooltip" role="tooltip">
                     <div class="git-tooltip-title">Recent commits</div>
                     <ul class="git-commit-list">
                       
                         <li class="git-commit-item">
-                          <div class="git-commit-avatar" title="Christopher Pruijsen">
+                          <div class="git-commit-avatar" title="Captain Butterfingers">
                             
-                              <img src="https://www.gravatar.com/avatar/9f5adf803a49542897a469154da95440?d=mp&amp;s=64" alt="Christopher Pruijsen">
+                              <img src="https://www.gravatar.com/avatar/6c6cd0c8efb102af39afd50fb232f9f4?d=mp&amp;s=64" alt="Captain Butterfingers">
                             
                           </div>
                           <div class="git-commit-details">
-                            <div class="git-commit-message" title="fix: pass --output path to git diff as a single argument (#1581)">fix: pass --output path to git diff a...</div>
+                            <div class="git-commit-message" title="docs: publish JSON schema at lefthook.dev/schema.json (#1579)">docs: publish JSON schema at lefthook...</div>
                             <div class="git-commit-meta">
-                              <span class="git-commit-author">Christopher Pruijsen</span>
-                              <span class="git-commit-date" data-timestamp="1791399088000"></span>
+                              <span class="git-commit-author">Captain Butterfingers</span>
+                              <span class="git-commit-date" data-timestamp="1791399120000"></span>
                             </div>
                           </div>
                         </li>
@@ -3112,13 +3165,13 @@
         </div>
       </div>
       
-      <script src="../assets/js/docmd-main.js?v=muygru2s"></script>
+      <script src="../assets/js/docmd-main.js?v=muygsjrb"></script>
       
-      <script src="../assets/js/docmd-git.js?v=muygru2s"></script>
-      <script src="../assets/js/docmd-image-lightbox.js?v=muygru2s" ></script>
-<script src="../assets/js/vendor/minisearch.js?v=muygru2s" ></script>
-<script src="../assets/js/docmd-search.js?v=muygru2s" ></script>
-<script src="../assets/js/docmd-git.js?v=muygru2s" type="module"></script>
+      <script src="../assets/js/docmd-git.js?v=muygsjrb"></script>
+      <script src="../assets/js/docmd-image-lightbox.js?v=muygsjrb" ></script>
+<script src="../assets/js/vendor/minisearch.js?v=muygsjrb" ></script>
+<script src="../assets/js/docmd-search.js?v=muygsjrb" ></script>
+<script src="../assets/js/docmd-git.js?v=muygsjrb" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;" data-show-confidence="false" data-show-filters="true"

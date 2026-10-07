@@ -6,7 +6,7 @@ path: /configuration/
 updated: 2026-10-07
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-07T18:51:44.058Z"
+  generated_at: "2026-10-07T18:52:17.540Z"
 ---
 ---
 title: "Configuration"
@@ -30,4 +30,38 @@ Filenames without the leading dot will also be looked up from the [`.config` sub
 Lefthook also merges an extra config with the name `lefthook-local`. All supported formats can be applied to this `-local` config. If you name your main config with the leading dot, like `.lefthook.json`, the `-local` config also must be named with the leading dot: `.lefthook-local.json`.
 
 The `-local` config can be used without a main config file. This is useful when you want to use lefthook locally without imposing it on your teammates – just create a `lefthook-local.yml` file and add it to your global `.gitignore`.
+
+# Editor support
+
+The JSON schema for the config is published at `https://lefthook.dev/schema.json`. Point your editor to it to get autocompletion, hover docs, and validation.
+
+YAML (with [yaml-language-server](https://github.com/redhat-developer/yaml-language-server), e.g. the VS Code YAML extension):
+
+```yml
+# yaml-language-server: $schema=https://lefthook.dev/schema.json
+
+pre-commit:
+  jobs:
+    - run: yarn lint
+```
+
+JSON:
+
+```json
+{
+  "$schema": "https://lefthook.dev/schema.json",
+  "pre-commit": {
+    "jobs": [{ "run": "yarn lint" }]
+  }
+}
+```
+
+TOML (with [Taplo](https://taplo.tamasfe.dev/)):
+
+```toml
+#:schema https://lefthook.dev/schema.json
+
+[[pre-commit.jobs]]
+run = "yarn lint"
+```
 

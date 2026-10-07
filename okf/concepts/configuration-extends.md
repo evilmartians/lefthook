@@ -6,7 +6,7 @@ path: /configuration/extends/
 updated: 2026-10-07
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-07T18:51:44.040Z"
+  generated_at: "2026-10-07T18:52:17.514Z"
 ---
 ---
 title: "extends"

@@ -1258,6 +1258,40 @@ Lefthook also merges an extra config with the name `lefthook-local`. All support
 
 The `-local` config can be used without a main config file. This is useful when you want to use lefthook locally without imposing it on your teammates – just create a `lefthook-local.yml` file and add it to your global `.gitignore`.
 
+# Editor support
+
+The JSON schema for the config is published at `https://lefthook.dev/schema.json`. Point your editor to it to get autocompletion, hover docs, and validation.
+
+YAML (with [yaml-language-server](https://github.com/redhat-developer/yaml-language-server), e.g. the VS Code YAML extension):
+
+```yml
+# yaml-language-server: $schema=https://lefthook.dev/schema.json
+
+pre-commit:
+  jobs:
+    - run: yarn lint
+```
+
+JSON:
+
+```json
+{
+  "$schema": "https://lefthook.dev/schema.json",
+  "pre-commit": {
+    "jobs": [{ "run": "yarn lint" }]
+  }
+}
+```
+
+TOML (with [Taplo](https://taplo.tamasfe.dev/)):
+
+```toml
+#:schema https://lefthook.dev/schema.json
+
+[[pre-commit.jobs]]
+run = "yarn lint"
+```
+
 
 
 ---
