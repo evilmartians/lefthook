@@ -3,7 +3,6 @@ package command
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"path/filepath"
 	"testing"
 
@@ -120,6 +119,38 @@ func TestInstallAIHooks(t *testing.T) {
 			},
 			wantMissing: []string{paths["codex"], paths["copilot"]},
 		},
+		"replaces entries with an install-time absolute path": {
+			ai: &config.AI{
+				Claude: map[string]string{"Stop": "validate"},
+			},
+			existingFiles: map[string]string{
+				paths["claude"]: `{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "/Users/me/project/node_modules/lefthook-darwin-arm64/bin/lefthook run validate" }
+        ]
+      }
+    ]
+  }
+}`,
+			},
+			wantFiles: map[string]map[string]any{
+				paths["claude"]: {
+					"hooks": map[string]any{
+						"Stop": []any{
+							map[string]any{
+								"hooks": []any{
+									map[string]any{"type": "command", "command": "lefthook run validate"},
+								},
+							},
+						},
+					},
+				},
+			},
+			wantMissing: []string{paths["codex"], paths["cursor"], paths["copilot"]},
+		},
 		"overwrites copilot file completely": {
 			ai: &config.AI{
 				Copilot: map[string]string{"postToolUse": "validate"},
@@ -179,26 +210,18 @@ func TestInstallAIHooks(t *testing.T) {
 
 func TestResolveLefthookBin(t *testing.T) {
 	t.Run("uses config lefthook setting", func(t *testing.T) {
-		bin, quote := resolveLefthookBin(&config.Config{Lefthook: "bundle exec lefthook"})
-		assert.Equal(t, "bundle exec lefthook", bin)
-		assert.False(t, quote)
+		assert.Equal(t, "bundle exec lefthook", resolveLefthookBin(&config.Config{Lefthook: "bundle exec lefthook"}))
 	})
 
 	t.Run("falls back to lefthook name", func(t *testing.T) {
-		bin, quote := resolveLefthookBin(nil)
-		if _, err := os.Executable(); err != nil {
-			assert.Equal(t, "lefthook", bin)
-			assert.False(t, quote)
-			return
-		}
-
-		assert.NotEmpty(t, bin)
+		assert.Equal(t, "lefthook", resolveLefthookBin(nil))
+		assert.Equal(t, "lefthook", resolveLefthookBin(&config.Config{}))
 	})
 }
 
 func TestLefthookRunCommand(t *testing.T) {
-	assert.Equal(t, "lefthook run lint", lefthookRunCommand("lefthook", "lint", false))
-	assert.Equal(t, "'/my path/lefthook' run lint", lefthookRunCommand("/my path/lefthook", "lint", true))
+	assert.Equal(t, "lefthook run lint", lefthookRunCommand("lefthook", "lint"))
+	assert.Equal(t, "pnpm exec lefthook run lint", lefthookRunCommand("pnpm exec lefthook", "lint"))
 }
 
 func TestLefthookDetection(t *testing.T) {

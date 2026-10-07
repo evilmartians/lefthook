@@ -15,7 +15,7 @@ import (
 func TestWrapper_SaveUnstagedDiff(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	errDiff := errors.New("diff failed")
-	diffArgs := "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output "
+	diffArgs := "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output="
 	diffFiles := diffArgs + filepath.Join("/repo/.git/info", "lefthook-unstaged.patch") + " -- a b"
 	diffAll := diffArgs + filepath.Join("/repo/.git/info", "lefthook-unstaged-all.patch") + " --"
 

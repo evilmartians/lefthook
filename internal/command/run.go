@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
@@ -265,8 +266,7 @@ func (l *Lefthook) runHook(
 	startTime := time.Now()
 	results, err := run.Run(ctx, hook, repo, exLogger, opts)
 	if err != nil {
-		var failOnChangesErr *run.FailOnChangesError
-		if errors.As(err, &failOnChangesErr) {
+		if _, ok := errors.AsType[*run.FailOnChangesError](err); ok {
 			return err
 		}
 		return fmt.Errorf("failed to run the hook: %w", err)
@@ -347,18 +347,9 @@ func logResults(indent int, exLogger *logger.ExecutionLogger, results []result.R
 	}
 }
 
-// parseFilesFromString parses both `\0`-separated files.
+// parseFilesFromString splits NUL-separated paths. A trailing NUL, as written by git -z, is ignored.
 func parseFilesFromString(paths string) []string {
-	var result []string
-	start := 0
-	for i, c := range paths {
-		if c == 0 {
-			result = append(result, paths[start:i])
-			start = i + 1
-		}
-	}
-	result = append(result, paths[start:])
-	return result
+	return strings.Split(strings.TrimSuffix(paths, "\x00"), "\x00")
 }
 
 func checkVersion(minVersion string) error {

@@ -1,5 +1,21 @@
 # Change log
 
+## 2.2.0
+
+- fix: don't write an install-time lefthook path into AI hook configs ([#1544](https://github.com/evilmartians/lefthook/pull/1544)) by [@anandghegde](https://github.com/anandghegde)
+- docs: publish JSON schema at lefthook.dev/schema.json ([#1579](https://github.com/evilmartians/lefthook/pull/1579)) by [@BUTTERFINGERS7498](https://github.com/BUTTERFINGERS7498)
+- fix: pass --output path to git diff as a single argument ([#1581](https://github.com/evilmartians/lefthook/pull/1581)) by [@cpruijsen](https://github.com/cpruijsen)
+- fix: ignore trailing NUL in --files-from-stdin ([#1574](https://github.com/evilmartians/lefthook/pull/1574)) by [@jasonwbarnett](https://github.com/jasonwbarnett)
+- deps: October 2026 ([#1571](https://github.com/evilmartians/lefthook/pull/1571)) by [@mrexox](https://github.com/mrexox)
+
+## 2.1.7
+
+- fix: don't hash submodules when checking fail_on_changes ([#1566](https://github.com/evilmartians/lefthook/pull/1566)) by [@tiagovilasboas](https://github.com/tiagovilasboas)
+- refactor: naming of helpers ([#1568](https://github.com/evilmartians/lefthook/pull/1568)) by [@mrexox](https://github.com/mrexox)
+- fix: diff push files against the merge base with the default branch ([#1565](https://github.com/evilmartians/lefthook/pull/1565)) by [@mrexox](https://github.com/mrexox)
+- refactor: working with git ([#1564](https://github.com/evilmartians/lefthook/pull/1564)) by [@mrexox](https://github.com/mrexox)
+- docs: add protect-branch example to docs ([#1563](https://github.com/evilmartians/lefthook/pull/1563)) by [@vim89](https://github.com/vim89)
+
 ## 2.1.16
 
 - fix: test staging fixed files with partially staged by [@mrexox](https://github.com/mrexox)

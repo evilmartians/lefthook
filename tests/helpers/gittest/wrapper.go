@@ -53,13 +53,16 @@ func (w *StubWrapper) FilesByCommandRelative(a string, b string) ([]string, erro
 func (w *StubWrapper) StatusShort() ([]wrapper.FileStatus, error) { return w.StatusShortFunc() }
 func (w *StubWrapper) Diff(s []string, b bool) (string, error)    { return w.DiffFunc(s, b) }
 func (w *StubWrapper) SaveUnstagedDiff(s []string) error          { return w.SaveUnstagedDiffFunc(s) }
-func (w *StubWrapper) UnstagedDiffApplicable() bool               { return w.UnstagedDiffApplicableFunc() }
-func (w *StubWrapper) ApplyUnstagedDiff(b bool) error             { return w.ApplyUnstagedDiffFunc(b) }
-func (w *StubWrapper) StoreStash() error                          { return w.StoreStashFunc() }
-func (w *StubWrapper) DropStash() error                           { return w.DropStashFunc() }
+
+func (w *StubWrapper) UnstagedDiffApplicable() bool { return w.UnstagedDiffApplicableFunc() }
+
+func (w *StubWrapper) ApplyUnstagedDiff(b bool) error { return w.ApplyUnstagedDiffFunc(b) }
+func (w *StubWrapper) StoreStash() error              { return w.StoreStashFunc() }
+func (w *StubWrapper) DropStash() error               { return w.DropStashFunc() }
 func (w *StubWrapper) DiscardUnstagedChanges(s []string) error {
 	return w.DiscardUnstagedChangesFunc(s)
 }
+
 func (w *StubWrapper) DiscardAllUnstagedChanges() error         { return w.DiscardAllUnstagedChangesFunc() }
 func (w *StubWrapper) StageFiles(s []string) error              { return w.StageFilesFunc(s) }
 func (w *StubWrapper) HashObjects(s []string) ([]string, error) { return w.HashObjectsFunc(s) }

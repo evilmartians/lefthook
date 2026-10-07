@@ -1,0 +1,35 @@
+# Partially staged file must not break pre-commit in a linked worktree.
+# The unstaged-diff patches are saved into the main working tree's .git/info,
+# which lies outside the linked worktree's working tree.
+
+exec git init main
+cd main
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+exec git commit -m 'initial'
+exec lefthook install
+exec git worktree add ../wt -b feature
+cd ../wt
+
+# Stage a change, then add an unstaged change to the same file
+exec echo lineStaged
+cp stdout a.txt
+exec git add a.txt
+exec echo lineUnstaged
+cp stdout a.txt
+
+exec git commit -m 'test'
+
+# Unstaged change must be restored after the hook
+grep lineUnstaged a.txt
+! exists ../main/.git/info/lefthook-unstaged.patch
+! exists ../main/.git/info/lefthook-unstaged-all.patch
+
+-- main/lefthook.yml --
+pre-commit:
+  jobs:
+    - run: "true"
+
+-- main/a.txt --
+line

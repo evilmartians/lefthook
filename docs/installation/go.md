@@ -1,11 +1,11 @@
 # Go
 
-The minimum Go version required is 1.26 and you can install
+The minimum Go version required is 1.27 and you can install
 
 - as global package
 
 ```bash
-go install github.com/evilmartians/lefthook/v2@v2.1.16
+go install github.com/evilmartians/lefthook/v2@v2.2.0
 ```
 
 - or as a go tool in your project

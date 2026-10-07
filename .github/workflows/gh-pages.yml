@@ -19,6 +19,9 @@ jobs:
 
       - run: docmd build
 
+      - name: Publish JSON schema
+        run: cp schema.json site/schema.json
+
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         if: ${{ github.ref == 'refs/heads/master' }}

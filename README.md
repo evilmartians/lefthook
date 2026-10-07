@@ -18,16 +18,16 @@ A Git hooks manager for Node.js, Ruby, Python and many other types of projects.
 
 ## Install
 
-With **Go** (>= 1.26):
+With **Go** (>= 1.27):
 
 ```bash
-go install github.com/evilmartians/lefthook/v2@v2.1.16
+go install github.com/evilmartians/lefthook/v2@v2.2.0
 ```
 
 * or as a go tool
 
 ```bash
-go get -tool github.com/evilmartians/lefthook/v2@v2.1.16
+go get -tool github.com/evilmartians/lefthook/v2@v2.2.0
 ```
 
 With **NPM**:
