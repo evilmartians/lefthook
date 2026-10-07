@@ -15,8 +15,8 @@ import (
 
 // pathsOut answers wrapper.Paths() call with paths of a repository in /repo.
 var pathsOut = cmdtest.Out{
-	Command: "git rev-parse --path-format=absolute --show-toplevel --git-path hooks --git-path info --git-dir",
-	Output:  "/repo\n/repo/.git/hooks\n/repo/.git/info/\n/repo/.git\n",
+	Command: "git rev-parse --path-format=absolute --show-toplevel --git-path hooks --git-path info --git-dir --git-common-dir",
+	Output:  "/repo\n/repo/.git/hooks\n/repo/.git/info/\n/repo/.git\n/repo/.git\n",
 }
 
 func TestWrapper_Paths(t *testing.T) {

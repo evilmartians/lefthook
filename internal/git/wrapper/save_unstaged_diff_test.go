@@ -19,6 +19,14 @@ func TestWrapper_SaveUnstagedDiff(t *testing.T) {
 	diffFiles := diffArgs + filepath.Join("/repo/.git/info", "lefthook-unstaged.patch") + " -- a b"
 	diffAll := diffArgs + filepath.Join("/repo/.git/info", "lefthook-unstaged-all.patch") + " --"
 
+	// Paths of a git worktree "feature" of a repository in /repo.
+	worktreePathsOut := cmdtest.Out{
+		Command: pathsOut.Command,
+		Output:  "/repo-feature\n/repo/.git/hooks\n/repo/.git/info/\n/repo/.git/worktrees/feature\n/repo/.git\n",
+	}
+	worktreeDiffFiles := diffArgs + filepath.Join("/repo/.git/info", "lefthook-unstaged.feature.patch") + " -- a b"
+	worktreeDiffAll := diffArgs + filepath.Join("/repo/.git/info", "lefthook-unstaged-all.feature.patch") + " --"
+
 	for name, tt := range map[string]struct {
 		outs []cmdtest.Out
 		err  error
@@ -44,6 +52,13 @@ func TestWrapper_SaveUnstagedDiff(t *testing.T) {
 				{Command: diffAll, Err: errDiff},
 			},
 			err: errDiff,
+		},
+		"worktree-saves-both-diffs": {
+			outs: []cmdtest.Out{
+				worktreePathsOut,
+				{Command: worktreeDiffFiles},
+				{Command: worktreeDiffAll},
+			},
 		},
 	} {
 		t.Run(name, func(t *testing.T) {

@@ -47,6 +47,7 @@ func (b *RepositoryBuilder) Build() *git.Repo {
 			filepath.Join(GitPath(b.root), "hooks"),
 			filepath.Join(GitPath(b.root), "info"),
 			GitPath(b.root),
+			GitPath(b.root),
 		}, "\n"),
 	}
 	w := wrapper.New(b.fs, cmd, logger)
