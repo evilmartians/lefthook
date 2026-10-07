@@ -86,10 +86,10 @@ func Test_guard_wrap(t *testing.T) {
 			failOnChanges:        false,
 			commands: []cmdtest.Out{
 				{Command: "git status --short --porcelain -z", Output: "AM file1\x00 M file2\x00 A file3\x00"},
-				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
+				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output=" +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", Output: ""},
-				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
+				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output=" +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged-all.patch") +
 					" --", Output: ""},
 				{Command: "git stash create", Output: "<stash-hash>"},
@@ -104,10 +104,10 @@ func Test_guard_wrap(t *testing.T) {
 			failOnChanges:        true,
 			commands: []cmdtest.Out{
 				{Command: "git status --short --porcelain -z", Output: "AM file1\x00 M file2\x00"},
-				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
+				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output=" +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", Output: ""},
-				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
+				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output=" +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged-all.patch") +
 					" --", Output: ""},
 				{Command: "git stash create", Output: "<stash-hash>"},
@@ -126,10 +126,10 @@ func Test_guard_wrap(t *testing.T) {
 			failOnChangesDiff:    true,
 			commands: []cmdtest.Out{
 				{Command: "git status --short --porcelain -z", Output: "AM file1\x00"},
-				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
+				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output=" +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", Output: ""},
-				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
+				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output=" +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged-all.patch") +
 					" --", Output: ""},
 				{Command: "git stash create", Output: "<stash-hash>"},
@@ -261,10 +261,10 @@ func Test_guard_wrap_stageFixed(t *testing.T) {
 			filesToStage: []string{"file2"},
 			commands: []cmdtest.Out{
 				{Command: "git status --short --porcelain -z", Output: "AM file1\x00"},
-				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
+				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output=" +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", Output: ""},
-				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output " +
+				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output=" +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged-all.patch") +
 					" --", Output: ""},
 				{Command: "git stash create", Output: "<stash-hash>"},
