@@ -15,4 +15,7 @@ type cache struct {
 
 	// Filepath of the patch with all unstaged changes (including untracked files)
 	unstagedAllPatchPath string
+
+	// When inside a git worktree (a dir for the branch)
+	worktree bool
 }

@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"slices"
+	"strings"
 
 	"github.com/spf13/afero"
 
@@ -14,8 +15,8 @@ import (
 )
 
 const (
-	unstagedPatchName    = "lefthook-unstaged.patch"
-	unstagedAllPatchName = "lefthook-unstaged-all.patch"
+	unstagedPatchName    = "lefthook-unstaged"     // -> .git/info/lefthook-unstaged.patch
+	unstagedAllPatchName = "lefthook-unstaged-all" // -> .git/info/lefthook-unstaged-all.patch
 )
 
 var (
@@ -121,7 +122,8 @@ func (w *Wrapper) unstagedPatchPath() string {
 		return w.cache.unstagedPatchPath
 	}
 
-	w.cache.unstagedPatchPath = filepath.Join(w.cache.infoPath, unstagedPatchName)
+	w.cache.unstagedPatchPath = w.buildPatchPath(unstagedPatchName)
+
 	return w.cache.unstagedPatchPath
 }
 
@@ -130,6 +132,21 @@ func (w *Wrapper) unstagedAllPatchPath() string {
 		return w.cache.unstagedAllPatchPath
 	}
 
-	w.cache.unstagedAllPatchPath = filepath.Join(w.cache.infoPath, unstagedAllPatchName)
+	w.cache.unstagedAllPatchPath = w.buildPatchPath(unstagedAllPatchName)
+
 	return w.cache.unstagedAllPatchPath
+}
+
+func (w *Wrapper) buildPatchPath(name string) string {
+	pathBuilder := strings.Builder{}
+	pathBuilder.WriteString(filepath.Join(w.cache.infoPath, name))
+
+	if w.cache.worktree {
+		pathBuilder.WriteString(".")
+		pathBuilder.WriteString(filepath.Base(w.cache.gitPath))
+	}
+
+	pathBuilder.WriteString(".patch")
+
+	return pathBuilder.String()
 }

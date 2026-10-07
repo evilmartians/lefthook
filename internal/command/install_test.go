@@ -966,10 +966,11 @@ pre-commit:
 					Command: "git config --global --unset-all core.hooksPath",
 				},
 				{
-					Command: "git rev-parse --path-format=absolute --show-toplevel --git-path hooks --git-path info --git-dir",
+					Command: "git rev-parse --path-format=absolute --show-toplevel --git-path hooks --git-path info --git-dir --git-common-dir",
 					Output: root + "\n" +
 						filepath.Join(gittest.GitPath(root), "hooks") + "\n" +
 						filepath.Join(gittest.GitPath(root), "info") + "\n" +
+						gittest.GitPath(root) + "\n" +
 						gittest.GitPath(root),
 				},
 			},
@@ -1018,10 +1019,11 @@ pre-commit:
 					Command: "git config --local --unset-all core.hooksPath",
 				},
 				{
-					Command: "git rev-parse --path-format=absolute --show-toplevel --git-path hooks --git-path info --git-dir",
+					Command: "git rev-parse --path-format=absolute --show-toplevel --git-path hooks --git-path info --git-dir --git-common-dir",
 					Output: root + "\n" +
 						filepath.Join(gittest.GitPath(root), "hooks") + "\n" +
 						filepath.Join(gittest.GitPath(root), "info") + "\n" +
+						gittest.GitPath(root) + "\n" +
 						gittest.GitPath(root),
 				},
 			},

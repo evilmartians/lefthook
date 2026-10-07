@@ -10,6 +10,7 @@ var cmdPaths = []string{
 	"--git-path", "hooks",
 	"--git-path", "info",
 	"--git-dir",
+	"--git-common-dir",
 }
 
 type Paths struct {
@@ -36,6 +37,7 @@ func (w *Wrapper) Paths() (*Paths, error) {
 	w.cmd.root = paths[0]
 	w.cache.infoPath = filepath.Clean(paths[2])
 	w.cache.gitPath = paths[3]
+	w.cache.worktree = paths[3] != paths[4]
 
 	return &Paths{
 		Root:  paths[0],
