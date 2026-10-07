@@ -6,7 +6,7 @@ path: /configuration/file_types/
 updated: 2026-10-07
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-07T19:02:23.893Z"
+  generated_at: "2026-10-07T19:07:48.163Z"
 ---
 ---
 title: "file_types"
