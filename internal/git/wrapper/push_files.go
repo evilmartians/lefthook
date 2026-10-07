@@ -26,12 +26,12 @@ func (w *Wrapper) PushFiles() ([]string, error) {
 		return w.existingFilepaths(lines), nil
 	}
 
-	if len(w.headBranch) == 0 {
-		w.headBranch = w.resolveHeadBranch()
+	if len(w.cache.headBranch) == 0 {
+		w.cache.headBranch = w.resolveHeadBranch()
 	}
 
-	if len(w.headBranch) != 0 {
-		lines, err = w.cmd.OnlyDebugLogs().cmdLines(append(cmdPushFilesHead, w.headBranch+"...HEAD", "--"))
+	if len(w.cache.headBranch) != 0 {
+		lines, err = w.cmd.OnlyDebugLogs().cmdLines(append(cmdPushFilesHead, w.cache.headBranch+"...HEAD", "--"))
 		if err == nil { // ignoring error for best effort
 			return w.existingFilepaths(lines), nil
 		}

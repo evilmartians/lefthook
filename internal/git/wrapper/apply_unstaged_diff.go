@@ -15,9 +15,9 @@ var ErrNoUnstagedDiff = errors.New("no saved unstaged diff")
 func (w *Wrapper) ApplyUnstagedDiff(all bool) error {
 	var diffPath string
 	if all {
-		diffPath = w.unstagedAllDiffPath()
+		diffPath = w.unstagedAllPatchPath()
 	} else {
-		diffPath = w.unstagedDiffPath()
+		diffPath = w.unstagedPatchPath()
 	}
 
 	exists, err := afero.Exists(w.fs, diffPath)
@@ -49,12 +49,12 @@ func (w *Wrapper) ApplyUnstagedDiff(all bool) error {
 		}
 	}
 
-	if err = w.removeUnstagedDiff(w.unstagedDiffPath()); err != nil {
-		return fmt.Errorf("failed to remove the patch %s: %w", w.unstagedDiffPath(), err)
+	if err = w.removeUnstagedDiff(w.unstagedPatchPath()); err != nil {
+		return fmt.Errorf("failed to remove the patch %s: %w", w.unstagedPatchPath(), err)
 	}
 
-	if err = w.removeUnstagedDiff(w.unstagedAllDiffPath()); err != nil {
-		return fmt.Errorf("failed to remove the patch %s: %w", w.unstagedAllDiffPath(), err)
+	if err = w.removeUnstagedDiff(w.unstagedAllPatchPath()); err != nil {
+		return fmt.Errorf("failed to remove the patch %s: %w", w.unstagedAllPatchPath(), err)
 	}
 
 	return nil

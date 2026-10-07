@@ -35,14 +35,8 @@ type Wrapper struct {
 	// Command executor with system-dependent adjustments
 	cmd *Cmd
 
-	// Cached .git/info/ dir path for storing temporary files
-	infoPath string
-
-	// Cached .git/ dir path for head branch resolving
-	gitPath string
-
-	// Cached Git branch of the current HEAD
-	headBranch string
+	// Cached values
+	cache *cache
 }
 
 func New(fs afero.Fs, command system.Command, logger *logger.Logger) *Wrapper {
@@ -52,6 +46,7 @@ func New(fs afero.Fs, command system.Command, logger *logger.Logger) *Wrapper {
 		fs:     fs,
 		logger: logger,
 		cmd:    cmd,
+		cache:  &cache{},
 	}
 }
 
@@ -93,7 +88,7 @@ func (w *Wrapper) resolveHeadBranch() string {
 }
 
 func (w *Wrapper) readOriginHead() string {
-	originHead := filepath.Join(w.gitPath, "refs", "remotes", "origin", "HEAD")
+	originHead := filepath.Join(w.cache.gitPath, "refs", "remotes", "origin", "HEAD")
 	if _, err := w.fs.Stat(originHead); os.IsNotExist(err) {
 		return ""
 	}
@@ -121,10 +116,20 @@ func (w *Wrapper) readOriginHead() string {
 	return "origin/" + match[reOriginHeadBranch.SubexpIndex("name")]
 }
 
-func (w *Wrapper) unstagedDiffPath() string {
-	return filepath.Join(w.infoPath, unstagedPatchName)
+func (w *Wrapper) unstagedPatchPath() string {
+	if len(w.cache.unstagedPatchPath) > 0 {
+		return w.cache.unstagedPatchPath
+	}
+
+	w.cache.unstagedPatchPath = filepath.Join(w.cache.infoPath, unstagedPatchName)
+	return w.cache.unstagedPatchPath
 }
 
-func (w *Wrapper) unstagedAllDiffPath() string {
-	return filepath.Join(w.infoPath, unstagedAllPatchName)
+func (w *Wrapper) unstagedAllPatchPath() string {
+	if len(w.cache.unstagedAllPatchPath) > 0 {
+		return w.cache.unstagedAllPatchPath
+	}
+
+	w.cache.unstagedAllPatchPath = filepath.Join(w.cache.infoPath, unstagedAllPatchName)
+	return w.cache.unstagedAllPatchPath
 }

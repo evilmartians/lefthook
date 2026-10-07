@@ -15,7 +15,7 @@ func (w *Wrapper) SaveUnstagedDiff(files []string) error {
 			"--dst-prefix=b/",   // force prefix for consistent behavior
 			"--patch",           // output a patch that can be applied
 			"--submodule=short", // always use the default short format for submodules
-			"--output=" + w.unstagedDiffPath(),
+			"--output=" + w.unstagedPatchPath(),
 			"--",
 		}, files)
 	if err != nil {
@@ -33,7 +33,7 @@ func (w *Wrapper) SaveUnstagedDiff(files []string) error {
 		"--dst-prefix=b/",
 		"--patch",
 		"--submodule=short",
-		"--output=" + w.unstagedAllDiffPath(),
+		"--output=" + w.unstagedAllPatchPath(),
 		"--",
 	})
 	if err != nil {
