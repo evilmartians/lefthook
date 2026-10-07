@@ -3,7 +3,7 @@
 [[ -n "${_GLOBALS_SH:-}" ]] && return
 _GLOBALS_SH=1
 
-VERSION="2.1.17"
+VERSION="2.2.0"
 
 lib="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
