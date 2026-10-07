@@ -3,10 +3,10 @@ type: concept
 title: "files (job-level)"
 source: "https://lefthook.dev/configuration/files/"
 path: /configuration/files/
-updated: 2026-10-06
+updated: 2026-10-07
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-06T18:07:24.581Z"
+  generated_at: "2026-10-07T18:51:44.043Z"
 ---
 ---
 title: "files (job-level)"

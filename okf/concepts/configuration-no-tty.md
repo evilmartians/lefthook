@@ -3,10 +3,10 @@ type: concept
 title: no_tty
 source: "https://lefthook.dev/configuration/no_tty/"
 path: /configuration/no_tty/
-updated: 2026-10-06
+updated: 2026-10-07
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-06T18:07:24.585Z"
+  generated_at: "2026-10-07T18:51:44.048Z"
 ---
 ---
 title: "no_tty"

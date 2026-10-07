@@ -3,10 +3,10 @@ type: concept
 title: glob
 source: "https://lefthook.dev/configuration/glob/"
 path: /configuration/glob/
-updated: 2026-10-06
+updated: 2026-10-07
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-06T18:07:24.582Z"
+  generated_at: "2026-10-07T18:51:44.044Z"
 ---
 ---
 title: "glob"

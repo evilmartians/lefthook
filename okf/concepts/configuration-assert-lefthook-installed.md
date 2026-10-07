@@ -3,10 +3,10 @@ type: concept
 title: assert_lefthook_installed
 source: "https://lefthook.dev/configuration/assert_lefthook_installed/"
 path: /configuration/assert_lefthook_installed/
-updated: 2026-10-06
+updated: 2026-10-07
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-06T18:07:24.578Z"
+  generated_at: "2026-10-07T18:51:44.037Z"
 ---
 ---
 title: "assert_lefthook_installed"

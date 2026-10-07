@@ -3,10 +3,10 @@ type: concept
 title: "Pass stdin to a command or script"
 source: "https://lefthook.dev/usage/features/pass-stdin/"
 path: /usage/features/pass-stdin/
-updated: 2026-10-06
+updated: 2026-10-07
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-06T18:07:24.607Z"
+  generated_at: "2026-10-07T18:51:44.078Z"
 ---
 ---
 title: "Pass stdin to a command or script"
