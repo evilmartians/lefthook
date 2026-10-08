@@ -50,8 +50,12 @@ type Wrapper interface {
 	// GlobalHooksPath returns configured global hooks path
 	GlobalHooksPath() string
 
-	// UnsetLocalHooksPath resets the global core.hooksPath
+	// UnsetGlobalHooksPath resets the global core.hooksPath
 	UnsetGlobalHooksPath() error
+
+	// CommandHooksPath returns core.hooksPath if it is set at command scope
+	// (via `git -c core.hooksPath=...`). Returns "" for any file-based scope.
+	CommandHooksPath() string
 
 	// AllFiles returns all files visible to Git
 	AllFiles() ([]string, error)
@@ -360,6 +364,10 @@ func (r *Repo) GlobalHooksPath() string {
 
 func (r *Repo) UnsetGlobalHooksPath() error {
 	return r.wrapper.UnsetGlobalHooksPath()
+}
+
+func (r *Repo) CommandHooksPath() string {
+	return r.wrapper.CommandHooksPath()
 }
 
 func (r *Repo) PrintDiff(files []string) {

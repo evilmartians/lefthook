@@ -14,9 +14,11 @@ import (
 )
 
 type RepositoryBuilder struct {
-	root string
-	cmd  system.Command
-	fs   afero.Fs
+	root      string
+	cmd       system.Command
+	fs        afero.Fs
+	hooksPath string // override for Paths.Hooks; defaults to <root>/.git/hooks
+	commonGit string // override for Paths.CommonGit; defaults to <root>/.git
 }
 
 func NewRepositoryBuilder() *RepositoryBuilder {
@@ -38,16 +40,39 @@ func (b *RepositoryBuilder) Fs(fs afero.Fs) *RepositoryBuilder {
 	return b
 }
 
+// HooksPath overrides the hooks directory returned by git rev-parse --git-path hooks.
+// Use this to simulate a command-scoped core.hooksPath override in tests.
+func (b *RepositoryBuilder) HooksPath(path string) *RepositoryBuilder {
+	b.hooksPath = path
+	return b
+}
+
+// CommonGitDir overrides the common git directory (--git-common-dir).
+// Use this together with HooksPath to simulate a linked git worktree.
+func (b *RepositoryBuilder) CommonGitDir(path string) *RepositoryBuilder {
+	b.commonGit = path
+	return b
+}
+
 func (b *RepositoryBuilder) Build() *git.Repo {
+	hooksPath := filepath.Join(GitPath(b.root), "hooks")
+	if b.hooksPath != "" {
+		hooksPath = b.hooksPath
+	}
+	commonGit := GitPath(b.root)
+	if b.commonGit != "" {
+		commonGit = b.commonGit
+	}
+
 	logger := loggertest.New()
 	cmd := &pathsCmd{
 		next: b.cmd,
 		output: strings.Join([]string{
 			b.root,
-			filepath.Join(GitPath(b.root), "hooks"),
+			hooksPath,
 			filepath.Join(GitPath(b.root), "info"),
 			GitPath(b.root),
-			GitPath(b.root),
+			commonGit,
 		}, "\n"),
 	}
 	w := wrapper.New(b.fs, cmd, logger)

@@ -31,10 +31,29 @@ func TestWrapper_Paths(t *testing.T) {
 		"returns-paths": {
 			out: pathsOut,
 			want: &wrapper.Paths{
-				Root:  "/repo",
-				Hooks: "/repo/.git/hooks",
-				Info:  filepath.Clean("/repo/.git/info/"),
-				Git:   "/repo/.git",
+				Root:      "/repo",
+				Hooks:     "/repo/.git/hooks",
+				Info:      filepath.Clean("/repo/.git/info/"),
+				Git:       "/repo/.git",
+				CommonGit: "/repo/.git",
+			},
+		},
+		// In a linked worktree the --git-dir points to the worktree-specific
+		// directory, while --git-common-dir points to the main repo's .git.
+		// --git-path hooks resolves using the common dir, so Hooks == CommonGit/hooks.
+		// ensureHooksPathUnset relies on this equality to avoid treating a normal
+		// worktree as a command-scoped hooksPath override.
+		"returns-paths-in-worktree": {
+			out: cmdtest.Out{
+				Command: pathsOut.Command,
+				Output:  "/worktree\n/main/.git/hooks\n/main/.git/info/\n/main/.git/worktrees/wt1\n/main/.git\n",
+			},
+			want: &wrapper.Paths{
+				Root:      "/worktree",
+				Hooks:     "/main/.git/hooks",
+				Info:      filepath.Clean("/main/.git/info/"),
+				Git:       "/main/.git/worktrees/wt1",
+				CommonGit: "/main/.git",
 			},
 		},
 		"rev-parse-fails": {
