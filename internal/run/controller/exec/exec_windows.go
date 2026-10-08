@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"syscall"
 
 	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/system"
@@ -73,16 +72,11 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 		return err
 	}
 
-	// This change is breaking but might be useful. Consider quoting if it fixes all possible
-	// options for {staged_files}, '{staged_files}', and "{staged_files}".
-	// cmdStrQuoted := strings.ReplaceAll(strings.ReplaceAll(cmdstr, "\\", "\\\\"), "\"", "\\\"")
-	cmdLine := "\"" + sh + "\"" + " -c " + "\"" + cmdstr + "\""
-	e.logger.Debug("[lefthook] run: ", cmdLine)
+	e.logger.Debug("[lefthook] run: ", cmdstr)
 
-	command := exec.CommandContext(ctx, sh)
-	command.SysProcAttr = &syscall.SysProcAttr{
-		CmdLine: cmdLine,
-	}
+	// Passing the command string as a regular argument lets os/exec quote it
+	// so that sh receives it verbatim, the same way it does on other platforms.
+	command := exec.CommandContext(ctx, sh, "-c", cmdstr)
 	command.Dir = args.root
 	command.Env = append(os.Environ(), args.envs...)
 
