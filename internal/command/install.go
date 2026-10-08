@@ -520,6 +520,19 @@ func (l *Lefthook) ensureHooksPathUnset(force, resetHooksPath bool) error {
 	hasLocal := len(local) > 0 && filepath.Clean(local) != filepath.Clean(defaultHooksPath)
 	hasGlobal := len(global) > 0
 
+	// A command-scoped core.hooksPath (from `git -c core.hooksPath=...`) is
+	// passed to hook scripts via GIT_CONFIG_PARAMETERS. It causes git to
+	// resolve hooks into a temporary directory rather than .git/hooks.
+	// Lefthook cannot unset or reset a command-scoped value, so the only safe
+	// action during auto-sync is to skip installation entirely.
+	if command := commandScopedHooksPath(); command != "" {
+		if !force {
+			l.logger.Warnf("core.hooksPath is set at command scope to '%s'; skipping hook sync", command)
+			return errors.New("core.hooksPath is set at command scope")
+		}
+		l.logger.Warnf("core.hooksPath is set at command scope to '%s'; installing anyway (--force)", command)
+	}
+
 	if !hasLocal && !hasGlobal {
 		return nil
 	}

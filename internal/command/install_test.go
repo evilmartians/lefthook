@@ -497,6 +497,7 @@ func Test_syncHooks(t *testing.T) {
 		name, config, checksum  string
 		existingFiles           map[string]string
 		git                     []cmdtest.Out
+		envVars                 map[string]string
 		wantExist, wantNotExist []string
 		wantError               bool
 	}{
@@ -653,6 +654,54 @@ pre-commit:
 			},
 		},
 		{
+			// Reproduces #1584: when core.hooksPath is set at command scope
+			// (e.g. git -c core.hooksPath=... commit), git propagates it to hooks
+			// via GIT_CONFIG_PARAMETERS. syncHooks must skip installation so that
+			// it does not write hooks or the synced marker into the transient path.
+			name: "unsynchronized with command-scoped core.hooksPath via GIT_CONFIG_PARAMETERS",
+			config: `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+`,
+			checksum: "00000000f706df65f379a9ff5ce0119b 1555894311\n",
+			envVars: map[string]string{
+				"GIT_CONFIG_PARAMETERS": "'core.hooksPath=/tmp/command-hooks'",
+			},
+			wantExist: []string{
+				configPath,
+			},
+			wantNotExist: []string{
+				hookPath("pre-commit"),
+				hookPath(config.GhostHookName),
+			},
+		},
+		{
+			// Like the GIT_CONFIG_PARAMETERS case but using the newer
+			// GIT_CONFIG_COUNT/GIT_CONFIG_KEY_n/GIT_CONFIG_VALUE_n API.
+			name: "unsynchronized with command-scoped core.hooksPath via GIT_CONFIG_COUNT",
+			config: `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+`,
+			checksum: "00000000f706df65f379a9ff5ce0119b 1555894311\n",
+			envVars: map[string]string{
+				"GIT_CONFIG_COUNT":   "1",
+				"GIT_CONFIG_KEY_0":   "core.hooksPath",
+				"GIT_CONFIG_VALUE_0": "/tmp/command-hooks",
+			},
+			wantExist: []string{
+				configPath,
+			},
+			wantNotExist: []string{
+				hookPath("pre-commit"),
+				hookPath(config.GhostHookName),
+			},
+		},
+		{
 			name: "with unfetched remote",
 			config: `
 remotes:
@@ -711,6 +760,10 @@ remotes:
 
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			assert := assert.New(t)
+
+			for k, v := range tt.envVars {
+				t.Setenv(k, v)
+			}
 
 			// Append git config commands required by ensureHooksPathUnset() via installHooks().
 			// These commands are called when syncHooks needs to create/update hooks,
