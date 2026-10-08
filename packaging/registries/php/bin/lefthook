@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-const LEFTHOOK_VERSION = '2.2.0';
+const LEFTHOOK_VERSION = '2.2.1';
 
 $os = match (PHP_OS_FAMILY) {
     'Linux'   => 'Linux',

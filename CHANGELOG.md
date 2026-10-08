@@ -1,5 +1,11 @@
 # Change log
 
+## 2.2.1
+
+- feat: support php composer ([#1583](https://github.com/evilmartians/lefthook/pull/1583)) by [@mrexox](https://github.com/mrexox)
+- fix: generate different patch names when in a worktree ([#1582](https://github.com/evilmartians/lefthook/pull/1582)) by [@mrexox](https://github.com/mrexox)
+- refactor: cache paths in wrapper ([#1570](https://github.com/evilmartians/lefthook/pull/1570)) by [@mrexox](https://github.com/mrexox)
+
 ## 2.2.0
 
 - fix: don't write an install-time lefthook path into AI hook configs ([#1544](https://github.com/evilmartians/lefthook/pull/1544)) by [@anandghegde](https://github.com/anandghegde)
