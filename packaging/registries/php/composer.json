@@ -1,0 +1,37 @@
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "evilmartians/lefthook",
+    "description": "Lefthook Git hooks manager, installable via Composer.",
+    "type": "library",
+    "keywords": [
+        "git",
+        "hook",
+        "hooks",
+        "manager",
+        "lefthook"
+    ],
+    "homepage": "https://lefthook.dev",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Evil Martians",
+            "email": "lefthook@evilmartians.com"
+        },
+        {
+            "name": "Louis Midson LAJEANTY",
+            "email": "midsonlajeanty@proton.me"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/evilmartians/lefthook/issues",
+        "source": "https://github.com/evilmartians/lefthook"
+    },
+    "require": {
+        "php": ">=7.4",
+        "ext-zlib": "*"
+    },
+    "bin": [
+        "bin/lefthook"
+    ]
+}
+

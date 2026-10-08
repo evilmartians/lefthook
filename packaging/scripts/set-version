@@ -8,9 +8,11 @@ source "$lib/rubygem.sh"
 source "$lib/pypi.sh"
 source "$lib/aur.sh"
 source "$lib/aur_bin.sh"
+source "$lib/php.sh"
 
 set_version_npm
 set_version_rubygem
 set_version_pypi
 set_version_aur
 set_version_aur_bin
+set_version_php

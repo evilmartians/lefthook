@@ -255,3 +255,24 @@ jobs:
 
             bash packaging/scripts/publish aur-bin
           '
+
+  publish-php:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Update PHP package
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.LEFTHOOK_PHP_SSH_KEY }}" > ~/.ssh/lefthook_php
+          chmod 600 ~/.ssh/aur
+          echo "Host github.com" >> ~/.ssh/config
+          echo "  IdentityFile ~/.ssh/lefthook_php" >> ~/.ssh/config
+          echo "  IdentitiesOnly yes" >> ~/.ssh/config
+          echo "  User git" >> ~/.ssh/config
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+          bash packaging/scripts/publish php

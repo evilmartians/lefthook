@@ -24,6 +24,10 @@ case $1 in
     source "$lib/aur_bin.sh"
     publish_aur_bin
     ;;
+  php)
+    source "$lib/php.sh"
+    publish_php
+    ;;
   *)
     echo "unknown target: $1"
     exit 1
