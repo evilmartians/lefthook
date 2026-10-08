@@ -2,6 +2,8 @@ package templates
 
 import (
 	"bytes"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"text/template"
@@ -37,15 +39,27 @@ func TestShellescape(t *testing.T) {
 	}
 }
 
-func TestHookQuotesAutodetectedExecutablePath(t *testing.T) {
-	hook := renderHook(t, hookTmplData{
-		HookName:            "pre-commit",
-		LefthookPathCurrent: "/home/my user/bin/lefthook",
-	})
+func TestHook_OmitsInstallTimeExecutablePath(t *testing.T) {
+	exe, err := os.Executable()
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	assert.Contains(t, hook, `elif '/home/my user/bin/lefthook' -h >/dev/null 2>&1`)
-	assert.Contains(t, hook, `'/home/my user/bin/lefthook' "$@"`)
-	assert.NotContains(t, hook, `/home/my user/bin/lefthook -h`)
+	out := string(Hook("pre-commit", Args{}))
+	if strings.Contains(out, filepath.ToSlash(exe)) {
+		t.Fatalf("hook shim must not bake install-time executable path %q into shared .git/hooks", exe)
+	}
+}
+
+func TestHook_KeepsWorktreeRelativeNodeModulesFallback(t *testing.T) {
+	out := string(Hook("pre-commit", Args{}))
+
+	if !strings.Contains(out, `dir="$(git rev-parse --show-toplevel)"`) {
+		t.Fatal("expected worktree-relative node_modules fallback")
+	}
+	if !strings.Contains(out, `node_modules/lefthook-${osArch}-${cpuArch}/bin/lefthook`) {
+		t.Fatal("expected per-worktree lefthook npm binary fallback")
+	}
 }
 
 // The `lefthook` and `rc` config values are documented as commands and
