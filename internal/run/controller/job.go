@@ -51,6 +51,7 @@ func (c *Controller) runJob(ctx context.Context, scope *scope, id string, job *c
 
 	if job.Group != nil {
 		extendedScope := scope.extend(job)
+		extendedScope.root = utils.FirstNonBlank(job.Group.Root, extendedScope.root)
 		groupName := utils.FirstNonBlank(job.Name, "group ("+id+")")
 
 		if reason := c.skipReason(extendedScope, job, groupName); len(reason) > 0 {
