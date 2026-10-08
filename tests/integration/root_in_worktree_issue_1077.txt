@@ -1,0 +1,32 @@
+[windows] skip
+
+cd main
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+exec git commit -m 'initial commit'
+
+exec git worktree add ../wt
+cd ../wt
+exec lefthook install
+cp ../new.txt subdir/new.txt
+exec git add subdir/new.txt
+exec git commit -m 'commit from worktree'
+
+exec git show --name-only --format= HEAD
+stdout '^subdir/test.txt$'
+! stdout '^test.txt$'
+! exists test.txt
+
+-- new.txt --
+new file
+
+-- main/subdir/.keep --
+
+-- main/lefthook.yml --
+pre-commit:
+  jobs:
+    - name: add file from root
+      root: subdir/
+      run: echo generated > test.txt && git add test.txt
