@@ -3,10 +3,10 @@ type: concept
 title: colors
 source: "https://lefthook.dev/configuration/colors/"
 path: /configuration/colors/
-updated: 2026-10-07
+updated: 2026-10-08
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-07T19:57:22.674Z"
+  generated_at: "2026-10-08T08:35:24.023Z"
 ---
 ---
 title: "colors"

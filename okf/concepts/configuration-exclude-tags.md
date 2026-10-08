@@ -3,10 +3,10 @@ type: concept
 title: exclude_tags
 source: "https://lefthook.dev/configuration/exclude_tags/"
 path: /configuration/exclude_tags/
-updated: 2026-10-07
+updated: 2026-10-08
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-07T19:57:22.676Z"
+  generated_at: "2026-10-08T08:35:24.025Z"
 ---
 ---
 title: "exclude_tags"

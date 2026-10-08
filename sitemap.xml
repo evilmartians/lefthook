@@ -376,6 +376,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://lefthook.dev/installation/php/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://lefthook.dev/installation/python/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

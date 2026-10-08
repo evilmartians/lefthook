@@ -80,6 +80,7 @@
 - [Manual](https://lefthook.dev/installation/manual/)
 - [Mise](https://lefthook.dev/installation/mise/)
 - [NPM](https://lefthook.dev/installation/node/)
+- [PHP](https://lefthook.dev/installation/php/)
 - [Python](https://lefthook.dev/installation/python/)
 - [RPM-based](https://lefthook.dev/installation/rpm/)
 - [Ruby](https://lefthook.dev/installation/ruby/)

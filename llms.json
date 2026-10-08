@@ -453,6 +453,12 @@
       "priority": "medium"
     },
     {
+      "title": "PHP",
+      "url": "https://lefthook.dev/installation/php/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
       "title": "Python",
       "url": "https://lefthook.dev/installation/python/",
       "description": "",

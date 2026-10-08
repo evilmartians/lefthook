@@ -3,10 +3,10 @@ type: concept
 title: "Interactive commands"
 source: "https://lefthook.dev/usage/features/interactive/"
 path: /usage/features/interactive/
-updated: 2026-10-07
+updated: 2026-10-08
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-07T19:57:22.721Z"
+  generated_at: "2026-10-08T08:35:24.078Z"
 ---
 ---
 title: "Interactive commands"

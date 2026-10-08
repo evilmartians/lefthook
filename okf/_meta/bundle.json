@@ -6,13 +6,13 @@
     "description": "",
     "url": "https://lefthook.dev",
     "generated_by": "@docmd/plugin-okf",
-    "generated_at": "2026-10-07T19:57:22.723Z",
+    "generated_at": "2026-10-08T08:35:24.081Z",
     "default_type": "concept"
   },
   "stats": {
-    "concepts": 107,
+    "concepts": 108,
     "by_type": {
-      "concept": 107
+      "concept": 108
     },
     "locales": [],
     "versions": []
@@ -764,6 +764,16 @@
       "title": "NPM",
       "path": "/installation/node/",
       "file": "concepts/installation-node.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "installation-php",
+      "type": "concept",
+      "title": "PHP",
+      "path": "/installation/php/",
+      "file": "concepts/installation-php.md",
       "locale": "",
       "version": "",
       "tags": []

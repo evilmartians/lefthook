@@ -3,10 +3,10 @@ type: concept
 title: fail_text
 source: "https://lefthook.dev/configuration/fail_text/"
 path: /configuration/fail_text/
-updated: 2026-10-07
+updated: 2026-10-08
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-07T19:57:22.678Z"
+  generated_at: "2026-10-08T08:35:24.027Z"
 ---
 ---
 title: "fail_text"
