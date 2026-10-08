@@ -6,7 +6,7 @@ path: /configuration/files/
 updated: 2026-10-08
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-08T08:35:24.029Z"
+  generated_at: "2026-10-08T10:30:38.274Z"
 ---
 ---
 title: "files (job-level)"
