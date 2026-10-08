@@ -88,6 +88,10 @@ module.exports = {
           path: "/installation/python"
         },
         {
+          title: "PHP",
+          path: "/installation/php"
+        },
+        {
           title: "Swift",
           path: "/installation/swift"
         },

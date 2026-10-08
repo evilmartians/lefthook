@@ -1,0 +1,55 @@
+#!/usr/bin/env php
+<?php
+
+const LEFTHOOK_VERSION = '2.2.0';
+
+$os = match (PHP_OS_FAMILY) {
+    'Linux'   => 'Linux',
+    'Darwin'  => 'MacOS',
+    'Windows' => 'Windows',
+    'BSD'     => 'Freebsd',
+    default   => fail('Unsupported OS: ' . PHP_OS_FAMILY),
+};
+
+$arch = match (strtolower(php_uname('m'))) {
+    'x86_64', 'amd64'  => 'x86_64',
+    'arm64', 'aarch64' => 'arm64',
+    'i386', 'i686'     => 'i386',
+    default            => fail('Unsupported arch: ' . php_uname('m')),
+};
+
+$ext   = $os === 'Windows' ? '.exe' : '';
+$asset = sprintf('lefthook_%s_%s_%s%s', LEFTHOOK_VERSION, $os, $arch, $ext);
+$dir   = dirname(__DIR__) . '/.bin/' . LEFTHOOK_VERSION;
+$bin   = "$dir/lefthook$ext";
+
+if (!is_file($bin)) {
+    $base = 'https://github.com/evilmartians/lefthook/releases/download/v' . LEFTHOOK_VERSION;
+    @mkdir($dir, 0755, true);
+
+    $data = @file_get_contents("$base/$asset");
+    if ($data === false) fail("Download failed: $base/$asset");
+
+    $sums = @file_get_contents("$base/lefthook_checksums.txt");
+    if ($sums === false || !str_contains($sums, hash('sha256', $data) . '  ' . $asset)) {
+        fail('Checksum mismatch for ' . $asset);
+    }
+
+    $tmp = "$bin.tmp" . getmypid();
+    file_put_contents($tmp, $data);
+    chmod($tmp, 0755);
+    rename($tmp, $bin);
+}
+
+$proc = proc_open(
+    array_merge([$bin], array_slice($argv, 1)),
+    [STDIN, STDOUT, STDERR],
+    $pipes
+);
+exit(proc_close($proc));
+
+function fail(string $msg): never {
+    fwrite(STDERR, "lefthook: $msg\n");
+    exit(1);
+}
+
