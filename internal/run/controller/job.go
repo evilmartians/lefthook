@@ -187,7 +187,8 @@ func (c *Controller) addStagedFiles(files []string) {
 }
 
 func (c *Controller) skipReason(scope *scope, job *config.Job, name string) string {
-	if c.skipChecker.Check(c.git.State, job.Skip, job.Only) {
+	templates := scope.opts.Templates
+	if c.skipChecker.Check(c.git.State, withTemplates(job.Skip, templates), withTemplates(job.Only, templates)) {
 		return "by condition"
 	}
 
@@ -200,4 +201,36 @@ func (c *Controller) skipReason(scope *scope, job *config.Job, name string) stri
 	}
 
 	return ""
+}
+
+// withTemplates substitutes custom templates in `run` entries of a skip/only condition.
+// Conditions are copied because they're shared between parallel jobs.
+func withTemplates(condition any, templates map[string]string) any {
+	conditions, ok := condition.([]any)
+	if !ok || len(templates) == 0 {
+		return condition
+	}
+
+	expanded := make([]any, len(conditions))
+	for i, cond := range conditions {
+		expanded[i] = cond
+
+		typedCond, ok := cond.(map[string]any)
+		if !ok {
+			continue
+		}
+		run, ok := typedCond["run"].(string)
+		if !ok {
+			continue
+		}
+
+		for name, replacement := range templates {
+			run = strings.ReplaceAll(run, "{"+name+"}", replacement)
+		}
+		withRun := maps.Clone(typedCond)
+		withRun["run"] = run
+		expanded[i] = withRun
+	}
+
+	return expanded
 }
