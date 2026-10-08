@@ -520,17 +520,30 @@ func (l *Lefthook) ensureHooksPathUnset(force, resetHooksPath bool) error {
 	hasLocal := len(local) > 0 && filepath.Clean(local) != filepath.Clean(defaultHooksPath)
 	hasGlobal := len(global) > 0
 
-	// A command-scoped core.hooksPath (from `git -c core.hooksPath=...`) is
-	// passed to hook scripts via GIT_CONFIG_PARAMETERS. It causes git to
-	// resolve hooks into a temporary directory rather than .git/hooks.
-	// Lefthook cannot unset or reset a command-scoped value, so the only safe
-	// action during auto-sync is to skip installation entirely.
-	if command := commandScopedHooksPath(); command != "" {
-		if !force {
-			l.logger.Warnf("core.hooksPath is set at command scope to '%s'; skipping hook sync", command)
-			return errors.New("core.hooksPath is set at command scope")
+	// Detect a hooks path that isn't the default and isn't explained by a
+	// local or global config entry. When git is invoked as
+	// `git -c core.hooksPath=<dir> commit`, it resolves --git-path hooks to
+	// <dir> and propagates that into the hook's environment, so
+	// l.repo.Paths.Hooks already reflects the override. We compare against
+	// <git-common-dir>/hooks (not <root>/.git/hooks) so that linked worktrees
+	// are handled correctly: in a worktree --git-path hooks resolves to the
+	// main repo's hooks directory, which equals CommonGit/hooks.
+	effectiveHooks := filepath.Clean(l.repo.Paths.Hooks)
+	canonicalHooks := filepath.Clean(filepath.Join(l.repo.Paths.CommonGit, "hooks"))
+	hasCommand := !hasLocal && !hasGlobal && effectiveHooks != canonicalHooks
+
+	if hasCommand {
+		switch {
+		case force:
+			l.logger.Warnf("core.hooksPath is set for this git invocation to '%s'; installing anyway (--force)", l.repo.Paths.Hooks)
+		case resetHooksPath:
+			// Command-scoped config cannot be unset; log and let the caller
+			// handle any local/global entries that can still be reset.
+			l.logger.Warnf("core.hooksPath is set for this git invocation to '%s'; cannot reset command-scoped config", l.repo.Paths.Hooks)
+		default:
+			l.logger.Warnf("core.hooksPath is set for this git invocation to '%s'; skipping hook sync (use lefthook install to force)", l.repo.Paths.Hooks)
+			return errors.New("core.hooksPath is set for this git invocation")
 		}
-		l.logger.Warnf("core.hooksPath is set at command scope to '%s'; installing anyway (--force)", command)
 	}
 
 	if !hasLocal && !hasGlobal {

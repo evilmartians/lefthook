@@ -497,7 +497,7 @@ func Test_syncHooks(t *testing.T) {
 		name, config, checksum  string
 		existingFiles           map[string]string
 		git                     []cmdtest.Out
-		envVars                 map[string]string
+		hooksPath               string // overrides Paths.Hooks; simulates command-scoped core.hooksPath
 		wantExist, wantNotExist []string
 		wantError               bool
 	}{
@@ -654,51 +654,48 @@ pre-commit:
 			},
 		},
 		{
-			// Reproduces #1584: when core.hooksPath is set at command scope
-			// (e.g. git -c core.hooksPath=... commit), git propagates it to hooks
-			// via GIT_CONFIG_PARAMETERS. syncHooks must skip installation so that
-			// it does not write hooks or the synced marker into the transient path.
-			name: "unsynchronized with command-scoped core.hooksPath via GIT_CONFIG_PARAMETERS",
+			// Reproduces #1584: when git is invoked as
+			// `git -c core.hooksPath=<dir> commit`, git resolves --git-path hooks
+			// to <dir>. The effective hooks path seen by Paths.Hooks then differs
+			// from the canonical <git-common-dir>/hooks. syncHooks must detect this
+			// and skip installation so hooks and the synced marker are not written
+			// into the transient command-scoped path.
+			name: "unsynchronized with command-scoped core.hooksPath",
 			config: `
 pre-commit:
   commands:
     tests:
       run: yarn test
 `,
-			checksum: "00000000f706df65f379a9ff5ce0119b 1555894311\n",
-			envVars: map[string]string{
-				"GIT_CONFIG_PARAMETERS": "'core.hooksPath=/tmp/command-hooks'",
-			},
+			// No pre-existing checksum → checkHooksSynchronized returns false →
+			// syncHooks attempts to install → blocked by hasCommand → nothing written.
+			hooksPath: "/tmp/command-scoped-hooks",
 			wantExist: []string{
 				configPath,
 			},
 			wantNotExist: []string{
 				hookPath("pre-commit"),
 				hookPath(config.GhostHookName),
+				infoPath(config.ChecksumFileName), // synced marker must NOT be written
 			},
 		},
 		{
-			// Like the GIT_CONFIG_PARAMETERS case but using the newer
-			// GIT_CONFIG_COUNT/GIT_CONFIG_KEY_n/GIT_CONFIG_VALUE_n API.
-			name: "unsynchronized with command-scoped core.hooksPath via GIT_CONFIG_COUNT",
+			// If the command-scoped core.hooksPath happens to equal the repo's
+			// default hooks directory, the effective path is unchanged and
+			// auto-sync must proceed normally (no false positive).
+			name: "unsynchronized with command-scoped core.hooksPath equal to default",
 			config: `
 pre-commit:
   commands:
     tests:
       run: yarn test
 `,
-			checksum: "00000000f706df65f379a9ff5ce0119b 1555894311\n",
-			envVars: map[string]string{
-				"GIT_CONFIG_COUNT":   "1",
-				"GIT_CONFIG_KEY_0":   "core.hooksPath",
-				"GIT_CONFIG_VALUE_0": "/tmp/command-hooks",
-			},
+			// hooksPath left empty → RepositoryBuilder defaults to <root>/.git/hooks
+			// which equals CommonGit/hooks → hasCommand = false → sync proceeds.
 			wantExist: []string{
 				configPath,
-			},
-			wantNotExist: []string{
 				hookPath("pre-commit"),
-				hookPath(config.GhostHookName),
+				infoPath(config.ChecksumFileName),
 			},
 		},
 		{
@@ -761,10 +758,6 @@ remotes:
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			assert := assert.New(t)
 
-			for k, v := range tt.envVars {
-				t.Setenv(k, v)
-			}
-
 			// Append git config commands required by ensureHooksPathUnset() via installHooks().
 			// These commands are called when syncHooks needs to create/update hooks,
 			// which happens after any remote fetching.
@@ -776,7 +769,11 @@ remotes:
 				)
 			}
 
-			repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Cmd(cmdtest.NewFakeCmd(t, gitCmds)).Build()
+			builder := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Cmd(cmdtest.NewFakeCmd(t, gitCmds))
+			if tt.hooksPath != "" {
+				builder = builder.HooksPath(tt.hooksPath)
+			}
+			repo := builder.Build()
 			lefthook := &Lefthook{
 				logger: loggertest.New(),
 				fs:     fs,

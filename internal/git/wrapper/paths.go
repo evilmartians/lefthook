@@ -20,11 +20,14 @@ type Paths struct {
 	// .git/hooks/ dir path
 	Hooks string
 
-	// .git/ dir path
+	// .git/ dir path (worktree-specific in linked worktrees)
 	Git string
 
 	// .git/info/ dir path
 	Info string
+
+	// Common .git/ dir shared across all worktrees (equals Git in a normal repo)
+	CommonGit string
 }
 
 func (w *Wrapper) Paths() (*Paths, error) {
@@ -40,9 +43,10 @@ func (w *Wrapper) Paths() (*Paths, error) {
 	w.cache.worktree = paths[3] != paths[4]
 
 	return &Paths{
-		Root:  paths[0],
-		Hooks: paths[1],
-		Info:  w.cache.infoPath,
-		Git:   w.cache.gitPath,
+		Root:      paths[0],
+		Hooks:     paths[1],
+		Info:      w.cache.infoPath,
+		Git:       w.cache.gitPath,
+		CommonGit: filepath.Clean(paths[4]),
 	}, nil
 }
