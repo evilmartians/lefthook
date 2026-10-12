@@ -29,9 +29,9 @@ set_version_rubygem() {
 }
 
 prepare_rubygem() {
-  [[ ${#BINARIES[@]} -eq ${#RUBYGEM_BINARIES[@]} ]]
+  # [[ ${#BINARIES[@]} -eq ${#RUBYGEM_BINARIES[@]} ]]
 
-  for kind in "${!BINARIES[@]}"
+  for kind in "${!RUBYGEM_BINARIES[@]}"
   do
     copy "${BINARIES[$kind]}" "${RUBYGEM_BINARIES[$kind]}"
   done

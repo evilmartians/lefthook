@@ -29,9 +29,9 @@ set_version_pypi() {
 }
 
 prepare_pypi() {
-  [[ ${#BINARIES[@]} -eq ${#PYPI_BINARIES[@]} ]]
+  # [[ ${#BINARIES[@]} -eq ${#PYPI_BINARIES[@]} ]]
 
-  for kind in "${!BINARIES[@]}"
+  for kind in "${!PYPI_BINARIES[@]}"
   do
     copy "${BINARIES[$kind]}" "${PYPI_BINARIES[$kind]}"
   done

@@ -37,7 +37,8 @@
     "lefthook-openbsd-arm64": "2.2.1",
     "lefthook-openbsd-x64": "2.2.1",
     "lefthook-windows-arm64": "2.2.1",
-    "lefthook-windows-x64": "2.2.1"
+    "lefthook-windows-x64": "2.2.1",
+    "lefthook-android-arm64": "2.2.1"
   },
   "scripts": {
     "postinstall": "node postinstall.js"

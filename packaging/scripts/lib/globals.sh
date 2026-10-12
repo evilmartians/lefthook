@@ -22,4 +22,5 @@ declare -rA BINARIES=(
   [arm64-darwin]="${BINS_ROOT}/no_self_update_darwin_arm64_v8.0/lefthook"
   [arm64-freebsd]="${BINS_ROOT}/no_self_update_freebsd_arm64_v8.0/lefthook"
   [arm64-openbsd]="${BINS_ROOT}/no_self_update_openbsd_arm64_v8.0/lefthook"
+  [arm64-android]="${BINS_ROOT}/no_self_update_android_arm64_v8.0/lefthook"
 )

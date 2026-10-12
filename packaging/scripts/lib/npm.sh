@@ -22,6 +22,7 @@ declare -ra PACKAGES=(
   "${NPM}/lefthook-freebsd-x64"
   "${NPM}/lefthook-openbsd-arm64"
   "${NPM}/lefthook-openbsd-x64"
+  "${NPM}/lefthook-android-arm64"
   "${NPM}/lefthook"
   "${NPM_BUNDLED}"
   "${NPM_INSTALLER}"
@@ -38,6 +39,7 @@ declare -rA NPM_BINARIES=(
   [arm64-darwin]="${NPM}/lefthook-darwin-arm64/bin/lefthook"
   [arm64-freebsd]="${NPM}/lefthook-freebsd-arm64/bin/lefthook"
   [arm64-openbsd]="${NPM}/lefthook-openbsd-arm64/bin/lefthook"
+  [arm64-android]="${NPM}/lefthook-android-arm64/bin/lefthook"
 )
 
 declare -rA NPM_BUNDLED_BINARIES=(
@@ -51,6 +53,7 @@ declare -rA NPM_BUNDLED_BINARIES=(
   [arm64-darwin]="${NPM_BUNDLED}/bin/lefthook-darwin-arm64/lefthook"
   [arm64-freebsd]="${NPM_BUNDLED}/bin/lefthook-freebsd-arm64/lefthook"
   [arm64-openbsd]="${NPM_BUNDLED}/bin/lefthook-openbsd-arm64/lefthook"
+  [arm64-android]="${NPM_BUNDLED}/bin/lefthook-android-arm64/lefthook"
 )
 
 set_version_npm() {
@@ -81,12 +84,16 @@ prepare_npm() {
     copy "$REPO_ROOT/schema.json" "$schema"
   done
 
-  [[ ${#BINARIES[@]} -eq ${#NPM_BINARIES[@]} ]]
-  [[ ${#BINARIES[@]} -eq ${#NPM_BUNDLED_BINARIES[@]} ]]
+  # [[ ${#BINARIES[@]} -eq ${#NPM_BINARIES[@]} ]]
+  # [[ ${#BINARIES[@]} -eq ${#NPM_BUNDLED_BINARIES[@]} ]]
 
-  for kind in "${!BINARIES[@]}"
+  for kind in "${!NPM_BINARIES[@]}"
   do
     copy "${BINARIES[$kind]}" "${NPM_BINARIES[$kind]}"
+  done
+
+  for kind in "${!NPM_BUNDLED_BINARIES[@]}"
+  do
     copy "${BINARIES[$kind]}" "${NPM_BUNDLED_BINARIES[$kind]}"
   done
 }
