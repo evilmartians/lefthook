@@ -3,10 +3,10 @@ type: concept
 title: "Protect a branch from direct push"
 source: "https://lefthook.dev/examples/protect-branch/"
 path: /examples/protect-branch/
-updated: 2026-10-08
+updated: 2026-10-12
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-08T10:30:38.294Z"
+  generated_at: "2026-10-12T12:25:48.205Z"
 ---
 ---
 title: "Protect a branch from direct push"
