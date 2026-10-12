@@ -1,7 +1,7 @@
 # https://git-cliff.org/docs/configuration
 
 [changelog]
-header = "# Change log\n\n"
+header = ""
 body = """
 {% if version %}\
     ## {{ version | trim_start_matches(pat="v") }} ({{ timestamp | date(format="%Y-%m-%d") }})

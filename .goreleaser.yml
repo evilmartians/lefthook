@@ -16,6 +16,7 @@ builds:
       - windows
       - freebsd
       - openbsd
+      - android
     goarch:
       - amd64
       - arm64
@@ -29,6 +30,10 @@ builds:
         goarch: 386
       - goos: openbsd
         goarch: 386
+      - goos: android
+        goarch: 386
+      - goos: android
+        goarch: amd64
     flags:
       - -trimpath
     ldflags:
