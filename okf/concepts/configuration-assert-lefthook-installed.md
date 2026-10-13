@@ -6,7 +6,7 @@ path: /configuration/assert_lefthook_installed/
 updated: 2026-10-13
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-13T07:47:38.555Z"
+  generated_at: "2026-10-13T09:09:55.931Z"
 ---
 ---
 title: "assert_lefthook_installed"
