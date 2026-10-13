@@ -21,7 +21,7 @@ jobs:
       - name: Test
         run: go test $(go list ./... | grep -v '/gen$') -coverprofile coverage.out
       - name: Report coverage
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6.0.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: unit
@@ -46,7 +46,7 @@ jobs:
           mkdir _icoverdir_
           go install -cover
       - name: Run integration tests
-        uses: nick-fields/retry@v4
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 5
           max_attempts: 3
@@ -55,7 +55,7 @@ jobs:
         run: |
           go tool covdata textfmt -i _icoverdir_ -o coverage.out
       - name: Report coverage
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6.0.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: integration
@@ -71,7 +71,7 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Build binaries
-        uses: goreleaser/goreleaser-action@v7
+        uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7.3.0
         with:
           distribution: goreleaser
           version: '~> v2'
