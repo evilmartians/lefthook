@@ -86,6 +86,64 @@ jobs:
           bash packaging/scripts/prepare npm
           bash packaging/scripts/publish npm
 
+  publish-npm-bundled:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - run: git fetch --force --tags
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+      - run: tar -xvf dist.tar
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Update npm
+        run: npm install -g npm@12
+
+      - name: Publish to NPM
+        env:
+          NPM_API_KEY: ${{ secrets.NPM_API_KEY }}
+        run: |
+          bash packaging/scripts/prepare npm-bundled
+          bash packaging/scripts/publish npm-bundled
+
+  publish-npm-installer:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - run: git fetch --force --tags
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+      - run: tar -xvf dist.tar
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Update npm
+        run: npm install -g npm@12
+
+      - name: Publish to NPM
+        env:
+          NPM_API_KEY: ${{ secrets.NPM_API_KEY }}
+        run: |
+          bash packaging/scripts/prepare npm-installer
+          bash packaging/scripts/publish npm-installer
+
   publish-gem:
     needs: build
     runs-on: ubuntu-latest
