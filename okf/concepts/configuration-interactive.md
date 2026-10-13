@@ -6,7 +6,7 @@ path: /configuration/interactive/
 updated: 2026-10-13
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-13T09:15:07.710Z"
+  generated_at: "2026-10-13T10:46:23.295Z"
 ---
 ---
 title: "interactive"
