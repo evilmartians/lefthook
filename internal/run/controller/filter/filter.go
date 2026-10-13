@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/bmatcuk/doublestar/v4"
@@ -266,18 +267,12 @@ func (f *Filter) byType(fs afero.Fs, vs []string, types []string) []string {
 				continue
 			}
 
-			var found bool
 			fileMimeType, err := mimetype.DetectFile(path)
 			if err != nil {
 				f.logger.Errorf("Couldn't check mime type of file %s: %s", v, err)
 				continue
 			}
-			for _, mime := range filter.mimeTypes {
-				if fileMimeType.Is(mime) {
-					found = true
-				}
-			}
-			if !found {
+			if !slices.ContainsFunc(filter.mimeTypes, fileMimeType.Is) {
 				continue
 			}
 		}
