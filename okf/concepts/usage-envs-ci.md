@@ -3,10 +3,10 @@ type: concept
 title: CI
 source: "https://lefthook.dev/usage/envs/CI/"
 path: /usage/envs/CI/
-updated: 2026-10-12
+updated: 2026-10-13
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-12T12:25:48.216Z"
+  generated_at: "2026-10-13T07:47:38.576Z"
 ---
 ---
 title: "CI"

@@ -3,10 +3,10 @@ type: concept
 title: "Capture ARGS from git in the script"
 source: "https://lefthook.dev/usage/features/git-args/"
 path: /usage/features/git-args/
-updated: 2026-10-12
+updated: 2026-10-13
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-12T12:25:48.219Z"
+  generated_at: "2026-10-13T07:47:38.578Z"
 ---
 ---
 title: "Capture ARGS from git in the script"
