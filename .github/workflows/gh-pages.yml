@@ -18,6 +18,8 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Setup docmd
         run: npm install -g @docmd/core@0.8.17
