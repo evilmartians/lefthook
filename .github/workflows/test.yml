@@ -3,6 +3,9 @@ on:
     branches:
       - master
   pull_request:
+permissions:
+  contents: read
+
 
 name: Test
 jobs:

@@ -5,9 +5,14 @@ on:
     branches:
       - master
   pull_request:
+permissions:
+  contents: read
+
 
 jobs:
   gh-pages:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
