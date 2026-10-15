@@ -1,0 +1,25 @@
+# Regression check for #1584: a system-scoped core.hooksPath (set via
+# GIT_CONFIG_SYSTEM pointing to a temporary file) must NOT block auto-sync.
+# Only command-scoped overrides (git -c) should be skipped.
+
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+
+# Write a minimal git system config that sets core.hooksPath to a temp dir.
+mkdir $WORK/system-hooks
+exec sh -c 'printf "[core]\n\thooksPath = '$WORK'/system-hooks\n" > '$WORK'/system.gitconfig'
+
+# Point git at our fake system config.
+env GIT_CONFIG_SYSTEM=$WORK/system.gitconfig
+
+# auto-sync must install hooks into the system-configured directory, not skip.
+exec lefthook run pre-commit
+
+exists $WORK/system-hooks/pre-commit
+
+-- lefthook.yml --
+pre-commit:
+  commands:
+    hello:
+      run: echo hello
