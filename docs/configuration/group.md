@@ -6,6 +6,7 @@ title: "group"
 
 You can define a group of jobs and configure how they should execute using the following options:
 
+- [`root`](./root.md): Sets the working directory for all jobs in the group.
 - [`parallel`](./parallel.md): Executes all jobs in the group simultaneously.
 - [`piped`](./piped.md): Executes jobs sequentially, passing output between them.
 - [`jobs`](./jobs.md): Specifies the jobs within the group.
@@ -46,6 +47,26 @@ pre-commit:
           - run: echo $E1
             env:
               E1: bonjour
+```
+
+`root` can also be set inside the `group` itself. A nested job with its own `root` overrides it.
+
+```yml
+# lefthook.yml
+
+pre-push:
+  jobs:
+    - name: django
+      group:
+        root: "src/"
+        jobs:
+          - name: system check
+            run: uv run manage.py check
+          - name: migrations check
+            run: uv run manage.py makemigrations --check
+          - name: frontend lint
+            root: "frontend/"
+            run: yarn lint
 ```
 
 A `files` command set on a group is executed for every nested job that uses the `{files}` template. A nested job can define its own `files` to override it.
