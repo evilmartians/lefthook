@@ -70,7 +70,7 @@ func NewController(repo *git.Repo, logger *logger.ExecutionLogger) *Controller {
 func (c *Controller) RunHook(ctx context.Context, opts Options, hook *config.Hook) ([]result.Result, error) {
 	results := make([]result.Result, 0, len(hook.Jobs))
 
-	if c.skipChecker.Check(c.git.State, hook.Skip, hook.Only) {
+	if c.skipChecker.Check(c.git.State, withTemplates(hook.Skip, opts.Templates), withTemplates(hook.Only, opts.Templates)) {
 		c.logger.LogSkipped(hook.Name, "hook setting")
 		return results, nil
 	}
