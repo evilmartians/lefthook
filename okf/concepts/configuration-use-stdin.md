@@ -3,10 +3,10 @@ type: concept
 title: use_stdin
 source: "https://lefthook.dev/configuration/use_stdin/"
 path: /configuration/use_stdin/
-updated: 2026-10-13
+updated: 2026-10-15
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-13T10:46:23.304Z"
+  generated_at: "2026-10-15T07:22:45.680Z"
 ---
 ---
 title: "use_stdin"
