@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -162,6 +163,100 @@ post-commit:
 				assert.Error(err)
 			} else {
 				assert.NoError(err)
+			}
+		})
+	}
+}
+
+func TestRun_WarmUpGitCacheOnlyWhenNeeded(t *testing.T) {
+	root, err := filepath.Abs("src")
+	if err != nil {
+		t.Errorf("unexpected error: %s", err)
+	}
+
+	gitPath := gittest.GitPath(root)
+	configPath := filepath.Join(root, "lefthook.yml")
+
+	for i, tt := range [...]struct {
+		name string
+		hook string
+
+		// noStageFixed mirrors the --no-stage-fixed flag.
+		noStageFixed bool
+
+		// stagedFilesWarmUp and statusWarmUp tell which of the warm-up
+		// git commands are expected to run.
+		stagedFilesWarmUp bool
+		statusWarmUp      bool
+	}{
+		{
+			name:              "pre-commit warms up staged files and status",
+			hook:              "pre-commit",
+			stagedFilesWarmUp: true,
+			statusWarmUp:      true,
+		},
+		{
+			name:              "pre-commit with --no-stage-fixed warms up staged files only",
+			hook:              "pre-commit",
+			noStageFixed:      true,
+			stagedFilesWarmUp: true,
+			statusWarmUp:      false,
+		},
+		{
+			name:              "pre-push does not warm up the git cache",
+			hook:              "pre-push",
+			stagedFilesWarmUp: false,
+			statusWarmUp:      false,
+		},
+	} {
+		t.Run(fmt.Sprintf("%d: %s", i, tt.name), func(t *testing.T) {
+			assert := assert.New(t)
+			fs := afero.NewMemMapFs()
+			spy := cmdtest.NewSpyCmd(nil)
+			lefthook := &Lefthook{
+				logger: loggertest.New(),
+				fs:     fs,
+				repo:   gittest.NewRepositoryBuilder().Cmd(spy).Fs(fs).Root(root).Build(),
+			}
+			lefthook.repo.Cache.Reset()
+
+			// Keep the hook's command skipped so the run itself stays quiet.
+			assert.NoError(afero.WriteFile(fs, configPath, []byte(fmt.Sprintf(`
+%s:
+  commands:
+    echo:
+      skip:
+        - rebase
+        - merge
+      run: echo 'SHOULD NEVER RUN'
+`, tt.hook)), 0o644))
+			assert.NoError(fs.MkdirAll(filepath.Join(gitPath, "rebase-merge"), 0o755))
+
+			assert.NoError(lefthook.Run(t.Context(), RunArgs{
+				Hook:         tt.hook,
+				NoStageFixed: tt.noStageFixed,
+			}))
+
+			var stagedFilesCalls, statusCalls []string
+			for _, cmd := range spy.Commands {
+				switch {
+				case strings.HasPrefix(cmd, "git diff --name-only --cached"):
+					stagedFilesCalls = append(stagedFilesCalls, cmd)
+				case strings.HasPrefix(cmd, "git status --short"):
+					statusCalls = append(statusCalls, cmd)
+				}
+			}
+
+			if tt.stagedFilesWarmUp {
+				assert.NotEmpty(stagedFilesCalls, "expected staged files warm-up commands to run")
+			} else {
+				assert.Empty(stagedFilesCalls, "expected no staged files warm-up commands, got: %v", stagedFilesCalls)
+			}
+
+			if tt.statusWarmUp {
+				assert.NotEmpty(statusCalls, "expected status warm-up command to run")
+			} else {
+				assert.Empty(statusCalls, "expected no status warm-up command, got: %v", statusCalls)
 			}
 		})
 	}
