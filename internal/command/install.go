@@ -17,7 +17,6 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
-	"github.com/evilmartians/lefthook/v2/internal/git"
 	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/templates"
 )
@@ -50,7 +49,7 @@ func (l *Lefthook) Install(ctx context.Context, args InstallArgs, hooks []string
 	var remotesSynced bool
 	for _, remote := range cfg.Remotes {
 		if remote.Configured() {
-			if err = l.syncRemote(remote.GitURL, remote.Ref, args.Force); err != nil {
+			if err = l.syncRemote(remote, cfg.Remotes, args.Force); err != nil {
 				l.logger.Warnf("Couldn't sync from %s. Will continue anyway: %s", remote.GitURL, err)
 				continue
 			}
@@ -166,9 +165,9 @@ func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Con
 			if !remote.Configured() {
 				continue
 			}
-			if l.shouldRefetch(remote) {
-				if serr := l.syncRemote(remote.GitURL, remote.Ref, false); serr != nil {
-					ref, err := l.findAvailableRemoteRef(remote.GitURL)
+			if l.shouldRefetch(remote, cfg.Remotes) {
+				if serr := l.syncRemote(remote, cfg.Remotes, false); serr != nil {
+					ref, err := l.findAvailableRemoteRef(remote.DirNameWithoutRef(cfg.Remotes))
 					if err != nil {
 						l.logger.Warnf("Couldn't sync from %s. Will continue without that remote.", remote.GitURL)
 						continue
@@ -186,7 +185,7 @@ func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Con
 				remotesSynced = true
 			}
 
-			fetchedRemotes[l.repo.RemoteFolder(remote.GitURL, remote.Ref)] = struct{}{}
+			fetchedRemotes[l.repo.RemoteFolder(remote.DirName(cfg.Remotes))] = struct{}{}
 		}
 
 		if remotesSynced {
@@ -231,7 +230,7 @@ func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Con
 	return cfg, nil
 }
 
-func (l *Lefthook) shouldRefetch(remote *config.Remote) bool {
+func (l *Lefthook) shouldRefetch(remote *config.Remote, remotes []*config.Remote) bool {
 	if remote.Refetch || remote.RefetchFrequency == "always" {
 		return true
 	}
@@ -240,7 +239,7 @@ func (l *Lefthook) shouldRefetch(remote *config.Remote) bool {
 	}
 
 	var lastFetchTime time.Time
-	remotePath := l.repo.RemoteFolder(remote.GitURL, remote.Ref)
+	remotePath := l.repo.RemoteFolder(remote.DirName(remotes))
 	info, err := l.fs.Stat(filepath.Join(remotePath, ".git", "FETCH_HEAD"))
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
@@ -265,13 +264,12 @@ func (l *Lefthook) shouldRefetch(remote *config.Remote) bool {
 	return time.Now().After(lastFetchTime.Add(timedelta))
 }
 
-func (l *Lefthook) findAvailableRemoteRef(url string) (string, error) {
+func (l *Lefthook) findAvailableRemoteRef(repoName string) (string, error) {
 	entries, err := afero.ReadDir(l.fs, l.repo.RemotesFolder())
 	if err != nil {
 		return "", err
 	}
 
-	repoName := git.RemoteDirectoryName(url, "")
 	g := glob.MustCompile(repoName + "*")
 	for _, info := range slices.Backward(entries) {
 		if g.Match(info.Name()) {
@@ -611,7 +609,7 @@ func (l *Lefthook) unsetHooksPathConfig(local, global string) error {
 // syncRemote clones or pulls the latest changes for a git repository that was
 // specified as a remote config repository. If successful, the path to the root
 // of the repository will be returned.
-func (l *Lefthook) syncRemote(url, ref string, force bool) error {
+func (l *Lefthook) syncRemote(remote *config.Remote, remotes []*config.Remote, force bool) error {
 	remotesPath := l.repo.RemotesFolder()
 
 	err := l.repo.Fs.MkdirAll(remotesPath, remotesFolderMode)
@@ -624,7 +622,7 @@ func (l *Lefthook) syncRemote(url, ref string, force bool) error {
 	defer l.logger.Spinner.Stop()
 	defer l.logger.Spinner.RemoveName("fetching remotes")
 
-	directoryName := git.RemoteDirectoryName(url, ref)
+	directoryName := remote.DirName(remotes)
 	remotePath := filepath.Join(remotesPath, directoryName)
 
 	if force {
@@ -636,10 +634,10 @@ func (l *Lefthook) syncRemote(url, ref string, force bool) error {
 		_, err = l.repo.Fs.Stat(remotePath)
 		if err == nil {
 			l.logger.Debugf("Updating remote config repository: %s", remotePath)
-			return l.repo.UpdateRemote(remotePath, ref)
+			return l.repo.UpdateRemote(remotePath, remote.Ref)
 		}
 	}
 
 	l.logger.Debugf("Cloning remote config repository: %v/%v", remotePath, directoryName)
-	return l.repo.CloneRemote(remotesPath, directoryName, url, ref)
+	return l.repo.CloneRemote(remotesPath, directoryName, remote.GitURL, remote.Ref)
 }
