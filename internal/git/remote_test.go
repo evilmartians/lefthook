@@ -43,7 +43,7 @@ func TestRemoteDirectoryName(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			result := git.RemoteDirectoryName(tt.url, tt.ref)
+			result := git.RemoteDirectoryName(tt.url, tt.ref, "")
 			if !cmp.Equal(result, tt.result) {
 				t.Errorf("RemoteDirectoryName() = %v, want %v", result, tt.result)
 			}
@@ -76,7 +76,7 @@ func TestRemoteDirectoryName_distinctRefsDoNotCollide(t *testing.T) {
 
 	seen := make(map[string]string, len(refs))
 	for _, ref := range refs {
-		result := git.RemoteDirectoryName(url, ref)
+		result := git.RemoteDirectoryName(url, ref, "")
 		if other, ok := seen[result]; ok {
 			t.Errorf("refs %q and %q both sanitize to %q", other, ref, result)
 		}
