@@ -176,6 +176,63 @@ func TestRepo_Changeset(t *testing.T) {
 	}
 }
 
+func TestRepo_SaveUnstagedChanges(t *testing.T) {
+	errDiff := errors.New("diff failed")
+	errStash := errors.New("stash failed")
+
+	for name, tt := range map[string]struct {
+		diffErr  error
+		stashErr error
+		stashed  bool
+		err      error
+	}{
+		"saves-diff-and-stash": {
+			stashed: true,
+		},
+		"stash-fails": {
+			stashErr: errStash,
+			stashed:  true,
+		},
+		"diff-fails": {
+			diffErr: errDiff,
+			err:     errDiff,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			files := []string{"doc.md"}
+			w := gittest.NewStubWrapper()
+			w.SaveUnstagedDiffFunc = func(got []string) error {
+				if !cmp.Equal(got, files) {
+					t.Errorf("wrapper.SaveUnstagedDiff(%v), want %v", got, files)
+				}
+				return tt.diffErr
+			}
+			stashed := false
+			w.StoreStashFunc = func() error {
+				stashed = true
+				return tt.stashErr
+			}
+
+			repo := git.NewRepo(
+				afero.NewMemMapFs(),
+				loggertest.New(),
+				w,
+				&git.Paths{},
+			)
+
+			err := repo.SaveUnstagedChanges(files)
+
+			if !errors.Is(err, tt.err) {
+				t.Errorf("repo.SaveUnstagedChanges() error = %v, want %v", err, tt.err)
+			}
+
+			if stashed != tt.stashed {
+				t.Errorf("stash stored = %v, want %v", stashed, tt.stashed)
+			}
+		})
+	}
+}
+
 func TestRepo_RestoreUnstagedChanges(t *testing.T) {
 	errApply := errors.New("apply failed")
 	errDrop := errors.New("drop failed")
