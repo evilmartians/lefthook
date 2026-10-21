@@ -1,7 +1,9 @@
 package command
 
 import (
+	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"testing"
 	"time"
@@ -1070,6 +1072,86 @@ pre-commit:
 					assert.NoError(err)
 					assert.True(ok)
 				}
+			}
+		})
+	}
+}
+
+func TestLefthook_createHooksIfNeeded(t *testing.T) {
+	for name, tt := range map[string]struct {
+		hooks        map[string]*config.Hook
+		hook         string
+		targetExists bool
+	}{
+		"ghost-hook-symlink": {
+			hook:         config.GhostHookName,
+			targetExists: true,
+		},
+		"dangling-symlink": {
+			hooks:        map[string]*config.Hook{"commit-msg": {}},
+			hook:         "commit-msg",
+			targetExists: false,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			root := t.TempDir()
+			fs := afero.NewOsFs()
+			repo := gittest.NewRepositoryBuilder().
+				Root(root).
+				Fs(fs).
+				Cmd(cmdtest.NewFakeCmd(t, nil)).
+				Build()
+			lefthook := &Lefthook{
+				logger: loggertest.New(),
+				fs:     fs,
+				repo:   repo,
+			}
+
+			if err := os.WriteFile(filepath.Join(root, "lefthook.yml"), nil, 0o644); err != nil {
+				t.Fatal(err)
+			}
+
+			target := filepath.Join(root, "shared", "hook")
+			for _, dir := range []string{filepath.Dir(target), repo.Paths.Hooks, repo.Paths.Info} {
+				if err := os.MkdirAll(dir, 0o755); err != nil {
+					t.Fatal(err)
+				}
+			}
+			targetContent := "#!/bin/sh\necho shared hook\n"
+			if tt.targetExists {
+				if err := os.WriteFile(target, []byte(targetContent), 0o755); err != nil {
+					t.Fatal(err)
+				}
+			}
+
+			hookPath := filepath.Join(repo.Paths.Hooks, tt.hook)
+			if err := os.Symlink(target, hookPath); err != nil {
+				t.Fatal(err)
+			}
+
+			if err := lefthook.createHooksIfNeeded(&config.Config{Hooks: tt.hooks}, nil, false); err != nil {
+				t.Fatalf("createHooksIfNeeded() error = %v", err)
+			}
+
+			content, err := os.ReadFile(target)
+			switch {
+			case tt.targetExists && err != nil:
+				t.Fatalf("os.ReadFile(target) error = %v", err)
+			case tt.targetExists && string(content) != targetContent:
+				t.Errorf("target content = %q, want %q", content, targetContent)
+			case !tt.targetExists && !errors.Is(err, os.ErrNotExist):
+				t.Errorf("os.ReadFile(target) error = %v, want %v", err, os.ErrNotExist)
+			}
+
+			info, err := os.Lstat(hookPath)
+			if err != nil {
+				t.Fatalf("os.Lstat(hook) error = %v", err)
+			}
+			if !info.Mode().IsRegular() {
+				t.Errorf("hook mode = %v, want regular file", info.Mode())
+			}
+			if !lefthook.isLefthookFile(hookPath) {
+				t.Errorf("isLefthookFile(hook) = false, want true")
 			}
 		})
 	}
