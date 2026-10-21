@@ -3,10 +3,10 @@ type: concept
 title: remotes
 source: "https://lefthook.dev/configuration/remotes/"
 path: /configuration/remotes/
-updated: 2026-10-15
+updated: 2026-10-21
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-15T07:22:45.677Z"
+  generated_at: "2026-10-21T12:04:44.332Z"
 ---
 ---
 title: "remotes"

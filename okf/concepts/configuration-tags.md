@@ -3,10 +3,10 @@ type: concept
 title: tags
 source: "https://lefthook.dev/configuration/tags/"
 path: /configuration/tags/
-updated: 2026-10-15
+updated: 2026-10-21
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-15T07:22:45.680Z"
+  generated_at: "2026-10-21T12:04:44.336Z"
 ---
 ---
 title: "tags"
