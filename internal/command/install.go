@@ -391,6 +391,9 @@ func collectAllJobRoots(roots map[string]struct{}, jobs []*config.Job) {
 		}
 
 		if job.Group != nil {
+			if len(job.Group.Root) > 0 {
+				roots[strings.Trim(job.Group.Root, "/")] = struct{}{}
+			}
 			collectAllJobRoots(roots, job.Group.Jobs)
 		}
 	}
