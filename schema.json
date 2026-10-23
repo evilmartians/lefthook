@@ -532,6 +532,8 @@
     }
   },
   "$comment": "Last updated on 2026.07.03.",
+  "title": "Lefthook",
+  "description": "Configuration for Lefthook Git hooks manager.",
   "properties": {
     "min_version": {
       "type": "string",
