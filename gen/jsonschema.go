@@ -59,6 +59,8 @@ func main() {
 	}
 	schema.ID = "https://json.schemastore.org/lefthook.json"
 	schema.Comments = "Last updated on " + time.Now().Format("2006.01.02") + "."
+	schema.Title = "Lefthook"
+	schema.Description = "Configuration for Lefthook Git hooks manager."
 	dumped, err := json.MarshalIndent(schema, "", "  ")
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "failed to generate json: %s", err)
