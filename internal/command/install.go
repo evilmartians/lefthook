@@ -520,6 +520,37 @@ func (l *Lefthook) ensureHooksPathUnset(force, resetHooksPath bool) error {
 	hasLocal := len(local) > 0 && filepath.Clean(local) != filepath.Clean(defaultHooksPath)
 	hasGlobal := len(global) > 0
 
+	// When the effective hooks path (resolved by git at startup, honoring all
+	// config scopes including `git -c`) differs from the canonical default and
+	// is not explained by a local or global entry, a higher-precedence scope is
+	// active. We only skip for command scope (`git -c core.hooksPath=...`)
+	// because file-based scopes (system, worktree) represent persistent, user-
+	// intentional config that should keep base behavior (install succeeds).
+	//
+	// We call CommandHooksPath only when the path already differs from the
+	// default, so the common case (no override) costs zero extra git calls.
+	// --show-scope requires git >= 2.26; lefthook's minimum is 2.31, so no
+	// version guard is needed. On any error we fall back to base behavior.
+	effectiveHooks := filepath.Clean(l.repo.Paths.Hooks)
+	canonicalHooks := filepath.Clean(filepath.Join(l.repo.Paths.CommonGit, "hooks"))
+	hasCommand := !hasLocal && !hasGlobal &&
+		effectiveHooks != canonicalHooks &&
+		l.repo.CommandHooksPath() != ""
+
+	if hasCommand {
+		switch {
+		case force:
+			l.logger.Warnf("core.hooksPath is set for this git invocation to '%s'; installing anyway (--force)", l.repo.Paths.Hooks)
+		case resetHooksPath:
+			// Command-scoped config cannot be unset; log and fall through so
+			// any local/global entries are still reset below.
+			l.logger.Warnf("core.hooksPath is set for this git invocation to '%s'; cannot reset command-scoped config", l.repo.Paths.Hooks)
+		default:
+			l.logger.Warnf("core.hooksPath is set for this git invocation to '%s'; skipping hook sync (use lefthook install --force to override)", l.repo.Paths.Hooks)
+			return errors.New("core.hooksPath is set for this git invocation")
+		}
+	}
+
 	if !hasLocal && !hasGlobal {
 		return nil
 	}
