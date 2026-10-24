@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/evilmartians/lefthook/v2/internal/run/result"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/cmdtest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/gittest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
@@ -165,6 +166,25 @@ post-commit:
 			}
 		})
 	}
+}
+
+func TestMaxFailureExitCode(t *testing.T) {
+	t.Run("defaults to 1 for plain failures", func(t *testing.T) {
+		code := maxFailureExitCode([]result.Result{
+			result.Failure("job", "", 0),
+		})
+		assert.Equal(t, 1, code)
+	})
+
+	t.Run("returns highest exit code in nested results", func(t *testing.T) {
+		code := maxFailureExitCode([]result.Result{
+			result.Group("group", []result.Result{
+				result.FailureWithCode("low", "", 0, 2),
+				result.FailureWithCode("high", "", 0, 5),
+			}),
+		})
+		assert.Equal(t, 5, code)
+	})
 }
 
 func Test_parseFilesFromString(t *testing.T) {

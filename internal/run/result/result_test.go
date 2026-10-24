@@ -8,6 +8,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestExitCode(t *testing.T) {
+	assert.Equal(t, 0, Success("ok", 0).ExitCode())
+	assert.Equal(t, 1, Failure("fail", "msg", 0).ExitCode())
+	assert.Equal(t, 3, FailureWithCode("fail", "msg", 0, 3).ExitCode())
+	assert.Equal(t, 1, FailureWithCode("fail", "msg", 0, 0).ExitCode())
+}
+
 func TestGroup(t *testing.T) {
 	for i, tt := range [...]struct {
 		name     string
