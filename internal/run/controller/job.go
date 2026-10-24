@@ -204,8 +204,7 @@ func (c *Controller) skipReason(scope *scope, job *config.Job, name string) stri
 }
 
 func commandExitCode(err error) int {
-	var exitErr *osexec.ExitError
-	if errors.As(err, &exitErr) {
+	if exitErr, ok := errors.AsType[*osexec.ExitError](err); ok {
 		return exitErr.ExitCode()
 	}
 	return 1

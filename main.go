@@ -12,8 +12,7 @@ import (
 
 func main() {
 	if err := cmd.Lefthook().Run(context.Background(), os.Args); err != nil {
-		var hookExit *command.HookExitError
-		if errors.As(err, &hookExit) {
+		if hookExit, ok := errors.AsType[*command.HookExitError](err); ok {
 			os.Exit(hookExit.Code)
 		}
 		if err.Error() != "" {
