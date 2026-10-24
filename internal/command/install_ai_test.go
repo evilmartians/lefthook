@@ -42,7 +42,7 @@ func TestInstallAIHooks(t *testing.T) {
 						"Stop": []any{
 							map[string]any{
 								"hooks": []any{
-									map[string]any{"type": "command", "command": "lefthook run validate"},
+									map[string]any{"type": "command", "command": "LEFTHOOK_AGENT=1 lefthook run validate"},
 								},
 							},
 						},
@@ -53,7 +53,7 @@ func TestInstallAIHooks(t *testing.T) {
 						"PreToolUse": []any{
 							map[string]any{
 								"hooks": []any{
-									map[string]any{"type": "command", "command": "lefthook run security-check"},
+									map[string]any{"type": "command", "command": "LEFTHOOK_AGENT=1 lefthook run security-check"},
 								},
 							},
 						},
@@ -101,7 +101,7 @@ func TestInstallAIHooks(t *testing.T) {
 							},
 							map[string]any{
 								"hooks": []any{
-									map[string]any{"type": "command", "command": "lefthook run validate"},
+									map[string]any{"type": "command", "command": "LEFTHOOK_AGENT=1 lefthook run validate"},
 								},
 							},
 						},
@@ -112,7 +112,7 @@ func TestInstallAIHooks(t *testing.T) {
 					"hooks": map[string]any{
 						"stop": []any{
 							map[string]any{"command": "./custom.sh"},
-							map[string]any{"command": "lefthook run validate"},
+							map[string]any{"command": "LEFTHOOK_AGENT=1 lefthook run validate"},
 						},
 					},
 				},
@@ -142,7 +142,7 @@ func TestInstallAIHooks(t *testing.T) {
 						"Stop": []any{
 							map[string]any{
 								"hooks": []any{
-									map[string]any{"type": "command", "command": "lefthook run validate"},
+									map[string]any{"type": "command", "command": "LEFTHOOK_AGENT=1 lefthook run validate"},
 								},
 							},
 						},
@@ -163,7 +163,7 @@ func TestInstallAIHooks(t *testing.T) {
 					"version": float64(copilotHooksVersion),
 					"hooks": map[string]any{
 						"postToolUse": []any{
-							map[string]any{"command": "lefthook run validate"},
+							map[string]any{"command": "LEFTHOOK_AGENT=1 lefthook run validate"},
 						},
 					},
 				},
@@ -220,8 +220,8 @@ func TestResolveLefthookBin(t *testing.T) {
 }
 
 func TestLefthookRunCommand(t *testing.T) {
-	assert.Equal(t, "lefthook run lint", lefthookRunCommand("lefthook", "lint"))
-	assert.Equal(t, "pnpm exec lefthook run lint", lefthookRunCommand("pnpm exec lefthook", "lint"))
+	assert.Equal(t, "LEFTHOOK_AGENT=1 lefthook run lint", lefthookRunCommand("lefthook", "lint"))
+	assert.Equal(t, "LEFTHOOK_AGENT=1 pnpm exec lefthook run lint", lefthookRunCommand("pnpm exec lefthook", "lint"))
 }
 
 func TestLefthookDetection(t *testing.T) {
@@ -326,7 +326,7 @@ func TestUninstallAIHooks(t *testing.T) {
   "model": "sonnet",
   "hooks": {
     "Stop": [
-      { "hooks": [{ "type": "command", "command": "lefthook run validate" }] },
+      { "hooks": [{ "type": "command", "command": "LEFTHOOK_AGENT=1 lefthook run validate" }] },
       { "hooks": [{ "type": "command", "command": "./custom.sh" }] }
     ]
   }
@@ -336,7 +336,7 @@ func TestUninstallAIHooks(t *testing.T) {
   "version": 1,
   "hooks": {
     "stop": [
-      { "command": "lefthook run validate" },
+      { "command": "LEFTHOOK_AGENT=1 lefthook run validate" },
       { "command": "./custom.sh" }
     ]
   }
