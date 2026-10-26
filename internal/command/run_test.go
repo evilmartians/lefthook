@@ -2,7 +2,9 @@ package command
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
+	"syscall"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -194,6 +196,29 @@ func Test_parseFilesFromString(t *testing.T) {
 
 			if !cmp.Equal(result, tt.want) {
 				t.Errorf("parseFilesFromString() = %q, want %q", result, tt.want)
+			}
+		})
+	}
+}
+
+func Test_interruptSignals(t *testing.T) {
+	for name, tt := range map[string]struct {
+		hupIgnored bool
+		want       []os.Signal
+	}{
+		"hup-handled": {
+			want: []os.Signal{os.Interrupt, syscall.SIGTERM, syscall.SIGHUP},
+		},
+		"hup-ignored": {
+			hupIgnored: true,
+			want:       []os.Signal{os.Interrupt, syscall.SIGTERM},
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			result := interruptSignals(tt.hupIgnored)
+
+			if !cmp.Equal(result, tt.want) {
+				t.Errorf("interruptSignals() = %v, want %v", result, tt.want)
 			}
 		})
 	}

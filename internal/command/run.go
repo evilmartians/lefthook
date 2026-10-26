@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
@@ -260,7 +261,7 @@ func (l *Lefthook) runHook(
 	exLogger *logger.ExecutionLogger,
 	opts run.Options,
 ) error {
-	ctx, stop := signal.NotifyContext(ctx, os.Interrupt)
+	ctx, stop := signal.NotifyContext(ctx, interruptSignals(signal.Ignored(syscall.SIGHUP))...)
 	defer stop()
 
 	startTime := time.Now()
@@ -285,6 +286,18 @@ func (l *Lefthook) runHook(
 	}
 
 	return nil
+}
+
+// interruptSignals returns the signals that cancel a running hook, so jobs get
+// stopped and hidden unstaged changes get restored. SIGHUP is skipped when it
+// is ignored (e.g. under nohup) because subscribing to it would unignore it.
+func interruptSignals(hupIgnored bool) []os.Signal {
+	signals := []os.Signal{os.Interrupt, syscall.SIGTERM}
+	if !hupIgnored {
+		signals = append(signals, syscall.SIGHUP)
+	}
+
+	return signals
 }
 
 func (l *Lefthook) logSummary(
