@@ -3,6 +3,7 @@ package command
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -118,7 +119,9 @@ func (l *Lefthook) isLefthookFile(path string) bool {
 	return false
 }
 
-// Removes the hook from hooks path, saving non-lefthook hooks with .old suffix.
+// Prepares the hook path for a lefthook hook, saving non-lefthook hooks with .old suffix.
+// The hook itself is left in place: addHook replaces it in one step, so git
+// always finds either the previous hook or the new one.
 func (l *Lefthook) cleanHook(hook string, force bool) error {
 	hookPath := filepath.Join(l.repo.Paths.Hooks, hook)
 	exists, err := afero.Exists(l.fs, hookPath)
@@ -129,12 +132,12 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 		return nil
 	}
 
-	// Just remove lefthook hook
+	// Lefthook hook is replaced by addHook
 	if l.isLefthookFile(hookPath) {
-		return l.fs.Remove(hookPath)
+		return nil
 	}
 
-	// Check if .old file already exists before renaming.
+	// Check if .old file already exists before saving.
 	exists, err = afero.Exists(l.fs, hookPath+oldHookPostfix)
 	if err != nil {
 		return err
@@ -147,7 +150,16 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 		}
 	}
 
-	err = l.fs.Rename(hookPath, hookPath+oldHookPostfix)
+	// Copy instead of renaming, so the hook stays in place until it is replaced.
+	content, err := afero.ReadFile(l.fs, hookPath)
+	if err != nil {
+		return err
+	}
+	info, err := l.fs.Stat(hookPath)
+	if err != nil {
+		return err
+	}
+	err = l.writeFileAtomic(hookPath+oldHookPostfix, content, info.Mode().Perm())
 	if err != nil {
 		return err
 	}
@@ -156,12 +168,51 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 	return nil
 }
 
+// Removes the hook from hooks path if it exists.
+func (l *Lefthook) removeHook(hook string) error {
+	hookPath := filepath.Join(l.repo.Paths.Hooks, hook)
+	err := l.fs.Remove(hookPath)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+
+	return nil
+}
+
 // Creates a hook file using hook template.
 func (l *Lefthook) addHook(hook string, args templates.Args) error {
 	hookPath := filepath.Join(l.repo.Paths.Hooks, hook)
-	return afero.WriteFile(
-		l.fs, hookPath, templates.Hook(hook, args), hookFileMode,
-	)
+	return l.writeFileAtomic(hookPath, templates.Hook(hook, args), hookFileMode)
+}
+
+// Writes the content to a temporary file in the same directory and renames it to the path.
+// A reader sees either the previous file or the new one, never a missing or
+// partially written file.
+func (l *Lefthook) writeFileAtomic(path string, content []byte, mode os.FileMode) error {
+	tmp, err := afero.TempFile(l.fs, filepath.Dir(path), "."+filepath.Base(path)+".*")
+	if err != nil {
+		return err
+	}
+	tmpPath := tmp.Name()
+
+	_, err = tmp.Write(content)
+	if cErr := tmp.Close(); err == nil {
+		err = cErr
+	}
+	if err == nil {
+		err = l.fs.Chmod(tmpPath, mode)
+	}
+	if err == nil {
+		err = l.fs.Rename(tmpPath, path)
+	}
+	if err != nil {
+		if rErr := l.fs.Remove(tmpPath); rErr != nil && !errors.Is(rErr, os.ErrNotExist) {
+			l.logger.Warnf("Could not remove %s: %s", tmpPath, rErr)
+		}
+		return err
+	}
+
+	return nil
 }
 
 func isEnvEnabled(name string) bool {
