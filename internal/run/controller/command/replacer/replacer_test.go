@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
@@ -252,6 +253,57 @@ func Test_ReplaceAndSplit_CustomTemplates(t *testing.T) {
 		// File template SHOULD be escaped (with quotes)
 		assert.Equal([]string{`prettier 'file with spaces.js'`}, commands)
 	})
+}
+
+func TestReplacer_AddGitArgs(t *testing.T) {
+	args := []string{"origin", "/my repo/r.git", "it's"}
+
+	for name, tt := range map[string]struct {
+		command string
+		want    string
+	}{
+		"plain-arg": {
+			command: "echo {1}",
+			want:    "echo origin",
+		},
+		"arg-with-space": {
+			command: "echo {2}",
+			want:    "echo '/my repo/r.git'",
+		},
+		"arg-with-quote": {
+			command: "echo {3}",
+			want:    `echo 'it'"'"'s'`,
+		},
+		"all-args": {
+			command: "echo {0}",
+			want:    `echo origin '/my repo/r.git' 'it'"'"'s'`,
+		},
+		"double-quoted": {
+			command: `echo "{2}" "{3}"`,
+			want:    `echo "/my repo/r.git" "it's"`,
+		},
+		"single-quoted": {
+			command: "echo '{2}'",
+			want:    "echo '/my repo/r.git'",
+		},
+		"double-quoted-all": {
+			command: `echo "{0}"`,
+			want:    `echo "origin /my repo/r.git it's"`,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			r := NewMocked(loggertest.NewExecution(), nil).AddGitArgs(args)
+			if err := r.Discover(tt.command, nil); err != nil {
+				t.Fatalf("Replacer.Discover() error = %v", err)
+			}
+
+			commands, _ := r.ReplaceAndSplit(tt.command, 300)
+
+			if !cmp.Equal(commands, []string{tt.want}) {
+				t.Errorf("Replacer.ReplaceAndSplit() = %v, want %v", commands, []string{tt.want})
+			}
+		})
+	}
 }
 
 func Test_replaceQuoted(t *testing.T) {
