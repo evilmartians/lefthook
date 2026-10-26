@@ -26,6 +26,7 @@ type Replacer struct {
 	cache     map[string]*entry
 	files     map[string]func() ([]string, error)
 	templates map[string]string
+	gitArgs   map[string]string
 }
 
 func New(
@@ -72,10 +73,20 @@ func (r Replacer) AddGitArgs(args []string) Replacer {
 		r.templates = make(map[string]string)
 	}
 
-	r.templates["{0}"] = strings.Join(args, " ")
-	for i, arg := range args {
-		r.templates["{"+strconv.Itoa(i+1)+"}"] = arg
+	if r.gitArgs == nil {
+		r.gitArgs = make(map[string]string)
 	}
+
+	// Unquoted templates get shell-escaped args, quoted ones keep them raw.
+	escaped := make([]string, len(args))
+	for i, arg := range args {
+		template := "{" + strconv.Itoa(i+1) + "}"
+		escaped[i] = shellescape.Quote(arg)
+		r.templates[template] = escaped[i]
+		r.gitArgs[template] = arg
+	}
+	r.templates["{0}"] = strings.Join(escaped, " ")
+	r.gitArgs["{0}"] = strings.Join(args, " ")
 
 	return r
 }
@@ -175,6 +186,12 @@ func (r Replacer) Files(template string, filter *filter.Filter) ([]string, error
 func (r Replacer) ReplaceAndSplit(command string, maxlen int) ([]string, []string) {
 	if len(r.cache) == 0 {
 		return []string{command}, nil
+	}
+
+	// Git args in quotes are quoted by the user, so substitute them raw.
+	for template, arg := range r.gitArgs {
+		command = strings.ReplaceAll(command, `"`+template+`"`, `"`+arg+`"`)
+		command = strings.ReplaceAll(command, `'`+template+`'`, `'`+arg+`'`)
 	}
 
 	var cnt int
