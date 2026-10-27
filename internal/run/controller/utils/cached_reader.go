@@ -3,47 +3,31 @@ package utils
 import (
 	"bytes"
 	"io"
+	"sync"
 )
 
-// CachedReader reads from the provided `io.Reader` until `io.EOF` and saves
-// the read content into the inner buffer.
-//
-// After `io.EOF` it will be providing the read data again and again.
+// CachedReader reads from the provided `io.Reader` to `io.EOF` once and caches
+// the content. Each call to `Reader` returns an independent reader over the
+// cached bytes, so concurrent consumers each receive the full input.
 type CachedReader struct {
-	in        io.Reader
-	useBuffer bool
-	buf       []byte
-	reader    *bytes.Reader
+	mu     sync.Mutex
+	in     io.Reader
+	cached bool
+	buf    []byte
 }
 
 func NewCachedReader(in io.Reader) *CachedReader {
-	return &CachedReader{
-		in:     in,
-		buf:    []byte{},
-		reader: bytes.NewReader([]byte{}),
-	}
+	return &CachedReader{in: in}
 }
 
-func (r *CachedReader) Read(p []byte) (int, error) {
-	if r.useBuffer {
-		n, err := r.reader.Read(p)
-		if err == io.EOF {
-			_, seekErr := r.reader.Seek(0, io.SeekStart)
-			if seekErr != nil {
-				panic(seekErr)
-			}
+func (r *CachedReader) Reader() io.Reader {
+	r.mu.Lock()
+	defer r.mu.Unlock()
 
-			return n, err
-		}
-
-		return n, err
+	if !r.cached {
+		r.buf, _ = io.ReadAll(r.in)
+		r.cached = true
 	}
 
-	n, err := r.in.Read(p)
-	r.buf = append(r.buf, p[:n]...)
-	if err == io.EOF {
-		r.useBuffer = true
-		r.reader = bytes.NewReader(r.buf)
-	}
-	return n, err
+	return bytes.NewReader(r.buf)
 }
