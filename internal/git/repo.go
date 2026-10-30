@@ -65,6 +65,9 @@ type Wrapper interface {
 	// PushFiles returns the files that differ in local branch and the upstream branch
 	PushFiles() ([]string, error)
 
+	// PushFilesWithDeleted includes deleted paths in the push diff
+	PushFilesWithDeleted() ([]string, error)
+
 	// FilesByCommandRelative accepts user command and a dir, and returns existing files by its response
 	FilesByCommandRelative(string, string) ([]string, error)
 
@@ -211,6 +214,11 @@ func (r *Repo) AllFiles() ([]string, error) {
 // PushFiles returns a list of files that are ready to be pushed.
 func (r *Repo) PushFiles() ([]string, error) {
 	return r.wrapper.PushFiles()
+}
+
+// PushFilesWithDeleted returns push files including deleted paths.
+func (r *Repo) PushFilesWithDeleted() ([]string, error) {
+	return r.wrapper.PushFilesWithDeleted()
 }
 
 // PartiallyStagedFiles returns the list of files that have both staged and

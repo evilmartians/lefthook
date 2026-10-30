@@ -68,7 +68,8 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 		}
 	}
 
-	// Skip if no files were to be pushed
+	// Skip if no files were to be pushed (including deleted).
+	//nolint:nestif
 	if config.HookUsesPushFiles(b.opts.HookName) {
 		files, err := replacer.Files(config.SubPushFiles, filter)
 		if err != nil {
@@ -76,7 +77,14 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 		}
 
 		if len(files) == 0 {
-			return nil, nil, SkipError{NoPushFiles}
+			files, err = b.git.PushFilesWithDeleted()
+			if err != nil {
+				return nil, nil, err
+			}
+
+			if len(filter.Apply(files)) == 0 {
+				return nil, nil, SkipError{NoPushFiles}
+			}
 		}
 	}
 

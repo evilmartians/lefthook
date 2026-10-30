@@ -1,0 +1,36 @@
+[windows] skip
+
+exec git init -b main
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+exec git commit -m initial
+exec git init --bare remote.git
+exec git remote add origin remote.git
+exec git push -u origin main
+exec lefthook install
+
+exec git rm A.txt
+exec git commit -m delete
+exec git push
+stdout '^PLAIN-RAN$'
+stdout '^MATCHING-RAN$'
+! stdout '^UNMATCHED-RAN$'
+! stdout '^TEMPLATE-RAN'
+
+exec lefthook run pre-push
+! stdout '^PLAIN-RAN$'
+! stdout '^MATCHING-RAN$'
+
+-- lefthook.yml --
+pre-push:
+  jobs:
+    - run: echo PLAIN-RAN
+    - run: echo MATCHING-RAN
+      glob: '*.txt'
+    - run: echo UNMATCHED-RAN
+      glob: '*.go'
+    - run: echo TEMPLATE-RAN {push_files}
+
+-- A.txt --
+will be deleted
