@@ -35,5 +35,7 @@ ALLOW_PUSH_TO_MAIN=1 git push
 ::: callout info Note
 This command does not reference `{push_files}`, so lefthook skips it when a
 push has no file changes (for example a push of an empty commit). It runs
-normally for any push that changes a file.
+normally for any push that changes a file, including a push that only deletes
+files. Commands using `{push_files}` still receive only files that exist in
+the working tree.
 :::

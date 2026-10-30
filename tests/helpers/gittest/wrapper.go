@@ -13,6 +13,7 @@ type StubWrapper struct {
 	StagedFilesFunc               func() ([]string, error)
 	StagedFilesWithDeletedFunc    func() ([]string, error)
 	PushFilesFunc                 func() ([]string, error)
+	PushFilesWithDeletedFunc      func() ([]string, error)
 	FilesByCommandRelativeFunc    func(string, string) ([]string, error)
 	StatusShortFunc               func() ([]wrapper.FileStatus, error)
 	DiffFunc                      func([]string, bool) (string, error)
@@ -47,6 +48,10 @@ func (w *StubWrapper) StagedFilesWithDeleted() ([]string, error) {
 	return w.StagedFilesWithDeletedFunc()
 }
 func (w *StubWrapper) PushFiles() ([]string, error) { return w.PushFilesFunc() }
+func (w *StubWrapper) PushFilesWithDeleted() ([]string, error) {
+	return w.PushFilesWithDeletedFunc()
+}
+
 func (w *StubWrapper) FilesByCommandRelative(a string, b string) ([]string, error) {
 	return w.FilesByCommandRelativeFunc(a, b)
 }
