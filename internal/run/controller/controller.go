@@ -196,7 +196,7 @@ func (c *Controller) sequentially(ctx context.Context, scope *scope, jobs []*con
 
 func (c *Controller) stdin() io.Reader {
 	if c.pushStdin != nil {
-		return bytes.NewReader(c.pushStdin)
+		return utils.NewCachedReader(bytes.NewReader(c.pushStdin))
 	}
 	return c.cachedStdin
 }
