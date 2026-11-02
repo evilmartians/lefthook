@@ -1,0 +1,44 @@
+[windows] skip
+
+exec git init -b main
+exec git config user.email you@example.com
+exec git config user.name 'Your Name'
+exec git add -A
+exec git commit -m initial
+exec git init --bare ../multiple-refs.git
+exec git remote add custom ../multiple-refs.git
+exec git push custom main
+exec git --git-dir ../multiple-refs.git symbolic-ref HEAD refs/heads/main
+exec git remote set-head custom main
+
+exec git checkout -b first
+cp content.txt 'first file.txt'
+cp content.txt shared.txt
+exec git add 'first file.txt' shared.txt
+exec git commit -m first
+exec git checkout -b second main
+cp content.txt second.txt
+cp content.txt shared.txt
+exec git add second.txt shared.txt
+exec git commit -m second
+exec git checkout main
+exec lefthook install
+
+# Union the pushed trees, including paths absent from the working tree.
+exec git push custom first second
+stdout 'FILES first file.txt second.txt shared.txt'
+! stdout 'shared.txt shared.txt'
+
+# Ref deletion has no pushed file tree.
+exec git push custom :first :second
+! stdout 'FILES'
+
+-- lefthook.yml --
+output:
+  - execution_out
+pre-push:
+  jobs:
+    - run: echo FILES {push_files}
+
+-- content.txt --
+content

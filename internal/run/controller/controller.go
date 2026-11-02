@@ -3,6 +3,7 @@
 package controller
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -20,10 +21,13 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
+const prePushHook = "pre-push"
+
 type Controller struct {
 	git          *git.Repo
 	logger       *logger.ExecutionLogger
 	cachedStdin  io.Reader
+	pushStdin    []byte
 	executor     exec.Executor
 	cmd          system.CommandWithContext
 	skipChecker  *config.SkipChecker
@@ -73,6 +77,17 @@ func (c *Controller) RunHook(ctx context.Context, opts Options, hook *config.Hoo
 	if c.skipChecker.Check(c.git.State, hook.Skip, hook.Only) {
 		c.logger.LogSkipped(hook.Name, "hook setting")
 		return results, nil
+	}
+
+	if hook.Name == prePushHook && len(opts.GitArgs) > 0 {
+		input, err := io.ReadAll(c.cachedStdin)
+		if err != nil {
+			return results, fmt.Errorf("read pre-push ref updates: %w", err)
+		}
+		repo, stdin := c.git, c.pushStdin
+		defer func() { c.git, c.pushStdin = repo, stdin }()
+		c.pushStdin = input
+		c.git = c.git.WithPushRefs(opts.GitArgs[0], string(input))
 	}
 
 	if !opts.SkipLFS {
@@ -177,4 +192,11 @@ func (c *Controller) sequentially(ctx context.Context, scope *scope, jobs []*con
 	}
 
 	return results
+}
+
+func (c *Controller) stdin() io.Reader {
+	if c.pushStdin != nil {
+		return bytes.NewReader(c.pushStdin)
+	}
+	return c.cachedStdin
 }

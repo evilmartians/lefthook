@@ -1,0 +1,41 @@
+[windows] skip
+
+exec git init -b main
+exec git config user.email you@example.com
+exec git config user.name 'Your Name'
+exec git add -A
+exec git commit -m initial
+exec git init --bare ../push-stdin.git
+exec git remote add origin ../push-stdin.git
+exec lefthook install
+
+mkdir bin
+cp lfs.sh bin/git-lfs
+chmod 0755 bin/git-lfs
+env PATH=$WORK/bin:$PATH
+exec sh -c 'printf "refs/heads/main %s refs/heads/main %040d\n" "$(git rev-parse HEAD)" 0 > expected'
+
+exec git push origin main
+cmp expected lfs.stdin
+cmp expected first.stdin
+cmp expected second.stdin
+
+-- lefthook.yml --
+output:
+  - execution_out
+pre-push:
+  parallel: true
+  jobs:
+    - run: cat > first.stdin
+      use_stdin: true
+    - run: cat > second.stdin
+      use_stdin: true
+
+-- lfs.sh --
+#!/bin/sh
+if [ "$1" = pre-push ]; then
+  cat > lfs.stdin
+fi
+
+-- content.txt --
+content
