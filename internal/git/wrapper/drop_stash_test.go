@@ -13,18 +13,11 @@ import (
 
 func TestWrapper_DropStash(t *testing.T) {
 	fs := afero.NewMemMapFs()
-	errList := errors.New("list failed")
 	errDrop := errors.New("drop failed")
 	errStore := errors.New("store failed")
-	list := "stash@{0} hash lefthook auto backup\n" +
-		"stash@{1} hash On main: other\n" +
-		"stash@{2} hash lefthook auto backup\n"
-	listStored := "stash@{0} abc123 lefthook auto backup\n" +
-		"stash@{1} def456 On main: other\n" +
-		"stash@{2} 789fed lefthook auto backup\n"
 	storeOk := []cmdtest.Out{
 		{Command: "git stash create", Output: "abc123"},
-		{Command: "git stash store --quiet --message lefthook auto backup abc123"},
+		{Command: "git update-ref refs/lefthook/backup/abc123 abc123 "},
 	}
 
 	for name, tt := range map[string]struct {
@@ -33,61 +26,24 @@ func TestWrapper_DropStash(t *testing.T) {
 		outs  []cmdtest.Out
 		err   error
 	}{
-		"drops-from-oldest": {
-			outs: []cmdtest.Out{
-				{Command: "git stash list --format=%gd %H %gs", Output: list},
-				{Command: "git stash drop --quiet -- stash@{2}"},
-				{Command: "git stash drop --quiet -- stash@{0}"},
-			},
-		},
-		"no-lefthook-stash": {
-			outs: []cmdtest.Out{
-				{Command: "git stash list --format=%gd %H %gs", Output: "stash@{0} hash On main: other\n"},
-			},
-		},
-		"list-fails": {
-			outs: []cmdtest.Out{
-				{Command: "git stash list --format=%gd %H %gs", Err: errList},
-			},
-			err: errList,
-		},
-		"drop-fails": {
-			outs: []cmdtest.Out{
-				{Command: "git stash list --format=%gd %H %gs", Output: list},
-				{Command: "git stash drop --quiet -- stash@{2}", Err: errDrop},
-			},
-			err: errDrop,
-		},
 		"drops-stored-only": {
 			store: storeOk,
 			outs: []cmdtest.Out{
-				{Command: "git stash list --format=%gd %H %gs", Output: listStored},
-				{Command: "git stash drop --quiet -- stash@{0}"},
-			},
-		},
-		"stored-not-listed": {
-			store: storeOk,
-			outs: []cmdtest.Out{
-				{Command: "git stash list --format=%gd %H %gs", Output: list},
+				{Command: "git update-ref -d refs/lefthook/backup/abc123 abc123"},
 			},
 		},
 		"drop-stored-fails": {
 			store: storeOk,
 			outs: []cmdtest.Out{
-				{Command: "git stash list --format=%gd %H %gs", Output: listStored},
-				{Command: "git stash drop --quiet -- stash@{0}", Err: errDrop},
+				{Command: "git update-ref -d refs/lefthook/backup/abc123 abc123", Err: errDrop},
 			},
 			err: errDrop,
 		},
-		"store-fails-drops-all": {
+		"nothing-stored": {},
+		"store-fails-drops-nothing": {
 			store: []cmdtest.Out{
 				{Command: "git stash create", Output: "abc123"},
-				{Command: "git stash store --quiet --message lefthook auto backup abc123", Err: errStore},
-			},
-			outs: []cmdtest.Out{
-				{Command: "git stash list --format=%gd %H %gs", Output: listStored},
-				{Command: "git stash drop --quiet -- stash@{2}"},
-				{Command: "git stash drop --quiet -- stash@{0}"},
+				{Command: "git update-ref refs/lefthook/backup/abc123 abc123 ", Err: errStore},
 			},
 		},
 	} {
