@@ -34,7 +34,7 @@ require (
 	github.com/stretchr/testify v1.12.1
 	github.com/tidwall/jsonc v0.3.3
 	github.com/urfave/cli/v3 v3.14.0
-	go.yaml.in/yaml/v3 v3.0.5
+	go.yaml.in/yaml/v3 v3.0.6
 	golang.org/x/mod v0.42.0
 )
 
