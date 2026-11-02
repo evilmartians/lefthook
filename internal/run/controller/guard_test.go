@@ -93,10 +93,9 @@ func Test_guard_wrap(t *testing.T) {
 					filepath.Join("root", ".git", "info", "lefthook-unstaged-all.patch") +
 					" --", Output: ""},
 				{Command: "git stash create", Output: "<stash-hash>"},
-				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
+				{Command: "git update-ref refs/lefthook/backup/<stash-hash> <stash-hash> ", Output: ""},
 				{Command: "git checkout --force -- file1", Output: ""},
-				{Command: "git stash list", Output: "0: my stash\n1: lefthook auto backup\n2: my second stash\n"},
-				{Command: "git stash drop --quiet -- 1", Output: ""},
+				{Command: "git update-ref -d refs/lefthook/backup/<stash-hash> <stash-hash>", Output: ""},
 			},
 		},
 		"stashUnstagedChanges=true failOnChanges=true with partially staged no hook changes": {
@@ -111,13 +110,12 @@ func Test_guard_wrap(t *testing.T) {
 					filepath.Join("root", ".git", "info", "lefthook-unstaged-all.patch") +
 					" --", Output: ""},
 				{Command: "git stash create", Output: "<stash-hash>"},
-				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
+				{Command: "git update-ref refs/lefthook/backup/<stash-hash> <stash-hash> ", Output: ""},
 				{Command: "git checkout --force -- file1", Output: ""},
 				{Command: "git status --short --porcelain -z", Output: "A file1\x00"},
 				// job run
 				{Command: "git status --short --porcelain -z", Output: "A file1\x00"},
-				{Command: "git stash list", Output: "0: my stash\n1: lefthook auto backup\n2: my second stash\n"},
-				{Command: "git stash drop --quiet -- 1", Output: ""},
+				{Command: "git update-ref -d refs/lefthook/backup/<stash-hash> <stash-hash>", Output: ""},
 			},
 		},
 		"stashUnstagedChanges=true failOnChanges=true with partially staged and hook changes with diff": {
@@ -133,7 +131,7 @@ func Test_guard_wrap(t *testing.T) {
 					filepath.Join("root", ".git", "info", "lefthook-unstaged-all.patch") +
 					" --", Output: ""},
 				{Command: "git stash create", Output: "<stash-hash>"},
-				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
+				{Command: "git update-ref refs/lefthook/backup/<stash-hash> <stash-hash> ", Output: ""},
 				{Command: "git checkout --force -- file1", Output: ""},
 				{Command: "git status --short --porcelain -z", Output: "A  file1\x00"},
 				{Command: "git hash-object -- file1", Output: "hash1\n"},
@@ -142,8 +140,7 @@ func Test_guard_wrap(t *testing.T) {
 				{Command: "git hash-object -- file1", Output: "hash2\n"},
 				{Command: "git diff -- file1", Output: "diff --git a/file1 b/file1\n..."},
 				{Command: "git checkout --force -- file1", Output: ""},
-				{Command: "git stash list", Output: "0: my stash\n1: lefthook auto backup\n2: my second stash\n"},
-				{Command: "git stash drop --quiet -- 1", Output: ""},
+				{Command: "git update-ref -d refs/lefthook/backup/<stash-hash> <stash-hash>", Output: ""},
 			},
 			err: &FailOnChangesError{[]string{"file2"}},
 		},
@@ -268,10 +265,10 @@ func Test_guard_wrap_stageFixed(t *testing.T) {
 					filepath.Join("root", ".git", "info", "lefthook-unstaged-all.patch") +
 					" --", Output: ""},
 				{Command: "git stash create", Output: "<stash-hash>"},
-				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
+				{Command: "git update-ref refs/lefthook/backup/<stash-hash> <stash-hash> ", Output: ""},
 				{Command: "git checkout --force -- file1", Output: ""},
 				{Command: "git add --force -- file2", Err: errStaging},
-				{Command: "git stash list"},
+				{Command: "git update-ref -d refs/lefthook/backup/<stash-hash> <stash-hash>"},
 			},
 			err: errStaging,
 		},

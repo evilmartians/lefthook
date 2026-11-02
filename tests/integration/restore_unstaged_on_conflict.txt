@@ -32,8 +32,8 @@ grep lineCommitted b.txt
 grep 'unrelated unstaged change' c.txt
 ! exists .git/info/lefthook-unstaged.patch
 ! exists .git/info/lefthook-unstaged-all.patch
-exec git stash list
-! stdout 'lefthook auto backup'
+exec git for-each-ref refs/lefthook/backup/
+! stdout .
 
 -- lefthook.yml --
 pre-commit:
