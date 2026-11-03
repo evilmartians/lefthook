@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
@@ -253,6 +254,13 @@ func shouldFailOnChangesDiff(fromArg *bool, fromHook *bool) bool {
 	return ok
 }
 
+// notifyHookContext returns a context that is cancelled on an interrupt,
+// termination or hangup signal, so that the hook can clean up (e.g. restore
+// the stashed unstaged changes) before lefthook exits.
+func notifyHookContext(ctx context.Context) (context.Context, context.CancelFunc) {
+	return signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
+}
+
 func (l *Lefthook) runHook(
 	ctx context.Context,
 	hook *config.Hook,
@@ -260,7 +268,7 @@ func (l *Lefthook) runHook(
 	exLogger *logger.ExecutionLogger,
 	opts run.Options,
 ) error {
-	ctx, stop := signal.NotifyContext(ctx, os.Interrupt)
+	ctx, stop := notifyHookContext(ctx)
 	defer stop()
 
 	startTime := time.Now()
