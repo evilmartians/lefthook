@@ -1,85 +1,132 @@
+name: Test
+
 on:
   push:
-    branches:
-      - master
+    branches: [master]
   pull_request:
 
-name: Test
+permissions:
+  contents: read
+
+concurrency:
+  group: test-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   unit:
+    name: Unit (${{ matrix.os }})
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-      - name: Install Go
-        uses: actions/setup-go@v6
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
-      - name: Test
-        run: go test $(go list ./... | grep -v '/gen$') -coverprofile coverage.out
-      - name: Report coverage
-        uses: codecov/codecov-action@v6
+
+      - name: Unit tests
+        run: go test -count=1 -timeout=5m -coverprofile=coverage.out ./...
+
+      - uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.out
+          disable_search: true
           flags: unit
-          name: ${{ join(matrix.*, ' ') }}
+          name: unit-${{ matrix.os }}
 
   integration:
+    name: Integration (${{ matrix.os }})
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
     env:
       GOCOVERDIR: ${{ github.workspace }}/_icoverdir_
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-      - name: Install Go
-        uses: actions/setup-go@v6
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
-      - name: Prepare lefthook
+
+      - name: Install instrumented Lefthook
         run: |
           mkdir _icoverdir_
           go install -cover
-      - name: Run integration tests
-        uses: nick-fields/retry@v4
-        with:
-          timeout_minutes: 5
-          max_attempts: 3
-          command: go test integration_test.go -tags=integration
+
+      - name: Integration tests
+        run: go test -count=1 -timeout=10m -tags=integration integration_test.go
+
       - name: Collect coverage
-        run: |
-          go tool covdata textfmt -i _icoverdir_ -o coverage.out
-      - name: Report coverage
-        uses: codecov/codecov-action@v6
+        run: go tool covdata textfmt -i _icoverdir_ -o coverage.out
+
+      - uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.out
+          disable_search: true
           flags: integration
-          name: integration-${{ join(matrix.*, ' ') }}
+          name: integration-${{ matrix.os }}
+
+  race:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+
+      - name: Race detection
+        run: go test -race -count=1 -timeout=10m ./...
 
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-      - name: Install Go
-        uses: actions/setup-go@v6
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
-      - name: Build binaries
+
+      - name: Validate GoReleaser
         uses: goreleaser/goreleaser-action@v7
         with:
           distribution: goreleaser
-          version: '~> v2'
-          args: release --snapshot --skip=publish --skip=snapcraft --skip=validate --clean --verbose
-      - name: Tar binaries to preserve executable bit
-        run: 'tar -cvf lefthook-binaries.tar --directory dist/ $(find dist/ -executable -type f -printf "%P\0" | xargs --null)'
-      - name: Upload binaries as artifacts
-        uses: actions/upload-artifact@v7
+          version: "~> v2"
+          args: check
+
+      - name: Build snapshot
+        uses: goreleaser/goreleaser-action@v7
         with:
-          name: Executables
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --snapshot --skip=publish --skip=snapcraft --skip=validate --clean
+
+      - name: Package executables
+        run: find dist -type f -executable -printf '%P\0' | tar -C dist --null -T - -cf lefthook-binaries.tar
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: executables
           path: lefthook-binaries.tar
+          if-no-files-found: error
+          retention-days: 7

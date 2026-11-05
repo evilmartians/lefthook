@@ -2,29 +2,67 @@ name: Publish Docs
 
 on:
   push:
-    branches:
-      - master
+    branches: [master]
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  gh-pages:
+  build:
     runs-on: ubuntu-latest
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
-      - name: Setup docmd
-        run: npm install -g @docmd/core@0.8.17
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          package-manager-cache: false
 
-      - run: docmd build
+      - name: Build documentation
+        run: |
+          npm install --global @docmd/core@0.8.17
+          docmd build
+          cp schema.json site/schema.json
+          test -f site/index.html
+          test -f site/schema.json
 
-      - name: Publish JSON schema
-        run: cp schema.json site/schema.json
+      - uses: actions/upload-artifact@v7
+        if: github.event_name == 'push'
+        with:
+          name: docs-site
+          path: site/
+          if-no-files-found: error
+          retention-days: 1
 
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v4
-        if: ${{ github.ref == 'refs/heads/master' }}
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    concurrency:
+      group: lefthook-pages-deploy
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: docs-site
+          path: site/
+
+      - uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
