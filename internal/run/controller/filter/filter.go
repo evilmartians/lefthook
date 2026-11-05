@@ -82,13 +82,20 @@ func byGlob(vs []string, matchers []string, globMatcher string) []string {
 
 	var hasNonEmpty bool
 	vsf := make([]string, 0)
+	seen := make(map[string]struct{})
 	for _, matcher := range matchers {
 		if len(matcher) == 0 {
 			continue
 		}
 
 		hasNonEmpty = true
-		vsf = append(vsf, matchFiles(vs, matcher, globMatcher)...)
+		for _, file := range matchFiles(vs, matcher, globMatcher) {
+			if _, ok := seen[file]; ok {
+				continue
+			}
+			seen[file] = struct{}{}
+			vsf = append(vsf, file)
+		}
 	}
 
 	if !hasNonEmpty {
