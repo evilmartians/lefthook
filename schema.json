@@ -414,7 +414,7 @@
         },
         "ref": {
           "type": "string",
-          "description": "An optional *branch*"
+          "description": "An optional *branch* or *tag* name or a full commit SHA"
         },
         "configs": {
           "items": {

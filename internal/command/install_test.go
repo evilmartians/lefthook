@@ -1,6 +1,7 @@
 package command
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
 	"testing"
@@ -32,6 +33,14 @@ func TestLefthookInstall(t *testing.T) {
 	projectPath := func(file string) string {
 		return filepath.Join(root, file)
 	}
+
+	remotesPath := filepath.Join(root, ".git", "info", "lefthook-remotes")
+	const shaRef = "13d66a090ac6e73f3ff44652761facb02b00e91c"
+	const shaRemoteName = "lefthook-" + shaRef
+	const remoteURL = "https://github.com/evilmartians/lefthook"
+	shaRemotePath := filepath.Join(remotesPath, shaRemoteName)
+	errNotRef := errors.New("no matching ref")
+	errFetch := errors.New("fetch failed")
 
 	for n, tt := range [...]struct {
 		name, config, checksum  string
@@ -302,7 +311,7 @@ remotes:
       - lefthook.yml
 `,
 			existingFiles: map[string]string{
-				filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.1", ".git", "FETCH_HEAD"): "",
+				filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.1", ".git", "FETCH_HEAD"): "deadbeef\n",
 			},
 			git: []cmdtest.Out{
 				{
@@ -327,17 +336,61 @@ remotes:
 `,
 			git: []cmdtest.Out{
 				{
-					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes") + " clone --quiet --origin origin --depth 1 https://github.com/evilmartians/lefthook lefthook-13d66a090ac6e73f3ff44652761facb02b00e91c",
+					Command: "git ls-remote --refs --exit-code " + remoteURL + " " + shaRef,
+					Err:     errNotRef,
 				},
 				{
-					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-13d66a090ac6e73f3ff44652761facb02b00e91c") + " fetch --quiet --depth 1 origin -- 13d66a090ac6e73f3ff44652761facb02b00e91c",
+					Command: "git -C " + remotesPath + " init --quiet " + shaRemoteName,
 				},
 				{
-					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-13d66a090ac6e73f3ff44652761facb02b00e91c") + " rev-parse --verify --quiet 13d66a090ac6e73f3ff44652761facb02b00e91c^{commit}",
+					Command: "git -C " + shaRemotePath + " remote add origin " + remoteURL,
 				},
 				{
-					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-13d66a090ac6e73f3ff44652761facb02b00e91c") + " checkout FETCH_HEAD",
+					Command: "git -C " + shaRemotePath + " ls-remote --refs --exit-code origin " + shaRef,
+					Err:     errNotRef,
 				},
+				{
+					Command: "git -C " + shaRemotePath + " fetch --quiet --depth 1 origin -- " + shaRef,
+				},
+				{
+					Command: "git -C " + shaRemotePath + " rev-parse --verify --quiet " + shaRef + "^{commit}",
+				},
+				{
+					Command: "git -C " + shaRemotePath + " checkout FETCH_HEAD",
+				},
+			},
+		},
+		{
+			name: "with commit sha ref failing to fetch",
+			config: `
+remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    ref: 13d66a090ac6e73f3ff44652761facb02b00e91c
+    configs:
+      - lefthook.yml
+`,
+			git: []cmdtest.Out{
+				{
+					Command: "git ls-remote --refs --exit-code " + remoteURL + " " + shaRef,
+					Err:     errNotRef,
+				},
+				{
+					Command: "git -C " + remotesPath + " init --quiet " + shaRemoteName,
+				},
+				{
+					Command: "git -C " + shaRemotePath + " remote add origin " + remoteURL,
+				},
+				{
+					Command: "git -C " + shaRemotePath + " ls-remote --refs --exit-code origin " + shaRef,
+					Err:     errNotRef,
+				},
+				{
+					Command: "git -C " + shaRemotePath + " fetch --quiet --depth 1 origin -- " + shaRef,
+					Err:     errFetch,
+				},
+			},
+			wantNotExist: []string{
+				shaRemotePath,
 			},
 		},
 		{
@@ -700,7 +753,7 @@ remotes:
       - lefthook.yml
 `,
 			existingFiles: map[string]string{
-				filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.1", ".git", "FETCH_HEAD"): "",
+				filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.1", ".git", "FETCH_HEAD"): "deadbeef\n",
 			},
 		},
 		{
@@ -713,7 +766,7 @@ remotes:
       - lefthook.yml
 `,
 			existingFiles: map[string]string{
-				filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.1", ".git", "FETCH_HEAD"): "",
+				filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.1", ".git", "FETCH_HEAD"): "deadbeef\n",
 			},
 			git: []cmdtest.Out{
 				{
@@ -890,7 +943,7 @@ remotes:
 
 			assert.Equal(lefthook.shouldRefetch(remote), tt.shouldRefetchInitially)
 
-			assert.NoError(afero.WriteFile(fs, fetchHeadPath(lefthook, remote), []byte(""), 0o644))
+			assert.NoError(afero.WriteFile(fs, fetchHeadPath(lefthook, remote), []byte("deadbeef\n"), 0o644))
 			firstFetchTime := time.Now().Add(-2 * time.Minute)
 
 			assert.NoError(fs.Chtimes(fetchHeadPath(lefthook, remote), firstFetchTime, firstFetchTime))

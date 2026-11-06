@@ -251,6 +251,10 @@ func (l *Lefthook) shouldRefetch(remote *config.Remote) bool {
 		return false
 	}
 
+	if info.Size() == 0 {
+		return true
+	}
+
 	if len(remote.RefetchFrequency) == 0 {
 		return false
 	}
@@ -641,5 +645,15 @@ func (l *Lefthook) syncRemote(url, ref string, force bool) error {
 	}
 
 	l.logger.Debugf("Cloning remote config repository: %v/%v", remotePath, directoryName)
-	return l.repo.CloneRemote(remotesPath, directoryName, url, ref)
+	if err = l.repo.CloneRemote(remotesPath, directoryName, url, ref); err != nil {
+		// Do not leave a partial checkout behind: a later run would treat it
+		// as a successful sync and load whatever was checked out.
+		if rmErr := l.repo.Fs.RemoveAll(remotePath); rmErr != nil {
+			l.logger.Warnf("Failed to remove incomplete remote %s: %s", remotePath, rmErr)
+		}
+
+		return err
+	}
+
+	return nil
 }

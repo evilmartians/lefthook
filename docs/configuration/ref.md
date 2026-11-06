@@ -6,7 +6,7 @@ title: "ref"
 
 An optional *branch*, *tag*, or full commit SHA.
 
-A full 40-character commit SHA (or 64-character SHA for SHA-256 repositories) pins the remote to an immutable commit. The remote server must allow fetching commits by SHA.
+A full 40-character commit SHA (or 64-character SHA for SHA-256 repositories) pins the remote to an immutable commit. Abbreviated SHAs are not supported. The remote server must allow fetching commits by SHA.
 
 ::: callout info Note
 If you initially had `ref` option, ran `lefthook install`, and then removed it, lefthook won't decide which branch/tag to use as a ref. So, if you added it once, please, use it always to avoid issues in local setups.
