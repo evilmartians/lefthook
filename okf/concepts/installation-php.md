@@ -3,10 +3,10 @@ type: concept
 title: PHP
 source: "https://lefthook.dev/installation/php/"
 path: /installation/php/
-updated: 2026-10-21
+updated: 2026-11-06
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-21T12:04:44.346Z"
+  generated_at: "2026-11-06T08:06:51.762Z"
 ---
 # PHP
 

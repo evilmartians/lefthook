@@ -3,10 +3,10 @@ type: concept
 title: fail_on_changes
 source: "https://lefthook.dev/configuration/fail_on_changes/"
 path: /configuration/fail_on_changes/
-updated: 2026-10-21
+updated: 2026-11-06
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-10-21T12:04:44.320Z"
+  generated_at: "2026-11-06T08:06:51.745Z"
 ---
 ---
 title: "fail_on_changes"
