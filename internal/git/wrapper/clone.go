@@ -14,6 +14,8 @@ type CloneArgs struct {
 	Ref  string
 }
 
+const SHA256_LENGTH = 64
+
 func (w *Wrapper) Clone(args CloneArgs) error {
 	// This is overwriting ENVs for worktrees, otherwise it does not work.
 	git := w.cmd.WithoutEnvs("GIT_DIR", "GIT_INDEX_FILE").OnlyDebugLogs()
@@ -24,9 +26,13 @@ func (w *Wrapper) Clone(args CloneArgs) error {
 	}
 
 	if isSHA {
-		if _, err = git.cmd([]string{
-			"git", "-C", args.Root, "init", "--quiet", args.Dest,
-		}); err != nil {
+		cmdInit := []string{"git", "-C", args.Root, "init", "--quiet"}
+		if len(ref) == SHA256_LENGTH {
+			cmdInit = append(cmdInit, "--object-format=sha256")
+		}
+		cmdInit = append(cmdInit, args.Dest)
+
+		if _, err = git.cmd(cmdInit); err != nil {
 			return err
 		}
 
@@ -59,13 +65,17 @@ func (w *Wrapper) classifyRef(url, ref string) (string, bool, error) {
 	}
 
 	if kind == refAbbreviatedSHA {
-		return "", false, fmt.Errorf(
-			"ref %q looks like an abbreviated commit SHA; use the full 40- or 64-character SHA",
-			ref,
-		)
+		return "", false, abbreviatedSHAError(ref)
 	}
 
 	return ref, true, nil
+}
+
+func abbreviatedSHAError(ref string) error {
+	return fmt.Errorf(
+		"ref %q looks like an abbreviated commit SHA; use the full 40- or 64-character SHA",
+		ref,
+	)
 }
 
 // remoteRefName returns the full name of a branch or tag on remote whose name matches ref, if any.
@@ -83,10 +93,14 @@ func (w *Wrapper) remoteRefName(root, remote, ref string) (string, bool) {
 		return "", false
 	}
 
-	line, _, _ := strings.Cut(out, "\n")
-	_, name, ok := strings.Cut(line, "\t")
+	for line := range strings.SplitSeq(out, "\n") {
+		_, name, ok := strings.Cut(line, "\t")
+		if ok && (name == "refs/heads/"+ref || name == "refs/tags/"+ref) {
+			return name, true
+		}
+	}
 
-	return name, ok
+	return "", false
 }
 
 // refKind describes how a configured ref is interpreted.
@@ -97,6 +111,11 @@ const (
 	refCommitSHA
 	refAbbreviatedSHA
 )
+
+// IsFullCommitSHA reports whether ref is a full commit hash.
+func IsFullCommitSHA(ref string) bool {
+	return refKindOf(ref) == refCommitSHA
+}
 
 // refKindOf classifies ref by its hexadecimal shape.
 func refKindOf(ref string) refKind {

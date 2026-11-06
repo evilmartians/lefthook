@@ -550,7 +550,7 @@ validate:
 			for _, file := range tt.wantNotExist {
 				ok, err := afero.Exists(fs, file)
 				assert.NoError(err)
-				assert.Equal(false, ok)
+				assert.False(ok, file)
 			}
 		})
 	}
@@ -569,6 +569,14 @@ func Test_syncHooks(t *testing.T) {
 	infoPath := func(file string) string {
 		return filepath.Join(root, ".git", "info", file)
 	}
+
+	remotesPath := filepath.Join(root, ".git", "info", "lefthook-remotes")
+	const shaRef = "13d66a090ac6e73f3ff44652761facb02b00e91c"
+	const shaRemoteName = "lefthook-" + shaRef
+	const remoteURL = "https://github.com/evilmartians/lefthook"
+	shaRemotePath := filepath.Join(remotesPath, shaRemoteName)
+	errNotRef := errors.New("no matching ref")
+	errFetch := errors.New("fetch failed")
 
 	for n, tt := range [...]struct {
 		name, config, checksum  string
@@ -781,6 +789,48 @@ remotes:
 			},
 			wantNotExist: []string{
 				filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-v2.0.1"),
+			},
+		},
+		{
+			name: "with commit sha ref and existing unpinned remote",
+			config: `
+remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    ref: 13d66a090ac6e73f3ff44652761facb02b00e91c
+    configs:
+      - lefthook.yml
+`,
+			existingFiles: map[string]string{
+				filepath.Join(remotesPath, "lefthook", "lefthook.yml"): `
+pre-commit:
+  commands:
+    remote:
+      run: echo remote
+`,
+			},
+			git: []cmdtest.Out{
+				{
+					Command: "git ls-remote --refs --exit-code " + remoteURL + " " + shaRef,
+					Err:     errNotRef,
+				},
+				{
+					Command: "git -C " + remotesPath + " init --quiet " + shaRemoteName,
+				},
+				{
+					Command: "git -C " + shaRemotePath + " remote add origin " + remoteURL,
+				},
+				{
+					Command: "git -C " + shaRemotePath + " ls-remote --refs --exit-code origin " + shaRef,
+					Err:     errNotRef,
+				},
+				{
+					Command: "git -C " + shaRemotePath + " fetch --quiet --depth 1 origin -- " + shaRef,
+					Err:     errFetch,
+				},
+			},
+			wantNotExist: []string{
+				hookPath("pre-commit"),
+				filepath.Join(remotesPath, "lefthook"),
 			},
 		},
 	} {

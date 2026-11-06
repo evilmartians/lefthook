@@ -53,7 +53,7 @@ func TestWrapper_Clone(t *testing.T) {
 			args: wrapper.CloneArgs{Root: "/root", Dest: "dest", Url: url, Ref: sha256},
 			outs: []cmdtest.Out{
 				{Command: "git ls-remote --refs --exit-code " + url + " " + sha256, Err: errNotRef},
-				{Command: "git -C /root init --quiet dest"},
+				{Command: "git -C /root init --quiet --object-format=sha256 dest"},
 				{Command: "git -C /root/dest remote add origin " + url},
 			},
 		},
@@ -62,6 +62,14 @@ func TestWrapper_Clone(t *testing.T) {
 			outs: []cmdtest.Out{
 				{Command: "git ls-remote --refs --exit-code " + url + " " + sha1, Output: sha1 + "\trefs/heads/" + sha1},
 				{Command: "git -C /root clone --quiet --origin origin --depth 1 --branch " + sha1 + " " + url + " dest"},
+			},
+		},
+		"with-suffixed-hex-ref-only": {
+			args: wrapper.CloneArgs{Root: "/root", Dest: "dest", Url: url, Ref: sha1},
+			outs: []cmdtest.Out{
+				{Command: "git ls-remote --refs --exit-code " + url + " " + sha1, Output: sha1 + "\trefs/heads/feature/" + sha1},
+				{Command: "git -C /root init --quiet dest"},
+				{Command: "git -C /root/dest remote add origin " + url},
 			},
 		},
 		"with-abbreviated-sha": {

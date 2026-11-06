@@ -2,6 +2,7 @@ package wrapper_test
 
 import (
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/spf13/afero"
@@ -21,9 +22,10 @@ func TestWrapper_Fetch(t *testing.T) {
 	const sha = "13d66a090ac6e73f3ff44652761facb02b00e91c"
 
 	for name, tt := range map[string]struct {
-		ref  string
-		outs []cmdtest.Out
-		err  error
+		ref        string
+		outs       []cmdtest.Out
+		err        error
+		errContain string
 	}{
 		"fetches-and-checkouts": {
 			ref: "main",
@@ -44,7 +46,10 @@ func TestWrapper_Fetch(t *testing.T) {
 		"fetches-hex-branch-by-full-name": {
 			ref: sha,
 			outs: []cmdtest.Out{
-				{Command: "git -C /repo ls-remote --refs --exit-code origin " + sha, Output: sha + "\trefs/heads/" + sha},
+				{
+					Command: "git -C /repo ls-remote --refs --exit-code origin " + sha,
+					Output:  sha + "\trefs/heads/feature/" + sha + "\n" + sha + "\trefs/heads/" + sha,
+				},
 				{Command: "git -C /repo fetch --quiet --depth 1 origin -- refs/heads/" + sha},
 				{Command: "git -C /repo checkout FETCH_HEAD"},
 			},
@@ -57,6 +62,13 @@ func TestWrapper_Fetch(t *testing.T) {
 				{Command: "git -C /repo rev-parse --verify --quiet " + sha + "^{commit}", Err: errRevParse},
 			},
 			err: errRevParse,
+		},
+		"rejects-abbreviated-sha": {
+			ref: "13d66a0",
+			outs: []cmdtest.Out{
+				{Command: "git -C /repo ls-remote --refs --exit-code origin 13d66a0", Err: errNotRef},
+			},
+			errContain: "abbreviated commit SHA",
 		},
 		"fetch-fails": {
 			ref: "main",
@@ -80,8 +92,17 @@ func TestWrapper_Fetch(t *testing.T) {
 
 			err := w.Fetch(tt.ref, "/repo")
 
-			if !errors.Is(err, tt.err) {
-				t.Errorf("wrapper.Fetch() error = %v, want %v", err, tt.err)
+			switch {
+			case tt.err != nil:
+				if !errors.Is(err, tt.err) {
+					t.Errorf("wrapper.Fetch() error = %v, want %v", err, tt.err)
+				}
+			case len(tt.errContain) > 0:
+				if err == nil || !strings.Contains(err.Error(), tt.errContain) {
+					t.Errorf("wrapper.Fetch() error = %v, want it to contain %q", err, tt.errContain)
+				}
+			case err != nil:
+				t.Errorf("wrapper.Fetch() error = %v, want nil", err)
 			}
 		})
 	}

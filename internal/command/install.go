@@ -168,6 +168,13 @@ func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Con
 			}
 			if l.shouldRefetch(remote) {
 				if serr := l.syncRemote(remote.GitURL, remote.Ref, false); serr != nil {
+					// Pinned SHAs must not fall back to a mutable ref.
+					if git.IsFullCommitSHA(remote.Ref) {
+						l.logger.Warnf("Couldn't sync %s %s. Will continue without that remote.", remote.GitURL, remote.Ref)
+						fetchedRemotes[l.repo.RemoteFolder(remote.GitURL, remote.Ref)] = struct{}{}
+						continue
+					}
+
 					ref, err := l.findAvailableRemoteRef(remote.GitURL)
 					if err != nil {
 						l.logger.Warnf("Couldn't sync from %s. Will continue without that remote.", remote.GitURL)

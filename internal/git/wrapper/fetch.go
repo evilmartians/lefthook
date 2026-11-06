@@ -12,8 +12,10 @@ func (w *Wrapper) Fetch(ref, root string) error {
 	if kind := refKindOf(ref); kind != refNamed {
 		if name, ok := w.remoteRefName(root, "origin", ref); ok {
 			fetchRef = name
+		} else if kind == refAbbreviatedSHA {
+			return abbreviatedSHAError(ref)
 		} else {
-			isSHA = kind == refCommitSHA
+			isSHA = true
 		}
 	}
 
