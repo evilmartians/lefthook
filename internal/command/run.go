@@ -51,7 +51,12 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 		return nil
 	}
 
-	waitCacheWarmUp := l.repo.Cache.WarmUp()
+	// Only hooks working with staged files read the cache eagerly; any other
+	// hook computes what it needs on demand.
+	waitCacheWarmUp := func() {}
+	if config.HookUsesStagedFiles(args.Hook) {
+		waitCacheWarmUp = l.repo.Cache.WarmUp(!args.NoStageFixed)
+	}
 	defer waitCacheWarmUp()
 
 	if args.Verbose {
