@@ -210,7 +210,7 @@ func getSourceDirs(repo *git.Repo, cfg *config.Config) []string {
 			sourceDirs = append(
 				sourceDirs,
 				filepath.Join(
-					repo.RemoteFolder(remote.GitURL, remote.Ref),
+					repo.RemoteFolder(remote.DirName(cfg.Remotes)),
 					cfg.SourceDir,
 				),
 			)
