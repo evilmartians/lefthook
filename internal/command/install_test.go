@@ -317,6 +317,30 @@ remotes:
 			},
 		},
 		{
+			name: "with commit sha ref",
+			config: `
+remotes:
+  - git_url: https://github.com/evilmartians/lefthook
+    ref: 13d66a090ac6e73f3ff44652761facb02b00e91c
+    configs:
+      - lefthook.yml
+`,
+			git: []cmdtest.Out{
+				{
+					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes") + " clone --quiet --origin origin --depth 1 https://github.com/evilmartians/lefthook lefthook-13d66a090ac6e73f3ff44652761facb02b00e91c",
+				},
+				{
+					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-13d66a090ac6e73f3ff44652761facb02b00e91c") + " fetch --quiet --depth 1 origin -- 13d66a090ac6e73f3ff44652761facb02b00e91c",
+				},
+				{
+					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-13d66a090ac6e73f3ff44652761facb02b00e91c") + " rev-parse --verify --quiet 13d66a090ac6e73f3ff44652761facb02b00e91c^{commit}",
+				},
+				{
+					Command: "git -C " + filepath.Join(root, ".git", "info", "lefthook-remotes", "lefthook-13d66a090ac6e73f3ff44652761facb02b00e91c") + " checkout FETCH_HEAD",
+				},
+			},
+		},
+		{
 			name: "simple config with ai",
 			config: `
 ai:

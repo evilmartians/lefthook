@@ -414,7 +414,7 @@
         },
         "ref": {
           "type": "string",
-          "description": "An optional *branch* or *tag* name"
+          "description": "An optional *branch*"
         },
         "configs": {
           "items": {
@@ -531,7 +531,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2026.07.03.",
+  "$comment": "Last updated on 2026.11.07.",
   "properties": {
     "min_version": {
       "type": "string",

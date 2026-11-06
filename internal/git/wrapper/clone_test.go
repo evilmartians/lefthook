@@ -32,6 +32,24 @@ func TestWrapper_Clone(t *testing.T) {
 				Command: "git -C /root clone --quiet --origin origin --depth 1 --branch v1.0.0 https://example.com/repo.git dest",
 			},
 		},
+		"with-commit-sha": {
+			args: wrapper.CloneArgs{Root: "/root", Dest: "dest", Url: "https://example.com/repo.git", Ref: "13d66a090ac6e73f3ff44652761facb02b00e91c"},
+			out: cmdtest.Out{
+				Command: "git -C /root clone --quiet --origin origin --depth 1 https://example.com/repo.git dest",
+			},
+		},
+		"with-sha256-commit": {
+			args: wrapper.CloneArgs{Root: "/root", Dest: "dest", Url: "https://example.com/repo.git", Ref: "13d66a090ac6e73f3ff44652761facb02b00e91c13d66a090ac6e73f3ff44652"},
+			out: cmdtest.Out{
+				Command: "git -C /root clone --quiet --origin origin --depth 1 https://example.com/repo.git dest",
+			},
+		},
+		"with-abbreviated-sha-treated-as-ref": {
+			args: wrapper.CloneArgs{Root: "/root", Dest: "dest", Url: "https://example.com/repo.git", Ref: "13d66a0"},
+			out: cmdtest.Out{
+				Command: "git -C /root clone --quiet --origin origin --depth 1 --branch 13d66a0 https://example.com/repo.git dest",
+			},
+		},
 		"clone-fails": {
 			args: wrapper.CloneArgs{Root: "/root", Dest: "dest", Url: "https://example.com/repo.git"},
 			out: cmdtest.Out{
