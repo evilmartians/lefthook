@@ -3,6 +3,7 @@ package command
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -121,7 +122,7 @@ func (l *Lefthook) isLefthookFile(path string) bool {
 // Removes the hook from hooks path, saving non-lefthook hooks with .old suffix.
 func (l *Lefthook) cleanHook(hook string, force bool) error {
 	hookPath := filepath.Join(l.repo.Paths.Hooks, hook)
-	exists, err := afero.Exists(l.fs, hookPath)
+	exists, err := l.lexists(hookPath)
 	if err != nil {
 		return err
 	}
@@ -135,7 +136,7 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 	}
 
 	// Check if .old file already exists before renaming.
-	exists, err = afero.Exists(l.fs, hookPath+oldHookPostfix)
+	exists, err = l.lexists(hookPath + oldHookPostfix)
 	if err != nil {
 		return err
 	}
@@ -154,6 +155,23 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 
 	l.logger.Infof("Renamed %s to %s.old\n", hookPath, hookPath)
 	return nil
+}
+
+// Checks if the path exists without following symlinks.
+func (l *Lefthook) lexists(path string) (bool, error) {
+	var err error
+	if lfs, ok := l.fs.(afero.Lstater); ok {
+		_, _, err = lfs.LstatIfPossible(path)
+	} else {
+		_, err = l.fs.Stat(path)
+	}
+	if err == nil {
+		return true, nil
+	}
+	if errors.Is(err, os.ErrNotExist) {
+		return false, nil
+	}
+	return false, err
 }
 
 // Creates a hook file using hook template.
