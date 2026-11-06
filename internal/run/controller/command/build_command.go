@@ -50,7 +50,7 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 
 	// Skip if no files were staged (including deleted)
 	//nolint:nestif
-	if config.HookUsesStagedFiles(b.opts.HookName) {
+	if config.HookFallsBackToStagedFiles(b.opts.HookName) {
 		files, err := replacer.Files(config.SubStagedFiles, filter)
 		if err != nil {
 			return nil, nil, err
