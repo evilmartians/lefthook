@@ -1,5 +1,7 @@
 package wrapper
 
+import "slices"
+
 var cmdPushFilesBase = []string{
 	"git", "diff", "--name-only", "HEAD", "@{push}",
 }
@@ -20,10 +22,29 @@ var cmdLsTreeFilesHead = []string{
 // 2. Trying to compare current HEAD with origin/<current-branch>
 // 3. Returning all files known to Git.
 func (w *Wrapper) PushFiles() ([]string, error) {
+	lines, err := w.pushFilepaths()
+	if err != nil {
+		return nil, err
+	}
+
+	return w.existingFilepaths(lines), nil
+}
+
+// PushFilesWithDeleted includes paths removed from the working tree.
+func (w *Wrapper) PushFilesWithDeleted() ([]string, error) {
+	lines, err := w.pushFilepaths()
+	if err != nil {
+		return nil, err
+	}
+
+	return slices.Collect(unquoted(trimmed(slices.Values(lines)))), nil
+}
+
+func (w *Wrapper) pushFilepaths() ([]string, error) {
 	// Upstream can be unset, do not log the failure as an error
 	lines, err := w.cmd.OnlyDebugLogs().cmdLines(cmdPushFilesBase)
 	if err == nil { // ignoring error for best effort
-		return w.existingFilepaths(lines), nil
+		return lines, nil
 	}
 
 	if len(w.cache.headBranch) == 0 {
@@ -33,10 +54,10 @@ func (w *Wrapper) PushFiles() ([]string, error) {
 	if len(w.cache.headBranch) != 0 {
 		lines, err = w.cmd.OnlyDebugLogs().cmdLines(append(cmdPushFilesHead, w.cache.headBranch+"...HEAD", "--"))
 		if err == nil { // ignoring error for best effort
-			return w.existingFilepaths(lines), nil
+			return lines, nil
 		}
 	}
 
 	// Nothing has been pushed yet or upstream is not set
-	return w.Files(cmdLsTreeFilesHead)
+	return w.cmd.cmdLines(cmdLsTreeFilesHead)
 }
