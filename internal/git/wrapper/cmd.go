@@ -3,6 +3,7 @@ package wrapper
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -28,6 +29,9 @@ type Cmd struct {
 
 	// Do not trim leading and ending spaces
 	noTrimOut bool
+
+	// Attach a terminal to git clone, fetch, and pull of config remotes.
+	remoteStdin bool
 }
 
 // NewCmd returns an object that executes given commands in the OS.
@@ -52,6 +56,15 @@ func (c Cmd) OnlyDebugLogs() Cmd {
 
 func (c Cmd) WithoutTrim() Cmd {
 	c.noTrimOut = true
+	return c
+}
+
+// WithRemoteStdin attaches a terminal to this command so git can ask for an
+// SSH key passphrase. Other git commands keep a discarded stdin: lefthook run
+// also syncs remotes, and the hook's stdin must stay available.
+func (c Cmd) WithRemoteStdin() Cmd {
+	c.remoteStdin = true
+
 	return c
 }
 
@@ -112,11 +125,24 @@ func (c Cmd) execute(cmd []string, root string) (string, error) {
 		c.mu.Lock()
 		defer c.mu.Unlock()
 	}
+	in := io.Reader(system.NullReader)
+	cleanup := func() {}
+	if c.remoteStdin {
+		in, cleanup = remoteStdin()
+	}
+	defer cleanup()
+
 	stdout := new(bytes.Buffer)
-	stderr := new(bytes.Buffer)
-	err := c.command.Run(cmd, root, system.NullReader, stdout, stderr)
+	stderrBuf := new(bytes.Buffer)
+	var stderr io.Writer = stderrBuf
+	if c.remoteStdin {
+		// A passphrase prompt written to stderr stays invisible until git
+		// exits, which it will not do while it is waiting for that prompt.
+		stderr = stderrForRemote(in, stderrBuf)
+	}
+	err := c.command.Run(cmd, root, in, stdout, stderr)
 	outString := stdout.String()
-	errString := stderr.String()
+	errString := stderrBuf.String()
 
 	logger.NewBuilder(c.logger).
 		WithLevel(logger.LevelDebug).

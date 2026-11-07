@@ -636,10 +636,25 @@ func (l *Lefthook) syncRemote(url, ref string, force bool) error {
 		_, err = l.repo.Fs.Stat(remotePath)
 		if err == nil {
 			l.logger.Debugf("Updating remote config repository: %s", remotePath)
-			return l.repo.UpdateRemote(remotePath, ref)
+
+			return l.withoutRemoteSpinner(func() error {
+				return l.repo.UpdateRemote(remotePath, ref)
+			})
 		}
 	}
 
 	l.logger.Debugf("Cloning remote config repository: %v/%v", remotePath, directoryName)
-	return l.repo.CloneRemote(remotesPath, directoryName, url, ref)
+
+	return l.withoutRemoteSpinner(func() error {
+		return l.repo.CloneRemote(remotesPath, directoryName, url, ref)
+	})
+}
+
+// withoutRemoteSpinner pauses the status spinner while git may prompt.
+// The spinner redraws the terminal line and hides an SSH passphrase prompt.
+func (l *Lefthook) withoutRemoteSpinner(fetch func() error) error {
+	l.logger.Spinner.Stop()
+	defer l.logger.Spinner.Start()
+
+	return fetch()
 }
