@@ -30,8 +30,9 @@ type Cmd struct {
 	// Do not trim leading and ending spaces
 	noTrimOut bool
 
-	// Attach a terminal to git clone, fetch, and pull of config remotes.
-	remoteStdin bool
+	// Copy stderr to the terminal while clone, fetch, or pull of a config
+	// remote is still running.
+	streamStderr bool
 }
 
 // NewCmd returns an object that executes given commands in the OS.
@@ -59,11 +60,12 @@ func (c Cmd) WithoutTrim() Cmd {
 	return c
 }
 
-// WithRemoteStdin attaches a terminal to this command so git can ask for an
-// SSH key passphrase. Other git commands keep a discarded stdin: lefthook run
-// also syncs remotes, and the hook's stdin must stay available.
-func (c Cmd) WithRemoteStdin() Cmd {
-	c.remoteStdin = true
+// WithRemoteStderr copies this command's stderr to the terminal as it is
+// written, so a passphrase prompt is visible before git exits. Stdin stays
+// discarded: OpenSSH reads the passphrase from /dev/tty, and lefthook run must
+// not consume the hook's stdin.
+func (c Cmd) WithRemoteStderr() Cmd {
+	c.streamStderr = true
 
 	return c
 }
@@ -125,22 +127,15 @@ func (c Cmd) execute(cmd []string, root string) (string, error) {
 		c.mu.Lock()
 		defer c.mu.Unlock()
 	}
-	in := io.Reader(system.NullReader)
-	cleanup := func() {}
-	if c.remoteStdin {
-		in, cleanup = remoteStdin()
-	}
-	defer cleanup()
-
 	stdout := new(bytes.Buffer)
 	stderrBuf := new(bytes.Buffer)
-	var stderr io.Writer = stderrBuf
-	if c.remoteStdin {
-		// A passphrase prompt written to stderr stays invisible until git
-		// exits, which it will not do while it is waiting for that prompt.
-		stderr = stderrForRemote(in, stderrBuf)
+	stderr := io.Writer(stderrBuf)
+	if c.streamStderr {
+		// A prompt written to stderr stays invisible until git exits, which
+		// it will not do while it is waiting for that prompt.
+		stderr = remoteStderr(stderrBuf)
 	}
-	err := c.command.Run(cmd, root, in, stdout, stderr)
+	err := c.command.Run(cmd, root, system.NullReader, stdout, stderr)
 	outString := stdout.String()
 	errString := stderrBuf.String()
 

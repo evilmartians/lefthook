@@ -651,7 +651,8 @@ func (l *Lefthook) syncRemote(url, ref string, force bool) error {
 }
 
 // withoutRemoteSpinner pauses the status spinner while git may prompt.
-// The spinner redraws the terminal line and hides an SSH passphrase prompt.
+// The spinner redraws the terminal line and covers the passphrase prompt
+// OpenSSH writes to /dev/tty.
 func (l *Lefthook) withoutRemoteSpinner(fetch func() error) error {
 	l.logger.Spinner.Stop()
 	defer l.logger.Spinner.Start()
