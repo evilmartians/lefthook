@@ -5,7 +5,7 @@ title: "use_stdin"
 # `use_stdin`
 
 ::: callout info Note
-For `pre-push` hooks invoked by Git, each stdin-enabled command or script receives its own copy of the ref-update lines. For other hooks, stdin is shared: with multiple stdin-enabled commands or scripts, only one will receive the data.
+For `pre-push` hooks invoked by Git, each stdin-enabled command or script receives its own copy of the ref-update lines. For other hooks, stdin remains shared between stdin-enabled commands and scripts.
 :::
 
 Pass the stdin from the OS to the command/script.
