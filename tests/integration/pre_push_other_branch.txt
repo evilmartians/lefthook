@@ -1,0 +1,57 @@
+[windows] skip
+
+exec git init -b main
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+exec git commit -m initial
+exec git init --bare ../other-branch.git
+exec git remote add origin ../other-branch.git
+exec git push -u origin main
+exec git --git-dir ../other-branch.git symbolic-ref HEAD refs/heads/main
+exec git remote set-head origin main
+
+exec git checkout -b feature
+exec git push -u origin feature
+cp change.txt pushed.txt
+exec git add pushed.txt
+exec git commit -m feature
+exec git checkout main
+
+exec lefthook install
+exec git push origin feature
+stdout 'FILES pushed.txt'
+stdout 'CHECKED'
+! stdout 'skip.*no files'
+
+# A new branch is compared with the remote default branch, not main's
+# unrelated unpushed commit.
+cp change.txt unrelated.txt
+exec git add unrelated.txt
+exec git commit -m unrelated
+exec git checkout -b third origin/main
+cp change.txt third.txt
+exec git add third.txt
+exec git commit -m third
+exec git checkout main
+exec git push origin third
+stdout 'FILES third.txt'
+! stdout 'FILES.*unrelated.txt'
+stdout 'CHECKED'
+
+# Tags can point to objects without a file tree.
+exec git tag blob HEAD:change.txt
+exec git push origin blob
+! stdout 'FILES'
+
+-- lefthook.yml --
+output:
+  - execution_out
+
+pre-push:
+  jobs:
+    - run: echo FILES {push_files}
+    - run: echo CHECKED
+
+-- change.txt --
+feature

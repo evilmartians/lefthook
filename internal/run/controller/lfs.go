@@ -19,7 +19,7 @@ func (c *Controller) runLFSHook(ctx context.Context, hookName string, args []str
 	}
 
 	// Skip running git-lfs for pre-push hook when triggered manually
-	if len(args) == 0 && hookName == "pre-push" {
+	if len(args) == 0 && hookName == prePushHook {
 		return nil
 	}
 
@@ -56,9 +56,9 @@ func (c *Controller) runLFSHook(ctx context.Context, hookName string, args []str
 	out := new(bytes.Buffer)
 	errOut := new(bytes.Buffer)
 	var stdin io.Reader
-	if hookName == "pre-push" {
+	if hookName == prePushHook {
 		// Git LFS reads ref updates from stdin for pre-push only.
-		stdin = c.cachedStdin
+		stdin = c.stdin()
 	}
 	err = c.cmd.RunWithContext(
 		ctx,

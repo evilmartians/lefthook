@@ -5,10 +5,14 @@ title: "use_stdin"
 # `use_stdin`
 
 ::: callout info Note
-With many commands or scripts having `use_stdin: true`, only one will receive the data. The others will have nothing. If you need to pass the data from stdin to every command or script, please, submit a [feature request](https://github.com/evilmartians/lefthook/issues/new?assignees=&labels=feature+request&projects=&template=feature_request.md).
+For `pre-push` hooks invoked by Git, each stdin-enabled command or script receives its own copy of the ref-update lines. For other hooks, stdin remains shared between stdin-enabled commands and scripts.
 :::
 
 Pass the stdin from the OS to the command/script.
+
+A `pre-push` command that reads refs directly can omit file templates and file
+filters to receive deletion-only pushes too. See [`run`](./run.md) for file-based
+skipping.
 
 #### Example
 

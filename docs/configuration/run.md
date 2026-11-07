@@ -67,6 +67,24 @@ pre-commit:
 
 If you want to lint files only before pushing them.
 
+When Git invokes `pre-push`, `{push_files}` uses the ref updates supplied by Git,
+including branches other than the checked-out branch. Multiple ref updates are
+combined without duplicate paths. Deleted files and deleted refs are excluded.
+
+For a new remote ref, Lefthook compares the pushed commit with the remote's
+default branch when its local tracking ref is available. If the comparison base
+is unavailable, it uses all files in the pushed tree. Running
+`lefthook run pre-push` without Git arguments keeps the current-branch fallback.
+
+Commands still run in the current working tree; Lefthook does not check out the
+pushed refs. Paths from another branch may therefore be absent locally.
+
+A command with `use_stdin: true` and no file templates or file filters also runs
+when the pushed refs have no file changes, including deletion-only pushes. It
+receives the original ref-update lines so it can guard remote branch deletion.
+Explicit file templates and filters retain their normal file-based skipping.
+
+
 ```yml
 # lefthook.yml
 

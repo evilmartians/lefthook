@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"path/filepath"
 	"regexp"
@@ -16,8 +17,10 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/exec"
 	"github.com/evilmartians/lefthook/v2/internal/run/result"
+	"github.com/evilmartians/lefthook/v2/internal/system"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/cmdtest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/configtest"
+	"github.com/evilmartians/lefthook/v2/tests/helpers/exectest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/gittest"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/loggertest"
 )
@@ -693,5 +696,58 @@ func TestRunAll(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestController_RunHookPushStdin(t *testing.T) {
+	repo := gittest.NewRepositoryBuilder().
+		Root(t.TempDir()).
+		Fs(afero.NewMemMapFs()).
+		Cmd(cmdtest.NewSpyCmd(nil)).
+		Build()
+	controller := NewController(repo, loggertest.NewExecution())
+	payload := "refs/heads/main " + strings.Repeat("a", 40) + " refs/heads/main " + strings.Repeat("b", 40) + "\n"
+	controller.cachedStdin = strings.NewReader(payload)
+
+	var got []string
+	var calls, commands int
+	controller.executor = exectest.ExecutorFunc(func(_ context.Context, opts exec.Options, in io.Reader, _ io.Writer) error {
+		calls++
+		commands = len(opts.Commands)
+		for range opts.Commands {
+			data, err := io.ReadAll(in)
+			if err != nil {
+				return fmt.Errorf("read job stdin: %w", err)
+			}
+			got = append(got, string(data))
+		}
+		return nil
+	})
+
+	files := make([]string, 0, system.MaxCmdLen()/100+2)
+	for i := range system.MaxCmdLen()/100 + 2 {
+		files = append(files, fmt.Sprintf("%05d-%s.txt", i, strings.Repeat("f", 100)))
+	}
+	hook := configtest.ParseHook("jobs:\n  - run: inspect {push_files}\n    use_stdin: true\n")
+	hook.Name = "pre-push"
+	results, err := controller.RunHook(t.Context(), Options{
+		GitArgs:    []string{"origin", "remote"},
+		Files:      files,
+		SkipLFS:    true,
+		DisableTTY: true,
+	}, hook)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if calls != 1 || commands < 2 || len(got) != commands {
+		t.Fatalf("execution = %d calls, %d commands, %d reads; want one split job", calls, commands, len(got))
+	}
+	for i, input := range got {
+		if input != payload {
+			t.Errorf("command %d stdin = %q, want %q", i, input, payload)
+		}
+	}
+	if len(results) != 1 || !results[0].Success() {
+		t.Errorf("RunHook() results = %v, want one successful job", results)
 	}
 }

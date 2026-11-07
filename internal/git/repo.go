@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+	"sync"
 
 	"github.com/spf13/afero"
 
@@ -27,11 +28,12 @@ type Paths = wrapper.Paths
 
 // Repo is a Git repository controller.
 type Repo struct {
-	Fs      afero.Fs
-	wrapper Wrapper
-	Paths   *Paths
-	Cache   *Cache
-	logger  *logger.Logger
+	Fs        afero.Fs
+	wrapper   Wrapper
+	Paths     *Paths
+	Cache     *Cache
+	logger    *logger.Logger
+	pushFiles func() ([]string, error)
 }
 
 type Wrapper interface {
@@ -64,6 +66,9 @@ type Wrapper interface {
 
 	// PushFiles returns the files that differ in local branch and the upstream branch
 	PushFiles() ([]string, error)
+
+	// PushFilesFromRefs returns files changed by Git pre-push ref updates.
+	PushFilesFromRefs(string, string) ([]string, error)
 
 	// FilesByCommandRelative accepts user command and a dir, and returns existing files by its response
 	FilesByCommandRelative(string, string) ([]string, error)
@@ -210,6 +215,9 @@ func (r *Repo) AllFiles() ([]string, error) {
 
 // PushFiles returns a list of files that are ready to be pushed.
 func (r *Repo) PushFiles() ([]string, error) {
+	if r.pushFiles != nil {
+		return r.pushFiles()
+	}
 	return r.wrapper.PushFiles()
 }
 
@@ -385,4 +393,13 @@ func (r *Repo) FilesByCommandRelative(command string, dir string) ([]string, err
 
 func (r *Repo) State() wrapper.State {
 	return r.Cache.stateOnce()
+}
+
+// WithPushRefs returns a repository using the actual refs supplied by Git pre-push.
+func (r *Repo) WithPushRefs(remote, input string) *Repo {
+	repo := *r
+	repo.pushFiles = sync.OnceValues(func() ([]string, error) {
+		return r.wrapper.PushFilesFromRefs(remote, input)
+	})
+	return &repo
 }

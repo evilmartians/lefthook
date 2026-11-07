@@ -13,6 +13,7 @@ type StubWrapper struct {
 	StagedFilesFunc               func() ([]string, error)
 	StagedFilesWithDeletedFunc    func() ([]string, error)
 	PushFilesFunc                 func() ([]string, error)
+	PushFilesFromRefsFunc         func(string, string) ([]string, error)
 	FilesByCommandRelativeFunc    func(string, string) ([]string, error)
 	StatusShortFunc               func() ([]wrapper.FileStatus, error)
 	DiffFunc                      func([]string, bool) (string, error)
@@ -70,3 +71,7 @@ func (w *StubWrapper) State() wrapper.State                     { return w.State
 func (w *StubWrapper) Clone(a wrapper.CloneArgs) error          { return w.CloneFunc(a) }
 func (w *StubWrapper) Pull(s string) error                      { return w.PullFunc(s) }
 func (w *StubWrapper) Fetch(a string, b string) error           { return w.FetchFunc(a, b) }
+
+func (w *StubWrapper) PushFilesFromRefs(remote, input string) ([]string, error) {
+	return w.PushFilesFromRefsFunc(remote, input)
+}
