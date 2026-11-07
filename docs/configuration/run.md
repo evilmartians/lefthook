@@ -79,6 +79,11 @@ is unavailable, it uses all files in the pushed tree. Running
 Commands still run in the current working tree; Lefthook does not check out the
 pushed refs. Paths from another branch may therefore be absent locally.
 
+A command with `use_stdin: true` and no file templates or file filters also runs
+when the pushed refs have no file changes, including deletion-only pushes. It
+receives the original ref-update lines so it can guard remote branch deletion.
+Explicit file templates and filters retain their normal file-based skipping.
+
 
 ```yml
 # lefthook.yml

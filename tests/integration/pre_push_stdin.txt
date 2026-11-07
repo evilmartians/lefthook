@@ -20,6 +20,47 @@ cmp expected lfs.stdin
 cmp expected first.stdin
 cmp expected second.stdin
 
+# Stdin-only jobs receive updates for a branch that is not checked out.
+exec git --git-dir ../push-stdin.git symbolic-ref HEAD refs/heads/main
+exec git remote set-head origin main
+exec git checkout -b feature
+cp content.txt feature.txt
+exec git add feature.txt
+exec git commit -m feature
+exec git checkout main
+exec sh -c 'printf "refs/heads/feature %s refs/heads/feature %040d\n" "$(git rev-parse feature)" 0 > expected'
+exec git push origin feature
+cmp expected lfs.stdin
+cmp expected first.stdin
+cmp expected second.stdin
+
+# A stdin-only guard must reject a ref deletion regardless of whether the
+# checked-out branch has an unpushed commit.
+cp deletion-guard.yml lefthook.yml
+exec sh -c 'printf "(delete) %040d refs/heads/feature %s\n" 0 "$(git rev-parse feature)" > expected'
+! exec git push origin :feature
+stdout 'PROTECTED refs/heads/feature'
+cmp expected guard.stdin
+! exists plain.ran
+! exists files.ran
+! exists filtered.stdin
+! exists custom.stdin
+exec sh -c 'git rev-parse feature > expected-head; git --git-dir ../push-stdin.git rev-parse refs/heads/feature > actual-head'
+cmp expected-head actual-head
+
+cp content.txt unrelated.txt
+exec git add unrelated.txt
+exec git commit -m unrelated
+! exec git push origin :feature
+stdout 'PROTECTED refs/heads/feature'
+cmp expected guard.stdin
+! exists plain.ran
+! exists files.ran
+! exists filtered.stdin
+! exists custom.stdin
+exec sh -c 'git --git-dir ../push-stdin.git rev-parse refs/heads/feature > actual-head'
+cmp expected-head actual-head
+
 -- lefthook.yml --
 output:
   - execution_out
@@ -39,3 +80,29 @@ fi
 
 -- content.txt --
 content
+
+-- deletion-guard.yml --
+output:
+  - execution_out
+pre-push:
+  jobs:
+    - run: echo PLAIN > plain.ran
+    - run: echo {push_files} > files.ran
+    - run: cat > filtered.stdin
+      use_stdin: true
+      glob: '*.md'
+    - run: cat > custom.stdin
+      use_stdin: true
+      files: 'printf ""'
+    - run: sh guard.sh
+      use_stdin: true
+
+-- guard.sh --
+#!/bin/sh
+cat > guard.stdin
+while read -r local_ref local_oid remote_ref remote_oid; do
+  if [ "$local_oid" = 0000000000000000000000000000000000000000 ]; then
+    echo "PROTECTED $remote_ref"
+    exit 1
+  fi
+done < guard.stdin
