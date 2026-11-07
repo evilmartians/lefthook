@@ -573,6 +573,10 @@ module.exports = {
               path: "/usage/envs/LEFTHOOK_EXCLUDE"
             },
             {
+              title: "LEFTHOOK_NO_AUTO_INSTALL",
+              path: "/usage/envs/LEFTHOOK_NO_AUTO_INSTALL"
+            },
+            {
               title: "CLICOLOR_FORCE",
               path: "/usage/envs/CLICOLOR_FORCE"
             },
