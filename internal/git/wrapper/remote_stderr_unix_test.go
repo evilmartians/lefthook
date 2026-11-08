@@ -3,8 +3,8 @@
 package wrapper
 
 import (
-	"bytes"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -59,7 +59,7 @@ func TestClone_passphrasePromptVisibleBeforeGitExits(t *testing.T) {
 	}()
 	select {
 	case text := <-got:
-		if !bytes.Contains([]byte(text), []byte("Enter passphrase for key:")) {
+		if !strings.Contains(text, "Enter passphrase for key:") {
 			t.Fatalf("prompt not visible before git exits: %q", text)
 		}
 	case <-time.After(promptWait):
