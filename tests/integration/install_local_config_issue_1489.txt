@@ -1,0 +1,11 @@
+exec git init
+exec lefthook install
+! exists lefthook.yml
+exists .git/hooks/pre-commit
+exec lefthook check-install
+! stderr .
+
+-- lefthook-local.yml --
+pre-commit:
+  jobs:
+    - run: echo hello, test
