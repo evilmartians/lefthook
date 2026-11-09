@@ -322,6 +322,9 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, hooks []string, force
 		}
 
 		if _, ok := config.AvailableHooks[hook]; !ok && !cfg.InstallNonGitHooks {
+			if err = l.removeHook(hook); err != nil {
+				return fmt.Errorf("could not remove the hook: %w", err)
+			}
 			continue
 		}
 
@@ -479,9 +482,7 @@ func (l *Lefthook) addChecksumFile(checksum string, hooks []string) error {
 		return fmt.Errorf("unable to get config update timestamp: %w", err)
 	}
 
-	return afero.WriteFile(
-		l.fs, l.checksumFilePath(), templates.Checksum(checksum, timestamp, hooks), checksumFileMode,
-	)
+	return l.writeFileAtomic(l.checksumFilePath(), templates.Checksum(checksum, timestamp, hooks), checksumFileMode)
 }
 
 func (l *Lefthook) checksumFilePath() string {
