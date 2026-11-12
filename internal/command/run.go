@@ -20,8 +20,9 @@ import (
 )
 
 const (
-	envEnabled = "LEFTHOOK"        // "0", "false"
-	envOutput  = "LEFTHOOK_OUTPUT" // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
+	envEnabled       = "LEFTHOOK"                 // "0", "false"
+	envOutput        = "LEFTHOOK_OUTPUT"          // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
+	envNoAutoInstall = "LEFTHOOK_NO_AUTO_INSTALL" // "1", "true"; "0", "false" keep auto-install
 )
 
 var errPipedAndParallelSet = errors.New("conflicting options 'piped' and 'parallel' are set to 'true', remove one of this option from hook group")
@@ -97,7 +98,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 		exLogger.LogMeta(args.Hook)
 	}
 
-	if !args.NoAutoInstall && !cfg.NoAutoInstall {
+	if !args.NoAutoInstall && !cfg.NoAutoInstall && !isEnvEnabled(envNoAutoInstall) {
 		// This line controls updating the git hook if config has changed
 		var newCfg *config.Config
 		newCfg, err = l.syncHooks(cfg, !isGhostHook)

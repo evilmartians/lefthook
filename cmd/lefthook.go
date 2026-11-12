@@ -16,6 +16,8 @@ func Lefthook() *cli.Command {
 
 LEFTHOOK          set to '0' or 'false' to disable lefthook execution
 LEFTHOOK_CONFIG   override main config path
+LEFTHOOK_NO_AUTO_INSTALL
+                  set to '1' or 'true' to disable hooks synchronization
 LEFTHOOK_OUTPUT   control printed sections (see config option 'output')
 LEFTHOOK_VERBOSE  enable debug logs`,
 		EnableShellCompletion: true,
