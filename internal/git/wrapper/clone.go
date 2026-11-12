@@ -9,7 +9,7 @@ type CloneArgs struct {
 
 func (w *Wrapper) Clone(args CloneArgs) error {
 	// This is overwriting ENVs for worktrees, otherwise it does not work.
-	git := w.cmd.WithoutEnvs("GIT_DIR", "GIT_INDEX_FILE").OnlyDebugLogs()
+	git := w.cmd.WithoutEnvs("GIT_DIR", "GIT_INDEX_FILE").OnlyDebugLogs().WithRemoteStderr()
 
 	cmdClone := []string{"git", "-C", args.Root, "clone", "--quiet", "--origin", "origin", "--depth", "1"}
 	if len(args.Ref) > 0 {

@@ -3,6 +3,7 @@ package wrapper
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -28,6 +29,10 @@ type Cmd struct {
 
 	// Do not trim leading and ending spaces
 	noTrimOut bool
+
+	// Copy stderr to the terminal while clone, fetch, or pull of a config
+	// remote is still running.
+	streamStderr bool
 }
 
 // NewCmd returns an object that executes given commands in the OS.
@@ -52,6 +57,16 @@ func (c Cmd) OnlyDebugLogs() Cmd {
 
 func (c Cmd) WithoutTrim() Cmd {
 	c.noTrimOut = true
+	return c
+}
+
+// WithRemoteStderr copies this command's stderr to the terminal as it is
+// written, so a passphrase prompt is visible before git exits. Stdin stays
+// discarded: OpenSSH reads the passphrase from /dev/tty, and lefthook run must
+// not consume the hook's stdin.
+func (c Cmd) WithRemoteStderr() Cmd {
+	c.streamStderr = true
+
 	return c
 }
 
@@ -113,10 +128,16 @@ func (c Cmd) execute(cmd []string, root string) (string, error) {
 		defer c.mu.Unlock()
 	}
 	stdout := new(bytes.Buffer)
-	stderr := new(bytes.Buffer)
+	stderrBuf := new(bytes.Buffer)
+	stderr := io.Writer(stderrBuf)
+	if c.streamStderr {
+		// A prompt written to stderr stays invisible until git exits, which
+		// it will not do while it is waiting for that prompt.
+		stderr = remoteStderr(stderrBuf)
+	}
 	err := c.command.Run(cmd, root, system.NullReader, stdout, stderr)
 	outString := stdout.String()
-	errString := stderr.String()
+	errString := stderrBuf.String()
 
 	logger.NewBuilder(c.logger).
 		WithLevel(logger.LevelDebug).
