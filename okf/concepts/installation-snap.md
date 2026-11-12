@@ -6,7 +6,7 @@ path: /installation/snap/
 updated: 2026-11-12
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-12T12:55:37.313Z"
+  generated_at: "2026-11-12T12:57:45.996Z"
 ---
 ---
 title: "Snap"
