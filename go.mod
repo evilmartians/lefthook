@@ -1,6 +1,6 @@
 module github.com/evilmartians/lefthook/v2
 
-go 1.27.0
+go 1.27.4
 
 require (
 	al.essio.dev/pkg/shellescape v1.6.1
