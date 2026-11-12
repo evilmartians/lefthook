@@ -781,7 +781,7 @@ func TestShouldRefetch(t *testing.T) {
 
 	configPath := filepath.Join(root, "lefthook.yml")
 	fetchHeadPath := func(lefthook *Lefthook, remote *config.Remote) string {
-		remotePath := lefthook.repo.RemoteFolder(remote.GitURL, remote.Ref)
+		remotePath := lefthook.repo.RemoteFolder(remote.DirName([]*config.Remote{remote}))
 		return filepath.Join(remotePath, ".git", "FETCH_HEAD")
 	}
 
@@ -864,16 +864,16 @@ remotes:
 
 			remote := cfg.Remotes[0]
 
-			assert.Equal(lefthook.shouldRefetch(remote), tt.shouldRefetchInitially)
+			assert.Equal(lefthook.shouldRefetch(remote, []*config.Remote{remote}), tt.shouldRefetchInitially)
 
 			assert.NoError(afero.WriteFile(fs, fetchHeadPath(lefthook, remote), []byte(""), 0o644))
 			firstFetchTime := time.Now().Add(-2 * time.Minute)
 
 			assert.NoError(fs.Chtimes(fetchHeadPath(lefthook, remote), firstFetchTime, firstFetchTime))
-			assert.Equal(lefthook.shouldRefetch(remote), tt.shouldRefetchAfter)
+			assert.Equal(lefthook.shouldRefetch(remote, []*config.Remote{remote}), tt.shouldRefetchAfter)
 
 			assert.NoError(fs.Chtimes(fetchHeadPath(lefthook, remote), firstFetchTime, time.Now()))
-			assert.Equal(lefthook.shouldRefetch(remote), tt.shouldRefetchBefore)
+			assert.Equal(lefthook.shouldRefetch(remote, []*config.Remote{remote}), tt.shouldRefetchBefore)
 		})
 	}
 }

@@ -11,11 +11,8 @@ const remotesFolder = "lefthook-remotes"
 
 // RemoteFolder returns the path to the folder where the remote
 // repository is located.
-func (r *Repo) RemoteFolder(url string, ref string) string {
-	return filepath.Join(
-		r.RemotesFolder(),
-		RemoteDirectoryName(url, ref),
-	)
+func (r *Repo) RemoteFolder(dirName string) string {
+	return filepath.Join(r.RemotesFolder(), dirName)
 }
 
 // RemotesFolder returns the path to the lefthook remotes folder.
@@ -55,10 +52,17 @@ func (r *Repo) CloneRemote(root, dest, url, ref string) error {
 	return nil
 }
 
-func RemoteDirectoryName(url, ref string) string {
+// RemoteDirectoryName builds the checkout directory name from the repository
+// name in url and the ref. A non-empty uniq is added after the repository
+// name to tell apart remotes whose URLs end with the same name.
+func RemoteDirectoryName(url, ref, uniq string) string {
 	name := filepath.Base(
 		strings.TrimSuffix(url, filepath.Ext(url)),
 	)
+
+	if uniq != "" {
+		name = name + "-" + uniq
+	}
 
 	if ref != "" {
 		// A ref containing a path separator (e.g. a branch named
