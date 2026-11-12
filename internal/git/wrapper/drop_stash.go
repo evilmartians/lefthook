@@ -1,10 +1,13 @@
 package wrapper
 
-import "regexp"
+import (
+	"regexp"
+	"strings"
+)
 
 var (
-	cmdListStash   = []string{"git", "stash", "list"}
-	reStashMessage = regexp.MustCompile(`^(?P<stash>[^ ]+):\s*` + stashMessage)
+	cmdListStash   = []string{"git", "stash", "list", "--format=%gd %H %gs"}
+	reStashMessage = regexp.MustCompile(`^(?P<stash>[^ ]+) (?P<hash>[^ ]+) (?P<message>.*)$`)
 )
 
 func (w *Wrapper) DropStash() error {
@@ -20,16 +23,34 @@ func (w *Wrapper) DropStash() error {
 			continue
 		}
 
-		stashID := reStashMessage.SubexpIndex("stash")
+		stash := matches[reStashMessage.SubexpIndex("stash")]
+		hash := matches[reStashMessage.SubexpIndex("hash")]
+		message := matches[reStashMessage.SubexpIndex("message")]
 
-		if len(matches[stashID]) > 0 {
+		if len(w.cache.backupStashHash) > 0 {
+			if w.cache.backupStashHash == hash {
+				_, err := w.cmd.cmd([]string{
+					"git",
+					"stash",
+					"drop",
+					"--quiet",
+					"--",
+					stash,
+				})
+				return err
+			}
+
+			continue
+		}
+
+		if strings.Contains(message, stashMessage) {
 			_, err := w.cmd.cmd([]string{
 				"git",
 				"stash",
 				"drop",
 				"--quiet",
 				"--",
-				matches[stashID],
+				stash,
 			})
 			if err != nil {
 				return err

@@ -19,6 +19,12 @@ var pathsOut = cmdtest.Out{
 	Output:  "/repo\n/repo/.git/hooks\n/repo/.git/info/\n/repo/.git\n/repo/.git\n",
 }
 
+// worktreePathsOut answers wrapper.Paths() call with paths of a git worktree "feature" of a repository in /repo.
+var worktreePathsOut = cmdtest.Out{
+	Command: pathsOut.Command,
+	Output:  "/repo-feature\n/repo/.git/hooks\n/repo/.git/info/\n/repo/.git/worktrees/feature\n/repo/.git\n",
+}
+
 func TestWrapper_Paths(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	errPaths := errors.New("rev-parse failed")

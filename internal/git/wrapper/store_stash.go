@@ -10,14 +10,25 @@ func (w *Wrapper) StoreStash() error {
 		return err
 	}
 
+	message := stashMessage
+	if w.cache.worktree {
+		message += " - " + w.cache.projectDirname()
+	}
+
 	_, err = w.cmd.cmd([]string{
 		"git",
 		"stash",
 		"store",
 		"--quiet",
 		"--message",
-		stashMessage,
+		message,
 		stashHash,
 	})
-	return err
+	if err != nil {
+		return err
+	}
+
+	w.cache.backupStashHash = stashHash
+
+	return nil
 }

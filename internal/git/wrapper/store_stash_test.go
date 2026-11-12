@@ -17,8 +17,9 @@ func TestWrapper_StoreStash(t *testing.T) {
 	errStore := errors.New("store failed")
 
 	for name, tt := range map[string]struct {
-		outs []cmdtest.Out
-		err  error
+		worktree bool
+		outs     []cmdtest.Out
+		err      error
 	}{
 		"stores-created-stash": {
 			outs: []cmdtest.Out{
@@ -39,10 +40,34 @@ func TestWrapper_StoreStash(t *testing.T) {
 			},
 			err: errStore,
 		},
+		"worktree-message": {
+			worktree: true,
+			outs: []cmdtest.Out{
+				{Command: "git stash create", Output: "abc123"},
+				{Command: "git stash store --quiet --message lefthook auto backup - feature abc123"},
+			},
+		},
+		"worktree-store-fails": {
+			worktree: true,
+			outs: []cmdtest.Out{
+				{Command: "git stash create", Output: "abc123"},
+				{Command: "git stash store --quiet --message lefthook auto backup - feature abc123", Err: errStore},
+			},
+			err: errStore,
+		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			cmd := cmdtest.NewFakeCmd(t, tt.outs)
+			outs := tt.outs
+			if tt.worktree {
+				outs = append([]cmdtest.Out{worktreePathsOut}, outs...)
+			}
+			cmd := cmdtest.NewFakeCmd(t, outs)
 			w := wrapper.New(fs, cmd, loggertest.New())
+			if tt.worktree {
+				if _, err := w.Paths(); err != nil {
+					t.Fatalf("wrapper.Paths() error = %v", err)
+				}
+			}
 
 			err := w.StoreStash()
 

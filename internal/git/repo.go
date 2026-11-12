@@ -282,11 +282,15 @@ func (r *Repo) restoreUnstagedChanges(all bool) error {
 		// Keep the backup if there was nothing to restore
 		r.logger.Warn(
 			"Saved unstaged changes not found. " +
-				"Restore them from the 'lefthook auto backup' stash: git stash list",
+				"Restore them manually from the 'lefthook auto backup' stash: git stash list",
 		)
 		return nil
 	}
 	if err != nil {
+		r.logger.Warn(
+			"Failed to restore unstaged changes." +
+				"Restore them manually from the 'lefthook auto backup' stash: git stash list",
+		)
 		return err
 	}
 

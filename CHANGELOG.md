@@ -1,5 +1,11 @@
 # Change log
 
+## 2.2.2
+
+- fix: cleanup only current stash hash ([#1597](https://github.com/evilmartians/lefthook/pull/1597)) by [@mrexox](https://github.com/mrexox)
+- refactor: simplify mimetype matching ([#1596](https://github.com/evilmartians/lefthook/pull/1596)) by [@scop](https://github.com/scop)
+- packaging: add support for android ([#1591](https://github.com/evilmartians/lefthook/pull/1591)) by [@mrexox](https://github.com/mrexox)
+
 ## 2.2.1
 
 - feat: support php composer ([#1583](https://github.com/evilmartians/lefthook/pull/1583)) by [@mrexox](https://github.com/mrexox)

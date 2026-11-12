@@ -4,7 +4,7 @@ set -euo pipefail
 lib="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib"
 
 case $1 in
-  npm)
+  npm|npm-bundled|npm-installer)
     source "$lib/npm.sh"
     prepare_npm
     ;;

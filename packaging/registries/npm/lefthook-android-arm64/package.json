@@ -1,6 +1,6 @@
 {
   "name": "lefthook-android-arm64",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "The Android ARM64-bit binary for lefthook, git hooks manager.",
   "preferUnplugged": false,
   "repository": {

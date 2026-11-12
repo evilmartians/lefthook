@@ -12,6 +12,7 @@ NPM_BUNDLED="$REGISTRIES_ROOT/npm-bundled"
 NPM_INSTALLER="$REGISTRIES_ROOT/npm-installer"
 
 declare -ra PACKAGES=(
+  "${NPM}/lefthook-android-arm64"
   "${NPM}/lefthook-darwin-arm64"
   "${NPM}/lefthook-darwin-x64"
   "${NPM}/lefthook-linux-arm64"
@@ -22,8 +23,11 @@ declare -ra PACKAGES=(
   "${NPM}/lefthook-freebsd-x64"
   "${NPM}/lefthook-openbsd-arm64"
   "${NPM}/lefthook-openbsd-x64"
-  "${NPM}/lefthook-android-arm64"
   "${NPM}/lefthook"
+)
+
+declare -ra ALL_PACKAGES=(
+  "${PACKAGES[@]}"
   "${NPM_BUNDLED}"
   "${NPM_INSTALLER}"
 )
@@ -57,7 +61,7 @@ declare -rA NPM_BUNDLED_BINARIES=(
 )
 
 set_version_npm() {
-  for package in "${PACKAGES[@]}"
+  for package in "${ALL_PACKAGES[@]}"
   do
     replace "$package/package.json" '"version":\s*"[\d\w.]+"' "\"version\": \"${VERSION}\""
   done
@@ -69,7 +73,7 @@ set_version_npm() {
 }
 
 prepare_npm() {
-  for package in "${PACKAGES[@]}"
+  for package in "${ALL_PACKAGES[@]}"
   do
     copy "$REPO_ROOT/README.md" "$package/README.md"
   done
@@ -104,7 +108,35 @@ publish_npm() {
     pushd "$package"
     echo "Publishing $(basename "$package")"
 
-    npm publish --access public
+    if ! npm view "$(basename "$package")@${VERSION}" 2>&1 >/dev/null
+    then
+      npm publish --access public
+    fi
+
     popd
   done
+}
+
+publish_npm_bundled() {
+  pushd "${NPM_BUNDLED}"
+  echo "Publishing @evilmartians/lefthook"
+
+  if ! npm view "@evilmartians/lefthook@${VERSION}" 2>&1 >/dev/null
+  then
+    npm publish --access public
+  fi
+
+  popd
+}
+
+publish_npm_installer() {
+  pushd "${NPM_INSTALLER}"
+  echo "Publishing @evilmartians/lefthook-installer"
+
+  if ! npm view "@evilmartians/lefthook-installer@${VERSION}" 2>&1 >/dev/null
+  then
+    npm publish --access public
+  fi
+
+  popd
 }

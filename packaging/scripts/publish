@@ -8,6 +8,14 @@ case $1 in
     source "$lib/npm.sh"
     publish_npm
     ;;
+  npm-bundled)
+    source "$lib/npm.sh"
+    publish_npm_bundled
+    ;;
+  npm-installer)
+    source "$lib/npm.sh"
+    publish_npm_installer
+    ;;
   rubygem)
     source "$lib/rubygem.sh"
     publish_rubygem

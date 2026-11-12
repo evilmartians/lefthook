@@ -143,7 +143,7 @@ func (w *Wrapper) buildPatchPath(name string) string {
 
 	if w.cache.worktree {
 		pathBuilder.WriteString(".")
-		pathBuilder.WriteString(filepath.Base(w.cache.gitPath))
+		pathBuilder.WriteString(w.cache.projectDirname())
 	}
 
 	pathBuilder.WriteString(".patch")
