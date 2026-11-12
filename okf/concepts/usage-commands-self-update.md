@@ -6,7 +6,7 @@ path: /usage/commands/self-update/
 updated: 2026-11-12
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-12T12:17:15.701Z"
+  generated_at: "2026-11-12T12:24:51.717Z"
 ---
 ---
 title: "lefthook self-update"
