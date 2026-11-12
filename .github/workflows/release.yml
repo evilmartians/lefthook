@@ -17,6 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
+          persist-credentials: false
           fetch-depth: 0
 
       - name: Fetch all tags
@@ -28,7 +29,7 @@ jobs:
           go-version-file: go.mod
 
       - name: Install Snapcraft
-        uses: samuelmeuli/action-snapcraft@v2
+        uses: samuelmeuli/action-snapcraft@d33c176a9b784876d966f80fb1b461808edc0641 # v2.1.1
 
       - name: Prevent from snapcraft fail
         run: |
@@ -36,7 +37,7 @@ jobs:
           mkdir -p $HOME/.cache/snapcraft/stage-packages
 
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
+        uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # v6.4.0
         with:
           distribution: goreleaser
           version: 'v2.10.2'
@@ -63,6 +64,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          persist-credentials: false
           fetch-depth: 0
       - run: git fetch --force --tags
 
@@ -92,6 +94,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          persist-credentials: false
           fetch-depth: 0
       - run: git fetch --force --tags
 
@@ -121,6 +124,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          persist-credentials: false
           fetch-depth: 0
       - run: git fetch --force --tags
 
@@ -150,6 +154,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          persist-credentials: false
           fetch-depth: 0
       - run: git fetch --force --tags
 
@@ -177,6 +182,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          persist-credentials: false
           fetch-depth: 0
       - run: git fetch --force --tags
 
@@ -186,7 +192,7 @@ jobs:
       - run: tar -xvf dist.tar
 
       - name: Setup uv with python
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
         with:
           enable-cache: false
           python-version: "3.12"
@@ -204,7 +210,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Update Homebrew formula
-        uses: dawidd6/action-homebrew-bump-formula@v10
+        uses: dawidd6/action-homebrew-bump-formula@b12d2bc99c46444125e606142f28200ec71a1214 # v10
         with:
           formula: lefthook
           token: ${{ secrets.HOMEBREW_TOKEN }}
@@ -214,7 +220,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Publish to Winget
-        uses: vedantmgoyal2009/winget-releaser@v2
+        uses: vedantmgoyal2009/winget-releaser@b7370d4d152efdce803a26cc6ca9eee58cb2ad54 # v2
         with:
           identifier: evilmartians.lefthook
           fork-user: mrexox
@@ -226,6 +232,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          persist-credentials: false
           fetch-depth: 0
 
       - uses: actions/download-artifact@v8
@@ -258,6 +265,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          persist-credentials: false
           fetch-depth: 0
 
       - name: Update AUR package
@@ -290,6 +298,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          persist-credentials: false
           fetch-depth: 0
 
       - name: Update AUR package
@@ -320,6 +329,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          persist-credentials: false
           fetch-depth: 0
 
       - name: Update PHP package
