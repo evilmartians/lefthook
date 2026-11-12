@@ -103,6 +103,7 @@
 - [LEFTHOOK_BIN](https://lefthook.dev/usage/envs/LEFTHOOK_BIN/)
 - [LEFTHOOK_CONFIG](https://lefthook.dev/usage/envs/LEFTHOOK_CONFIG/)
 - [LEFTHOOK_EXCLUDE](https://lefthook.dev/usage/envs/LEFTHOOK_EXCLUDE/)
+- [LEFTHOOK_NO_AUTO_INSTALL](https://lefthook.dev/usage/envs/LEFTHOOK_NO_AUTO_INSTALL/)
 - [LEFTHOOK_OUTPUT](https://lefthook.dev/usage/envs/LEFTHOOK_OUTPUT/)
 - [LEFTHOOK_VERBOSE](https://lefthook.dev/usage/envs/LEFTHOOK_VERBOSE/)
 - [LEFTHOOK](https://lefthook.dev/usage/envs/LEFTHOOK/)

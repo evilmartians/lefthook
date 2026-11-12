@@ -1523,7 +1523,7 @@ title: "no_auto_install"
 
 Disable automatic installation and synchronization of git hooks when running lefthook. By default, lefthook automatically installs and updates hooks when you run `lefthook run` if the configuration has changed. Setting this to `true` disables that behavior.
 
-This can also be controlled with the `--no-auto-install` option for the `lefthook run` command.
+This can also be controlled with the `--no-auto-install` option for the `lefthook run` command or with the [`LEFTHOOK_NO_AUTO_INSTALL`](../usage/envs/LEFTHOOK_NO_AUTO_INSTALL.md) environment variable to turn the synchronization off only for some processes.
 
 #### Example
 
@@ -3905,6 +3905,27 @@ Use `LEFTHOOK_EXCLUDE={list of tags or command names to be excluded}` to skip so
 
 ```bash
 LEFTHOOK_EXCLUDE=ruby,security,lint git commit -am "Skip some tag checks"
+```
+
+
+---
+
+## [LEFTHOOK_NO_AUTO_INSTALL](https://lefthook.dev/usage/envs/LEFTHOOK_NO_AUTO_INSTALL/)
+
+---
+title: "LEFTHOOK_NO_AUTO_INSTALL"
+---
+
+## `LEFTHOOK_NO_AUTO_INSTALL`
+
+Use `LEFTHOOK_NO_AUTO_INSTALL=1 git ...` or `LEFTHOOK_NO_AUTO_INSTALL=true git ...` to keep lefthook from updating git hooks when running git commands. Unlike the [`no_auto_install`](../../configuration/no_auto_install.md) configuration option, it applies only to the commands that have it set.
+
+Useful for tools that run git on someone else's behalf (wrappers, dev containers, CI helpers) and must not change installed hooks.
+
+#### Example
+
+```bash
+LEFTHOOK_NO_AUTO_INSTALL=1 git commit -m "Hooks not synchronized"
 ```
 
 

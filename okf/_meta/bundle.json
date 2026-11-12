@@ -6,13 +6,13 @@
     "description": "",
     "url": "https://lefthook.dev",
     "generated_by": "@docmd/plugin-okf",
-    "generated_at": "2026-11-06T08:06:51.772Z",
+    "generated_at": "2026-11-12T12:17:15.708Z",
     "default_type": "concept"
   },
   "stats": {
-    "concepts": 108,
+    "concepts": 109,
     "by_type": {
-      "concept": 108
+      "concept": 109
     },
     "locales": [],
     "versions": []
@@ -1004,6 +1004,16 @@
       "title": "LEFTHOOK_EXCLUDE",
       "path": "/usage/envs/LEFTHOOK_EXCLUDE/",
       "file": "concepts/usage-envs-lefthook-exclude.md",
+      "locale": "",
+      "version": "",
+      "tags": []
+    },
+    {
+      "id": "usage-envs-lefthook-no-auto-install",
+      "type": "concept",
+      "title": "LEFTHOOK_NO_AUTO_INSTALL",
+      "path": "/usage/envs/LEFTHOOK_NO_AUTO_INSTALL/",
+      "file": "concepts/usage-envs-lefthook-no-auto-install.md",
       "locale": "",
       "version": "",
       "tags": []

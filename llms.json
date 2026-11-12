@@ -591,6 +591,12 @@
       "priority": "medium"
     },
     {
+      "title": "LEFTHOOK_NO_AUTO_INSTALL",
+      "url": "https://lefthook.dev/usage/envs/LEFTHOOK_NO_AUTO_INSTALL/",
+      "description": "",
+      "priority": "medium"
+    },
+    {
       "title": "LEFTHOOK_OUTPUT",
       "url": "https://lefthook.dev/usage/envs/LEFTHOOK_OUTPUT/",
       "description": "",

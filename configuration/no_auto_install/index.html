@@ -104,11 +104,11 @@
     
     
 
-    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mw4oy32y">
-    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mw4oy32y">
+    <link id="site-favicon" rel="icon" href="../../assets/favicon.svg?v=mwdij7hd">
+    <link rel="stylesheet" href="../../assets/css/docmd-main.css?v=mwdij7hd">
     
-    <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=mw4oy32y" id="hljs-light" >
-    <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=mw4oy32y" id="hljs-dark" disabled>
+    <link rel="stylesheet" href="../../assets/css/docmd-highlight-light.css?v=mwdij7hd" id="hljs-light" >
+    <link rel="stylesheet" href="../../assets/css/docmd-highlight-dark.css?v=mwdij7hd" id="hljs-dark" disabled>
     
     
 <meta name="description" content="Lefthook documentation.">
@@ -125,11 +125,11 @@
 
 
 
-<link rel="stylesheet" href="../../assets/css/docmd-git.css?v=mw4oy32y" >
-<link rel="stylesheet" href="../../assets/css/docmd-openapi.css?v=mw4oy32y" >
+<link rel="stylesheet" href="../../assets/css/docmd-git.css?v=mwdij7hd" >
+<link rel="stylesheet" href="../../assets/css/docmd-openapi.css?v=mwdij7hd" >
 
     
-      <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mw4oy32y">
+      <link rel="stylesheet" href="../../assets/css/lefthook.css?v=mwdij7hd">
     
     
   </head>
@@ -2488,6 +2488,22 @@
     
       <li class="" >
       
+        <a href="../../usage/envs/LEFTHOOK_NO_AUTO_INSTALL/" class=" "
+          >
+          
+          <span class="nav-item-title">
+            LEFTHOOK_NO_AUTO_INSTALL
+            </span>
+          
+          
+        </a>
+        
+
+        
+      </li>
+    
+      <li class="" >
+      
         <a href="../../usage/envs/CLICOLOR_FORCE/" class=" "
           >
           
@@ -2943,7 +2959,7 @@
             <div class="content-layout">
               <div class="main-content">
                 <div class="docmd-breadcrumbs-row">
-                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22no_auto_install%22%0A---%0A%0A%23%20%60no_auto_install%60%0A%0A**Default%3A%20%60false%60**%0A%0ADisable%20automatic%20installation%20and%20synchronization%20of%20git%20hooks%20when%20running%20lefthook.%20By%20default%2C%20lefthook%20automatically%20installs%20and%20updates%20hooks%20when%20you%20run%20%60lefthook%20run%60%20if%20the%20configuration%20has%20changed.%20Setting%20this%20to%20%60true%60%20disables%20that%20behavior.%0A%0AThis%20can%20also%20be%20controlled%20with%20the%20%60--no-auto-install%60%20option%20for%20the%20%60lefthook%20run%60%20command.%0A%0A%23%23%23%23%20Example%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Ano_auto_install%3A%20true%0A%0Apre-commit%3A%0A%20%20commands%3A%0A%20%20%20%20lint%3A%0A%20%20%20%20%20%20run%3A%20npm%20run%20lint%0A%60%60%60%0A" style="display: none;"></div>
+                  <div id="docmd-raw-markdown" data-content="---%0Atitle%3A%20%22no_auto_install%22%0A---%0A%0A%23%20%60no_auto_install%60%0A%0A**Default%3A%20%60false%60**%0A%0ADisable%20automatic%20installation%20and%20synchronization%20of%20git%20hooks%20when%20running%20lefthook.%20By%20default%2C%20lefthook%20automatically%20installs%20and%20updates%20hooks%20when%20you%20run%20%60lefthook%20run%60%20if%20the%20configuration%20has%20changed.%20Setting%20this%20to%20%60true%60%20disables%20that%20behavior.%0A%0AThis%20can%20also%20be%20controlled%20with%20the%20%60--no-auto-install%60%20option%20for%20the%20%60lefthook%20run%60%20command%20or%20with%20the%20%5B%60LEFTHOOK_NO_AUTO_INSTALL%60%5D(..%2Fusage%2Fenvs%2FLEFTHOOK_NO_AUTO_INSTALL.md)%20environment%20variable%20to%20turn%20the%20synchronization%20off%20only%20for%20some%20processes.%0A%0A%23%23%23%23%20Example%0A%0A%60%60%60yml%0A%23%20lefthook.yml%0A%0Ano_auto_install%3A%20true%0A%0Apre-commit%3A%0A%20%20commands%3A%0A%20%20%20%20lint%3A%0A%20%20%20%20%20%20run%3A%20npm%20run%20lint%0A%60%60%60%0A" style="display: none;"></div>
                   
                     <nav aria-label="breadcrumb" class="docmd-breadcrumbs">
                       <ol>
@@ -3035,7 +3051,7 @@
                 <h1 id="noautoinstall" class="docmd-heading"><a href="#noautoinstall" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a><code>no_auto_install</code></h1>
 <p><strong>Default: <code>false</code></strong></p>
 <p>Disable automatic installation and synchronization of git hooks when running lefthook. By default, lefthook automatically installs and updates hooks when you run <code>lefthook run</code> if the configuration has changed. Setting this to <code>true</code> disables that behavior.</p>
-<p>This can also be controlled with the <code>--no-auto-install</code> option for the <code>lefthook run</code> command.</p>
+<p>This can also be controlled with the <code>--no-auto-install</code> option for the <code>lefthook run</code> command or with the <a href="../../usage/envs/LEFTHOOK_NO_AUTO_INSTALL/"><code>LEFTHOOK_NO_AUTO_INSTALL</code></a> environment variable to turn the synchronization off only for some processes.</p>
 <h4 id="noautoinstall-example" class="docmd-heading"><a href="#noautoinstall-example" class="heading-anchor" aria-label="Permalink to this section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link2-icon lucide-link-2"><path d="M9 17H7A5 5 0 0 1 7 7h2m6 0h2a5 5 0 1 1 0 10h-2m-7-5h8"/></svg></a>Example</h4>
 <pre class="hljs"><code class="language-yml"><span class="hljs-comment"># lefthook.yml</span>
 
@@ -3090,29 +3106,29 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
             <div class="page-footer-actions">
               
               
-                <span class="git-last-updated" data-timestamp="1793952395000">
+                <span class="git-last-updated" data-timestamp="1794485818000">
                   <svg class="git-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
                   <span class="git-label">Last updated:</span>
-                  <span class="git-time" data-timestamp="1793952395000"></span>
+                  <span class="git-time" data-timestamp="1794485818000"></span>
                   
                   <div class="git-commit-tooltip" role="tooltip">
                     <div class="git-tooltip-title">Recent commits</div>
                     <ul class="git-commit-list">
                       
                         <li class="git-commit-item">
-                          <div class="git-commit-avatar" title="alexcastgonz">
+                          <div class="git-commit-avatar" title="Dirga Yuditama">
                             
-                              <img src="https://www.gravatar.com/avatar/cf64b8d1ebcd1e72ad313117437b4b8c?d=mp&amp;s=64" alt="alexcastgonz">
+                              <img src="https://www.gravatar.com/avatar/824a703b46891e60523e62b92f86616b?d=mp&amp;s=64" alt="Dirga Yuditama">
                             
                           </div>
                           <div class="git-commit-details">
-                            <div class="git-commit-message" title="fix(filter): do not duplicate files matched by several glob patterns (#1630)">fix(filter): do not duplicate files m...</div>
+                            <div class="git-commit-message" title="feat: add LEFTHOOK_NO_AUTO_INSTALL env (#1592)">feat: add LEFTHOOK_NO_AUTO_INSTALL en...</div>
                             <div class="git-commit-meta">
-                              <span class="git-commit-author">alexcastgonz</span>
-                              <span class="git-commit-date" data-timestamp="1793952395000"></span>
+                              <span class="git-commit-author">Dirga Yuditama</span>
+                              <span class="git-commit-date" data-timestamp="1794485818000"></span>
                             </div>
                           </div>
                         </li>
@@ -3164,13 +3180,13 @@ pre<span class="hljs-punctuation">-</span>commit<span class="hljs-punctuation">:
         </div>
       </div>
       
-      <script src="../../assets/js/docmd-main.js?v=mw4oy32y"></script>
+      <script src="../../assets/js/docmd-main.js?v=mwdij7hd"></script>
       
-      <script src="../../assets/js/docmd-git.js?v=mw4oy32y"></script>
-      <script src="../../assets/js/docmd-image-lightbox.js?v=mw4oy32y" ></script>
-<script src="../../assets/js/vendor/minisearch.js?v=mw4oy32y" ></script>
-<script src="../../assets/js/docmd-search.js?v=mw4oy32y" ></script>
-<script src="../../assets/js/docmd-git.js?v=mw4oy32y" type="module"></script>
+      <script src="../../assets/js/docmd-git.js?v=mwdij7hd"></script>
+      <script src="../../assets/js/docmd-image-lightbox.js?v=mwdij7hd" ></script>
+<script src="../../assets/js/vendor/minisearch.js?v=mwdij7hd" ></script>
+<script src="../../assets/js/docmd-search.js?v=mwdij7hd" ></script>
+<script src="../../assets/js/docmd-git.js?v=mwdij7hd" type="module"></script>
 
   <!-- Search Modal (Injected by @docmd/plugin-search) -->
   <div id="docmd-search-modal" class="docmd-search-modal" style="display: none;" data-show-confidence="false" data-show-filters="true"

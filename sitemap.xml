@@ -496,6 +496,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://lefthook.dev/usage/envs/LEFTHOOK_NO_AUTO_INSTALL/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://lefthook.dev/usage/envs/LEFTHOOK_OUTPUT/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
