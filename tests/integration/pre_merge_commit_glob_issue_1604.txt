@@ -1,0 +1,24 @@
+# https://github.com/evilmartians/lefthook/issues/1604
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add a.txt
+exec lefthook run pre-merge-commit
+! stdout 'running stylelint'
+
+exec git add style.css
+exec lefthook run pre-merge-commit
+stdout 'running stylelint'
+
+-- lefthook.yml --
+pre-merge-commit:
+  commands:
+    stylelint:
+      glob: "*.css"
+      run: echo running stylelint
+
+-- a.txt --
+a
+
+-- style.css --
+a {}
