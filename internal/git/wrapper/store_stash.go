@@ -1,6 +1,8 @@
 package wrapper
 
-const stashMessage = "lefthook auto backup"
+// backupRefPrefix keeps backups out of the stash list, which all worktrees
+// share, so a cleanup can only ever delete its own backup.
+const backupRefPrefix = "refs/lefthook/backup/"
 
 var cmdCreateStash = []string{"git", "stash", "create"}
 
@@ -10,19 +12,12 @@ func (w *Wrapper) StoreStash() error {
 		return err
 	}
 
-	message := stashMessage
-	if w.cache.worktree {
-		message += " - " + w.cache.projectDirname()
-	}
-
 	_, err = w.cmd.cmd([]string{
 		"git",
-		"stash",
-		"store",
-		"--quiet",
-		"--message",
-		message,
+		"update-ref",
+		backupRefPrefix + stashHash,
 		stashHash,
+		"",
 	})
 	if err != nil {
 		return err

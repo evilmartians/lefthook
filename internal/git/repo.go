@@ -276,20 +276,23 @@ func (r *Repo) RestoreAllUnstagedChanges() error {
 	return r.restoreUnstagedChanges(true)
 }
 
+const backupRecoveryHint = "list them with 'git for-each-ref refs/lefthook/backup/', " +
+	"then run 'git stash apply <ref>'"
+
 func (r *Repo) restoreUnstagedChanges(all bool) error {
 	err := r.wrapper.ApplyUnstagedDiff(all)
 	if errors.Is(err, wrapper.ErrNoUnstagedDiff) {
 		// Keep the backup if there was nothing to restore
 		r.logger.Warn(
 			"Saved unstaged changes not found. " +
-				"Restore them manually from the 'lefthook auto backup' stash: git stash list",
+				"Restore them manually from the lefthook backup: " + backupRecoveryHint,
 		)
 		return nil
 	}
 	if err != nil {
 		r.logger.Warn(
-			"Failed to restore unstaged changes." +
-				"Restore them manually from the 'lefthook auto backup' stash: git stash list",
+			"Failed to restore unstaged changes. " +
+				"Restore them manually from the lefthook backup: " + backupRecoveryHint,
 		)
 		return err
 	}
