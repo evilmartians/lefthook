@@ -36,10 +36,10 @@ jobs:
           mkdir -p $HOME/.cache/snapcraft/stage-packages
 
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
+        uses: goreleaser/goreleaser-action@v7
         with:
           distribution: goreleaser
-          version: 'v2.10.2'
+          version-file: .tool-versions
           args: release --clean --verbose
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
