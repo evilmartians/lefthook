@@ -59,6 +59,29 @@ func TestRemoteDirectoryName(t *testing.T) {
 	}
 }
 
+func TestIsFullCommitSHA(t *testing.T) {
+	for _, ref := range []string{
+		"13d66a090ac6e73f3ff44652761facb02b00e91c",
+		"13d66a090ac6e73f3ff44652761facb02b00e91c13d66a090ac6e73f3ff44652",
+	} {
+		if !git.IsFullCommitSHA(ref) {
+			t.Errorf("IsFullCommitSHA(%q) = false, want true", ref)
+		}
+	}
+
+	for _, ref := range []string{
+		"",
+		"main",
+		"v1.0.0",
+		"13d66a0",
+		"refs/heads/13d66a090ac6e73f3ff44652761facb02b00e91c",
+	} {
+		if git.IsFullCommitSHA(ref) {
+			t.Errorf("IsFullCommitSHA(%q) = true, want false", ref)
+		}
+	}
+}
+
 func TestRemoteDirectoryName_distinctRefsDoNotCollide(t *testing.T) {
 	// A slash and a literal hyphen must not be ambiguous with each other:
 	// "feat/a-b" and "feat/a/b" are distinct refs and must sanitize to

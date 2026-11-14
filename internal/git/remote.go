@@ -55,6 +55,11 @@ func (r *Repo) CloneRemote(root, dest, url, ref string) error {
 	return nil
 }
 
+// IsFullCommitSHA reports whether ref is a full commit hash.
+func IsFullCommitSHA(ref string) bool {
+	return wrapper.IsFullCommitSHA(ref)
+}
+
 func RemoteDirectoryName(url, ref string) string {
 	name := filepath.Base(
 		strings.TrimSuffix(url, filepath.Ext(url)),
