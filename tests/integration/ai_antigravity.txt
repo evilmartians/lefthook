@@ -1,0 +1,135 @@
+exec git init
+exec lefthook validate
+! stderr .
+exec lefthook install
+! stderr .
+exists .agents/hooks.json
+cmp .agents/hooks.json want_merged.json
+
+exec lefthook uninstall
+! stderr .
+exists .agents/hooks.json
+cmp .agents/hooks.json want_user_only.json
+
+rm .agents/hooks.json
+exec lefthook install
+! stderr .
+exists .agents/hooks.json
+exec lefthook uninstall
+! stderr .
+! exists .agents/hooks.json
+! exists .agents
+
+mkdir .agents/rules
+cp rule.md .agents/rules/style.md
+exec lefthook install
+! stderr .
+exists .agents/hooks.json
+exec lefthook uninstall
+! stderr .
+! exists .agents/hooks.json
+exists .agents
+exists .agents/rules/style.md
+
+cp want_user_only.json .agents/hooks.json
+exec lefthook install
+! stderr .
+cmp .agents/hooks.json want_merged.json
+cp lefthook_without_ai.yml lefthook.yml
+exec lefthook install
+! stderr .
+cmp .agents/hooks.json want_user_only.json
+exists .agents/rules/style.md
+
+-- lefthook.yml --
+lefthook: npx lefthook
+
+ai:
+  antigravity:
+    PreToolUse: security-check
+    Stop: validate
+
+validate:
+  jobs:
+    - run: echo validate
+
+security-check:
+  jobs:
+    - run: echo security
+
+-- .agents/hooks.json --
+{
+  "lint-checker": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "./scripts/lint.sh",
+            "type": "command"
+          }
+        ],
+        "matcher": "run_command"
+      }
+    ]
+  }
+}
+
+-- want_merged.json --
+{
+  "lefthook": {
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "npx lefthook run security-check",
+            "type": "command"
+          }
+        ],
+        "matcher": "*"
+      }
+    ],
+    "Stop": [
+      {
+        "command": "npx lefthook run validate",
+        "type": "command"
+      }
+    ]
+  },
+  "lint-checker": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "./scripts/lint.sh",
+            "type": "command"
+          }
+        ],
+        "matcher": "run_command"
+      }
+    ]
+  }
+}
+-- want_user_only.json --
+{
+  "lint-checker": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "./scripts/lint.sh",
+            "type": "command"
+          }
+        ],
+        "matcher": "run_command"
+      }
+    ]
+  }
+}
+-- rule.md --
+# Style rule
+-- lefthook_without_ai.yml --
+lefthook: npx lefthook
+
+validate:
+  jobs:
+    - run: echo validate

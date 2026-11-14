@@ -211,6 +211,48 @@ security-check:
 				},
 			},
 		},
+		"with antigravity hooks": {
+			files: map[string]string{
+				"lefthook.yml": `
+ai:
+  antigravity:
+    Stop: validate
+    PreToolUse: security-check
+
+validate:
+  jobs:
+    - run: go test ./...
+
+security-check:
+  jobs:
+    - run: ./scripts/security.sh
+`,
+			},
+			result: &Config{
+				SourceDir:      DefaultSourceDir,
+				SourceDirLocal: DefaultSourceDirLocal,
+				AI: &AI{
+					Antigravity: map[string]string{
+						"Stop":       "validate",
+						"PreToolUse": "security-check",
+					},
+				},
+				Hooks: map[string]*Hook{
+					"validate": {
+						Name: "validate",
+						Jobs: []*Job{
+							{Run: "go test ./..."},
+						},
+					},
+					"security-check": {
+						Name: "security-check",
+						Jobs: []*Job{
+							{Run: "./scripts/security.sh"},
+						},
+					},
+				},
+			},
+		},
 		"without ai section": {
 			files: map[string]string{
 				"lefthook.yml": `

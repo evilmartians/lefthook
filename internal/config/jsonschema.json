@@ -31,6 +31,13 @@
           },
           "type": "object",
           "description": "Copilot hooks mapping. Generates .github/hooks/lefthook.json."
+        },
+        "antigravity": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object",
+          "description": "Antigravity hooks mapping. Generates .agents/hooks.json."
         }
       },
       "additionalProperties": false,
@@ -531,7 +538,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2026.07.03.",
+  "$comment": "Last updated on 2026.11.14.",
   "properties": {
     "min_version": {
       "type": "string",

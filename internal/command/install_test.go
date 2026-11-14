@@ -40,6 +40,7 @@ func TestLefthookInstall(t *testing.T) {
 		git                     []cmdtest.Out
 		existingFiles           map[string]string
 		wantExist, wantNotExist []string
+		wantContent             map[string]string
 		wantError               bool
 	}{
 		{
@@ -324,6 +325,9 @@ ai:
     Stop: validate
   codex:
     Stop: validate
+  antigravity:
+    Stop: validate
+    PreToolUse: validate
 
 validate:
   jobs:
@@ -333,6 +337,7 @@ validate:
 				configPath,
 				projectPath(".claude/settings.json"),
 				projectPath(".codex/hooks.json"),
+				projectPath(".agents/hooks.json"),
 				infoPath(config.ChecksumFileName),
 			},
 			wantNotExist: []string{
@@ -352,6 +357,7 @@ validate:
 `,
 			existingFiles: map[string]string{
 				projectPath(".codex/hooks.json"):           `{"hooks":{"Stop":[{"hooks":[{"type":"command","command":"lefthook run old-hook"}]}]}}`,
+				projectPath(".agents/hooks.json"):          `{"lefthook":{"Stop":[{"type":"command","command":"lefthook run old-hook"}]}}`,
 				projectPath(".github/hooks/lefthook.json"): `{"version":1,"hooks":{"postToolUse":[{"command":"lefthook run old-hook"}]}}`,
 			},
 			wantExist: []string{
@@ -362,6 +368,8 @@ validate:
 			},
 			wantNotExist: []string{
 				projectPath(".github/hooks/lefthook.json"),
+				projectPath(".agents/hooks.json"),
+				projectPath(".agents"),
 				hookPath(config.GhostHookName),
 			},
 		},
@@ -374,6 +382,7 @@ validate:
 `,
 			existingFiles: map[string]string{
 				projectPath(".claude/settings.json"):       `{"hooks":{"Stop":[{"hooks":[{"type":"command","command":"lefthook run validate"}]}]}}`,
+				projectPath(".agents/hooks.json"):          `{"lefthook":{"Stop":[{"type":"command","command":"lefthook run validate"}]}}`,
 				projectPath(".github/hooks/lefthook.json"): `{"version":1,"hooks":{"postToolUse":[{"command":"lefthook run validate"}]}}`,
 			},
 			wantExist: []string{
@@ -383,6 +392,65 @@ validate:
 			},
 			wantNotExist: []string{
 				projectPath(".github/hooks/lefthook.json"),
+				projectPath(".agents/hooks.json"),
+				projectPath(".agents"),
+				hookPath(config.GhostHookName),
+			},
+		},
+		{
+			name: "install strips stale antigravity entries and keeps user groups",
+			config: `
+validate:
+  jobs:
+    - run: go test ./...
+`,
+			existingFiles: map[string]string{
+				projectPath(".agents/hooks.json"):     `{"lefthook":{"Stop":[{"type":"command","command":"lefthook run validate"}]},"lint-checker":{"Stop":[{"type":"command","command":"./lint.sh"}]}}`,
+				projectPath(".agents/rules/style.md"): "# Style",
+			},
+			wantExist: []string{
+				configPath,
+				projectPath(".agents/rules/style.md"),
+				infoPath(config.ChecksumFileName),
+			},
+			wantContent: map[string]string{
+				projectPath(".agents/hooks.json"): `{
+  "lint-checker": {
+    "Stop": [
+      {
+        "command": "./lint.sh",
+        "type": "command"
+      }
+    ]
+  }
+}
+`,
+			},
+		},
+		{
+			name: "install strips antigravity entries when provider is empty",
+			config: `
+ai:
+  antigravity: {}
+  claude:
+    Stop: validate
+
+validate:
+  jobs:
+    - run: go test ./...
+`,
+			existingFiles: map[string]string{
+				projectPath(".agents/hooks.json"):     `{"lefthook":{"Stop":[{"type":"command","command":"lefthook run validate"}]}}`,
+				projectPath(".agents/rules/style.md"): "# Style",
+			},
+			wantExist: []string{
+				configPath,
+				projectPath(".claude/settings.json"),
+				projectPath(".agents/rules/style.md"),
+				infoPath(config.ChecksumFileName),
+			},
+			wantNotExist: []string{
+				projectPath(".agents/hooks.json"),
 				hookPath(config.GhostHookName),
 			},
 		},
@@ -407,6 +475,27 @@ validate:
 			wantNotExist: []string{
 				projectPath(".claude/settings.json"),
 				projectPath(".codex/hooks.json"),
+				hookPath(config.GhostHookName),
+			},
+		},
+		{
+			name: "invalid antigravity event with ai",
+			config: `
+ai:
+  antigravity:
+    InvalidEvent: validate
+
+validate:
+  jobs:
+    - run: go test ./...
+`,
+			wantError: true,
+			wantExist: []string{
+				configPath,
+				infoPath(config.ChecksumFileName),
+			},
+			wantNotExist: []string{
+				projectPath(".agents/hooks.json"),
 				hookPath(config.GhostHookName),
 			},
 		},
@@ -474,6 +563,12 @@ validate:
 				ok, err := afero.Exists(fs, file)
 				assert.NoError(err)
 				assert.Equal(false, ok)
+			}
+
+			for file, want := range tt.wantContent {
+				content, err := afero.ReadFile(fs, file)
+				assert.NoError(err)
+				assert.Equal(want, string(content))
 			}
 		})
 	}

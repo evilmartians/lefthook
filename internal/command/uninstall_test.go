@@ -23,6 +23,8 @@ func TestLefthookUninstall(t *testing.T) {
 
 	claudePath := filepath.Join(root, claudeSettingsDir, claudeSettingsFile)
 	copilotPath := filepath.Join(root, copilotHooksDir, copilotHooksFile)
+	antigravityDir := filepath.Join(root, antigravityHooksDir)
+	antigravityPath := filepath.Join(antigravityDir, antigravityHooksFile)
 
 	hookPath := func(hook string) string {
 		return filepath.Join(gittest.GitPath(root), "hooks", hook)
@@ -104,18 +106,39 @@ func TestLefthookUninstall(t *testing.T) {
 			},
 		},
 		{
+			name: "removes antigravity hooks file and empty agents dir",
+			existingHooks: map[string]string{
+				"post-commit": "# LEFTHOOK",
+			},
+			aiFiles: map[string]string{
+				antigravityPath: `{"lefthook":{"Stop":[{"type":"command","command":"lefthook run validate"}]}}`,
+			},
+			config: "# empty",
+			wantExist: []string{
+				configPath,
+			},
+			wantNotExist: []string{
+				checksumPath,
+				hookPath("post-commit"),
+				antigravityPath,
+				antigravityDir,
+			},
+		},
+		{
 			name: "removes copilot file even when other ai files fail to parse",
 			existingHooks: map[string]string{
 				"post-commit": "# LEFTHOOK",
 			},
 			aiFiles: map[string]string{
-				claudePath:  `{invalid json`,
-				copilotPath: `{invalid json`,
+				claudePath:      `{invalid json`,
+				antigravityPath: `{invalid json`,
+				copilotPath:     `{invalid json`,
 			},
 			config: "# empty",
 			wantExist: []string{
 				configPath,
 				claudePath,
+				antigravityPath,
 			},
 			wantNotExist: []string{
 				checksumPath,
