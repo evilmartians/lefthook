@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"slices"
@@ -29,13 +30,38 @@ const (
 	copilotHooksFile    = "lefthook.json"
 	copilotHooksVersion = 1
 
+	antigravityHooksDir  = ".agents"
+	antigravityHooksFile = "hooks.json"
+	antigravityHooksKey  = "lefthook"
+	antigravityMatcher   = "*"
+
 	lefthookRunPrefix = "lefthook run "
 	lefthookRunSuffix = " run "
 
 	lefthookBinName = "lefthook"
 )
 
-var errAIHooksMisconfigured = errors.New("ai hooks misconfigured")
+type antigravityEventFormat uint8
+
+const (
+	antigravityEventFlat antigravityEventFormat = iota
+	antigravityEventMatcher
+)
+
+var (
+	errAIHooksMisconfigured = errors.New("ai hooks misconfigured")
+
+	// antigravityEvents maps supported Antigravity hook event names to the JSON
+	// entry format required in .agents/hooks.json.
+	antigravityEvents = map[string]antigravityEventFormat{
+		"SessionStart":   antigravityEventFlat,
+		"PreToolUse":     antigravityEventMatcher,
+		"PostToolUse":    antigravityEventMatcher,
+		"PreInvocation":  antigravityEventFlat,
+		"PostInvocation": antigravityEventFlat,
+		"Stop":           antigravityEventFlat,
+	}
+)
 
 // resolveLefthookBin returns the command to embed in generated AI hook entries.
 // These settings files are usually committed, so the command must not depend on
@@ -65,20 +91,32 @@ func checkAIHookReferences(provider string, events map[string]string, hooks map[
 	return missing
 }
 
-// validateAIHooks ensures every hook name referenced under the ai: key points to
-// a hook that is actually defined in the config. This catches typos early instead
-// of silently writing a `lefthook run <typo>` command that fails when the agent
-// event fires.
-func (l *Lefthook) validateAIHooks(ai *config.AI, hooks map[string]*config.Hook) error {
-	missing := checkAIHookReferences("claude", ai.Claude, hooks)
-	missing = append(missing, checkAIHookReferences("codex", ai.Codex, hooks)...)
-	missing = append(missing, checkAIHookReferences("cursor", ai.Cursor, hooks)...)
-	missing = append(missing, checkAIHookReferences("copilot", ai.Copilot, hooks)...)
+func checkAntigravityEvents(events map[string]string) []string {
+	var invalid []string
+	for event := range events {
+		if _, ok := antigravityEvents[event]; !ok {
+			invalid = append(invalid, fmt.Sprintf("ai.antigravity.%s: unsupported event", event))
+		}
+	}
+	return invalid
+}
 
-	if len(missing) > 0 {
-		slices.Sort(missing)
-		for _, msg := range missing {
-			l.logger.Errorf("%s", msg)
+// validateAIHooks ensures every hook name referenced under the ai: key points to
+// a hook that is actually defined in the config and validates provider event names.
+// This catches typos early instead of silently writing a `lefthook run <typo>`
+// command that fails when the agent event fires.
+func (l *Lefthook) validateAIHooks(ai *config.AI, hooks map[string]*config.Hook) error {
+	issues := checkAIHookReferences("claude", ai.Claude, hooks)
+	issues = append(issues, checkAIHookReferences("codex", ai.Codex, hooks)...)
+	issues = append(issues, checkAIHookReferences("cursor", ai.Cursor, hooks)...)
+	issues = append(issues, checkAIHookReferences("copilot", ai.Copilot, hooks)...)
+	issues = append(issues, checkAIHookReferences("antigravity", ai.Antigravity, hooks)...)
+	issues = append(issues, checkAntigravityEvents(ai.Antigravity)...)
+
+	if len(issues) > 0 {
+		slices.Sort(issues)
+		for _, issue := range issues {
+			l.logger.Errorf("%s", issue)
 		}
 		return errAIHooksMisconfigured
 	}
@@ -123,20 +161,21 @@ func (l *Lefthook) installAIHooks(ai *config.AI, cfg *config.Config) error {
 		l.logger.Infof("Updated %s", path)
 	}
 
+	if len(ai.Antigravity) > 0 {
+		path := filepath.Join(l.repo.Paths.Root, antigravityHooksDir, antigravityHooksFile)
+		if err := l.writeAntigravityHookFile(path, ai.Antigravity, bin); err != nil {
+			return fmt.Errorf("could not write Antigravity hooks: %w", err)
+		}
+		l.logger.Infof("Updated %s", path)
+	}
+
 	return nil
 }
 
 func (l *Lefthook) writeAIHookFile(path string, events map[string]string, bin string) error {
-	existing := make(map[string]any)
-
-	data, err := afero.ReadFile(l.fs, path)
-	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return fmt.Errorf("could not read %s: %w", path, err)
-	}
-	if len(data) > 0 {
-		if err = json.Unmarshal(data, &existing); err != nil {
-			return fmt.Errorf("could not parse %s: %w", path, err)
-		}
+	existing, _, err := l.readJSONFile(path)
+	if err != nil {
+		return err
 	}
 
 	mergedHooks := stripLefthookEntries(existing)
@@ -172,6 +211,51 @@ func (l *Lefthook) writeCopilotHookFile(path string, events map[string]string, b
 	})
 }
 
+func (l *Lefthook) writeAntigravityHookFile(path string, events map[string]string, bin string) error {
+	lefthookHooks := make(map[string]any, len(events))
+	for _, event := range slices.Sorted(maps.Keys(events)) {
+		format, ok := antigravityEvents[event]
+		if !ok {
+			return fmt.Errorf("%w: unsupported antigravity event %q", errAIHooksMisconfigured, event)
+		}
+		lefthookHooks[event] = buildAntigravityEventEntries(format, events[event], bin)
+	}
+
+	existing, _, err := l.readJSONFile(path)
+	if err != nil {
+		return err
+	}
+
+	existing[antigravityHooksKey] = lefthookHooks
+
+	return l.writeJSONFile(path, existing)
+}
+
+// readJSONFile reads and unmarshals a JSON object file. The bool return reports
+// whether the file existed and was non-empty.
+func (l *Lefthook) readJSONFile(path string) (map[string]any, bool, error) {
+	data, err := afero.ReadFile(l.fs, path)
+	if errors.Is(err, os.ErrNotExist) {
+		return make(map[string]any), false, nil
+	}
+	if err != nil {
+		return nil, false, fmt.Errorf("could not read %s: %w", path, err)
+	}
+	if len(data) == 0 {
+		return make(map[string]any), false, nil
+	}
+
+	existing := make(map[string]any)
+	if err = json.Unmarshal(data, &existing); err != nil {
+		return nil, false, fmt.Errorf("could not parse %s: %w", path, err)
+	}
+	if existing == nil {
+		existing = make(map[string]any)
+	}
+
+	return existing, true, nil
+}
+
 func (l *Lefthook) writeJSONFile(path string, data map[string]any) error {
 	out, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
@@ -194,16 +278,9 @@ func (l *Lefthook) writeFlatHookFile(
 	strip func(map[string]any) map[string]any,
 	bin string,
 ) error {
-	existing := make(map[string]any)
-
-	data, err := afero.ReadFile(l.fs, path)
-	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return fmt.Errorf("could not read %s: %w", path, err)
-	}
-	if len(data) > 0 {
-		if err = json.Unmarshal(data, &existing); err != nil {
-			return fmt.Errorf("could not parse %s: %w", path, err)
-		}
+	existing, _, err := l.readJSONFile(path)
+	if err != nil {
+		return err
 	}
 
 	mergedHooks := strip(existing)
@@ -345,14 +422,31 @@ func isLefthookMatcher(rawMatcher any) bool {
 	return true
 }
 
+func buildCommandHandler(hookName, bin string) map[string]any {
+	return map[string]any{
+		"type":    "command",
+		"command": lefthookRunCommand(bin, hookName),
+	}
+}
+
+func buildAntigravityEventEntries(format antigravityEventFormat, hookName, bin string) []any {
+	handler := buildCommandHandler(hookName, bin)
+	if format == antigravityEventMatcher {
+		return []any{
+			map[string]any{
+				"matcher": antigravityMatcher,
+				"hooks":   []any{handler},
+			},
+		}
+	}
+	return []any{handler}
+}
+
 // buildHookEntry constructs a single matcher group that runs lefthook for hookName.
 func buildHookEntry(hookName, bin string) map[string]any {
 	return map[string]any{
 		"hooks": []any{
-			map[string]any{
-				"type":    "command",
-				"command": lefthookRunCommand(bin, hookName),
-			},
+			buildCommandHandler(hookName, bin),
 		},
 	}
 }
