@@ -5,8 +5,11 @@ on:
   pull_request:
 
 name: Test
+permissions: {}
 jobs:
   unit:
+    permissions:
+      contents: read
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -14,6 +17,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - name: Install Go
         uses: actions/setup-go@v6
         with:
@@ -28,6 +33,8 @@ jobs:
           name: ${{ join(matrix.*, ' ') }}
 
   integration:
+    permissions:
+      contents: read
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -37,6 +44,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - name: Install Go
         uses: actions/setup-go@v6
         with:
@@ -62,10 +71,14 @@ jobs:
           name: integration-${{ join(matrix.*, ' ') }}
 
   build:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - name: Install Go
         uses: actions/setup-go@v6
         with:
