@@ -295,7 +295,7 @@ func (l *Loader) loadRemotes(k *koanf.Koanf, remotes []*Remote) error {
 		}
 
 		for _, config := range remote.Configs {
-			remotePath := l.repo.RemoteFolder(remote.GitURL, remote.Ref)
+			remotePath := l.repo.RemoteFolder(remote.DirName(remotes))
 			configFile := config
 			configPath := filepath.Join(remotePath, configFile)
 
