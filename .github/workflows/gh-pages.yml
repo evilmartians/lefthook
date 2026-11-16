@@ -6,13 +6,19 @@ on:
       - master
   pull_request:
 
+permissions: {}
+
 jobs:
   gh-pages:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Setup docmd
         run: npm install -g @docmd/core@0.8.17
