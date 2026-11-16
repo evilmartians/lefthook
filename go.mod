@@ -4,7 +4,7 @@ go 1.27.4
 
 require (
 	al.essio.dev/pkg/shellescape v1.6.1
-	charm.land/lipgloss/v2 v2.0.6
+	charm.land/lipgloss/v2 v2.1.0
 	github.com/bmatcuk/doublestar/v4 v4.10.4
 	github.com/briandowns/spinner v1.23.2
 	github.com/charmbracelet/colorprofile v0.4.3
