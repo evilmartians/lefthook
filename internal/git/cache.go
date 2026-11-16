@@ -22,8 +22,10 @@ func newCache(wrapper Wrapper) *Cache {
 	return c
 }
 
-// WarmUp starts warming up the cache, returns a waiter func.
-func (c *Cache) WarmUp() func() {
+// WarmUp starts warming up the cache, returns a waiter func. The status is
+// only needed to hide unstaged changes, and is the costliest to compute in a
+// large repository, so it is warmed up only on request.
+func (c *Cache) WarmUp(withStatus bool) func() {
 	var wg sync.WaitGroup
 
 	wg.Go(func() {
@@ -34,9 +36,11 @@ func (c *Cache) WarmUp() func() {
 		_, _ = c.stagedFilesWithDeletedOnce()
 	})
 
-	wg.Go(func() {
-		_, _ = c.statusShortOnce()
-	})
+	if withStatus {
+		wg.Go(func() {
+			_, _ = c.statusShortOnce()
+		})
+	}
 
 	return wg.Wait
 }
