@@ -3,10 +3,10 @@ type: concept
 title: ai
 source: "https://lefthook.dev/configuration/ai/"
 path: /configuration/ai/
-updated: 2026-11-12
+updated: 2026-11-16
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-12T12:57:45.968Z"
+  generated_at: "2026-11-16T08:25:21.141Z"
 ---
 ---
 title: "ai"
