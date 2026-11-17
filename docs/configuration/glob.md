@@ -50,7 +50,7 @@ glob: "src/*.js"     # matches src/file.js only
 
 #### Using `glob` without a files template in `run`
 
-If you've specified `glob` but don't have a files template in [`run`](./run.md) option, lefthook will check `{staged_files}` for `pre-commit` hook and `{push_files}` for `pre-push` hook and apply filtering. If no files left, the command will be skipped.
+If you've specified `glob` but don't have a files template in [`run`](./run.md) option, lefthook will check `{staged_files}` for `pre-commit` and `pre-merge-commit` hooks and `{push_files}` for `pre-push` hook and apply filtering. If no files left, the command will be skipped.
 
 ```yml
 # lefthook.yml
