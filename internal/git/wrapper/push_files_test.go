@@ -120,3 +120,39 @@ func TestWrapper_PushFiles(t *testing.T) {
 		})
 	}
 }
+
+func TestWrapper_PushFilesWithDeleted(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	if err := afero.WriteFile(fs, "existing.txt", []byte("content"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	for name, tt := range map[string]struct {
+		files func(*wrapper.Wrapper) ([]string, error)
+		want  []string
+	}{
+		"existing-only": {
+			files: (*wrapper.Wrapper).PushFiles,
+			want:  []string{"existing.txt"},
+		},
+		"include-deleted": {
+			files: (*wrapper.Wrapper).PushFilesWithDeleted,
+			want:  []string{"existing.txt", "deleted.txt", "deleted\tname.txt"},
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			cmd := cmdtest.NewFakeCmd(t, []cmdtest.Out{{
+				Command: "git diff --name-only HEAD @{push}",
+				Output:  "existing.txt\ndeleted.txt\n\"deleted\\tname.txt\"\n",
+			}})
+			w := wrapper.New(fs, cmd, loggertest.New())
+			result, err := tt.files(w)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !cmp.Equal(result, tt.want) {
+				t.Errorf("files() = %v, want %v", result, tt.want)
+			}
+		})
+	}
+}

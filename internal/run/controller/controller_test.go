@@ -564,10 +564,11 @@ func TestRunAll(t *testing.T) {
             run: fail
             stage_fixed: true
             glob:
-              - "*.sh"
+              - "*.txt"
       `),
 			success: []result.Result{succeeded("ok")},
 			gitCommands: []string{
+				"git diff --name-only HEAD @{push}",
 				"git diff --name-only HEAD @{push}",
 				"git diff --name-only HEAD @{push}",
 			},
