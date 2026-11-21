@@ -1,0 +1,43 @@
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+exec lefthook install
+exec git commit -m 'test'
+exec lefthook run args-test 'a b' 'it''s' '$(echo x)'
+stdout 'script: argc=3 <a b> <it''s> <\$\(echo x\)>'
+stdout 'args0: argc=3 <a b> <it''s> <\$\(echo x\)>'
+stdout 'run0: argc=3 <a b> <it''s> <\$\(echo x\)>'
+stdout 'runN: argc=3 <a b> <it''s> <\$\(echo x\)>'
+stdout 'squoted: argc=1 <a b>'
+stdout 'dquoted: argc=2 <a b> <it''s>'
+
+-- lefthook.yml --
+output:
+  - execution_out
+
+args-test:
+  piped: true
+  jobs:
+    - name: script
+      script: show.sh
+      runner: sh
+      env: { P: script }
+    - name: args0
+      script: show.sh
+      runner: sh
+      args: "{0}"
+      env: { P: args0 }
+    - name: run0
+      run: P=run0 sh .lefthook/args-test/show.sh {0}
+    - name: runN
+      run: P=runN sh .lefthook/args-test/show.sh {1} {2} {3}
+    - name: squoted
+      run: P=squoted sh .lefthook/args-test/show.sh '{1}'
+    - name: dquoted
+      run: P=dquoted sh .lefthook/args-test/show.sh "{1}" "{2}"
+
+-- .lefthook/args-test/show.sh --
+s="$P: argc=$#"
+for a in "$@"; do s="$s <$a>"; done
+echo "$s"
