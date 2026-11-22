@@ -17,8 +17,8 @@ stderr 'script-done'
 stderr 'signal: killed'
 stderr 'Error: Interrupted'
 grep unstaged newfile.txt
-exec git stash list
-! stdout 'lefthook auto backup'
+exec git for-each-ref refs/lefthook/backup/
+! stdout .
 
 -- lefthook.yml --
 pre-commit:

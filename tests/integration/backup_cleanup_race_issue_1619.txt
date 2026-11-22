@@ -1,0 +1,63 @@
+# Backup cleanup must remove only its own backup, even when a sibling
+# worktree pushes a stash right before the cleanup (all worktrees share
+# one stash list). A git shim pushes that stash just before the cleanup.
+
+[windows] skip
+
+chmod 0755 bin/git
+exec git init main
+cd main
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+exec git add -A
+exec git commit -m 'initial'
+exec lefthook install
+exec git worktree add ../sibling -b sibling
+
+# The sibling worktree has a change to stash
+cd ../sibling
+exec echo siblingChange
+cp stdout b.txt
+
+# Partially staged file in the main worktree, so lefthook makes a backup
+cd ../main
+exec echo lineStaged
+cp stdout a.txt
+exec git add a.txt
+exec echo lineUnstaged
+cp stdout a.txt
+
+# Run lefthook directly: a git hook gets git's exec-path prepended to PATH,
+# which would bypass the shim.
+env SIBLING=$WORK/sibling
+env PATH=$WORK/bin${:}$PATH
+exec lefthook run pre-commit
+
+grep lineUnstaged a.txt
+exec git stash list
+stdout 'sibling stash'
+! stdout 'lefthook auto backup'
+exec git for-each-ref refs/lefthook/backup/
+! stdout .
+
+-- bin/git --
+#!/bin/sh
+self=$(cd "$(dirname "$0")" && pwd)
+PATH=$(printf '%s' "$PATH" | tr ':' '\n' | grep -vx "$self" | paste -sd: -)
+export PATH
+if { [ "$1" = stash ] && [ "$2" = drop ]; } || { [ "$1" = update-ref ] && [ "$2" = -d ]; }; then
+  env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE \
+    git -C "$SIBLING" stash push --quiet -m 'sibling stash'
+fi
+exec git "$@"
+
+-- main/lefthook.yml --
+pre-commit:
+  jobs:
+    - run: "true"
+
+-- main/a.txt --
+line
+
+-- main/b.txt --
+line
