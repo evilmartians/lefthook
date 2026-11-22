@@ -244,12 +244,19 @@ func (r *Repo) PartiallyStagedFiles() ([]string, error) {
 	return partiallyStaged, nil
 }
 
+// SaveUnstagedChanges saves the diff of unstaged changes and a backup stash.
+// Only the diff is required to restore the changes, so a failed backup is not fatal:
+// e.g. `git stash create` refuses to work with intent-to-add (git add -N) files.
 func (r *Repo) SaveUnstagedChanges(files []string) error {
 	if err := r.wrapper.SaveUnstagedDiff(files); err != nil {
 		return err
 	}
 
-	return r.wrapper.StoreStash()
+	if err := r.wrapper.StoreStash(); err != nil {
+		r.logger.Warnf("Couldn't create a backup stash of unstaged changes, continuing without it: %s", err)
+	}
+
+	return nil
 }
 
 func (r *Repo) DiscardUnstagedChanges(files []string) error {
