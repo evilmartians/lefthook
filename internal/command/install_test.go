@@ -494,9 +494,16 @@ func Test_syncHooks(t *testing.T) {
 	}
 
 	for n, tt := range [...]struct {
-		name, config, checksum  string
-		existingFiles           map[string]string
-		git                     []cmdtest.Out
+		name, config, checksum string
+		existingFiles          map[string]string
+		git                    []cmdtest.Out
+		// hooksPath overrides Paths.Hooks in the repo builder, simulating an
+		// effective hooks path different from the default <root>/.git/hooks.
+		hooksPath string
+		// commandHooksPathOut is the output of `git config --show-scope --get
+		// core.hooksPath` when hooksPath is non-empty. If empty and hooksPath
+		// is set, it defaults to "command\t<hooksPath>" (command-scoped).
+		commandHooksPathOut     string
 		wantExist, wantNotExist []string
 		wantError               bool
 	}{
@@ -653,6 +660,73 @@ pre-commit:
 			},
 		},
 		{
+			// Reproduces #1584: when git is invoked as
+			// `git -c core.hooksPath=<dir> commit`, git resolves --git-path hooks
+			// to <dir>. The effective hooks path seen by Paths.Hooks then differs
+			// from the canonical <git-common-dir>/hooks, and --show-scope confirms
+			// the scope is "command". syncHooks must skip so hooks and the synced
+			// marker are not written into the transient path.
+			name: "unsynchronized with command-scoped core.hooksPath",
+			config: `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+`,
+			// No pre-existing checksum → checkHooksSynchronized returns false →
+			// syncHooks attempts to install → blocked by hasCommand → nothing written.
+			hooksPath: "/tmp/command-scoped-hooks",
+			// commandHooksPathOut left empty → defaults to "command\t<hooksPath>".
+			wantExist: []string{
+				configPath,
+			},
+			wantNotExist: []string{
+				hookPath("pre-commit"),
+				hookPath(config.GhostHookName),
+				infoPath(config.ChecksumFileName), // synced marker must NOT be written
+			},
+		},
+		{
+			// If the command-scoped core.hooksPath happens to equal the repo's
+			// default hooks directory, the effective path is unchanged and
+			// auto-sync must proceed normally (no false positive).
+			name: "unsynchronized with command-scoped core.hooksPath equal to default",
+			config: `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+`,
+			// hooksPath left empty → RepositoryBuilder defaults to <root>/.git/hooks
+			// which equals CommonGit/hooks → hasCommand = false → sync proceeds
+			// without any --show-scope git call.
+			wantExist: []string{
+				configPath,
+				hookPath("pre-commit"),
+				infoPath(config.ChecksumFileName),
+			},
+		},
+		{
+			// System-scope regression check: when core.hooksPath is set at system
+			// scope (e.g. company-wide hooks), the effective path differs from the
+			// default but --show-scope returns "system", not "command". hasCommand
+			// must be false and sync must proceed normally (base behavior).
+			name: "unsynchronized with system-scoped core.hooksPath",
+			config: `
+pre-commit:
+  commands:
+    tests:
+      run: yarn test
+`,
+			hooksPath:           "/etc/git/hooks",
+			commandHooksPathOut: "system\t/etc/git/hooks", // not command scope
+			wantExist: []string{
+				configPath,
+				"/etc/git/hooks/pre-commit", // installed into system hooks dir
+				infoPath(config.ChecksumFileName),
+			},
+		},
+		{
 			name: "with unfetched remote",
 			config: `
 remotes:
@@ -722,8 +796,25 @@ remotes:
 					cmdtest.Out{Command: "git config --global core.hooksPath"},
 				)
 			}
+			// When Paths.Hooks differs from the default, ensureHooksPathUnset calls
+			// CommandHooksPath() = `git config --show-scope --get core.hooksPath`.
+			// commandHooksPathOut defaults to "command\t<hooksPath>" when not set.
+			if tt.hooksPath != "" {
+				out := tt.commandHooksPathOut
+				if out == "" {
+					out = "command\t" + tt.hooksPath
+				}
+				gitCmds = append(gitCmds, cmdtest.Out{
+					Command: "git config --show-scope --get core.hooksPath",
+					Output:  out + "\n",
+				})
+			}
 
-			repo := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Cmd(cmdtest.NewFakeCmd(t, gitCmds)).Build()
+			builder := gittest.NewRepositoryBuilder().Root(root).Fs(fs).Cmd(cmdtest.NewFakeCmd(t, gitCmds))
+			if tt.hooksPath != "" {
+				builder = builder.HooksPath(tt.hooksPath)
+			}
+			repo := builder.Build()
 			lefthook := &Lefthook{
 				logger: loggertest.New(),
 				fs:     fs,
@@ -904,9 +995,11 @@ pre-commit:
 		force          bool
 		resetHooksPath bool
 		git            []cmdtest.Out
-		wantError      bool
-		wantErrorMsg   string
-		wantExist      []string
+		// hooksPath overrides Paths.Hooks; simulates a non-default effective path.
+		hooksPath    string
+		wantError    bool
+		wantErrorMsg string
+		wantExist    []string
 	}{
 		{
 			name:           "with local and global core.hooksPath without flags",
@@ -1034,17 +1127,42 @@ pre-commit:
 				infoPath(config.ChecksumFileName),
 			},
 		},
+		{
+			// System-scope regression: Install must succeed when core.hooksPath is
+			// set at system scope (e.g. a company-wide hooks directory). Only
+			// command scope (`git -c`) should cause a skip or error.
+			name:  "with system-scoped core.hooksPath",
+			force: false,
+			git: []cmdtest.Out{
+				{Command: "git config --local core.hooksPath"},
+				{Command: "git config --global core.hooksPath"},
+				{
+					Command: "git config --show-scope --get core.hooksPath",
+					Output:  "system\t/etc/git/hooks\n",
+				},
+			},
+			hooksPath: "/etc/git/hooks",
+			wantError: false,
+			wantExist: []string{
+				configPath,
+				"/etc/git/hooks/pre-commit",
+				infoPath(config.ChecksumFileName),
+			},
+		},
 	} {
 		fs := afero.NewMemMapFs()
 
 		t.Run(fmt.Sprintf("%d: %s", n, tt.name), func(t *testing.T) {
 			assert := assert.New(t)
 
-			repo := gittest.NewRepositoryBuilder().
+			builder := gittest.NewRepositoryBuilder().
 				Root(root).
 				Fs(fs).
-				Cmd(cmdtest.NewFakeCmd(t, tt.git)).
-				Build()
+				Cmd(cmdtest.NewFakeCmd(t, tt.git))
+			if tt.hooksPath != "" {
+				builder = builder.HooksPath(tt.hooksPath)
+			}
+			repo := builder.Build()
 			lefthook := &Lefthook{
 				logger: loggertest.New(),
 				fs:     fs,

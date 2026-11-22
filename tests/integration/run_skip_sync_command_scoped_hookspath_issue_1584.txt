@@ -1,0 +1,40 @@
+# Reproduces #1584: when core.hooksPath is set at command scope (e.g. via
+# GIT_CONFIG_COUNT/GIT_CONFIG_KEY_n/GIT_CONFIG_VALUE_n, which is how
+# `git -c core.hooksPath=...` propagates the value to child hooks), lefthook
+# run must skip auto-sync so it does not install hooks into the transient path
+# or write the synced marker. A subsequent normal invocation must still install
+# into .git/hooks.
+
+exec git init
+exec git config user.email "you@example.com"
+exec git config user.name "Your Name"
+
+# Simulate the environment set by `git -c core.hooksPath=/tmp/alt-hooks commit`
+# when it invokes the hook script that in turn calls `lefthook run pre-commit`.
+env GIT_CONFIG_COUNT=1
+env GIT_CONFIG_KEY_0=core.hooksPath
+env GIT_CONFIG_VALUE_0=$WORK/alt-hooks
+
+# With command-scoped hooksPath, lefthook run must not install hooks and must
+# not write the synced-checksum marker. The command itself should still succeed
+# (auto-sync failures are non-fatal).
+exec lefthook run pre-commit
+
+# No hooks must have been written to the transient (command-scoped) directory.
+! exists $WORK/alt-hooks/pre-commit
+
+# Now run without the command-scoped override: auto-sync should proceed normally
+# and install hooks into .git/hooks.
+env GIT_CONFIG_COUNT=
+env GIT_CONFIG_KEY_0=
+env GIT_CONFIG_VALUE_0=
+
+exec lefthook run pre-commit
+
+exists .git/hooks/pre-commit
+
+-- lefthook.yml --
+pre-commit:
+  commands:
+    hello:
+      run: echo hello

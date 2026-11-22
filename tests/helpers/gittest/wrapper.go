@@ -9,6 +9,7 @@ type StubWrapper struct {
 	UnsetLocalHooksPathFunc       func() error
 	StubGlobalHooksPath           func() string
 	UnsetGlobalHooksPathFunc      func() error
+	CommandHooksPathFunc          func() string
 	AllFilesFunc                  func() ([]string, error)
 	StagedFilesFunc               func() ([]string, error)
 	StagedFilesWithDeletedFunc    func() ([]string, error)
@@ -41,6 +42,7 @@ func (w *StubWrapper) LocalHooksPath() string         { return w.LocalHooksPathF
 func (w *StubWrapper) UnsetLocalHooksPath() error     { return w.UnsetLocalHooksPathFunc() }
 func (w *StubWrapper) GlobalHooksPath() string        { return w.StubGlobalHooksPath() }
 func (w *StubWrapper) UnsetGlobalHooksPath() error    { return w.UnsetGlobalHooksPathFunc() }
+func (w *StubWrapper) CommandHooksPath() string       { return w.CommandHooksPathFunc() }
 func (w *StubWrapper) AllFiles() ([]string, error)    { return w.AllFilesFunc() }
 func (w *StubWrapper) StagedFiles() ([]string, error) { return w.StagedFilesFunc() }
 func (w *StubWrapper) StagedFilesWithDeleted() ([]string, error) {
