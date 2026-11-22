@@ -8,7 +8,7 @@ title: "no_auto_install"
 
 Disable automatic installation and synchronization of git hooks when running lefthook. By default, lefthook automatically installs and updates hooks when you run `lefthook run` if the configuration has changed. Setting this to `true` disables that behavior.
 
-This can also be controlled with the `--no-auto-install` option for the `lefthook run` command.
+This can also be controlled with the `--no-auto-install` option for the `lefthook run` command or with the [`LEFTHOOK_NO_AUTO_INSTALL`](../usage/envs/LEFTHOOK_NO_AUTO_INSTALL.md) environment variable to turn the synchronization off only for some processes.
 
 #### Example
 

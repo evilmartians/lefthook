@@ -16,6 +16,7 @@ import (
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/exec"
+	"github.com/evilmartians/lefthook/v2/internal/run/controller/utils"
 	"github.com/evilmartians/lefthook/v2/internal/run/result"
 	"github.com/evilmartians/lefthook/v2/internal/system"
 	"github.com/evilmartians/lefthook/v2/tests/helpers/cmdtest"
@@ -707,20 +708,18 @@ func TestController_RunHookPushStdin(t *testing.T) {
 		Build()
 	controller := NewController(repo, loggertest.NewExecution())
 	payload := "refs/heads/main " + strings.Repeat("a", 40) + " refs/heads/main " + strings.Repeat("b", 40) + "\n"
-	controller.cachedStdin = strings.NewReader(payload)
+	controller.cachedStdin = utils.NewCachedReader(strings.NewReader(payload))
 
 	var got []string
 	var calls, commands int
 	controller.executor = exectest.ExecutorFunc(func(_ context.Context, opts exec.Options, in io.Reader, _ io.Writer) error {
 		calls++
-		commands = len(opts.Commands)
-		for range opts.Commands {
-			data, err := io.ReadAll(in)
-			if err != nil {
-				return fmt.Errorf("read job stdin: %w", err)
-			}
-			got = append(got, string(data))
+		commands += len(opts.Commands)
+		data, err := io.ReadAll(in)
+		if err != nil {
+			return fmt.Errorf("read job stdin: %w", err)
 		}
+		got = append(got, string(data))
 		return nil
 	})
 
@@ -739,8 +738,8 @@ func TestController_RunHookPushStdin(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if calls != 1 || commands < 2 || len(got) != commands {
-		t.Fatalf("execution = %d calls, %d commands, %d reads; want one split job", calls, commands, len(got))
+	if calls < 2 || commands != calls || len(got) != calls {
+		t.Fatalf("execution = %d calls, %d commands, %d reads; want a fresh input for each split command", calls, commands, len(got))
 	}
 	for i, input := range got {
 		if input != payload {

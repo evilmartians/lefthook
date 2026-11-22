@@ -3,7 +3,6 @@
 package controller
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -26,8 +25,7 @@ const prePushHook = "pre-push"
 type Controller struct {
 	git          *git.Repo
 	logger       *logger.ExecutionLogger
-	cachedStdin  io.Reader
-	pushStdin    []byte
+	cachedStdin  *utils.CachedReader
 	executor     exec.Executor
 	cmd          system.CommandWithContext
 	skipChecker  *config.SkipChecker
@@ -80,13 +78,12 @@ func (c *Controller) RunHook(ctx context.Context, opts Options, hook *config.Hoo
 	}
 
 	if hook.Name == prePushHook && len(opts.GitArgs) > 0 {
-		input, err := io.ReadAll(c.cachedStdin)
+		input, err := io.ReadAll(c.cachedStdin.Reader())
 		if err != nil {
 			return results, fmt.Errorf("read pre-push ref updates: %w", err)
 		}
-		repo, stdin := c.git, c.pushStdin
-		defer func() { c.git, c.pushStdin = repo, stdin }()
-		c.pushStdin = input
+		repo := c.git
+		defer func() { c.git = repo }()
 		c.git = c.git.WithPushRefs(opts.GitArgs[0], string(input))
 	}
 
@@ -192,11 +189,4 @@ func (c *Controller) sequentially(ctx context.Context, scope *scope, jobs []*con
 	}
 
 	return results
-}
-
-func (c *Controller) stdin() io.Reader {
-	if c.pushStdin != nil {
-		return utils.NewCachedReader(bytes.NewReader(c.pushStdin))
-	}
-	return c.cachedStdin
 }

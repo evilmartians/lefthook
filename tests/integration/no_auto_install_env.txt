@@ -1,0 +1,19 @@
+exec git init
+
+env LEFTHOOK_NO_AUTO_INSTALL=1
+exec lefthook run pre-commit --no-tty
+! exists .git/hooks/pre-commit
+
+env LEFTHOOK_NO_AUTO_INSTALL=true
+exec lefthook run pre-commit --no-tty
+! exists .git/hooks/pre-commit
+
+env LEFTHOOK_NO_AUTO_INSTALL=0
+exec lefthook run pre-commit --no-tty
+exists .git/hooks/pre-commit
+
+-- lefthook.yml --
+pre-commit:
+  commands:
+    echo:
+      run: echo ok

@@ -66,6 +66,12 @@ func TestByGlob(t *testing.T) {
 			globMatcher: "",
 			result:      []string{"f.a", "f.b", "f.cn"},
 		},
+		{
+			source:      []string{"a.rb", "b.rb", "c.txt"},
+			glob:        []string{"*.rb", "a.*"},
+			globMatcher: "",
+			result:      []string{"a.rb", "b.rb"},
+		},
 	} {
 		t.Run(fmt.Sprintf("%d:", i), func(t *testing.T) {
 			res := byGlob(tt.source, tt.glob, tt.globMatcher)
@@ -111,6 +117,12 @@ func TestByGlobDoublestar(t *testing.T) {
 			glob:        []string{"**/*.js"},
 			globMatcher: "doublestar",
 			result:      []string{"test.js", "src/app.js", "src/lib/util.js"},
+		},
+		{
+			source:      []string{"a.rb", "b.rb", "c.txt"},
+			glob:        []string{"*.rb", "a.*"},
+			globMatcher: "doublestar",
+			result:      []string{"a.rb", "b.rb"},
 		},
 	} {
 		t.Run(fmt.Sprintf("doublestar-%d:", i), func(t *testing.T) {

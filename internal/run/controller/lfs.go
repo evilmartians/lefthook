@@ -58,7 +58,7 @@ func (c *Controller) runLFSHook(ctx context.Context, hookName string, args []str
 	var stdin io.Reader
 	if hookName == prePushHook {
 		// Git LFS reads ref updates from stdin for pre-push only.
-		stdin = c.stdin()
+		stdin = c.cachedStdin.Reader()
 	}
 	err = c.cmd.RunWithContext(
 		ctx,
