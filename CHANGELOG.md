@@ -1,5 +1,20 @@
 # Change log
 
+## 2.2.3
+
+- deps: November 2026 ([#1650](https://github.com/evilmartians/lefthook/pull/1650)) by [@mrexox](https://github.com/mrexox)
+- docs: update supported versions in security policy ([#1649](https://github.com/evilmartians/lefthook/pull/1649)) by [@dirgaydtm](https://github.com/dirgaydtm)
+- chore: update JSON schema with title and description ([#1608](https://github.com/evilmartians/lefthook/pull/1608)) by [@uzosrc](https://github.com/uzosrc)
+- fix: give each stdin consumer an independent reader ([#1622](https://github.com/evilmartians/lefthook/pull/1622)) by [@chiliec](https://github.com/chiliec)
+- fix: stop hooks on SIGTERM and SIGHUP like on SIGINT ([#1615](https://github.com/evilmartians/lefthook/pull/1615)) by [@vulragrag-star](https://github.com/vulragrag-star)
+- deps: November 2026 ([#1636](https://github.com/evilmartians/lefthook/pull/1636)) by [@mrexox](https://github.com/mrexox)
+- deps: bump Go to 1.27.4 ([#1634](https://github.com/evilmartians/lefthook/pull/1634)) by [@EduCosta85](https://github.com/EduCosta85)
+- feat: add LEFTHOOK_NO_AUTO_INSTALL env ([#1592](https://github.com/evilmartians/lefthook/pull/1592)) by [@dirgaydtm](https://github.com/dirgaydtm)
+- fix: do not duplicate files matched by several glob patterns ([#1630](https://github.com/evilmartians/lefthook/pull/1630)) by [@pcbeingused333](https://github.com/pcbeingused333)
+- pkg: tag linux wheels as musllinux compatible ([#1605](https://github.com/evilmartians/lefthook/pull/1605)) by [@delliottxyz](https://github.com/delliottxyz)
+- refactor: migrate to github.com/go-viper/mapstructure/v2 ([#1546](https://github.com/evilmartians/lefthook/pull/1546)) by [@scop](https://github.com/scop)
+- packaging: publish npm packages in different actions ([#1598](https://github.com/evilmartians/lefthook/pull/1598)) by [@mrexox](https://github.com/mrexox)
+
 ## 2.2.2
 
 - fix: cleanup only current stash hash ([#1597](https://github.com/evilmartians/lefthook/pull/1597)) by [@mrexox](https://github.com/mrexox)
