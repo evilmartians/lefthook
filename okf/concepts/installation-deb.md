@@ -3,10 +3,10 @@ type: concept
 title: Debian-based
 source: "https://lefthook.dev/installation/deb/"
 path: /installation/deb/
-updated: 2026-11-16
+updated: 2026-11-24
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-16T08:25:21.158Z"
+  generated_at: "2026-11-24T08:58:17.951Z"
 ---
 ---
 title: "Debian-based"
