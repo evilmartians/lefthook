@@ -85,7 +85,9 @@ func (b *Builder) buildScript(params *JobParams) ([]string, []string, error) {
 			commands, _ := replacer.ReplaceAndSplit(command, system.MaxCmdLen())
 			execs = append(execs, commands...)
 		} else {
-			args = append(args, b.opts.GitArgs...)
+			for _, arg := range b.opts.GitArgs {
+				args = append(args, shellescape.Quote(arg))
+			}
 			execs = append(execs, strings.Join(args, " "))
 		}
 	}

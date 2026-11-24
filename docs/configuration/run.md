@@ -15,6 +15,7 @@ You can use files templates that will be substituted with the appropriate files 
 - `{cmd}` - shorthand for the command from `lefthook.yml`.
 - `{0}` - shorthand for the single space-joint string of git hook arguments.
 - `{1}` - shorthand for the 1-st git hook argument (and so on for `{2}`, `{3}`, etc.)
+  Git arguments are shell-escaped, so an argument with spaces stays a single argument. When the template is wrapped in quotes (`"{1}"`, `'{1}'`), the argument is inserted as is.
 - `{lefthook_job_name}` - current job/command/script name
 
 ::: callout info Note
