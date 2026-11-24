@@ -32,7 +32,7 @@ require (
 	github.com/schollz/progressbar/v3 v3.19.1
 	github.com/spf13/afero v1.15.0
 	github.com/stretchr/testify v1.12.1
-	github.com/tidwall/jsonc v0.3.3
+	github.com/tidwall/jsonc v0.3.4
 	github.com/urfave/cli/v3 v3.14.0
 	go.yaml.in/yaml/v3 v3.0.6
 	golang.org/x/mod v0.43.0
