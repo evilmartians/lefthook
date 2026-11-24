@@ -6,7 +6,7 @@ path: /configuration/refetch_frequency/
 updated: 2026-11-24
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-24T09:05:27.880Z"
+  generated_at: "2026-11-24T10:27:02.897Z"
 ---
 ---
 title: "refetch_frequency"

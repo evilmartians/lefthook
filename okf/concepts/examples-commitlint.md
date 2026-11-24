@@ -6,7 +6,7 @@ path: /examples/commitlint/
 updated: 2026-11-24
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-24T09:05:27.884Z"
+  generated_at: "2026-11-24T10:27:02.901Z"
 ---
 # Commitlint and commitzen
 

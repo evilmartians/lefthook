@@ -6,7 +6,7 @@ path: /configuration/tags/
 updated: 2026-11-24
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-24T09:05:27.883Z"
+  generated_at: "2026-11-24T10:27:02.900Z"
 ---
 ---
 title: "tags"

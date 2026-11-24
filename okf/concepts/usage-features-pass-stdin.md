@@ -6,7 +6,7 @@ path: /usage/features/pass-stdin/
 updated: 2026-11-24
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-24T09:05:27.896Z"
+  generated_at: "2026-11-24T10:27:02.910Z"
 ---
 ---
 title: "Pass stdin to a command or script"

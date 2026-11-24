@@ -6,7 +6,7 @@ path: /installation/swift/
 updated: 2026-11-24
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-24T09:05:27.891Z"
+  generated_at: "2026-11-24T10:27:02.907Z"
 ---
 # Swift
 
@@ -15,7 +15,7 @@ You can find the Swift wrapper plugin [here](https://github.com/csjones/lefthook
 Utilize lefthook in your Swift project using Swift Package Manager:
 
 ```swift
-.package(url: "https://github.com/csjones/lefthook-plugin.git", exact: "2.2.2"),
+.package(url: "https://github.com/csjones/lefthook-plugin.git", exact: "2.2.3"),
 ```
 
 Or, with [mint](https://github.com/yonaskolb/Mint):
