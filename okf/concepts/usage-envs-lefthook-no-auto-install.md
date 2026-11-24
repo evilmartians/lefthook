@@ -6,7 +6,7 @@ path: /usage/envs/LEFTHOOK_NO_AUTO_INSTALL/
 updated: 2026-11-24
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-24T08:58:17.960Z"
+  generated_at: "2026-11-24T09:05:27.895Z"
 ---
 ---
 title: "LEFTHOOK_NO_AUTO_INSTALL"

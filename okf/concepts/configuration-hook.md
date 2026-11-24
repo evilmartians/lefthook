@@ -6,7 +6,7 @@ path: /configuration/Hook/
 updated: 2026-11-24
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-24T08:58:17.931Z"
+  generated_at: "2026-11-24T09:05:27.870Z"
 ---
 ---
 title: "Hook"

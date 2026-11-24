@@ -6,7 +6,7 @@ path: /usage/commands/uninstall/
 updated: 2026-11-24
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-24T08:58:17.957Z"
+  generated_at: "2026-11-24T09:05:27.893Z"
 ---
 ---
 title: "lefthook uninstall"

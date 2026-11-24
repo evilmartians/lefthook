@@ -6,7 +6,7 @@ path: /configuration/fail_on_changes_diff/
 updated: 2026-11-24
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-24T08:58:17.935Z"
+  generated_at: "2026-11-24T09:05:27.874Z"
 ---
 ---
 title: "fail_on_changes_diff"
