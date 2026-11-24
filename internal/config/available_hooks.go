@@ -43,6 +43,14 @@ func HookUsesStagedFiles(hook string) bool {
 	return hook == "pre-commit"
 }
 
+// HookFallsBackToStagedFiles reports whether a job without a files template
+// uses the staged files to filter itself, which also decides whether `glob`
+// skips the job. Unlike HookUsesStagedFiles this does not imply that
+// `stage_fixed` applies to the hook.
+func HookFallsBackToStagedFiles(hook string) bool {
+	return HookUsesStagedFiles(hook) || hook == "pre-merge-commit"
+}
+
 func HookUsesPushFiles(hook string) bool {
 	return hook == "pre-push"
 }
