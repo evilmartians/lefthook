@@ -1286,3 +1286,44 @@ pre-commit:
 		})
 	}
 }
+
+func TestLocalConfigAsPrimary(t *testing.T) {
+	root, err := filepath.Abs("src")
+	assert.NoError(t, err)
+	for _, tt := range []struct {
+		name, path, override string
+	}{
+		{name: "fallback", path: "lefthook-local.yml"},
+		{name: "override", path: "lefthook-local.yml", override: "lefthook-local.yml"},
+		{name: "absolute override", path: "lefthook-local.yml", override: filepath.Join(root, "lefthook-local.yml")},
+		{name: "hidden override", path: ".lefthook-local.yml", override: ".lefthook-local.yml"},
+		{name: "config directory override", path: filepath.Join(".config", "lefthook-local.yml"), override: filepath.Join(".config", "lefthook-local.yml")},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			fs := afero.Afero{Fs: afero.NewMemMapFs()}
+			assert.NoError(t, fs.MkdirAll(filepath.Join(root, filepath.Dir(tt.path)), 0o755))
+			assert.NoError(t, fs.WriteFile(filepath.Join(root, tt.path), []byte(`
+extends: [base.yml]
+pre-commit:
+  jobs:
+    - run: echo local
+`), 0o644))
+			assert.NoError(t, fs.WriteFile(filepath.Join(root, "base.yml"), []byte(`
+pre-commit:
+  jobs:
+    - run: echo base
+`), 0o644))
+			t.Setenv("LEFTHOOK_CONFIG", tt.override)
+			repo := gittest.NewRepositoryBuilder().Fs(fs).Root(root).Build()
+			loader := NewLoader(repo, loggertest.New())
+			main, secondary, err := loader.LoadKoanf()
+			assert.NoError(t, err)
+			assert.Equal(t, []string{"base.yml"}, main.Strings("extends"))
+			assert.Len(t, main.Slices("pre-commit.jobs"), 1)
+			assert.Len(t, secondary.Slices("pre-commit.jobs"), 1)
+			cfg, err := loader.Unmarshal(main, secondary)
+			assert.NoError(t, err)
+			assert.Len(t, cfg.Hooks["pre-commit"].Jobs, 2)
+		})
+	}
+}
