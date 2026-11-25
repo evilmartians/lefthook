@@ -6,7 +6,7 @@ path: /usage/commands/check-install/
 updated: 2026-11-25
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-25T07:29:59.776Z"
+  generated_at: "2026-11-25T07:43:04.409Z"
 ---
 ---
 title: "lefthook check-install"

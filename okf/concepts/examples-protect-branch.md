@@ -6,7 +6,7 @@ path: /examples/protect-branch/
 updated: 2026-11-25
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-25T07:29:59.769Z"
+  generated_at: "2026-11-25T07:43:04.401Z"
 ---
 ---
 title: "Protect a branch from direct push"
