@@ -16,7 +16,7 @@ func TestWrapper_StatusShort(t *testing.T) {
 	logger := loggertest.New()
 	cmd := cmdtest.NewFakeCmd(t, []cmdtest.Out{
 		{
-			Command: "git status --short --porcelain -z",
+			Command: "git --no-optional-locks status --short --porcelain -z",
 			Output: "RM new file\x00old-file\x00" +
 				"M  staged\x00" +
 				"MM staged but changed\x00" +
