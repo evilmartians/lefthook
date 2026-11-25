@@ -30,17 +30,17 @@ func Test_guard_wrap(t *testing.T) {
 			stashUnstagedChanges: false,
 			failOnChanges:        true,
 			commands: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: ""},
-				{Command: "git status --short --porcelain -z", Output: ""},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: ""},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: ""},
 			},
 		},
 		"failOnChanges=true no fail": {
 			stashUnstagedChanges: false,
 			failOnChanges:        true,
 			commands: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: " M file1\x00 M file2\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: " M file1\x00 M file2\x00"},
 				{Command: "git hash-object -- file1 file2", Output: "0\n1\n"},
-				{Command: "git status --short --porcelain -z", Output: " M file1\x00 M file2\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: " M file1\x00 M file2\x00"},
 				{Command: "git hash-object -- file1 file2", Output: "0\n1\n"},
 			},
 		},
@@ -49,9 +49,9 @@ func Test_guard_wrap(t *testing.T) {
 			failOnChanges:        true,
 			failOnChangesDiff:    true,
 			commands: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: " M file1\x00 M file2\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: " M file1\x00 M file2\x00"},
 				{Command: "git hash-object -- file1 file2", Output: "0\n1\n"},
-				{Command: "git status --short --porcelain -z", Output: " M file1\x00 M file2\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: " M file1\x00 M file2\x00"},
 				{Command: "git hash-object -- file1 file2", Output: "2\n3\n"},
 				{Command: "git diff -- file1 file2", Output: "diff --git a/file1 b/file1\n..."},
 			},
@@ -61,8 +61,8 @@ func Test_guard_wrap(t *testing.T) {
 			stashUnstagedChanges: false,
 			failOnChanges:        true,
 			commands: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: ""},
-				{Command: "git status --short --porcelain -z", Output: " M file1\x00 M file2\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: ""},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: " M file1\x00 M file2\x00"},
 				{Command: "git hash-object -- file1 file2", Output: "0\n1\n"},
 			},
 			err: &FailOnChangesError{[]string{"file1", "file2"}},
@@ -71,21 +71,21 @@ func Test_guard_wrap(t *testing.T) {
 			stashUnstagedChanges: true,
 			failOnChanges:        false,
 			commands: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: ""},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: ""},
 			},
 		},
 		"stashUnstagedChanges=true no unstaged": {
 			stashUnstagedChanges: true,
 			failOnChanges:        false,
 			commands: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: "M  file1\x00M  file2\x00M  file3\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: "M  file1\x00M  file2\x00M  file3\x00"},
 			},
 		},
 		"stashUnstagedChanges=true with partially staged": {
 			stashUnstagedChanges: true,
 			failOnChanges:        false,
 			commands: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: "AM file1\x00 M file2\x00 A file3\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: "AM file1\x00 M file2\x00 A file3\x00"},
 				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output=" +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", Output: ""},
@@ -103,7 +103,7 @@ func Test_guard_wrap(t *testing.T) {
 			stashUnstagedChanges: true,
 			failOnChanges:        true,
 			commands: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: "AM file1\x00 M file2\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: "AM file1\x00 M file2\x00"},
 				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output=" +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", Output: ""},
@@ -113,9 +113,9 @@ func Test_guard_wrap(t *testing.T) {
 				{Command: "git stash create", Output: "<stash-hash>"},
 				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
 				{Command: "git checkout --force -- file1", Output: ""},
-				{Command: "git status --short --porcelain -z", Output: "A file1\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: "A file1\x00"},
 				// job run
-				{Command: "git status --short --porcelain -z", Output: "A file1\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: "A file1\x00"},
 				{Command: "git stash list", Output: "0: my stash\n1: lefthook auto backup\n2: my second stash\n"},
 				{Command: "git stash drop --quiet -- 1", Output: ""},
 			},
@@ -125,7 +125,7 @@ func Test_guard_wrap(t *testing.T) {
 			failOnChanges:        true,
 			failOnChangesDiff:    true,
 			commands: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: "AM file1\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: "AM file1\x00"},
 				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output=" +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", Output: ""},
@@ -135,10 +135,10 @@ func Test_guard_wrap(t *testing.T) {
 				{Command: "git stash create", Output: "<stash-hash>"},
 				{Command: "git stash store --quiet --message lefthook auto backup <stash-hash>", Output: ""},
 				{Command: "git checkout --force -- file1", Output: ""},
-				{Command: "git status --short --porcelain -z", Output: "A  file1\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: "A  file1\x00"},
 				{Command: "git hash-object -- file1", Output: "hash1\n"},
 				// job run
-				{Command: "git status --short --porcelain -z", Output: "AM file1\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: "AM file1\x00"},
 				{Command: "git hash-object -- file1", Output: "hash2\n"},
 				{Command: "git diff -- file1", Output: "diff --git a/file1 b/file1\n..."},
 				{Command: "git checkout --force -- file1", Output: ""},
@@ -152,8 +152,8 @@ func Test_guard_wrap(t *testing.T) {
 			failOnChanges:        true,
 			commands: []cmdtest.Out{
 				// Deleted file in before and after - same state, no change
-				{Command: "git status --short --porcelain -z", Output: "D  file1\x00"},
-				{Command: "git status --short --porcelain -z", Output: "D  file1\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: "D  file1\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: "D  file1\x00"},
 			},
 		},
 		"failOnChanges=true with directory": {
@@ -161,9 +161,9 @@ func Test_guard_wrap(t *testing.T) {
 			failOnChanges:        true,
 			commands: []cmdtest.Out{
 				// Directory in before() - marked as "directory"
-				{Command: "git status --short --porcelain -z", Output: "?? dir/\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: "?? dir/\x00"},
 				// Directory still there in after() - same state, no change
-				{Command: "git status --short --porcelain -z", Output: "?? dir/\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: "?? dir/\x00"},
 			},
 		},
 		"failOnChanges=true with changeset error in before": {
@@ -171,8 +171,8 @@ func Test_guard_wrap(t *testing.T) {
 			failOnChanges:        true,
 			commands: []cmdtest.Out{
 				// Changeset() error in before() - empty output simulates error
-				{Command: "git status --short --porcelain -z", Output: ""},
-				{Command: "git status --short --porcelain -z", Output: ""},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: ""},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: ""},
 			},
 		},
 		"failOnChanges=true failOnChangesDiff=true with no changed files": {
@@ -180,17 +180,17 @@ func Test_guard_wrap(t *testing.T) {
 			failOnChanges:        true,
 			failOnChangesDiff:    true,
 			commands: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: ""},
-				{Command: "git status --short --porcelain -z", Output: ""},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: ""},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: ""},
 			},
 		},
 		"failOnChanges=true with deleted file in changeset": {
 			stashUnstagedChanges: false,
 			failOnChanges:        true,
 			commands: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: " M file1\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: " M file1\x00"},
 				{Command: "git hash-object -- file1", Output: "hash1\n"},
-				{Command: "git status --short --porcelain -z", Output: "D  file1\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: "D  file1\x00"},
 				// file1 was deleted, so it's in changesetAfter but marked as "deleted"
 			},
 			err: &FailOnChangesError{[]string{"file1"}},
@@ -239,20 +239,20 @@ func Test_guard_wrap_stageFixed(t *testing.T) {
 	}{
 		"no files to stage": {
 			commands: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: "M  file1\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: "M  file1\x00"},
 			},
 		},
 		"fixed files staged": {
 			filesToStage: []string{"file1"},
 			commands: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: "M  file1\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: "M  file1\x00"},
 				{Command: "git add --force -- file1", Output: ""},
 			},
 		},
 		"staging fixed files fails": {
 			filesToStage: []string{"file1"},
 			commands: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: "M  file1\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: "M  file1\x00"},
 				{Command: "git add --force -- file1", Err: errStaging},
 			},
 			err: errStaging,
@@ -260,7 +260,7 @@ func Test_guard_wrap_stageFixed(t *testing.T) {
 		"staging fixed files fails with partially staged": {
 			filesToStage: []string{"file2"},
 			commands: []cmdtest.Out{
-				{Command: "git status --short --porcelain -z", Output: "AM file1\x00"},
+				{Command: "git --no-optional-locks status --short --porcelain -z", Output: "AM file1\x00"},
 				{Command: "git diff --binary --unified=0 --no-color --no-ext-diff --src-prefix=a/ --dst-prefix=b/ --patch --submodule=short --output=" +
 					filepath.Join("root", ".git", "info", "lefthook-unstaged.patch") +
 					" -- file1", Output: ""},
