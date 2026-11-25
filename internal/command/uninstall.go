@@ -68,8 +68,8 @@ func (l *Lefthook) deleteHooks(force bool) error {
 		}
 
 		// Recover .old file if exists
-		oldHookFile := filepath.Join(l.repo.Paths.Hooks, file.Name()+".old")
-		if exists, _ := afero.Exists(l.fs, oldHookFile); !exists {
+		oldHookFile := filepath.Join(l.repo.Paths.Hooks, file.Name()+oldHookPostfix)
+		if _, exists, _ := l.lstat(oldHookFile); !exists {
 			continue
 		}
 
