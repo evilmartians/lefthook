@@ -57,6 +57,8 @@ pre-commit:
       tags: docs
       run: lychee --max-concurrency 3 -- {staged_files}
       glob: '*.md'
+      file_types:
+        - not symlink
       exclude:
         - CHANGELOG.md
 
