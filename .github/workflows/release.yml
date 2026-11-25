@@ -1,87 +1,123 @@
-name: release
+name: Release
 
 on:
   push:
-    tags:
-      - "*"
+    tags: ["v*"]
 
 permissions:
-  attestations: write
-  contents: write
-  id-token: write
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  build:
+  verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
+          persist-credentials: false
           fetch-depth: 0
 
-      - name: Fetch all tags
-        run: git fetch --force --tags
-
-      - name: Setup Go
-        uses: actions/setup-go@v6
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
+          cache: false
 
-      - name: Install Snapcraft
-        uses: samuelmeuli/action-snapcraft@v2
+      - name: Test
+        run: go test -race -count=1 -timeout=10m ./...
 
-      - name: Prevent from snapcraft fail
-        run: |
-          mkdir -p $HOME/.cache/snapcraft/download
-          mkdir -p $HOME/.cache/snapcraft/stage-packages
+      - uses: golangci/golangci-lint-action@v9
+        with:
+          version-file: .tool-versions
+          skip-cache: true
 
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
+      - name: Validate GoReleaser
+        uses: goreleaser/goreleaser-action@v7
         with:
           distribution: goreleaser
-          version: 'v2.10.2'
-          args: release --clean --verbose
+          version: "~> v2"
+          args: check
+
+  build:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: false
+
+      - uses: samuelmeuli/action-snapcraft@v2
+
+      - name: Prepare Snapcraft cache
+        run: mkdir -p "$HOME/.cache/snapcraft/download" "$HOME/.cache/snapcraft/stage-packages"
+
+      - name: Release with GoReleaser
+        uses: goreleaser/goreleaser-action@v7
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
 
-      - name: Generate artifact attestations
-        uses: actions/attest@v4
+      - uses: actions/attest@v4
         with:
           subject-checksums: dist/lefthook_checksums.txt
 
-      - name: Preserve artifacts permissions with tar
-        run: tar -cvf dist.tar dist/
+      - name: Package release artifacts
+        run: tar -cf dist.tar dist/
+
       - uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist.tar
+          if-no-files-found: error
+          retention-days: 7
 
   publish-npm:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
-          fetch-depth: 0
-      - run: git fetch --force --tags
+          persist-credentials: false
 
       - uses: actions/download-artifact@v8
         with:
           name: dist
-      - run: tar -xvf dist.tar
 
-      - uses: actions/setup-node@v6
+      - run: tar -xf dist.tar
+
+      - uses: actions/setup-node@v7
         with:
-          node-version: '24'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
 
-      - name: Update npm
-        run: npm install -g npm@12
+      - run: npm install --global npm@12
 
-      - name: Publish to NPM
+      - name: Publish npm packages
         env:
-          NPM_API_KEY: ${{ secrets.NPM_API_KEY }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_API_KEY }}
         run: |
           bash packaging/scripts/prepare npm
           bash packaging/scripts/publish npm
@@ -89,28 +125,32 @@ jobs:
   publish-npm-bundled:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
-          fetch-depth: 0
-      - run: git fetch --force --tags
+          persist-credentials: false
 
       - uses: actions/download-artifact@v8
         with:
           name: dist
-      - run: tar -xvf dist.tar
 
-      - uses: actions/setup-node@v6
+      - run: tar -xf dist.tar
+
+      - uses: actions/setup-node@v7
         with:
-          node-version: '24'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
 
-      - name: Update npm
-        run: npm install -g npm@12
+      - run: npm install --global npm@12
 
-      - name: Publish to NPM
+      - name: Publish bundled npm package
         env:
-          NPM_API_KEY: ${{ secrets.NPM_API_KEY }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_API_KEY }}
         run: |
           bash packaging/scripts/prepare npm-bundled
           bash packaging/scripts/publish npm-bundled
@@ -118,28 +158,32 @@ jobs:
   publish-npm-installer:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
-          fetch-depth: 0
-      - run: git fetch --force --tags
+          persist-credentials: false
 
       - uses: actions/download-artifact@v8
         with:
           name: dist
-      - run: tar -xvf dist.tar
 
-      - uses: actions/setup-node@v6
+      - run: tar -xf dist.tar
+
+      - uses: actions/setup-node@v7
         with:
-          node-version: '24'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
 
-      - name: Update npm
-        run: npm install -g npm@12
+      - run: npm install --global npm@12
 
-      - name: Publish to NPM
+      - name: Publish npm installer
         env:
-          NPM_API_KEY: ${{ secrets.NPM_API_KEY }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_API_KEY }}
         run: |
           bash packaging/scripts/prepare npm-installer
           bash packaging/scripts/publish npm-installer
@@ -147,52 +191,49 @@ jobs:
   publish-gem:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
-          fetch-depth: 0
-      - run: git fetch --force --tags
+          persist-credentials: false
 
       - uses: actions/download-artifact@v8
         with:
           name: dist
-      - run: tar -xvf dist.tar
 
-      - name: Publish to Rubygems
+      - run: tar -xf dist.tar
+
+      - name: Publish RubyGem
         env:
           RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
         run: |
-          mkdir -p ~/.gem/
-          cat << EOF > ~/.gem/credentials
-          ---
-          :rubygems_api_key: ${RUBYGEMS_API_KEY}
-          EOF
-          chmod 0600 ~/.gem/credentials
+          umask 077
+          mkdir -p "$HOME/.gem"
+          printf '%s\n' '---' ":rubygems_api_key: ${RUBYGEMS_API_KEY}" > "$HOME/.gem/credentials"
           bash packaging/scripts/prepare rubygem
           bash packaging/scripts/publish rubygem
 
   publish-pypi:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
-          fetch-depth: 0
-      - run: git fetch --force --tags
+          persist-credentials: false
 
       - uses: actions/download-artifact@v8
         with:
           name: dist
-      - run: tar -xvf dist.tar
 
-      - name: Setup uv with python
-        uses: astral-sh/setup-uv@v7
+      - run: tar -xf dist.tar
+
+      - uses: astral-sh/setup-uv@v10
         with:
           enable-cache: false
           python-version: "3.12"
-          version: "latest"
 
-      - name: Publish to PyPI
+      - name: Publish PyPI wheels
         env:
           UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_KEY }}
         run: |
@@ -202,9 +243,9 @@ jobs:
   publish-homebrew:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Update Homebrew formula
-        uses: dawidd6/action-homebrew-bump-formula@v10
+      - uses: dawidd6/action-homebrew-bump-formula@v10
         with:
           formula: lefthook
           token: ${{ secrets.HOMEBREW_TOKEN }}
@@ -212,9 +253,9 @@ jobs:
   publish-winget:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Publish to Winget
-        uses: vedantmgoyal2009/winget-releaser@v2
+      - uses: vedantmgoyal2009/winget-releaser@v2
         with:
           identifier: evilmartians.lefthook
           fork-user: mrexox
@@ -223,23 +264,25 @@ jobs:
   publish-distro-packages:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
-          fetch-depth: 0
+          persist-credentials: false
 
       - uses: actions/download-artifact@v8
         with:
           name: dist
-      - run: tar -xvf dist.tar
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - run: tar -xf dist.tar
+
+      - uses: actions/setup-python@v7
         with:
-          python-version: '3.12'
+          python-version: "3.12"
+
       - run: python -m pip install --upgrade cloudsmith-cli
 
-      - name: Push packages to Cloudsmith
+      - name: Publish distribution packages
         env:
           CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
         run: |
@@ -250,87 +293,63 @@ jobs:
           cloudsmith push alpine evilmartians/lefthook/alpine/any-version dist/lefthook_*_amd64.apk
           cloudsmith push alpine evilmartians/lefthook/alpine/any-version dist/lefthook_*_arm64.apk
 
-  publish-aur_lefthook:
+  publish-aur:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [aur, aur-bin]
     container:
       image: archlinux:latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
-          fetch-depth: 0
+          persist-credentials: false
 
-      - name: Update AUR package
+      - name: Publish AUR package
+        env:
+          AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
         run: |
           pacman -Syu --noconfirm
-          pacman -S --noconfirm openssh git go base-devel curl
+          pacman -S --noconfirm openssh git go base-devel curl sudo
 
           useradd -m -G wheel runner
-          echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-
-          chown -R runner:runner .
-
-          su runner -c '
-            mkdir -p ~/.ssh
-            echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/aur
-            chmod 600 ~/.ssh/aur
-            echo "Host aur.archlinux.org" >> ~/.ssh/config
-            echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
-            echo "  User aur" >> ~/.ssh/config
-            ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
-
-            bash packaging/scripts/publish aur
-          '
-
-  publish-aur_lefthook-bin:
-    needs: build
-    runs-on: ubuntu-latest
-    container:
-      image: archlinux:latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Update AUR package
-        run: |
-          pacman -Syu --noconfirm
-          pacman -S --noconfirm openssh git base-devel curl
-
-          useradd -m -G wheel runner
-          echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-
-          chown -R runner:runner .
-
-          su runner -c '
-            mkdir -p ~/.ssh
-            echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/aur
-            chmod 600 ~/.ssh/aur
-            echo "Host aur.archlinux.org" >> ~/.ssh/config
-            echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
-            echo "  User aur" >> ~/.ssh/config
-            ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
-
-            bash packaging/scripts/publish aur-bin
-          '
+          echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+          install -d -m 700 -o runner -g runner /home/runner/.ssh
+          umask 077
+          printf '%s\n' "$AUR_SSH_KEY" > /home/runner/.ssh/aur
+          cat > /home/runner/.ssh/config <<'SSH'
+          Host aur.archlinux.org
+            IdentityFile ~/.ssh/aur
+            User aur
+          SSH
+          ssh-keyscan -H aur.archlinux.org > /home/runner/.ssh/known_hosts
+          chown -R runner:runner /home/runner/.ssh .
+          su runner -c 'bash packaging/scripts/publish ${{ matrix.target }}'
 
   publish-php:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
-          fetch-depth: 0
+          persist-credentials: false
 
-      - name: Update PHP package
+      - name: Publish PHP package
+        env:
+          LEFTHOOK_PHP_SSH_KEY: ${{ secrets.LEFTHOOK_PHP_SSH_KEY }}
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.LEFTHOOK_PHP_SSH_KEY }}" > ~/.ssh/lefthook_php
-          chmod 600 ~/.ssh/lefthook_php
-          echo "Host github.com" >> ~/.ssh/config
-          echo "  IdentityFile ~/.ssh/lefthook_php" >> ~/.ssh/config
-          echo "  IdentitiesOnly yes" >> ~/.ssh/config
-          echo "  User git" >> ~/.ssh/config
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-
+          umask 077
+          mkdir -p "$HOME/.ssh"
+          printf '%s\n' "$LEFTHOOK_PHP_SSH_KEY" > "$HOME/.ssh/lefthook_php"
+          cat > "$HOME/.ssh/config" <<'SSH'
+          Host github.com
+            IdentityFile ~/.ssh/lefthook_php
+            IdentitiesOnly yes
+            User git
+          SSH
+          ssh-keyscan -H github.com > "$HOME/.ssh/known_hosts"
           bash packaging/scripts/publish php
