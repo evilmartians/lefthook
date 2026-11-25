@@ -3,10 +3,10 @@ type: concept
 title: env
 source: "https://lefthook.dev/configuration/env/"
 path: /configuration/env/
-updated: 2026-11-24
+updated: 2026-11-25
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-24T10:27:02.888Z"
+  generated_at: "2026-11-25T07:29:59.757Z"
 ---
 ---
 title: "env"

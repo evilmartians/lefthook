@@ -3,10 +3,10 @@ type: concept
 title: Filters
 source: "https://lefthook.dev/examples/filters/"
 path: /examples/filters/
-updated: 2026-11-24
+updated: 2026-11-25
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-24T10:27:02.901Z"
+  generated_at: "2026-11-25T07:29:59.769Z"
 ---
 # Filters
 

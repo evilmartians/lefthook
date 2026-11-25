@@ -3,10 +3,10 @@ type: concept
 title: refetch
 source: "https://lefthook.dev/configuration/refetch/"
 path: /configuration/refetch/
-updated: 2026-11-24
+updated: 2026-11-25
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-24T10:27:02.896Z"
+  generated_at: "2026-11-25T07:29:59.765Z"
 ---
 ---
 title: "refetch"

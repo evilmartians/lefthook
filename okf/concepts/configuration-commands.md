@@ -3,10 +3,10 @@ type: concept
 title: commands
 source: "https://lefthook.dev/configuration/Commands/"
 path: /configuration/Commands/
-updated: 2026-11-24
+updated: 2026-11-25
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-24T10:27:02.885Z"
+  generated_at: "2026-11-25T07:29:59.753Z"
 ---
 ---
 title: "commands"
