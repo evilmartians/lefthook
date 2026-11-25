@@ -6,7 +6,7 @@ path: /examples/wrap-commands/
 updated: 2026-11-25
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-25T07:43:04.402Z"
+  generated_at: "2026-11-25T07:53:27.860Z"
 ---
 # Wrap commands in local config
 

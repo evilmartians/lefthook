@@ -6,7 +6,7 @@ path: /configuration/install_non_git_hooks/
 updated: 2026-11-25
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-25T07:43:04.391Z"
+  generated_at: "2026-11-25T07:53:27.844Z"
 ---
 ---
 title: "install_non_git_hooks"

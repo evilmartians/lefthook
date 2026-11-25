@@ -6,7 +6,7 @@ path: /configuration/source_dir_local/
 updated: 2026-11-25
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-25T07:43:04.398Z"
+  generated_at: "2026-11-25T07:53:27.854Z"
 ---
 ---
 title: "source_dir_local"
