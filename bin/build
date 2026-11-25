@@ -1,0 +1,37 @@
+#! /usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+COMMIT_HASH=$(git rev-parse HEAD)
+
+declare -a flags=()
+declare output="lefthook"
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --with-coverage|--coverage)
+      flags+=(-cover)
+      shift
+      ;;
+    -o|--output)
+      output="$2"
+      shift
+      shift
+      ;;
+    --goreleaser)
+      goreleaser build --clean --skip validate -p 10
+      exit 0
+      ;;
+    *)
+      echo "unknown option $1"
+      exit 1
+      ;;
+  esac
+done
+
+echo "dest: $output"
+go build ${flags[*]} -ldflags \
+  "-s -w -X github.com/evilmartians/lefthook/v2/internal/version.commit=${COMMIT_HASH} \
+  -X github.com/evilmartians/lefthook/v2/internal/version.dev=true" \
+  -o "$output"

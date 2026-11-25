@@ -1,0 +1,75 @@
+#! /usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+replace() {
+  local file="$1"
+  shift
+
+  local tmpfile=$(mktemp "${file}.XXXXXX")
+
+  while [[ $# -gt 0 ]]
+  do
+    pattern="$1"
+    shift
+
+    if sed "$pattern" "$file" > "$tmpfile"
+    then
+      mv "$tmpfile" "$file"
+    else
+      rm -f "$tmpfile"
+      exit 1
+    fi
+  done
+}
+
+declare version=
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --version)
+      version=$2
+      shift
+      shift
+      ;;
+    *)
+      version=$1
+      shift
+      ;;
+  esac
+done
+
+if [ -z "$version" ]
+then
+  read -p "New lefthook version: " version
+fi
+
+version="${version#v}" # remove leading 'v' if provided by mistake
+
+echo "updating version in internal/version/version.go"
+replace internal/version/version.go \
+  "s|const version = .*|const version = \"$version\"|"
+
+# Replace the version in docs
+echo "updating version in packaging/scripts/lib/globals.sh"
+replace packaging/scripts/lib/globals.sh \
+  "s|VERSION=.*$|VERSION=\"$version\"|"
+
+echo "updating version in docs/installation/swift.md"
+replace docs/installation/swift.md \
+  "s|lefthook-plugin.git\", exact: \".*\"|lefthook-plugin.git\", exact: \"$version\"|"
+
+echo "updating version in docs/installation/go.md"
+replace docs/installation/go.md \
+  "s|go install github.com/evilmartians/lefthook/v2.*|go install github.com/evilmartians/lefthook/v2@v$version|"
+
+echo "updating version in README.md"
+replace README.md \
+  "s|go install github.com/evilmartians/lefthook/v2.*|go install github.com/evilmartians/lefthook/v2@v$version|" \
+  "s|go get -tool github.com/evilmartians/lefthook/v2.*|go get -tool github.com/evilmartians/lefthook/v2@v$version|"
+
+# Replace the version in packages
+packaging/scripts/set-version
+
+git add internal/version/version.go packaging/ docs/ README.md

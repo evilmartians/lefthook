@@ -21,7 +21,7 @@ lint:
       glob: "*.go"
       group:
         jobs:
-          - run: make lint
+          - run: bin/lint
 
     - name: check links
       tags: docs
@@ -48,10 +48,10 @@ pre-commit:
       glob: "*.go"
       group:
         jobs:
-          - run: make lint
+          - run: bin/lint
             stage_fixed: true
 
-          - run: make test
+          - run: bin/test
 
     - name: check links
       tags: docs
