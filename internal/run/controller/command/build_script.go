@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"al.essio.dev/pkg/shellescape"
@@ -78,7 +79,7 @@ func (b *Builder) buildScript(params *JobParams) ([]string, []string, error) {
 			args = append(args, params.Runner)
 		}
 
-		args = append(args, shellescape.Quote(scriptPath))
+		args = append(args, quoteScriptPath(scriptPath, runtime.GOOS))
 		if len(params.Args) > 0 {
 			args = append(args, params.Args)
 			command := strings.Join(args, " ")
@@ -95,4 +96,14 @@ func (b *Builder) buildScript(params *JobParams) ([]string, []string, error) {
 	}
 
 	return execs, nil, nil
+}
+
+// quoteScriptPath keeps script paths with spaces in one argument. On Windows,
+// the command is passed through `sh -c` before reaching the configured runner,
+// so the runner needs its own quotes after sh removes the shell quoting.
+func quoteScriptPath(path, goos string) string {
+	if goos == "windows" {
+		return shellescape.Quote(`"` + path + `"`)
+	}
+	return shellescape.Quote(path)
 }
