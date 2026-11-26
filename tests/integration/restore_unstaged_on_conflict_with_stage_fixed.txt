@@ -1,15 +1,14 @@
-exec git init
-exec git config user.email "you@example.com"
-exec git config user.name "Your Name"
-exec lefthook install
-exec git add -A
-exec git commit -m 'initial'
+setup_git
+
+lefthook install
+git add -A
+git commit -m 'initial'
 
 # Stage first change
 exec echo "line1\nlineStaged\nline3\n"
 cp stdout a.txt
 grep lineStaged a.txt
-exec git add a.txt
+git add a.txt
 
 # Add unstaged change on same line
 exec echo "line1\nlineUnstaged\nline3\n"
@@ -17,7 +16,7 @@ cp stdout a.txt
 grep lineUnstaged a.txt
 
 # Change that line in the hook
-! exec git commit -m 'test'
+! git commit -m 'test'
 
 # Must restore the state before running the hook
 grep lineUnstaged a.txt

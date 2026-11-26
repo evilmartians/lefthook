@@ -1,5 +1,6 @@
-exec git init
-exec lefthook install pre-commit post-commit
+setup_git
+
+lefthook install pre-commit post-commit
 ! stderr .
 
 exists lefthook.yml

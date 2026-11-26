@@ -1,12 +1,11 @@
 [windows] skip
 
-exec git init
-exec git config user.email "you@example.com"
-exec git config user.name "Your Name"
-exec lefthook install
-exec git add -A
-exec git commit -m 'test'
-exec lefthook run filters
+setup_git
+
+lefthook install
+git add -A
+git commit -m 'test'
+lefthook run filters
 stdout '.*all ❯\s+html lefthook.yml lua-script perl-script python-script shell-script\s+┃.*'
 stdout '.*shell ❯\s+shell-script\s+┃.*'
 stdout '.*perl ❯\s+perl-script\s+┃.*'

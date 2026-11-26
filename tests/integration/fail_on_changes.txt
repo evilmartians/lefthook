@@ -1,16 +1,15 @@
-exec git init
-exec lefthook install
-exec git config user.email "you@example.com"
-exec git config user.name "Your Name"
-exec git add file.txt
+setup_git
 
-! exec lefthook run pre-commit --fail-on-changes
+lefthook install
+git add file.txt
+
+! lefthook run pre-commit --fail-on-changes
 stderr 'Error: files were modified by a hook, and fail_on_changes is enabled'
 
-! exec lefthook run hook-setting
+! lefthook run hook-setting
 stderr 'Error: files were modified by a hook, and fail_on_changes is enabled'
 
-exec lefthook run hook-setting --fail-on-changes=false
+lefthook run hook-setting --fail-on-changes=false
 
 -- lefthook.yml --
 pre-commit:

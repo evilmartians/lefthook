@@ -1,9 +1,8 @@
-exec git init
-exec git config user.email "you@example.com"
-exec git config user.name "Your Name"
-exec git add -A
-exec lefthook install
-exec git commit -m 'test'
+setup_git
+
+git add -A
+lefthook install
+git commit -m 'test'
 stderr '\s*Setup 1\s*Setup 2\s*Hi there from Lefthook\s*'
 
 -- lefthook.yml --

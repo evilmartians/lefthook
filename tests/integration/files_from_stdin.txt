@@ -1,10 +1,11 @@
-exec git init
-exec git add -A
+setup_git
+
+git add -A
 
 exec printf 'a.txt\0'
 cp stdout files
 stdin files
-exec lefthook run pre-commit --files-from-stdin
+lefthook run pre-commit --files-from-stdin
 stdout '^files=a\.txt$'
 
 -- lefthook.yml --

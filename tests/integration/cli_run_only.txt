@@ -1,11 +1,10 @@
-exec git init
-exec git config user.email "you@example.com"
-exec git config user.name "Your Name"
-exec git add -A
-exec lefthook install
-exec lefthook run hook --job a --job c --job db --job lint
+setup_git
+
+git add -A
+lefthook install
+lefthook run hook --job a --job c --job db --job lint
 stdout '\s*a\s*ca\s*cb\s*db\s*lint\s*'
-exec lefthook run hook --tag red
+lefthook run hook --tag red
 stdout '\s*a\s*ca\s*cb\s*db\s*lint\s*'
 
 -- lefthook.yml --

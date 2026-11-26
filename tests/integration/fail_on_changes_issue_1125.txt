@@ -1,12 +1,11 @@
-exec git init
-exec git config user.email "you@example.com"
-exec git config user.name "Your Name"
-exec git add .
-exec git commit -m "firstcommit"
-exec lefthook install
+setup_git
+
+git add .
+git commit -m "firstcommit"
+lefthook install
 
 # This should fail because README.md is modified
-! exec lefthook run pre-commit --all-files
+! lefthook run pre-commit --all-files
 stderr 'Error: files were modified by a hook, and fail_on_changes is enabled'
 
 -- README.md --

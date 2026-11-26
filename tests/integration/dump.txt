@@ -1,15 +1,16 @@
 [windows] skip
 
-exec git init
-exec lefthook dump
+setup_git
+
+lefthook dump
 cmp stdout lefthook-dumped.yml
 ! stderr .
 
-exec lefthook dump --format=json
+lefthook dump --format=json
 cmp stdout lefthook-dumped.json
 ! stderr .
 
-exec lefthook dump -f toml
+lefthook dump -f toml
 cmp stdout lefthook-dumped.toml
 ! stderr .
 

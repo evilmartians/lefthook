@@ -45,6 +45,7 @@ bin/jsonschema         # regenerate schema.json after config changes
 Prefer table-driven unit tests. Integration tests should validate CLI behavior and real git interaction — not internal implementation details.
 
 Unit tests: follow [.agents/rules/unit_tests.md](.agents/rules/unit_tests.md).
+Integration tests: follow [.agents/rules/integration_tests.md](.agents/rules/integration_tests.md).
 
 ## PR checklist
 
