@@ -8,11 +8,11 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/evilmartians/lefthook/v2/internal/logger"
-	"github.com/evilmartians/lefthook/v2/internal/system"
-
 	"github.com/mattn/go-isatty"
 	"github.com/mattn/go-tty"
+
+	"github.com/evilmartians/lefthook/v2/internal/logger"
+	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
 type CommandExecutor struct {
@@ -30,7 +30,11 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 	if opts.Interactive && !isatty.IsTerminal(os.Stdin.Fd()) {
 		tty, err := tty.Open()
 		if err == nil {
-			defer tty.Close()
+			defer func() {
+				if cErr := tty.Close(); cErr != nil {
+					e.logger.Warnf("Could not close TTY input: %s\n", cErr)
+				}
+			}()
 			in = tty.Input()
 		} else {
 			e.logger.Errorf("Couldn't enable TTY input: %s\n", err)
@@ -38,7 +42,7 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 	}
 
 	root, _ := filepath.Abs(opts.Root)
-	envs := make([]string, len(opts.Env))
+	envs := make([]string, 0, len(opts.Env))
 	for name, value := range opts.Env {
 		envs = append(
 			envs,
