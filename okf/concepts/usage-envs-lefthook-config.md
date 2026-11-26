@@ -6,7 +6,7 @@ path: /usage/envs/LEFTHOOK_CONFIG/
 updated: 2026-11-26
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-26T08:27:58.366Z"
+  generated_at: "2026-11-26T08:44:29.760Z"
 ---
 ---
 title: "LEFTHOOK_CONFIG"

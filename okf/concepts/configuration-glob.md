@@ -6,7 +6,7 @@ path: /configuration/glob/
 updated: 2026-11-26
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-26T08:27:58.345Z"
+  generated_at: "2026-11-26T08:44:29.741Z"
 ---
 ---
 title: "glob"
