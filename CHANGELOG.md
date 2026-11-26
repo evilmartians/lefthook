@@ -1,5 +1,14 @@
 # Change log
 
+## 2.2.4
+
+- fix: shellescape filepaths on windows ([#1659](https://github.com/evilmartians/lefthook/pull/1659)) by [@mrexox](https://github.com/mrexox)
+- fix: preserve quoting of run commands and forwarded script args ([#1464](https://github.com/evilmartians/lefthook/pull/1464)) by [@Bineroflux](https://github.com/Bineroflux)
+- chore: unify instructions for different agents ([#1657](https://github.com/evilmartians/lefthook/pull/1657)) by [@mrexox](https://github.com/mrexox)
+- fix: copy scope names and excludes instead of appending in place ([#1654](https://github.com/evilmartians/lefthook/pull/1654)) by [@chiliec](https://github.com/chiliec)
+- ci: bump homebrew action tag by [@mrexox](https://github.com/mrexox)
+- fix: run git status with --no-optional-locks ([#1655](https://github.com/evilmartians/lefthook/pull/1655)) by [@dirgaydtm](https://github.com/dirgaydtm)
+
 ## 2.2.3
 
 - deps: November 2026 ([#1650](https://github.com/evilmartians/lefthook/pull/1650)) by [@mrexox](https://github.com/mrexox)
