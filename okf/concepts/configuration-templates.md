@@ -3,10 +3,10 @@ type: concept
 title: templates
 source: "https://lefthook.dev/configuration/templates/"
 path: /configuration/templates/
-updated: 2026-11-25
+updated: 2026-11-26
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-25T07:53:27.856Z"
+  generated_at: "2026-11-26T08:27:58.353Z"
 ---
 ---
 title: "templates"

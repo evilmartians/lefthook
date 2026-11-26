@@ -3,10 +3,10 @@ type: concept
 title: extends
 source: "https://lefthook.dev/configuration/extends/"
 path: /configuration/extends/
-updated: 2026-11-25
+updated: 2026-11-26
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-25T07:53:27.839Z"
+  generated_at: "2026-11-26T08:27:58.343Z"
 ---
 ---
 title: "extends"

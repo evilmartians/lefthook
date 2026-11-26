@@ -3,10 +3,10 @@ type: concept
 title: "Wrap commands in local config"
 source: "https://lefthook.dev/examples/wrap-commands/"
 path: /examples/wrap-commands/
-updated: 2026-11-25
+updated: 2026-11-26
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-25T07:53:27.860Z"
+  generated_at: "2026-11-26T08:27:58.356Z"
 ---
 # Wrap commands in local config
 

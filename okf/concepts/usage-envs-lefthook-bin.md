@@ -3,10 +3,10 @@ type: concept
 title: LEFTHOOK_BIN
 source: "https://lefthook.dev/usage/envs/LEFTHOOK_BIN/"
 path: /usage/envs/LEFTHOOK_BIN/
-updated: 2026-11-25
+updated: 2026-11-26
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-25T07:53:27.874Z"
+  generated_at: "2026-11-26T08:27:58.365Z"
 ---
 ---
 title: "LEFTHOOK_BIN"
