@@ -20,7 +20,6 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-          persist-credentials: false
 
       - name: Fetch all tags
         run: git fetch --force --tags
@@ -70,7 +69,6 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-          persist-credentials: false
       - run: git fetch --force --tags
 
       - uses: actions/download-artifact@v8
@@ -103,7 +101,6 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-          persist-credentials: false
       - run: git fetch --force --tags
 
       - uses: actions/download-artifact@v8
@@ -136,7 +133,6 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-          persist-credentials: false
       - run: git fetch --force --tags
 
       - uses: actions/download-artifact@v8
@@ -169,7 +165,6 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-          persist-credentials: false
       - run: git fetch --force --tags
 
       - uses: actions/download-artifact@v8
@@ -200,7 +195,6 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-          persist-credentials: false
       - run: git fetch --force --tags
 
       - uses: actions/download-artifact@v8
@@ -255,7 +249,6 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-          persist-credentials: false
 
       - uses: actions/download-artifact@v8
         with:
@@ -291,7 +284,6 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-          persist-credentials: false
 
       - name: Update AUR package
         env:
@@ -329,7 +321,6 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-          persist-credentials: false
 
       - name: Update AUR package
         env:
@@ -365,7 +356,6 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-          persist-credentials: false
 
       - name: Update PHP package
         env:
