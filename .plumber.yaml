@@ -1,0 +1,25 @@
+# Plumber overlay: inherits every control from the CLI's built-in
+# baseline, only the differences for this repository are written here.
+# Run 'plumber config resolve' to see the full effective config.
+extends: plumber:default
+version: '2.0'
+
+github:
+  controls:
+    githubActionMustComeFromAuthorizedSources:
+      # Keep the curated default list and trust the third-party actions
+      # the workflows use on top of it, each one pinned by commit.
+      includePlumberDefaults: true
+      trustedGithubActions:
+        - peaceiris/actions-gh-pages
+        - nick-fields/retry
+        - samuelmeuli/action-snapcraft
+        - dawidd6/action-homebrew-bump-formula
+        - vedantmgoyal9/winget-releaser
+        # Called by winget-releaser, recorded in actions.lock.
+        - cargo-bins/cargo-binstall
+    branchMustBeProtected:
+      # master has no branch protection today and a pull request cannot
+      # change a repository setting. Delete this block once master is
+      # protected, the control then comes back on with the baseline.
+      enabled: false
