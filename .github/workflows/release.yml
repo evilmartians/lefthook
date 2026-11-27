@@ -239,7 +239,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Publish to Winget
-        uses: vedantmgoyal2009/winget-releaser@b7370d4d152efdce803a26cc6ca9eee58cb2ad54 # v2
+        uses: vedantmgoyal9/winget-releaser@b7370d4d152efdce803a26cc6ca9eee58cb2ad54 # v2
         with:
           identifier: evilmartians.lefthook
           fork-user: mrexox
