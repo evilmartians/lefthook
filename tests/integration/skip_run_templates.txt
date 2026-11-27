@@ -1,0 +1,43 @@
+exec git init
+exec git add -A
+
+exec lefthook run job-skip
+! stdout 'Ha-ha!'
+exec lefthook run hook-skip
+! stdout 'Ha-ha!'
+exec lefthook run job-only
+! stdout 'Ha-ha!'
+
+env SLOW_HOOKS=1
+exec lefthook run job-skip
+stdout 'Ha-ha!'
+exec lefthook run hook-skip
+stdout 'Ha-ha!'
+exec lefthook run job-only
+stdout 'Ha-ha!'
+
+-- lefthook.yml --
+templates:
+  skip_slow_hooks: '[ "$SLOW_HOOKS" != "1" ]'
+  run_slow_hooks: '[ "$SLOW_HOOKS" = "1" ]'
+
+output:
+  - execution_out
+
+job-skip:
+  jobs:
+    - run: echo 'Ha-ha!'
+      skip:
+        - run: '{skip_slow_hooks}'
+
+hook-skip:
+  skip:
+    - run: '{skip_slow_hooks}'
+  jobs:
+    - run: echo 'Ha-ha!'
+
+job-only:
+  jobs:
+    - run: echo 'Ha-ha!'
+      only:
+        - run: '{run_slow_hooks}'

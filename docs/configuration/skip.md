@@ -128,6 +128,22 @@ prepare-commit-msg:
         - run: "! which aiautocommit"
 ```
 
+Custom [`templates`](./templates.md) are substituted in `run` conditions too, so a condition can be defined once and overridden in `lefthook-local.yml`:
+
+```yml
+# lefthook.yml
+
+templates:
+  skip_slow_hooks: '[ "$CI" != "true" ]'
+
+pre-commit:
+  jobs:
+    - name: typecheck
+      run: npx tsc --noEmit
+      skip:
+        - run: "{skip_slow_hooks}"
+```
+
 ::: callout tip
 Always skipping is useful when you have a `lefthook-local.yml` config and you don't want to run some commands locally. So you just overwrite the `skip` option for them to be `true`.
 

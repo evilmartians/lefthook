@@ -8,7 +8,7 @@ title: "templates"
 Added in lefthook `1.10.8`
 :::
 
-Provide custom replacement for templates in `run` values.
+Provide custom replacement for templates in `run` values. Templates are also replaced in `run` conditions of [`skip`](./skip.md) and [`only`](./only.md).
 
 With `templates` you can specify what can be overridden via `lefthook-local.yml` without a need to overwrite every jobs in your configuration.
 
