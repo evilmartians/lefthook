@@ -8,9 +8,12 @@ permissions:
 
 
 name: Lint
+permissions: {}
 jobs:
   golangci:
     name: golangci-lint
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6

@@ -5,13 +5,14 @@ on:
     tags:
       - "*"
 
-permissions:
-  attestations: write
-  contents: write
-  id-token: write
+permissions: {}
 
 jobs:
   build:
+    permissions:
+      attestations: write
+      contents: write
+      id-token: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -19,6 +20,7 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Fetch all tags
         run: git fetch --force --tags
@@ -60,12 +62,15 @@ jobs:
 
   publish-npm:
     needs: build
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
           fetch-depth: 0
+          persist-credentials: false
       - run: git fetch --force --tags
 
       - uses: actions/download-artifact@v8
@@ -90,12 +95,15 @@ jobs:
 
   publish-npm-bundled:
     needs: build
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
           fetch-depth: 0
+          persist-credentials: false
       - run: git fetch --force --tags
 
       - uses: actions/download-artifact@v8
@@ -120,12 +128,15 @@ jobs:
 
   publish-npm-installer:
     needs: build
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
           fetch-depth: 0
+          persist-credentials: false
       - run: git fetch --force --tags
 
       - uses: actions/download-artifact@v8
@@ -150,12 +161,15 @@ jobs:
 
   publish-gem:
     needs: build
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
           fetch-depth: 0
+          persist-credentials: false
       - run: git fetch --force --tags
 
       - uses: actions/download-artifact@v8
@@ -178,12 +192,15 @@ jobs:
 
   publish-pypi:
     needs: build
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
           fetch-depth: 0
+          persist-credentials: false
       - run: git fetch --force --tags
 
       - uses: actions/download-artifact@v8
@@ -207,6 +224,7 @@ jobs:
 
   publish-homebrew:
     needs: build
+    permissions: {}
     runs-on: ubuntu-latest
     steps:
       - name: Update Homebrew formula
@@ -217,6 +235,7 @@ jobs:
 
   publish-winget:
     needs: build
+    permissions: {}
     runs-on: ubuntu-latest
     steps:
       - name: Publish to Winget
@@ -228,12 +247,15 @@ jobs:
 
   publish-distro-packages:
     needs: build
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
           fetch-depth: 0
+          persist-credentials: false
 
       - uses: actions/download-artifact@v8
         with:
@@ -259,6 +281,8 @@ jobs:
 
   publish-aur_lefthook:
     needs: build
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     container:
       image: archlinux:latest
@@ -267,8 +291,11 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Update AUR package
+        env:
+          AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
         run: |
           pacman -Syu --noconfirm
           pacman -S --noconfirm openssh git go base-devel curl
@@ -280,7 +307,7 @@ jobs:
 
           su runner -c '
             mkdir -p ~/.ssh
-            echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/aur
+            echo "$AUR_SSH_KEY" > ~/.ssh/aur
             chmod 600 ~/.ssh/aur
             echo "Host aur.archlinux.org" >> ~/.ssh/config
             echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
@@ -292,6 +319,8 @@ jobs:
 
   publish-aur_lefthook-bin:
     needs: build
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     container:
       image: archlinux:latest
@@ -300,8 +329,11 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Update AUR package
+        env:
+          AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
         run: |
           pacman -Syu --noconfirm
           pacman -S --noconfirm openssh git base-devel curl
@@ -313,7 +345,7 @@ jobs:
 
           su runner -c '
             mkdir -p ~/.ssh
-            echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/aur
+            echo "$AUR_SSH_KEY" > ~/.ssh/aur
             chmod 600 ~/.ssh/aur
             echo "Host aur.archlinux.org" >> ~/.ssh/config
             echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
@@ -325,17 +357,22 @@ jobs:
 
   publish-php:
     needs: build
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Update PHP package
+        env:
+          LEFTHOOK_PHP_SSH_KEY: ${{ secrets.LEFTHOOK_PHP_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.LEFTHOOK_PHP_SSH_KEY }}" > ~/.ssh/lefthook_php
+          echo "$LEFTHOOK_PHP_SSH_KEY" > ~/.ssh/lefthook_php
           chmod 600 ~/.ssh/lefthook_php
           echo "Host github.com" >> ~/.ssh/config
           echo "  IdentityFile ~/.ssh/lefthook_php" >> ~/.ssh/config

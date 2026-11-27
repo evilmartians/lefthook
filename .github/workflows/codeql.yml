@@ -10,6 +10,8 @@ on:
     # 6:00 UTC on Monday
     - cron: '0 6 * * 1'
 
+permissions: {}
+
 jobs:
   analyze:
     name: Analyze

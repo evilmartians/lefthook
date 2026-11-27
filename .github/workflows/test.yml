@@ -8,8 +8,11 @@ permissions:
 
 
 name: Test
+permissions: {}
 jobs:
   unit:
+    permissions:
+      contents: read
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -33,6 +36,8 @@ jobs:
           name: ${{ join(matrix.*, ' ') }}
 
   integration:
+    permissions:
+      contents: read
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -69,6 +74,8 @@ jobs:
           name: integration-${{ join(matrix.*, ' ') }}
 
   build:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
