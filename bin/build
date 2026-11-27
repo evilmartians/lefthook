@@ -30,6 +30,14 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+case "$OSTYPE"
+  in msys*|mingw*|cygwin*)
+    output="${output%.exe}.exe"
+    ;;
+  *)
+    ;;
+esac
+
 echo "dest: $output"
 go build ${flags[*]} -ldflags \
   "-s -w -X github.com/evilmartians/lefthook/v2/internal/version.commit=${COMMIT_HASH} \
