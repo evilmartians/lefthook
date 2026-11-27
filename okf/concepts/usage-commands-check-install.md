@@ -3,10 +3,10 @@ type: concept
 title: "lefthook check-install"
 source: "https://lefthook.dev/usage/commands/check-install/"
 path: /usage/commands/check-install/
-updated: 2026-11-26
+updated: 2026-11-27
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-26T09:33:01.694Z"
+  generated_at: "2026-11-27T07:33:05.873Z"
 ---
 ---
 title: "lefthook check-install"

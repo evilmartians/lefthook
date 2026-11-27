@@ -3,10 +3,10 @@ type: concept
 title: stage_fixed
 source: "https://lefthook.dev/configuration/stage_fixed/"
 path: /configuration/stage_fixed/
-updated: 2026-11-26
+updated: 2026-11-27
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-26T09:33:01.681Z"
+  generated_at: "2026-11-27T07:33:05.862Z"
 ---
 ---
 title: "stage_fixed"

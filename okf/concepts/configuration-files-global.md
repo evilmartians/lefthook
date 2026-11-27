@@ -3,10 +3,10 @@ type: concept
 title: "files (hook-level)"
 source: "https://lefthook.dev/configuration/files-global/"
 path: /configuration/files-global/
-updated: 2026-11-26
+updated: 2026-11-27
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-26T09:33:01.669Z"
+  generated_at: "2026-11-27T07:33:05.852Z"
 ---
 ---
 title: "files (hook-level)"

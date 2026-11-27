@@ -3,10 +3,10 @@ type: concept
 title: file_types
 source: "https://lefthook.dev/configuration/file_types/"
 path: /configuration/file_types/
-updated: 2026-11-26
+updated: 2026-11-27
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-26T09:33:01.668Z"
+  generated_at: "2026-11-27T07:33:05.852Z"
 ---
 ---
 title: "file_types"
