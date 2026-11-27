@@ -6,7 +6,7 @@ path: /configuration/root/
 updated: 2026-11-27
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-27T13:36:45.578Z"
+  generated_at: "2026-11-27T15:04:28.546Z"
 ---
 ---
 title: "root"
