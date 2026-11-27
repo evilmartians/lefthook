@@ -6,7 +6,7 @@ path: /installation/arch/
 updated: 2026-11-27
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-27T08:30:06.110Z"
+  generated_at: "2026-11-27T08:45:36.527Z"
 ---
 ---
 title: "Arch Linux"
