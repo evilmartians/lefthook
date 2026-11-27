@@ -217,3 +217,103 @@ func TestGroup(t *testing.T) {
 		})
 	}
 }
+
+func TestResult_Status(t *testing.T) {
+	code := 2
+
+	for name, tt := range map[string]struct {
+		result Result
+		want   Status
+	}{
+		"success": {
+			result: Success("ok", time.Second),
+			want:   StatusPassed,
+		},
+		"skip": {
+			result: Skip("skipped"),
+			want:   StatusSkipped,
+		},
+		"failure-from-command": {
+			result: Failure("cmd", "boom", time.Second).WithExitCode(code),
+			want:   StatusFailed,
+		},
+		"failure-without-exit-code": {
+			result: Failure("cmd", "invalid job", 0),
+			want:   StatusError,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			if got := tt.result.Status(); got != tt.want {
+				t.Errorf("Result.Status() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestResult_ExitCode(t *testing.T) {
+	if _, ok := Success("ok", time.Second).ExitCode(); ok {
+		t.Error("Success().ExitCode() reports a code, want none")
+	}
+
+	code, ok := Failure("cmd", "", time.Second).WithExitCode(42).ExitCode()
+	if !ok || code != 42 {
+		t.Errorf("ExitCode() = (%d, %v), want (42, true)", code, ok)
+	}
+}
+
+func TestResult_Reason(t *testing.T) {
+	result := SkipWithReason("docs", "no matching staged files")
+
+	if result.Reason() != "no matching staged files" {
+		t.Errorf("Reason() = %q, want the skip reason", result.Reason())
+	}
+
+	if !result.Skip() {
+		t.Error("SkipWithReason() is not a skip")
+	}
+}
+
+func TestAggregate(t *testing.T) {
+	for name, tt := range map[string]struct {
+		results []Result
+		want    Status
+	}{
+		"empty": {
+			results: nil,
+			want:    StatusSkipped,
+		},
+		"all-passed": {
+			results: []Result{Success("a", time.Second), Success("b", time.Second)},
+			want:    StatusPassed,
+		},
+		"all-skipped": {
+			results: []Result{Skip("a"), SkipWithReason("b", "no files")},
+			want:    StatusSkipped,
+		},
+		"failure-wins-over-pass": {
+			results: []Result{Success("a", time.Second), Failure("b", "", time.Second).WithExitCode(1)},
+			want:    StatusFailed,
+		},
+		"error-wins-over-failure": {
+			results: []Result{
+				Failure("a", "", time.Second).WithExitCode(1),
+				Failure("b", "timeout", time.Second),
+			},
+			want: StatusError,
+		},
+		"pass-wins-over-skip": {
+			results: []Result{Skip("a"), Success("b", time.Second)},
+			want:    StatusPassed,
+		},
+		"group-nested-in-results": {
+			results: []Result{Group("grp", []Result{Success("a", time.Second)})},
+			want:    StatusPassed,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			if got := Aggregate(tt.results); got != tt.want {
+				t.Errorf("Aggregate() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}

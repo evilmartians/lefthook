@@ -127,6 +127,24 @@ func (l *Logger) SetLevel(level Level) {
 	l.level = level
 }
 
+// SetOut redirects the logger, so human-readable lines can be moved out of the
+// way when standard output is reserved for machine-readable data.
+func (l *Logger) SetOut(out io.Writer) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	l.out = out
+}
+
+// Out returns the writer human-readable output goes to. Pass it on for direct
+// job output so it lands next to the log lines instead of on standard output.
+func (l *Logger) Out() io.Writer {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	return l.out
+}
+
 func (l *Logger) NoColors() bool {
 	return l.colors.kind == colorsDisabled
 }

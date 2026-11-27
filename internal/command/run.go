@@ -16,6 +16,7 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/git"
 	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/run"
+	"github.com/evilmartians/lefthook/v2/internal/run/report"
 	"github.com/evilmartians/lefthook/v2/internal/run/result"
 	"github.com/evilmartians/lefthook/v2/internal/version"
 )
@@ -40,6 +41,7 @@ type RunArgs struct {
 	FailOnChanges     *bool
 	FailOnChangesDiff *bool
 	Hook              string
+	OutputFormat      report.Format
 	Exclude           []string
 	Files             []string
 	RunOnlyCommands   []string
@@ -51,6 +53,13 @@ type RunArgs struct {
 func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 	if os.Getenv(envEnabled) == "0" || os.Getenv(envEnabled) == "false" {
 		return nil
+	}
+
+	reporter := report.New(args.OutputFormat, os.Stdout)
+	if args.OutputFormat.Machine() {
+		// Keep standard output parseable: the structured report goes there, every
+		// human-readable line goes to standard error instead.
+		l.logger.SetOut(os.Stderr)
 	}
 
 	waitCacheWarmUp := l.repo.Cache.WarmUp()
@@ -66,12 +75,19 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 		var errNotFound config.ConfigNotFoundError
 		if ok := errors.As(err, &errNotFound); ok {
 			l.logger.Warn(err.Error())
+			reporter.Summary(args.Hook, result.StatusSkipped, nil)
+
 			return nil
 		}
+
+		reporter.Summary(args.Hook, result.StatusError, err)
+
 		return err
 	}
 
 	if err = checkVersion(cfg.MinVersion); err != nil {
+		reporter.Summary(args.Hook, result.StatusError, err)
+
 		return err
 	}
 
@@ -114,14 +130,20 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 
 	hook, err := l.resolveHook(cfg, args.Hook)
 	if err != nil {
+		reporter.Summary(args.Hook, result.StatusError, err)
+
 		return err
 	}
 	if hook == nil {
+		reporter.Summary(args.Hook, result.StatusSkipped, nil)
+
 		return nil
 	}
 
 	files, err := getFiles(l.repo, args)
 	if err != nil {
+		reporter.Summary(args.Hook, result.StatusError, err)
+
 		return err
 	}
 	args.Files = files
@@ -130,6 +152,8 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 
 	failOnChanges, err := shouldFailOnChanges(args.FailOnChanges, hook.FailOnChanges)
 	if err != nil {
+		reporter.Summary(args.Hook, result.StatusError, err)
+
 		return err
 	}
 	failOnChangesDiff := shouldFailOnChangesDiff(args.FailOnChangesDiff, hook.FailOnChangesDiff)
@@ -143,7 +167,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 
 	waitCacheWarmUp()
 
-	return l.runHook(ctx, hook, l.repo, exLogger, run.Options{
+	return l.runHook(ctx, hook, l.repo, exLogger, reporter, run.Options{
 		DisableTTY:        cfg.NoTTY || args.NoTTY,
 		SkipLFS:           cfg.SkipLFS || args.SkipLFS,
 		Templates:         cfg.Templates,
@@ -260,25 +284,35 @@ func (l *Lefthook) runHook(
 	hook *config.Hook,
 	repo *git.Repo,
 	exLogger *logger.ExecutionLogger,
+	reporter *report.Reporter,
 	opts run.Options,
 ) error {
 	ctx, stop := signal.NotifyContext(ctx, interruptSignals(signal.Ignored(syscall.SIGHUP))...)
 	defer stop()
 
 	startTime := time.Now()
-	results, err := run.Run(ctx, hook, repo, exLogger, opts)
+	results, err := run.Run(ctx, hook, repo, exLogger, reporter, opts)
 	if err != nil {
 		if _, ok := errors.AsType[*run.FailOnChangesError](err); ok {
+			reporter.Summary(hook.Name, result.StatusError, err)
+
 			return err
 		}
-		return fmt.Errorf("failed to run the hook: %w", err)
+
+		runErr := fmt.Errorf("failed to run the hook: %w", err)
+		reporter.Summary(hook.Name, result.StatusError, runErr)
+
+		return runErr
 	}
 
 	if ctx.Err() != nil {
+		reporter.Summary(hook.Name, result.StatusError, errors.New("Interrupted"))
+
 		return errors.New("Interrupted")
 	}
 
 	l.logSummary(exLogger, time.Since(startTime), results)
+	reporter.Summary(hook.Name, result.Aggregate(results), nil)
 
 	for _, result := range results {
 		if result.Failure() {

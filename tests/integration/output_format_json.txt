@@ -1,0 +1,20 @@
+setup_git
+
+git add -A
+! lefthook run check --output-format json
+stdout '"hook":"check","status":"failed"'
+stdout '"name":"lint","status":"passed"'
+stdout '"name":"test","status":"failed","exit_code":3'
+stdout '"name":"docs","status":"skipped","duration_ms":0,"skip_reason":"by condition"'
+
+-- lefthook.yml --
+output: false
+check:
+  jobs:
+    - name: lint
+      run: "true"
+    - name: test
+      run: "exit 3"
+    - name: docs
+      run: "true"
+      skip: true

@@ -7,11 +7,12 @@ import (
 	"github.com/urfave/cli/v3"
 
 	"github.com/evilmartians/lefthook/v2/internal/command"
+	"github.com/evilmartians/lefthook/v2/internal/run/report"
 )
 
 func run() *cli.Command {
 	var args command.RunArgs
-	var colors string
+	var colors, outputFormat string
 	failOnChanges := &cli.BoolWithInverseFlag{
 		Name:  "fail-on-changes",
 		Usage: "exit with 1 if some of the files were changed",
@@ -100,8 +101,25 @@ func run() *cli.Command {
 				Usage:       "parse filelist from STDIN",
 				Destination: &args.FilesFromStdin,
 			},
+			&cli.StringFlag{
+				Name:        "output-format",
+				Usage:       "report format: 'text' (default), 'json', or 'jsonl'",
+				Destination: &outputFormat,
+				Value:       string(report.FormatText),
+				Validator: func(value string) error {
+					_, err := report.ParseFormat(value)
+
+					return err
+				},
+			},
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
+			format, err := report.ParseFormat(outputFormat)
+			if err != nil {
+				return err
+			}
+			args.OutputFormat = format
+
 			l, err := command.NewLefthook(args.Verbose, colors)
 			if err != nil {
 				return err
