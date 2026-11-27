@@ -1,14 +1,13 @@
 [windows] skip
 
-exec git init
-exec git config user.email "you@example.com"
-exec git config user.name "Your Name"
-exec lefthook install
+setup_git
+
+lefthook install
 chmod 777 executable
 symlink symlink -> results
-exec git add -A
-exec git commit -m 'test'
-exec lefthook run filters
+git add -A
+git commit -m 'test'
+lefthook run filters
 stdout '.*all ❯\s+executable lefthook.yml results symlink\s+┃.*'
 stdout '.*filter_text ❯\s+executable lefthook.yml results\s+┃.*'
 stdout '.*filter_executable ❯\s+executable\s+┃.*'

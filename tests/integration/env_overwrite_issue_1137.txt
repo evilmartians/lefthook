@@ -1,9 +1,8 @@
-exec git init
-exec git config user.email "you@example.com"
-exec git config user.name "Your Name"
-exec git add -A
-exec lefthook install
-exec lefthook run test
+setup_git
+
+git add -A
+lefthook install
+lefthook run test
 
 -- lefthook.yml --
 output:

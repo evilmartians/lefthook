@@ -1,9 +1,9 @@
-exec git init
+setup_git
 
-exec git config --local core.hooksPath /different-path
+git config --local core.hooksPath /different-path
 
-! exec lefthook install
-exec lefthook install --reset-hooks-path
+! lefthook install
+lefthook install --reset-hooks-path
 ! stderr .
 
 exists .git/hooks/pre-commit

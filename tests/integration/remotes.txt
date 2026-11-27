@@ -1,9 +1,10 @@
 [windows] skip
 
-exec git init
-exec lefthook install
+setup_git
 
-exec lefthook dump
+lefthook install
+
+lefthook dump
 cmp stdout lefthook-dump.yml
 
 -- lefthook.yml --

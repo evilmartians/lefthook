@@ -1,5 +1,6 @@
-exec git init
-exec lefthook validate
+setup_git
+
+lefthook validate
 
 -- lefthook.yml --
 pre-commit:

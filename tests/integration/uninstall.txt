@@ -1,14 +1,15 @@
-exec git init
-exec lefthook install
+setup_git
+
+lefthook install
 exists .git/hooks/pre-push
-exec lefthook uninstall
+lefthook uninstall
 ! exists .git/hooks-pre-push
 exists lefthook.yml
 exists .lefthook-local.toml
 
-exec lefthook install
+lefthook install
 exists .git/hooks/pre-push
-exec lefthook uninstall --remove-configs
+lefthook uninstall --remove-configs
 ! exists .git/hooks-pre-push
 ! exists lefthook.yml
 ! exists .lefthook-local.toml
