@@ -3,7 +3,7 @@ package config
 type Remote struct {
 	GitURL string `json:"git_url,omitempty" jsonschema:"description=A URL to Git repository. It will be accessed with privileges of the machine lefthook runs on." koanf:"git_url" mapstructure:"git_url" toml:"git_url" yaml:"git_url"`
 
-	Ref string `json:"ref,omitempty" jsonschema:"description=An optional *branch* or *tag* name" mapstructure:"ref,omitempty" toml:"ref,omitempty" yaml:",omitempty"`
+	Ref string `json:"ref,omitempty" jsonschema:"description=An optional *branch* or *tag* name or a full commit SHA" mapstructure:"ref,omitempty" toml:"ref,omitempty" yaml:",omitempty"`
 
 	Configs []string `json:"configs,omitempty" jsonschema:"description=An optional array of config paths from remote's root,default=lefthook.yml" mapstructure:"configs,omitempty" toml:"configs,omitempty" yaml:",omitempty"`
 

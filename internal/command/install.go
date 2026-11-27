@@ -168,6 +168,13 @@ func (l *Lefthook) syncHooks(cfg *config.Config, fetchRemotes bool) (*config.Con
 			}
 			if l.shouldRefetch(remote) {
 				if serr := l.syncRemote(remote.GitURL, remote.Ref, false); serr != nil {
+					// Pinned SHAs must not fall back to a mutable ref.
+					if git.IsFullCommitSHA(remote.Ref) {
+						l.logger.Warnf("Couldn't sync %s %s. Will continue without that remote.", remote.GitURL, remote.Ref)
+						fetchedRemotes[l.repo.RemoteFolder(remote.GitURL, remote.Ref)] = struct{}{}
+						continue
+					}
+
 					ref, err := l.findAvailableRemoteRef(remote.GitURL)
 					if err != nil {
 						l.logger.Warnf("Couldn't sync from %s. Will continue without that remote.", remote.GitURL)
@@ -249,6 +256,10 @@ func (l *Lefthook) shouldRefetch(remote *config.Remote) bool {
 
 		l.logger.Warnf("Failed to detect last fetch time: %s", err)
 		return false
+	}
+
+	if info.Size() == 0 {
+		return true
 	}
 
 	if len(remote.RefetchFrequency) == 0 {
@@ -641,5 +652,15 @@ func (l *Lefthook) syncRemote(url, ref string, force bool) error {
 	}
 
 	l.logger.Debugf("Cloning remote config repository: %v/%v", remotePath, directoryName)
-	return l.repo.CloneRemote(remotesPath, directoryName, url, ref)
+	if err = l.repo.CloneRemote(remotesPath, directoryName, url, ref); err != nil {
+		// Do not leave a partial checkout behind: a later run would treat it
+		// as a successful sync and load whatever was checked out.
+		if rmErr := l.repo.Fs.RemoveAll(remotePath); rmErr != nil {
+			l.logger.Warnf("Failed to remove incomplete remote %s: %s", remotePath, rmErr)
+		}
+
+		return err
+	}
+
+	return nil
 }
