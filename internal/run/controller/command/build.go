@@ -18,6 +18,7 @@ type JobParams struct {
 	Tags         []string
 	Glob         []string
 	ExcludeFiles []string
+	UseStdin     bool
 	Only         any
 	Skip         any
 }

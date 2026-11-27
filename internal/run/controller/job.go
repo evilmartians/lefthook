@@ -114,6 +114,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 		FilesCmd:     scope.filesCmd,
 		Tags:         scope.tags,
 		ExcludeFiles: scope.excludeFiles,
+		UseStdin:     job.UseStdin,
 	})
 	if err != nil {
 		c.logger.LogSkipped(logName, err.Error())

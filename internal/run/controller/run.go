@@ -15,10 +15,19 @@ func (c *Controller) run(ctx context.Context, name string, follow bool, opts exe
 	c.logger.Spinner.AddName(name)
 	defer c.logger.Spinner.RemoveName(name)
 
-	// If the command does not explicitly `use_stdin` no input will be provided.
-	var in io.Reader = system.NullReader
-	if opts.UseStdin {
-		in = c.cachedStdin.Reader()
+	// Give every split command its own reader without consuming another job input.
+	execute := func(out io.Writer) error {
+		if !opts.UseStdin {
+			return c.executor.Execute(ctx, opts, system.NullReader, out)
+		}
+		for _, command := range opts.Commands {
+			split := opts
+			split.Commands = []string{command}
+			if err := c.executor.Execute(ctx, split, c.cachedStdin.Reader(), out); err != nil {
+				return err
+			}
+		}
+		return nil
 	}
 
 	if (follow || opts.Interactive) && c.logger.Enabled(logger.LogExecution) {
@@ -31,11 +40,11 @@ func (c *Controller) run(ctx context.Context, name string, follow bool, opts exe
 			out = io.Discard
 		}
 
-		return c.executor.Execute(ctx, opts, in, out)
+		return execute(out)
 	}
 
 	out := new(bytes.Buffer)
-	err := c.executor.Execute(ctx, opts, in, out)
+	err := execute(out)
 	if out.Len() == 0 {
 		c.logger.LogExecution(name, err, nil) // nothing to print: no empty line
 	} else {

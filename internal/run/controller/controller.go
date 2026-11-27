@@ -5,6 +5,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -18,6 +19,8 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/run/result"
 	"github.com/evilmartians/lefthook/v2/internal/system"
 )
+
+const prePushHook = "pre-push"
 
 type Controller struct {
 	git          *git.Repo
@@ -72,6 +75,16 @@ func (c *Controller) RunHook(ctx context.Context, opts Options, hook *config.Hoo
 	if c.skipChecker.Check(c.git.State, hook.Skip, hook.Only) {
 		c.logger.LogSkipped(hook.Name, "hook setting")
 		return results, nil
+	}
+
+	if hook.Name == prePushHook && len(opts.GitArgs) > 0 {
+		input, err := io.ReadAll(c.cachedStdin.Reader())
+		if err != nil {
+			return results, fmt.Errorf("read pre-push ref updates: %w", err)
+		}
+		repo := c.git
+		defer func() { c.git = repo }()
+		c.git = c.git.WithPushRefs(opts.GitArgs[0], string(input))
 	}
 
 	if !opts.SkipLFS {

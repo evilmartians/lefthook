@@ -68,8 +68,10 @@ func (b *Builder) buildCommand(params *JobParams) ([]string, []string, error) {
 		}
 	}
 
-	// Skip if no files were to be pushed
-	if config.HookUsesPushFiles(b.opts.HookName) {
+	// Stdin-only commands must receive ref updates even when no files are pushed.
+	hasFileFilters := len(params.Glob) != 0 || len(params.ExcludeFiles) != 0 ||
+		len(params.FileTypes) != 0 || len(params.Root) != 0
+	if config.HookUsesPushFiles(b.opts.HookName) && (!params.UseStdin || hasFileFilters) {
 		files, err := replacer.Files(config.SubPushFiles, filter)
 		if err != nil {
 			return nil, nil, err

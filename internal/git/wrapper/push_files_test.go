@@ -2,6 +2,7 @@ package wrapper_test
 
 import (
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -116,6 +117,34 @@ func TestWrapper_PushFiles(t *testing.T) {
 
 			if !cmp.Equal(result, tt.want) {
 				t.Errorf("wrapper.PushFiles() = %v, want %v", result, tt.want)
+			}
+		})
+	}
+}
+
+func TestWrapper_PushFilesFromRefs(t *testing.T) {
+	oid := strings.Repeat("a", 40)
+	for name, tt := range map[string]struct {
+		input   string
+		wantErr bool
+	}{
+		"empty":          {},
+		"whitespace":     {input: " \n\t\n"},
+		"deleted-sha1":   {input: "(delete) " + strings.Repeat("0", 40) + " refs/heads/main " + oid},
+		"deleted-sha256": {input: "(delete) " + strings.Repeat("0", 64) + " refs/heads/main " + strings.Repeat("b", 64)},
+		"missing-field":  {input: "refs/heads/main " + oid + " refs/heads/main", wantErr: true},
+		"extra-field":    {input: "refs/heads/main " + oid + " refs/heads/main " + oid + " extra", wantErr: true},
+		"invalid-local":  {input: "refs/heads/main --output=bad refs/heads/main " + oid, wantErr: true},
+		"invalid-remote": {input: "refs/heads/main " + oid + " refs/heads/main " + strings.Repeat("z", 40), wantErr: true},
+	} {
+		t.Run(name, func(t *testing.T) {
+			w := wrapper.New(afero.NewMemMapFs(), cmdtest.NewFakeCmd(t, nil), loggertest.New())
+			files, err := w.PushFilesFromRefs("origin", tt.input)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("PushFilesFromRefs() error = %v, want error %v", err, tt.wantErr)
+			}
+			if len(files) != 0 {
+				t.Errorf("PushFilesFromRefs() = %v, want no files", files)
 			}
 		})
 	}
