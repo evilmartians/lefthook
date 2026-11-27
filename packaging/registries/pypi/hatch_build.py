@@ -28,8 +28,8 @@ ARCH_MAPPING = {
 
 
 PEP425_TAGS = {
-    ("linux", "x86_64"): "py3-none-manylinux_2_17_x86_64",
-    ("linux", "arm64"): "py3-none-manylinux_2_17_aarch64",
+    ("linux", "x86_64"): "py3-none-manylinux_2_17_x86_64.musllinux_1_1_x86_64",
+    ("linux", "arm64"): "py3-none-manylinux_2_17_aarch64.musllinux_1_1_aarch64",
     ("darwin", "x86_64"): "py3-none-macosx_10_15_x86_64",
     ("darwin", "arm64"): "py3-none-macosx_11_0_arm64",
     ("windows", "x86_64"): "py3-none-win_amd64",

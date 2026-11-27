@@ -18,7 +18,7 @@ func (c *Controller) run(ctx context.Context, name string, follow bool, opts exe
 	// If the command does not explicitly `use_stdin` no input will be provided.
 	var in io.Reader = system.NullReader
 	if opts.UseStdin {
-		in = c.cachedStdin
+		in = c.cachedStdin.Reader()
 	}
 
 	if (follow || opts.Interactive) && c.logger.Enabled(logger.LogExecution) {
@@ -36,7 +36,11 @@ func (c *Controller) run(ctx context.Context, name string, follow bool, opts exe
 
 	out := new(bytes.Buffer)
 	err := c.executor.Execute(ctx, opts, in, out)
-	c.logger.LogExecution(name, err, out)
+	if out.Len() == 0 {
+		c.logger.LogExecution(name, err, nil) // nothing to print: no empty line
+	} else {
+		c.logger.LogExecution(name, err, out)
+	}
 
 	return err
 }

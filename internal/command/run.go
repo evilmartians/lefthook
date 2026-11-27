@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/evilmartians/lefthook/v2/internal/config"
@@ -20,8 +21,9 @@ import (
 )
 
 const (
-	envEnabled = "LEFTHOOK"        // "0", "false"
-	envOutput  = "LEFTHOOK_OUTPUT" // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
+	envEnabled       = "LEFTHOOK"                 // "0", "false"
+	envOutput        = "LEFTHOOK_OUTPUT"          // "meta,success,failure,summary,skips,execution,execution_out,execution_info"
+	envNoAutoInstall = "LEFTHOOK_NO_AUTO_INSTALL" // "1", "true"; "0", "false" keep auto-install
 )
 
 var errPipedAndParallelSet = errors.New("conflicting options 'piped' and 'parallel' are set to 'true', remove one of this option from hook group")
@@ -97,7 +99,7 @@ func (l *Lefthook) Run(ctx context.Context, args RunArgs) error {
 		exLogger.LogMeta(args.Hook)
 	}
 
-	if !args.NoAutoInstall && !cfg.NoAutoInstall {
+	if !args.NoAutoInstall && !cfg.NoAutoInstall && !isEnvEnabled(envNoAutoInstall) {
 		// This line controls updating the git hook if config has changed
 		var newCfg *config.Config
 		newCfg, err = l.syncHooks(cfg, !isGhostHook)
@@ -260,7 +262,7 @@ func (l *Lefthook) runHook(
 	exLogger *logger.ExecutionLogger,
 	opts run.Options,
 ) error {
-	ctx, stop := signal.NotifyContext(ctx, os.Interrupt)
+	ctx, stop := signal.NotifyContext(ctx, interruptSignals(signal.Ignored(syscall.SIGHUP))...)
 	defer stop()
 
 	startTime := time.Now()
@@ -285,6 +287,18 @@ func (l *Lefthook) runHook(
 	}
 
 	return nil
+}
+
+// interruptSignals returns the signals that cancel a running hook, so jobs get
+// stopped and hidden unstaged changes get restored. SIGHUP is skipped when it
+// is ignored (e.g. under nohup) because subscribing to it would unignore it.
+func interruptSignals(hupIgnored bool) []os.Signal {
+	signals := []os.Signal{os.Interrupt, syscall.SIGTERM}
+	if !hupIgnored {
+		signals = append(signals, syscall.SIGHUP)
+	}
+
+	return signals
 }
 
 func (l *Lefthook) logSummary(

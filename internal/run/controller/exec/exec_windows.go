@@ -7,13 +7,12 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"syscall"
-
-	"github.com/evilmartians/lefthook/v2/internal/logger"
-	"github.com/evilmartians/lefthook/v2/internal/system"
 
 	"github.com/mattn/go-isatty"
 	"github.com/mattn/go-tty"
+
+	"github.com/evilmartians/lefthook/v2/internal/logger"
+	"github.com/evilmartians/lefthook/v2/internal/system"
 )
 
 type CommandExecutor struct {
@@ -31,7 +30,11 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 	if opts.Interactive && !isatty.IsTerminal(os.Stdin.Fd()) {
 		tty, err := tty.Open()
 		if err == nil {
-			defer tty.Close()
+			defer func() {
+				if cErr := tty.Close(); cErr != nil {
+					e.logger.Warnf("Could not close TTY input: %s\n", cErr)
+				}
+			}()
 			in = tty.Input()
 		} else {
 			e.logger.Errorf("Couldn't enable TTY input: %s\n", err)
@@ -39,7 +42,7 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 	}
 
 	root, _ := filepath.Abs(opts.Root)
-	envs := make([]string, len(opts.Env))
+	envs := make([]string, 0, len(opts.Env))
 	for name, value := range opts.Env {
 		envs = append(
 			envs,
@@ -73,16 +76,11 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 		return err
 	}
 
-	// This change is breaking but might be useful. Consider quoting if it fixes all possible
-	// options for {staged_files}, '{staged_files}', and "{staged_files}".
-	// cmdStrQuoted := strings.ReplaceAll(strings.ReplaceAll(cmdstr, "\\", "\\\\"), "\"", "\\\"")
-	cmdLine := "\"" + sh + "\"" + " -c " + "\"" + cmdstr + "\""
-	e.logger.Debug("[lefthook] run: ", cmdLine)
+	e.logger.Debug("[lefthook] run: ", cmdstr)
 
-	command := exec.CommandContext(ctx, sh)
-	command.SysProcAttr = &syscall.SysProcAttr{
-		CmdLine: cmdLine,
-	}
+	// Passing the command string as a regular argument lets os/exec quote it
+	// so that sh receives it verbatim, the same way it does on other platforms.
+	command := exec.CommandContext(ctx, sh, "-c", cmdstr)
 	command.Dir = args.root
 	command.Env = append(os.Environ(), args.envs...)
 

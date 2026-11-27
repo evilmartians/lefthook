@@ -1,12 +1,11 @@
 [windows] skip
 
-exec git init
-exec git config user.email "you@example.com"
-exec git config user.name "Your Name"
-exec git add -A
-exec git commit -m 'test'
+setup_git
+
+git add -A
+git commit -m 'test'
 cd subdir
-exec lefthook run pre-commit
+lefthook run pre-commit
 stdout '.*echo ❯\s+lefthook.yml subdir/file.txt\s*'
 
 -- lefthook.yml --

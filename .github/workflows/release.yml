@@ -210,7 +210,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Update Homebrew formula
-        uses: dawidd6/action-homebrew-bump-formula@b12d2bc99c46444125e606142f28200ec71a1214 # v10
+        uses: dawidd6/action-homebrew-bump-formula@346ef10bbd55df1c9c70fbaa6b016d26876eefb1 # v11
         with:
           formula: lefthook
           token: ${{ secrets.HOMEBREW_TOKEN }}

@@ -1,5 +1,6 @@
-exec git init
-exec lefthook run test
+setup_git
+
+lefthook run test
 stdout '^\s*hello\s*$'
 
 -- lefthook.yml --

@@ -1,20 +1,19 @@
 [windows] skip
 
-exec git init
-exec lefthook install
-exec git config user.email "you@example.com"
-exec git config user.name "Your Name"
-exec git add -A
-exec git commit -m 'initial commit'
+setup_git
 
-exec lefthook run edit_file
-exec git add -A
-exec lefthook run edit_file
-exec git status --short
+lefthook install
+git add -A
+git commit -m 'initial commit'
+
+lefthook run edit_file
+git add -A
+lefthook run edit_file
+git status --short
 stdout 'AM newfile.txt'
 
-exec git commit -m 'test hide unstaged changes'
-exec git status --short
+git commit -m 'test hide unstaged changes'
+git status --short
 stdout 'M newfile.txt'
 
 -- lefthook.yml --

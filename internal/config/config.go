@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/mitchellh/mapstructure"
+	"github.com/go-viper/mapstructure/v2"
 	"github.com/pelletier/go-toml/v2"
 	"go.yaml.in/yaml/v3"
 )

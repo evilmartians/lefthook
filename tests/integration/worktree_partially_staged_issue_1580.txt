@@ -2,24 +2,24 @@
 # The unstaged-diff patches are saved into the main working tree's .git/info,
 # which lies outside the linked worktree's working tree.
 
-exec git init main
+git init main
 cd main
-exec git config user.email "you@example.com"
-exec git config user.name "Your Name"
-exec git add -A
-exec git commit -m 'initial'
-exec lefthook install
-exec git worktree add ../wt -b feature
+git config user.email "you@example.com"
+git config user.name "Your Name"
+git add -A
+git commit -m 'initial'
+lefthook install
+git worktree add ../wt -b feature
 cd ../wt
 
 # Stage a change, then add an unstaged change to the same file
 exec echo lineStaged
 cp stdout a.txt
-exec git add a.txt
+git add a.txt
 exec echo lineUnstaged
 cp stdout a.txt
 
-exec git commit -m 'test'
+git commit -m 'test'
 
 # Unstaged change must be restored after the hook
 grep lineUnstaged a.txt

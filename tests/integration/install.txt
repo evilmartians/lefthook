@@ -1,4 +1,5 @@
-exec git init
-exec lefthook install
+setup_git
+
+lefthook install
 exists lefthook.yml
 ! stderr .

@@ -531,7 +531,7 @@
       "type": "object"
     }
   },
-  "$comment": "Last updated on 2026.07.03.",
+  "$comment": "Last updated on 2026.11.07.",
   "properties": {
     "min_version": {
       "type": "string",
@@ -808,5 +808,7 @@
     "additionalProperties": false,
     "type": "object"
   },
-  "type": "object"
+  "type": "object",
+  "title": "Lefthook",
+  "description": "Configuration for Lefthook Git hooks manager."
 }

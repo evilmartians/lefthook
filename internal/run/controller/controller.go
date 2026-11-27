@@ -5,7 +5,6 @@ package controller
 import (
 	"context"
 	"fmt"
-	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -23,7 +22,7 @@ import (
 type Controller struct {
 	git          *git.Repo
 	logger       *logger.ExecutionLogger
-	cachedStdin  io.Reader
+	cachedStdin  *utils.CachedReader
 	executor     exec.Executor
 	cmd          system.CommandWithContext
 	skipChecker  *config.SkipChecker

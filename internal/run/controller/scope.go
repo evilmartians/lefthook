@@ -57,7 +57,7 @@ func (s *scope) extend(job *config.Job) *scope {
 	newScope.fileTypes = slices.Concat(newScope.fileTypes, job.FileTypes)
 
 	if len(job.Exclude) > 0 {
-		newScope.excludeFiles = append(newScope.excludeFiles, job.Exclude...)
+		newScope.excludeFiles = slices.Concat(newScope.excludeFiles, job.Exclude)
 	}
 
 	// Overwrite --job option for nested groups: if group name given, run all its jobs
