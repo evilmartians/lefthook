@@ -36,7 +36,11 @@ func (c *Controller) run(ctx context.Context, name string, follow bool, opts exe
 
 	out := new(bytes.Buffer)
 	err := c.executor.Execute(ctx, opts, in, out)
-	c.logger.LogExecution(name, err, out)
+	if out.Len() == 0 {
+		c.logger.LogExecution(name, err, nil) // nothing to print: no empty line
+	} else {
+		c.logger.LogExecution(name, err, out)
+	}
 
 	return err
 }
