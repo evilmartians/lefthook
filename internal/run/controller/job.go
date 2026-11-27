@@ -59,7 +59,7 @@ func (c *Controller) runJob(ctx context.Context, scope *scope, id string, job *c
 			return result.Skip(groupName)
 		}
 
-		extendedScope.names = append(extendedScope.names, groupName)
+		extendedScope.names = slices.Concat(extendedScope.names, []string{groupName})
 
 		if len(job.Group.Jobs) == 0 {
 			return result.Failure(groupName, emptyGroupError, 0)
@@ -83,7 +83,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 
 	name := job.PrintableName(id)
 	scope = scope.extend(job)
-	logName := strings.Join(append(scope.names, name), " ❯ ")
+	logName := strings.Join(slices.Concat(scope.names, []string{name}), " ❯ ")
 
 	if reason := c.skipReason(scope, job, name); len(reason) > 0 {
 		c.logger.LogSkipped(logName, reason)

@@ -1,12 +1,10 @@
-exec git init
-exec git add -A
-exec git config user.email "you@example.com"
-exec git config user.name "Your Name"
-exec git add -A
-exec git commit -m 'first commit'
+setup_git
+
+git add -A
+git commit -m 'first commit'
 rm file.txt
-exec git add -A
-exec lefthook run pre-commit
+git add -A
+lefthook run pre-commit
 stdout '^\s*must be printed\s*$'
 
 -- lefthook.yml --

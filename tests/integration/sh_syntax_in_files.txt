@@ -1,11 +1,10 @@
 [windows] skip
 
-exec git init
-exec lefthook install
-exec git config user.email "you@example.com"
-exec git config user.name "Your Name"
+setup_git
 
-exec lefthook run echo_files
+lefthook install
+
+lefthook run echo_files
 
 stdout '1.txt 10.txt'
 

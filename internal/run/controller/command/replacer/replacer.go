@@ -2,7 +2,6 @@ package replacer
 
 import (
 	"fmt"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -13,8 +12,6 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/filter"
 )
-
-var surroundingQuotesRegexp = regexp.MustCompile(`^'(.*)'$`)
 
 type entry struct {
 	items []string
@@ -211,7 +208,7 @@ func (r Replacer) ReplaceAndSplit(command string, maxlen int) ([]string, []strin
 			} else {
 				entry.items = rest
 			}
-			result = replaceQuoted(result, template, added)
+			result = replaceTemplate(result, template, added)
 		}
 
 		r.logger.Debug("[lefthook] job: ", result)
@@ -264,26 +261,18 @@ func getNChars(s []string, n int) ([]string, []string) {
 	return s, nil
 }
 
-func replaceQuoted(source, substitution string, files []string) string {
+func replaceTemplate(source, template string, files []string) string {
 	for _, elem := range [][]string{
-		{"\"", "\"" + substitution + "\""},
-		{"'", "'" + substitution + "'"},
-		{"", substitution},
+		{`"`, `"` + template + `"`}, // if quoted – just ignore quotes
+		{`'`, `'` + template + `'`}, // same
+		{``, template},
 	} {
-		quote := elem[0]
 		sub := elem[1]
 		if !strings.Contains(source, sub) {
 			continue
 		}
 
 		quotedFiles := files
-		if len(quote) != 0 {
-			quotedFiles = make([]string, 0, len(files))
-			for _, fileName := range files {
-				quotedFiles = append(quotedFiles,
-					quote+surroundingQuotesRegexp.ReplaceAllString(fileName, "$1")+quote)
-			}
-		}
 
 		source = strings.ReplaceAll(
 			source, sub, strings.Join(quotedFiles, " "),

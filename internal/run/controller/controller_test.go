@@ -109,6 +109,36 @@ func TestRunAll(t *testing.T) {
 			},
 			fail: []result.Result{failed("type-check", "")},
 		},
+		"with nested parallel groups": {
+			hookName: "post-commit",
+			hook: configtest.ParseHook(`
+        jobs:
+          - name: outer
+            group:
+              parallel: true
+              jobs:
+                - name: middle
+                  group:
+                    parallel: true
+                    jobs:
+                      - name: inner
+                        group:
+                          parallel: true
+                          jobs:
+                            - name: alpha
+                              run: success
+                              exclude: [a.txt]
+                            - name: beta
+                              run: success
+                              exclude: [b.txt]
+                            - name: gamma
+                              run: success
+                              exclude: [c.txt]
+                - name: sibling
+                  run: success
+      `),
+			success: []result.Result{succeeded("outer")},
+		},
 		"with exclude tags": {
 			hookName: "post-commit",
 			hook: configtest.ParseHook(`
@@ -473,7 +503,7 @@ func TestRunAll(t *testing.T) {
 			success: []result.Result{succeeded("ok"), succeeded("success.sh")},
 			fail:    []result.Result{failed("fail", ""), failed("failing.js", "")},
 			gitCommands: []string{
-				"git status --short",
+				"git --no-optional-locks status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git add --force -- (.*README.md.*script.sh|.*script.sh.*README.md)",
 			},
@@ -498,7 +528,7 @@ func TestRunAll(t *testing.T) {
       `),
 			success: []result.Result{succeeded("ok")},
 			gitCommands: []string{
-				"git status --short",
+				"git --no-optional-locks status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git diff --name-only --cached --diff-filter=ACMRD",
 				"git add --force -- .*README.md",
@@ -526,7 +556,7 @@ func TestRunAll(t *testing.T) {
 			success: []result.Result{succeeded("ok")},
 			fail:    []result.Result{failed("fail", "")},
 			gitCommands: []string{
-				"git status --short",
+				"git --no-optional-locks status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git add --force -- .*README.md",
 			},
@@ -547,7 +577,7 @@ func TestRunAll(t *testing.T) {
 			},
 			success: []result.Result{succeeded("ok")},
 			gitCommands: []string{
-				"git status --short",
+				"git --no-optional-locks status --short",
 				"git diff --name-only --cached --diff-filter=ACMR",
 				"git add --force -- .*scripts.*script.sh",
 			},

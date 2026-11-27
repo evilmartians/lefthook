@@ -1,7 +1,8 @@
 [windows] skip
 
-exec git init
-exec lefthook dump
+setup_git
+
+lefthook dump
 cmp stdout dump.yml
 ! stderr .
 

@@ -21,7 +21,7 @@ lint:
       glob: "*.go"
       group:
         jobs:
-          - run: make lint
+          - run: bin/lint
 
     - name: check links
       tags: docs
@@ -48,15 +48,17 @@ pre-commit:
       glob: "*.go"
       group:
         jobs:
-          - run: make lint
+          - run: bin/lint
             stage_fixed: true
 
-          - run: make test
+          - run: bin/test
 
     - name: check links
       tags: docs
       run: lychee --max-concurrency 3 -- {staged_files}
       glob: '*.md'
+      file_types:
+        - not symlink
       exclude:
         - CHANGELOG.md
 

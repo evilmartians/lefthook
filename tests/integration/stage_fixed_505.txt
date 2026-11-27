@@ -1,11 +1,10 @@
-exec git init
-exec lefthook install
-exec git config user.email "you@example.com"
-exec git config user.name "Your Name"
-exec git add -A
-exec git status --short
-exec git commit -m 'test stage_fixed'
-exec git status --short
+setup_git
+
+lefthook install
+git add -A
+git status --short
+git commit -m 'test stage_fixed'
+git status --short
 ! stdout .
 
 -- lefthook.yml --

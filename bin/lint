@@ -1,0 +1,15 @@
+#! /usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+if [ ! -x bin/golangci-lint ]
+then
+  echo "downloading golangci-lint..."
+  version="v$(cat .tool-versions | grep golangci-lint | cut -d' ' -f2)"
+  curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/main/install.sh \
+    | sh -s -- -b bin/ "$version"
+fi
+
+echo "running golangci-lint..."
+bin/golangci-lint run --fix

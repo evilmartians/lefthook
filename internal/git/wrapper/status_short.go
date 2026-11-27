@@ -6,7 +6,7 @@ import (
 )
 
 var cmdStatusShort = []string{
-	"git", "status", "--short", "--porcelain", "-z",
+	"git", "--no-optional-locks", "status", "--short", "--porcelain", "-z",
 }
 
 type FileStatus struct {

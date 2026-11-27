@@ -1,0 +1,27 @@
+#! /usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+declare INTEGRATION=
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -i|--integration)
+      INTEGRATION=1
+      shift
+      ;;
+    *)
+      echo "unknown option $1"
+      exit 1
+      ;;
+  esac
+done
+
+if [ -n "$INTEGRATION" ]
+then
+  bin/install
+	go test -cpu 24 -race -count=1 -timeout=30s -tags=integration integration_test.go
+else
+  go test -cpu 24 -race -count=1 -timeout=30s ./...
+fi
