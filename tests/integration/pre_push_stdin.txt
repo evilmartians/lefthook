@@ -1,8 +1,7 @@
 [windows] skip
 
-exec git init -b main
-exec git config user.email you@example.com
-exec git config user.name 'Your Name'
+setup_git
+git branch -m main
 exec git add -A
 exec git commit -m initial
 exec git init --bare ../push-stdin.git
