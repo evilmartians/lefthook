@@ -6,7 +6,7 @@ path: /installation/python/
 updated: 2026-11-27
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-27T08:45:36.529Z"
+  generated_at: "2026-11-27T13:36:45.589Z"
 ---
 # Python
 
