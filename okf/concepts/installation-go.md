@@ -3,10 +3,10 @@ type: concept
 title: Go
 source: "https://lefthook.dev/installation/go/"
 path: /installation/go/
-updated: 2026-11-27
+updated: 2026-11-28
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-27T15:04:28.557Z"
+  generated_at: "2026-11-28T11:18:35.012Z"
 ---
 # Go
 

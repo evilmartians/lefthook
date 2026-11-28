@@ -3,10 +3,10 @@ type: concept
 title: run
 source: "https://lefthook.dev/configuration/run/"
 path: /configuration/run/
-updated: 2026-11-27
+updated: 2026-11-28
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-27T15:04:28.546Z"
+  generated_at: "2026-11-28T11:18:35.006Z"
 ---
 ---
 title: "run"

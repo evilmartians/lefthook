@@ -3,10 +3,10 @@ type: concept
 title: no_auto_install
 source: "https://lefthook.dev/configuration/no_auto_install/"
 path: /configuration/no_auto_install/
-updated: 2026-11-27
+updated: 2026-11-28
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-27T15:04:28.541Z"
+  generated_at: "2026-11-28T11:18:35.002Z"
 ---
 ---
 title: "no_auto_install"

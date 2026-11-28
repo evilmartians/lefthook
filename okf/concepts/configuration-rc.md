@@ -3,10 +3,10 @@ type: concept
 title: rc
 source: "https://lefthook.dev/configuration/rc/"
 path: /configuration/rc/
-updated: 2026-11-27
+updated: 2026-11-28
 okf:
   generated_by: "@docmd/plugin-okf"
-  generated_at: "2026-11-27T15:04:28.544Z"
+  generated_at: "2026-11-28T11:18:35.004Z"
 ---
 ---
 title: "rc"
