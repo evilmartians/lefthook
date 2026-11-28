@@ -20,10 +20,11 @@ type CommandExecutor struct {
 }
 
 type executeArgs struct {
-	in   io.Reader
-	out  io.Writer
-	envs []string
-	root string
+	in                    io.Reader
+	out                   io.Writer
+	envs                  []string
+	root                  string
+	interactive, useStdin bool
 }
 
 func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader, out io.Writer) error {
@@ -54,10 +55,12 @@ func (e CommandExecutor) Execute(ctx context.Context, opts Options, in io.Reader
 	}
 
 	args := &executeArgs{
-		in:   in,
-		out:  out,
-		envs: envs,
-		root: root,
+		in:          in,
+		out:         out,
+		envs:        envs,
+		root:        root,
+		interactive: opts.Interactive,
+		useStdin:    opts.UseStdin,
 	}
 
 	for _, command := range opts.Commands {
@@ -86,7 +89,12 @@ func (e CommandExecutor) execute(ctx context.Context, cmdstr string, args *execu
 
 	command.Stdout = args.out
 	command.Stdin = args.in
-	command.Stderr = os.Stderr
+	if args.interactive || args.useStdin {
+		command.Stderr = os.Stderr
+	} else {
+		// As on Unix, keep stderr in the job output. A job given the console can garble or hang lefthook (#1256).
+		command.Stderr = args.out
+	}
 	err = command.Start()
 	if err != nil {
 		return err
