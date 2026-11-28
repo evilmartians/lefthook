@@ -15,6 +15,7 @@ import (
 	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/exec"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/utils"
+	"github.com/evilmartians/lefthook/v2/internal/run/report"
 	"github.com/evilmartians/lefthook/v2/internal/run/result"
 	"github.com/evilmartians/lefthook/v2/internal/system"
 )
@@ -22,6 +23,7 @@ import (
 type Controller struct {
 	git          *git.Repo
 	logger       *logger.ExecutionLogger
+	reporter     *report.Reporter
 	cachedStdin  *utils.CachedReader
 	executor     exec.Executor
 	cmd          system.CommandWithContext
@@ -46,10 +48,11 @@ type Options struct {
 	NoStageFixed      bool
 }
 
-func NewController(repo *git.Repo, logger *logger.ExecutionLogger) *Controller {
+func NewController(repo *git.Repo, logger *logger.ExecutionLogger, reporter *report.Reporter) *Controller {
 	return &Controller{
-		git:    repo,
-		logger: logger,
+		git:      repo,
+		logger:   logger,
+		reporter: reporter,
 
 		// Some hooks use STDIN for parsing data from Git. To allow multiple commands
 		// and scripts access the same Git data STDIN is cached via CachedReader.
@@ -142,7 +145,7 @@ func (c *Controller) concurrently(ctx context.Context, scope *scope, jobs []*con
 		wg.Add(1)
 		go func(job *config.Job) {
 			defer wg.Done()
-			resultsChan <- c.runJob(ctx, scope, id, job)
+			resultsChan <- c.runJobReporting(ctx, scope, id, job)
 		}(job)
 	}
 
@@ -164,10 +167,15 @@ func (c *Controller) sequentially(ctx context.Context, scope *scope, jobs []*con
 
 		if piped && failPipe {
 			c.logger.LogSkipped(job.PrintableName(id), "broken pipe")
+
+			skipped := result.SkipWithReason(job.PrintableName(id), "broken pipe")
+			c.reportResult(scope.names, skipped)
+			results = append(results, skipped)
+
 			continue
 		}
 
-		result := c.runJob(ctx, scope, id, job)
+		result := c.runJobReporting(ctx, scope, id, job)
 		if piped && result.Failure() {
 			failPipe = true
 		}
@@ -176,4 +184,24 @@ func (c *Controller) sequentially(ctx context.Context, scope *scope, jobs []*con
 	}
 
 	return results
+}
+
+// runJobReporting runs one job and reports it unless it is a group. Groups report
+// nothing themselves: each job inside them is run and reported on its own.
+func (c *Controller) runJobReporting(ctx context.Context, scope *scope, id string, job *config.Job) result.Result {
+	res := c.runJob(ctx, scope, id, job)
+	if len(res.Sub) == 0 {
+		c.reportResult(scope.names, res)
+	}
+
+	return res
+}
+
+// reportResult sends a leaf job to the structured reporter.
+func (c *Controller) reportResult(groupPath []string, res result.Result) {
+	if c.reporter == nil {
+		return
+	}
+
+	c.reporter.JobDone(groupPath, res)
 }

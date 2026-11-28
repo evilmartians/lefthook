@@ -39,11 +39,11 @@ func (c *Controller) runJob(ctx context.Context, scope *scope, id string, job *c
 
 	if len(job.Run) != 0 || len(job.Script) != 0 {
 		if len(scope.opts.RunOnlyJobs) != 0 && !slices.Contains(scope.opts.RunOnlyJobs, job.Name) {
-			return result.Skip(job.PrintableName(id))
+			return result.SkipWithReason(job.PrintableName(id), "not selected by --job")
 		}
 
 		if len(scope.opts.RunOnlyTags) != 0 && (!utils.Intersect(scope.opts.RunOnlyTags, job.Tags) && !utils.Intersect(scope.opts.RunOnlyTags, scope.tags)) {
-			return result.Skip(job.PrintableName(id))
+			return result.SkipWithReason(job.PrintableName(id), "not selected by --tag")
 		}
 
 		return c.runSingleJob(ctx, scope, id, job)
@@ -56,7 +56,7 @@ func (c *Controller) runJob(ctx context.Context, scope *scope, id string, job *c
 		if reason := c.skipReason(extendedScope, job, groupName); len(reason) > 0 {
 			c.logger.LogSkipped(groupName, reason)
 
-			return result.Skip(groupName)
+			return result.SkipWithReason(groupName, reason)
 		}
 
 		extendedScope.names = slices.Concat(extendedScope.names, []string{groupName})
@@ -88,7 +88,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 	if reason := c.skipReason(scope, job, name); len(reason) > 0 {
 		c.logger.LogSkipped(logName, reason)
 
-		return result.Skip(name)
+		return result.SkipWithReason(name, reason)
 	}
 
 	builder := command.NewBuilder(c.git, c.logger, command.BuilderOptions{
@@ -119,7 +119,7 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 		c.logger.LogSkipped(logName, err.Error())
 
 		if _, ok := errors.AsType[command.SkipError](err); ok {
-			return result.Skip(name)
+			return result.SkipWithReason(name, err.Error())
 		}
 
 		return result.Failure(name, err.Error(), time.Since(startTime))
@@ -148,7 +148,12 @@ func (c *Controller) runSingleJob(ctx context.Context, scope *scope, id string, 
 			return result.Failure(name, "timeout ("+job.Timeout.String()+")", executionTime)
 		}
 
-		return result.Failure(name, job.FailText, executionTime)
+		failure := result.Failure(name, job.FailText, executionTime)
+		if code, ok := exec.ExitCode(err); ok {
+			return failure.WithExitCode(code)
+		}
+
+		return failure
 	}
 
 	if config.HookUsesStagedFiles(scope.hookName) && job.StageFixed && !scope.opts.NoStageFixed {

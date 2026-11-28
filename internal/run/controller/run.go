@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"os"
 
 	"github.com/evilmartians/lefthook/v2/internal/logger"
 	"github.com/evilmartians/lefthook/v2/internal/run/controller/exec"
@@ -26,7 +25,7 @@ func (c *Controller) run(ctx context.Context, name string, follow bool, opts exe
 
 		var out io.Writer
 		if c.logger.Enabled(logger.LogExecutionOutput) {
-			out = os.Stdout
+			out = c.logger.Out()
 		} else {
 			out = io.Discard
 		}

@@ -2,8 +2,10 @@ package exec
 
 import (
 	"context"
+	"errors"
 	"io"
 	"os"
+	"os/exec"
 
 	"github.com/evilmartians/lefthook/v2/internal/logger"
 )
@@ -26,6 +28,24 @@ type Executor interface {
 
 func New(logger *logger.ExecutionLogger) Executor {
 	return CommandExecutor{logger: logger}
+}
+
+// ExitCode returns the exit code of the command that failed with err, if that can
+// be determined. It reports false for errors that did not come from a command
+// exiting on its own, such as a failure to start the process, or a command
+// killed by a signal.
+func ExitCode(err error) (int, bool) {
+	var exitErr *exec.ExitError
+	if !errors.As(err, &exitErr) {
+		return 0, false
+	}
+
+	code := exitErr.ExitCode()
+	if code < 0 {
+		return 0, false
+	}
+
+	return code, true
 }
 
 // colorEnv returns an environment variable that propagates lefthook's colors

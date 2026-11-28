@@ -1,0 +1,20 @@
+setup_git
+
+git add -A
+! lefthook run check --output-format jsonl
+stdout '"name":"lint","status":"passed"'
+stdout '"name":"test","group_path":\["suite"\],"status":"failed","exit_code":4'
+! stdout '"name":"suite"'
+! stdout '"hook"'
+
+-- lefthook.yml --
+output: false
+check:
+  jobs:
+    - name: lint
+      run: "true"
+    - name: suite
+      group:
+        jobs:
+          - name: test
+            run: "exit 4"
