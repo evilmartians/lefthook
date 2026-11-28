@@ -3,6 +3,7 @@ package command
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -118,10 +119,30 @@ func (l *Lefthook) isLefthookFile(path string) bool {
 	return false
 }
 
+// lstat checks whether path exists without following a trailing symlink.
+func (l *Lefthook) lstat(path string) (os.FileInfo, bool, error) {
+	var (
+		info os.FileInfo
+		err  error
+	)
+	if lfs, ok := l.fs.(afero.Lstater); ok {
+		info, _, err = lfs.LstatIfPossible(path)
+	} else {
+		info, err = l.fs.Stat(path)
+	}
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return nil, false, nil
+		}
+		return nil, false, err
+	}
+	return info, true, nil
+}
+
 // Removes the hook from hooks path, saving non-lefthook hooks with .old suffix.
 func (l *Lefthook) cleanHook(hook string, force bool) error {
 	hookPath := filepath.Join(l.repo.Paths.Hooks, hook)
-	exists, err := afero.Exists(l.fs, hookPath)
+	info, exists, err := l.lstat(hookPath)
 	if err != nil {
 		return err
 	}
@@ -129,13 +150,15 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 		return nil
 	}
 
+	isSymlink := info.Mode()&os.ModeSymlink != 0
+
 	// Just remove lefthook hook
-	if l.isLefthookFile(hookPath) {
+	if !isSymlink && l.isLefthookFile(hookPath) {
 		return l.fs.Remove(hookPath)
 	}
 
 	// Check if .old file already exists before renaming.
-	exists, err = afero.Exists(l.fs, hookPath+oldHookPostfix)
+	_, exists, err = l.lstat(hookPath + oldHookPostfix)
 	if err != nil {
 		return err
 	}
@@ -156,12 +179,39 @@ func (l *Lefthook) cleanHook(hook string, force bool) error {
 	return nil
 }
 
-// Creates a hook file using hook template.
+// Creates a hook file using hook template without following symlinks at the target path.
 func (l *Lefthook) addHook(hook string, args templates.Args) error {
 	hookPath := filepath.Join(l.repo.Paths.Hooks, hook)
-	return afero.WriteFile(
-		l.fs, hookPath, templates.Hook(hook, args), hookFileMode,
-	)
+	content := templates.Hook(hook, args)
+
+	tmpFile, err := afero.TempFile(l.fs, l.repo.Paths.Hooks, "."+hook+".*")
+	if err != nil {
+		return err
+	}
+	tmpPath := tmpFile.Name()
+
+	renamed := false
+	defer func() {
+		if !renamed {
+			if rmErr := l.fs.Remove(tmpPath); rmErr != nil && !errors.Is(rmErr, os.ErrNotExist) {
+				l.logger.Warnf("Could not remove temporary hook file %s: %s", tmpPath, rmErr)
+			}
+		}
+	}()
+
+	_, writeErr := tmpFile.Write(content)
+	if err = errors.Join(writeErr, tmpFile.Close()); err != nil {
+		return err
+	}
+	if err = l.fs.Chmod(tmpPath, hookFileMode); err != nil {
+		return err
+	}
+	if err = l.fs.Rename(tmpPath, hookPath); err != nil {
+		return err
+	}
+
+	renamed = true
+	return nil
 }
 
 func isEnvEnabled(name string) bool {

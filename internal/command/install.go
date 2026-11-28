@@ -339,6 +339,10 @@ func (l *Lefthook) createHooksIfNeeded(cfg *config.Config, hooks []string, force
 	}
 
 	if len(onlyHooks) == 0 && len(cfg.Hooks) == 0 {
+		if err = l.cleanHook(config.GhostHookName, force); err != nil {
+			return fmt.Errorf("could not replace the hook: %w", err)
+		}
+
 		templateArgs := templates.Args{
 			Rc:                      cfg.Rc,
 			AssertLefthookInstalled: cfg.AssertLefthookInstalled,
