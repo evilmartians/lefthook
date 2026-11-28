@@ -17,6 +17,9 @@ package config
 //	    stop: validate
 //	  copilot:
 //	    postToolUse: validate
+//	  antigravity:
+//	    Stop: validate
+//	    PreToolUse: security-check
 type AI struct {
 	// Claude maps Claude Code event names to lefthook hook names.
 	// The generated file is .claude/settings.json.
@@ -33,4 +36,8 @@ type AI struct {
 	// Copilot is for GitHub Copilot agent.
 	// The generated file is .github/hooks/lefthook.json.
 	Copilot map[string]string `json:"copilot,omitempty" jsonschema:"description=Copilot hooks mapping. Generates .github/hooks/lefthook.json." mapstructure:"copilot,omitempty" toml:"copilot,omitempty" yaml:"copilot,omitempty"`
+
+	// Antigravity maps Antigravity hook event names to lefthook hook names.
+	// The generated file is .agents/hooks.json.
+	Antigravity map[string]string `json:"antigravity,omitempty" jsonschema:"description=Antigravity hooks mapping. Generates .agents/hooks.json." mapstructure:"antigravity,omitempty" toml:"antigravity,omitempty" yaml:"antigravity,omitempty"`
 }

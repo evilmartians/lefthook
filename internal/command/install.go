@@ -81,6 +81,12 @@ func (l *Lefthook) Install(ctx context.Context, args InstallArgs, hooks []string
 		return err
 	}
 
+	if cfg.AI == nil || len(cfg.AI.Antigravity) == 0 {
+		if err = l.removeAntigravityHookEntries(filepath.Join(l.repo.Paths.Root, antigravityHooksDir, antigravityHooksFile)); err != nil {
+			return err
+		}
+	}
+
 	if cfg.AI != nil {
 		if err = l.installAIHooks(cfg.AI, cfg); err != nil {
 			return err
